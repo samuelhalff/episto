@@ -1,0 +1,5 @@
+{
+  "name": "@swiss-mail/frontend",
+  "private": true,
+  "type": "module"
+}

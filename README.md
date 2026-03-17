@@ -1,0 +1,105 @@
+# Swiss Mail
+
+> A premium formal-letter product with integrated Swiss postal dispatch.
+
+Describe what you need. Get a properly structured, correctly toned, professionally formatted letter — and we print and mail it via Swiss Post.
+
+**Status:** Documentation phase — pre-implementation gate not yet cleared.
+
+---
+
+## Documentation
+
+Start here → **[docs/index.md](docs/index.md)** — navigation hub with reading paths by role.
+
+### Quick orientation
+
+| If you're a… | Start with |
+|---|---|
+| Designer / UX | [Design System](docs/02-brand/design-system.md) → [Component Library](docs/03-ux/component-library.md) |
+| Frontend dev | [Product Scope](docs/01-vision/product-scope.md) → [Frontend Architecture](docs/05-architecture/frontend-architecture.md) |
+| Backend dev | [System Contracts](docs/05-architecture/system-contracts.md) → [Database Schema](docs/05-architecture/database-schema.md) |
+| Product manager | [Overview](docs/01-vision/overview.md) → [Competitive Landscape](docs/01-vision/competitive-landscape.md) |
+| AI-assisted dev | [AI Implementation Rules](docs/08-guardrails/ai-implementation-rules.md) → [Provider Certainties](docs/08-guardrails/provider-certainties.md) |
+
+### Key safety files (read before writing code)
+
+- [AI Implementation Rules](docs/08-guardrails/ai-implementation-rules.md) — anti-hallucination guardrails
+- [Provider Certainties](docs/08-guardrails/provider-certainties.md) — known vs unknown
+- [Swiss Post Appendix](docs/08-guardrails/swiss-post-appendix.md) — verified facts only
+- [Non-Goals](docs/08-guardrails/non-goals.md) — forbidden shortcuts
+- [Open Decisions](docs/08-guardrails/open-decisions.md) — don't resolve by guessing
+
+### Documentation principles
+
+- Decided facts are explicit
+- Unknowns stay explicit — never converted to code by guessing
+- Provider unknowns are isolated behind adapter boundaries
+- Build packs define the expected repo shape
+- Unresolved decisions must go through three-option review before code starts
+- The docs must be self-contained — no prior chat thread or hidden session context is required to implement correctly
+
+### Structure
+
+```
+frontend/
+├── next-env.d.ts               # Next.js TypeScript entrypoint
+├── tsconfig.json               # Frontend TypeScript config
+└── src/
+    ├── app/
+    ├── components/
+    │   ├── marketing/
+    │   ├── product/
+    │   └── ui/
+    ├── hooks/
+    └── lib/
+backend/
+├── tsconfig.json               # Backend TypeScript config
+├── drizzle/
+│   ├── migrations/
+│   └── seeds/
+│       └── test/
+└── src/
+    ├── adapters/
+    │   ├── dispatch/
+    │   └── payment/
+    ├── modules/
+    │   ├── accounts/
+    │   ├── admin/
+    │   ├── dispatch/
+    │   ├── drafting/
+    │   ├── files/
+    │   ├── payments/
+    │   ├── rendering/
+    │   ├── retention/
+    │   ├── sessions/
+    │   └── tracking/
+    └── shared/
+shared/
+├── tsconfig.json               # Shared package TypeScript config
+└── src/
+    ├── contracts/              # Reserved contract entry points
+    ├── schemas/                # Reserved schema entry points
+    ├── enums.ts                # Canonical enums from architecture docs
+    ├── errors.ts               # Canonical API error types
+    └── query-keys.ts           # Centralized React Query keys
+tsconfig.base.json              # Shared compiler defaults
+tsconfig.json                   # Workspace TypeScript references
+docs/
+├── index.md                    # Navigation hub
+├── 01-vision/                  # Why this product exists
+├── 02-brand/                   # Design system, naming, voice, SEO
+├── 03-ux/                      # Every pixel and interaction
+├── 04-product/                 # Feature specifications
+├── 05-architecture/            # Technical architecture
+├── 06-build-packs/             # Implementation blueprints
+├── 07-operations/              # Deployment, security, workflows
+└── 08-guardrails/              # Rules and constraints
+```
+
+### Prepared foundation
+
+- TypeScript boundaries now exist for `frontend/`, `backend/`, and `shared/`
+- `shared/src/enums.ts` and `shared/src/errors.ts` mirror the locked canonical docs
+- `shared/src/query-keys.ts` centralizes the documented React Query key shape
+- `shared/src/contracts/` and `shared/src/schemas/` are reserved entry points only; feature contracts and Zod schemas still require doc-backed implementation work

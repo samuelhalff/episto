@@ -1,0 +1,78 @@
+# Admin Build Pack
+
+## Goal
+
+Keep operations minimal, auditable, and useful. The admin area exists to support operations — not
+to become a content warehouse or a shadow editor.
+
+## Admin authentication — LOCKED (IMPROV-8)
+
+**MVP: HTTP Basic Auth over TLS.**
+
+- Credentials are loaded from `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables
+- Auth middleware is applied to all `/admin/*` routes before any handler logic runs
+- No admin route may be reachable without passing the middleware check
+- Credentials must never be hardcoded or committed to source control
+- TLS is required — the admin interface must not be served over plain HTTP in any environment
+
+This is the locked MVP auth approach. A more sophisticated admin auth system (SSO, role-based
+access) is a future enhancement and must be documented before implementation.
+
+## Admin pages
+
+| Page | Purpose |
+|---|---|
+| Dashboard overview | Aggregate status: recent dispatches, payment states, failures |
+| Search and detail | Find a session, draft, or dispatch by any supported field |
+| Dispatch timeline | Full event log for a single dispatch attempt |
+| Payment timeline | Full event log for a single payment attempt |
+| Retention and file-status view | Per-session file asset state and scheduled cleanup times |
+| Suspicious activity flags | Flagged sessions for review |
+
+## Search fields
+
+Any of the following can be used to locate a record:
+
+- Internal draft ID
+- Session ID
+- Email address
+- Payment ID (Stripe charge/intent ID)
+- Provider reference number
+- Dispatch state
+- Refund state
+
+## Allowed admin actions
+
+| Action | Notes |
+|---|---|
+| Inspect normalized event timeline | Read-only; normalized, not raw provider payload |
+| Trigger safe reconciliation | For stuck `dispatch_submitted` states |
+| Trigger refund in approved cases | Requires explicit support justification logged as event |
+| Mark escalation status | Flags session for human review |
+
+## Restricted actions
+
+The following are permanently out of scope for the admin interface:
+
+- No silent content editing of letter bodies or addresses
+- No direct mutation of canonical provider references
+- No hidden bypass around the payment or dispatch state machines
+
+## Support rules
+
+- **Metadata-first support** — use event timelines, state records, and provider references before
+  touching letter content
+- Content access only if the data is still within the retention window and only when operationally
+  necessary
+- Every privileged content access must be logged as a `support_event` record
+- No permanent content archive capability — content is subject to the same retention policy as
+  user-facing data
+
+## Audit rule
+
+Every privileged admin action must emit a `support_event` record with:
+- Timestamp
+- Action type
+- Actor identifier (env-level; not a full user record in MVP)
+- Session or draft reference
+- Optional note

@@ -1,0 +1,382 @@
+# Open Decisions
+
+This file is the single source of truth for implementation-blocking and significant design
+decisions. It merges the decision analysis from the pre-dev gap review with the operational
+decisions that most often get guessed incorrectly.
+
+**If an item is LOCKED, the decision has been made. Do not reopen it without a documented
+three-option review that supersedes the locked entry.**
+
+**If an item is OPEN, development of features that depend on it must not paper over it with
+defaults, mocks, or "temporary" placeholders.**
+
+---
+
+## LOCKED decisions
+
+### Payment provider — LOCKED: Stripe
+
+Locked. No alternatives under consideration.
+
+---
+
+### Payment capture model — LOCKED: Option B (authorize first, capture after acceptance)
+
+**Locked choice:** Authorize payment before dispatch submission. Capture only after the provider
+accepts the dispatch.
+
+**If the chosen dispatch provider cannot offer a deterministic acceptance moment, fall back to
+Option C:** capture immediately with strict automatic refund on deterministic dispatch failure.
+
+**Option A (capture immediately, no automatic refund workflow) is rejected.** It creates the
+weakest trust posture and highest refund exposure.
+
+---
+
+### Signature scope — LOCKED: Option B (typed name + uploaded image)
+
+**Locked choice:** Typed name is always required. User may optionally upload a signature image
+(PNG or JPEG, max 2 MB).
+
+See [`../04-product/signatures-and-attachments.md`](../04-product/signatures-and-attachments.md).
+
+**Option A (typed only) rejected** — too weak for the perceived trust level.  
+**Option C (typed + upload + drawn) rejected** — too complex for MVP.
+
+---
+
+### Attachment scope — LOCKED: Option B (narrow approved set)
+
+**Locked choice:** Support `application/pdf`, `image/png`, `image/jpeg`. Attachments are
+supporting documents, operationally separate from the letter artifact.
+
+See [`../04-product/signatures-and-attachments.md`](../04-product/signatures-and-attachments.md)
+and [`../04-product/file-handling.md`](../04-product/file-handling.md).
+
+**Option A (no attachments) rejected** — cuts important use cases.  
+**Option C (broad office formats) rejected** — file conversion complexity, too many provider
+unknowns.
+
+---
+
+### File limits — LOCKED: provisional defaults (GAP-9)
+
+| Parameter | Locked provisional value |
+|---|---|
+| Max file size per attachment | 5 MB |
+| Max attachments per draft | 5 |
+| Max total upload per draft | 20 MB |
+| Max signature image | 2 MB |
+| Max body characters | 10,000 |
+| Max subject characters | 200 |
+
+All values are configurable via environment variables. See
+[`../04-product/file-handling.md`](../04-product/file-handling.md).
+
+---
+
+### Retention direction — LOCKED: Option B (short but supportable)
+
+**Locked direction:** Short-lived content, longer-lived minimal transactional metadata.
+
+Provisional guidance:
+- Session and resume tokens: 24–72 hours
+- Files and rendered PDFs: ~7 days
+- Transactional metadata: longer-lived, exact duration to be approved
+
+All durations must be configurable. Do not hardcode them.
+
+**Option A (ultra-short, under 24 hours) rejected** — too weak for failure recovery and support.  
+**Option C (30+ days convenience retention) rejected** — conflicts with data-minimization posture.
+
+**Exact durations remain OPEN** — see below.
+
+---
+
+### Account scope — LOCKED: Option B (guest-first with later save-details path)
+
+**Locked choice:** Launch guest-first. No account required at MVP. Design preserves the option for
+a save-details account flow in a later phase.
+
+**Option A (guest-only, no future account path) rejected** — weak for repeat use.  
+**Option C (explicit accounts at launch) rejected** — too much auth complexity for launch.
+
+---
+
+### Address validation behavior — LOCKED: Option B (soft validation with warnings)
+
+**Locked choice:** Soft validation with explicit user warnings. Swiss PLZ format check (4 digits),
+city lookup where available. Warn on issues but do not block submission.
+
+See [`../04-product/postal-dispatch.md`](../04-product/postal-dispatch.md).
+
+**Option A (no validation) rejected** — too risky and support-heavy.  
+**Option C (hard-blocking on every mismatch) rejected** — too rigid for real addresses.
+
+---
+
+### Standard-mail confirmation wording — LOCKED: Option B (separate reference from tracking)
+
+**Locked choice:** Strictly separate "provider reference" from "tracking." Never label a reference
+as tracking unless the provider actually supports tracking queries for that reference type.
+
+**Option A (show any reference as tracking) rejected** — overpromises.  
+**Option C (hide all references for standard mail) rejected** — too conservative if a useful
+reference exists.
+
+---
+
+### Queue strategy — LOCKED: BullMQ + Redis
+
+**Locked choice:** BullMQ + Redis for all async job processing.
+
+**Option A (no queue) rejected** — too fragile for rendering, retries, and cleanup.  
+**Option C (heavier workflow engine) rejected** — too much setup overhead for MVP.
+
+---
+
+### Validation strategy — LOCKED: Zod shared schemas
+
+**Locked choice:** Shared Zod schema layer in `shared/`. Both frontend and backend import from
+there. No hand-duplicated validation.
+
+**Option A (manual duplicated validation) rejected** — guaranteed drift.  
+**Option C (generated contract toolchain from day one) rejected** — setup cost too high now.
+
+---
+
+### Auth approach at launch — LOCKED: effectively no accounts at first launch
+
+**Locked direction:** No account system at initial launch. When accounts are introduced, use a
+standard managed auth/session layer.
+
+**Option C (heavy IAM platform from day one) rejected** — overkill for MVP.
+
+---
+
+### Monitoring baseline — LOCKED: structured logs + error tracking + alerting
+
+**Locked choice:** Structured application logs plus a hosted error tracking and alerting service.
+
+**Option A (application logs only) rejected** — insufficient once payments and dispatch are live.  
+**Option C (enterprise observability stack) rejected** — too heavy for launch.
+
+---
+
+### Multi-page support — LOCKED: up to 5 pages allowed
+
+**Locked choice:** Body text may span up to 5 pages. Additional pages carry a header with page
+numbers. Signature block stays on the final page.
+
+See [`../04-product/document-template.md`](../04-product/document-template.md).
+
+---
+
+### Admin auth at MVP — LOCKED: HTTP Basic Auth over TLS
+
+**Locked choice:** MVP admin uses HTTP Basic Auth. Credentials from `ADMIN_USERNAME` and
+`ADMIN_PASSWORD` env vars. Middleware on all `/admin/*` routes.
+
+See [`admin-build-pack.md`](../06-build-packs/admin-build-pack.md).
+
+---
+
+### Email required at checkout — LOCKED
+
+Email address collection at checkout is mandatory. It is the only dependable contact handle for
+guest confirmations and support.
+
+See [`../04-product/auth-billing-accounts.md`](../04-product/auth-billing-accounts.md).
+
+---
+
+### Draft questioning cadence — LOCKED: one primary gap at a time
+
+**Locked choice:** The drafting experience asks one primary missing-data question at a time.
+Tightly coupled structured subfields may be collected together only when a split interaction would
+be more awkward than helpful, such as address blocks or compact date-choice clusters.
+
+**Option A (strictly one single field every time) rejected** — too rigid for address and similarly
+coupled inputs.  
+**Option C (regular grouped question batches) rejected** — too close to a form dump and too easy to
+degrade the guided-feeling UX.
+
+---
+
+### Attachment stage in flow — LOCKED: after first draft exists, editable through review
+
+**Locked choice:** Attachments can be uploaded only after a draft exists. They are available from
+the workspace once the first draft is generated and remain editable on the review step. No new
+attachments are added during checkout.
+
+**Option A (review-only attachment upload) rejected** — too late and too easy to create avoidable
+backtracking.  
+**Option C (attachment upload before any draft exists) rejected** — pulls the product toward a PDF
+mailing utility instead of a guided letter workflow.
+
+---
+
+### Non-legal-service disclaimer prominence — LOCKED: calm reminder plus explicit checkout acknowledgment
+
+**Locked choice:** The product uses a low-friction informational disclaimer in discovery/help
+surfaces and a single explicit acknowledgment at checkout. It must not dominate the drafting
+experience, but it must be unmissable before payment.
+
+**Option A (heavy warning banner throughout drafting) rejected** — adds anxiety and makes the
+product feel defensive.  
+**Option C (terms-link only, no explicit checkout acknowledgment) rejected** — too easy to miss for
+a high-stakes product boundary.
+
+---
+
+### Email provider — LOCKED: Resend
+
+**Locked choice:** Resend for all transactional email.
+
+**Why Resend over Postmark:**
+- React Email native integration — template authoring and compilation in one ecosystem
+- Cleaner TypeScript SDK with better error types
+- $0 up to 3,000 emails/month (covers the entire MVP runway); $20/mo after
+- EU data region available; DPA available on request
+- Deliverability is production-grade and has closed the gap with Postmark for transactional volume
+
+**Option B (hosting vendor mail) rejected** — Infomaniak's mail product is not designed for
+programmatic transactional sending at the reliability level required.
+**Option C (custom mail infrastructure) rejected** — operational burden, no deliverability benefit.
+
+Adapter module: `notifications/adapters/resend.ts`. Use `resend` npm package. Never call Resend SDK
+outside the adapter.
+
+---
+
+### Exact retention durations — LOCKED: recommended defaults (pending legal sign-off)
+
+**Direction is locked.** The following defaults are recommended for implementation. They must remain
+configurable via environment variables and must not be hardcoded. Final values require explicit
+approval before launch.
+
+| Item | Recommended default | Rationale |
+|---|---|---|
+| Session cookie + resume token | 72 hours | Enough for abandonment recovery; not long enough to become a liability |
+| Draft content + files | 7 days after last activity | Covers support window and dispatch confirmation lag |
+| Rendered PDFs | 24 hours after dispatch confirmation | No reason to retain after confirmed handoff |
+| Payment + dispatch metadata | 7 years | Swiss accounting obligation (OR 3rd and 4th AML cycle); do not delete |
+| Support/audit events | 3 years | Dispute resolution window |
+| Resume link auto-send trigger | 48 hours of inactivity (no payment) | Not too soon to feel spammy; not so late the user has forgotten |
+
+Config keys: `SESSION_TTL_HOURS`, `CONTENT_RETENTION_DAYS`, `PDF_RETENTION_HOURS_POST_DISPATCH`,
+`METADATA_RETENTION_YEARS`, `RESUME_INACTIVITY_HOURS`.
+
+Do not hardcode any duration in application logic.
+
+---
+
+### AI provider vendor — LOCKED: Azure OpenAI / Azure AI Foundry Models API
+
+**Locked choice:** Use Azure-hosted model APIs for all AI drafting. The backend owns all model
+interaction through a dedicated adapter. The frontend never talks to Azure directly.
+
+**Locked defaults:**
+- Drafting and revision: `gpt-4.1`
+- Classification, extraction, and follow-up generation: `gpt-4.1-mini`
+- Exact deployment names, region, and API version stay in environment config, not in business logic
+
+**Why this over alternatives:**
+- Matches the chosen Microsoft/Azure procurement path
+- Keeps AI credentials, rate limits, and auditability inside one enterprise platform
+- Preserves the existing backend-owned adapter pattern and SSE streaming model
+- Gives room to swap exact deployment names without rewriting feature code
+
+**Option B (direct non-Azure vendor API) rejected** — conflicts with the chosen Azure-centered AI
+procurement path.
+**Option C (self-hosted or open-weight inference stack) rejected** — operational burden and quality
+risk are not acceptable for MVP.
+
+Adapter module: `ai/adapters/azure-openai.ts`. Keep Azure endpoint, API key, API version, and
+model/deployment identifiers in `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`,
+`AZURE_OPENAI_API_VERSION`, `AI_DRAFT_MODEL`, and `AI_CLASSIFY_MODEL`.
+
+---
+
+### Dispatch provider path — LOCKED: Direct Swiss Post Digital Commerce API
+
+**Locked choice:** MVP dispatch integrates directly with Swiss Post's current Digital Commerce API
+path. Do not build the MVP around ePost SmartSend or partner-provider fallbacks unless a newer
+decision record explicitly supersedes this one.
+
+**Rules:**
+- Build the adapter shell now, but only map real provider payloads from current Swiss Post-issued
+  documentation and sandbox credentials
+- Keep tracking/reference behavior honest until Swiss Post confirms what each returned identifier
+  actually means
+- Keep dispatch state normalization on the app side; never expose raw provider semantics to the UI
+
+**Option B (ePost SmartSend / group product path) rejected for MVP** — adds routing ambiguity when
+the chosen direction is direct Swiss Post API onboarding.
+**Option C (partner fallback provider) rejected for MVP** — weakens the direct provider story and
+adds another contract surface before launch.
+
+Adapter module: `dispatch/adapters/swiss-post.ts`. OAuth/token handling, payload mapping, and
+tracking lookup rules must come from current provider docs, not from guesswork or old legacy
+material.
+
+---
+
+### Hosting topology — LOCKED: Infomaniak-centered production base
+
+**Locked choice:** Production infrastructure is Infomaniak-centered. Swiss Mail runs primarily on
+Infomaniak-hosted compute and storage rather than a split multi-vendor MVP.
+
+**Locked topology direction:**
+- Frontend, backend, and worker run on Infomaniak Public Cloud Managed Kubernetes
+- PostgreSQL runs on Infomaniak-hosted compute/private network
+- Redis runs on Infomaniak-hosted compute/private network
+- Files and rendered PDFs live in Infomaniak S3-compatible object storage
+- TLS termination and ingress are managed on the Infomaniak side first; add Cloudflare only if a
+  later explicit decision requires it
+
+**Operational rule:** Do not assume a specific managed database SKU is launch-ready unless it is
+validated during provisioning. If needed, run PostgreSQL and Redis on dedicated Infomaniak compute
+instances first. The application code still targets standard PostgreSQL, Redis, and S3 interfaces
+so infrastructure remains swappable.
+
+**Option A (managed multi-vendor split) rejected** — conflicts with the chosen hosting direction and
+weakens the operational/provider story.
+**Option C (self-managed VPS-heavy topology) rejected** — too much operational drag for MVP.
+
+---
+
+### Resume link auto-send timing — LOCKED: 48-hour inactivity trigger
+
+**Locked choice:** Send the resume email 48 hours after the last draft activity if no payment has
+been completed and a session email exists.
+
+- 48h is long enough to distinguish genuine abandonment from a short break
+- Only one resume email per session (do not spam)
+- Only sent if `session.email` is set (user must have provided it at checkout or earlier)
+- Token expiry: **72 hours** from session creation — matches `SESSION_TTL_HOURS`
+
+Config key: `RESUME_INACTIVITY_HOURS` (default: 48). The send itself is a BullMQ job scheduled
+when session email is collected, cancelled if payment completes first.
+
+---
+
+## OPEN decisions (implementation-blocking)
+
+Development of features that depend on these items must not assume a resolution.
+
+### 1. Exact pricing — OPEN (requires business approval)
+
+**Still open.** Currency is CHF only. Do not hardcode any price amounts.
+
+**Market context for the approval decision:**
+- Letterxpress (nearest German competitor): €2–4 standard, €4–8 registered
+- Swiss Post online tools: CHF 5–8 minimum, clunky UX — this product's UX premium is real
+- Recommended starting point: **CHF 4.90 standard / CHF 8.90 registered**
+  - Positions above commodity, below Swiss Post's own complexity
+  - Leaves room for page-count surcharges post-MVP
+  - Psychologically clean price points in CHF
+
+**Recommended resolution:** Approve CHF 4.90 standard / CHF 8.90 registered. The market analysis
+above supports this positioning. Both values go into env config (`PRICE_STANDARD_CENTS=490`,
+`PRICE_REGISTERED_CENTS=890`) and can be changed without a code deploy.

@@ -1,0 +1,5 @@
+{
+  "name": "@swiss-mail/backend",
+  "private": true,
+  "type": "module"
+}

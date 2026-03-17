@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /Volumes/immich/dev/swiss-mail -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.json -o -name *.md -o -name .gitignore -o -name *.yml -o -name *.yaml \\\\\\))",
+      "Bash(find /Volumes/immich/dev/swiss-mail/frontend -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
+      "Bash(find /Volumes/immich/dev/swiss-mail/backend -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.sql \\\\\\))",
+      "WebFetch(domain:www.infomaniak.com)"
+    ]
+  }
+}
