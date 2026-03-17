@@ -193,4 +193,4 @@ Before merging any pull request that touches animation, timing, or validation:
 
 ---
 
-*Full detailed audit: See AUDIT_FINDINGS_DETAILED.md*
+*This is the primary audit record. No separate detailed file exists.*

@@ -557,7 +557,10 @@ Do not offer a competing "upload a PDF instead" path here. The consumer MVP star
 
 #### 5.3 Guest notice (if applicable)
 `text-xs text-tertiary` at bottom: "No account needed. Your session is saved for {configuredSessionRetentionLabel}."  
-Do not hardcode session duration — configurable (see `../08-guardrails/open-decisions.md`).
+`configuredSessionRetentionLabel` is a localized duration string derived from `SESSION_TTL_HOURS`
+(locked default: 72 → displays as "72 hours" or equivalent locale form). Do not hardcode the
+display string — compute from config. See [`open-decisions.md`](../08-guardrails/open-decisions.md)
+§4 and [`i18n-rules.md`](../05-architecture/i18n-rules.md) for formatting conventions.
 
 ---
 
