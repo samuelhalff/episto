@@ -24,10 +24,10 @@ Monorepo with three top-level application directories (to be created):
 ## Stack decisions (locked)
 
 - **Frontend:** Next.js, TypeScript, Tailwind, shadcn/ui (primitives only), custom product components
-- **Backend:** Node.js, TypeScript, PostgreSQL, S3-compatible object storage, BullMQ + Redis (recommended)
+- **Backend:** Node.js, TypeScript, PostgreSQL, S3-compatible object storage, BullMQ + Redis
 - **Payments:** Stripe
-- **PDF:** HTML/CSS to PDF
-- **Validation:** Zod (recommended)
+- **PDF:** Puppeteer (HTML/CSS to PDF)
+- **Validation:** Zod
 - **Currency:** CHF only
 - **Target locales:** de-CH, fr-CH, it-CH, en-CH
 
@@ -38,7 +38,7 @@ Monorepo with three top-level application directories (to be created):
 - **State machines are explicit.** All state transitions (dispatch, payment) must be logged and testable. See `docs/05-architecture/system-contracts.md` for canonical enums (`PaymentState`, `DispatchState`, etc.).
 - **Frontend never calls external providers directly.** Frontend talks only to backend app contracts. No raw provider payloads in the UI.
 - **Guest-first.** MVP must not require an account to draft and send a letter.
-- **Retention is configurable.** Never hardcode permanent retention or specific durations — they are not yet decided.
+- **Retention is configurable.** Never hardcode specific retention durations — recommended defaults are locked but loaded from environment config. See `docs/08-guardrails/open-decisions.md` §4.
 
 ## Anti-hallucination rules
 

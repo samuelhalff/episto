@@ -102,8 +102,8 @@ When the checklist appears complete:
 
 Documentation hardening is complete. The next work is:
 
-1. **Lock the three remaining open decisions** (hosting → pricing → dispatch provider) — see
-   `docs/08-guardrails/open-decisions.md` for resolution recommendations.
+1. **Resolve the remaining external/business blockers** (Swiss Post onboarding details → pricing)
+   — see `docs/08-guardrails/open-decisions.md` and the residual-risk table below.
 2. **Begin implementation** following the build order in `.github/copilot-instructions.md`:
    shared schemas → backend state machines/adapters → frontend flows → provider integration.
 3. **Re-run a doc sweep after R1 (dispatch provider) is resolved** — provider API details will
@@ -161,13 +161,12 @@ without external facts or explicit business decisions. Do not convert them into 
 
 | # | Item | Why still open | Unblocking action |
 |---|------|---------------|-------------------|
-| R1 | Dispatch provider | No confirmed current Swiss Post / KLARA API details. Old E-Post Print and Send material is end-of-life. | Obtain sandbox credentials and current API documentation from the provider; update `docs/08-guardrails/swiss-post-appendix.md` and `docs/04-product/postal-dispatch.md` |
-| R2 | Exact pricing | MVP price points (base letter, registered, attachments) are not set. Open decision #5. | Business decision; update `docs/04-product/pricing-structure.md` and lock. |
-| R3 | Hosting topology | Vendor mix (DB, storage, queue hosting) not finalized. Open decision #2. | Business/ops decision; lock before infra provisioning. |
-| R4 | Tracking capability | Whether physical tracking data (beyond reference number) is available from the dispatch provider is unknown. | Verify with provider after R1; update `docs/08-guardrails/provider-certainties.md`. |
+| R1 | Swiss Post onboarding details | Provider path is now locked to direct Swiss Post API, but current sandbox docs, auth details, payloads, and tracking semantics are still not in the repo. | Obtain sandbox credentials and current API documentation from Swiss Post; update `docs/08-guardrails/swiss-post-appendix.md` and `docs/04-product/postal-dispatch.md` |
+| R2 | Exact pricing | MVP price points (base letter, registered, attachments) are not set. Open decision #1. | Business decision; update `docs/04-product/pricing-structure.md` and lock. |
+| R3 | Tracking capability | Whether physical tracking data (beyond reference number) is available from the locked Swiss Post path is unknown. | Verify with provider after R1; update `docs/08-guardrails/provider-certainties.md`. |
 
 All other known contradictions, placeholder drift, state-machine mismatches, and stale guidance
-have been resolved in Session 1 and Session 2. R3 (retention durations) and AI provider are now
-locked in `open-decisions.md`. A third fresh-eye sweep is recommended after R1 is unblocked
-(provider API details will trigger follow-on doc updates in system-contracts, api-contracts,
-backend-architecture, and the dispatch build pack).
+have been resolved in Session 1 and Session 2. Hosting, AI provider, dispatch provider path, email
+provider, retention defaults, and resume timing are now locked in `open-decisions.md`. A third
+fresh-eye sweep is recommended after R1 is unblocked (provider API details will trigger follow-on
+doc updates in system-contracts, api-contracts, backend-architecture, and the dispatch build pack).

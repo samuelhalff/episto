@@ -2,7 +2,7 @@
 
 **Product:** Swiss Mail  
 **Last updated:** 2026-03-17  
-**Status:** Foundation phase — TypeScript boundaries prepared; feature implementation not yet started  
+**Status:** Foundation phase — core platform decisions locked; provider onboarding and pricing still pending  
 **See also:** [Overview](overview.md) · [Open Decisions](../08-guardrails/open-decisions.md) · [Provider Certainties](../08-guardrails/provider-certainties.md)
 
 ---
@@ -19,27 +19,27 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | 3 — Build Packs | AI-safe implementation blueprints | ✅ Complete — frontend, backend, admin build packs; guardrails; error taxonomy; i18n; dev workflow |
 | 4 — Pre-Dev Gate | Final review before implementation | ✅ Complete — doc hardening and recursive closeout passed |
 
-**Current phase:** Implementation. Most modules can proceed in parallel. Three open decisions
+**Current phase:** Implementation. Most modules can proceed in parallel. Two remaining blockers
 remain — see Section 4.
 
 ---
 
 ## 2. Implementation Readiness
 
-> **Ready for implementation** on all modules except dispatch adapter internals (blocked on
-> provider decision).
+> **Ready for implementation** on all modules except Swiss Post-specific dispatch adapter internals
+> that depend on current onboarding docs.
 
 | Category | Status |
 |---|---|
-| Dispatch provider path | 🔴 **OPEN** — blocks dispatch adapter internals only |
-| Hosting topology | 🟡 **OPEN** — Option A (managed PaaS) recommended; blocks infra provisioning |
+| Dispatch provider path | ✅ Locked — Swiss Post Digital Commerce API |
+| Hosting topology | ✅ Locked — Infomaniak-centered topology |
 | Exact pricing | 🟡 **OPEN** — CHF 4.90/8.90 recommended; blocks launch copy and Stripe config |
 | Payment capture strategy | ✅ Locked — authorize first, capture after provider acceptance |
 | Retention durations | ✅ Locked — recommended defaults with configurable env vars |
 | Signature scope | ✅ Locked — typed name plus optional uploaded image |
 | Attachment scope | ✅ Locked — narrow approved file set |
 | Email provider | ✅ Locked — Resend |
-| AI provider | ✅ Locked — Claude API (Anthropic) |
+| AI provider | ✅ Locked — Azure-hosted model API |
 | Auth approach | ✅ Locked — guest-first; no accounts at launch |
 | Queue strategy | ✅ Locked — BullMQ + Redis |
 | Validation strategy | ✅ Locked — shared Zod schemas |
@@ -52,7 +52,7 @@ remain — see Section 4.
 
 ## 3. What Can Start Now
 
-Implementation can proceed on these modules without waiting for the three open decisions:
+Implementation can proceed on these modules without waiting for the remaining blockers:
 
 | Module | Dependency on open decisions |
 |---|---|
@@ -69,18 +69,17 @@ Implementation can proceed on these modules without waiting for the three open d
 
 ---
 
-## 4. Remaining Open Decisions
+## 4. Remaining Blockers
 
 These items **must be resolved before production launch** on the modules they affect.
-See [Open Decisions](../08-guardrails/open-decisions.md) for full analysis and recommendations.
+See [Open Decisions](../08-guardrails/open-decisions.md) for the pricing analysis and recommendation.
 
-| # | Decision | Blocks | Recommended resolution |
-|---|---|---|---|
-| 1 | Dispatch provider path | Dispatch adapter internals, tracking | Contact KLARA for sandbox and current API docs |
-| 2 | Hosting topology | Infra provisioning | Lock Option A (managed PaaS); migrate to Swiss-hosted later if needed |
-| 3 | Exact pricing | Launch copy, Stripe config | Approve CHF 4.90 standard / CHF 8.90 registered |
+| # | Item | Type | Blocks | Recommended resolution |
+|---|---|---|---|---|
+| 1 | Exact pricing | Business decision | Launch copy, Stripe config | Approve CHF 4.90 standard / CHF 8.90 registered |
+| 2 | Swiss Post onboarding docs + sandbox | Operational | Dispatch adapter internals, tracking | Contact Swiss Post for current Digital Commerce API docs and sandbox access |
 
-> Recommended resolution order: #2 → #3 (internal decisions) → #1 (requires provider contact).
+> Recommended order: #1 (internal approval) while #2 runs in parallel with provider outreach.
 
 ---
 

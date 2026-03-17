@@ -1,13 +1,14 @@
 # AI Provider and Prompt Architecture
 
-**Status:** Canonical implementation direction for AI drafting. Exact LLM vendor remains open.
+**Status:** Canonical implementation direction for AI drafting. Azure provider path is locked.
 **See also:** [`letter-generation.md`](letter-generation.md), [`content-moderation.md`](content-moderation.md), [`../05-architecture/system-contracts.md`](../05-architecture/system-contracts.md), [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md)
 
 ---
 
 ## Objective
 
-Define the production AI architecture without pretending the provider decision is already made.
+Define the production AI architecture with the Azure provider decision locked while keeping
+deployment names and model config environment-driven.
 
 ---
 
@@ -18,22 +19,31 @@ Define the production AI architecture without pretending the provider decision i
 - The frontend never calls an AI provider directly.
 - Prompts must operate on canonical draft/session data, not ad hoc frontend shapes.
 - The system must never invent facts, addresses, legal citations, tracking facts, or provider outcomes.
-- A production launch that sends real customer content to an AI provider is blocked until the provider choice and data-processing review are approved.
+- Real customer AI traffic must go only through the locked Azure provider path and approved Azure account/subscription flow.
 
 ---
 
-## Open decision boundary
+## Locked provider boundary
 
-The exact LLM vendor and exact model IDs are still open.
+The AI vendor choice is locked to Azure-hosted model APIs.
 
-Until that is resolved:
+Implementation still keeps the deployment details configurable:
 
 - build against an `AIProviderAdapter` interface
-- keep provider-specific SDK code isolated
-- keep model names in config, not in business logic
-- do not write product or privacy copy that names a provider as final
+- keep Azure-specific SDK/client code isolated
+- keep deployment names and model IDs in config, not in business logic
+- keep product and privacy docs truthful about Azure without inventing region or residency claims
 
-This document intentionally does **not** recommend a launch vendor. That recommendation belongs in a decision record once the provider and data-processing posture are approved.
+Locked default deployment pair:
+
+- `gpt-4.1` for drafting and revision
+- `gpt-4.1-mini` for classification, extraction, and follow-up generation
+
+Adapter/module convention:
+
+- `ai/adapters/azure-openai.ts`
+- env keys: `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_API_VERSION`,
+  `AI_DRAFT_MODEL`, `AI_CLASSIFY_MODEL`
 
 ---
 
@@ -55,7 +65,7 @@ No stage may silently skip required data or promote a partial draft into a dispa
 
 ## Adapter boundary
 
-The adapter contract is stable even while the provider is open.
+The adapter contract stays stable even though the exact Azure deployment names remain configurable.
 
 ```ts
 interface AIProviderAdapter {
@@ -181,12 +191,12 @@ Test doubles are allowed in automated tests. No fake provider path may appear in
 
 ---
 
-## Still open
+## Still configurable
 
 | Decision | Status |
 |---|---|
-| Exact AI provider vendor | Open |
-| Exact production model IDs | Open |
+| Exact Azure region / deployment names | Config-driven |
+| Exact production model IDs | Config-driven (defaults locked, deployments configurable) |
 | Provider-specific retry/backoff tuning | Open |
 | Prompt-storage path and versioning convention | Open but implementation-ready |
 | Whether a secondary moderation vendor is ever needed | Post-MVP unless explicitly approved |

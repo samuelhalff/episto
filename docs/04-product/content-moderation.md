@@ -144,6 +144,9 @@ Never say:
 
 | Decision | Status |
 |---|---|
-| Exact abuse thresholds for repeated-session flagging | Open |
-| Exact moderation metadata retention duration | Open |
+| Exact abuse thresholds for repeated-session flagging | Open — requires operational experience before setting |
 | Whether to add a separate moderation vendor later | Post-MVP unless explicitly approved |
+
+Moderation metadata retention follows the operational metadata retention policy locked in
+[`open-decisions.md`](../08-guardrails/open-decisions.md) §4. The duration is loaded from
+configuration (`METADATA_RETENTION_YEARS`), not hardcoded.

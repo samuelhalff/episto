@@ -1,8 +1,8 @@
 # Business Model & Go-to-Market
 
 **Product:** Swiss Mail  
-**Last updated:** 2026-03-15  
-**Status:** Directional — pricing and GTM details require further decision  
+**Last updated:** 2026-03-17  
+**Status:** Directional — pricing recommendation exists; final approval pending  
 **See also:** [Product Scope](product-scope.md) · [Roadmap](roadmap.md) · [Competitive Landscape](competitive-landscape.md) · [Open Decisions](../08-guardrails/open-decisions.md)
 
 ---

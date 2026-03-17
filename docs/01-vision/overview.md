@@ -113,18 +113,19 @@ No unresolved implementation-significant decision may be left as an implicit def
 
 ## 7. Still Open
 
-Three decisions remain explicitly unresolved. No code may assume an answer:
+Only one business decision remains explicitly unresolved. Provider onboarding still requires current
+technical documentation, but the top-level provider and hosting choices are now locked.
 
 | Item | Notes |
 |---|---|
-| Exact dispatch provider path for MVP | See [Open Decisions](../08-guardrails/open-decisions.md) |
-| Exact hosting topology | Option A (managed PaaS) recommended but not locked |
+| Exact Swiss Post onboarding details | Provider path is locked; implementation still needs current Swiss Post docs and sandbox access |
 | Exact pricing | CHF 4.90/8.90 recommended but not approved |
 
 The following items have been **locked** since the initial documentation phase:
-retention durations (configurable defaults), email provider (Resend), AI provider (Claude API),
-auth approach (guest-first, no accounts), monitoring baseline (structured logs + error tracking),
-queue strategy (BullMQ + Redis), validation (shared Zod schemas).
+retention durations (configurable defaults), email provider (Resend), AI provider (Azure-hosted
+model API), dispatch provider path (direct Swiss Post API), hosting topology
+(Infomaniak-centered), auth approach (guest-first, no accounts), monitoring baseline (structured
+logs + error tracking), queue strategy (BullMQ + Redis), validation (shared Zod schemas).
 
 See [Open Decisions](../08-guardrails/open-decisions.md) for the full locked vs open register.
 
@@ -133,16 +134,14 @@ See [Open Decisions](../08-guardrails/open-decisions.md) for the full locked vs 
 ## 8. Pre-Dev Gate
 
 The documentation and design gate has been cleared. Implementation can proceed on all modules
-except dispatch adapter internals (blocked on provider decision).
+except Swiss Post-specific adapter internals that depend on current onboarding docs.
 
-Before production launch, the remaining open decisions must be resolved:
+Before production launch, the remaining blocker list must be resolved:
 
 - [x] Documentation hardening and recursive closeout complete
 - [x] Each blocking decision has three-option analysis and a chosen or recommended path
 - [x] No planned module depends on placeholder behavior
 - [x] No unresolved provider capability is encoded as if it were fact
-- [ ] Dispatch provider path locked (blocks adapter internals)
-- [ ] Hosting topology locked (blocks infra provisioning)
 - [ ] Pricing approved (blocks launch copy and Stripe config)
 
 ---
@@ -196,6 +195,7 @@ Use these paths depending on your role. Start with your primary path before movi
 ### 03-ux — User experience
 - [user-flows.md](../03-ux/user-flows.md)
 - [page-specifications.md](../03-ux/page-specifications.md)
+- [component-library.md](../03-ux/component-library.md)
 - [mobile-patterns.md](../03-ux/mobile-patterns.md)
 - [micro-interactions.md](../03-ux/micro-interactions.md)
 - [marketing-pages.md](../03-ux/marketing-pages.md)
@@ -203,9 +203,16 @@ Use these paths depending on your role. Start with your primary path before movi
 ### 04-product — Product features
 - [letter-generation.md](../04-product/letter-generation.md)
 - [a4-template-specification.md](../04-product/a4-template-specification.md)
-- [file-handling.md](../04-product/file-handling.md)
+- [document-template.md](../04-product/document-template.md)
 - [ai-provider-and-prompts.md](../04-product/ai-provider-and-prompts.md)
 - [dictation-and-speech.md](../04-product/dictation-and-speech.md)
+- [postal-dispatch.md](../04-product/postal-dispatch.md)
+- [file-handling.md](../04-product/file-handling.md)
+- [signatures-and-attachments.md](../04-product/signatures-and-attachments.md)
+- [auth-billing-accounts.md](../04-product/auth-billing-accounts.md)
+- [pricing-structure.md](../04-product/pricing-structure.md)
+- [email-flows.md](../04-product/email-flows.md)
+- [content-moderation.md](../04-product/content-moderation.md)
 
 ### 05-architecture — Technical architecture
 - [stack-decisions.md](../05-architecture/stack-decisions.md)
@@ -214,6 +221,11 @@ Use these paths depending on your role. Start with your primary path before movi
 - [api-contracts.md](../05-architecture/api-contracts.md)
 - [session-management.md](../05-architecture/session-management.md)
 - [realtime-strategy.md](../05-architecture/realtime-strategy.md)
+- [backend-architecture.md](../05-architecture/backend-architecture.md)
+- [frontend-architecture.md](../05-architecture/frontend-architecture.md)
+- [data-model.md](../05-architecture/data-model.md)
+- [error-taxonomy.md](../05-architecture/error-taxonomy.md)
+- [i18n-rules.md](../05-architecture/i18n-rules.md)
 
 ### 06-build-packs — Implementation guides
 - [frontend-build-pack.md](../06-build-packs/frontend-build-pack.md)

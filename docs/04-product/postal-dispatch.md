@@ -17,6 +17,22 @@ Define dispatch behavior without inventing provider capability.
 - Dispatch state must be explicit, logged, and auditable
 - Tracking or reference numbers are shown only when a real provider artifact exists
 
+## Locked provider path
+
+**Locked choice:** MVP dispatch integrates directly with the Swiss Post Digital Commerce API path.
+
+This is a provider-choice decision, not proof that every payload, attachment rule, or tracking
+capability is already known. The adapter still depends on current Swiss Post onboarding docs and
+sandbox access before provider-specific mapping is implemented.
+
+Rules:
+
+- Adapter file: `dispatch/adapters/swiss-post.ts`
+- Do not build MVP dispatch around ePost SmartSend or a fallback partner unless a newer decision
+  record explicitly replaces this one
+- Keep the app-side adapter contract stable even while Swiss Post-specific request/response details
+  are being confirmed
+
 ## Address validation — LOCKED (GAP-14)
 
 **Locked approach: soft validation with warnings.**
@@ -62,14 +78,13 @@ App code must depend on a dispatch adapter, not on raw provider APIs.
 | Retry after failure | Must be idempotent or explicitly guarded against duplicate dispatch |
 | Refund trigger | Must be tied to real dispatch outcome, not UI-side optimism |
 
-## Open questions
+## Provider details still requiring confirmed docs
 
-The following are unresolved and must not be guessed in code:
+The following are not open product decisions anymore, but they are still provider-specific facts
+that must not be guessed in code:
 
-- Exact MVP provider path (dispatch provider selection is still open — see
-  `../08-guardrails/open-decisions.md`)
-- Exact accepted payload format for the chosen provider
-- Attachment support details and limits per provider path
+- Exact accepted payload format for the chosen Swiss Post flow
+- Attachment support details and limits
 - Exact difference in returned identifiers for standard vs registered mail
 - Whether dispatch confirmation is synchronous or asynchronous
 - Whether status webhooks are available

@@ -1,7 +1,7 @@
 # Email Flows
 
 **Resolves:** GAP-11
-**Status:** Email-required-at-checkout is LOCKED. Provider choice is OPEN.
+**Status:** Email-required-at-checkout and provider choice are LOCKED.
 
 ---
 
@@ -136,14 +136,15 @@ All email templates must be:
 
 ### Template 4: Resume link
 
-**Trigger:** User requests a resume link, OR automatically sent if a draft session exists without completed payment after a configurable inactivity window (exact duration: open decision, requires approval)
+**Trigger:** User requests a resume link, OR automatically sent 48 hours after the last draft
+activity if payment is still incomplete and the session has an email address
 **Condition:** Only sent to sessions where an email address has been collected
 
 **Subject (i18n key):** `email.resume.subject` → e.g., "Continue your Swiss Mail draft"
 
 **Content:**
 - "You have an unsent letter draft. Continue where you left off."
-- Secure resume link (signed, time-limited token — expiry configurable, not hardcoded)
+- Secure resume link (signed, time-limited token — 72-hour default expiry from config)
 - Warning: "This link expires in {configuredResumeExpiryLabel}." — duration from config
 - "If you no longer need this draft, you can ignore this email. It will be deleted automatically."
 - No letter content in email body
@@ -181,16 +182,13 @@ All email templates must be:
 
 ## Email provider
 
-**Status: OPEN**
+**Status: LOCKED**
 
-### Recommended options
-
-| Option | Notes |
+| Provider | Notes |
 |---|---|
-| **Resend** | Modern transactional email API, React Email native integration, clean SDK |
-| **Postmark** | Strong deliverability track record, good transactional focus, Swiss-accessible |
+| **Resend** | Locked transactional email provider; clean API, React Email fit, good MVP ergonomics |
 
-Both are acceptable. Provider must be selected before email feature is implemented. Do not hardcode provider-specific API calls outside the email adapter module.
+Do not hardcode provider-specific API calls outside the email adapter module.
 
 ### Architecture rule
 
@@ -258,7 +256,7 @@ These are not optional. Sending transactional email without SPF/DKIM/DMARC risks
 - Email address stored in `Session` record in the database
 - Email is **not** shared with the dispatch provider
 - Email is **not** included in the PDF or letter content
-- Email is deleted according to the session retention policy (exact duration: open, requires approval — see `docs/08-guardrails/open-decisions.md`)
+- Email is deleted according to the configured session/content retention policy
 - After retention cleanup, only minimal transactional metadata may be retained (order reference, payment confirmation reference) — not the email address itself
 - Email addresses must never appear in application logs
 
@@ -268,8 +266,6 @@ These are not optional. Sending transactional email without SPF/DKIM/DMARC risks
 
 | Decision | Status |
 |---|---|
-| Email provider (Resend vs Postmark vs other) | Open — must be decided before implementation |
 | Template technology (React Email vs MJML) | Open — recommend React Email |
-| Resume link auto-send timing and inactivity window | Open — requires approval |
-| Exact token expiry for resume links | Open — must match retention config |
+| Exact token expiry for resume links | Config-driven — must match retention config |
 | Marketing email opt-in (post-MVP) | Out of scope for MVP |

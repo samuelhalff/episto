@@ -105,7 +105,7 @@ The root entity. Every interaction starts here.
 | `resume_token_expires_at` | `timestamptz` | NO | — | |
 | `locale` | `locale_enum` | NO | `'de-CH'` | |
 | `ip_address` | `inet` | YES | — | Rate-limiting only; not retained long-term |
-| `expires_at` | `timestamptz` | NO | — | Config-driven session expiry; exact duration remains open |
+| `expires_at` | `timestamptz` | NO | — | Config-driven session expiry; recommended default 72h (see open-decisions.md §4) |
 | `created_at` | `timestamptz` | NO | `now()` | |
 | `updated_at` | `timestamptz` | NO | `now()` | |
 
@@ -571,11 +571,11 @@ The following items are not yet resolved and must not be papered over with defau
 
 | ID | Item | Blocking |
 |---|---|---|
-| GAP-1 | Dispatch provider onboarding path not confirmed | Yes — no dispatch adapter can be built |
+| GAP-1 | Dispatch provider sandbox credentials not yet obtained | Yes — adapter direction is locked (Swiss Post Digital Commerce API) but sandbox access is needed |
 | GAP-2 | Exact Stripe webhook/capture mechanics for the locked authorize-then-capture flow | Yes |
-| GAP-3 | Retention duration approval | Yes — config shape is decided, launch values are not |
-| GAP-4 | Hosted topology approval (Infomaniak vs. split) | Yes |
-| OPEN-1 | Exact transactional email vendor | No — email module deferred |
+| GAP-3 | Retention duration legal sign-off | No — recommended defaults are locked; final approval is operational |
+| GAP-4 | ~~Hosted topology approval~~ | Resolved — Infomaniak-centered topology is locked |
+| OPEN-1 | ~~Exact transactional email vendor~~ | Resolved — Resend is locked |
 
 ---
 

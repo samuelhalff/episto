@@ -1,6 +1,6 @@
 # Data Model and Retention
 
-**Status:** Canonical retention direction.
+**Status:** Canonical retention direction — locked with configurable defaults.
 **See also:** [`system-contracts.md`](system-contracts.md), [`database-schema.md`](database-schema.md), [`session-management.md`](session-management.md), [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md)
 
 ---
@@ -14,7 +14,9 @@ Separate:
 - short-lived draft content and artifacts
 - longer-lived transactional metadata
 
-All retention durations are configurable. Exact production numbers remain open until approved.
+All retention durations are loaded from environment configuration. Recommended defaults are locked
+in [`open-decisions.md`](../08-guardrails/open-decisions.md) §4; final production values require
+explicit approval before launch.
 
 ---
 
@@ -43,14 +45,19 @@ All retention durations are configurable. Exact production numbers remain open u
 
 ## What remains intentionally open
 
-The following are still open and must stay configurable:
+Retention direction and recommended defaults are **locked** (see
+[`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md) §4). The exact
+production values are configurable via environment variables and require explicit approval before
+launch. The following must stay configurable — never hardcoded:
 
-- exact guest resume TTL
-- exact short-lived content/file TTL
-- exact metadata retention TTL
-- exact moderation-metadata retention TTL
+- guest resume TTL (`SESSION_TTL_HOURS`)
+- short-lived content/file TTL (`CONTENT_RETENTION_DAYS`)
+- rendered PDF TTL (`PDF_RETENTION_HOURS_POST_DISPATCH`)
+- metadata retention TTL (`METADATA_RETENTION_YEARS`)
+- moderation-metadata retention TTL (follows operational metadata policy)
 
-Open does not mean optional. It means the application must be able to enforce the policy once approved without a schema rewrite.
+Configurable does not mean optional. The application must enforce the policy values from
+configuration at runtime without a schema rewrite.
 
 ---
 

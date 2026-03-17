@@ -121,15 +121,17 @@ volumes:
 
 ### Production hosting
 
-Recommended: **Infomaniak-centered** (Swiss hosting, strong privacy signal for target market).
+Locked: **Infomaniak-centered production topology**.
 
-- Compute: Infomaniak Jelastic Cloud or Infomaniak VPS (Docker-compatible)
-- Database: Infomaniak managed PostgreSQL or self-managed on VPS
-- Object storage: Infomaniak Swiss Backup / S3-compatible product
-- Redis: managed Redis or self-managed on VPS
-- CDN / TLS: Infomaniak or Cloudflare
+- Compute: Infomaniak Public Cloud Managed Kubernetes for `frontend`, `backend`, and `worker`
+- Database: PostgreSQL on Infomaniak-hosted private-network compute
+- Redis: Redis on Infomaniak-hosted private-network compute
+- Object storage: Infomaniak S3-compatible object storage for uploads and rendered PDFs
+- CDN / TLS / ingress: Infomaniak-managed ingress/TLS first; add Cloudflare only by later explicit decision
 
-> **Open question:** Exact Infomaniak product SKUs and their S3-compatibility must be validated before production provisioning. See `docs/08-guardrails/provider-certainties.md`.
+> **Operational validation item:** Exact Infomaniak SKU names and whether a managed DB offering is
+> mature enough for launch must be validated during provisioning. If not, run PostgreSQL and Redis
+> on dedicated Infomaniak compute without changing application code.
 
 ---
 
@@ -150,16 +152,18 @@ All secrets and environment-specific values are injected as environment variable
 | `S3_REGION` | S3 region (if required by provider) | `eu-west-1` |
 | `STRIPE_SECRET_KEY` | Stripe secret key | `sk_live_...` |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret | `whsec_...` |
-| `AI_PROVIDER_API_KEY` | LLM provider API key | *(secret)* |
-| `AI_PROVIDER_BASE_URL` | LLM provider base URL (if not default) | `https://provider.example/api` |
+| `AZURE_OPENAI_ENDPOINT` | Azure OpenAI / Azure model endpoint | `https://example-resource.openai.azure.com/` |
+| `AZURE_OPENAI_API_KEY` | Azure API key | *(secret)* |
+| `AZURE_OPENAI_API_VERSION` | Azure API version | `2024-10-21` |
+| `AI_DRAFT_MODEL` | Draft/revision deployment name | `gpt-4.1` |
+| `AI_CLASSIFY_MODEL` | Classification/extraction deployment name | `gpt-4.1-mini` |
+| `SWISS_POST_API_BASE_URL` | Swiss Post API base URL | `https://api.post.ch/...` |
+| `SWISS_POST_CLIENT_ID` | Swiss Post OAuth client ID | *(secret)* |
+| `SWISS_POST_CLIENT_SECRET` | Swiss Post OAuth client secret | *(secret)* |
+| `SWISS_POST_SCOPE` | Swiss Post OAuth scope string if required by onboarding docs | `digital-commerce` |
 | `SESSION_SECRET` | Secret for cookie signing and related HMAC use, if enabled by the session implementation | 64-char random hex string |
 | `BASE_URL` | Public-facing URL | `https://swissmail.ch` |
-| `SMTP_HOST` | SMTP server hostname | `smtp.infomaniak.com` |
-| `SMTP_PORT` | SMTP port | `587` |
-| `SMTP_USER` | SMTP username | `noreply@swissmail.ch` |
-| `SMTP_PASS` | SMTP password | *(secret)* |
-| `SMTP_FROM` | From address | `Swiss Mail <noreply@swissmail.ch>` |
-| `EMAIL_API_KEY` | Transactional email API key (if using API instead of SMTP) | *(secret)* |
+| `RESEND_API_KEY` | Resend transactional email API key | *(secret)* |
 | `ADMIN_USERNAME` | Admin Basic Auth username | `admin` |
 | `ADMIN_PASSWORD` | Admin Basic Auth password | *(secret, min 32 chars)* |
 | `NODE_ENV` | Runtime environment | `production` / `development` / `test` |
@@ -473,8 +477,8 @@ Required CI secrets:
 
 For the Infomaniak-centered deployment:
 
-- Preferred: **platform-level environment variable injection** (Infomaniak Jelastic environment variables, or `.env` file on VPS with restricted permissions `600`, owned by the app user).
-- If using a VPS with multiple services: consider **HashiCorp Vault** (community edition) for centralized secret management.
+- Preferred: **platform-level environment variable injection** through the chosen Infomaniak control plane or Kubernetes secret mechanism.
+- If operating multiple clusters/services, consider **HashiCorp Vault** (community edition) for centralized secret management.
 - Minimum: secrets in a `.env` file at `/etc/swissmail/production.env`, not in the repo, not readable by the www user.
 
 ### Secret rotation procedure
@@ -486,7 +490,9 @@ For the Infomaniak-centered deployment:
 | `STRIPE_WEBHOOK_SECRET` | 1. Roll webhook endpoint in Stripe dashboard. 2. Update `STRIPE_WEBHOOK_SECRET`. 3. Restart. |
 | `DATABASE_URL` password | 1. Create new DB user/password. 2. Update `DATABASE_URL`. 3. Restart all services. 4. Drop old user. |
 | `S3_ACCESS_KEY` / `S3_SECRET_KEY` | 1. Create new credentials in storage provider. 2. Update env. 3. Restart. 4. Revoke old credentials. |
-| `AI_PROVIDER_API_KEY` | 1. Generate new key in LLM provider dashboard. 2. Update env. 3. Restart. 4. Revoke old key. |
+| `AZURE_OPENAI_API_KEY` | 1. Generate/rotate key in Azure. 2. Update env. 3. Restart. 4. Revoke old key. |
+| `SWISS_POST_CLIENT_SECRET` | 1. Rotate Swiss Post client secret. 2. Update env. 3. Restart backend and worker. 4. Revoke old secret. |
+| `RESEND_API_KEY` | 1. Create new Resend API key. 2. Update env. 3. Restart backend and worker. 4. Revoke old key. |
 | `ADMIN_PASSWORD` | 1. Update `ADMIN_PASSWORD` env var. 2. Restart backend. |
 
 ---
@@ -500,9 +506,11 @@ For the Infomaniak-centered deployment:
 3. Route traffic to new container.
 4. Stop old container(s).
 
-On Infomaniak Jelastic: use blue-green or rolling update via Jelastic's built-in deployment mechanisms.
+On Infomaniak Managed Kubernetes: use rolling updates with readiness probes and one extra replica
+before draining old pods.
 
-On VPS: use Docker Compose with `--no-deps` and manual traffic switching via nginx upstream swap.
+If PostgreSQL/Redis are self-hosted on Infomaniak compute, deploy them separately from application
+pods and keep restart windows explicit.
 
 ### Health check endpoint
 
@@ -681,7 +689,8 @@ This is admin-only (Basic Auth gated, see Section 11).
 
 - **Frequency:** Daily automated backups.
 - **Retention:** 30 days for backups unless operations policy changes; this is infrastructure-backup retention, not application-content retention. See `docs/05-architecture/data-model.md`.
-- **Mechanism:** Infomaniak managed PostgreSQL backup feature, or `pg_dump` cron job to object storage if self-managed.
+- **Mechanism:** Managed backup feature if the chosen Infomaniak PostgreSQL SKU supports it, or
+  `pg_dump` cron job to object storage if self-managed.
 - **Restore test:** Monthly manual restore test to a temporary database; verify row counts and migration state.
 - **Point-in-time recovery:** Enabled if the hosting provider supports WAL archiving.
 

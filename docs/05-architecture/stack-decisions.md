@@ -25,16 +25,18 @@ Every row marked **Locked** is a hard constraint for implementation. Do not open
 | Architecture style | **Locked** | Modular monolith |
 | Database | **Locked** | PostgreSQL |
 | ORM / query builder | **Locked** | Drizzle ORM + `drizzle-kit` |
-| Object storage | **Locked** | S3-compatible (exact vendor remains open — see hosting topology) |
+| Object storage | **Locked** | S3-compatible on Infomaniak (see hosting topology below) |
 | Payments | **Locked** | Stripe |
+| AI provider | **Locked** | Azure OpenAI / Azure AI Foundry Models API |
+| Dispatch provider path | **Locked** | Direct Swiss Post Digital Commerce API |
 | PDF generation | **Locked** | Puppeteer (HTML/CSS → PDF) |
 | Async job queue | **Locked** | BullMQ + Redis |
 | Validation library | **Locked** | Zod (used in `shared/`; bridged to DB via `drizzle-zod`) |
 | Structured logging | **Locked** | JSON-structured application logs (`pino` preferred; exact library selection remains open) |
 | Shared contracts | **Locked** | TypeScript schemas in `shared/` — single source of truth |
-| Transactional email | Open | Managed provider; exact vendor not yet selected |
+| Transactional email | **Locked** | Resend |
 | Auth (future accounts) | Open | Standard session/auth solution only when accounts are added |
-| Hosting topology | Open | Infomaniak-centered preferred; exact products need approval — see §4 |
+| Hosting topology | **Locked** | Infomaniak-centered topology; exact SKUs remain operational validation items |
 
 ---
 
@@ -48,9 +50,10 @@ Every row marked **Locked** is a hard constraint for implementation. Do not open
 **Pros:** fast start, simple vendor defaults  
 **Cons:** more vendors, more operational fragmentation, higher cost at scale
 
-### Option B — Infomaniak-Centered ✅ RECOMMENDED
+### Option B — Infomaniak-Centered ✅ LOCKED
 
-All core infrastructure on Infomaniak products: compute, database, object storage.
+All core infrastructure on Infomaniak products: compute, database/queue hosting, and object
+storage.
 
 **Pros:** strong budget alignment, simpler provider story, stated hosting preference  
 **Cons:** exact product selection and operational validation still needed
@@ -61,9 +64,17 @@ Maximum control, own servers.
 **Pros:** maximum control  
 **Cons:** worst operational burden, slower launch, weaker reliability at MVP stage — **rejected for MVP**
 
-**Outcome:** Option B if chosen Infomaniak products cleanly cover compute, database, storage, and operational reliability. Fallback to Option A if Option B introduces too much friction. Option C is rejected.
+**Outcome:** Option B — LOCKED.
 
-> ⚠️ **Open:** Hosting topology is not yet frozen. Code must not depend on provider-specific hosting behavior until an explicit decision is recorded.
+Locked topology direction:
+- Infomaniak Public Cloud Managed Kubernetes for frontend, backend, and worker
+- Infomaniak-hosted PostgreSQL and Redis on private network
+- Infomaniak S3-compatible object storage for files and renders
+
+Operational caveat:
+- Code still targets standard PostgreSQL, Redis, and S3 interfaces
+- If a managed Infomaniak DB SKU is not validated in time, run PostgreSQL/Redis on dedicated
+  Infomaniak compute without changing app code
 
 ---
 
@@ -188,7 +199,7 @@ These are the recommended npm packages for each locked technology decision. Use 
 | Cookie handling | `@fastify/cookie` | HttpOnly secure session cookies |
 | CSRF protection | `@fastify/csrf-protection` | Same-origin mutation protection |
 | Cron scheduling | `bullmq` repeatable jobs | No separate cron library needed; BullMQ handles scheduled retention jobs |
-| Email (adapter) | `postmark` or `resend` | Decision open — code against adapter interface; both have simple SDKs |
+| Email (adapter) | `resend` | Locked transactional email provider |
 | UUID generation | `crypto.randomUUID()` (built-in Node.js) | Zero-dependency; CSPRNG-backed |
 | Token generation | `crypto.randomBytes(32).toString('base64url')` (built-in) | 256-bit entropy; URL-safe |
 | Token hashing | `crypto.createHash('sha256')` (built-in) | For resume token storage |

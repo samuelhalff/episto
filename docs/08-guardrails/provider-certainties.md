@@ -1,6 +1,6 @@
 # Provider Certainties and Unknowns
 
-Last verified: 2026-03-15
+Last verified: 2026-03-17
 
 ## Rule
 
@@ -15,10 +15,11 @@ verified sources, exact evidence, and implications per item.
 
 | Domain | What is certain | What is still unknown | Forbidden assumption |
 |---|---|---|---|
-| Swiss Post (5 items — see appendix §1–§5) | Digital Commerce API surface exists; barcode generates labels; Track consignments WSDL published; SmartSend is a current product; legacy Print and Send is EOL | MVP dispatch path; exact payloads; attachment rules; trackability per reference type | That any of these individually confirm a ready-to-code letter dispatch integration |
+| Swiss Post (5 items — see appendix §1–§5) | Direct Swiss Post Digital Commerce API is the locked provider path; barcode generates labels; Track consignments WSDL published; legacy Print and Send is EOL | Exact dispatch payloads; attachment rules; trackability per reference type; webhook availability | That public pages alone are sufficient to code the adapter without current onboarding docs |
 | Stripe | Chosen payment provider | Exact capture and refund mechanics for this product's dispatch timing | That the default Stripe checkout flow matches this product's needs without design work |
-| Email provider | Managed transactional email is the intended category | Exact vendor selection, webhook model | That email history storage should be permanent |
-| Hosting | Infomaniak is the current preference | Exact topology, DB mode, storage plan, queue hosting arrangement | That infrastructure-specific behavior can be baked into code now |
+| Azure AI | Azure-hosted model API is the locked AI path | Exact region, deployment names, quota/rate-limit tuning | That any specific Azure region/model pair is available without deployment validation |
+| Email provider | Resend is the locked transactional email provider | Exact webhook subset used in MVP; domain warm-up timeline | That email history storage should be permanent |
+| Hosting | Infomaniak-centered topology is locked | Exact SKU names, cluster sizing, and whether managed DB offerings are launch-ready for this workload | That infrastructure-specific behavior can be baked into code now, or that a managed DB SKU is production-ready without validation |
 
 ## What to do with unknowns
 

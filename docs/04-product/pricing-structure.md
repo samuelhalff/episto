@@ -118,7 +118,7 @@ Only call a refund complete once Stripe confirms it. Support and UI copy must di
 
 | Decision | Status |
 |---|---|
-| Exact launch amounts | Open |
+| Exact launch amounts | Open — CHF 4.90 standard / CHF 8.90 registered recommended (see [`open-decisions.md`](../08-guardrails/open-decisions.md) §1) |
 | Whether page-based surcharges are enabled at launch | Open |
 | Whether attachment-related surcharges are enabled at launch | Open |
 | Whether promotions/coupons exist at launch | Open |

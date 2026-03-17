@@ -16,7 +16,7 @@ Define how guest sessions are created, resumed, expired, and cleaned up without 
 - MVP is **guest-first**.
 - A session is the root container for draft, file, payment, dispatch, and support records.
 - The client holds only an opaque guest resume credential.
-- Resume behavior and expiry are configurable; exact durations are still open.
+- Resume behavior and expiry are configurable; recommended defaults are locked in [`open-decisions.md`](../../docs/08-guardrails/open-decisions.md) §4 (72h session TTL, 48h resume trigger). Final values require approval before launch.
 - Losing both the browser cookie and the emailed resume link means the user may lose access to the draft. This is an intentional privacy tradeoff in MVP.
 
 ---
@@ -109,13 +109,16 @@ Session truth splits into two concerns:
 
 The access window and the content-retention window may be different, but both must be configurable.
 
-Current directional truth from open decisions:
+Current locked defaults from [`open-decisions.md`](../../docs/08-guardrails/open-decisions.md) §4:
 
-- guest resume is short-lived
-- content retention is short-lived
-- transactional metadata may outlive content
+- guest session TTL: 72 hours (`SESSION_TTL_HOURS`)
+- draft content + files: 7 days after last activity (`CONTENT_RETENTION_DAYS`)
+- rendered PDFs: 24 hours after dispatch confirmation (`PDF_RETENTION_HOURS_POST_DISPATCH`)
+- transactional metadata: 7 years (`METADATA_RETENTION_YEARS`)
+- resume link trigger: 48 hours of inactivity (`RESUME_INACTIVITY_HOURS`)
 
-Do not freeze specific numbers in code or docs as production truth until approved.
+All durations are loaded from environment config, not hardcoded. Final production values require
+explicit approval before launch.
 
 ---
 
