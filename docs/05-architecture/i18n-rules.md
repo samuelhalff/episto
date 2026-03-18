@@ -106,7 +106,23 @@ Do not auto-translate product UI strings with an AI model and ship them without 
 
 ---
 
-## 10. AI Letter Content vs. Product UI Copy
+## 10. Launch gating and rollout
+
+Locale support in infrastructure is not the same as public locale readiness.
+
+Operational rule:
+
+- a locale may be publicly enabled only after human review of UI copy, AI drafting quality,
+  transactional emails, help content, and support coverage
+- incomplete locales must be hidden or routed to an approved fallback rather than exposed half-finished
+- rollout and disable procedures belong to
+  [`../07-operations/locale-gates-and-rollout.md`](../07-operations/locale-gates-and-rollout.md)
+
+Do not treat message-file existence alone as proof that a locale is ready.
+
+---
+
+## 11. AI Letter Content vs. Product UI Copy
 
 These are entirely separate concerns:
 
@@ -128,3 +144,4 @@ Do not route AI-generated letter text through the i18n message layer. Do not use
 | `docs/05-architecture/error-taxonomy.md` | Error messages that must go through i18n display layer |
 | `docs/05-architecture/system-contracts.md` | `Locale` enum definition |
 | `docs/05-architecture/database-schema.md` | `locale_enum` PostgreSQL type |
+| `docs/07-operations/locale-gates-and-rollout.md` | Operational sign-off, rollout, and disable rules per locale |

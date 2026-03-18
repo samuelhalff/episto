@@ -18,6 +18,7 @@ Do not ship a public production release until every blocking item here is explic
 - [ ] Dispatch provider path is confirmed strongly enough to support the implemented adapter
 - [ ] Payment capture/refund behavior matches the locked Stripe flow
 - [ ] Every public trust claim is consistent with the actual hosting and AI-provider path
+- [ ] Provider readiness gate is satisfied for Swiss Post, Stripe, Azure AI, and Resend where applicable
 - [ ] Every enabled launch locale has passed native-speaker review for drafting quality, transactional emails, help content, and trust/legal copy
 - [ ] Any public usage count, testimonial, or social-proof claim is backed by real evidence
 - [ ] Launch acquisition does not rely on SEO alone; at least one additional validation or demand channel is ready
@@ -51,6 +52,7 @@ Do not ship a public production release until every blocking item here is explic
 - [ ] Admin access is protected by TLS + HTTP Basic Auth as documented
 - [ ] Audit logging exists for privileged admin/support actions
 - [ ] Content retention and metadata retention behaviors are verified against config
+- [ ] Data-access and deletion handling matches `security-and-privacy.md`
 
 ---
 
@@ -62,6 +64,7 @@ Do not ship a public production release until every blocking item here is explic
 - [ ] Dispatch acceptance, rejection, and unknown/reconciliation paths are tested
 - [ ] User wording for references vs tracking is accurate
 - [ ] Support can locate a payment or dispatch by internal and provider references
+- [ ] Payment and dispatch recovery runbook has been reviewed and dry-run against representative cases
 
 ---
 
@@ -71,10 +74,14 @@ Do not ship a public production release until every blocking item here is explic
 - [ ] Database migrations and rollback path are tested
 - [ ] Backup restore test has been completed successfully
 - [ ] Error tracking and alerting are configured for frontend, backend, and workers
+- [ ] Product analytics and operational dashboards are configured without leaking sensitive content
 - [ ] Incident response process in `incident-response.md` is reviewed by the launch owner
 - [ ] Support workflow and escalation paths are documented
 - [ ] Help/contact page and support triage workflow are live
 - [ ] Duplicate-payment, refund, and ambiguous-dispatch cases have named operational ownership
+- [ ] Abuse/fraud review workflow is documented and staffed on business days
+- [ ] Locale rollout / disable rules are documented for launch
+- [ ] Disaster recovery drill has been completed successfully enough to support launch claims
 
 ---
 

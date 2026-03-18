@@ -35,7 +35,7 @@ Branch points:
 - Template discovery can start from `/templates` or `/use-cases/:slug` before `/draft/new`
 - Resume Draft Flow can return the user to `/draft/new`, `/draft/:id`, or `/resume/:token`
 - Language Switch Mid-Flow is available inside `/draft/:id` without resetting draft state
-- Check Letter Status Flow starts from `/resume/:token` in MVP
+- Check Letter Status Flow starts from `/status/:orderToken`
 - Send Another Letter Flow restarts at `/draft/new` from `/draft/:id/confirmation`
 
 ---
@@ -162,7 +162,7 @@ User sees the confirmation screen with:
 
 **Never show fake progress.** If provider acceptance is pending, the status must say so.
 
-From here the user can check letter status later through `/resume/:token` and start again at
+From here the user can check letter status later through `/status/:orderToken` and start again at
 `/draft/new`.
 
 → Tracking rules: [`docs/04-product/postal-dispatch.md`](../04-product/postal-dispatch.md)  
@@ -273,7 +273,7 @@ This table defines the emotional state we're designing for at each stage. Every 
 | Review | `/draft/:id/review` | **Confident, calm** | "Everything looks right. I'm ready." | Showing scary warnings, requiring too many confirmations, or making editing difficult from this page |
 | Checkout | `/draft/:id/checkout` | **Trusting, decisive** | "Fair price. Just need to pay and I'm done." | Hidden fees, surprise price changes, or complex payment flows |
 | Confirmation | `/draft/:id/confirmation` | **Relieved, accomplished** | "Done. That was so much easier than I expected." | Claiming delivery when only dispatch is submitted, or showing a generic "thank you" without status |
-| Return/status check | `/resume/:token` | **Reassured, informed** | "My letter is being handled. I can see what's happening." | Showing stale data, fake tracking, or "status unavailable" without explanation |
+| Return/status check | `/status/:orderToken` | **Reassured, informed** | "My letter is being handled. I can see what's happening." | Showing stale data, fake tracking, or "status unavailable" without explanation |
 
 ---
 

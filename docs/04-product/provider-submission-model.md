@@ -1,7 +1,7 @@
 # Provider Submission Model
 
 **Status:** Canonical product model  
-**See also:** [postal-dispatch.md](postal-dispatch.md) · [document-template.md](document-template.md) · [pricing-structure.md](pricing-structure.md) · [../05-architecture/system-contracts.md](../05-architecture/system-contracts.md) · [../08-guardrails/provider-certainties.md](../08-guardrails/provider-certainties.md) · [../08-guardrails/swiss-post-api-reference-map.md](../08-guardrails/swiss-post-api-reference-map.md)
+**See also:** [postal-dispatch.md](postal-dispatch.md) · [document-template.md](document-template.md) · [pricing-structure.md](pricing-structure.md) · [../05-architecture/system-contracts.md](../05-architecture/system-contracts.md) · [../08-guardrails/provider-certainties.md](../08-guardrails/provider-certainties.md) · [../08-guardrails/swiss-post-api-reference-map.md](../08-guardrails/swiss-post-api-reference-map.md) · [../08-guardrails/provider-readiness-gate.md](../08-guardrails/provider-readiness-gate.md)
 
 ---
 

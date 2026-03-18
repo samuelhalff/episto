@@ -85,11 +85,13 @@ interface UseDraftReturn {
   updateRecipient: (data: RecipientProfile) => Promise<void>;
   updateContent: (data: DraftContentPatch) => Promise<void>;
   createSnapshot: () => Promise<DraftSnapshot>;
-  // Auto-save: PATCH with 2s debounce on content changes
+  // Auto-save: PATCH with 2s debounce on content changes and baseUpdatedAt freshness marker
 }
 
 // React Query key: queryKeys.draft(draftId)
 // Auto-save: useMutation with onMutate optimistic update, onError rollback
+// If backend returns 409 because baseUpdatedAt is stale, surface a compact conflict banner:
+// "This draft changed in another tab." Actions: reload latest, copy unsaved text.
 // Invalidates: queryKeys.draft(draftId) on mutation success
 ```
 
@@ -236,7 +238,8 @@ interface UseLetterPreviewReturn {
 | `/draft/:id/review` | Final review and delivery selection |
 | `/draft/:id/checkout` | Payment |
 | `/draft/:id/confirmation` | Dispatch result and reference display |
-| `/resume/:token` | Guest resume path |
+| `/resume/:token` | Guest resume path for unpaid/editable drafts |
+| `/status/:orderToken` | Paid-order status, receipt, and final artifact access |
 | `/admin/*` | Internal tools only — see [`admin-build-pack.md`](admin-build-pack.md) |
 
 ## Main screen composition for `/draft/:id`

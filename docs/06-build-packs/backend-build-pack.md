@@ -4,6 +4,8 @@
 > for the full PostgreSQL schema, index strategy, and column-level notes.
 > Cross-reference: [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
 > for every documentation area that depends on Swiss Post API truth.
+> Cross-reference: [`../05-architecture/rate-limits-and-quotas.md`](../05-architecture/rate-limits-and-quotas.md)
+> for request throttling, quotas, and SSE connection policy.
 
 ## Goal
 

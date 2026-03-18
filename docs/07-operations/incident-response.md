@@ -2,6 +2,9 @@
 
 > Cross-reference: [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
 > for the provider/API-dependent documentation surfaces that may need review during dispatch incidents.
+> See also: [`payment-dispatch-recovery.md`](payment-dispatch-recovery.md) and
+> [`disaster-recovery-and-drills.md`](disaster-recovery-and-drills.md) for the detailed operational
+> runbooks that sit beneath this incident policy.
 
 ## Goal
 
@@ -53,12 +56,14 @@ For MVP, one person may hold multiple roles, but the responsibilities still appl
 - Check Stripe webhook delivery status and recent `payment_attempts`
 - Confirm whether failures are authorization, capture, or refund related
 - Pause capture or refund jobs if state transitions are unsafe
+- For case-by-case recovery actions, follow `payment-dispatch-recovery.md`
 
 ### Dispatch incident
 
 - Check queue backlog, adapter logs, and `dispatch_attempts`
 - Separate `submitted`, `accepted`, `unknown`, and `rejected` counts
 - Do not tell users a letter was mailed unless provider acceptance is confirmed
+- For ambiguous or retryable cases, follow `payment-dispatch-recovery.md`
 
 ### Data/privacy incident
 

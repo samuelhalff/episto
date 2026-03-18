@@ -29,6 +29,39 @@ access) is a future enhancement and must be documented before implementation.
 | Retention and file-status view | Per-session file asset state and scheduled cleanup times |
 | Suspicious activity flags | Flagged sessions for review |
 
+## Admin information architecture
+
+The admin area should stay small but structured. MVP navigation:
+
+1. **Overview**
+   - operational summary cards
+   - ambiguous-dispatch queue
+   - recent refunds
+   - suspicious-activity counts
+2. **Search**
+   - single search surface for session, draft, payment, dispatch, and provider reference lookups
+3. **Case detail**
+   - a unified case view that links payment timeline, dispatch timeline, retention state, and support
+     events
+4. **Flags and review**
+   - suspicious activity
+   - manual-review / escalation status
+
+Do not split admin into many disconnected mini-tools that force operators to jump between pages for a
+single case.
+
+## Overview widgets
+
+The dashboard should expose:
+
+- queued / submitted / accepted / rejected / unknown dispatch counts
+- payment success/failure/refund counts
+- ambiguous-dispatch review queue
+- suspicious-activity review queue
+- retention cleanup failures
+
+These are operational counters, not marketing vanity metrics.
+
 ## Search fields
 
 Any of the following can be used to locate a record:
@@ -49,6 +82,7 @@ Any of the following can be used to locate a record:
 | Trigger safe reconciliation | For stuck `dispatch_submitted` states |
 | Trigger refund in approved cases | Requires explicit support justification logged as event |
 | Mark escalation status | Flags session for human review |
+| View suspicious-activity summary | Metadata-first; no hidden content archive |
 
 ## Restricted actions
 

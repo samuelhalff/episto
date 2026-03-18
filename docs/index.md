@@ -153,6 +153,7 @@ Not every polished document has the same implementation authority.
 | [system-contracts.md](05-architecture/system-contracts.md) | Canonical entities, enums, state machines |
 | [database-schema.md](05-architecture/database-schema.md) | Full PostgreSQL schema, tables, indexes |
 | [api-contracts.md](05-architecture/api-contracts.md) | Zod schemas for all endpoints |
+| [rate-limits-and-quotas.md](05-architecture/rate-limits-and-quotas.md) | Request throttling, quotas, SSE connection policy |
 | [session-management.md](05-architecture/session-management.md) | Token architecture, resume flow, CSRF |
 | [realtime-strategy.md](05-architecture/realtime-strategy.md) | SSE for AI streaming |
 | [backend-architecture.md](05-architecture/backend-architecture.md) | Modules, APIs, adapters, storage |
@@ -178,9 +179,14 @@ Not every polished document has the same implementation authority.
 | Document | Description |
 |----------|-------------|
 | [deployment-and-ci.md](07-operations/deployment-and-ci.md) | Docker, CI/CD, env vars, monitoring |
+| [analytics-and-observability.md](07-operations/analytics-and-observability.md) | Product analytics, dashboards, privacy-safe telemetry |
+| [abuse-and-fraud-ops.md](07-operations/abuse-and-fraud-ops.md) | Suspicious-activity detection, review, escalation |
 | [security-and-privacy.md](07-operations/security-and-privacy.md) | Encryption, compliance, access control |
 | [admin-and-support.md](07-operations/admin-and-support.md) | Support workflows, dashboard |
+| [payment-dispatch-recovery.md](07-operations/payment-dispatch-recovery.md) | Safe recovery runbook for payment and dispatch cases |
+| [locale-gates-and-rollout.md](07-operations/locale-gates-and-rollout.md) | Locale sign-off, rollout, and disable rules |
 | [incident-response.md](07-operations/incident-response.md) | Incident severity, response flow, communications |
+| [disaster-recovery-and-drills.md](07-operations/disaster-recovery-and-drills.md) | Backup restore proof and recurring drills |
 | [pre-launch-checklist.md](07-operations/pre-launch-checklist.md) | Production gate before any public release |
 | [dev-workflow.md](07-operations/dev-workflow.md) | Git conventions, code quality, PR rules |
 
@@ -191,8 +197,10 @@ Not every polished document has the same implementation authority.
 | Document | Description |
 |----------|-------------|
 | [ai-implementation-rules.md](08-guardrails/ai-implementation-rules.md) | Anti-hallucination rules for AI-assisted dev |
+| [ai-quality-governance.md](08-guardrails/ai-quality-governance.md) | Prompt/model versioning, regression and kill-switch rules |
 | [swiss-post-api-reference-map.md](08-guardrails/swiss-post-api-reference-map.md) | Repo-wide map of API-dependent documentation areas |
 | [provider-certainties.md](08-guardrails/provider-certainties.md) | Known vs unknown matrix for providers |
+| [provider-readiness-gate.md](08-guardrails/provider-readiness-gate.md) | Evidence required before provider-backed launch paths go live |
 | [swiss-post-appendix.md](08-guardrails/swiss-post-appendix.md) | Verified provider facts only |
 | [non-goals.md](08-guardrails/non-goals.md) | Forbidden shortcuts and anti-patterns |
 | [open-decisions.md](08-guardrails/open-decisions.md) | Unresolved decisions that block implementation |

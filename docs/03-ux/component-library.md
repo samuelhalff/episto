@@ -957,7 +957,7 @@ Minimal status indicator showing draft save state. Lives inside the workspace `<
 | `idle` | `Check` (12px) | "Saved" | `text-tertiary` | Default. Appears 1s after last successful save. |
 | `saving` | `Loader2` (12px, spinning) | "Saving…" | `text-tertiary` | Shown immediately when auto-save triggers. |
 | `error` | `AlertCircle` (12px) | "Not saved" | `text-warning` | Persists until save succeeds or user retries. Clickable — opens retry tooltip. |
-| `offline` | `WifiOff` (12px) | "Offline — saved locally" | `text-warning` | Persists until reconnected. |
+| `offline` | `WifiOff` (12px) | "Offline — recent changes are not saved yet" | `text-warning` | Persists until reconnected. |
 
 **Visual rules:**
 - Fixed width container (`min-w-[100px]`) to prevent layout shift during state transitions.

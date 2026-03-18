@@ -24,7 +24,7 @@
 7. [Review (`/draft/:id/review`)](#7-review-draftidreview)
 8. [Checkout (`/draft/:id/checkout`)](#8-checkout-draftidcheckout)
 9. [Confirmation (`/draft/:id/confirmation`)](#9-confirmation-draftidconfirmation)
-10. [Guest Resume (`/resume/:token`)](#10-guest-resume-resumetoken)
+10. [Guest Resume and Order Status Entry Points](#10-guest-resume-and-order-status-entry-points)
 
 ### Discovery Pages
 11. [Templates Gallery (`/templates`)](#11-templates-gallery-templates)
@@ -733,7 +733,7 @@ Draft state auto-saves on every meaningful change (message sent, field edited, z
 - Default (saved): `"Saved"` with a subtle `Check` icon (12px). Appears 1s after the last change, fades in 200ms.
 - Saving: `"Saving…"` with a `Loader2` icon (12px, `animate-spin`). Appears immediately when a save is triggered.
 - Save failed: `"Not saved"` with `AlertCircle` icon in `text-warning`. Persists until save succeeds or user retries.
-- Offline: `"Offline — changes saved locally"` in `text-warning`.
+- Offline: `"Offline — recent changes are not saved yet"` in `text-warning`.
 
 **Transitions:** The save indicator is the only element in the header that changes state during active work. It must transition smoothly (opacity 0→1, 200ms) and never jump or shift layout.
 
@@ -1037,7 +1037,7 @@ Guest sessions expire (duration configurable, see `open-decisions.md`). The `<Se
 - Token valid + session expired but restorable: show "Welcome back! We've restored your draft." and redirect.
 - Token valid + session expired and unrestorable: show "This session has expired and can't be restored. [Start a new letter]".
 - Token invalid: 404 page.
-- Token already used for a completed letter: show confirmation page for that letter.
+- Token already used for a completed letter: redirect to `/status/:orderToken` when an order-access token exists.
 
 **Critical rules:**
 - The email input must NOT be repurposed to create an account. This is explicitly a session-save mechanism.
@@ -1110,7 +1110,7 @@ The "Continue to Review" button in `<StatusStrip>` (or sticky bottom button on m
 |---|---|
 | AI response failure | `<ErrorBanner>` in conversation panel: "Couldn't get a response. Try again." with retry button |
 | Session expired | `<Dialog>` "Your session has expired. Start a new letter or use your resume link." No post-expiry save flow |
-| Network offline | `<ErrorBanner>` (top of page): "You're offline. Changes will sync when reconnected." |
+| Network offline | `<ErrorBanner>` (top of page): "You're offline. Autosave is paused until you reconnect." |
 | Rendering failure | Warning in preview area: "Preview unavailable — your content is saved." |
 
 ### Empty State
@@ -1578,11 +1578,11 @@ The confirmation page copy must reflect this: say "A payment receipt has been se
 
 ---
 
-## 10. Guest Resume (`/resume/:token`)
+## 10. Guest Resume and Order Status Entry Points
 
-### Route
+### Resume route
 `/resume/:token`  
-`:token` — opaque session token (not a UUID, not guessable)
+`:token` — opaque guest-resume token (not a UUID, not guessable)
 
 ### SEO
 - `noindex, nofollow`
@@ -1605,10 +1605,9 @@ The page behaviour depends on what the token resolves to:
 - Show brief notice: `<Toast>` "Welcome back — continuing your letter."
 
 #### 10.2 Token valid — draft paid, dispatch in progress or complete
-- Show `<ConfirmationCard>` + `<DispatchStatusCard>` (same components as `/confirmation`)
-- `<h1>` "Your letter status"
-- Reference number displayed
-- No payment CTA
+- Redirect to `/status/:orderToken` when the paid order has an order-access token
+- Do not reopen the editable draft workspace
+- Do not render paid-order status directly from `/resume/:token`
 
 #### 10.3 Token valid — draft expired
 - `<Card>` centred: "This session has expired."
@@ -1621,6 +1620,35 @@ The page behaviour depends on what the token resolves to:
 - `<Button>` "Go to homepage" → `/`
 
 ---
+
+### 10.5 Order Status (`/status/:orderToken`)
+
+#### Route
+`/status/:orderToken`  
+`:orderToken` — opaque paid-order access token, separate from the guest resume token
+
+#### Purpose
+
+This route is the paid-order, read-only status and receipt surface for guest users. It must never
+reopen editable draft state.
+
+#### Behaviour
+
+- Show `<ConfirmationCard>` + `<DispatchStatusCard>` using canonical payment and dispatch state
+- Show the order reference number and any real provider reference
+- Keep "reference" and "tracking" labels separate unless tracking is truly available
+- Allow access for the configured order-access window, independent of the shorter guest-draft session
+- If the token is invalid or expired: show a calm invalid/expired state and direct the user to support
+- No payment CTA
+- No editable draft controls
+
+#### Copy rule
+
+The page must stay honest about ambiguity:
+
+- `submitted` is not `accepted`
+- `accepted` is not `delivered`
+- `unknown` stays unknown until reconciliation confirms otherwise
 
 ### Loading State
 - Token validation: full-page `<Skeleton>` or centred spinner for <500ms
@@ -1981,7 +2009,8 @@ Admin routes must be protected at both the middleware and API level. Do not rely
 | `/draft/:id/review` | `AppLayout` | Session token | No | |
 | `/draft/:id/checkout` | `MinimalLayout` | Session token | No | Stripe embedded |
 | `/draft/:id/confirmation` | `MinimalLayout` | Session token | No | Honest status only |
-| `/resume/:token` | `AppLayout` / `MinimalLayout` | Token | No | State-dependent |
+| `/resume/:token` | `AppLayout` / `MinimalLayout` | Resume token | No | Guest-draft recovery only |
+| `/status/:orderToken` | `MinimalLayout` | Order-access token | No | Paid-order status, receipt, final artifact access |
 | `404 catch-all` | `MinimalLayout` | None | No | Friendly not-found page |
 | `/500` | `MinimalLayout` | None | No | Static fallback for server errors |
 | `/privacy` | `MarketingLayout` | None | Yes | Legal prose, PDF download, all locales |
