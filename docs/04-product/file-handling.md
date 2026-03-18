@@ -14,7 +14,7 @@ consistent.
 |---|---|---|
 | `attachment` | Supporting documents sent with the letter | `attachments/{sessionId}/{fileId}` |
 | `signature_image` | User-uploaded handwritten signature image | `signatures/{sessionId}/{fileId}` |
-| `rendered_pdf` | Final derived PDF artifact | `renders/{draftId}/{renderVersion}.pdf` |
+| `rendered_pdf` | Canonical server-generated letter PDF artifact | `renders/{draftId}/{renderVersion}.pdf` |
 
 ## Locked limits (provisional — configurable) — GAP-9
 
@@ -67,6 +67,8 @@ model are explicitly decided and documented.
 ## Usage rules
 
 - Attachments are referenced from the draft, not embedded inline into the letter layout
+- Internal storage shape does not define provider submission shape; adapter packaging remains a
+  separate verified concern
 - The letter body may mention enclosures even if no files have been uploaded
 - Signature images are separate assets and must be normalized (dimensions, DPI) before rendering
 - Rendered PDFs are derived artifacts and can always be regenerated while source data exists

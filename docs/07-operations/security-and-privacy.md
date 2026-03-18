@@ -4,6 +4,7 @@
 **Scope:** Runtime security, privacy posture, retention boundaries, secrets handling, and
 production hardening rules. This file does not define product copy or provider capability claims on
 its own.
+**See also:** [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md), [`../08-guardrails/swiss-post-appendix.md`](../08-guardrails/swiss-post-appendix.md)
 
 ## Core posture
 

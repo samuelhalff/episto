@@ -8,6 +8,7 @@ These are explicitly out of scope. Do not build them.
 - Legal-advice engine or legal-validity certification
 - Business template suite
 - Multi-country postal platform
+- Self-operated print house or mail-house workflow
 - Heavy admin back office
 - Permanent document vault
 
@@ -20,6 +21,7 @@ The following must never appear in any production code path:
 - No placeholder text or placeholder values left in production code paths
 - No fake tracking numbers or fake provider references
 - No direct postal-provider calls from the frontend
+- No implementation or copy that claims Swiss Mail physically prints letters itself
 - No raw provider payloads leaking into product UI responses
 - No hidden permanent retention of letter content
 - No hardcoded retention durations without a documented decision

@@ -1,5 +1,8 @@
 # Pre-Launch Checklist
 
+> Cross-reference: [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
+> for the docs that require API-backed truth before launch sign-off.
+
 ## Rule
 
 Do not ship a public production release until every blocking item here is explicitly marked complete by a human reviewer. No placeholders, no invented claims, no "we'll fix it after launch."
@@ -10,10 +13,14 @@ Do not ship a public production release until every blocking item here is explic
 
 - [ ] Product name is final everywhere public copy appears
 - [ ] Public pricing is approved and matches backend configuration
+- [ ] Locked launch pricing is validated against real provider economics and expected support/reconciliation cost
 - [ ] Retention values are approved and match runtime configuration
 - [ ] Dispatch provider path is confirmed strongly enough to support the implemented adapter
 - [ ] Payment capture/refund behavior matches the locked Stripe flow
 - [ ] Every public trust claim is consistent with the actual hosting and AI-provider path
+- [ ] Every enabled launch locale has passed native-speaker review for drafting quality, transactional emails, help content, and trust/legal copy
+- [ ] Any public usage count, testimonial, or social-proof claim is backed by real evidence
+- [ ] Launch acquisition does not rely on SEO alone; at least one additional validation or demand channel is ready
 
 ---
 
@@ -22,6 +29,7 @@ Do not ship a public production release until every blocking item here is explic
 - [ ] All core routes are specified and implemented without placeholder UI states
 - [ ] Empty, loading, error, expired, and ambiguous-provider states are all designed and implemented
 - [ ] Core journeys feel materially easier than the manual baseline in live review or moderated testing
+- [ ] The launch wedge has been tested with real users before broad release
 - [ ] Every primary screen has one obvious next action and no competing primary CTA confusion
 - [ ] Users are never asked to repeat information already provided or infer formal-letter structure on their own
 - [ ] Preview and edit remain immediately reachable throughout drafting and review
@@ -65,6 +73,8 @@ Do not ship a public production release until every blocking item here is explic
 - [ ] Error tracking and alerting are configured for frontend, backend, and workers
 - [ ] Incident response process in `incident-response.md` is reviewed by the launch owner
 - [ ] Support workflow and escalation paths are documented
+- [ ] Help/contact page and support triage workflow are live
+- [ ] Duplicate-payment, refund, and ambiguous-dispatch cases have named operational ownership
 
 ---
 

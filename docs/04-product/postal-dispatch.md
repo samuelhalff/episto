@@ -1,5 +1,9 @@
 # Postal Dispatch and Tracking
 
+> Cross-reference: [`provider-submission-model.md`](provider-submission-model.md) for the canonical
+> operating model and responsibility split.
+> [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
+> for the repo-wide map of API-dependent docs.
 > Cross-reference: [`../08-guardrails/swiss-post-appendix.md`](../08-guardrails/swiss-post-appendix.md)
 > for verified provider facts and forbidden assumptions.
 > [`../08-guardrails/provider-certainties.md`](../08-guardrails/provider-certainties.md) for the
@@ -9,10 +13,15 @@
 
 Define dispatch behavior without inventing provider capability.
 
+In Swiss Mail, "dispatch" means preparing the provider-bound submission package and submitting it to
+the configured postal-provider path. It does not mean delivery, and it does not imply that Swiss
+Mail runs its own physical print-and-mail workflow.
+
 ## Locked direction
 
 - Standard and registered delivery are in scope for MVP
 - Dispatch happens only after final user review and payment authorization
+- Dispatch uses the backend-owned final PDF artifact plus validated metadata, never the client preview alone
 - Provider logic sits entirely behind an adapter abstraction layer
 - Dispatch state must be explicit, logged, and auditable
 - Tracking or reference numbers are shown only when a real provider artifact exists
@@ -51,6 +60,18 @@ rigid for real-world addresses.
 
 App code must depend on a dispatch adapter, not on raw provider APIs.
 
+## Submission unit
+
+The dispatch adapter receives a canonical submission unit containing:
+
+- server-generated final PDF artifact
+- validated sender and recipient metadata
+- selected delivery type
+- idempotency and audit context
+- optional supporting-file references only where the provider-confirmed path supports them
+
+Do not infer provider payload shape from these app-level fields. Mapping stays inside the adapter.
+
 **Minimum adapter responsibilities:**
 
 | Responsibility | Notes |
@@ -69,6 +90,8 @@ App code must depend on a dispatch adapter, not on raw provider APIs.
 - Do not promise more visibility than the provider actually delivers
 - Store raw provider status only in backend and admin layers — never as direct user-facing truth
 - Separate the "reference" concept from the "tracking" concept in all code and UI text
+- `accepted` means provider acceptance of the submission into its downstream workflow; it does not
+  mean delivered
 
 ## Failure handling rules
 

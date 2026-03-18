@@ -4,6 +4,8 @@
 > **Scope:** Homepage, use-case landing pages, How It Works page, Pricing page.  
 > **Audience:** Frontend developers, designers, copywriters.  
 > **Last updated:** 2026-03
+> **Provider truth:** For Swiss Post, tracking, dispatch, and delivery-copy claims, also consult
+> [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md).
 
 ---
 
@@ -117,8 +119,8 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 | Background | Gradient: `#1E3A5F` top-left → `#2D5186` bottom-right, plus subtle radial highlight center |
 | Minimum height | `min-h-screen` |
 | Nav | Transparent until scroll >80px, then `bg-primary/95 backdrop-blur-sm`; fixed |
-| Headline (DE) | "Wichtige Briefe — professionell verfasst, sofort verschickt" |
-| Headline (EN) | "Serious letters — professionally drafted, instantly sent" |
+| Headline (DE) | "Wichtige Briefe — professionell verfasst, bereit zum Versand" |
+| Headline (EN) | "Serious letters — professionally drafted, ready to send" |
 | Subheadline | "Describe what you need. Get a properly structured formal letter in minutes, prepared for postal delivery in Switzerland." |
 | Primary CTA | "Draft your letter" — `bg-accent text-white`, `h-12 px-8 text-lg font-semibold rounded-lg` |
 | Secondary CTA | "See how it works" — ghost, white border, same height |
@@ -131,10 +133,10 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 | Locale | Headline | Subheadline |
 |--------|----------|-------------|
-| `de-CH` | "Wichtige Briefe — professionell verfasst, sofort verschickt" | "Beschreiben Sie Ihr Anliegen. Erhalten Sie einen korrekt strukturierten Brief in Minuten. Wir drucken und verschicken per Schweizer Post." |
-| `fr-CH` | "Lettres importantes — rédigées professionnellement, envoyées instantanément" | "Décrivez votre besoin. Recevez une lettre structurée en quelques minutes. Nous imprimons et expédions par la Poste suisse." |
-| `it-CH` | "Lettere importanti — redatte professionalmente, inviate all'istante" | "Descrivi ciò di cui hai bisogno. Ricevi una lettera strutturata in pochi minuti. Stampiamo e spediamo tramite la Posta Svizzera." |
-| `en-CH` | "Serious letters — professionally drafted, instantly sent" | "Describe what you need. Get a properly structured formal letter in minutes, prepared for postal delivery in Switzerland." |
+| `de-CH` | "Wichtige Briefe — professionell verfasst, bereit zum Versand" | "Beschreiben Sie Ihr Anliegen. Erhalten Sie in Minuten einen korrekt strukturierten Brief, vorbereitet für die postalische Zustellung in der Schweiz." |
+| `fr-CH` | "Lettres importantes — rédigées avec soin, prêtes à l'envoi" | "Décrivez votre besoin. Recevez en quelques minutes une lettre correctement structurée, préparée pour l'envoi postal en Suisse." |
+| `it-CH` | "Lettere importanti — redatte con cura, pronte per l'invio" | "Descrivi ciò di cui hai bisogno. Ricevi in pochi minuti una lettera correttamente strutturata, preparata per l'invio postale in Svizzera." |
+| `en-CH` | "Serious letters — professionally drafted, ready to send" | "Describe what you need. Get a properly structured formal letter in minutes, prepared for postal delivery in Switzerland." |
 
 > **Mobile-specific messaging:** On mobile viewports, append to the subheadline: "Dictate from your phone — no typing needed." This targets phone-first users (Anna persona).
 
@@ -201,7 +203,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 |------|------|-------|-------------|
 | 1 | `MessageCircle` | Describe | "Tell us what you need — a cancellation, a complaint, a notice. In your own words, or dictate it." |
 | 2 | `FileText` | Review | "See a professionally structured letter take shape. Edit the tone, refine the wording, review every detail." |
-| 3 | `Send` | Send | "Confident it's right? Pay once — we print and submit it for postal dispatch." |
+| 3 | `Send` | Send | "Confident it's right? Pay once — we generate the final PDF and submit it for postal dispatch." |
 
 ---
 
@@ -317,16 +319,14 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 │  per letter                         │  ← text-lg text-secondary
 │                                     │
 │  ─────────────────────────────────  │
-│  ✓  Base letter (1 page)    {formattedBasePrice}│
-│  ✓  Each additional page    {formattedExtraPagePrice}│
+│  ✓  Base service fee        {formattedBasePrice}│
+│  ✓  Standard delivery       Included            │
 │  ✓  Registered mail upgrade {formattedRegisteredSurcharge}│
-│  ✓  Attachment (per file)   {formattedAttachmentPrice}│
 │  ─────────────────────────────────  │
 │                                     │
 │  [Start drafting now →]             │  ← Full-width primary CTA button
 │                                     │
-│  Still cheaper than your time       │  ← text-xs text-secondary text-center
-│  at the post office.                │
+│  Transparent total before payment   │  ← text-xs text-secondary text-center
 └─────────────────────────────────────┘
 ```
 
@@ -609,9 +609,9 @@ This section is critical for trust. Be honest about the flow.
 What happens after you pay
 
 1. Swiss Mail renders your final letter as a print-ready PDF.
-2. Your letter is dispatched to our postal fulfillment service.
-3. Your letter is printed and placed in an envelope.
-4. The postal provider processes the letter according to the chosen service level.
+2. Swiss Mail submits the final PDF and required metadata to the configured postal-provider path.
+3. The provider handles any downstream production and postal processing.
+4. Swiss Mail reflects the provider response honestly in your status.
 
 You will receive a dispatch confirmation once your letter has been 
 submitted to the postal system. Delivery confirmation is available 
@@ -647,9 +647,9 @@ URL: `/pricing`
 | Section | Content |
 |---------|---------|
 | **Hero** | "Simple, honest pricing" — no hero image needed |
-| **Pricing table** | Full breakdown with all line items |
-| **Add-ons** | Registered mail, attachments, express (if available) |
-| **Comparison** | Time + cost vs. doing it yourself |
+| **Pricing table** | Full breakdown of launch-enabled line items only |
+| **Add-ons** | Registered mail only at launch |
+| **Comparison** | Effort comparison, framed as illustrative rather than statistical proof |
 | **FAQ** | Billing, refunds, receipts, CHF-only |
 | **CTA** | Final CTA band |
 
@@ -657,12 +657,11 @@ URL: `/pricing`
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│  Base letter                                            {formattedBasePrice}    │
-│  Each additional page                                   {formattedExtraPagePrice}    │
+│  Base service fee                                       {formattedBasePrice}    │
+│  Standard delivery                                      Included               │
 │─────────────────────────────────────────────────────────────────────│
 │  ADD-ONS                                                            │
 │  Registered mail (Einschreiben)                         {formattedRegisteredSurcharge}    │
-│  Attachment — per file (PDF or image)                   {formattedAttachmentPrice}    │
 │─────────────────────────────────────────────────────────────────────│
 │  All prices in CHF, inclusive of Swiss VAT              🇨🇭          │
 └─────────────────────────────────────────────────────────────────────┘
@@ -670,19 +669,18 @@ URL: `/pricing`
 
 ### 5.3 Comparison Block
 
-**Layout:** Two-column table. Left: "Traditional mailing". Right: "Swiss Mail".
+**Layout:** Two-column table. Left: "Traditional do-it-yourself flow". Right: "Swiss Mail".
 
 | | Traditional | Swiss Mail |
 |--|-------------|---------------|
-| Finding the right template | 20–40 min | Included |
-| Writing and formatting | 30–60 min | Included |
-| Printing | Need a printer | Included |
-| Envelope + stamp | ~CHF 1.60 | Included |
-| Trip to post office | 15–30 min | Not needed |
-| **Total time** | **1–2 hours** | **5 minutes** |
-| **Total cost** | **CHF 2+ + your time** | **From {formattedBasePrice}** |
+| Getting started | Blank page or template hunt | Guided drafting |
+| Formatting | Manual | Included |
+| Final print-ready PDF | Manual | Included |
+| Postal submission | Separate step | Integrated |
+| Price clarity | Fragmented | Shown before payment |
+| **Starting price shown** | Varies by steps you handle yourself | **From {formattedBasePrice}** |
 
-> **Note:** Do not claim specific time savings as statistical fact. Frame as "typical scenario" or "estimate". Do not fabricate competitor prices.
+> **Note:** Keep this comparison factual and qualitative. Do not fabricate competitor prices, postal fees, or statistical time savings.
 
 ### 5.4 Pricing FAQ
 

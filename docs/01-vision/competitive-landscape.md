@@ -126,7 +126,10 @@ SuperPost has use-case landing pages (cancellations, notices) but no actual guid
 
 **Swiss Mail is not a mail service. It is a premium formal-letter preparation tool with integrated dispatch.**
 
-SuperPost is a dispatch service. You bring your document — they mail it. Swiss Mail enters the journey *before* the document exists. It helps users produce a properly structured, correctly toned, professionally formatted letter — and then mails it. These are different products solving different problems.
+SuperPost is a dispatch service. You bring your document — they mail it. Swiss Mail enters the
+journey *before* the document exists. It helps users produce a properly structured, correctly toned,
+professionally formatted letter, then submits the final PDF and metadata through the postal-provider
+path. These are different products solving different problems.
 
 ### Where Swiss Mail wins
 
@@ -228,8 +231,8 @@ Users sending formal legal letters may not trust AI-generated text without revie
 
 ## 8. Open Questions
 
-- [ ] **Pricing:** What is the right per-letter price point? Is a small AI premium viable, or should we match SuperPost to win on value?
-- [ ] **Dispatch partner:** Which postal provider(s) will handle actual print-and-send? Swiss Post directly, Pingen API, or other? This affects tracking depth and pricing floor.
+- [ ] **Pricing validation:** Do the locked launch prices still hold once Swiss Post commercial terms are confirmed?
+- [ ] **Swiss Post product mapping:** Which exact Swiss Post product identifiers, payload fields, and acceptance signals map to standard and registered delivery?
 - [ ] **Tracking depth:** What tracking data will actually be available? Do not build UI states that cannot be populated by real data. (See `docs/08-guardrails/provider-certainties.md`)
 - [ ] **Registered mail availability at MVP:** Does our dispatch partner support Einschreiben/recommandé at launch?
 - [ ] **QR receipt equivalent:** Is there a simple digital artifact we can offer as proof-of-submission (not delivery) that adds value without overclaiming?

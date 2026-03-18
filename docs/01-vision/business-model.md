@@ -1,8 +1,8 @@
 # Business Model & Go-to-Market
 
 **Product:** Swiss Mail  
-**Last updated:** 2026-03-17  
-**Status:** Directional — MVP pricing is locked; GTM and growth assumptions remain directional  
+**Last updated:** 2026-03-18  
+**Status:** Directional — MVP pricing is locked; launch validation and GTM execution remain active business work  
 **See also:** [Product Scope](product-scope.md) · [Roadmap](roadmap.md) · [Competitive Landscape](competitive-landscape.md) · [Open Decisions](../08-guardrails/open-decisions.md)
 
 ---
@@ -16,6 +16,9 @@ Marketing channels:
 - **Use-case landing pages** for high-intent searches (e.g., "cancel gym membership Switzerland", "notice to landlord Switzerland")
 - Calm, trustworthy Swiss positioning — privacy, honesty, simplicity
 - SEO content strategy modelled on the SuperPost playbook and extended with AI-specific angles
+- Direct validation channels before scale: beta cohort recruitment, interview-driven landing pages, and limited high-intent search acquisition
+
+**Launch rule:** do not depend on SEO alone for initial traction. SEO is a compounding channel, not a day-one proof of demand.
 
 See [SEO Strategy](../02-brand/seo-strategy.md) for content and keyword planning.
 
@@ -24,21 +27,27 @@ See [SEO Strategy](../02-brand/seo-strategy.md) for content and keyword planning
 ## 2. Initial GTM Wedge
 
 **Best narrow operational wedge for early validation:**  
-Registered cancellation letters sent from a phone.
+High-intent cancellation letters for consumers who know they need to send something serious but have not started writing yet.
 
 This works because:
 - High-intent users; clear urgency
-- Registered mail is a verifiable, higher-value action
+- Clear drafting pain: users often know the goal before they know the wording
+- Registered mail can strengthen the value story where provider support is ready, but it must not be the only launch shape
 - Clear before/after: "I finally sent it in 3 minutes"
 - SEO-rich content opportunity (cancellations are frequently searched)
+
+**Launch focus rules:**
+- The first launch story should emphasize one wedge, not six equal-priority use cases
+- If provider onboarding delays registered mail, launch validation must still work with standard delivery
+- If launch must narrow to one locale, the preferred pilot locale is **fr-CH**
 
 **Expansion path (in order):**
 
 | Phase | Use Cases |
 |---|---|
-| Launch | Registered cancellations (gym, telecom, subscriptions) |
-| Early growth | Complaints, payment reminders |
-| Growth | Landlord and tenant notices |
+| Pilot | Cancellation letters in the enabled launch locale(s) |
+| Launch | Cancellations, then complaints and payment reminders |
+| Early growth | Landlord and tenant notices |
 | Maturity | Insurance, general formal correspondence |
 
 ---
@@ -47,8 +56,8 @@ This works because:
 
 | Stream | Description |
 |---|---|
-| **Per-letter margin** | Service fee on top of postal cost — primary MVP revenue |
-| **Postal pass-through** | Postal fees shown transparently to the user; no hidden markup on postal cost |
+| **Per-letter price** | Bundled charge covering drafting, PDF generation, provider submission, and margin — primary MVP revenue |
+| **Provider-cost dependency** | Commercial viability still depends on real provider pricing and reconciliation costs |
 | **Future: subscription** | Repeat or business use; not MVP scope |
 
 ### Pricing Considerations
@@ -57,10 +66,20 @@ This works because:
 - Swiss Mail can justify a modest premium on AI drafting value
 - Must not price above the "just do it yourself" threshold
 - Transparent pricing at the surface level (before checkout) reduces abandonment
+- Locked launch prices still require validation against real provider commercial terms before public launch
 
 > MVP launch pricing is locked at CHF 4.90 standard and CHF 8.90 registered. Keep these values
 > config-backed in implementation and update this doc if the business revises pricing later. See
 > [Pricing Structure](../04-product/pricing-structure.md).
+
+### Commercial gating rules
+
+Before public launch:
+
+- provider economics must be validated against the locked launch prices
+- willingness to pay must be tested with real prospective users or beta users
+- public trust claims and social proof must be factual, not aspirational
+- launch acquisition must include at least one channel besides SEO
 
 ---
 
@@ -78,6 +97,7 @@ These metrics measure whether the funnel and product are working:
 | Repeat-use rate | Whether users return; signals brand loyalty |
 | Attachment use rate | Whether attachment scope is correctly sized |
 | Registered vs standard mail split | Whether registered mail is driving premium volume |
+| Launch locale conversion split | Whether each enabled locale actually converts well enough to justify ongoing support |
 
 ---
 
@@ -88,7 +108,9 @@ These metrics measure whether the funnel and product are working:
 > The differentiation is **not** "we can send mail."  
 > The differentiation is: fast mobile workflow, guided drafting, confidence and trust.
 
-Pure B2C economics may stay thin without strong conversion, brand, or SEO. Per-letter margin on physical dispatch is structurally narrow. The product must be strong enough on AI drafting quality that users pay the premium without hesitation.
+Pure B2C economics may stay thin without strong conversion, brand, or SEO. Per-letter margin in a
+provider-submission product is structurally narrow. The product must be strong enough on AI drafting
+quality that users pay the premium without hesitation.
 
 ### Risk Table
 
@@ -99,6 +121,8 @@ Pure B2C economics may stay thin without strong conversion, brand, or SEO. Per-l
 | Low category awareness | Use-case SEO content strategy |
 | Trust gap for AI-generated legal language | Make human review an unhurried, clear step; never auto-submit |
 | Thin margins without scale or subscription | Layer subscription for repeat use in v2 |
+| SEO takes longer than expected | Use beta cohorts, interviews, and limited intent capture channels before relying on organic search |
+| Language breadth outruns QA capacity | Enable locales only after locale-specific review of drafting quality, copy, and support readiness |
 
 See [Competitive Landscape](competitive-landscape.md) for the full competitive risk analysis.
 
@@ -109,7 +133,7 @@ See [Competitive Landscape](competitive-landscape.md) for the full competitive r
 ### From SuperPost
 - No-registration checkout dramatically reduces friction → confirms guest-first approach
 - Use-case SEO pages (cancellation letters, notice letters) are a proven organic acquisition strategy
-- Coupon codes are a low-cost acquisition tool worth building at launch
+- Coupon codes may be useful later, but they are explicitly out of scope for launch
 - QR receipt artifact gives users a verification token; consider equivalent
 
 ### From DocuPost

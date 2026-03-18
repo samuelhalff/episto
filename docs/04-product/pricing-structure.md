@@ -1,7 +1,7 @@
 # Pricing Structure
 
 **Status:** Pricing structure and MVP launch amounts are locked.
-**See also:** [`auth-billing-accounts.md`](auth-billing-accounts.md), [`email-flows.md`](email-flows.md), [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md)
+**See also:** [`auth-billing-accounts.md`](auth-billing-accounts.md), [`email-flows.md`](email-flows.md), [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md), [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
 
 ---
 
@@ -18,6 +18,8 @@ Define what checkout must be truthful about with the MVP launch prices locked.
 - Checkout must show an **itemized breakdown** before redirecting to Stripe.
 - The charged amount must be persisted on the `PaymentAttempt`; never recompute historical orders from current config.
 - Exact price amounts are **configuration**, not code constants.
+- Locked launch prices must still be re-validated against real provider commercial terms before
+  public launch.
 
 ### Locked MVP launch prices
 
@@ -56,6 +58,28 @@ Locked MVP exclusions:
 - no attachment surcharge at launch
 - no coupon/promotion system at launch
 - no color-printing pricing tier at launch
+
+## What the launch price covers
+
+The locked launch price is for the full Swiss Mail flow, not only "mailing a PDF."
+
+It may cover:
+
+- AI-assisted drafting
+- structured review and editing
+- final PDF generation
+- dispatch metadata preparation
+- provider submission and reconciliation overhead
+- payment processing overhead
+- support and refund-handling overhead
+- provider-side dispatch cost
+
+It does not include:
+
+- legal review
+- guaranteed delivery
+- guaranteed tracking
+- custom document design work
 
 ---
 
@@ -127,6 +151,8 @@ Only call a refund complete once Stripe confirms it. Support and UI copy must di
 - Format all customer-facing amounts through a shared CHF formatter
 - Never embed launch prices directly in component logic or backend business logic
 - Keep pricing config versioned and auditable
+- Do not model price as independent from provider economics just because the launch values are
+  currently locked
 
 Allowed:
 - documentation examples that explicitly state the locked MVP amounts

@@ -1,5 +1,8 @@
 # Incident Response
 
+> Cross-reference: [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
+> for the provider/API-dependent documentation surfaces that may need review during dispatch incidents.
+
 ## Goal
 
 Handle production incidents quickly, truthfully, and with a clear audit trail. No silent fixes, no guesswork, no invented user messaging.

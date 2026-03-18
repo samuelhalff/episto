@@ -458,16 +458,16 @@ The HTML-to-PDF renderer must embed the chosen font fully — no system font sub
 
 ## 11. Attachments and Multi-Document Assembly
 
-Attachments are appended after all letter pages in the assembled PDF.
+Attachments are supporting assets associated with the reviewed letter flow. Their exact
+provider-bound packaging is not yet locked.
 
-| Rule                        | Behaviour                                              |
-|-----------------------------|--------------------------------------------------------|
-| Attachment order            | Appended in upload order after letter pages            |
-| Separator page              | Not used in MVP; attachment names appear in review/receipt UI instead |
-| Attachment rendering        | PDF attachments: pass through as-is; image attachments: rendered to A4 page |
-| Page numbering              | Letter pages numbered independently; attachment pages are not re-numbered |
-| Maximum total pages         | 20 (provisional, including all attachments; configurable) |
-| Oversized attachment pages  | Rejected at upload time if would exceed total page limit |
+| Rule | Behaviour |
+|---|---|
+| Internal association | Attachments remain separate from the editable letter body |
+| Review surface | Attachment names and counts appear in review/receipt UI |
+| Provider packaging | **Open** — do not assume appended merged PDF, separate multi-part upload, or other shape until provider docs confirm it |
+| Maximum total pages | 20 (provisional, including any provider-supported supporting pages; configurable) |
+| Oversized attachment pages | Rejected at upload time if would exceed total configured limit |
 
 ---
 
@@ -483,8 +483,13 @@ Attachments are appended after all letter pages in the assembled PDF.
 | OD-T6 | Sender block position (left vs right) | Locked   | Left, Swiss convention       |
 | OD-T7 | Envelope supplier and confirmed window dimensions | **Blocking for production** | Must verify SN 010130 dimensions against actual envelope before go-live |
 | OD-T8 | Separator page for attachments    | Locked        | No separator page in MVP     |
+| OD-T9 | Attachment submission packaging   | **Blocking for provider adapter** | Must be confirmed from Swiss Post onboarding docs |
 
 > **OD-T7 is a hard production blocker**. No letter may be sent to physical mail until the envelope supplier has confirmed exact window dimensions and a sample physical test has been performed.
+>
+> **OD-T9 is a hard provider-integration blocker.** Do not implement merged attachment assembly or
+> claim attachment availability for the launch provider path until provider docs confirm the
+> accepted submission model.
 
 ---
 

@@ -5,6 +5,10 @@ This guide defines how Swiss Mail speaks to users in every context. It is the si
 Its authority is limited to wording and tone. It does not redefine routes, permissions, pricing,
 provider capabilities, or system states that are governed elsewhere in the docs.
 
+For wording that depends on Swiss Post API truth, also consult
+[`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
+and [`../08-guardrails/provider-certainties.md`](../08-guardrails/provider-certainties.md).
+
 ---
 
 ## 1. Brand voice attributes
@@ -32,7 +36,10 @@ We know what we're doing. Assertive, not arrogant. We don't hedge unnecessarily,
 | "Registered mail gives you a signed proof of receipt." | "Registered mail might provide some kind of proof." |
 | `"CHF {price} for standard delivery."` *(use actual config value — see pricing-structure.md)* | "Pricing may vary — please check." |
 
-> **Implementation note:** All CHF amounts in examples throughout this document are illustrative format examples only. Exact launch prices are an open decision. See `docs/04-product/pricing-structure.md` and `docs/08-guardrails/open-decisions.md`. Never hardcode any price from this document.
+> **Implementation note:** All CHF amounts in examples throughout this document are illustrative
+> format examples only. The current launch prices are locked in
+> `docs/04-product/pricing-structure.md`, but copy in this file must still read from pricing config
+> rather than hardcoded values.
 
 ### Warm
 

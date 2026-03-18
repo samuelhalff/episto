@@ -2,6 +2,17 @@
 
 Last verified against current public official pages: 2026-03-15
 
+## Public reference set
+
+Use these official pages as the public evidence set for Swiss Post-related documentation:
+
+- Digital Commerce API overview: https://developer.post.ch/en/digital-commerce-api
+- Track consignments web service: https://www.post.ch/en/business-solutions/digital-commerce/track-consignments-web-service
+- ePost SmartSend background page: https://www.epost.ch/en/business-customers/smartsend
+
+For a repo-wide map of which internal docs depend on these sources, see
+[`swiss-post-api-reference-map.md`](swiss-post-api-reference-map.md).
+
 ## Verified public facts
 
 ### 1. Swiss Post exposes a current Digital Commerce API surface
@@ -14,6 +25,7 @@ Verified from the current page:
 - There is a `barcode` endpoint
 - There is a `pick@home` endpoint
 - OAuth and OpenID Connect are part of the access model
+- Registration is required; the public page points implementers to Swiss Post sales / `digitalintegration@post.ch`
 
 **Implication:** A public developer page exists for address, delivery, and barcode-related
 capabilities. This does not by itself prove a public "send physical letters" dispatch API suitable

@@ -15,6 +15,7 @@ verified sources, exact evidence, and implications per item.
 
 | Domain | What is certain | What is still unknown | Forbidden assumption |
 |---|---|---|---|
+| Operating model | Swiss Mail owns drafting, canonical PDF generation, metadata preparation, provider submission, and status normalization; Swiss Mail does not run its own print-and-mail workflow | Exact Swiss Post product mapping and provider-side downstream handling details | That Swiss Mail should be implemented as a self-operated print house |
 | Swiss Post (5 items — see appendix §1–§5) | Direct Swiss Post Digital Commerce API is the locked provider path; barcode generates labels; Track consignments WSDL published; legacy Print and Send is EOL | Exact dispatch payloads; attachment rules; trackability per reference type; webhook availability | That public pages alone are sufficient to code the adapter without current onboarding docs |
 | Stripe | Chosen payment provider | Exact capture and refund mechanics for this product's dispatch timing | That the default Stripe checkout flow matches this product's needs without design work |
 | Azure AI | Azure-hosted model API is the locked AI path | Exact region, deployment names, quota/rate-limit tuning | That any specific Azure region/model pair is available without deployment validation |

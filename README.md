@@ -1,8 +1,10 @@
 # Swiss Mail
 
-> A premium formal-letter product with integrated Swiss postal dispatch.
+> A premium formal-letter product with integrated Swiss postal submission.
 
-Describe what you need. Get a properly structured, correctly toned, professionally formatted letter — and we print and mail it via Swiss Post.
+Describe what you need. Swiss Mail drafts the letter, generates the final PDF, and submits it with
+the required metadata to the Swiss Post API path. Swiss Mail does not operate its own print-and-mail
+workflow.
 
 **Status:** Documentation phase — pre-implementation gate not yet cleared.
 
@@ -25,6 +27,8 @@ Start here → **[docs/index.md](docs/index.md)** — navigation hub with readin
 ### Key safety files (read before writing code)
 
 - [AI Implementation Rules](docs/08-guardrails/ai-implementation-rules.md) — anti-hallucination guardrails
+- [Provider Submission Model](docs/04-product/provider-submission-model.md) — what Swiss Mail does vs what the provider does
+- [Swiss Post API Reference Map](docs/08-guardrails/swiss-post-api-reference-map.md) — which docs depend on API truth, and why
 - [Provider Certainties](docs/08-guardrails/provider-certainties.md) — known vs unknown
 - [Swiss Post Appendix](docs/08-guardrails/swiss-post-appendix.md) — verified facts only
 - [Non-Goals](docs/08-guardrails/non-goals.md) — forbidden shortcuts

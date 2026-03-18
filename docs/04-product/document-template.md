@@ -20,7 +20,10 @@ No rich freeform formatting. Controlled typography only (font family/size locked
 - Canonical source is structured draft state — never the PDF itself
 - HTML/CSS to PDF (Puppeteer) is the approved rendering path
 - Preview and final render must share the same layout logic; divergence = bug
+- Final provider-bound PDF must be generated server-side from the immutable reviewed snapshot
+- Client preview is a confidence surface, not a provider-bound artifact
 - Rendered version hash stored and verified at dispatch time
+- MVP does not support an arbitrary user-uploaded final letter PDF as the send path
 
 ## Validation rules
 

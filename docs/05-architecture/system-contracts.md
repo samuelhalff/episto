@@ -3,7 +3,7 @@
 **Status:** Authoritative reference  
 **Resolves:** INCON-1 (OrderLifecycle vs DispatchState separation), INCON-3 (SignatureAsset unification), INCON-4 (DraftSnapshot definition), INCON-5 (PaymentState completeness), IMPROV-10 (complete DraftLetter contract)  
 **Supersedes:** earlier contract/state-model drafts  
-**See also:** `docs/05-architecture/database-schema.md` for full column-level specifications
+**See also:** `docs/05-architecture/database-schema.md` for full column-level specifications, `docs/08-guardrails/swiss-post-api-reference-map.md` for the provider/API-dependent state surfaces
 
 ---
 
@@ -51,7 +51,7 @@ export const DraftStatus = {
   rendering:       'rendering',       // PDF is being generated
   ready:           'ready',           // PDF ready, awaiting payment
   submitted:       'submitted',       // dispatch submitted after payment authorization
-  dispatched:      'dispatched',      // provider accepted dispatch and payment capture is confirmed
+  dispatched:      'dispatched',      // provider accepted submission and payment capture is confirmed
   closed:          'closed',          // terminal: dispatched, cancelled, or expired
 } as const;
 
@@ -131,7 +131,7 @@ ready
   → collecting         (user returns to edit before paying)
 
 submitted
-  → dispatched         (provider confirmed physical acceptance and capture succeeded)
+  → dispatched         (provider accepted the submission and capture succeeded)
   → closed             (dispatch permanently failed; authorization cancelled, refund completed, or escalation recorded)
 
 dispatched
@@ -187,7 +187,7 @@ queued
   → submitted          (request sent to provider)
 
 submitted
-  → accepted           (provider confirmed physical dispatch — NOT just "reference created")
+  → accepted           (provider accepted the submission — NOT just "reference created")
   → rejected           (terminal: provider refused the submission)
   → unknown            (ambiguous or timeout response; awaiting reconciliation)
 
@@ -198,7 +198,8 @@ unknown
 ```
 
 **Rules:**
-- `accepted` means the physical letter is in the provider's possession. It does NOT mean delivered.
+- `accepted` means the provider accepted the submission into its downstream workflow. It does NOT
+  mean delivered.
 - `submitted` means the HTTP request was made. It does NOT mean accepted.
 - `unknown` is a valid permanent state if reconciliation cannot resolve. Show it as ambiguous in the UI — never collapse to `pending` or `sent`.
 - Every transition must produce a `dispatch_status_events` row. No silent transitions.

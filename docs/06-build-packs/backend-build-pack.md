@@ -2,6 +2,8 @@
 
 > Cross-reference: [`../05-architecture/database-schema.md`](../05-architecture/database-schema.md)
 > for the full PostgreSQL schema, index strategy, and column-level notes.
+> Cross-reference: [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
+> for every documentation area that depends on Swiss Post API truth.
 
 ## Goal
 

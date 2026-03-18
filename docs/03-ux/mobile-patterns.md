@@ -631,7 +631,7 @@ This entire document assumes mobile-first. All base styles target 375–430px vi
 
 ### MDZ-5: Do not auto-play animations on low-end devices
 
-Use `navigator.hardwareConcurrency` or a similar heuristic to detect low-end devices. On devices with ≤4 cores, reduce animation complexity: skip confetti on confirmation, reduce stagger animations to instant, and use `will-change: auto` instead of `will-change: transform`.
+Use `navigator.hardwareConcurrency` or a similar heuristic to detect low-end devices. On devices with ≤4 cores, reduce animation complexity: skip non-essential completion effects, reduce stagger animations to instant, and use `will-change: auto` instead of `will-change: transform`.
 
 ### MDZ-6: Do not use pinch-to-zoom on the letter preview
 

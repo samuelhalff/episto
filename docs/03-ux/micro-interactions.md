@@ -1035,46 +1035,27 @@ No pulsing, no shake — ambiguity is not the user's fault; it does not warrant 
 
 ---
 
-## 9. Celebration and Delight Moments
+## 9. Completion and Delight Moments
 
-These are one-time moments that reward the user for completing a meaningful action. They are brief, opt-out via reduced-motion, and never repeat on revisit.
+These are brief completion moments that acknowledge meaningful progress without making the product feel playful or trivial. They must remain opt-out via reduced-motion and must never overpower trust-critical screens.
 
-### Letter Sent Successfully
+### Confirmation completion moment
 
-This is the emotional high point of the product. The confirmation screen includes:
+This is the emotional release point of the product. The confirmation screen includes:
 
-1. **Paper plane animation:** A paper-plane icon travels from the center of the screen to the upper-right corner (arc trajectory) and fades out. Duration: 800ms, custom cubic-bezier path.
-2. **Confetti burst:** Approximately 30–40 small rectangular particles (in `primary`, `accent`, and `paper` colors — Swiss palette only, no rainbow) burst from center and fall with slight rotation. Duration: 800ms. Once only.
-3. **Success heading:** Fades in after 400ms (mid-flight of the paper plane).
+1. **Status icon emphasis:** The confirmation icon scales in gently from 0.92 → 1.0 over 220ms.
+2. **Success heading:** Fades in after 150–200ms.
+3. **Dispatch status card:** Slides in after the heading so the user immediately sees what happened next.
 
-**Implementation:** Use a lightweight canvas-based confetti library or a Framer Motion custom particle system. Do not import a general-purpose party confetti library — keep particle count low and colors controlled.
+**Implementation:** Do not use confetti, paper-plane flyouts, or full-screen celebration effects on the confirmation route. This is a high-trust product, not a consumer game.
 
-**Reduced-motion:** Skip confetti and paper plane entirely. Show only the success heading fade-in.
+**Reduced-motion:** Use a simple crossfade only.
 
-**One-time rule:** Store `letterSentCelebration: true` in session state. Do not replay on back-navigation or page reload.
+**Replay rule:** Keep animations subtle enough that replay on a normal reload is acceptable, but never stack or loop completion effects.
 
 ### First Letter Completion
 
-For a user's first-ever completed letter (tracked in session or account state):
-
-After the standard confirmation, a secondary "welcome" message fades in below the confirmation card (300ms delay, 300ms duration). No additional animation — the letter-sent celebration already ran.
-
-### Checkmark Confetti
-
-A small, precise confetti burst anchored to the checkmark icon on confirmation:
-
-- **Particle count:** 8 particles.
-- **Color palette:** `primary`, `accent`, `success` — 2–3 of each color.
-- **Particle size:** 4–8px circles and squares (mixed).
-- **Launch origin:** Center-top of the checkmark icon.
-- **Trajectory:** Fan outward in a 120° arc, gravity curve downward.
-- **Duration:** Particles visible for 800ms, fade out during the last 200ms.
-- **Total animation:** 1000ms from trigger to fully cleared.
-- **Trigger:** Fires after the checkmark scale animation completes (300ms delay from page load).
-
-This is distinct from the larger letter-sent confetti burst. The checkmark confetti is small and tightly scoped to the icon; the letter-sent confetti is a full-screen celebration.
-
-`prefers-reduced-motion`: Skip confetti entirely. Show only the static checkmark.
+For a user's first-ever completed letter (tracked in session or account state), a short supporting line may fade in below the confirmation card after the main status is already visible. Do not add extra animation layers.
 
 ---
 
@@ -1284,7 +1265,7 @@ function LetterPreviewCard() {
 
 - Content is never invisible by default waiting for an animation. All `initial` states must be overridden immediately if motion is reduced.
 - The letter preview and confirmation page are fully readable with motion off.
-- The confetti and paper-plane celebration are skipped entirely — not slowed — when motion is reduced.
+- Non-essential completion effects are skipped entirely — not slowed — when motion is reduced.
 - The letter scan-line animation is skipped; replace with a static pulsing opacity instead (which the global rule will also flatten if needed).
 
 ---

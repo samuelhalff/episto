@@ -3,7 +3,7 @@
 **Status:** Authoritative reference  
 **Resolves:** INCON-2 (canonical module list)  
 **Supersedes:** earlier backend-architecture drafts  
-**See also:** `docs/05-architecture/stack-decisions.md`, `docs/05-architecture/system-contracts.md`
+**See also:** `docs/05-architecture/stack-decisions.md`, `docs/05-architecture/system-contracts.md`, `docs/08-guardrails/swiss-post-api-reference-map.md`, `docs/08-guardrails/swiss-post-appendix.md`
 
 ---
 

@@ -5,7 +5,8 @@
 > Cross-reference: [`docs/03-ux/page-specifications.md`](page-specifications.md) for per-screen
 > layout and content specs. [`docs/03-ux/mobile-patterns.md`](mobile-patterns.md) for responsive
 > and touch behavior. [`docs/06-build-packs/frontend-build-pack.md`](../06-build-packs/frontend-build-pack.md)
-> for the route map and component list.
+> for the route map and component list. [`docs/08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
+> for API-dependent journey claims around dispatch, references, and tracking.
 > If this file and a more concrete route, contract, or state-machine doc disagree, the more concrete
 > implementation doc wins for that specific detail.
 

@@ -3,6 +3,7 @@
 **Status:** Authoritative reference  
 **Resolves:** GAP-5 (full column-level schema), INCON-3 (SignatureAsset unification), INCON-4 (DraftSnapshot definition), INCON-5 (PaymentState completeness), IMPROV-5 (ORM decision), IMPROV-10 (complete DraftLetter contract)  
 **Stack:** Node.js + TypeScript · PostgreSQL · Drizzle ORM
+**See also:** [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md), [`../08-guardrails/swiss-post-appendix.md`](../08-guardrails/swiss-post-appendix.md)
 
 ---
 
@@ -421,7 +422,7 @@ queued
   → submitted          (sent to provider)
 
 submitted
-  → accepted           (provider confirmed physical dispatch)
+  → accepted           (provider accepted the submission)
   → rejected           (terminal: provider refused)
   → unknown            (ambiguous response; awaiting reconciliation)
 

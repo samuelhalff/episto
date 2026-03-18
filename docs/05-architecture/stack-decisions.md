@@ -3,6 +3,7 @@
 **Status:** Authoritative reference  
 **Resolves:** INCON-6 (promoted all "Recommended" to "Locked"), IMPROV-1 (implementation-locked clarity), GAP-3 partial (Puppeteer), GAP-12 partial (React Query)  
 **Supersedes:** earlier stack/tooling drafts
+**See also:** [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md), [`../08-guardrails/swiss-post-appendix.md`](../08-guardrails/swiss-post-appendix.md)
 
 ---
 

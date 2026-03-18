@@ -5,6 +5,8 @@
 > **Stack:** Next.js · TypeScript · Tailwind CSS · shadcn/ui primitives + custom product components  
 > **Last updated:** 2026-03  
 > **Brand identity:** `Swiss Mail` on `swissmail.ch` (see `02-brand/naming-and-identity.md`)
+> **Provider truth:** For any claim about dispatch timing, tracking, references, or Swiss Post
+> behavior, also consult [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md).
 
 ---
 
@@ -118,7 +120,7 @@ Full-viewport section (`min-h-screen`).
 - CTA row:
   - Primary: `<Button size="lg">` "Draft your letter" → `/draft/new` — full width on mobile
   - Secondary: `<Button variant="outline" size="lg">` "See how it works" → `/how-it-works` — full width on mobile, ghost treatment on dark bg
-- Social proof micro-line: `text-sm text-inverse/60` — "Used by ×,×××+ people in Switzerland"
+- Trust micro-line: `text-sm text-inverse/60` — "No account required · Transparent pricing before payment"
 
 **Content — right column (desktop only):**
 - Floating `<LetterPreview>` mockup — static screenshot of a formatted letter card
@@ -199,11 +201,9 @@ Single card (max-width `lg`, centred):
 - Headline price: "From **{formattedBasePrice}** per letter" — `text-4xl font-bold`
 - `<Badge>` "No subscription" (accent colour)
 - Line-item table:
-  - 1 page — {formattedBasePrice}
-  - Each additional page — + {formattedExtraPagePrice}
+  - Base service fee — {formattedBasePrice}
   - Standard delivery — included
   - Registered delivery — + {formattedRegisteredSurcharge}
-  - Attachments (per page) — + {formattedAttachmentPagePrice}
 - Note: `text-xs text-secondary` "Prices include VAT where applicable and must come from approved pricing config."
 - CTA: `<Button size="lg" className="w-full">` "Start your letter" → `/draft/new`
 
@@ -384,31 +384,28 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 
 #### 3.1 Hero
 - `<h1>` "Simple, honest pricing"
-- Subheading: "One letter. One price. No hidden fees."
+- Subheading: "One letter. One clear price. No surprise line items."
 - Primary price badge: "From {formattedBasePrice}" — large, `accent` colour
 
 #### 3.2 Pricing Breakdown Card
 Full pricing card (same as homepage pricing section but expanded):
 
 **Line items with explanatory tooltips:**
-- Base letter (1 page): {formattedBasePrice} — `<Tooltip>` "Includes formatting, A4 printing, envelope, and postage"
-- Additional pages: {formattedExtraPagePrice} per page
+- Base service fee: {formattedBasePrice} — `<Tooltip>` "Includes drafting assistance, formatting, PDF generation, and standard delivery"
 - Standard delivery: included
 - Registered mail (Einschreiben / Recommandé): + {formattedRegisteredSurcharge} — `<Tooltip>` "Requires recipient signature. Show a reference only if the chosen provider supports it."
-- Attachments: + {formattedAttachmentPagePrice} per additional A4 page
 - VAT note
 
 **Comparison table — Standard vs Registered:**
 
 | Feature | Standard | Registered |
 |---------|----------|------------|
-| Delivery time | 2–4 business days (est.) | 2–4 business days (est.) |
-| Proof of postage | No | Yes |
-| Recipient signature | No | Yes |
-| Tracking reference | No | Yes — when available |
+| Service level wording | Standard postal delivery | Registered postal delivery |
+| Provider reference / tracking | Only if the provider supplies it | Only if the provider supplies it |
+| Confirmation language | Never imply tracking by default | Stronger wording only when the provider confirms it |
 | Price | {formattedStandardPrice} | {formattedRegisteredPrice} |
 
-> **Note:** Delivery estimates and tracking capability must not be fabricated. See `../08-guardrails/provider-certainties.md`. Use "est." notation and disclaimer.
+> **Note:** Delivery estimates and tracking capability must not be fabricated. See `../08-guardrails/provider-certainties.md`. If the provider cannot supply deterministic wording, omit it.
 
 #### 3.3 What's Included
 Icon+text list:
@@ -1448,17 +1445,17 @@ No empty state — requires a valid draft and review completion to reach.
 
 ### SEO
 - `noindex, nofollow`
-- **Title:** `Letter sent — Swiss Mail`
+- **Title:** `Payment received — Swiss Mail`
 
 ### Layout
 `<MinimalLayout>` — same as checkout. Centred content.
 
 ### Emotional intent
-**It's done. I can relax.** The confirmation screen must deliver closure, not information overload. It should feel like a receipt, not a dashboard. Status must be honest — do not claim delivery if only dispatch has been submitted. Reference numbers are real.
+**I know what happened, and I know what happens next.** The confirmation screen must deliver calm closure, not celebration theater. It should feel like a receipt, not a dashboard. Status must be honest — do not claim delivery if only dispatch has been submitted. Reference numbers are real.
 
 ### Emotional pacing and entrance choreography
 
-The confirmation page is the emotional payoff of the entire flow. It must feel like relief, accomplishment, and trust — in that order. The page loads in a deliberate sequence:
+The confirmation page is the emotional payoff of the entire flow. It must feel like relief, clarity, and trust — in that order. The page loads in a deliberate sequence:
 
 1. **0–0.2s:** Background renders immediately (`surface` colour, no flash of white or layout shift).
 2. **0.2–0.6s:** The `CheckCircle` icon scales in from 0 → 1 with `ease-spring` (`cubic-bezier(0.34, 1.56, 0.64, 1)` — the standard spring curve from `design-system.md`). This is the first thing the user sees — it communicates "you're done" before any text loads.
@@ -1468,14 +1465,7 @@ The confirmation page is the emotional payoff of the entire flow. It must feel l
 6. **1.0–1.4s:** "What happens next" timeline items stagger in (75ms per item).
 7. **1.2–1.6s:** Action row and remaining sections fade in.
 
-**Confetti and celebration animation (only if `prefers-reduced-motion` is not `reduce`):**
-- The confirmation page plays the "Letter Sent Successfully" celebration sequence defined in `micro-interactions.md` §9. This includes:
-  1. Paper plane arc animation (center → upper-right, 800ms)
-  2. Full-screen confetti burst (30–40 particles, brand colours only, 800ms)
-  3. Plus the small "Checkmark Confetti" scoped to the CheckCircle icon (8 particles, 1000ms)
-- Both effects fire once per session — do not replay on back-navigation or reload.
-- **Do not use confetti for non-success states.** If dispatch is `rejected` or `unknown`, skip ALL celebration animations and replace the `CheckCircle` with the appropriate warning/error icon. The emotional tone shifts to reassurance, not celebration.
-- See `micro-interactions.md` for exact particle counts, colours, timing, and implementation guidance.
+**Delight rule:** Do not use confetti, paper-plane celebration, or game-like effects here. This is a serious-letter product. A subtle icon scale-in and calm motion are enough. If dispatch is `rejected` or `unknown`, replace the `CheckCircle` with the appropriate warning/error icon and keep the motion even quieter.
 
 **Sound:** No sounds. Ever. This is a formal letter product, not a game.
 
@@ -1532,8 +1522,8 @@ If no tracking is available: `text-secondary text-sm` "Tracking information is n
 `<ol>` vertical timeline, 3–4 steps:
 1. ✅ "Payment confirmed"
 2. ✅ / `pending` "Letter submitted for dispatch"
-3. `pending` "Postal processing"
-4. `pending` "Delivery outcome depends on service level and provider confirmation"
+3. `pending` "Provider processing"
+4. `pending` "Further updates depend on provider confirmation"
 
 Each step: icon, title, `text-xs text-secondary` description.  
 Pending steps: muted, `text-tertiary`.

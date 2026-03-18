@@ -4,6 +4,7 @@
 **Resolves:** GAP-6 (API contract specification)
 **Scope:** Public app endpoints, admin endpoints, webhook boundaries, SSE streams, and canonical
 request/response shapes. Internal provider payloads and adapter internals are out of scope here.
+**See also:** [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md), [`../08-guardrails/provider-certainties.md`](../08-guardrails/provider-certainties.md)
 
 ---
 

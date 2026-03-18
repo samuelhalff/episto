@@ -10,17 +10,22 @@
 
 Swiss Mail is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction.
 
+Operationally, Swiss Mail owns drafting, review, canonical PDF generation, dispatch metadata
+preparation, provider submission, and status normalization. Swiss Mail does not run its own print
+facility or physical mail workflow. See [Provider Submission Model](../04-product/provider-submission-model.md).
+
 The user journey is:
 1. User describes what they need — typing or dictation. No prepared document required.
 2. AI extracts intent, asks the right questions, and generates a properly structured formal letter
 3. System produces a clean A4 draft with correct tone, structure, and formatting
 4. User reviews with an excellent preview, edits any zone with precision
 5. User reaches confidence: "this is right" — then selects delivery, pays, and confirms
-6. Dispatch and tracking are handled through a provider abstraction layer
+6. Dispatch submission and any later tracking exposure are handled through a provider abstraction layer
 
 The product enters the user journey *before any competitor does* — at the moment when the user knows they need to write something formal but hasn't started. The value is in the preparation, not just the dispatch.
 
-> **This is not a mail service startup.** This is a premium letter preparation tool where dispatch is the natural conclusion, not the product itself.
+> **This is not a self-operated mail house.** This is a premium letter preparation tool where
+> provider submission is the natural conclusion, not the product itself.
 
 ---
 
@@ -113,13 +118,13 @@ No unresolved implementation-significant decision may be left as an implicit def
 
 ## 7. Still Open
 
-Only one business decision remains explicitly unresolved. Provider onboarding still requires current
-technical documentation, but the top-level provider and hosting choices are now locked.
+Provider onboarding still requires current technical documentation, but the top-level provider and
+hosting choices are now locked.
 
 | Item | Notes |
 |---|---|
 | Exact Swiss Post onboarding details | Provider path is locked; implementation still needs current Swiss Post docs and sandbox access |
-| Exact pricing | CHF 4.90/8.90 recommended but not approved |
+| Exact provider product/service mapping | Must come from current Swiss Post-issued onboarding material before adapter internals are hardcoded |
 
 The following items have been **locked** since the initial documentation phase:
 retention durations (configurable defaults), email provider (Resend), AI provider (Azure-hosted
@@ -157,9 +162,10 @@ Use these paths depending on your role. Start with your primary path before movi
 
 ### Path 2 — Product Understanding (UX and flows)
 1. [Product Scope & Positioning](product-scope.md) — what the product is and is not
-2. [User Flows & UX](../03-ux/user-flows.md) — canonical user journeys
-3. [Letter Generation & Prompt Logic](../04-product/letter-generation.md) — AI drafting mechanics
-4. [Document Template & PDF Rules](../04-product/a4-template-specification.md) — A4 layout and rendering constraints
+2. [Provider Submission Model](../04-product/provider-submission-model.md) — operational model and responsibility split
+3. [User Flows & UX](../03-ux/user-flows.md) — canonical user journeys
+4. [Letter Generation & Prompt Logic](../04-product/letter-generation.md) — AI drafting mechanics
+5. [Document Template & PDF Rules](../04-product/a4-template-specification.md) — A4 layout and rendering constraints
 
 ### Path 3 — Technical Specs (building specific modules)
 1. [Build Packs](../06-build-packs/) — frontend, backend, admin ops
@@ -169,7 +175,8 @@ Use these paths depending on your role. Start with your primary path before movi
 
 ### Path 4 — Provider Safety (dispatch, tracking, postal integration)
 1. [Provider Certainties & Unknowns](../08-guardrails/provider-certainties.md) — what is known vs unknown
-2. [Swiss Post Appendix](../08-guardrails/swiss-post-appendix.md) — verified facts and forbidden assumptions
+2. [Provider Submission Model](../04-product/provider-submission-model.md) — canonical product truth before provider specifics
+3. [Swiss Post Appendix](../08-guardrails/swiss-post-appendix.md) — verified facts and forbidden assumptions
 
 ### Path 5 — Decisions & Open Questions
 1. [Open Decisions](../08-guardrails/open-decisions.md) — blocking and non-blocking decisions with three-option analysis
@@ -201,6 +208,7 @@ Use these paths depending on your role. Start with your primary path before movi
 
 ### 04-product — Product features
 - [letter-generation.md](../04-product/letter-generation.md)
+- [provider-submission-model.md](../04-product/provider-submission-model.md)
 - [a4-template-specification.md](../04-product/a4-template-specification.md)
 - [document-template.md](../04-product/document-template.md)
 - [ai-provider-and-prompts.md](../04-product/ai-provider-and-prompts.md)

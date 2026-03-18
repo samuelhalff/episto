@@ -1348,7 +1348,7 @@ Three-step explainer. Simple enough for anyone to understand.
 **Cards:**
 1. 🗣️ **"Describe"** — "Tell us what you need — type or dictate. Our AI drafts it for you."
 2. 📝 **"Review"** — "See your letter in real time. Edit anything with a tap."
-3. 📬 **"Send"** — "Choose delivery, pay, and we print and post it. Done."
+3. 📬 **"Send"** — "Choose delivery, pay, and we generate the final PDF and submit it. Done."
 
 Each card: step number badge (accent circle), icon (48px, accent), title (`font-semibold`), description (`text-muted-foreground`).
 
@@ -1451,14 +1451,12 @@ Single pricing card — we're not a SaaS with tiers, we're pay-per-letter.
 │     From {formattedBasePrice}   │  ← text-4xl font-bold
 │     per letter                  │  ← text-muted-foreground
 │                                  │
-│     ✓ 1 page included           │
-│     ✓ Standard delivery          │
-│     ✓ Printing and postage      │
-│     ✓ AI-assisted drafting       │
+│     ✓ Base service fee          │
+│     ✓ Standard delivery         │
+│     ✓ AI-assisted drafting      │
+│     ✓ Final PDF generation      │
 │                                  │
-│     + {formattedExtraPagePrice} per extra page    │
 │     + {formattedRegisteredUpgrade} registered mail   │
-│     + {formattedAttachmentPagePrice} per attachment pg │
 │                                  │
 │     ┌────────────────────────┐  │
 │     │  No subscription       │  │  ← badge, accent
@@ -1659,7 +1657,7 @@ Every component that loads data has a skeleton state. Skeleton shapes must match
 
 ### CDZ-4: Do not ignore `prefers-reduced-motion`
 
-Every component with animation must check `prefers-reduced-motion: reduce`. In reduced motion mode: fade transitions reduce to 100ms crossfade, stagger becomes instant, confetti is suppressed, and the typing indicator becomes a static "…" text. An LLM may add animations that look great in dev but are inaccessible.
+Every component with animation must check `prefers-reduced-motion: reduce`. In reduced motion mode: fade transitions reduce to 100ms crossfade, stagger becomes instant, non-essential completion effects are suppressed, and the typing indicator becomes a static "…" text. An LLM may add animations that look great in dev but are inaccessible.
 
 ### CDZ-5: Do not implement `LetterPreview` as an iframe
 

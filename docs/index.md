@@ -2,7 +2,8 @@
 
 > Formal letters from your phone — in minutes.
 
-This is the complete specification for Swiss Mail, a mobile-first SaaS for drafting and sending formal Swiss letters with AI assistance and postal fulfillment.
+This is the complete specification for Swiss Mail, a mobile-first SaaS for AI-assisted formal-letter
+drafting, final PDF generation, and postal-provider submission for Switzerland.
 
 The implementation and launch-preparation name is **Swiss Mail**. See [Naming & Identity](02-brand/naming-and-identity.md) for the current brand source of truth.
 
@@ -26,46 +27,51 @@ Pick the path that matches your role. Each leads through the docs in an order th
 ### 🛠️ Frontend Developer
 
 1. [Product Scope](01-vision/product-scope.md) — what we're building
-2. [Design System](02-brand/design-system.md) — tokens to implement
-3. [Component Library](03-ux/component-library.md) — component specs
-4. [Page Specifications](03-ux/page-specifications.md) — routes and layouts
-5. [Frontend Architecture](05-architecture/frontend-architecture.md) — Next.js, state, tooling
-6. [API Contracts](05-architecture/api-contracts.md) — backend endpoints
-7. [System Contracts](05-architecture/system-contracts.md) — shared types, state machines
-8. [Frontend Build Pack](06-build-packs/frontend-build-pack.md) — implementation blueprint
-9. [i18n Rules](05-architecture/i18n-rules.md) — localization
+2. [Provider Submission Model](04-product/provider-submission-model.md) — what Swiss Mail owns vs what the provider owns
+3. [Design System](02-brand/design-system.md) — tokens to implement
+4. [Component Library](03-ux/component-library.md) — component specs
+5. [Page Specifications](03-ux/page-specifications.md) — routes and layouts
+6. [Frontend Architecture](05-architecture/frontend-architecture.md) — Next.js, state, tooling
+7. [API Contracts](05-architecture/api-contracts.md) — backend endpoints
+8. [System Contracts](05-architecture/system-contracts.md) — shared types, state machines
+9. [Frontend Build Pack](06-build-packs/frontend-build-pack.md) — implementation blueprint
+10. [i18n Rules](05-architecture/i18n-rules.md) — localization
 
 ### ⚙️ Backend Developer
 
 1. [Product Scope](01-vision/product-scope.md) — what we're building
-2. [System Contracts](05-architecture/system-contracts.md) — entities, enums, state machines
-3. [Database Schema](05-architecture/database-schema.md) — PostgreSQL tables
-4. [API Contracts](05-architecture/api-contracts.md) — endpoint specs
-5. [Backend Architecture](05-architecture/backend-architecture.md) — modules, adapters
-6. [Session Management](05-architecture/session-management.md) — tokens, resume flow
-7. [Realtime Strategy](05-architecture/realtime-strategy.md) — SSE for AI streaming
-8. [Backend Build Pack](06-build-packs/backend-build-pack.md) — implementation blueprint
-9. [Error Taxonomy](05-architecture/error-taxonomy.md) — error families
+2. [Provider Submission Model](04-product/provider-submission-model.md) — dispatch truth and responsibility boundaries
+3. [System Contracts](05-architecture/system-contracts.md) — entities, enums, state machines
+4. [Database Schema](05-architecture/database-schema.md) — PostgreSQL tables
+5. [API Contracts](05-architecture/api-contracts.md) — endpoint specs
+6. [Backend Architecture](05-architecture/backend-architecture.md) — modules, adapters
+7. [Session Management](05-architecture/session-management.md) — tokens, resume flow
+8. [Realtime Strategy](05-architecture/realtime-strategy.md) — SSE for AI streaming
+9. [Backend Build Pack](06-build-packs/backend-build-pack.md) — implementation blueprint
+10. [Error Taxonomy](05-architecture/error-taxonomy.md) — error families
 
 ### 📋 Product Manager
 
 1. [Overview](01-vision/overview.md) — project philosophy and orientation
 2. [Product Scope](01-vision/product-scope.md) — MVP boundaries
-3. [Competitive Landscape](01-vision/competitive-landscape.md) — market position
-4. [Business Model](01-vision/business-model.md) — GTM, pricing wedge
-5. [Roadmap](01-vision/roadmap.md) — phase gates
-6. [User Flows](03-ux/user-flows.md) — core journeys
-7. [Open Decisions](08-guardrails/open-decisions.md) — what's still unresolved
+3. [Provider Submission Model](04-product/provider-submission-model.md) — operational product truth
+4. [Competitive Landscape](01-vision/competitive-landscape.md) — market position
+5. [Business Model](01-vision/business-model.md) — GTM, pricing wedge
+6. [Roadmap](01-vision/roadmap.md) — phase gates
+7. [User Flows](03-ux/user-flows.md) — core journeys
+8. [Open Decisions](08-guardrails/open-decisions.md) — what's still unresolved
 
 ### 🛡️ AI-Assisted Development (Guardrails)
 
 Start here if you're using AI tools to write code for this project:
 
 1. [AI Implementation Rules](08-guardrails/ai-implementation-rules.md) — **read first**
-2. [Provider Certainties](08-guardrails/provider-certainties.md) — known vs unknown
-3. [Swiss Post Appendix](08-guardrails/swiss-post-appendix.md) — verified facts only
-4. [Non-Goals](08-guardrails/non-goals.md) — what must never be built
-5. [Open Decisions](08-guardrails/open-decisions.md) — don't resolve these by guessing
+2. [Provider Submission Model](04-product/provider-submission-model.md) — actual operating model
+3. [Swiss Post API Reference Map](08-guardrails/swiss-post-api-reference-map.md) — where API truth matters across the docs
+4. [Provider Certainties](08-guardrails/provider-certainties.md) — known vs unknown
+5. [Swiss Post Appendix](08-guardrails/swiss-post-appendix.md) — verified facts only
+6. [Non-Goals](08-guardrails/non-goals.md) — what must never be built
+7. [Open Decisions](08-guardrails/open-decisions.md) — don't resolve these by guessing
 
 ---
 
@@ -124,6 +130,7 @@ Not every polished document has the same implementation authority.
 | Document | Description |
 |----------|-------------|
 | [letter-generation.md](04-product/letter-generation.md) | AI pipeline, prompt logic, structured extraction |
+| [provider-submission-model.md](04-product/provider-submission-model.md) | Canonical responsibility split, submission unit, status meanings |
 | [document-template.md](04-product/document-template.md) | A4 template, PDF rules, multi-page |
 | [a4-template-specification.md](04-product/a4-template-specification.md) | Swiss postal window mm dimensions |
 | [ai-provider-and-prompts.md](04-product/ai-provider-and-prompts.md) | LLM provider decision, prompt architecture, safety |
@@ -184,6 +191,7 @@ Not every polished document has the same implementation authority.
 | Document | Description |
 |----------|-------------|
 | [ai-implementation-rules.md](08-guardrails/ai-implementation-rules.md) | Anti-hallucination rules for AI-assisted dev |
+| [swiss-post-api-reference-map.md](08-guardrails/swiss-post-api-reference-map.md) | Repo-wide map of API-dependent documentation areas |
 | [provider-certainties.md](08-guardrails/provider-certainties.md) | Known vs unknown matrix for providers |
 | [swiss-post-appendix.md](08-guardrails/swiss-post-appendix.md) | Verified provider facts only |
 | [non-goals.md](08-guardrails/non-goals.md) | Forbidden shortcuts and anti-patterns |

@@ -2,7 +2,7 @@
 
 **Status:** Authoritative reference  
 **Supersedes:** earlier error-message planning notes  
-**See also:** `docs/05-architecture/system-contracts.md` for state definitions
+**See also:** `docs/05-architecture/system-contracts.md` for state definitions, `docs/08-guardrails/swiss-post-api-reference-map.md` for provider/API-dependent failure surfaces
 
 ---
 

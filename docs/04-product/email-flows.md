@@ -2,6 +2,7 @@
 
 **Resolves:** GAP-11
 **Status:** Email-required-at-checkout and provider choice are LOCKED.
+**See also:** [`provider-submission-model.md`](provider-submission-model.md), [`postal-dispatch.md`](postal-dispatch.md), [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
 
 ---
 
@@ -67,6 +68,20 @@ All email templates must be:
 - Free of letter body content (privacy)
 - Free of full recipient address in email body
 
+### Locked launch email triggers
+
+At launch, the product may send:
+
+- payment receipt
+- dispatch submitted
+- dispatch accepted
+- dispatch under review / ambiguous
+- refund confirmed
+- resume link
+
+Do not add abandoned-cart drips, marketing sequences, or "your letter is on the way" claims in
+MVP transactional email.
+
 ---
 
 ### Template 1: Payment receipt
@@ -86,7 +101,7 @@ All email templates must be:
 - Delivery type (Standard / Registered)
 - Recipient name (first + last, no address)
 - Sender name
-- "Your letter has been submitted for printing and delivery." (NOT delivery confirmation)
+- Dispatch status is communicated separately; this receipt must not overstate postal progress
 - One-sentence refund policy
 - Link to support
 
@@ -103,10 +118,10 @@ All email templates must be:
 **Trigger:** `DispatchState` transitions to `submitted` (job handed to dispatch queue / provider)
 **Timing:** Sent when backend receives submission acknowledgment from dispatch adapter
 
-**Subject (i18n key):** `email.dispatch_submitted.subject` → e.g., "Your letter has been submitted for printing and delivery"
+**Subject (i18n key):** `email.dispatch_submitted.subject` → e.g., "Your letter has been submitted to Swiss Post"
 
 **Content:**
-- "Your letter has been submitted to our print and delivery partner."
+- "Your letter has been submitted to Swiss Post for processing."
 - Order reference number
 - Estimated delivery timeframe, if and only if the dispatch provider supplies a deterministic estimate — otherwise omit entirely; do not invent a timeframe
 - "You will receive another notification if there are updates to your letter's status."
@@ -121,10 +136,10 @@ All email templates must be:
 **Trigger:** `DispatchState` transitions to `accepted` and provider supplies a handoff-to-postal signal
 **Condition:** Only sent if the dispatch adapter receives a confirmed provider-acceptance signal beyond mere submission — this is NOT sent on `submitted` alone
 
-**Subject (i18n key):** `email.dispatch_accepted.subject` → e.g., "Your letter has been accepted for delivery"
+**Subject (i18n key):** `email.dispatch_accepted.subject` → e.g., "Your letter has been accepted for dispatch"
 
 **Content:**
-- "Your letter has been accepted for delivery by our dispatch provider."
+- "Swiss Post has accepted your letter submission for further processing."
 - Order reference number
 - Tracking reference number, if the provider supplies one — clearly labeled as "reference number" not "tracking number" unless real tracking is available
 - Disclaimer: "Standard letters are not individually tracked. Registered letters include delivery confirmation."
@@ -157,7 +172,27 @@ activity if payment is still incomplete and the session has an email address
 
 ---
 
-### Template 5: Undeliverable / refund notification
+### Template 5: Dispatch under review
+
+**Trigger:** `DispatchState` transitions to `unknown`, or support/manual reconciliation places the
+case under review
+**Timing:** Sent once the backend determines that the provider outcome cannot be stated
+deterministically yet
+
+**Subject (i18n key):** `email.dispatch_under_review.subject` → e.g., "We're reviewing your letter's dispatch status"
+
+**Content:**
+- "We've submitted your letter, but Swiss Post has not confirmed the outcome yet."
+- Order reference number
+- "No action is needed from you right now."
+- "We'll update you as soon as the status is confirmed."
+- Link to support
+
+This template must not imply rejection, refund, delivery, or provider acceptance.
+
+---
+
+### Template 6: Refund notification
 
 **Trigger:** `DispatchState` transitions to `rejected` (deterministic), OR payment refund is confirmed
 **Timing:** Sent when `PaymentState` transitions to `refunded` (confirmed via Stripe webhook)
@@ -175,7 +210,7 @@ activity if payment is still incomplete and the session has an email address
 
 **If reason is ambiguous (dispatch state unknown / under manual review):**
 - Do NOT send this template yet
-- Send a separate "under review" notification with honest status
+- Send Template 5 with honest status
 - Do not claim refund has been issued until Stripe confirms it
 
 ---

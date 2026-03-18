@@ -1,8 +1,8 @@
 # Roadmap & Open Decisions
 
 **Product:** Swiss Mail  
-**Last updated:** 2026-03-17  
-**Status:** Foundation phase — core platform decisions locked; provider onboarding still pending  
+**Last updated:** 2026-03-18  
+**Status:** Implementation can proceed, but launch still depends on commercial, provider, and locale-readiness gates  
 **See also:** [Overview](overview.md) · [Open Decisions](../08-guardrails/open-decisions.md) · [Provider Certainties](../08-guardrails/provider-certainties.md)
 
 ---
@@ -19,8 +19,8 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | 3 — Build Packs | AI-safe implementation blueprints | ✅ Complete — frontend, backend, admin build packs; guardrails; error taxonomy; i18n; dev workflow |
 | 4 — Pre-Dev Gate | Final review before implementation | ✅ Complete — doc hardening and recursive closeout passed |
 
-**Current phase:** Implementation. Most modules can proceed in parallel. One remaining blocker
-remains — see Section 4.
+**Current phase:** Implementation with launch validation gates. Most modules can proceed in parallel,
+but production launch still depends on multiple non-code blockers — see Section 4.
 
 ---
 
@@ -47,6 +47,7 @@ remains — see Section 4.
 | Admin auth (MVP) | ✅ Locked — HTTP Basic Auth over TLS |
 | Address validation | ✅ Locked — soft validation with warnings |
 | File policy | ✅ Locked — provisional defaults; narrow PDF/PNG/JPG set |
+| Locale direction | ✅ Locked — product targets four Swiss locales; launch enablement is per-locale and quality-gated |
 
 ---
 
@@ -69,17 +70,22 @@ Implementation can proceed on these modules without waiting for the remaining bl
 
 ---
 
-## 4. Remaining Blockers
+## 4. Remaining Launch Blockers
 
-These items **must be resolved before production launch** on the modules they affect.
+These items **must be resolved before production launch**.
 See [Open Decisions](../08-guardrails/open-decisions.md) for the current blocker record.
 
 | # | Item | Type | Blocks | Recommended resolution |
 |---|---|---|---|---|
 | 1 | Swiss Post onboarding docs + sandbox | Operational | Dispatch adapter internals, tracking | Contact Swiss Post for current Digital Commerce API docs and sandbox access |
+| 2 | Provider economics approval | Commercial | Public pricing, margin confidence | Validate Swiss Post commercial terms and support/reconciliation cost against locked launch pricing |
+| 3 | Beta / willingness-to-pay validation | Product-market fit | Public launch confidence, funnel assumptions | Run a small beta or structured user-validation cycle on the launch wedge before broad launch |
+| 4 | Launch locale readiness | Quality | Drafting quality, trust copy, support handling | Enable each locale only after native-speaker review of drafting, emails, help content, and operational support |
+| 5 | Support readiness beyond inbox-only posture | Operational | Refunds, ambiguous dispatch, payment issues | Launch with help content, triage workflow, and daily review path for payment/dispatch exceptions |
 
-> Pricing is locked. The remaining blocker is Swiss Post onboarding detail, which can run in
-> parallel with implementation of all non-provider-specific modules.
+> Pricing is locked as a product decision, but commercial approval is still a launch gate. Swiss Post
+> onboarding is not the only blocker; provider economics, locale readiness, and support readiness all
+> remain launch-critical.
 
 ---
 

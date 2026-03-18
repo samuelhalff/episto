@@ -3,6 +3,8 @@
 > These decisions are **LOCKED**. They are not recommendations or options under review.
 > See [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md) for the rationale
 > and the options that were rejected.
+> See [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
+> for why attachment rules remain provider-dependent.
 
 ## Signature scope — LOCKED: Option B
 
@@ -22,8 +24,8 @@ signature zone of the final page.
 
 ## Attachment scope — LOCKED: Option B
 
-**Locked choice: support a narrow, approved set of attachment types, kept separate from the letter
-artifact.**
+**Locked choice: support a narrow, approved set of attachment types, kept separate from the
+editable letter artifact.**
 
 Locked constraints:
 - Attachments are supporting documents, not layout elements inside the letter body
@@ -31,6 +33,8 @@ Locked constraints:
 - Uploaded attachments remain operationally separate from the core letter PDF artifact
 - Allowed types: `application/pdf`, `image/png`, `image/jpeg`
 - Size limits: see [`file-handling.md`](file-handling.md)
+- Provider-side packaging of attachments is not yet locked; do not assume merged-PDF assembly or
+  a provider multi-part submission shape until Swiss Post onboarding docs confirm it
 
 **Why this is locked:**
 - Option A (no attachments) was rejected as cutting important real-world use cases
@@ -39,9 +43,14 @@ Locked constraints:
 
 **Still open — do not guess in code:**
 - Whether all dispatch provider paths support attachments equally
+- Whether attachments are appended, transmitted separately, or temporarily disabled for the launch
+  provider path
 
 **Locked timing:** attachments are available only after the first draft exists and remain editable
 through the review step. Checkout does not introduce new attachment upload behavior.
+
+**Launch gate:** If the provider-confirmed launch path cannot support attachments safely, Swiss Mail
+must disable attachment submission at launch rather than inventing a packaging flow.
 
 ## Account scope — LOCKED: Option B
 
