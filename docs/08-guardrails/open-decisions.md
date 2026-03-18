@@ -81,6 +81,7 @@ All values are configurable via environment variables. See
 
 Provisional guidance:
 - Session and resume tokens: 24–72 hours
+- Order access tokens (sent in receipt): 30+ days
 - Files and rendered PDFs: ~7 days
 - Transactional metadata: longer-lived, exact duration to be approved
 

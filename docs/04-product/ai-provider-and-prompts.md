@@ -110,6 +110,11 @@ Prompt rules:
 
 Do not store prompts inline in UI code or spread prompt fragments across feature modules.
 
+### Locale & Legal Safety
+- **Locale enforcement:** Every prompt must explicitly state the target locale (e.g., "Output strictly in standard Swiss German (Hochdeutsch)").
+- **Dialect rule:** Never generate Swiss German dialect (Mundart) for formal letters.
+- **Legal hallucination:** Instruct the model to *never* invent Article numbers or specific laws. If a user asks for "legal backing", the model must refuse or use generic phrasing ("under applicable Swiss law") rather than fabricating a statute.
+
 ---
 
 ## Data processing truth

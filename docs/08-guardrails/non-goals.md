@@ -32,6 +32,7 @@ The following must never appear in any production code path:
 - No legal-validity marketing claims without explicit documented basis
 - No implementation that silently picks one side of a documented conflict without fixing the docs
 - No replacing missing documentation with inferred requirements
+- No silent or undocumented overrides of locked launch pricing
 
 ## Architectural shortcuts that are also forbidden
 

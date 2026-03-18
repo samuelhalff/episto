@@ -18,9 +18,10 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | 2 — Architecture Freeze | Implementation-grade technical decisions | ✅ Complete — stack, contracts, schemas, state machines locked |
 | 3 — Build Packs | AI-safe implementation blueprints | ✅ Complete — frontend, backend, admin build packs; guardrails; error taxonomy; i18n; dev workflow |
 | 4 — Pre-Dev Gate | Final review before implementation | ✅ Complete — doc hardening and recursive closeout passed |
+| 5 — Build | Code scaffolding and feature implementation | 🚧 Ready to start |
+| 6 — Launch Validation | Commercial and operational verification | 🛑 Blocked on Build & Provider Contract |
 
-**Current phase:** Implementation with launch validation gates. Most modules can proceed in parallel,
-but production launch still depends on multiple non-code blockers — see Section 4.
+**Current phase:** Phase 5 (Build). Implementation can proceed in parallel with Phase 6 preparations.
 
 ---
 
@@ -78,7 +79,7 @@ See [Open Decisions](../08-guardrails/open-decisions.md) for the current blocker
 | # | Item | Type | Blocks | Recommended resolution |
 |---|---|---|---|---|
 | 1 | Swiss Post onboarding docs + sandbox | Operational | Dispatch adapter internals, tracking | Contact Swiss Post for current Digital Commerce API docs and sandbox access |
-| 2 | Provider economics approval | Commercial | Public pricing, margin confidence | Validate Swiss Post commercial terms and support/reconciliation cost against locked launch pricing |
+| 2 | Provider + operational economics approval | Commercial | Public pricing, margin confidence | Validate Swiss Post commercial terms and support/reconciliation overhead against locked launch pricing |
 | 3 | Beta / willingness-to-pay validation | Product-market fit | Public launch confidence, funnel assumptions | Run a small beta or structured user-validation cycle on the launch wedge before broad launch |
 | 4 | Launch locale readiness | Quality | Drafting quality, trust copy, support handling | Enable each locale only after native-speaker review of drafting, emails, help content, and operational support |
 | 5 | Support readiness beyond inbox-only posture | Operational | Refunds, ambiguous dispatch, payment issues | Launch with help content, triage workflow, and daily review path for payment/dispatch exceptions |

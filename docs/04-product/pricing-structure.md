@@ -23,10 +23,16 @@ Define what checkout must be truthful about with the MVP launch prices locked.
 
 ### Locked MVP launch prices
 
+**Status:** Provisional for MVP Build.
+**Commercial Gate:** These values must be re-validated against `commercial_ready` criteria defined in [`../01-vision/business-model.md`](../01-vision/business-model.md) prior to public launch. Do not treat them as final until the gate is passed.
+
 | Item | Locked amount |
 |---|---|
 | Standard letter | **CHF 4.90** |
 | Registered letter | **CHF 8.90** |
+
+**Note on surcharges:** Page count and attachment surcharges are explicitly disabled for the MVP launch.
+The base fee covers up to 5 pages and any allowed attachments.
 
 Config keys:
 - `PRICE_STANDARD_CENTS=490`
@@ -73,6 +79,9 @@ It may cover:
 - payment processing overhead
 - support and refund-handling overhead
 - provider-side dispatch cost
+
+**Note on operational cost:** The launch price must cover not just the provider fee, but the cost of
+reconciliation, potential manual support touchpoints, and payment processing fees.
 
 It does not include:
 

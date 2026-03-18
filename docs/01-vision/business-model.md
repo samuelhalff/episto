@@ -56,8 +56,8 @@ This works because:
 
 | Stream | Description |
 |---|---|
-| **Per-letter price** | Bundled charge covering drafting, PDF generation, provider submission, and margin — primary MVP revenue |
-| **Provider-cost dependency** | Commercial viability still depends on real provider pricing and reconciliation costs |
+| **Per-letter price** | Bundled fee covering drafting, PDF generation, provider submission, and operational margin |
+| **Operational cost dependency** | Viability depends on provider pricing plus support/reconciliation costs, not provider fees alone |
 | **Future: subscription** | Repeat or business use; not MVP scope |
 
 ### Pricing Considerations
@@ -68,15 +68,16 @@ This works because:
 - Transparent pricing at the surface level (before checkout) reduces abandonment
 - Locked launch prices still require validation against real provider commercial terms before public launch
 
-> MVP launch pricing is locked at CHF 4.90 standard and CHF 8.90 registered. Keep these values
-> config-backed in implementation and update this doc if the business revises pricing later. See
-> [Pricing Structure](../04-product/pricing-structure.md).
+> **Locked MVP launch pricing:** CHF 4.90 standard and CHF 8.90 registered.
+>
+> These are locked product decisions for initial public release. They must be config-backed, not hardcoded.
+> See [Pricing Structure](../04-product/pricing-structure.md).
 
 ### Commercial gating rules
 
 Before public launch:
 
-- provider economics must be validated against the locked launch prices
+- provider economics plus support/reconciliation overhead must be validated against the locked launch prices
 - willingness to pay must be tested with real prospective users or beta users
 - public trust claims and social proof must be factual, not aspirational
 - launch acquisition must include at least one channel besides SEO

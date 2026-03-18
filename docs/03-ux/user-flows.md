@@ -132,15 +132,16 @@ mistakes without making the user feel blamed.
 
 ### Step 6 — Delivery selection
 
-User chooses standard or registered delivery. The price summary updates to reflect the choice.
-Total price in CHF must be visible before proceeding.
+User chooses standard or registered delivery.
+The price summary updates to reflect the choice.
+Total price in CHF must be visible and clearly labeled before proceeding.
 
 ### Step 7 — Checkout (`/draft/:id/checkout`)
 
 User enters their email address (required) and payment details (Stripe). Email is the only
 dependable contact handle for confirmations and support.
 
-There is no separate signup step.
+There is no separate signup step. Email collection happens within the checkout context.
 
 → Email policy: [`docs/04-product/auth-billing-accounts.md`](../04-product/auth-billing-accounts.md)  
 
@@ -210,9 +211,10 @@ Flow:
 ## Check Letter Status Flow (Returning User)
 
 Flow:
-1. User received confirmation email with reference number
-2. Clicks the resume link in email → `/resume/:token` → shows current dispatch status
-3. Status shown using canonical `DispatchState` values (from `system-contracts.md` §3.3):
+1. User receives **immediate** confirmation email with a secure "Order Status" link (separate from draft resume link).
+2. Clicks link → `/status/:order_token` → shows current dispatch status and receipt.
+3. This link is valid for 90 days (configurable), independent of the original 72h drafting session.
+4. Status shown using canonical `DispatchState` values (from `system-contracts.md` §3.3):
    - `queued` → "Your letter is queued for dispatch"
    - `submitted` → "Submitted for dispatch"
    - `accepted` → "Accepted for dispatch" (letter is in provider's possession — not yet delivered)

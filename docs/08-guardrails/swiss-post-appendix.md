@@ -102,8 +102,9 @@ The following cannot be safely resolved from current public sources:
 
 ## Operational conclusion (as of 2026-03-15)
 
+- **LOCKED DIRECTION:** We are building against the **Digital Commerce API** (Barcode + Address + Delivery), NOT SmartSend. See [`open-decisions.md`](../open-decisions.md).
 - Swiss Post clearly offers related digital-commerce and tracking capabilities
-- SmartSend is a real current sending product
+- SmartSend is a real current sending product but is **rejected for MVP implementation**.
 - Public evidence is insufficient to hardcode any MVP dispatch integration without completing
   onboarding and reviewing provider-provided technical documentation
 

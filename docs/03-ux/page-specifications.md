@@ -204,7 +204,7 @@ Single card (max-width `lg`, centred):
   - Base service fee — {formattedBasePrice}
   - Standard delivery — included
   - Registered delivery — + {formattedRegisteredSurcharge}
-- Note: `text-xs text-secondary` "Prices include VAT where applicable and must come from approved pricing config."
+- Note: `text-xs text-secondary` "Prices include VAT where applicable."
 - CTA: `<Button size="lg" className="w-full">` "Start your letter" → `/draft/new`
 
 > **Implementation note:** Do not hardcode prices. Read them from the backend pricing config and format them through the shared CHF formatter.

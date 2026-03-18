@@ -41,6 +41,19 @@ Do not introduce a parallel `session_tokens` or `audit_events` schema unless the
 
 ---
 
+## Order Access (Long-Term)
+
+While **Drafting Sessions** are ephemeral (72h), **Paid Orders** require longer-term access for status checks and receipt downloads.
+
+### Order Access Token
+- **Scope:** Read-only access to a specific `order_id` (status, receipt, final PDF).
+- **Delivery:** Sent in the "Payment Receipt" email immediately upon success.
+- **TTL:** 90 days (configurable via `ORDER_ACCESS_DAYS`).
+- **Mechanism:** A distinct JWT or signed URL param (separate from the session cookie).
+- **UX:** Clicking the link in the receipt opens the "Order Status" page. It does *not* resurrect the editable draft session.
+
+---
+
 ## Session credential
 
 Guest sessions use a single opaque resume token.
@@ -102,9 +115,10 @@ Resume does not imply cross-device history beyond the current guest session. It 
 
 ## Expiry and retention behavior
 
-Session truth splits into two concerns:
+Session truth splits into three concerns:
 
-- **access window:** how long the guest can resume the draft
+- **draft access window:** how long the guest can resume the draft (72h default)
+- **order access window:** how long a paid customer can view status/receipts (90 days default)
 - **retention window:** how long short-lived draft content and files remain available operationally
 
 The access window and the content-retention window may be different, but both must be configurable.

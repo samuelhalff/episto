@@ -36,7 +36,7 @@ Every row marked **Locked** is a hard constraint for implementation. Do not open
 | Structured logging | **Locked** | JSON-structured application logs (`pino` preferred; exact library selection remains open) |
 | Shared contracts | **Locked** | TypeScript schemas in `shared/` — single source of truth |
 | Transactional email | **Locked** | Resend |
-| Auth (future accounts) | Open | Standard session/auth solution only when accounts are added |
+| Auth (future accounts) | **Open** | Standard session/auth solution only when accounts are added |
 | Hosting topology | **Locked** | Infomaniak-centered topology; exact SKUs remain operational validation items |
 
 ---
