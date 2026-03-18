@@ -7,5 +7,70 @@
   "home": {
     "title": "Lettres formelles, envoyées simplement",
     "subtitle": "Rédigez et envoyez vos lettres via la Poste Suisse – rapidement, en toute sécurité et avec professionnalisme."
+  },
+  "draft": {
+    "title": "Rédiger votre lettre",
+    "sendMessage": "Envoyer",
+    "messagePlaceholder": "Écrivez votre message…",
+    "preview": "Aperçu",
+    "saved": "Enregistré",
+    "saving": "Enregistrement…",
+    "notSaved": "Non enregistré",
+    "stepDraft": "Brouillon",
+    "stepReview": "Vérifier",
+    "stepPay": "Payer",
+    "stepDone": "Terminé"
+  },
+  "review": {
+    "title": "Vérifier votre lettre",
+    "subtitle": "Assurez-vous que tout est correct avant l'envoi.",
+    "checklist": "Liste de vérification",
+    "senderDetails": "Coordonnées de l'expéditeur",
+    "recipientDetails": "Coordonnées du destinataire",
+    "letterBody": "Contenu de la lettre",
+    "subjectLine": "Objet",
+    "signature": "Signature",
+    "attachments": "Pièces jointes",
+    "deliveryStandard": "Envoi standard",
+    "deliveryRegistered": "Envoi recommandé",
+    "proceedToPayment": "Passer au paiement",
+    "backToEditing": "Retour à l'édition",
+    "total": "Total"
+  },
+  "checkout": {
+    "title": "Paiement",
+    "orderSummary": "Votre commande",
+    "email": "Adresse e-mail",
+    "emailHelp": "Nous enverrons votre reçu et le suivi de votre lettre à cette adresse.",
+    "paymentMethod": "Moyen de paiement",
+    "paymentPending": "Chargement du formulaire de paiement…",
+    "legalConsent": "J'ai lu et j'accepte les conditions d'utilisation et je comprends que Swiss Mail ne fournit pas de services juridiques.",
+    "sendMyLetter": "Envoyer ma lettre",
+    "securedByStripe": "Sécurisé par Stripe",
+    "swissDelivery": "Expédition par la Poste Suisse",
+    "dataProtection": "Chiffré et stocké de manière sécurisée"
+  },
+  "confirmation": {
+    "title": "Paiement reçu",
+    "subtitle": "Votre lettre est en cours de traitement.",
+    "orderReference": "Référence de commande",
+    "whatHappensNext": "Prochaines étapes",
+    "stepProcessing": "Votre lettre est en cours de préparation pour l'impression",
+    "stepPrinting": "Imprimée et remise à la Poste Suisse",
+    "stepDelivery": "Distribuée au destinataire",
+    "downloadReceipt": "Télécharger le reçu",
+    "sendAnother": "Envoyer une autre lettre"
+  },
+  "resume": {
+    "loading": "Reprise de votre brouillon…",
+    "error": "Impossible de retrouver votre brouillon. Le lien a peut-être expiré.",
+    "startNew": "Commencer une nouvelle lettre"
+  },
+  "status": {
+    "title": "Suivi de la lettre",
+    "orderReference": "Référence de commande",
+    "dispatchState": "Statut d'envoi",
+    "estimatedDelivery": "Livraison estimée",
+    "sendAnother": "Envoyer une autre lettre"
   }
 }

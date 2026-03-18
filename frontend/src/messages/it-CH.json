@@ -7,5 +7,70 @@
   "home": {
     "title": "Lettere formali, inviate con semplicità",
     "subtitle": "Create e inviate le vostre lettere tramite la Posta Svizzera – in modo rapido, sicuro e professionale."
+  },
+  "draft": {
+    "title": "Redigi la tua lettera",
+    "sendMessage": "Invia",
+    "messagePlaceholder": "Scrivi il tuo messaggio…",
+    "preview": "Anteprima",
+    "saved": "Salvato",
+    "saving": "Salvataggio…",
+    "notSaved": "Non salvato",
+    "stepDraft": "Bozza",
+    "stepReview": "Verifica",
+    "stepPay": "Paga",
+    "stepDone": "Fatto"
+  },
+  "review": {
+    "title": "Verifica la tua lettera",
+    "subtitle": "Controlla che tutto sia corretto prima dell'invio.",
+    "checklist": "Lista di controllo",
+    "senderDetails": "Dati del mittente",
+    "recipientDetails": "Dati del destinatario",
+    "letterBody": "Contenuto della lettera",
+    "subjectLine": "Oggetto",
+    "signature": "Firma",
+    "attachments": "Allegati",
+    "deliveryStandard": "Spedizione standard",
+    "deliveryRegistered": "Raccomandata",
+    "proceedToPayment": "Procedi al pagamento",
+    "backToEditing": "Torna alla modifica",
+    "total": "Totale"
+  },
+  "checkout": {
+    "title": "Pagamento",
+    "orderSummary": "Il tuo ordine",
+    "email": "Indirizzo e-mail",
+    "emailHelp": "Invieremo la ricevuta e lo stato della lettera a questo indirizzo.",
+    "paymentMethod": "Metodo di pagamento",
+    "paymentPending": "Caricamento del modulo di pagamento…",
+    "legalConsent": "Ho letto e accetto le Condizioni d'uso e sono consapevole che Swiss Mail non fornisce servizi legali.",
+    "sendMyLetter": "Invia la mia lettera",
+    "securedByStripe": "Protetto da Stripe",
+    "swissDelivery": "Spedizione tramite la Posta Svizzera",
+    "dataProtection": "Crittografato e archiviato in modo sicuro"
+  },
+  "confirmation": {
+    "title": "Pagamento ricevuto",
+    "subtitle": "La tua lettera è in fase di elaborazione.",
+    "orderReference": "Numero d'ordine",
+    "whatHappensNext": "Prossimi passi",
+    "stepProcessing": "La tua lettera viene preparata per la stampa",
+    "stepPrinting": "Stampata e consegnata alla Posta Svizzera",
+    "stepDelivery": "Recapitata al destinatario",
+    "downloadReceipt": "Scarica la ricevuta",
+    "sendAnother": "Invia un'altra lettera"
+  },
+  "resume": {
+    "loading": "Ripresa della bozza…",
+    "error": "Impossibile trovare la tua bozza. Il link potrebbe essere scaduto.",
+    "startNew": "Inizia una nuova lettera"
+  },
+  "status": {
+    "title": "Stato della lettera",
+    "orderReference": "Numero d'ordine",
+    "dispatchState": "Stato di spedizione",
+    "estimatedDelivery": "Consegna prevista",
+    "sendAnother": "Invia un'altra lettera"
   }
 }

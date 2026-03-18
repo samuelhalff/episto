@@ -7,5 +7,70 @@
   "home": {
     "title": "Formelle Briefe, einfach versendet",
     "subtitle": "Erstellen und versenden Sie Ihre Briefe über die Schweizerische Post – schnell, sicher und professionell."
+  },
+  "draft": {
+    "title": "Brief verfassen",
+    "sendMessage": "Senden",
+    "messagePlaceholder": "Schreiben Sie Ihre Nachricht…",
+    "preview": "Vorschau",
+    "saved": "Gespeichert",
+    "saving": "Wird gespeichert…",
+    "notSaved": "Nicht gespeichert",
+    "stepDraft": "Entwurf",
+    "stepReview": "Prüfen",
+    "stepPay": "Bezahlen",
+    "stepDone": "Fertig"
+  },
+  "review": {
+    "title": "Brief überprüfen",
+    "subtitle": "Prüfen Sie, ob alles korrekt ist, bevor Sie den Brief absenden.",
+    "checklist": "Checkliste",
+    "senderDetails": "Absenderangaben",
+    "recipientDetails": "Empfängerangaben",
+    "letterBody": "Briefinhalt",
+    "subjectLine": "Betreff",
+    "signature": "Unterschrift",
+    "attachments": "Beilagen",
+    "deliveryStandard": "Standardversand",
+    "deliveryRegistered": "Einschreiben",
+    "proceedToPayment": "Weiter zur Zahlung",
+    "backToEditing": "Zurück zum Bearbeiten",
+    "total": "Total"
+  },
+  "checkout": {
+    "title": "Kasse",
+    "orderSummary": "Ihre Bestellung",
+    "email": "E-Mail-Adresse",
+    "emailHelp": "Wir senden Ihre Quittung und den Briefstatus an diese Adresse.",
+    "paymentMethod": "Zahlungsmethode",
+    "paymentPending": "Zahlungsformular wird geladen…",
+    "legalConsent": "Ich habe die Nutzungsbedingungen gelesen und stimme diesen zu. Ich verstehe, dass Swiss Mail keine Rechtsdienstleistung erbringt.",
+    "sendMyLetter": "Brief absenden",
+    "securedByStripe": "Gesichert durch Stripe",
+    "swissDelivery": "Versand über die Schweizerische Post",
+    "dataProtection": "Verschlüsselt und sicher gespeichert"
+  },
+  "confirmation": {
+    "title": "Zahlung erhalten",
+    "subtitle": "Ihr Brief wird verarbeitet.",
+    "orderReference": "Bestellnummer",
+    "whatHappensNext": "So geht es weiter",
+    "stepProcessing": "Ihr Brief wird für den Druck vorbereitet",
+    "stepPrinting": "Gedruckt und der Schweizerischen Post übergeben",
+    "stepDelivery": "Zustellung an den Empfänger",
+    "downloadReceipt": "Quittung herunterladen",
+    "sendAnother": "Weiteren Brief senden"
+  },
+  "resume": {
+    "loading": "Entwurf wird geladen…",
+    "error": "Ihr Entwurf konnte nicht gefunden werden. Der Link ist möglicherweise abgelaufen.",
+    "startNew": "Neuen Brief beginnen"
+  },
+  "status": {
+    "title": "Briefstatus",
+    "orderReference": "Bestellnummer",
+    "dispatchState": "Versandstatus",
+    "estimatedDelivery": "Voraussichtliche Zustellung",
+    "sendAnother": "Weiteren Brief senden"
   }
 }

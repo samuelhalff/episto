@@ -7,5 +7,70 @@
   "home": {
     "title": "Formal letters, sent with ease",
     "subtitle": "Draft and send your letters via Swiss Post – quickly, securely, and professionally."
+  },
+  "draft": {
+    "title": "Draft your letter",
+    "sendMessage": "Send",
+    "messagePlaceholder": "Type your message…",
+    "preview": "Preview",
+    "saved": "Saved",
+    "saving": "Saving…",
+    "notSaved": "Not saved",
+    "stepDraft": "Draft",
+    "stepReview": "Review",
+    "stepPay": "Pay",
+    "stepDone": "Done"
+  },
+  "review": {
+    "title": "Review your letter",
+    "subtitle": "Check everything looks correct before sending.",
+    "checklist": "Completion checklist",
+    "senderDetails": "Sender details",
+    "recipientDetails": "Recipient details",
+    "letterBody": "Letter body",
+    "subjectLine": "Subject line",
+    "signature": "Signature",
+    "attachments": "Attachments",
+    "deliveryStandard": "Standard delivery",
+    "deliveryRegistered": "Registered delivery",
+    "proceedToPayment": "Proceed to payment",
+    "backToEditing": "Back to editing",
+    "total": "Total"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "orderSummary": "Your order",
+    "email": "Email address",
+    "emailHelp": "We'll send your receipt and letter status to this address.",
+    "paymentMethod": "Payment method",
+    "paymentPending": "Payment form loading…",
+    "legalConsent": "I have read and agree to the Terms of Service and understand that Swiss Mail is not a legal service.",
+    "sendMyLetter": "Send my letter",
+    "securedByStripe": "Secured by Stripe",
+    "swissDelivery": "Swiss postal delivery",
+    "dataProtection": "Encrypted and securely stored"
+  },
+  "confirmation": {
+    "title": "Payment received",
+    "subtitle": "Your letter is being processed.",
+    "orderReference": "Order reference",
+    "whatHappensNext": "What happens next",
+    "stepProcessing": "Your letter is being prepared for print",
+    "stepPrinting": "Printed and handed to Swiss Post",
+    "stepDelivery": "Delivered to the recipient",
+    "downloadReceipt": "Download receipt",
+    "sendAnother": "Send another letter"
+  },
+  "resume": {
+    "loading": "Resuming your draft…",
+    "error": "Could not find your draft. The link may have expired.",
+    "startNew": "Start a new letter"
+  },
+  "status": {
+    "title": "Letter status",
+    "orderReference": "Order reference",
+    "dispatchState": "Dispatch status",
+    "estimatedDelivery": "Estimated delivery",
+    "sendAnother": "Send another letter"
   }
 }

@@ -6,6 +6,7 @@ export {
   recordDispatchEvent,
 } from "./dispatch.service.js";
 export type { DispatchAttemptRow, DispatchStatusEventRow } from "./dispatch.service.js";
+export { dispatchRoutes } from "./dispatch.routes.js";
 export {
   getDispatchAdapter,
   setDispatchAdapter,

@@ -13,6 +13,9 @@ import { healthRoutes } from "./routes/health.js";
 import { sessionRoutes } from "./modules/sessions/index.js";
 import { draftRoutes } from "./modules/drafting/index.js";
 import { paymentRoutes } from "./modules/payments/index.js";
+import { dispatchRoutes } from "./modules/dispatch/index.js";
+import { messageRoutes } from "./modules/messages/index.js";
+import { fileRoutes } from "./modules/files/index.js";
 
 export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   const config = env();
@@ -106,6 +109,9 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   await app.register(sessionRoutes, { prefix: "/api/v1" });
   await app.register(draftRoutes, { prefix: "/api/v1" });
   await app.register(paymentRoutes, { prefix: "/api/v1" });
+  await app.register(fileRoutes, { prefix: "/api/v1" });
+  await app.register(dispatchRoutes, { prefix: "/api/v1" });
+  await app.register(messageRoutes, { prefix: "/api/v1" });
 
   return app;
 }

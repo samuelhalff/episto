@@ -8,3 +8,4 @@ export {
   renderStorageKey,
 } from "./file.service.js";
 export type { FileAssetRow } from "./file.service.js";
+export { fileRoutes } from "./file.routes.js";
