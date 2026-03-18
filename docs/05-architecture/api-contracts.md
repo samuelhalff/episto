@@ -208,11 +208,12 @@ Validate a resume token (from email link), set session cookie, return redirect U
 **Response `200 OK`:**
 ```ts
 const ResumeTokenResponse = z.object({
-  redirectUrl: z.string().url(), // e.g. "/drafts/:id"
+  redirectUrl: z.string(), // e.g. "/draft/:id" or "/status/:orderToken"
   sessionId: UuidSchema,
 });
 ```
-Sets session cookie on success.
+Sets session cookie on success. If the resumed draft has already been paid and an order-access token
+exists, `redirectUrl` points to `/status/:orderToken` rather than reopening editing.
 
 **Error responses:**
 
@@ -320,10 +321,14 @@ const PatchDraftBody = z.object({
   body: z.string().max(50_000).nullable().optional(),
   enclosureNote: z.string().max(2000).nullable().optional(),
   signatureMode: z.enum(["typed", "image"]).nullable().optional(),
+  baseUpdatedAt: TimestampSchema,
 }).refine(obj => Object.keys(obj).length > 0, {
   message: "At least one field must be provided",
 });
 ```
+
+`baseUpdatedAt` is the client's last known draft freshness marker. The backend compares it with the
+current draft `updatedAt` to reject stale writes from another tab or stale UI state.
 
 **Response `200 OK`:**
 ```ts
@@ -336,7 +341,7 @@ const PatchDraftResponse = z.object({ draft: DraftSummary });
 |------|------|------|
 | `SESSION_REQUIRED` | 401 | No valid session |
 | `NOT_FOUND` | 404 | Draft not found |
-| `CONFLICT` | 409 | Draft is in a state that forbids editing (e.g., `submitted`, `dispatched`, `closed`) |
+| `CONFLICT` | 409 | Draft is in a state that forbids editing, or the client's `baseUpdatedAt` is stale |
 | `VALIDATION_ERROR` | 400 | Field value invalid |
 
 **Rate limit:** 120 req/session/min
@@ -555,7 +560,9 @@ Clients should reconnect using `Last-Event-ID` header. Each event carries an `id
 | `SESSION_REQUIRED` | 401 | No valid session |
 | `NOT_FOUND` | 404 | Draft not found |
 
-**Rate limit:** 2 concurrent SSE connections/session
+**Connection rule:** one shared SSE connection per active draft per tab. The server may briefly
+tolerate a second same-session+draft connection during reconnect overlap, but duplicate connections
+should be replaced quickly rather than treated as a supported steady state.
 
 ---
 
@@ -925,7 +932,79 @@ const DispatchRetryResponse = z.object({
 
 ---
 
-### 3.8 Admin
+### 3.8 Order Status (Token-Authenticated)
+
+These endpoints use a distinct order-access token, not the guest session cookie.
+The order-access token is delivered via email after payment succeeds. It provides
+read-only access to payment state, dispatch state, and the final rendered PDF for
+a single paid order.
+
+Authentication: the `orderToken` path parameter is the credential. The backend
+validates it against a stored hash, the same way resume tokens are validated.
+
+#### `GET /api/v1/orders/:orderToken`
+Return canonical order status. Never exposes raw provider payloads.
+
+**Response `200 OK`:**
+```ts
+const OrderStatusResponse = z.object({
+  order: z.object({
+    draftId: UuidSchema,
+    orderRef: z.string(),            // human-readable order reference
+    locale: LocaleSchema,
+    payment: z.object({
+      state: PaymentStateSchema,
+      priceCents: z.number().int().positive(),
+      currency: z.literal("CHF"),
+      capturedAt: TimestampSchema.nullable(),
+      refundedAt: TimestampSchema.nullable(),
+    }),
+    dispatch: z.object({
+      state: DispatchStateSchema,
+      providerRef: z.string().nullable(),
+      submittedAt: TimestampSchema.nullable(),
+      acceptedAt: TimestampSchema.nullable(),
+      rejectedAt: TimestampSchema.nullable(),
+      trackingAvailable: z.boolean(),
+      lastCheckedAt: TimestampSchema.nullable(),
+    }),
+    deliveryType: z.enum(["standard", "registered"]),
+    recipientName: z.string(),       // first + last only; no full address
+    createdAt: TimestampSchema,
+  }),
+});
+```
+
+**State display rules:** same as §3.7 dispatch state display rules.
+
+**Error responses:**
+
+| Code | HTTP | When |
+|------|------|------|
+| `NOT_FOUND` | 404 | Token invalid, expired, or order not found |
+
+**Rate limit:** 30 req/IP/min
+
+---
+
+#### `GET /api/v1/orders/:orderToken/pdf`
+Download the final rendered PDF for the paid order. Returns the PDF binary, not JSON.
+
+**Response `200 OK`:**
+- `Content-Type: application/pdf`
+- `Content-Disposition: attachment; filename="letter-{orderRef}.pdf"`
+
+**Error responses:**
+
+| Code | HTTP | When |
+|------|------|------|
+| `NOT_FOUND` | 404 | Token invalid, expired, order not found, or PDF not yet rendered |
+
+**Rate limit:** 10 req/IP/hour
+
+---
+
+### 3.9 Admin
 
 All `/api/v1/admin/*` endpoints require an authenticated admin session. These are not accessible to guest or consumer sessions.
 
@@ -1096,7 +1175,7 @@ All responses use the canonical error envelope from §1 (sourced from `error-tax
 | `GET /api/v1/drafts/:id/preview` | 120 | 1 min | Session |
 | `POST /api/v1/drafts/:id/messages` | 30 | 1 hour | Session |
 | `GET /api/v1/drafts/:id/messages` | 60 | 1 min | Session |
-| `GET /api/v1/drafts/:id/stream` | 2 concurrent | — | Session |
+| `GET /api/v1/drafts/:id/stream` | 1 shared steady-state connection per active draft per tab; short reconnect overlap tolerated | — | Session + Draft |
 | `PUT /api/v1/drafts/:id/sender` | 60 | 1 min | Session |
 | `PUT /api/v1/drafts/:id/recipient` | 60 | 1 min | Session |
 | `POST /api/v1/drafts/:id/files` | 20 | 1 hour | Session |
@@ -1107,6 +1186,8 @@ All responses use the canonical error envelope from §1 (sourced from `error-tax
 | `GET /api/v1/drafts/:id/payment` | 60 | 1 min | Session |
 | `POST /api/v1/webhooks/stripe` | No limit | — | — |
 | `GET /api/v1/drafts/:id/dispatch` | 60 | 1 min | Session |
+| `GET /api/v1/orders/:orderToken` | 30 | 1 min | IP |
+| `GET /api/v1/orders/:orderToken/pdf` | 10 | 1 hour | IP |
 | `POST /api/v1/drafts/:id/dispatch/retry` | 10 | 1 hour | Admin |
 | `GET /api/v1/admin/search` | 60 | 1 min | Admin |
 | `GET /api/v1/admin/drafts/:id/timeline` | 30 | 1 min | Admin |

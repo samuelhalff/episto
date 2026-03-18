@@ -77,6 +77,116 @@ with nonces in production when the rendering pipeline is stable.
 - Do not create hidden permanent archives from application logs
 - Content retention and transactional metadata retention use separate, configurable TTLs
 
+## Data access and deletion operations
+
+Data-access and deletion handling must remain truthful about what can and cannot be removed.
+
+Rules:
+
+- verify the requester before disclosing or acting on account-linked data
+- treat short-lived letter content and long-lived transactional metadata differently
+- delete or expire short-lived content when policy and law allow
+- retain metadata that must stay for reconciliation, accounting, or audit obligations
+- log privileged support/admin access and deletion-related operational actions
+
+Operational consequence:
+
+- a deletion request must not be answered with a false promise that all payment/dispatch metadata can
+  vanish immediately if legal retention still applies
+- a data-access response must prefer normalized records and metadata over raw provider payloads
+- vendor-side data boundaries (Stripe, Resend, Azure AI, Swiss Post) must be explained honestly rather
+  than assumed away
+
+### User data-access request handling
+
+Minimum workflow:
+
+1. verify the requester identity strongly enough for the access level requested
+2. determine which records can be disclosed directly from canonical application data
+3. provide normalized data rather than raw provider or infrastructure internals where possible
+4. record that the access request was handled and by whom
+
+The goal is truthful disclosure, not an indiscriminate database dump.
+
+Response SLA: acknowledge within 5 business days, fulfill within 30 calendar days (aligned with
+nDSG/FADP expectations). If complex, communicate the extended timeline to the requester.
+
+Disclosable data classes:
+
+| Class | Source | Format |
+|---|---|---|
+| Draft content and conversation | Application DB | JSON export |
+| Recipient and sender addresses | Application DB | JSON export |
+| Uploaded files and signatures | Object storage | Original file format |
+| Payment amounts, dates, state | Application DB | JSON export |
+| Dispatch state and reference | Application DB | JSON export |
+| Email addresses on file | Application DB | JSON export |
+| Session metadata (locale, created) | Application DB | JSON export |
+
+Do not include:
+- raw Stripe payment tokens or card fingerprints (these live provider-side)
+- internal admin/support event logs (operational, not user-owned)
+- hashed resume tokens (not useful to the user)
+
+### Deletion request handling
+
+Deletion handling must distinguish between:
+
+- short-lived draft content and files (deletable after retention window)
+- operational metadata required for support and reconciliation (retained per policy)
+- legally retained payment and accounting records (retained per Swiss accounting law, typically 10 years)
+
+Minimum workflow:
+
+1. verify the requester
+2. identify which data classes are eligible for deletion or earlier purge
+3. explain clearly which records must remain for legal or operational reasons
+4. execute the allowed deletion/redaction path
+5. record the action in an auditable operational trail
+6. confirm completion to the requester with a summary of what was removed
+
+### Redaction format
+
+When a field is redacted rather than deleted (because the row must remain for accounting or
+reconciliation):
+
+- text fields: replace with `[REDACTED]`
+- email fields: replace with `redacted@redacted.invalid`
+- file assets: delete from object storage; set metadata `deletedAt` timestamp
+- keep the row itself with its ID, timestamps, and state fields intact
+
+Never NULL a field that was redacted — the `[REDACTED]` marker proves the field existed and was
+deliberately removed.
+
+### Provider-side data coordination
+
+| Provider | User data held | Deletion mechanism | Notes |
+|---|---|---|---|
+| Stripe | Payment method tokens, charge records | Stripe Dashboard or API (`Customer.delete`) | Stripe retains records for their own compliance; deletion removes from our Stripe account |
+| Resend | Transactional email logs | Resend retention auto-expires | We do not store email bodies; Resend logs are time-limited by their policy |
+| Azure AI | Request/response logs | Azure data retention settings | We do not persist prompts or completions beyond the AI call; Azure log retention is configurable |
+| Swiss Post | Dispatch reference, submission payload | No self-service deletion available | Explain honestly: dispatch records are held by the postal provider and cannot be removed on demand |
+
+When processing a deletion request, document which providers were contacted or acknowledged and
+which retain data outside our control.
+
+### Audit record for access and deletion actions
+
+Every data-access or deletion action must produce a `support_event` record with:
+
+- `actor`: admin/support user identifier
+- `action`: `data_access_fulfilled` or `data_deletion_executed`
+- `scope`: list of data classes affected
+- `timestamp`: when the action was completed
+- `requestRef`: reference to the original request (email, ticket ID)
+- `retainedClasses`: which data classes were NOT deleted and why
+
+Audit records are retained independently of the data they describe. Minimum retention for audit
+records: 3 years (configurable via `AUDIT_RETENTION_DAYS`).
+
+Do not promise "full deletion everywhere immediately" when provider-side or legally retained records
+still exist.
+
 ## Abuse and impersonation
 
 The product must account for:
