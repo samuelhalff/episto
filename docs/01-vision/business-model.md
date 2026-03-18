@@ -2,7 +2,7 @@
 
 **Product:** Swiss Mail  
 **Last updated:** 2026-03-17  
-**Status:** Directional — pricing recommendation exists; final approval pending  
+**Status:** Directional — MVP pricing is locked; GTM and growth assumptions remain directional  
 **See also:** [Product Scope](product-scope.md) · [Roadmap](roadmap.md) · [Competitive Landscape](competitive-landscape.md) · [Open Decisions](../08-guardrails/open-decisions.md)
 
 ---
@@ -58,7 +58,9 @@ This works because:
 - Must not price above the "just do it yourself" threshold
 - Transparent pricing at the surface level (before checkout) reduces abandonment
 
-> Exact pricing is an open question. Do not hardcode per-letter price in any flow until this is decided. See [Open Decisions](../08-guardrails/open-decisions.md).
+> MVP launch pricing is locked at CHF 4.90 standard and CHF 8.90 registered. Keep these values
+> config-backed in implementation and update this doc if the business revises pricing later. See
+> [Pricing Structure](../04-product/pricing-structure.md).
 
 ---
 

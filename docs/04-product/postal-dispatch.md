@@ -88,3 +88,21 @@ that must not be guessed in code:
 - Exact difference in returned identifiers for standard vs registered mail
 - Whether dispatch confirmation is synchronous or asynchronous
 - Whether status webhooks are available
+
+## Swiss Post onboarding checklist
+
+Before implementing `dispatch/adapters/swiss-post.ts`, confirm all of the following from current
+Swiss Post-issued material:
+
+1. OAuth flow, token endpoint, scopes, and token lifetime
+2. Exact dispatch endpoint for physical-letter submission
+3. Required request fields for standard and registered delivery
+4. Whether uploads/attachments are part of the same request or a separate flow
+5. Which returned identifiers are references only vs true tracking identifiers
+6. Whether acceptance is synchronous, asynchronous, or mixed
+7. Whether status polling and/or webhooks are available
+8. Sandbox rate limits, test credentials, and sample payloads
+
+Do not mark the dispatch adapter production-ready until each item above is captured in
+[`../08-guardrails/swiss-post-appendix.md`](../08-guardrails/swiss-post-appendix.md) or the
+provider onboarding notes.

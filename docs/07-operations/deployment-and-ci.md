@@ -133,6 +133,21 @@ Locked: **Infomaniak-centered production topology**.
 > mature enough for launch must be validated during provisioning. If not, run PostgreSQL and Redis
 > on dedicated Infomaniak compute without changing application code.
 
+### Infomaniak provisioning checklist
+
+Before calling production infrastructure ready, verify:
+
+1. Managed Kubernetes cluster exists with separate namespaces for staging and production
+2. Ingress/TLS is configured for `swissmail.ch` and `api.swissmail.ch`
+3. Object storage bucket exists with lifecycle/access policy suitable for short-lived content
+4. PostgreSQL and Redis are reachable only on the intended private network path
+5. Backup/restore path is documented and tested for the chosen PostgreSQL setup
+6. Secrets injection path is decided and working end-to-end
+7. Health checks, readiness probes, and rolling update behavior are validated in staging
+
+If any of the above fails because a specific Infomaniak managed SKU is immature or missing, fall
+back to dedicated Infomaniak compute for that service without reopening the hosting decision.
+
 ---
 
 ## 3. Environment Variables

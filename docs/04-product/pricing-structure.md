@@ -1,13 +1,13 @@
 # Pricing Structure
 
-**Status:** Pricing structure is decided. Exact public amounts remain open until launch approval.
+**Status:** Pricing structure and MVP launch amounts are locked.
 **See also:** [`auth-billing-accounts.md`](auth-billing-accounts.md), [`email-flows.md`](email-flows.md), [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md)
 
 ---
 
 ## Objective
 
-Define what checkout must be truthful about without freezing launch prices before approval.
+Define what checkout must be truthful about with the MVP launch prices locked.
 
 ---
 
@@ -18,6 +18,17 @@ Define what checkout must be truthful about without freezing launch prices befor
 - Checkout must show an **itemized breakdown** before redirecting to Stripe.
 - The charged amount must be persisted on the `PaymentAttempt`; never recompute historical orders from current config.
 - Exact price amounts are **configuration**, not code constants.
+
+### Locked MVP launch prices
+
+| Item | Locked amount |
+|---|---|
+| Standard letter | **CHF 4.90** |
+| Registered letter | **CHF 8.90** |
+
+Config keys:
+- `PRICE_STANDARD_CENTS=490`
+- `PRICE_REGISTERED_CENTS=890`
 
 ---
 
@@ -32,14 +43,19 @@ The canonical structure is:
 
 The UI may show only the components that are actually enabled. Do not surface optional pricing rows with `CHF 0.00` unless product explicitly wants them shown as "included."
 
-### What is still open
+### Locked MVP breakdown
 
-- Exact launch amounts for every row
-- Whether attachment pages affect price at launch
-- Whether color printing exists at launch
-- Whether any launch promotions or coupons exist
+For MVP, the enabled rows are:
 
-If a component is still open, keep it out of production-facing UI and config until it is approved.
+1. `Base service fee`
+2. `Registered delivery surcharge` only when the user selects registered mail
+
+Locked MVP exclusions:
+
+- no page-count surcharge at launch
+- no attachment surcharge at launch
+- no coupon/promotion system at launch
+- no color-printing pricing tier at launch
 
 ---
 
@@ -109,17 +125,21 @@ Only call a refund complete once Stripe confirms it. Support and UI copy must di
 
 - Store money as integer cents
 - Format all customer-facing amounts through a shared CHF formatter
-- Never embed launch prices directly in product copy, tests, or component logic
+- Never embed launch prices directly in component logic or backend business logic
 - Keep pricing config versioned and auditable
+
+Allowed:
+- documentation examples that explicitly state the locked MVP amounts
+- test fixtures that read the same configured values as production logic
 
 ---
 
-## Open decisions
+## Locked launch pricing summary
 
 | Decision | Status |
 |---|---|
-| Exact launch amounts | Open — CHF 4.90 standard / CHF 8.90 registered recommended (see [`open-decisions.md`](../08-guardrails/open-decisions.md) §1) |
-| Whether page-based surcharges are enabled at launch | Open |
-| Whether attachment-related surcharges are enabled at launch | Open |
-| Whether promotions/coupons exist at launch | Open |
+| Exact launch amounts | Locked — CHF 4.90 standard / CHF 8.90 registered |
+| Whether page-based surcharges are enabled at launch | Locked — no |
+| Whether attachment-related surcharges are enabled at launch | Locked — no |
+| Whether promotions/coupons exist at launch | Locked — no |
 | Business receipt / invoice policy beyond standard payment receipt | Post-MVP unless separately approved |

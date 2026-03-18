@@ -200,3 +200,17 @@ Test doubles are allowed in automated tests. No fake provider path may appear in
 | Provider-specific retry/backoff tuning | Open |
 | Prompt-storage path and versioning convention | Open but implementation-ready |
 | Whether a secondary moderation vendor is ever needed | Post-MVP unless explicitly approved |
+
+## Azure deployment checklist
+
+Before enabling real customer traffic on the Azure path, verify:
+
+1. The chosen Azure region actually exposes `gpt-4.1` and `gpt-4.1-mini`
+2. The deployment names in `AI_DRAFT_MODEL` and `AI_CLASSIFY_MODEL` resolve correctly
+3. Streaming behavior works with the backend SSE contract
+4. Content-filter behavior does not silently break the drafting/refinement UX
+5. Quota and rate limits are sufficient for expected launch traffic
+6. Prompt/body logging is disabled or redacted in all observability paths
+7. Timeout, retry, and fallback rules are tested for both drafting and extraction flows
+
+Do not treat model availability in one Azure region or tenant as proof that it exists everywhere.

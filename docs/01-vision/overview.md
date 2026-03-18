@@ -136,13 +136,12 @@ See [Open Decisions](../08-guardrails/open-decisions.md) for the full locked vs 
 The documentation and design gate has been cleared. Implementation can proceed on all modules
 except Swiss Post-specific adapter internals that depend on current onboarding docs.
 
-Before production launch, the remaining blocker list must be resolved:
+Before production launch, the remaining provider-onboarding blocker must be resolved:
 
 - [x] Documentation hardening and recursive closeout complete
 - [x] Each blocking decision has three-option analysis and a chosen or recommended path
 - [x] No planned module depends on placeholder behavior
 - [x] No unresolved provider capability is encoded as if it were fact
-- [ ] Pricing approved (blocks launch copy and Stripe config)
 
 ---
 

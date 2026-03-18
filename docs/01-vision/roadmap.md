@@ -2,7 +2,7 @@
 
 **Product:** Swiss Mail  
 **Last updated:** 2026-03-17  
-**Status:** Foundation phase — core platform decisions locked; provider onboarding and pricing still pending  
+**Status:** Foundation phase — core platform decisions locked; provider onboarding still pending  
 **See also:** [Overview](overview.md) · [Open Decisions](../08-guardrails/open-decisions.md) · [Provider Certainties](../08-guardrails/provider-certainties.md)
 
 ---
@@ -19,8 +19,8 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | 3 — Build Packs | AI-safe implementation blueprints | ✅ Complete — frontend, backend, admin build packs; guardrails; error taxonomy; i18n; dev workflow |
 | 4 — Pre-Dev Gate | Final review before implementation | ✅ Complete — doc hardening and recursive closeout passed |
 
-**Current phase:** Implementation. Most modules can proceed in parallel. Two remaining blockers
-remain — see Section 4.
+**Current phase:** Implementation. Most modules can proceed in parallel. One remaining blocker
+remains — see Section 4.
 
 ---
 
@@ -33,7 +33,7 @@ remain — see Section 4.
 |---|---|
 | Dispatch provider path | ✅ Locked — Swiss Post Digital Commerce API |
 | Hosting topology | ✅ Locked — Infomaniak-centered topology |
-| Exact pricing | 🟡 **OPEN** — CHF 4.90/8.90 recommended; blocks launch copy and Stripe config |
+| Exact pricing | ✅ Locked — CHF 4.90 standard / CHF 8.90 registered |
 | Payment capture strategy | ✅ Locked — authorize first, capture after provider acceptance |
 | Retention durations | ✅ Locked — recommended defaults with configurable env vars |
 | Signature scope | ✅ Locked — typed name plus optional uploaded image |
@@ -54,13 +54,13 @@ remain — see Section 4.
 
 Implementation can proceed on these modules without waiting for the remaining blockers:
 
-| Module | Dependency on open decisions |
+| Module | Dependency on remaining blockers |
 |---|---|
 | `sessions` | None |
 | `drafting` | None |
 | `rendering` | None |
 | `files` | None |
-| `payments` | Stripe config needs final pricing for production; dev/test can use test amounts |
+| `payments` | None — pricing is locked; production config can proceed |
 | `dispatch` | **Adapter shell and state machine: yes.** Adapter internals: blocked on provider. |
 | `tracking` | Blocked on provider (same as dispatch) |
 | `retention` | None — locked defaults exist |
@@ -72,14 +72,14 @@ Implementation can proceed on these modules without waiting for the remaining bl
 ## 4. Remaining Blockers
 
 These items **must be resolved before production launch** on the modules they affect.
-See [Open Decisions](../08-guardrails/open-decisions.md) for the pricing analysis and recommendation.
+See [Open Decisions](../08-guardrails/open-decisions.md) for the current blocker record.
 
 | # | Item | Type | Blocks | Recommended resolution |
 |---|---|---|---|---|
-| 1 | Exact pricing | Business decision | Launch copy, Stripe config | Approve CHF 4.90 standard / CHF 8.90 registered |
-| 2 | Swiss Post onboarding docs + sandbox | Operational | Dispatch adapter internals, tracking | Contact Swiss Post for current Digital Commerce API docs and sandbox access |
+| 1 | Swiss Post onboarding docs + sandbox | Operational | Dispatch adapter internals, tracking | Contact Swiss Post for current Digital Commerce API docs and sandbox access |
 
-> Recommended order: #1 (internal approval) while #2 runs in parallel with provider outreach.
+> Pricing is locked. The remaining blocker is Swiss Post onboarding detail, which can run in
+> parallel with implementation of all non-provider-specific modules.
 
 ---
 

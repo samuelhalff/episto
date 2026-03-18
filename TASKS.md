@@ -173,7 +173,7 @@ misled an implementer.
 - **content-moderation.md** — Removed stale "Exact moderation metadata retention duration: Open"
   row; added note that retention follows the locked operational metadata policy.
 - **business-model.md** — Updated status from "pricing and GTM details require further decision"
-  to "pricing recommendation exists; final approval pending".
+  to reflect locked MVP pricing while keeping GTM and growth assumptions directional.
 - **session-management.md** — Replaced vague "exact durations are still open" with locked defaults
   table (72h session, 7d content, 24h PDF, 7y metadata, 48h resume trigger) and config keys.
 - **stack-decisions.md** — Fixed "S3-compatible (exact vendor remains open)" → "S3-compatible on
@@ -199,15 +199,15 @@ without external facts or explicit business decisions. Do not convert them into 
 
 | # | Item | Why still open | Unblocking action |
 |---|------|---------------|-------------------|
-| R1 | Exact pricing | MVP price points (base letter, registered, attachments) are not set. Only remaining open decision in `open-decisions.md`. CHF 4.90/8.90 recommended. | Business approval; update `docs/04-product/pricing-structure.md` and lock in `open-decisions.md`. |
-| R2 | Swiss Post sandbox access | Dispatch provider path is locked (Swiss Post Digital Commerce API), but current sandbox docs, auth details, payloads, and tracking semantics are not in the repo. | Obtain sandbox credentials and current API documentation from Swiss Post; update `docs/08-guardrails/swiss-post-appendix.md` and `docs/04-product/postal-dispatch.md`. |
-| R3 | Tracking capability | Whether physical tracking data (beyond reference number) is available from the locked Swiss Post path is unknown. | Verify with provider after R2; update `docs/08-guardrails/provider-certainties.md`. |
+| R1 | Swiss Post sandbox access | Dispatch provider path is locked (Swiss Post Digital Commerce API), but current sandbox docs, auth details, payloads, and tracking semantics are not in the repo. | Obtain sandbox credentials and current API documentation from Swiss Post; update `docs/08-guardrails/swiss-post-appendix.md` and `docs/04-product/postal-dispatch.md`. |
+| R2 | Tracking capability | Whether physical tracking data (beyond reference number) is available from the locked Swiss Post path is unknown. | Verify with provider after R1; update `docs/08-guardrails/provider-certainties.md`. |
 
 All other known contradictions, placeholder drift, state-machine mismatches, and stale guidance
-have been resolved across Sessions 1–3. Every locked decision (hosting/Infomaniak,
-AI/Azure OpenAI, dispatch/Swiss Post, email/Resend, retention defaults, queue/BullMQ, validation/
-Zod, session type/guest-only, address validation/soft, admin auth/HTTP Basic) is now consistently
-referenced across all 49 docs, the copilot-instructions, and the shared source code.
+have been resolved across Sessions 1–3. Every locked decision (pricing/CHF 4.90-8.90,
+hosting/Infomaniak, AI/Azure OpenAI, dispatch/Swiss Post, email/Resend, retention defaults,
+queue/BullMQ, validation/Zod, session type/guest-only, address validation/soft, admin auth/HTTP
+Basic) is now consistently referenced across all 49 docs, the copilot-instructions, and the
+shared source code.
 
 A follow-up doc sweep is recommended after R2 is resolved — provider API details will trigger
 updates to system-contracts, api-contracts, backend-architecture, and the dispatch build pack.

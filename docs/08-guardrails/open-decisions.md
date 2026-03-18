@@ -361,22 +361,37 @@ when session email is collected, cancelled if payment completes first.
 
 ---
 
+### MVP launch pricing — LOCKED: CHF 4.90 standard / CHF 8.90 registered
+
+**Locked choice:** Launch with:
+
+- `CHF 4.90` for standard delivery
+- `CHF 8.90` for registered delivery
+
+**Rationale:**
+- Positions the product above commodity competitors while staying below the friction of Swiss
+  Post's own consumer tools
+- Clean Swiss price points that are easy to communicate in marketing and checkout
+- Keeps MVP pricing simple enough that support, receipts, and Stripe configuration remain aligned
+
+**Locked exclusions at launch:**
+- no page-count surcharge
+- no attachment surcharge
+- no coupon/promotion system
+- no color-printing tier
+
+Config keys:
+- `PRICE_STANDARD_CENTS=490`
+- `PRICE_REGISTERED_CENTS=890`
+
+Do not hardcode these values in business logic. Read them from config and persist the final charged
+amount on the payment record.
+
+---
+
 ## OPEN decisions (implementation-blocking)
 
 Development of features that depend on these items must not assume a resolution.
 
-### 1. Exact pricing — OPEN (requires business approval)
-
-**Still open.** Currency is CHF only. Do not hardcode any price amounts.
-
-**Market context for the approval decision:**
-- Letterxpress (nearest German competitor): €2–4 standard, €4–8 registered
-- Swiss Post online tools: CHF 5–8 minimum, clunky UX — this product's UX premium is real
-- Recommended starting point: **CHF 4.90 standard / CHF 8.90 registered**
-  - Positions above commodity, below Swiss Post's own complexity
-  - Leaves room for page-count surcharges post-MVP
-  - Psychologically clean price points in CHF
-
-**Recommended resolution:** Approve CHF 4.90 standard / CHF 8.90 registered. The market analysis
-above supports this positioning. Both values go into env config (`PRICE_STANDARD_CENTS=490`,
-`PRICE_REGISTERED_CENTS=890`) and can be changed without a code deploy.
+At this point, no remaining open decision is purely internal. The only open items depend on current
+provider onboarding facts that are still outside the repository.
