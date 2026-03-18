@@ -728,9 +728,9 @@ URL: `/pricing`
 No popups, no "Don't go!" overlays.
 
 Instead:
-- Draft auto-saves to session. User can resume via URL with session token.
-- If user has provided email: send a draft-resume email with a secure one-time link.
-- Session token stored in `localStorage` as fallback. If session is lost, user restarts — this is acceptable for MVP.
+- Draft auto-saves to server via the active session. User can resume via session cookie or emailed resume link.
+- If user has provided email: send a draft-resume email with a secure time-limited link.
+- If the user clears cookies and has no resume link, the draft is not recoverable. This is an intentional privacy tradeoff in MVP.
 
 ### 6.6 CTA Copy Rules
 

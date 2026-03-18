@@ -212,7 +212,7 @@ Flow:
 
 Flow:
 1. User receives **immediate** confirmation email with a secure "Order Status" link (separate from draft resume link).
-2. Clicks link → `/status/:order_token` → shows current dispatch status and receipt.
+2. Clicks link → `/status/:orderToken` → shows current dispatch status and receipt.
 3. This link is valid for 90 days (configurable), independent of the original 72h drafting session.
 4. Status shown using canonical `DispatchState` values (from `system-contracts.md` §3.3):
    - `queued` → "Your letter is queued for dispatch"

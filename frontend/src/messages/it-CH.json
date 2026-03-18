@@ -1,0 +1,11 @@
+{
+  "common": {
+    "appName": "Swiss Mail",
+    "loading": "Caricamento…",
+    "error": "Si è verificato un errore"
+  },
+  "home": {
+    "title": "Lettere formali, inviate con semplicità",
+    "subtitle": "Create e inviate le vostre lettere tramite la Posta Svizzera – in modo rapido, sicuro e professionale."
+  }
+}

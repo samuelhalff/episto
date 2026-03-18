@@ -1400,7 +1400,7 @@ Users may accidentally navigate away during payment processing:
 
 **Scenario: User closes tab during processing:**
 - Payment may complete in the background (Stripe processes server-side).
-- If payment succeeds: confirmation email is sent. User can return via resume link.
+- If payment succeeds: confirmation email is sent. User can return via order-status link.
 - If payment fails: no charge. Draft remains available.
 
 **Scenario: User's internet drops mid-payment:**
@@ -1532,12 +1532,12 @@ Pending steps: muted, `text-tertiary`.
 - `<Button variant="outline">` "Download receipt (PDF)" — generates/downloads payment receipt
 - `<Button variant="ghost">` "View letter (PDF)" — opens rendered letter PDF in new tab (if available)
 
-#### 9.6 QR Code (optional — secondary resume mechanism)
+#### 9.6 QR Code (optional — secondary access mechanism)
 `<Card>` "Access this letter on another device":
-- QR code encoding `/resume/{token}` URL
-- Caption: `text-xs text-secondary` "Scan to view status or resume on another device"
-- Not required for MVP if token-based resume is not in first release
-- **Important:** The QR code is a **secondary** convenience mechanism. The primary resume path is the email link (see §9.7). Do not build the QR code as the sole or primary way to access the resume flow.
+- QR code encoding `/status/{orderToken}` URL (the paid-order status route, not the draft resume route)
+- Caption: `text-xs text-secondary` "Scan to view your order status on another device"
+- Not required for MVP if token-based access is not in first release
+- **Important:** The QR code is a **secondary** convenience mechanism. The primary access path is the order-status link in the receipt email (see §9.7). Do not build the QR code as the sole or primary way to access order status.
 
 #### 9.7 Email Notice — Multiple Emails
 `<Card variant="info">`:
@@ -1546,7 +1546,7 @@ Pending steps: muted, `text-tertiary`.
 
 **Multiple email timeline (defined in `docs/04-product/email-flows.md`):**
 The system sends up to 3 separate emails, NOT a single "confirmation":
-1. **Payment receipt** — sent immediately when `PaymentState` → `captured`. Contains: amount, reference number, resume link.
+1. **Payment receipt** — sent immediately when `PaymentState` → `captured`. Contains: amount, reference number, order-status link.
 2. **Dispatch accepted** — sent when `DispatchState` → `accepted` (if the provider supplies an acceptance signal). Contains: updated status, tracking reference if available.
 3. **Dispatch rejected** (error case) — sent when `DispatchState` → `rejected`. Contains: explanation, next steps, support contact.
 

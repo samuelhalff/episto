@@ -1,0 +1,11 @@
+{
+  "common": {
+    "appName": "Swiss Mail",
+    "loading": "Wird geladen…",
+    "error": "Ein Fehler ist aufgetreten"
+  },
+  "home": {
+    "title": "Formelle Briefe, einfach versendet",
+    "subtitle": "Erstellen und versenden Sie Ihre Briefe über die Schweizerische Post – schnell, sicher und professionell."
+  }
+}

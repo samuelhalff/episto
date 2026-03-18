@@ -1,0 +1,11 @@
+{
+  "common": {
+    "appName": "Swiss Mail",
+    "loading": "Loading…",
+    "error": "An error occurred"
+  },
+  "home": {
+    "title": "Formal letters, sent with ease",
+    "subtitle": "Draft and send your letters via Swiss Post – quickly, securely, and professionally."
+  }
+}
