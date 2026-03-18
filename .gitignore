@@ -17,3 +17,4 @@ shared/coverage/
 .env
 .env.*
 !.env.example
+.fuse_hidden*
