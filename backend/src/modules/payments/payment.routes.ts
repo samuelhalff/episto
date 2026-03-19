@@ -228,7 +228,6 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           clientSecret: result.clientSecret,
           priceCents: result.priceCents,
           currency: "CHF" as const,
-          message: "A pending payment already exists for this draft.",
         });
       }
 
@@ -270,7 +269,19 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       const payment = await getPaymentForDraft(db, draftId);
       if (!payment) throw notFoundError("payment");
 
-      reply.send({ payment });
+      reply.send({
+        payment: {
+          draftId: payment.draftId,
+          paymentAttemptId: payment.id,
+          state: payment.state,
+          priceCents: payment.amountCents,
+          currency: "CHF" as const,
+          authorizedAt: null,
+          capturedAt: payment.state === "captured" ? payment.updatedAt.toISOString() : null,
+          refundedAt: payment.state === "refunded" ? payment.updatedAt.toISOString() : null,
+          failureReason: payment.failureReason ?? null,
+        },
+      });
     },
   );
 }
