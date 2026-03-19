@@ -163,16 +163,46 @@
     "total": "Total",
     "stripeIntegrationPending": "Intégration du paiement Stripe en attente"
   },
+  "attachments": {
+    "title": "Pièces jointes",
+    "uploadLabel": "Ajouter une pièce jointe",
+    "uploadHint": "PDF, PNG ou JPEG — max. 5 Mo par fichier, jusqu'à 5 fichiers",
+    "maxReached": "Nombre maximum de pièces jointes atteint",
+    "tooLarge": "Le fichier dépasse la limite de 5 Mo",
+    "invalidType": "Seuls les fichiers PDF, PNG et JPEG sont acceptés",
+    "uploading": "Téléchargement…",
+    "remove": "Supprimer",
+    "empty": "Aucune pièce jointe ajoutée"
+  },
+  "signature": {
+    "title": "Signature",
+    "typedLabel": "Nom saisi",
+    "typedHint": "Votre nom apparaîtra comme signature",
+    "imageLabel": "Télécharger une image de signature",
+    "imageHint": "PNG ou JPEG — max. 2 Mo",
+    "tooLarge": "L'image de signature dépasse la limite de 2 Mo",
+    "invalidType": "Seuls les fichiers PNG et JPEG sont acceptés",
+    "uploading": "Téléchargement…"
+  },
   "confirmation": {
     "title": "Paiement reçu",
-    "subtitle": "Votre lettre est en cours de traitement.",
+    "subtitle": "Votre lettre a été soumise à l'envoi.",
     "orderReference": "Référence de commande",
+    "copied": "Copié",
     "whatHappensNext": "Prochaines étapes",
-    "stepProcessing": "Votre lettre est en cours de préparation pour l'impression",
-    "stepPrinting": "Imprimée et remise à la Poste Suisse",
-    "stepDelivery": "Distribuée au destinataire",
+    "stepPayment": "Paiement confirmé",
+    "stepSubmitted": "Lettre soumise à l'envoi",
+    "stepProcessing": "Traitement par le prestataire",
+    "stepUpdates": "Les mises à jour ultérieures dépendent de la confirmation du prestataire",
     "downloadReceipt": "Télécharger le reçu",
-    "sendAnother": "Envoyer une autre lettre"
+    "viewLetter": "Voir la lettre",
+    "sendAnother": "Envoyer une autre lettre",
+    "stateQueued": "Votre lettre est en attente d'envoi",
+    "stateSubmitted": "Soumise à l'envoi",
+    "stateAccepted": "Acceptée pour l'envoi",
+    "stateRejected": "L'envoi a été refusé — nous enquêtons",
+    "stateUnknown": "Le statut est en cours de confirmation — nous vous informerons par e-mail",
+    "emailNotice": "Un reçu a été envoyé à {email}"
   },
   "resume": {
     "loading": "Reprise de votre brouillon…",

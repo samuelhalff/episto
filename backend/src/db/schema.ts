@@ -270,6 +270,7 @@ export const draftSnapshots = pgTable(
       .notNull()
       .references(() => draftLetters.id),
     version: integer("version").default(1).notNull(),
+    schemaVersion: integer("schema_version").default(1).notNull(),
     snapshotData: jsonb("snapshot_data").notNull(),
     renderedPdfAssetId: uuid("rendered_pdf_asset_id").references(
       () => fileAssets.id,

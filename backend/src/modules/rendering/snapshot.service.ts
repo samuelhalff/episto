@@ -11,6 +11,7 @@ export interface SnapshotRow {
   id: string;
   draftId: string;
   version: number;
+  schemaVersion: number;
   snapshotData: unknown;
   renderedPdfAssetId: string | null;
   createdAt: Date;
@@ -40,6 +41,7 @@ export async function createSnapshot(
     .values({
       draftId,
       version: nextVersion,
+      schemaVersion: 1,
       snapshotData,
     })
     .returning();
