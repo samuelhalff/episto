@@ -174,6 +174,7 @@ export const SnapshotDataSchema = z.object({
   recipient: SnapshotRecipientSchema,
   attachmentAssetIds: z.array(z.string().uuid()),
   signatureAssetId: z.string().uuid().nullable(),
+  estimatedPages: z.number().int().nullable(),
   metadata: z.record(z.unknown()).nullable(),
 });
 
@@ -185,6 +186,7 @@ export const DraftSnapshotSchema = z.object({
   id: z.string().uuid(),
   draftId: z.string().uuid(),
   version: z.number().int(),
+  schemaVersion: z.number().int().default(1),
   snapshotData: SnapshotDataSchema,
   renderedPdfAssetId: z.string().uuid().nullable(),
   createdAt: z.coerce.date(),
@@ -227,10 +229,10 @@ export const ConversationMessageSchema = z.object({
 // ---------------------------------------------------------------------------
 
 export const PaymentBreakdownSchema = z.object({
-  base: z.number().int(),
-  pages: z.number().int(),
-  delivery: z.number().int(),
-  attachments: z.number().int(),
+  base: z.number().int().nonnegative(),
+  pages: z.number().int().nonnegative(),
+  delivery: z.number().int().nonnegative(),
+  attachments: z.number().int().nonnegative(),
 });
 
 export const PaymentAttemptSchema = z.object({
