@@ -6,10 +6,14 @@ import { schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { notFoundError, AppError } from "../../shared/errors/index.js";
 import { createMessage, listMessages } from "./message.service.js";
+import { handleAiMessage } from "../ai/index.js";
+import { createLogger } from "../../shared/logging/index.js";
 
 // ---------------------------------------------------------------------------
 // Input schemas
 // ---------------------------------------------------------------------------
+
+const logger = createLogger("message-routes");
 
 const SendMessageBody = z.object({
   content: z.string().min(1).max(4000),
@@ -104,6 +108,16 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
         draftId,
         role: "user",
         content: body.content,
+      });
+
+      // Fire AI processing asynchronously — don't block the 202 response
+      handleAiMessage({
+        draftId,
+        sessionId: session.id,
+        userMessageId: message.id,
+        userContent: body.content,
+      }).catch((err) => {
+        logger.error({ err, draftId, messageId: message.id }, "AI handler failed");
       });
 
       reply.status(202).send({
