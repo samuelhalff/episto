@@ -199,7 +199,7 @@ function renderLetterHtml(data: SnapshotData): string {
   <div class="recipient-block">${recipientBlock}</div>
   <div class="date-line">${escapeHtml(today)}</div>
   ${data.subject ? `<div class="subject-line">${escapeHtml(data.subject)}</div>` : ""}
-  <div class="letter-body">${data.body ?? ""}</div>
+  <div class="letter-body">${escapeHtml(data.body ?? "")}</div>
   ${data.enclosureNote ? `<div class="enclosure-note">${escapeHtml(data.enclosureNote)}</div>` : ""}
 </body>
 </html>`;

@@ -411,41 +411,4 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // ---- SSE Stream ----
-
-  // GET /drafts/:draftId/stream — SSE event stream for real-time updates
-  app.get<{ Params: { draftId: string } }>(
-    "/drafts/:draftId/stream",
-    async (request, reply) => {
-      const session = request.session!;
-      const db = getDb();
-      const { draftId } = request.params;
-
-      const draft = await getDraftById(db, draftId, session.id);
-      if (!draft) throw notFoundError("draft");
-
-      reply.raw.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        "X-Accel-Buffering": "no",
-      });
-
-      reply.raw.write(
-        `event: connected\ndata: ${JSON.stringify({ draftId })}\n\n`,
-      );
-
-      const keepalive = setInterval(() => {
-        reply.raw.write(": keepalive\n\n");
-      }, 30_000);
-
-      request.raw.on("close", () => {
-        clearInterval(keepalive);
-      });
-
-      // NOTE: AI token streaming, field updates, and status events will be
-      // published to this stream via Redis pub/sub when the queue worker
-      // and AI integration are wired. This is the connection shell.
-    },
-  );
 }
