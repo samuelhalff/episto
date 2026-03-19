@@ -47,6 +47,38 @@ Follow this sequence for any new feature. Do not skip steps.
 - Before calling a task finished, regenerate TODOs from a fresh-eye pass and repeat until no new material items appear
 - After the recursive TODO loop, step back and verify the work still supports the end goal from a helicopter view
 
+## Maintainability and file-size rules
+
+These are mandatory repo rules, not style preferences. If a change would break one of these rules, split
+the work before merge instead of leaving cleanup for later.
+
+### Structural rules
+
+- Every production file must have one obvious responsibility
+- Frontend route files should compose page structure; move reusable data access, transformation, and
+  stateful behavior into hooks, `lib/`, or product components
+- Backend route and module entry files should orchestrate; move business rules into services and keep
+  provider translation inside adapters
+- `shared/` is the only place for canonical contracts, enums, schemas, and shared API types
+- If a file starts mixing layout, fetching, normalization, and state transitions, it is already doing too much
+
+### Maximum file size guidance
+
+| File type                                     |        Target size |                                                                        Split required at |
+| --------------------------------------------- | -----------------: | ---------------------------------------------------------------------------------------: |
+| Production `*.ts` / `*.tsx`                   | 300 lines or fewer |                                                                      More than 500 lines |
+| Test `*.test.ts` / `*.spec.ts` / `*.test.tsx` | 400 lines or fewer |                                                                      More than 700 lines |
+| Markdown docs                                 | 400 lines or fewer | More than 600 lines unless the file is an intentional canonical index or reference table |
+
+### How to apply the limit
+
+- Treat the **target size** as the default expectation for new work
+- Treat **split required at** as a merge blocker unless the file is generated code or a deliberate,
+  documented exception
+- Do not "earn" an oversized file by writing cleaner code inside it; split by responsibility instead
+- When a file crosses the target size, stop and extract a focused helper, component, hook, service, or doc
+- If a file would exceed the hard limit because of your change, the same PR must split it
+
 ## Decision workflow
 
 Before locking any implementation-significant decision:
@@ -59,15 +91,15 @@ A decision without a three-option review is not ready for production code.
 
 ## Testing expectations
 
-| Area | Requirement |
-|---|---|
-| State transitions | Unit tests required |
-| Adapter normalization | Tests required |
-| Payment idempotency | Tests required |
-| Dispatch idempotency | Tests required |
-| File cleanup jobs | Tests required |
-| Provider capability claims | No test may assert invented provider behavior as fact |
-| Test fixtures | Must reflect real canonical schemas, not placeholder shapes |
+| Area                         | Requirement                                                              |
+| ---------------------------- | ------------------------------------------------------------------------ |
+| State transitions            | Unit tests required                                                      |
+| Adapter normalization        | Tests required                                                           |
+| Payment idempotency          | Tests required                                                           |
+| Dispatch idempotency         | Tests required                                                           |
+| File cleanup jobs            | Tests required                                                           |
+| Provider capability claims   | No test may assert invented provider behavior as fact                    |
+| Test fixtures                | Must reflect real canonical schemas, not placeholder shapes              |
 | Shared hook/service coverage | Core reusable frontend logic must be tested at the hook/service boundary |
 
 ## Change management
