@@ -186,9 +186,12 @@
   "status": {
     "title": "Suivi de la lettre",
     "orderReference": "Référence de commande",
-    "dispatchState": "Statut d'envoi",
+    "dispatchState": "Statut d'expédition",
     "estimatedDelivery": "Livraison estimée",
-    "sendAnother": "Envoyer une autre lettre"
+    "sendAnother": "Envoyer une autre lettre",
+    "recipient": "Destinataire",
+    "paymentAmount": "Montant payé",
+    "paidAt": "Date de paiement"
   },
   "files": {
     "dropZone": {

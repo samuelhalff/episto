@@ -4,6 +4,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api.js";
 import type { ConversationMessage } from "@swiss-mail/shared";
+import { queryKeys } from "@swiss-mail/shared";
 import { useDraftStream } from "./use-draft-stream.js";
 
 // ---------------------------------------------------------------------------
@@ -41,7 +42,7 @@ export function useConversation(draftId: string): UseConversationReturn {
 
   // Message list from server
   const messagesQuery = useQuery({
-    queryKey: ["drafts", draftId, "messages"] as const,
+    queryKey: queryKeys.draftMessages(draftId),
     queryFn: () =>
       apiFetch<{ messages: ConversationMessage[] }>(`/v1/drafts/${draftId}/messages`).then(
         (r) => r.messages,
@@ -62,7 +63,7 @@ export function useConversation(draftId: string): UseConversationReturn {
         setStreamingText("");
         streamingMessageIdRef.current = null;
         void queryClient.invalidateQueries({
-          queryKey: ["drafts", draftId, "messages"],
+          queryKey: queryKeys.draftMessages(draftId),
         });
       } else if (event.type === "error") {
         setIsStreaming(false);
@@ -79,7 +80,7 @@ export function useConversation(draftId: string): UseConversationReturn {
     onSuccess: () => {
       // Optimistically reflect the sent user message
       void queryClient.invalidateQueries({
-        queryKey: ["drafts", draftId, "messages"],
+        queryKey: queryKeys.draftMessages(draftId),
       });
     },
   });

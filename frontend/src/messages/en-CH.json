@@ -188,7 +188,10 @@
     "orderReference": "Order reference",
     "dispatchState": "Dispatch status",
     "estimatedDelivery": "Estimated delivery",
-    "sendAnother": "Send another letter"
+    "sendAnother": "Send another letter",
+    "recipient": "Recipient",
+    "paymentAmount": "Amount paid",
+    "paidAt": "Payment date"
   },
   "files": {
     "dropZone": {

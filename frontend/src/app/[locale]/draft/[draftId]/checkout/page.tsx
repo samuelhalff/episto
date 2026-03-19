@@ -1,6 +1,9 @@
 "use client";
 
 import { use, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -13,15 +16,24 @@ import { PriceSummary } from "../../../../../components/product/PriceSummary.js"
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm.js";
 
 // ---------------------------------------------------------------------------
-// Stripe setup — publishable key is a build-time NEXT_PUBLIC_ variable.
-// loadStripe is called once at module level; it is safe to call with
-// undefined/empty (returns null) — the Elements provider handles this case.
+// Stripe setup
 // ---------------------------------------------------------------------------
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
-const stripePromise = stripePublishableKey
-  ? loadStripe(stripePublishableKey)
-  : null;
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+
+// ---------------------------------------------------------------------------
+// Form schema — email + legal consent
+// ---------------------------------------------------------------------------
+
+const checkoutSchema = z.object({
+  email: z.string().email(),
+  legalConsent: z.literal(true, {
+    errorMap: () => ({ message: "You must accept the terms to continue." }),
+  }),
+});
+
+type CheckoutFormValues = z.infer<typeof checkoutSchema>;
 
 // ---------------------------------------------------------------------------
 // Checkout Page
@@ -41,16 +53,17 @@ export default function CheckoutPage({
   const checkout = useCheckout(draftId);
   const pricing = usePricing();
 
-  const [email, setEmail] = useState("");
-  const [legalConsent, setLegalConsent] = useState(false);
-
-  // Once the backend creates a PaymentIntent we receive the clientSecret.
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [priceCents, setPriceCents] = useState<number>(0);
 
-  const isEmailValid = email.includes("@") && email.includes(".");
-  const isFormValid = isEmailValid && legalConsent;
-  const isSubmitting = checkout.isPending;
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutSchema),
+    mode: "onTouched",
+  });
 
   if (draft.isLoading) {
     return (
@@ -71,31 +84,27 @@ export default function CheckoutPage({
   const d = draft.data;
   const isRegistered = d.deliveryType === DeliveryType.registered;
 
-  // Fallback display price for the CTA before pricing data loads.
   const displayPrice = pricing.data
     ? isRegistered
       ? pricing.data.registered.displayPrice
       : pricing.data.standard.displayPrice
     : formatCentsAsCHF(isRegistered ? 890 : 490);
 
-  // Absolute return URL for Stripe to redirect to after payment.
-  const origin =
-    typeof window !== "undefined" ? window.location.origin : "";
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
   const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
 
-  function handleCheckoutSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!isFormValid || isSubmitting) return;
+  const isSubmitting = checkout.isPending;
 
+  function onSubmit(values: CheckoutFormValues) {
+    if (isSubmitting) return;
     checkout.mutate(
-      { email },
+      { email: values.email },
       {
         onSuccess: (data) => {
           if (data.clientSecret) {
             setClientSecret(data.clientSecret);
             setPriceCents(data.priceCents);
           } else {
-            // PaymentIntent already captured (idempotent retry) — go to confirmation.
             router.push(`/draft/${draftId}/confirmation`);
           }
         },
@@ -105,7 +114,6 @@ export default function CheckoutPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link href="/" className="font-bold text-navy">
@@ -118,16 +126,11 @@ export default function CheckoutPage({
       <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
 
-        {/* Order summary */}
-        <PriceSummary
-          deliveryType={d.deliveryType}
-          subject={d.subject}
-        />
+        <PriceSummary deliveryType={d.deliveryType} subject={d.subject} />
 
-        {/* ── Step 1: Email + consent ── */}
+        {/* Step 1: Email + consent */}
         {!clientSecret && (
-          <form onSubmit={handleCheckoutSubmit} className="space-y-6">
-            {/* Email */}
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-6">
               <label
                 htmlFor="email"
@@ -139,38 +142,59 @@ export default function CheckoutPage({
               <input
                 id="email"
                 type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-3 w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
-                placeholder="name@example.com"
                 autoComplete="email"
                 inputMode="email"
+                placeholder="name@example.com"
+                {...register("email")}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                aria-invalid={errors.email ? "true" : undefined}
+                className={[
+                  "mt-3 w-full rounded-lg border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1",
+                  errors.email
+                    ? "border-destructive focus:border-destructive focus:ring-destructive"
+                    : "border-gray-200 focus:border-navy focus:ring-navy",
+                ].join(" ")}
               />
+              {errors.email && (
+                <p id="email-error" role="alert" className="mt-1 text-xs text-destructive">
+                  {errors.email.message}
+                </p>
+              )}
             </div>
 
             {/* Legal consent */}
-            <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 text-sm">
-              <input
-                type="checkbox"
-                checked={legalConsent}
-                onChange={(e) => setLegalConsent(e.target.checked)}
-                className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-navy focus:ring-navy"
-              />
-              <span className="text-gray-600">{t("legalConsent")}</span>
-            </label>
+            <div
+              className={[
+                "rounded-lg border bg-white p-4",
+                errors.legalConsent ? "border-destructive" : "border-gray-200",
+              ].join(" ")}
+            >
+              <label className="flex cursor-pointer items-start gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  {...register("legalConsent")}
+                  aria-describedby={errors.legalConsent ? "consent-error" : undefined}
+                  aria-invalid={errors.legalConsent ? "true" : undefined}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-navy focus:ring-navy"
+                />
+                <span className="text-gray-600">{t("legalConsent")}</span>
+              </label>
+              {errors.legalConsent && (
+                <p id="consent-error" role="alert" className="mt-1 text-xs text-destructive">
+                  {errors.legalConsent.message}
+                </p>
+              )}
+            </div>
 
-            {/* Error message */}
             {checkout.error && (
-              <p role="alert" className="text-sm text-red-600">
+              <p role="alert" className="text-sm text-destructive">
                 {tc("error")}
               </p>
             )}
 
-            {/* Continue to payment */}
             <button
               type="submit"
-              disabled={!isFormValid || isSubmitting}
+              disabled={!isValid || isSubmitting}
               className="w-full rounded-lg bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-40"
             >
               {isSubmitting ? (
@@ -182,7 +206,7 @@ export default function CheckoutPage({
           </form>
         )}
 
-        {/* ── Step 2: Stripe PaymentElement ── */}
+        {/* Step 2: Stripe PaymentElement */}
         {clientSecret && stripePromise && (
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-sm font-semibold text-gray-900">
@@ -196,7 +220,7 @@ export default function CheckoutPage({
                 appearance: {
                   theme: "stripe",
                   variables: {
-                    colorPrimary: "#1a2e4a", // --color-navy
+                    colorPrimary: "#1a2e4a",
                     borderRadius: "8px",
                     fontFamily: "inherit",
                   },
@@ -212,16 +236,12 @@ export default function CheckoutPage({
           </div>
         )}
 
-        {/* ── Stripe key missing (dev notice only) ── */}
         {clientSecret && !stripePromise && (
           <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <p className="text-sm text-gray-500">
-              {t("paymentPending")}
-            </p>
+            <p className="text-sm text-gray-500">{t("paymentPending")}</p>
           </div>
         )}
 
-        {/* Trust badges */}
         <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs text-gray-400">
           <span className="flex items-center gap-1.5">
             <Lock className="h-3.5 w-3.5" />

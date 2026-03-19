@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@swiss-mail/shared";
 import { apiFetch } from "../lib/api.js";
 import { useDraftStream } from "./use-draft-stream.js";
 
@@ -70,7 +71,7 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
   const [isStale, setIsStale] = useState(false);
 
   const previewQuery = useQuery({
-    queryKey: ["drafts", draftId, "preview"] as const,
+    queryKey: queryKeys.draftPreview(draftId),
     queryFn: () => apiFetch<LetterPreviewData>(`/v1/drafts/${draftId}/preview`),
     staleTime: 60_000,
   });
@@ -93,7 +94,7 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
 
   const refreshPreview = () => {
     setIsStale(false);
-    void queryClient.invalidateQueries({ queryKey: ["drafts", draftId, "preview"] });
+    void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
   };
 
   return {

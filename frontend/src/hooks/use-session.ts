@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api.js";
 import type { Session } from "@swiss-mail/shared";
-import { Locale } from "@swiss-mail/shared";
+import { Locale, queryKeys } from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -29,7 +29,7 @@ export interface UseSessionReturn {
 
 function currentSessionOptions() {
   return queryOptions({
-    queryKey: ["sessions", "current"] as const,
+    queryKey: queryKeys.session("current"),
     queryFn: () => apiFetch<Session>("/v1/sessions/current"),
     staleTime: 30_000,
     refetchOnWindowFocus: true,

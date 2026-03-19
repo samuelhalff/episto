@@ -7,6 +7,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api.js";
+import { queryKeys } from "@swiss-mail/shared";
 import type {
   Session,
   DraftLetter,
@@ -25,7 +26,7 @@ import type {
 
 function sessionOptions() {
   return queryOptions({
-    queryKey: ["sessions", "current"] as const,
+    queryKey: queryKeys.session("current"),
     queryFn: () => apiFetch<Session>("/v1/sessions/current"),
     staleTime: 5 * 60 * 1000,
   });
@@ -55,7 +56,7 @@ export function useCreateSession() {
 
 function draftOptions(draftId: string) {
   return queryOptions({
-    queryKey: ["drafts", draftId] as const,
+    queryKey: queryKeys.draft(draftId),
     queryFn: () => apiFetch<DraftLetter>(`/v1/drafts/${draftId}`),
     staleTime: 30_000,
   });
@@ -67,7 +68,7 @@ export function useDraft(draftId: string) {
 
 function draftsOptions() {
   return queryOptions({
-    queryKey: ["drafts"] as const,
+    queryKey: queryKeys.drafts(),
     queryFn: () => apiFetch<DraftLetter[]>("/v1/drafts"),
   });
 }
@@ -82,7 +83,7 @@ export function useCreateDraft() {
     mutationFn: () =>
       apiFetch<DraftLetter>("/v1/drafts", { method: "POST" }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["drafts"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.drafts() });
     },
   });
 }
@@ -178,7 +179,7 @@ export function useSetRecipient(draftId: string) {
 
 function messagesOptions(draftId: string) {
   return queryOptions({
-    queryKey: ["drafts", draftId, "messages"] as const,
+    queryKey: queryKeys.draftMessages(draftId),
     queryFn: () =>
       apiFetch<ConversationMessage[]>(`/v1/drafts/${draftId}/messages`),
   });
@@ -213,7 +214,7 @@ export function useSendMessage(draftId: string) {
 
 function filesOptions(draftId: string) {
   return queryOptions({
-    queryKey: ["drafts", draftId, "files"] as const,
+    queryKey: queryKeys.draftFiles(draftId),
     queryFn: () => apiFetch<FileAsset[]>(`/v1/drafts/${draftId}/files`),
   });
 }
@@ -256,7 +257,7 @@ export function useCheckout(draftId: string) {
 
 function paymentOptions(draftId: string) {
   return queryOptions({
-    queryKey: ["drafts", draftId, "payment"] as const,
+    queryKey: queryKeys.payment(draftId),
     queryFn: () =>
       apiFetch<{ payment: { state: string; priceCents: number | null } }>(
         `/v1/drafts/${draftId}/payment`,
@@ -306,7 +307,7 @@ interface LetterPreview {
 
 function previewOptions(draftId: string) {
   return queryOptions({
-    queryKey: ["drafts", draftId, "preview"] as const,
+    queryKey: queryKeys.draftPreview(draftId),
     queryFn: () =>
       apiFetch<{ preview: LetterPreview }>(`/v1/drafts/${draftId}/preview`),
     staleTime: 30_000,
@@ -335,7 +336,7 @@ interface DispatchStatus {
 
 function dispatchOptions(draftId: string) {
   return queryOptions({
-    queryKey: ["drafts", draftId, "dispatch"] as const,
+    queryKey: queryKeys.dispatch(draftId),
     queryFn: () =>
       apiFetch<{ dispatch: DispatchStatus }>(`/v1/drafts/${draftId}/dispatch`),
     staleTime: 30_000,

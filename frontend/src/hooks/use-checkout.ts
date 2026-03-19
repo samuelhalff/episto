@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@swiss-mail/shared";
 import { apiFetch } from "../lib/api.js";
 
 // ---------------------------------------------------------------------------
@@ -55,7 +56,7 @@ export function useCheckout(draftId: string): UseCheckoutReturn {
 
   // Payment state — always fresh from server (no stale cache)
   const paymentQuery = useQuery({
-    queryKey: ["payments", draftId] as const,
+    queryKey: queryKeys.payment(draftId),
     queryFn: () =>
       apiFetch<PaymentResponse>(`/v1/drafts/${draftId}/payment`).then((r) => r.payment),
     staleTime: 0,
@@ -71,7 +72,7 @@ export function useCheckout(draftId: string): UseCheckoutReturn {
     onSuccess: (data) => {
       setClientSecret(data.clientSecret);
       // Invalidate payment state so UI reflects the newly pending payment
-      void queryClient.invalidateQueries({ queryKey: ["payments", draftId] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.payment(draftId) });
     },
   });
 

@@ -186,9 +186,12 @@
   "status": {
     "title": "Stato della lettera",
     "orderReference": "Numero d'ordine",
-    "dispatchState": "Stato di spedizione",
-    "estimatedDelivery": "Consegna prevista",
-    "sendAnother": "Invia un'altra lettera"
+    "dispatchState": "Stato spedizione",
+    "estimatedDelivery": "Consegna stimata",
+    "sendAnother": "Invia un'altra lettera",
+    "recipient": "Destinatario",
+    "paymentAmount": "Importo pagato",
+    "paidAt": "Data di pagamento"
   },
   "files": {
     "dropZone": {

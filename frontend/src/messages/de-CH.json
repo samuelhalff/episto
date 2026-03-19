@@ -187,8 +187,11 @@
     "title": "Briefstatus",
     "orderReference": "Bestellnummer",
     "dispatchState": "Versandstatus",
-    "estimatedDelivery": "Voraussichtliche Zustellung",
-    "sendAnother": "Weiteren Brief senden"
+    "estimatedDelivery": "Voraussichtliche Lieferung",
+    "sendAnother": "Weiteren Brief senden",
+    "recipient": "Empfänger",
+    "paymentAmount": "Bezahlter Betrag",
+    "paidAt": "Zahlungsdatum"
   },
   "files": {
     "dropZone": {

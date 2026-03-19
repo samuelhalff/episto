@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@swiss-mail/shared";
 import { apiFetch } from "../lib/api.js";
 import type { FileAsset } from "@swiss-mail/shared";
 import { FileAssetKind } from "@swiss-mail/shared";
@@ -87,7 +88,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const filesQuery = useQuery({
-    queryKey: ["drafts", draftId, "files"] as const,
+    queryKey: queryKeys.draftFiles(draftId),
     queryFn: () =>
       apiFetch<FileAsset[]>(`/v1/drafts/${draftId}/files`),
     staleTime: 30_000,
@@ -132,7 +133,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
     },
     onSuccess: () => {
       setUploadProgress(0);
-      void queryClient.invalidateQueries({ queryKey: ["drafts", draftId, "files"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
     },
     onError: () => {
       setUploadProgress(0);
@@ -143,7 +144,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
     mutationFn: (fileId: string) =>
       apiFetch<void>(`/v1/drafts/${draftId}/files/${fileId}`, { method: "DELETE" }),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["drafts", draftId, "files"] });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
     },
   });
 

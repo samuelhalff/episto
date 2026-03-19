@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@swiss-mail/shared";
 import { apiFetch } from "../lib/api.js";
 import { useDraftStream } from "./use-draft-stream.js";
 import type { DispatchState } from "@swiss-mail/shared";
@@ -54,7 +55,7 @@ export function useDispatchStatus(draftId: string): UseDispatchStatusReturn {
 
   // Fetch canonical dispatch state from server
   const dispatchQuery = useQuery({
-    queryKey: ["dispatch", draftId] as const,
+    queryKey: queryKeys.dispatch(draftId),
     queryFn: () =>
       apiFetch<DispatchResponse>(`/v1/drafts/${draftId}/dispatch`).then((r) => r.dispatch),
     staleTime: 15_000,
@@ -75,7 +76,7 @@ export function useDispatchStatus(draftId: string): UseDispatchStatusReturn {
           },
         ]);
         // Invalidate so the query refreshes with the new authoritative state
-        void queryClient.invalidateQueries({ queryKey: ["dispatch", draftId] });
+        void queryClient.invalidateQueries({ queryKey: queryKeys.dispatch(draftId) });
       }
     });
   }, [subscribe, queryClient, draftId]);
