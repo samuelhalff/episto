@@ -60,6 +60,10 @@ const EnvSchema = z.object({
 
   // CORS
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
+
+  // Admin (HTTP Basic Auth)
+  ADMIN_USERNAME: z.string().min(1).default("admin"),
+  ADMIN_PASSWORD: z.string().min(8).default("changeme-in-production"),
 });
 
 export type Env = z.infer<typeof EnvSchema>;

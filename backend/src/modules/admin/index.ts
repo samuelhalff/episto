@@ -66,3 +66,5 @@ export async function listSupportEventsForDraft(
     .where(eq(schema.supportEvents.draftId, draftId))
     .orderBy(sql`${schema.supportEvents.createdAt} DESC`);
 }
+
+export { adminRoutes } from "./admin.routes.js";
