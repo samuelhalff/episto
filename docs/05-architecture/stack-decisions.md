@@ -198,7 +198,7 @@ These are the recommended npm packages for each locked technology decision. Use 
 | Helmet (security headers) | `@fastify/helmet` | HSTS, X-Frame-Options, CSP |
 | Multipart uploads | `@fastify/multipart` | File upload handling with stream support |
 | Cookie handling | `@fastify/cookie` | HttpOnly secure session cookies |
-| CSRF protection | `@fastify/csrf-protection` | Same-origin mutation protection |
+| CSRF protection | Custom `X-Requested-With` hook | Same-origin mutation protection; all mutating requests (except webhooks) must include `X-Requested-With: XMLHttpRequest` |
 | Cron scheduling | `bullmq` repeatable jobs | No separate cron library needed; BullMQ handles scheduled retention jobs |
 | Email (adapter) | `resend` | Locked transactional email provider |
 | UUID generation | `crypto.randomUUID()` (built-in Node.js) | Zero-dependency; CSPRNG-backed |

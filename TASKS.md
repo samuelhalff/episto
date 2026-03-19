@@ -93,6 +93,9 @@
 - [x] Confirmation page: payment status verification via Stripe redirect params + backend polling, dispatch status display, 4-step timeline, copy-to-clipboard reference, email notice, mobile sticky CTA
 
 ### Pending (not blocked):
+- [x] UX documentation audit findings resolved (all 12 findings verified — see `AUDIT_FINDINGS.md`)
+- [x] Security headers audit (Helmet + CSP in frontend + custom headers all verified)
+- [x] Unused `@fastify/csrf-protection` dependency removed (custom X-Requested-With validation used instead)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding
@@ -101,6 +104,5 @@
 - [ ] Native speaker locale review
 - [ ] Pricing validation (4.90/8.90 viability)
 - [ ] DB migrations generation + rollback testing
-- [ ] Security headers audit
 - [ ] Accessibility testing (WCAG AA)
 - [ ] See `docs/07-operations/pre-launch-checklist.md` for full list
