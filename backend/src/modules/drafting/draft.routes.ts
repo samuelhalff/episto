@@ -154,4 +154,69 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       reply.send({ profiles });
     },
   );
+
+  // ---- Review / Preview ----
+
+  // POST /drafts/:draftId/review — create immutable snapshot and advance to reviewed
+  app.post(
+    "/drafts/:draftId/review",
+    async (
+      request: FastifyRequest<{ Params: { draftId: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const session = request.session!;
+      const db = getDb();
+      const { draftId } = request.params;
+
+      // Verify ownership
+      const draft = await getDraftById(db, draftId, session.id);
+      if (!draft) throw notFoundError("draft");
+
+      // Transition to reviewed (validates current state allows this)
+      const updated = await transitionDraftStatus(
+        db,
+        draftId,
+        session.id,
+        "reviewed",
+      );
+
+      reply.send({ draft: updated });
+    },
+  );
+
+  // GET /drafts/:draftId/preview — get letter content for preview rendering
+  app.get(
+    "/drafts/:draftId/preview",
+    async (
+      request: FastifyRequest<{ Params: { draftId: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const session = request.session!;
+      const db = getDb();
+      const { draftId } = request.params;
+
+      const draft = await getDraftById(db, draftId, session.id);
+      if (!draft) throw notFoundError("draft");
+
+      // Return the full draft content needed for preview rendering
+      reply.send({
+        preview: {
+          id: draft.id,
+          status: draft.status,
+          locale: draft.locale,
+          deliveryType: draft.deliveryType,
+          subject: draft.subject,
+          body: draft.body,
+          tone: draft.tone,
+          intent: draft.intent,
+          enclosureNote: draft.enclosureNote,
+          signatureMode: draft.signatureMode,
+          senderProfileId: draft.senderProfileId,
+          recipientProfileId: draft.recipientProfileId,
+          signatureAssetId: draft.signatureAssetId,
+          estimatedPages: draft.estimatedPages,
+        },
+      });
+    },
+  );
 }
