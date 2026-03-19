@@ -2,11 +2,15 @@ import { eq, and, desc } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError, AppError } from "../../shared/errors/index.js";
+import { generateResumeToken, hashResumeToken } from "../sessions/session.service.js";
 import {
   assertTransitionPayment,
   type PaymentState,
   type PaymentBreakdown,
 } from "@swiss-mail/shared";
+
+// Order access token TTL: 90 days per docs/05-architecture/session-management.md §Paid Orders
+const ORDER_ACCESS_TOKEN_TTL_DAYS = 90;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -26,6 +30,8 @@ export interface PaymentAttemptRow {
   breakdown: unknown;
   failureReason: string | null;
   refundReason: string | null;
+  orderAccessTokenHash: string | null;
+  orderAccessTokenExpiresAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +51,8 @@ function toPaymentRow(
     breakdown: row.breakdown,
     failureReason: row.failureReason,
     refundReason: row.refundReason,
+    orderAccessTokenHash: row.orderAccessTokenHash ?? null,
+    orderAccessTokenExpiresAt: row.orderAccessTokenExpiresAt ?? null,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -128,6 +136,16 @@ export async function getPaymentForDraft(
 // Transition payment state
 // ---------------------------------------------------------------------------
 
+export interface TransitionPaymentResult {
+  payment: PaymentAttemptRow;
+  /**
+   * Raw order access token, present only when transitioning to 'captured'
+   * for the first time. Callers (webhook, email worker) should include
+   * this in the confirmation email as the order status URL parameter.
+   */
+  rawOrderAccessToken: string | null;
+}
+
 export async function transitionPaymentState(
   db: Db,
   paymentId: string,
@@ -138,7 +156,7 @@ export async function transitionPaymentState(
     failureReason?: string | undefined;
     refundReason?: string | undefined;
   } | undefined,
-): Promise<PaymentAttemptRow> {
+): Promise<TransitionPaymentResult> {
   const [existing] = await db
     .select()
     .from(schema.paymentAttempts)
@@ -186,6 +204,17 @@ export async function transitionPaymentState(
     values.refundReason = extra.refundReason;
   }
 
+  // On first capture: generate a distinct long-lived order access token.
+  // This separates paid-order access from the ephemeral drafting session token.
+  let rawOrderAccessToken: string | null = null;
+  if (newState === "captured" && !existing.orderAccessTokenHash) {
+    rawOrderAccessToken = generateResumeToken();
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + ORDER_ACCESS_TOKEN_TTL_DAYS);
+    values.orderAccessTokenHash = hashResumeToken(rawOrderAccessToken);
+    values.orderAccessTokenExpiresAt = expiresAt;
+  }
+
   const [row] = await db
     .update(schema.paymentAttempts)
     .set(values)
@@ -193,5 +222,5 @@ export async function transitionPaymentState(
     .returning();
 
   if (!row) throw notFoundError("payment attempt");
-  return toPaymentRow(row);
+  return { payment: toPaymentRow(row), rawOrderAccessToken };
 }

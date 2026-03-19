@@ -58,6 +58,42 @@ export const SendMessageInput = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// API response types (what the server sends back)
+// ---------------------------------------------------------------------------
+
+export interface OrderStatusPayment {
+  state: string;
+  priceCents: number;
+  currency: string;
+  capturedAt: string | null;
+  refundedAt: string | null;
+}
+
+export interface OrderStatusDispatch {
+  state: string;
+  providerRef: string | null;
+  submittedAt: string | null;
+  acceptedAt: string | null;
+  rejectedAt: string | null;
+  trackingAvailable: boolean;
+  lastCheckedAt: string | null;
+}
+
+/** Response shape for GET /api/v1/orders/:orderToken */
+export interface OrderStatusResponse {
+  order: {
+    draftId: string;
+    orderRef: string;
+    locale: string;
+    payment: OrderStatusPayment;
+    dispatch: OrderStatusDispatch;
+    deliveryType: string;
+    recipientName: string;
+    createdAt: string;
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Inferred input types
 // ---------------------------------------------------------------------------
 

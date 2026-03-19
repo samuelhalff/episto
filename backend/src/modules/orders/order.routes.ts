@@ -7,6 +7,29 @@ import { hashResumeToken } from "../sessions/session.service.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
 import { getPresignedDownloadUrl } from "../files/adapters/s3.adapter.js";
 
+/**
+ * Resolve an order access token to its payment attempt.
+ * Verifies the token hash and checks that it has not expired.
+ * Returns null if the token is invalid or expired.
+ */
+async function resolveOrderToken(
+  db: ReturnType<typeof getDb>,
+  orderToken: string,
+): Promise<typeof schema.paymentAttempts.$inferSelect | null> {
+  const tokenHash = hashResumeToken(orderToken);
+  const [payment] = await db
+    .select()
+    .from(schema.paymentAttempts)
+    .where(eq(schema.paymentAttempts.orderAccessTokenHash, tokenHash))
+    .limit(1);
+
+  if (!payment) return null;
+  if (!payment.orderAccessTokenExpiresAt) return null;
+  if (payment.orderAccessTokenExpiresAt < new Date()) return null;
+
+  return payment;
+}
+
 function ipKey(req: FastifyRequest): string {
   return req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ?? req.ip;
 }
@@ -28,30 +51,16 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { orderToken } = request.params;
 
-      // Look up session via hashed token (resume token serves as order
-      // access token until a dedicated orderAccessToken column is added).
-      const tokenHash = hashResumeToken(orderToken);
-      const [session] = await db
-        .select()
-        .from(schema.sessions)
-        .where(eq(schema.sessions.resumeTokenHash, tokenHash))
-        .limit(1);
-
-      if (!session) throw notFoundError("order");
+      const payment = await resolveOrderToken(db, orderToken);
+      if (!payment) throw notFoundError("order");
 
       const [draft] = await db
         .select()
         .from(schema.draftLetters)
-        .where(eq(schema.draftLetters.sessionId, session.id))
+        .where(eq(schema.draftLetters.id, payment.draftId))
         .limit(1);
 
       if (!draft) throw notFoundError("order");
-
-      const [payment] = await db
-        .select()
-        .from(schema.paymentAttempts)
-        .where(eq(schema.paymentAttempts.draftId, draft.id))
-        .limit(1);
 
       const [dispatch] = await db
         .select()
@@ -84,11 +93,11 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
           orderRef: `SM-${draft.id.slice(0, 8).toUpperCase()}`,
           locale: draft.locale,
           payment: {
-            state: payment?.state ?? "pending",
-            priceCents: payment?.amountCents ?? 0,
+            state: payment.state,
+            priceCents: payment.amountCents,
             currency: "CHF" as const,
-            capturedAt: payment?.updatedAt?.toISOString() ?? null,
-            refundedAt: null,
+            capturedAt: payment.state === "captured" ? payment.updatedAt.toISOString() : null,
+            refundedAt: payment.state === "refunded" ? payment.updatedAt.toISOString() : null,
           },
           dispatch: {
             state: dispatch?.state ?? "queued",
@@ -123,19 +132,13 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { orderToken } = request.params;
 
-      const tokenHash = hashResumeToken(orderToken);
-      const [session] = await db
-        .select()
-        .from(schema.sessions)
-        .where(eq(schema.sessions.resumeTokenHash, tokenHash))
-        .limit(1);
-
-      if (!session) throw notFoundError("order");
+      const payment = await resolveOrderToken(db, orderToken);
+      if (!payment) throw notFoundError("order");
 
       const [draft] = await db
         .select()
         .from(schema.draftLetters)
-        .where(eq(schema.draftLetters.sessionId, session.id))
+        .where(eq(schema.draftLetters.id, payment.draftId))
         .limit(1);
 
       if (!draft) throw notFoundError("order");

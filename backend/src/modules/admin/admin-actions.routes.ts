@@ -240,7 +240,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
 
       await transitionPaymentState(db, payment.id, "refund_pending", {
         refundReason: body.reason,
-      });
+      }); // rawOrderAccessToken is null for refund transitions — not needed
 
       await recordSupportEvent(db, {
         draftId: id,
