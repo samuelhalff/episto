@@ -115,7 +115,7 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   await app.register(dispatchRoutes, { prefix: "/api/v1" });
   await app.register(orderRoutes, { prefix: "/api/v1" });
   await app.register(messageRoutes, { prefix: "/api/v1" });
-  await app.register(adminRoutes, { prefix: "/api/v1/admin" });
+  await app.register(adminRoutes, { prefix: "/api/v1" });
 
   return app;
 }
