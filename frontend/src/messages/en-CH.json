@@ -161,7 +161,11 @@
     "dataProtection": "Encrypted and securely stored",
     "defaultLetterTitle": "Letter",
     "total": "Total",
-    "stripeIntegrationPending": "Stripe payment integration pending"
+    "stripeIntegrationPending": "Stripe payment integration pending",
+    "paymentConfirming": "Processing payment…",
+    "paymentError": "Payment failed. Please try again.",
+    "enterPaymentDetails": "Enter payment details",
+    "continueToPayment": "Continue to payment"
   },
   "confirmation": {
     "title": "Payment received",

@@ -74,7 +74,7 @@ Derived from the design system — see `docs/02-brand/design-system.md` for toke
 
 ```
 Entry animation:   opacity 0→1, translateY 20px→0
-Duration:          400ms
+Duration:          300ms
 Easing:            cubic-bezier(0.16, 1, 0.3, 1)  (ease-out-expo)
 Trigger:           IntersectionObserver, threshold 0.15
 Stagger (cards):   75ms per item

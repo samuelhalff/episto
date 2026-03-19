@@ -33,8 +33,28 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
 
   // ---- Plugins ----
 
+  // Security headers — values locked in docs/07-operations/security-and-privacy.md §Security headers
   await app.register(fastifyHelmet, {
-    contentSecurityPolicy: false, // API server, not serving HTML
+    // API server — no HTML served, so CSP is omitted.
+    contentSecurityPolicy: false,
+    // Override Helmet defaults with canonical values from security-and-privacy.md.
+    strictTransportSecurity: {
+      maxAge: 31536000,
+      includeSubDomains: true,
+      preload: true,
+    },
+    frameguard: { action: "deny" },
+    xContentTypeOptions: true,
+    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    // Permissions-Policy is not yet part of Helmet's default set; add it manually.
+    // permissionsPolicy is not part of this Helmet version — set via onSend hook below.
+  });
+
+  // Permissions-Policy and X-XSS-Protection=0 not set by Helmet — add manually.
+  app.addHook("onSend", (_req, reply, _payload, done) => {
+    reply.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    reply.header("X-XSS-Protection", "0");
+    done();
   });
 
   await app.register(fastifyCors, {

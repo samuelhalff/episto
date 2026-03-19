@@ -161,7 +161,11 @@
     "dataProtection": "Verschlüsselt und sicher gespeichert",
     "defaultLetterTitle": "Brief",
     "total": "Total",
-    "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend"
+    "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend",
+    "paymentConfirming": "Zahlung wird verarbeitet…",
+    "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "enterPaymentDetails": "Zahlungsdetails eingeben",
+    "continueToPayment": "Weiter zur Zahlung"
   },
   "confirmation": {
     "title": "Zahlung erhalten",

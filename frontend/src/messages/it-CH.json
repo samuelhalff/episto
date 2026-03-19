@@ -161,7 +161,11 @@
     "dataProtection": "Crittografato e archiviato in modo sicuro",
     "defaultLetterTitle": "Lettera",
     "total": "Totale",
-    "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso"
+    "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso",
+    "paymentConfirming": "Elaborazione del pagamento…",
+    "paymentError": "Pagamento fallito. Si prega di riprovare.",
+    "enterPaymentDetails": "Inserire i dati di pagamento",
+    "continueToPayment": "Continua al pagamento"
   },
   "confirmation": {
     "title": "Pagamento ricevuto",
