@@ -1,6 +1,6 @@
 import { DraftStatus, PaymentState, DispatchState } from "./enums.js";
 
-type DraftStatusValue = (typeof DraftStatus)[keyof typeof DraftStatus];
+import type { DraftStatusValue } from "./enums.js";
 type PaymentStateValue = (typeof PaymentState)[keyof typeof PaymentState];
 type DispatchStateValue = (typeof DispatchState)[keyof typeof DispatchState];
 
