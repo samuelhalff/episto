@@ -16,13 +16,13 @@ Start here → **[docs/index.md](docs/index.md)** — navigation hub with readin
 
 ### Quick orientation
 
-| If you're a… | Start with |
-|---|---|
-| Designer / UX | [Design System](docs/02-brand/design-system.md) → [Component Library](docs/03-ux/component-library.md) |
-| Frontend dev | [Product Scope](docs/01-vision/product-scope.md) → [Frontend Architecture](docs/05-architecture/frontend-architecture.md) |
-| Backend dev | [System Contracts](docs/05-architecture/system-contracts.md) → [Database Schema](docs/05-architecture/database-schema.md) |
-| Product manager | [Overview](docs/01-vision/overview.md) → [Competitive Landscape](docs/01-vision/competitive-landscape.md) |
-| AI-assisted dev | [AI Implementation Rules](docs/08-guardrails/ai-implementation-rules.md) → [Provider Certainties](docs/08-guardrails/provider-certainties.md) |
+| If you're a…    | Start with                                                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| Designer / UX   | [Design System](docs/02-brand/design-system.md) → [Component Library](docs/03-ux/component-library.md)                        |
+| Frontend dev    | [Product Scope](docs/01-vision/product-scope.md) → [Frontend Architecture](docs/05-architecture/frontend-architecture.md)     |
+| Backend dev     | [System Contracts](docs/05-architecture/system-contracts.md) → [Database Schema](docs/05-architecture/database-schema.md)     |
+| Product manager | [Overview](docs/01-vision/overview.md) → [Competitive Landscape](docs/01-vision/competitive-landscape.md)                     |
+| AI-assisted dev | [AI Implementation Rules](docs/08-guardrails/ai-implementation-rules.md) → [Dev Workflow](docs/07-operations/dev-workflow.md) |
 
 ### Key safety files (read before writing code)
 
@@ -33,6 +33,7 @@ Start here → **[docs/index.md](docs/index.md)** — navigation hub with readin
 - [Swiss Post Appendix](docs/08-guardrails/swiss-post-appendix.md) — verified facts only
 - [Non-Goals](docs/08-guardrails/non-goals.md) — forbidden shortcuts
 - [Open Decisions](docs/08-guardrails/open-decisions.md) — don't resolve by guessing
+- [Dev Workflow](docs/07-operations/dev-workflow.md) — repo structure, maintainability rules, and file-size limits
 
 ### Documentation principles
 
@@ -42,6 +43,14 @@ Start here → **[docs/index.md](docs/index.md)** — navigation hub with readin
 - Build packs define the expected repo shape
 - Unresolved decisions must go through three-option review before code starts
 - The docs must be self-contained — no prior chat thread or hidden session context is required to implement correctly
+
+### Non-negotiable implementation hygiene
+
+- Production files must stay single-purpose and easy to scan
+- Production `*.ts` / `*.tsx` files target 300 lines or fewer and must be split before merge if they exceed 500 lines
+- Test files target 400 lines or fewer and must be split before merge if they exceed 700 lines
+- Markdown docs target 400 lines or fewer and should be split past 600 lines unless they are intentional canonical indexes or reference tables
+- If a change makes structure unclear, the same change must also do the cleanup — not leave it for later
 
 ### Structure
 
