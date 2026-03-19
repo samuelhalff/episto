@@ -56,7 +56,7 @@
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
-- [x] 243 unit tests passing (12 test files)
+- [x] 326 unit tests passing (18 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
@@ -70,9 +70,12 @@
 ### Blocked on provider/design:
 - [ ] Postal dispatch adapter (Swiss Post API credentials + contract)
 - [ ] Tracking adapter (Swiss Post tracking API — capabilities unconfirmed)
-- [ ] PDF rendering (HTML letter templates — design needed)
-- [ ] AI chat integration (Azure OpenAI prompt engineering)
 - [ ] Stripe Elements frontend (needs publishable key)
+
+### Recently completed:
+- [x] AI chat integration (Azure OpenAI adapter, prompt pipeline, streaming)
+- [x] AI → SSE wiring (event bus, message handler, SSE relay)
+- [x] PDF rendering pipeline (Puppeteer HTML→PDF, A4 template, storage upload)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding

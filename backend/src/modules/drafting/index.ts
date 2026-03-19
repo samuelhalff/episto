@@ -1,4 +1,5 @@
 export { draftRoutes } from "./draft.routes.js";
+export { streamRoutes } from "./stream.routes.js";
 export {
   createDraft,
   getDraftById,
@@ -14,3 +15,18 @@ export {
   getRecipientProfile,
   listRecipientProfiles,
 } from "./profile.service.js";
+export {
+  emitDraftEvent,
+  subscribeDraft,
+  unsubscribeDraft,
+} from "./draft-events.js";
+export type {
+  DraftEventType,
+  DraftEventMap,
+  DraftEventHandler,
+  AiTokenPayload,
+  AiMessageCompletePayload,
+  FieldUpdatePayload,
+  DraftStatusPayload,
+  StreamErrorPayload,
+} from "./draft-events.js";
