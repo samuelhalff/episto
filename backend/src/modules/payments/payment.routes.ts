@@ -13,6 +13,7 @@ import {
   createPaymentIntent,
   constructWebhookEvent,
 } from "./adapters/stripe.adapter.js";
+import { calculatePrice, type DeliveryType } from "../pricing/index.js";
 
 // ---------------------------------------------------------------------------
 // Input schemas
@@ -139,9 +140,12 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       const body = CheckoutBody.parse(request.body);
 
-      // Verify draft belongs to this session
+      // Verify draft belongs to this session and get delivery type for pricing
       const [draft] = await db
-        .select({ id: schema.draftLetters.id })
+        .select({
+          id: schema.draftLetters.id,
+          deliveryType: schema.draftLetters.deliveryType,
+        })
         .from(schema.draftLetters)
         .where(
           and(
@@ -153,14 +157,15 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      // TODO: Calculate real pricing from draft content.
-      // For now, the breakdown is hardcoded — pricing service will replace this.
-      const breakdown = { base: 195, pages: 0, delivery: 0, attachments: 0 };
-      const amountCents =
-        breakdown.base +
-        breakdown.pages +
-        breakdown.delivery +
-        breakdown.attachments;
+      // Calculate price from delivery type (config-driven, not hardcoded)
+      const pricing = calculatePrice(draft.deliveryType as DeliveryType);
+      const breakdown = {
+        base: pricing.baseCents,
+        pages: pricing.pageSurchargeCents,
+        delivery: pricing.deliverySurchargeCents,
+        attachments: pricing.attachmentSurchargeCents,
+      };
+      const amountCents = pricing.totalCents;
 
       // Use a transaction to prevent concurrent checkout race conditions.
       // Re-check for existing non-terminal payment inside the transaction.

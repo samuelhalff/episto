@@ -64,6 +64,10 @@ const EnvSchema = z.object({
   // Admin (HTTP Basic Auth)
   ADMIN_USERNAME: z.string().min(1).default("admin"),
   ADMIN_PASSWORD: z.string().min(8).default("changeme-in-production"),
+
+  // Pricing (integer cents, CHF only)
+  PRICE_STANDARD_CENTS: z.coerce.number().int().positive().default(490),
+  PRICE_REGISTERED_CENTS: z.coerce.number().int().positive().default(890),
 });
 
 export type Env = z.infer<typeof EnvSchema>;
