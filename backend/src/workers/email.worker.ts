@@ -53,6 +53,7 @@ interface PaymentReceiptStrings {
   amountLabel: string;
   deliveryLabel: string;
   followUp: string;
+  viewStatusLabel: string;
 }
 
 interface DispatchSubmittedStrings {
@@ -98,7 +99,8 @@ const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStrings> = 
     orderLabel: "Order",
     amountLabel: "Amount",
     deliveryLabel: "Delivery",
-    followUp: "You will receive dispatch status updates separately.",
+    followUp: "You will receive dispatch status updates by email.",
+    viewStatusLabel: "Track your letter",
   },
   "de-CH": {
     subject: "Swiss Mail – Zahlungsbestätigung",
@@ -106,7 +108,8 @@ const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStrings> = 
     orderLabel: "Bestellung",
     amountLabel: "Betrag",
     deliveryLabel: "Versandart",
-    followUp: "Über den Versandstatus erhalten Sie separate Benachrichtigungen.",
+    followUp: "Über den Versandstatus informieren wir Sie per E-Mail.",
+    viewStatusLabel: "Brief verfolgen",
   },
   "fr-CH": {
     subject: "Swiss Mail – Confirmation de paiement",
@@ -114,7 +117,8 @@ const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStrings> = 
     orderLabel: "Commande",
     amountLabel: "Montant",
     deliveryLabel: "Livraison",
-    followUp: "Vous recevrez séparément des mises à jour sur l'état de l'envoi.",
+    followUp: "Vous recevrez les mises à jour de statut par e-mail.",
+    viewStatusLabel: "Suivre votre lettre",
   },
   "it-CH": {
     subject: "Swiss Mail – Ricevuta di pagamento",
@@ -122,7 +126,8 @@ const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStrings> = 
     orderLabel: "Ordine",
     amountLabel: "Importo",
     deliveryLabel: "Spedizione",
-    followUp: "Riceverà separatamente gli aggiornamenti sullo stato della spedizione.",
+    followUp: "Riceverà aggiornamenti sullo stato della spedizione via e-mail.",
+    viewStatusLabel: "Traccia la sua lettera",
   },
 };
 
@@ -243,19 +248,29 @@ const TEMPLATES: Record<
     const orderRef = String(data.orderRef ?? "");
     const amount = String(data.amount ?? "");
     const deliveryType = String(data.deliveryType ?? "Standard");
+    const statusUrl = typeof data.statusUrl === "string" ? data.statusUrl : null;
+    const textLines = [
+      s.greeting,
+      `${s.orderLabel}: ${orderRef}`,
+      `${s.amountLabel}: CHF ${amount}`,
+      `${s.deliveryLabel}: ${deliveryType}`,
+      "",
+      s.followUp,
+    ];
+    if (statusUrl) textLines.push("", `${s.viewStatusLabel}: ${statusUrl}`);
     return {
       subject: `${s.subject} (${orderRef})`,
-      text: [
-        s.greeting,
-        `${s.orderLabel}: ${orderRef}`,
-        `${s.amountLabel}: CHF ${amount}`,
-        `${s.deliveryLabel}: ${deliveryType}`,
-        "",
-        s.followUp,
-      ].join("\n"),
-      html: `<p>${s.greeting} <strong>${orderRef}</strong>.</p>
-<p>${s.amountLabel}: CHF ${amount}</p>
-<p>${s.followUp}</p>`,
+      text: textLines.join("\n"),
+      html: [
+        `<p>${s.greeting} <strong>${orderRef}</strong>.</p>`,
+        `<p>${s.amountLabel}: CHF ${amount}</p>`,
+        `<p>${s.followUp}</p>`,
+        statusUrl
+          ? `<p><a href="${statusUrl}">${s.viewStatusLabel}</a></p>`
+          : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     };
   },
 

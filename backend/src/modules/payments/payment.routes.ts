@@ -14,6 +14,8 @@ import {
   constructWebhookEvent,
 } from "./adapters/stripe.adapter.js";
 import { calculatePrice, type DeliveryType } from "../pricing/index.js";
+import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
+import { env } from "../../shared/config/index.js";
 
 // ---------------------------------------------------------------------------
 // Input schemas
@@ -80,9 +82,48 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
           const { rawOrderAccessToken } = await transitionPaymentState(db, payment.id, "captured", {
             stripeChargeId: chargeId ?? undefined,
           });
-          // rawOrderAccessToken is available here for inclusion in confirmation emails.
-          // The email worker will pick it up via BullMQ job metadata.
-          void rawOrderAccessToken; // surfaced for future email worker integration
+
+          if (rawOrderAccessToken) {
+            // Enqueue payment receipt email with the order status link.
+            // Fire-and-forget: a queue failure must not cause Stripe to retry the webhook.
+            void (async () => {
+              try {
+                const [[sessionRow], [draft]] = await Promise.all([
+                  db
+                    .select({ email: schema.sessions.email, locale: schema.sessions.locale })
+                    .from(schema.sessions)
+                    .where(eq(schema.sessions.id, payment.sessionId))
+                    .limit(1),
+                  db
+                    .select({ deliveryType: schema.draftLetters.deliveryType })
+                    .from(schema.draftLetters)
+                    .where(eq(schema.draftLetters.id, payment.draftId))
+                    .limit(1),
+                ]);
+
+                if (sessionRow?.email) {
+                  const locale = sessionRow.locale ?? "en-CH";
+                  const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
+                  const statusUrl = `${env().CORS_ORIGIN}/${locale}/status/${rawOrderAccessToken}`;
+
+                  const job: SendEmailJob = {
+                    to: sessionRow.email,
+                    template: "payment-receipt",
+                    locale,
+                    data: {
+                      orderRef,
+                      amount: (payment.amountCents / 100).toFixed(2),
+                      deliveryType: draft?.deliveryType ?? "standard",
+                      statusUrl,
+                    },
+                  };
+                  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("payment-receipt", job);
+                }
+              } catch (err) {
+                request.log.error({ err }, "Failed to enqueue payment receipt email");
+              }
+            })();
+          }
           break;
         }
 

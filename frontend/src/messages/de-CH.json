@@ -129,7 +129,9 @@
     "recipientPlaceholder": "Empfängeradresse…",
     "subjectPlaceholder": "Betreff…",
     "bodyPlaceholder": "Briefinhalt…",
-    "signatureLabel": "Unterschrift"
+    "signatureLabel": "Unterschrift",
+    "startDictation": "Diktat starten",
+    "stopDictation": "Diktat stoppen"
   },
   "review": {
     "title": "Brief überprüfen",

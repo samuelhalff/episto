@@ -129,7 +129,9 @@
     "recipientPlaceholder": "Adresse du destinataire…",
     "subjectPlaceholder": "Objet…",
     "bodyPlaceholder": "Corps de la lettre…",
-    "signatureLabel": "Signature"
+    "signatureLabel": "Signature",
+    "startDictation": "Démarrer la dictée",
+    "stopDictation": "Arrêter la dictée"
   },
   "review": {
     "title": "Vérifier votre lettre",

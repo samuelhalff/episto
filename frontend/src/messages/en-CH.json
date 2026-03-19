@@ -129,7 +129,9 @@
     "recipientPlaceholder": "Recipient address…",
     "subjectPlaceholder": "Subject…",
     "bodyPlaceholder": "Letter body…",
-    "signatureLabel": "Signature"
+    "signatureLabel": "Signature",
+    "startDictation": "Start dictation",
+    "stopDictation": "Stop dictation"
   },
   "review": {
     "title": "Review your letter",

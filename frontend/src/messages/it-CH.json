@@ -129,7 +129,9 @@
     "recipientPlaceholder": "Indirizzo del destinatario…",
     "subjectPlaceholder": "Oggetto…",
     "bodyPlaceholder": "Testo della lettera…",
-    "signatureLabel": "Firma"
+    "signatureLabel": "Firma",
+    "startDictation": "Avvia dettatura",
+    "stopDictation": "Interrompi dettatura"
   },
   "review": {
     "title": "Verifica la tua lettera",
