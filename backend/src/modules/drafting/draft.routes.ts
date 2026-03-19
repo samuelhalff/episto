@@ -20,22 +20,13 @@ import {
   UpdateDraftInput,
   CreateSenderProfileInput,
   CreateRecipientProfileInput,
-  DraftStatus,
+  DraftStatusSchema,
 } from "@swiss-mail/shared";
 
 import { z } from "zod";
 
 const TransitionBody = z.object({
-  status: z.enum([
-    DraftStatus.collecting,
-    DraftStatus.fields_complete,
-    DraftStatus.reviewed,
-    DraftStatus.rendering,
-    DraftStatus.ready,
-    DraftStatus.submitted,
-    DraftStatus.dispatched,
-    DraftStatus.closed,
-  ]),
+  status: DraftStatusSchema,
 });
 
 export async function draftRoutes(app: FastifyInstance): Promise<void> {

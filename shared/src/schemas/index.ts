@@ -4,6 +4,7 @@ import {
   SessionType,
   Locale,
   DraftStatus,
+  type DraftStatusValue,
   DeliveryType,
   PaymentState,
   DispatchState,
@@ -22,7 +23,10 @@ export const SessionTypeSchema = z.enum(sessionTypeValues);
 const localeValues = Object.values(Locale) as [string, ...string[]];
 export const LocaleSchema = z.enum(localeValues);
 
-const draftStatusValues = Object.values(DraftStatus) as [string, ...string[]];
+const draftStatusValues = Object.values(DraftStatus) as [
+  DraftStatusValue,
+  ...DraftStatusValue[],
+];
 export const DraftStatusSchema = z.enum(draftStatusValues);
 
 const deliveryTypeValues = Object.values(DeliveryType) as [string, ...string[]];
