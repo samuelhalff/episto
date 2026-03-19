@@ -34,14 +34,14 @@ spec wins over the more narrative one.
 
 These labels are not decorative. They change how an implementation agent should behave.
 
-| Label | Meaning | Implementation rule |
-|---|---|---|
-| **Locked** | Final decision | Implement exactly as written |
-| **Open** | Decision unresolved | Do not hardcode an answer; preserve the boundary |
-| **Recommended** | Directional recommendation only | Do not treat as approved unless a higher-authority doc locks it |
-| **Canonical / Authoritative** | Current implementation authority within that file's stated scope | Use it, but only within its scope |
-| **Living document** | Expected to evolve | Useful, but subordinate to more concrete canonical docs |
-| **Draft** | Partially settled material with known open questions | Use only the settled parts; keep open parts configurable or blocked |
+| Label                         | Meaning                                                          | Implementation rule                                                 |
+| ----------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **Locked**                    | Final decision                                                   | Implement exactly as written                                        |
+| **Open**                      | Decision unresolved                                              | Do not hardcode an answer; preserve the boundary                    |
+| **Recommended**               | Directional recommendation only                                  | Do not treat as approved unless a higher-authority doc locks it     |
+| **Canonical / Authoritative** | Current implementation authority within that file's stated scope | Use it, but only within its scope                                   |
+| **Living document**           | Expected to evolve                                               | Useful, but subordinate to more concrete canonical docs             |
+| **Draft**                     | Partially settled material with known open questions             | Use only the settled parts; keep open parts configurable or blocked |
 
 The words "definitive", "reference", or "canonical" do not create cross-domain authority. A mobile
 doc does not outrank a route spec on route behavior. A brand doc does not outrank a system contract
@@ -52,16 +52,16 @@ on state.
 Before implementation, classify the task and read the required docs for that concern. Do not read
 one convenient file and assume the rest.
 
-| Task type | Required docs before coding |
-|---|---|
-| Route or screen implementation | `08-guardrails/open-decisions.md`, `03-ux/user-flows.md`, `03-ux/page-specifications.md`, `03-ux/component-library.md`, `03-ux/mobile-patterns.md`, `05-architecture/frontend-architecture.md`, `06-build-packs/frontend-build-pack.md`, `02-brand/voice-and-tone.md`, `05-architecture/i18n-rules.md` |
-| Drafting workspace or AI conversation behavior | `08-guardrails/open-decisions.md`, `04-product/letter-generation.md`, `04-product/ai-provider-and-prompts.md`, `03-ux/user-flows.md`, `03-ux/page-specifications.md`, `05-architecture/system-contracts.md`, `05-architecture/api-contracts.md`, `06-build-packs/frontend-build-pack.md`, `06-build-packs/backend-build-pack.md` |
-| Checkout, pricing, payment, refund | `08-guardrails/open-decisions.md`, `04-product/pricing-structure.md`, `04-product/auth-billing-accounts.md`, `03-ux/page-specifications.md`, `05-architecture/system-contracts.md`, `05-architecture/api-contracts.md`, `05-architecture/error-taxonomy.md`, `07-operations/security-and-privacy.md` |
-| Dispatch, tracking, provider integration | `08-guardrails/open-decisions.md`, `08-guardrails/swiss-post-api-reference-map.md`, `08-guardrails/provider-certainties.md`, `08-guardrails/swiss-post-appendix.md`, `04-product/provider-submission-model.md`, `04-product/postal-dispatch.md`, `05-architecture/system-contracts.md`, `05-architecture/api-contracts.md`, `05-architecture/backend-architecture.md`, `05-architecture/error-taxonomy.md`, `06-build-packs/backend-build-pack.md` |
-| Session, resume, email, and any future magic-link account work | `08-guardrails/open-decisions.md`, `04-product/email-flows.md`, `04-product/auth-billing-accounts.md`, `05-architecture/session-management.md`, `05-architecture/api-contracts.md`, `05-architecture/system-contracts.md`, `06-build-packs/backend-build-pack.md` |
-| Rendering, PDF, template, attachments, files | `08-guardrails/open-decisions.md`, `04-product/provider-submission-model.md`, `04-product/document-template.md`, `04-product/a4-template-specification.md`, `04-product/signatures-and-attachments.md`, `04-product/file-handling.md`, `05-architecture/database-schema.md`, `05-architecture/api-contracts.md`, `06-build-packs/backend-build-pack.md` |
-| Marketing copy, trust copy, SEO, public claims | `08-guardrails/open-decisions.md`, `08-guardrails/swiss-post-api-reference-map.md`, `08-guardrails/provider-certainties.md`, `03-ux/marketing-pages.md`, `02-brand/voice-and-tone.md`, `02-brand/seo-strategy.md`, `07-operations/security-and-privacy.md`, `04-product/ai-provider-and-prompts.md`, `04-product/postal-dispatch.md` |
-| Admin or support tooling | `08-guardrails/open-decisions.md`, `06-build-packs/admin-build-pack.md`, `07-operations/admin-and-support.md`, `07-operations/security-and-privacy.md`, `05-architecture/api-contracts.md`, `05-architecture/error-taxonomy.md` |
+| Task type                                                      | Required docs before coding                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Route or screen implementation                                 | `08-guardrails/open-decisions.md`, `03-ux/user-flows.md`, `03-ux/page-specifications.md`, `03-ux/component-library.md`, `03-ux/mobile-patterns.md`, `05-architecture/frontend-architecture.md`, `06-build-packs/frontend-build-pack.md`, `02-brand/voice-and-tone.md`, `05-architecture/i18n-rules.md`                                                                                                                                             |
+| Drafting workspace or AI conversation behavior                 | `08-guardrails/open-decisions.md`, `04-product/letter-generation.md`, `04-product/ai-provider-and-prompts.md`, `03-ux/user-flows.md`, `03-ux/page-specifications.md`, `05-architecture/system-contracts.md`, `05-architecture/api-contracts.md`, `06-build-packs/frontend-build-pack.md`, `06-build-packs/backend-build-pack.md`                                                                                                                   |
+| Checkout, pricing, payment, refund                             | `08-guardrails/open-decisions.md`, `04-product/pricing-structure.md`, `04-product/auth-billing-accounts.md`, `03-ux/page-specifications.md`, `05-architecture/system-contracts.md`, `05-architecture/api-contracts.md`, `05-architecture/error-taxonomy.md`, `07-operations/security-and-privacy.md`                                                                                                                                               |
+| Dispatch, tracking, provider integration                       | `08-guardrails/open-decisions.md`, `08-guardrails/swiss-post-api-reference-map.md`, `08-guardrails/provider-certainties.md`, `08-guardrails/swiss-post-appendix.md`, `04-product/provider-submission-model.md`, `04-product/postal-dispatch.md`, `05-architecture/system-contracts.md`, `05-architecture/api-contracts.md`, `05-architecture/backend-architecture.md`, `05-architecture/error-taxonomy.md`, `06-build-packs/backend-build-pack.md` |
+| Session, resume, email, and any future magic-link account work | `08-guardrails/open-decisions.md`, `04-product/email-flows.md`, `04-product/auth-billing-accounts.md`, `05-architecture/session-management.md`, `05-architecture/api-contracts.md`, `05-architecture/system-contracts.md`, `06-build-packs/backend-build-pack.md`                                                                                                                                                                                  |
+| Rendering, PDF, template, attachments, files                   | `08-guardrails/open-decisions.md`, `04-product/provider-submission-model.md`, `04-product/document-template.md`, `04-product/a4-template-specification.md`, `04-product/signatures-and-attachments.md`, `04-product/file-handling.md`, `05-architecture/database-schema.md`, `05-architecture/api-contracts.md`, `06-build-packs/backend-build-pack.md`                                                                                            |
+| Marketing copy, trust copy, SEO, public claims                 | `08-guardrails/open-decisions.md`, `08-guardrails/swiss-post-api-reference-map.md`, `08-guardrails/provider-certainties.md`, `03-ux/marketing-pages.md`, `02-brand/voice-and-tone.md`, `02-brand/seo-strategy.md`, `07-operations/security-and-privacy.md`, `04-product/ai-provider-and-prompts.md`, `04-product/postal-dispatch.md`                                                                                                               |
+| Admin or support tooling                                       | `08-guardrails/open-decisions.md`, `06-build-packs/admin-build-pack.md`, `07-operations/admin-and-support.md`, `07-operations/security-and-privacy.md`, `05-architecture/api-contracts.md`, `05-architecture/error-taxonomy.md`                                                                                                                                                                                                                    |
 
 If a task touches more than one row, read the union of those docs before coding.
 
@@ -86,6 +86,33 @@ If a task touches more than one row, read the union of those docs before coding.
 - **Never** turn a marketing claim into code or UI copy unless the underlying fact is locked or verified.
 - **Never** depend on prior chat history, unpublished notes, or "what the team probably meant" as an implementation source.
 - **Never** satisfy the spec with generic CRUD-style UX if the documented experience requires guided leverage, immediate preview access, and materially reduced user effort.
+
+## Maintainability guardrails
+
+These rules exist so no implementation agent can later claim the structure guidance was easy to miss.
+They are mandatory alongside the product and provider guardrails.
+
+- **Always** keep production files single-purpose and easy to scan
+- **Always** split route handlers, pages, services, hooks, and adapters before they become sprawling
+- **Never** mix multiple major responsibilities in one file just because the code still "works"
+- **Never** leave file splitting as follow-up cleanup when the current task already pushed the file past the repo limit
+
+### Mandatory file-size limits
+
+| File type                                     |        Target size |                                                                        Split required at |
+| --------------------------------------------- | -----------------: | ---------------------------------------------------------------------------------------: |
+| Production `*.ts` / `*.tsx`                   | 300 lines or fewer |                                                                      More than 500 lines |
+| Test `*.test.ts` / `*.spec.ts` / `*.test.tsx` | 400 lines or fewer |                                                                      More than 700 lines |
+| Markdown docs                                 | 400 lines or fewer | More than 600 lines unless the file is an intentional canonical index or reference table |
+
+### Required structural defaults
+
+- Frontend pages and route files compose screens; reusable logic belongs in hooks, `lib/`, or
+  `components/product/`, not inline inside page files
+- Backend module entry points orchestrate; state transitions, business rules, and provider translation
+  belong in focused services and adapter modules
+- `shared/` owns canonical contracts, schemas, enums, and shared API types; do not duplicate them elsewhere
+- If a file combines rendering, data fetching, normalization, error mapping, and state transitions, split it
 
 ## Required implementation pattern
 
@@ -190,6 +217,7 @@ Before any AI-generated code is considered implementation-ready:
 - [ ] Could a new implementer work correctly from the repository alone, without prior chat context?
 - [ ] Does any public claim lack a locked decision or verified source?
 - [ ] Are frontend hooks/state transitions centralized rather than reimplemented across screens?
+- [ ] Do all changed files still respect the repo's file-size and single-responsibility rules, or were they split before merge?
 - [ ] Does the UX feel materially easier than the manual baseline, rather than merely functional?
 - [ ] Is every production code path complete, with no placeholder logic, TODO gates, or stub handlers?
 - [ ] Did a recursive fresh-eye pass fail to produce any new material TODOs?
@@ -246,24 +274,29 @@ No production code outside `backend/src/adapters/` may import provider SDKs dire
 // .eslintrc.cjs (partial)
 module.exports = {
   rules: {
-    'no-restricted-imports': ['error', {
-      patterns: [
-        {
-          group: ['stripe', '@stripe/*'],
-          message: 'Import Stripe only inside backend/src/adapters/payment/. Use PaymentAdapter interface elsewhere.',
-        },
-        {
-          group: ['@anthropic-ai/*', 'openai'],
-          message: 'Import AI SDKs only inside backend/src/adapters/ai/. Use AiAdapter interface elsewhere.',
-        },
-        // Add per-provider as integrations are added
-      ],
-    }],
+    "no-restricted-imports": [
+      "error",
+      {
+        patterns: [
+          {
+            group: ["stripe", "@stripe/*"],
+            message:
+              "Import Stripe only inside backend/src/adapters/payment/. Use PaymentAdapter interface elsewhere.",
+          },
+          {
+            group: ["@anthropic-ai/*", "openai"],
+            message:
+              "Import AI SDKs only inside backend/src/adapters/ai/. Use AiAdapter interface elsewhere.",
+          },
+          // Add per-provider as integrations are added
+        ],
+      },
+    ],
   },
   overrides: [
     {
-      files: ['backend/src/adapters/**/*.ts'],
-      rules: { 'no-restricted-imports': 'off' },
+      files: ["backend/src/adapters/**/*.ts"],
+      rules: { "no-restricted-imports": "off" },
     },
   ],
 };
@@ -293,6 +326,7 @@ Override for `shared/src/**` where Zod schemas are expected.
 
 Every state machine (`DraftStatus`, `PaymentState`, `DispatchState`) must have a corresponding
 test file that:
+
 - Enumerates every valid transition
 - Asserts that invalid transitions throw
 - Uses the canonical enum from `shared/src/enums.ts`
@@ -326,12 +360,12 @@ pre-commit:
   parallel: true
   commands:
     lint:
-      glob: '*.{ts,tsx}'
+      glob: "*.{ts,tsx}"
       run: npx eslint {staged_files}
     typecheck:
       run: npx tsc --noEmit
     placeholders:
-      glob: '*.{ts,tsx}'
+      glob: "*.{ts,tsx}"
       run: bash ci/check-placeholders.sh
 ```
 
