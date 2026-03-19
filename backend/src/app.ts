@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import fastifyCors from "@fastify/cors";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyCookie from "@fastify/cookie";
+import fastifyMultipart from "@fastify/multipart";
 import fastifyRateLimit from "@fastify/rate-limit";
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
@@ -43,6 +44,13 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   });
 
   await app.register(fastifyCookie);
+
+  await app.register(fastifyMultipart, {
+    limits: {
+      fileSize: 5 * 1024 * 1024, // 5 MB
+      files: 1, // One file per request
+    },
+  });
 
   await app.register(fastifyRateLimit, {
     max: 100,

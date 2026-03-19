@@ -5,11 +5,14 @@ import { requireSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import {
+  createFileAsset,
   listFileAssets,
   deleteFileAsset,
+  getFileAsset,
   attachmentStorageKey,
   signatureStorageKey,
 } from "./file.service.js";
+import { uploadObject, getPresignedDownloadUrl, deleteObject } from "./adapters/s3.adapter.js";
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -37,7 +40,7 @@ const MAX_SIGNATURES = 1;
 // ---------------------------------------------------------------------------
 
 export async function fileRoutes(app: FastifyInstance): Promise<void> {
-  // POST /drafts/:id/files — upload attachment or signature
+  // POST /drafts/:id/files — upload attachment or signature (multipart)
   app.post<{ Params: { id: string } }>(
     "/drafts/:id/files",
     {
@@ -50,7 +53,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         },
       },
     },
-    async (request, _reply) => {
+    async (request, reply) => {
       const session = request.session!;
       const db = getDb();
       const { id: draftId } = request.params;
@@ -67,34 +70,23 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      // Extract multipart fields from the body.
-      // Since @fastify/multipart is not installed, we expect the body to be
-      // parsed as a JSON-like object with `file` and `kind` fields for now.
-      const body = request.body as
-        | {
-            kind?: string | undefined;
-            file?: { filename?: string | undefined; mimetype?: string | undefined; data?: Buffer | undefined } | undefined;
-          }
-        | null
-        | undefined;
+      // Parse multipart form data
+      const data = await request.file();
+      if (!data) {
+        throw validationError("Multipart file is required", [
+          { field: "file", message: "A file must be provided" },
+        ]);
+      }
 
-      const kind = body?.kind;
+      const kind = (data.fields.kind as { value?: string } | undefined)?.value;
       if (kind !== "attachment" && kind !== "signature") {
         throw validationError('Field "kind" must be "attachment" or "signature"', [
           { field: "kind", message: 'Must be "attachment" or "signature"' },
         ]);
       }
 
-      const file = body?.file;
-      if (!file) {
-        throw validationError("File is required", [
-          { field: "file", message: "A file must be provided" },
-        ]);
-      }
-
-      const _fileName = file.filename ?? "untitled";
-      const mimeType = file.mimetype ?? "application/octet-stream";
-      const sizeBytes = file.data?.byteLength ?? 0;
+      const fileName = data.filename ?? "untitled";
+      const mimeType = data.mimetype ?? "application/octet-stream";
 
       // Validate MIME type
       if (kind === "attachment" && !ALLOWED_ATTACHMENT_MIMES.has(mimeType)) {
@@ -110,7 +102,10 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         );
       }
 
-      // Validate size limits
+      // Read file into buffer and validate size
+      const buffer = await data.toBuffer();
+      const sizeBytes = buffer.byteLength;
+
       if (kind === "attachment" && sizeBytes > MAX_ATTACHMENT_SIZE) {
         throw validationError("Attachment exceeds maximum size of 5 MB", [
           { field: "file", message: "Maximum attachment size is 5 MB" },
@@ -168,46 +163,36 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       // Generate storage key (deterministic namespacing per docs)
       const fileId = crypto.randomUUID();
-      const _storageKey =
+      const storageKey =
         kind === "attachment"
           ? attachmentStorageKey(session.id, fileId)
           : signatureStorageKey(session.id, fileId);
 
-      // TODO: Actual S3 upload is not yet implemented.
-      // @fastify/multipart is not installed — this is a placeholder.
-      throw new AppError({
-        family: "file_upload_failure",
-        statusCode: 501,
-        code: "UPLOAD_NOT_IMPLEMENTED",
-        message:
-          "File upload to object storage is not yet implemented. " +
-          "Validation passed; S3 adapter integration is pending.",
-        userMessage: "File uploads are not available yet.",
-        userAction: "This feature is coming soon.",
+      // Upload to S3-compatible storage
+      await uploadObject(storageKey, buffer, mimeType);
+
+      // Create DB record
+      const row = await createFileAsset(db, {
+        sessionId: session.id,
+        draftId,
+        kind,
+        storageKey,
+        originalFilename: fileName,
+        mimeType,
+        sizeBytes,
       });
 
-      // Once S3 upload is wired:
-      // const row = await createFileAsset(db, {
-      //   sessionId: session.id,
-      //   draftId,
-      //   kind,
-      //   storageKey,
-      //   originalFilename: fileName,
-      //   mimeType,
-      //   sizeBytes,
-      // });
-      //
-      // reply.status(201).send({
-      //   file: {
-      //     id: row.id,
-      //     draftId: row.draftId,
-      //     kind: row.kind,
-      //     fileName: row.originalFilename,
-      //     mimeType: row.mimeType,
-      //     sizeBytes: row.sizeBytes,
-      //     createdAt: row.createdAt.toISOString(),
-      //   },
-      // });
+      reply.status(201).send({
+        file: {
+          id: row.id,
+          draftId: row.draftId,
+          kind: row.kind,
+          fileName: row.originalFilename,
+          mimeType: row.mimeType,
+          sizeBytes: row.sizeBytes,
+          createdAt: row.createdAt.toISOString(),
+        },
+      });
     },
   );
 
@@ -225,7 +210,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // DELETE /drafts/:id/files/:fileId — soft-delete a file
+  // DELETE /drafts/:id/files/:fileId — soft-delete a file and clean up storage
   app.delete<{ Params: { id: string; fileId: string } }>(
     "/drafts/:id/files/:fileId",
     { preHandler: [requireSession] },
@@ -234,7 +219,20 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { fileId } = request.params;
 
+      // Get storage key before soft-deleting
+      const asset = await getFileAsset(db, fileId, session.id);
+      if (!asset) throw notFoundError("file");
+
+      // Soft-delete in DB
       await deleteFileAsset(db, fileId, session.id);
+
+      // Best-effort delete from storage (don't fail the request if S3 is down)
+      try {
+        await deleteObject(asset.storageKey);
+      } catch {
+        request.log.warn({ fileId, storageKey: asset.storageKey }, "Failed to delete object from storage");
+      }
+
       reply.send({ deleted: true });
     },
   );
@@ -243,7 +241,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
   app.get<{ Params: { fileId: string } }>(
     "/files/:fileId/download",
     { preHandler: [requireSession] },
-    async (request, _reply) => {
+    async (request, reply) => {
       const session = request.session!;
       const db = getDb();
       const { fileId } = request.params;
@@ -262,15 +260,8 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       if (!file) throw notFoundError("file");
 
-      // S3 presigned URL generation not yet wired
-      throw new AppError({
-        family: "file_upload_failure",
-        statusCode: 501,
-        code: "DOWNLOAD_NOT_IMPLEMENTED",
-        message: "File download via presigned URL is not yet implemented.",
-        userMessage: "File downloads are not available yet.",
-        userAction: "This feature is coming soon.",
-      });
+      const url = await getPresignedDownloadUrl(file.storageKey, 300);
+      reply.status(302).header("Location", url).send();
     },
   );
 }
