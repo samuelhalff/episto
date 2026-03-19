@@ -217,11 +217,14 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     async (request, reply) => {
       const session = request.session!;
       const db = getDb();
-      const { fileId } = request.params;
+      const { id: draftId, fileId } = request.params;
 
-      // Get storage key before soft-deleting
+      // Get storage key before soft-deleting, validating session ownership
       const asset = await getFileAsset(db, fileId, session.id);
       if (!asset) throw notFoundError("file");
+
+      // Verify the file belongs to the specified draft
+      if (asset.draftId !== draftId) throw notFoundError("file");
 
       // Soft-delete in DB
       await deleteFileAsset(db, fileId, session.id);

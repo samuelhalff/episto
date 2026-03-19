@@ -169,17 +169,16 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       // Use a transaction to prevent concurrent checkout race conditions.
       // Re-check for existing non-terminal payment inside the transaction.
+      const NON_TERMINAL_STATES = ["pending", "authorized", "captured", "refund_pending"];
       const result = await db.transaction(async (tx) => {
         const existing = await getPaymentForDraft(tx, draftId);
-        if (existing && existing.state === "pending") {
-          if (existing.stripePaymentIntentId) {
-            return {
-              isExisting: true as const,
-              paymentAttemptId: existing.id,
-              clientSecret: null as string | null,
-              priceCents: existing.amountCents,
-            };
-          }
+        if (existing && NON_TERMINAL_STATES.includes(existing.state)) {
+          return {
+            isExisting: true as const,
+            paymentAttemptId: existing.id,
+            clientSecret: null as string | null,
+            priceCents: existing.amountCents,
+          };
         }
 
         const payment = await createPaymentAttempt(tx, {
