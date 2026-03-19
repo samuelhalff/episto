@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { getDb, schema } from "../../db/index.js";
+import { getDb } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
@@ -37,7 +37,7 @@ export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
   // POST /drafts/:id/dispatch/retry — admin-only dispatch retry
   app.post<{ Params: { id: string } }>(
     "/drafts/:id/dispatch/retry",
-    async (request, reply) => {
+    async (request, _reply) => {
       const auth = request.headers.authorization;
       if (!auth || !auth.startsWith("Basic ")) {
         throw new AppError({

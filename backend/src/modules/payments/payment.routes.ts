@@ -34,6 +34,7 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
     "application/json",
     { parseAs: "buffer" },
     (req, body, done) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (req as any).rawBodyBuffer = body;
       try {
         done(null, JSON.parse((body as Buffer).toString("utf-8")));
@@ -52,6 +53,7 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Raw body preserved by our custom content type parser
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const rawBody: Buffer | undefined = (request as any).rawBodyBuffer;
       if (!rawBody) {
         throw validationError("Missing request body");

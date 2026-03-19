@@ -31,7 +31,7 @@ declare module "fastify" {
  */
 export async function requireSession(
   request: FastifyRequest,
-  reply: FastifyReply,
+  _reply: FastifyReply,
 ): Promise<void> {
   const token = request.cookies[COOKIE_NAME];
 

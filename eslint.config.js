@@ -16,11 +16,13 @@ export default tseslint.config(
   },
   {
     ignores: [
-      "node_modules/",
-      "dist/",
-      ".next/",
-      "drizzle/",
-      "coverage/",
+      "**/node_modules/",
+      "**/dist/",
+      "**/.next/",
+      "**/drizzle/",
+      "**/coverage/",
+      "backend/dist/",
+      "shared/dist/",
     ],
   },
 );

@@ -174,7 +174,6 @@ function ConversationPanel({
 // ---------------------------------------------------------------------------
 
 function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
-  const t = useTranslations("draft");
 
   if (!draft) {
     return (

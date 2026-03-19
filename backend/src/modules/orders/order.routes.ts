@@ -80,7 +80,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
   // GET /orders/:orderToken/pdf — download final rendered PDF
   app.get<{ Params: { orderToken: string } }>(
     "/orders/:orderToken/pdf",
-    async (request, reply) => {
+    async (request, _reply) => {
       const db = getDb();
       const { orderToken } = request.params;
 

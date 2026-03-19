@@ -4,7 +4,7 @@ import { eq, and, gte, sql } from "drizzle-orm";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
-import { notFoundError, validationError, AppError } from "../../shared/errors/index.js";
+import { notFoundError, AppError } from "../../shared/errors/index.js";
 import { createMessage, listMessages } from "./message.service.js";
 
 // ---------------------------------------------------------------------------

@@ -243,7 +243,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
   app.get<{ Params: { fileId: string } }>(
     "/files/:fileId/download",
     { preHandler: [requireSession] },
-    async (request, reply) => {
+    async (request, _reply) => {
       const session = request.session!;
       const db = getDb();
       const { fileId } = request.params;

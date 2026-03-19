@@ -1,4 +1,4 @@
-import { lt, eq, and, sql } from "drizzle-orm";
+import { lt, eq, and } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";

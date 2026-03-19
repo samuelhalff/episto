@@ -17,7 +17,6 @@ export default function ResumePage({
 }) {
   const { token } = use(params);
   const t = useTranslations("resume");
-  const tc = useTranslations("common");
   const router = useRouter();
 
   const [error, setError] = useState(false);

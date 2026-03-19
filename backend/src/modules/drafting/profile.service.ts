@@ -1,7 +1,6 @@
 import { eq, and } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
-import { notFoundError } from "../../shared/errors/index.js";
 
 // ---------------------------------------------------------------------------
 // Sender profiles

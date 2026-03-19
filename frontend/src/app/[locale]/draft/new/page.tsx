@@ -39,7 +39,6 @@ export default function NewDraftPage() {
     }
 
     void bootstrap();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

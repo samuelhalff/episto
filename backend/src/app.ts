@@ -23,7 +23,7 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   const config = env();
 
   const app = Fastify({
-    logger: logger as any,
+    logger: logger as unknown as boolean,
     genReqId: () => randomUUID(),
     requestTimeout: 30_000,
     bodyLimit: 5 * 1024 * 1024, // 5 MB
