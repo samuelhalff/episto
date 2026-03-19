@@ -134,9 +134,20 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // GET /drafts/:id/messages — fetch conversation history
+  // Rate limit: 60/min per session (see docs/05-architecture/rate-limits-and-quotas.md)
   app.get<{ Params: { id: string }; Querystring: { cursor?: string; limit?: string } }>(
     "/drafts/:id/messages",
-    { preHandler: [requireSession] },
+    {
+      preHandler: [requireSession],
+      config: {
+        rateLimit: {
+          max: 60,
+          timeWindow: "1 minute",
+          keyGenerator: (req: FastifyRequest) =>
+            (req as FastifyRequest & { session?: { id: string } }).session?.id ?? req.ip,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{
         Params: { id: string };
