@@ -40,7 +40,7 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
     origin: config.CORS_ORIGIN,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "X-Requested-With"],
   });
 
   await app.register(fastifyCookie);
@@ -62,6 +62,33 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
         ?.trim();
       return forwarded && forwarded.length > 0 ? forwarded : req.ip;
     },
+  });
+
+  // ---- CSRF protection ----
+  // All mutating requests must include X-Requested-With: XMLHttpRequest
+  // to prevent cross-origin form submissions. Webhooks are exempt.
+
+  app.addHook("onRequest", (request, reply, done) => {
+    const method = request.method;
+    if (
+      (method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE") &&
+      !request.url.includes("/webhooks/")
+    ) {
+      const xrw = request.headers["x-requested-with"];
+      if (xrw !== "XMLHttpRequest") {
+        reply.status(403).send({
+          error: {
+            code: "CSRF_VALIDATION_FAILED",
+            family: "policy_refusal",
+            message: "Missing or invalid X-Requested-With header",
+            userMessage: "This request was blocked for security reasons.",
+            userAction: null,
+          },
+        });
+        return;
+      }
+    }
+    done();
   });
 
   // ---- Error handler ----

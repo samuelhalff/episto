@@ -44,7 +44,7 @@ export default function StatusPage({
     async function fetchStatus() {
       try {
         const result = await apiFetch<OrderStatus>(
-          `/v1/status/${orderToken}`,
+          `/v1/orders/${orderToken}`,
         );
         if (!cancelled) {
           setStatus(result);

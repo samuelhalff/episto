@@ -56,12 +56,14 @@
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
-- [x] 205 unit tests passing (9 test files)
+- [x] 243 unit tests passing (12 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
-- [x] Security hardening (timingSafeEqual, Zod validation, draft ownership checks)
+- [x] Security hardening (timingSafeEqual, Zod validation, draft ownership checks, CSRF middleware)
 - [x] Graceful server shutdown (workers, queues, connections)
+- [x] Per-route rate limiting on key endpoints
+- [x] All API response shapes verified against `api-contracts.md`
 
 ## 5. Remaining Work (blocked or deferred)
 

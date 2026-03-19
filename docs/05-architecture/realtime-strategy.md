@@ -64,13 +64,12 @@ data: {JSON payload}
 
 | Event | Payload | When |
 |-------|---------|------|
-| `ai_token` | `{ "text": "partial text", "done": false }` | Each token from LLM stream |
-| `ai_complete` | `{ "text": "full response", "done": true, "messageId": "uuid" }` | LLM response finished |
-| `field_update` | `{ "field": "subject", "value": "Kündigung Mietvertrag" }` | Field extracted by AI |
-| `draft_status` | `{ "status": "fields_complete" }` | DraftStatus state change |
-| `draft_updated` | `{ "updatedAt": "ISO timestamp" }` | Draft content changed; frontend should refetch preview |
+| `ai_token` | `{ "token": "partial text", "messageId": "uuid" }` | Each token from LLM stream |
+| `ai_message_complete` | `{ "messageId": "uuid", "fullContent": "...", "extractedFields": {...} }` | LLM response finished |
+| `field_update` | `{ "field": "subject", "value": "...", "updatedAt": "ISO" }` | Draft field updated (AI or user) |
+| `draft_status` | `{ "dispatchState": "...", "paymentState": "...", "updatedAt": "ISO" }` | Draft state change |
 | `dispatch_status` | `{ "state": "accepted", "reference": "..." }` | DispatchState change |
-| `error` | `{ "family": "provider_outage", "userMessage": "..." }` | Error during streaming |
+| `error` | `{ "code": "...", "message": "..." }` | Non-fatal error during AI processing |
 | `keepalive` | (comment line `: keepalive`) | Heartbeat to prevent proxy timeout |
 
 ### Reconnection
@@ -120,7 +119,7 @@ export function useDraftStream(draftId: string) {
 
     source.onopen = () => setIsConnected(true);
 
-    source.addEventListener('draft_updated', () => {
+    source.addEventListener('field_update', () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.draft(draftId) });
     });
 

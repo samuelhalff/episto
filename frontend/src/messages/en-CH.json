@@ -52,6 +52,7 @@
   "howItWorks": {
     "title": "How Swiss Mail works",
     "subtitle": "Three simple steps to send a professional letter.",
+    "stepLabel": "Step {number}",
     "step1Detail": "Tell us what kind of letter you need. Our AI assistant asks the right questions and drafts a formal letter in the correct Swiss format.",
     "step2Detail": "Review every section of your letter. Edit the sender, recipient, body, and attachments. Add your signature if needed.",
     "step3Detail": "Choose standard or registered delivery. Pay securely with card or TWINT. We print your letter on quality paper and hand it to Swiss Post.",
@@ -121,7 +122,14 @@
     "stepDraft": "Draft",
     "stepReview": "Review",
     "stepPay": "Pay",
-    "stepDone": "Done"
+    "stepDone": "Done",
+    "senderLabel": "Sender",
+    "senderPlaceholder": "Sender address…",
+    "recipientLabel": "Recipient",
+    "recipientPlaceholder": "Recipient address…",
+    "subjectPlaceholder": "Subject…",
+    "bodyPlaceholder": "Letter body…",
+    "signatureLabel": "Signature"
   },
   "review": {
     "title": "Review your letter",

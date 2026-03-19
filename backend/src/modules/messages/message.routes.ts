@@ -114,6 +114,7 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
           content: message.content,
           createdAt: message.createdAt,
         },
+        streamUrl: `/api/v1/drafts/${draftId}/stream`,
       });
     },
   );

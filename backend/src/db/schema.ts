@@ -1,4 +1,5 @@
 import {
+  check,
   index,
   integer,
   jsonb,
@@ -9,6 +10,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import { relations, sql } from "drizzle-orm";
 
 // ---------------------------------------------------------------------------
 // Enum types
@@ -151,6 +153,14 @@ export const draftLetters = pgTable(
     sessionIdIdx: index("draft_letters_session_id_idx").on(t.sessionId),
     statusIdx: index("draft_letters_status_idx").on(t.status),
     createdAtIdx: index("draft_letters_created_at_idx").on(t.createdAt),
+    subjectLenCheck: check(
+      "draft_letters_subject_len",
+      sql`length(${t.subject}) <= 200`,
+    ),
+    bodyLenCheck: check(
+      "draft_letters_body_len",
+      sql`length(${t.body}) <= 10000`,
+    ),
   }),
 );
 
@@ -180,6 +190,10 @@ export const senderProfiles = pgTable(
   },
   (t) => ({
     sessionIdIdx: index("sender_profiles_session_id_idx").on(t.sessionId),
+    postalCodeCheck: check(
+      "sender_profiles_postal_code_format",
+      sql`${t.postalCode} ~ '^[0-9]{4}$'`,
+    ),
   }),
 );
 
@@ -208,6 +222,10 @@ export const recipientProfiles = pgTable(
   },
   (t) => ({
     sessionIdIdx: index("recipient_profiles_session_id_idx").on(t.sessionId),
+    postalCodeCheck: check(
+      "recipient_profiles_postal_code_format",
+      sql`${t.postalCode} ~ '^[0-9]{4}$'`,
+    ),
   }),
 );
 
@@ -400,5 +418,155 @@ export const supportEvents = pgTable(
     eventTypeCreatedAtIdx: index(
       "support_events_event_type_created_at_idx",
     ).on(t.eventType, t.createdAt),
+  }),
+);
+
+// ---------------------------------------------------------------------------
+// Relations — enable Drizzle relational queries
+// ---------------------------------------------------------------------------
+
+export const sessionsRelations = relations(sessions, ({ many }) => ({
+  drafts: many(draftLetters),
+  senderProfiles: many(senderProfiles),
+  recipientProfiles: many(recipientProfiles),
+  fileAssets: many(fileAssets),
+  paymentAttempts: many(paymentAttempts),
+  supportEvents: many(supportEvents),
+}));
+
+export const draftLettersRelations = relations(
+  draftLetters,
+  ({ one, many }) => ({
+    session: one(sessions, {
+      fields: [draftLetters.sessionId],
+      references: [sessions.id],
+    }),
+    senderProfile: one(senderProfiles, {
+      fields: [draftLetters.senderProfileId],
+      references: [senderProfiles.id],
+    }),
+    recipientProfile: one(recipientProfiles, {
+      fields: [draftLetters.recipientProfileId],
+      references: [recipientProfiles.id],
+    }),
+    signatureAsset: one(fileAssets, {
+      fields: [draftLetters.signatureAssetId],
+      references: [fileAssets.id],
+    }),
+    snapshots: many(draftSnapshots),
+    messages: many(conversationMessages),
+    fileAssets: many(fileAssets),
+    paymentAttempts: many(paymentAttempts),
+    dispatchAttempts: many(dispatchAttempts),
+    supportEvents: many(supportEvents),
+  }),
+);
+
+export const senderProfilesRelations = relations(
+  senderProfiles,
+  ({ one }) => ({
+    session: one(sessions, {
+      fields: [senderProfiles.sessionId],
+      references: [sessions.id],
+    }),
+  }),
+);
+
+export const recipientProfilesRelations = relations(
+  recipientProfiles,
+  ({ one }) => ({
+    session: one(sessions, {
+      fields: [recipientProfiles.sessionId],
+      references: [sessions.id],
+    }),
+  }),
+);
+
+export const fileAssetsRelations = relations(fileAssets, ({ one }) => ({
+  session: one(sessions, {
+    fields: [fileAssets.sessionId],
+    references: [sessions.id],
+  }),
+  draft: one(draftLetters, {
+    fields: [fileAssets.draftId],
+    references: [draftLetters.id],
+  }),
+}));
+
+export const draftSnapshotsRelations = relations(
+  draftSnapshots,
+  ({ one, many }) => ({
+    draft: one(draftLetters, {
+      fields: [draftSnapshots.draftId],
+      references: [draftLetters.id],
+    }),
+    renderedPdfAsset: one(fileAssets, {
+      fields: [draftSnapshots.renderedPdfAssetId],
+      references: [fileAssets.id],
+    }),
+    dispatchAttempts: many(dispatchAttempts),
+  }),
+);
+
+export const conversationMessagesRelations = relations(
+  conversationMessages,
+  ({ one }) => ({
+    draft: one(draftLetters, {
+      fields: [conversationMessages.draftId],
+      references: [draftLetters.id],
+    }),
+  }),
+);
+
+export const paymentAttemptsRelations = relations(
+  paymentAttempts,
+  ({ one }) => ({
+    draft: one(draftLetters, {
+      fields: [paymentAttempts.draftId],
+      references: [draftLetters.id],
+    }),
+    session: one(sessions, {
+      fields: [paymentAttempts.sessionId],
+      references: [sessions.id],
+    }),
+  }),
+);
+
+export const dispatchAttemptsRelations = relations(
+  dispatchAttempts,
+  ({ one, many }) => ({
+    draft: one(draftLetters, {
+      fields: [dispatchAttempts.draftId],
+      references: [draftLetters.id],
+    }),
+    snapshot: one(draftSnapshots, {
+      fields: [dispatchAttempts.snapshotId],
+      references: [draftSnapshots.id],
+    }),
+    statusEvents: many(dispatchStatusEvents),
+  }),
+);
+
+export const dispatchStatusEventsRelations = relations(
+  dispatchStatusEvents,
+  ({ one }) => ({
+    dispatchAttempt: one(dispatchAttempts, {
+      fields: [dispatchStatusEvents.dispatchAttemptId],
+      references: [dispatchAttempts.id],
+    }),
+  }),
+);
+
+export const supportEventsRelations = relations(
+  supportEvents,
+  ({ one }) => ({
+    session: one(sessions, {
+      fields: [supportEvents.sessionId],
+      references: [sessions.id],
+    }),
+    draft: one(draftLetters, {
+      fields: [supportEvents.draftId],
+      references: [draftLetters.id],
+    }),
   }),
 );

@@ -132,7 +132,16 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
   // ---- POST /drafts/:draftId/checkout (session required) ----
   app.post<{ Params: { draftId: string } }>(
     "/drafts/:draftId/checkout",
-    { preHandler: [requireSession] },
+    {
+      preHandler: [requireSession],
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: "1 hour",
+          keyGenerator: (req: FastifyRequest) => req.session!.id,
+        },
+      },
+    },
     async (request, reply) => {
       const session = request.session!;
       const db = getDb();
@@ -219,11 +228,10 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           clientSecret: result.clientSecret,
           priceCents: result.priceCents,
           currency: "CHF" as const,
-          message: "A pending payment already exists for this draft.",
         });
       }
 
-      reply.status(201).send({
+      reply.send({
         paymentAttemptId: result.paymentAttemptId,
         clientSecret: result.clientSecret,
         priceCents: result.priceCents,
@@ -261,7 +269,19 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       const payment = await getPaymentForDraft(db, draftId);
       if (!payment) throw notFoundError("payment");
 
-      reply.send({ payment });
+      reply.send({
+        payment: {
+          draftId: payment.draftId,
+          paymentAttemptId: payment.id,
+          state: payment.state,
+          priceCents: payment.amountCents,
+          currency: "CHF" as const,
+          authorizedAt: null,
+          capturedAt: payment.state === "captured" ? payment.updatedAt.toISOString() : null,
+          refundedAt: payment.state === "refunded" ? payment.updatedAt.toISOString() : null,
+          failureReason: payment.failureReason ?? null,
+        },
+      });
     },
   );
 }
