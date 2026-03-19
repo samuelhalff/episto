@@ -217,8 +217,14 @@
   "confirmation": {
     "title": "Pagamento ricevuto",
     "subtitle": "La tua lettera è stata inoltrata per la spedizione.",
+    "verifying": "Verifica del pagamento…",
+    "paymentFailed": "Pagamento non completato",
+    "paymentFailedSubtitle": "Il tuo pagamento non è stato elaborato. Torna alla cassa per riprovare.",
+    "backToCheckout": "Torna alla cassa",
     "orderReference": "Numero d'ordine",
     "copied": "Copiato",
+    "copyReference": "Copia il riferimento",
+    "dispatchTitle": "Stato della spedizione",
     "whatHappensNext": "Prossimi passi",
     "stepPayment": "Pagamento confermato",
     "stepSubmitted": "Lettera inoltrata per la spedizione",
@@ -232,7 +238,8 @@
     "stateAccepted": "Accettata per la spedizione",
     "stateRejected": "La spedizione è stata rifiutata — stiamo verificando",
     "stateUnknown": "Lo stato è in fase di conferma — ti aggiorneremo via e-mail",
-    "emailNotice": "Una ricevuta è stata inviata a {email}"
+    "emailNotice": "Una ricevuta di pagamento è stata inviata alla tua e-mail",
+    "stickyCtaLabel": "Invia un'altra lettera"
   },
   "resume": {
     "loading": "Ripresa della bozza…",
