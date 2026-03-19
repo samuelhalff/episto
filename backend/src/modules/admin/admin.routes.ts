@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { eq, desc, or, ilike, sql } from "drizzle-orm";
+import { eq, desc, or, ilike } from "drizzle-orm";
 import { timingSafeEqual } from "node:crypto";
 import { getDb, schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
@@ -266,6 +266,125 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         .limit(5);
 
       reply.send({ sessions, drafts });
+    },
+  );
+
+  // POST /admin/drafts/:id/refund — initiate refund for paid draft
+  app.post<{ Params: { id: string } }>(
+    "/admin/drafts/:id/refund",
+    async (request, reply) => {
+      const db = getDb();
+      const { id } = request.params;
+
+      const body = request.body as
+        | { reason?: string | undefined; notifyCustomer?: boolean | undefined }
+        | null
+        | undefined;
+      if (
+        !body?.reason ||
+        typeof body.reason !== "string" ||
+        body.reason.length < 1 ||
+        body.reason.length > 500
+      ) {
+        reply
+          .status(400)
+          .send({ error: "reason is required (1-500 chars)" });
+        return;
+      }
+
+      const [draft] = await db
+        .select()
+        .from(schema.draftLetters)
+        .where(eq(schema.draftLetters.id, id))
+        .limit(1);
+
+      if (!draft) {
+        reply.status(404).send({ error: "Draft not found" });
+        return;
+      }
+
+      const [payment] = await db
+        .select()
+        .from(schema.paymentAttempts)
+        .where(eq(schema.paymentAttempts.draftId, id))
+        .limit(1);
+
+      if (!payment) {
+        reply
+          .status(404)
+          .send({ error: "No payment record found for this draft" });
+        return;
+      }
+
+      await recordSupportEvent(db, {
+        draftId: id,
+        sessionId: draft.sessionId,
+        eventType: "refund_requested",
+        actor: env().ADMIN_USERNAME,
+        details: { reason: body.reason, paymentId: payment.id },
+      });
+
+      // Refund requires Stripe API — stub for now
+      throw new AppError({
+        family: "payment_failure",
+        statusCode: 501,
+        code: "REFUND_NOT_IMPLEMENTED",
+        message: "Stripe refund API integration is not yet implemented.",
+        userMessage: "Refund processing is not available yet.",
+        userAction: "Process refund manually via Stripe dashboard.",
+      });
+    },
+  );
+
+  // POST /admin/drafts/:id/reconcile — manual dispatch reconciliation
+  app.post<{ Params: { id: string } }>(
+    "/admin/drafts/:id/reconcile",
+    async (request, reply) => {
+      const db = getDb();
+      const { id } = request.params;
+
+      const [draft] = await db
+        .select()
+        .from(schema.draftLetters)
+        .where(eq(schema.draftLetters.id, id))
+        .limit(1);
+
+      if (!draft) {
+        reply.status(404).send({ error: "Draft not found" });
+        return;
+      }
+
+      const [dispatch] = await db
+        .select()
+        .from(schema.dispatchAttempts)
+        .where(eq(schema.dispatchAttempts.draftId, id))
+        .limit(1);
+
+      if (!dispatch) {
+        reply
+          .status(404)
+          .send({ error: "No dispatch attempt found for this draft" });
+        return;
+      }
+
+      await recordSupportEvent(db, {
+        draftId: id,
+        sessionId: draft.sessionId,
+        eventType: "reconciliation_requested",
+        actor: env().ADMIN_USERNAME,
+        details: { dispatchId: dispatch.id, currentState: dispatch.state },
+      });
+
+      // Manual reconciliation requires provider verification — stub for now
+      throw new AppError({
+        family: "dispatch_ambiguity",
+        statusCode: 501,
+        code: "RECONCILE_NOT_IMPLEMENTED",
+        message:
+          "Manual dispatch reconciliation requires provider API integration.",
+        userMessage: "Reconciliation is not available yet.",
+        userAction: "Check dispatch status manually with postal provider.",
+      });
     },
   );
 }

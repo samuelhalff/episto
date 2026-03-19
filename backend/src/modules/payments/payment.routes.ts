@@ -1,11 +1,11 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { getDb } from "../../db/index.js";
+import { eq, and } from "drizzle-orm";
+import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   createPaymentAttempt,
-  getPaymentAttempt,
   getPaymentForDraft,
   transitionPaymentState,
 } from "./payment.service.js";
@@ -18,8 +18,8 @@ import {
 // Input schemas
 // ---------------------------------------------------------------------------
 
-const CreateIntentBody = z.object({
-  draftId: z.string().uuid(),
+const CheckoutBody = z.object({
+  email: z.string().email().max(254),
 });
 
 // ---------------------------------------------------------------------------
@@ -44,7 +44,7 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
   );
 
   app.post(
-    "/payments/webhook",
+    "/webhooks/stripe",
     async (request: FastifyRequest, reply: FastifyReply) => {
       const signature = request.headers["stripe-signature"];
       if (typeof signature !== "string") {
@@ -126,18 +126,33 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export async function paymentRoutes(app: FastifyInstance): Promise<void> {
-  // ---- POST /payments/create-intent (session required) ----
-  app.post(
-    "/payments/create-intent",
+  // ---- POST /drafts/:draftId/checkout (session required) ----
+  app.post<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/checkout",
     { preHandler: [requireSession] },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    async (request, reply) => {
       const session = request.session!;
       const db = getDb();
+      const { draftId } = request.params;
 
-      const body = CreateIntentBody.parse(request.body);
+      const body = CheckoutBody.parse(request.body);
+
+      // Verify draft belongs to this session
+      const [draft] = await db
+        .select({ id: schema.draftLetters.id })
+        .from(schema.draftLetters)
+        .where(
+          and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, session.id),
+          ),
+        )
+        .limit(1);
+
+      if (!draft) throw notFoundError("draft");
 
       // Check for existing non-terminal payment to ensure idempotency
-      const existing = await getPaymentForDraft(db, body.draftId);
+      const existing = await getPaymentForDraft(db, draftId);
       if (existing && existing.state === "pending") {
         if (existing.stripePaymentIntentId) {
           return reply.send({
@@ -151,23 +166,35 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       // TODO: Calculate real pricing from draft content.
       // For now, the breakdown is hardcoded — pricing service will replace this.
       const breakdown = { base: 195, pages: 0, delivery: 0, attachments: 0 };
-      const amountCents = breakdown.base + breakdown.pages + breakdown.delivery + breakdown.attachments;
+      const amountCents =
+        breakdown.base +
+        breakdown.pages +
+        breakdown.delivery +
+        breakdown.attachments;
 
       const payment = await createPaymentAttempt(db, {
-        draftId: body.draftId,
+        draftId,
         sessionId: session.id,
         amountCents,
         breakdown,
       });
 
-      const result = await createPaymentIntent(
-        amountCents,
-        { draftId: body.draftId, sessionId: session.id },
-      );
+      const result = await createPaymentIntent(amountCents, {
+        draftId,
+        sessionId: session.id,
+      });
 
       await transitionPaymentState(db, payment.id, "authorized", {
         stripePaymentIntentId: result.paymentIntentId,
       });
+
+      // Store email on session for receipt delivery
+      if (body.email) {
+        await db
+          .update(schema.sessions)
+          .set({ email: body.email, updatedAt: new Date() })
+          .where(eq(schema.sessions.id, session.id));
+      }
 
       reply.status(201).send({
         paymentId: payment.id,
@@ -179,16 +206,30 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
   // Webhook routes live in an encapsulated sub-plugin with raw body parsing
   await app.register(webhookRoutes);
 
-  // ---- GET /payments/:paymentId (session required) ----
-  app.get<{ Params: { paymentId: string } }>(
-    "/payments/:paymentId",
+  // ---- GET /drafts/:draftId/payment (session required) ----
+  app.get<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/payment",
     { preHandler: [requireSession] },
     async (request, reply) => {
       const session = request.session!;
       const db = getDb();
-      const { paymentId } = request.params;
+      const { draftId } = request.params;
 
-      const payment = await getPaymentAttempt(db, paymentId, session.id);
+      // Verify draft belongs to this session
+      const [draft] = await db
+        .select({ id: schema.draftLetters.id })
+        .from(schema.draftLetters)
+        .where(
+          and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, session.id),
+          ),
+        )
+        .limit(1);
+
+      if (!draft) throw notFoundError("draft");
+
+      const payment = await getPaymentForDraft(db, draftId);
       if (!payment) throw notFoundError("payment");
 
       reply.send({ payment });

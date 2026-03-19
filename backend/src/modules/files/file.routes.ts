@@ -1,11 +1,10 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { eq, and } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import {
-  createFileAsset,
   listFileAssets,
   deleteFileAsset,
   attachmentStorageKey,
@@ -51,12 +50,10 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         },
       },
     },
-    async (request, reply) => {
+    async (request, _reply) => {
       const session = request.session!;
       const db = getDb();
       const { id: draftId } = request.params;
-
-      // Verify the draft belongs to this session
       const [draft] = await db
         .select({ id: schema.draftLetters.id })
         .from(schema.draftLetters)
@@ -95,7 +92,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         ]);
       }
 
-      const fileName = file.filename ?? "untitled";
+      const _fileName = file.filename ?? "untitled";
       const mimeType = file.mimetype ?? "application/octet-stream";
       const sizeBytes = file.data?.byteLength ?? 0;
 
@@ -171,7 +168,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       // Generate storage key (deterministic namespacing per docs)
       const fileId = crypto.randomUUID();
-      const storageKey =
+      const _storageKey =
         kind === "attachment"
           ? attachmentStorageKey(session.id, fileId)
           : signatureStorageKey(session.id, fileId);
@@ -239,6 +236,41 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       await deleteFileAsset(db, fileId, session.id);
       reply.send({ deleted: true });
+    },
+  );
+
+  // GET /files/:fileId/download — redirect to presigned URL
+  app.get<{ Params: { fileId: string } }>(
+    "/files/:fileId/download",
+    { preHandler: [requireSession] },
+    async (request, reply) => {
+      const session = request.session!;
+      const db = getDb();
+      const { fileId } = request.params;
+
+      const [file] = await db
+        .select()
+        .from(schema.fileAssets)
+        .where(
+          and(
+            eq(schema.fileAssets.id, fileId),
+            eq(schema.fileAssets.sessionId, session.id),
+            eq(schema.fileAssets.status, "active"),
+          ),
+        )
+        .limit(1);
+
+      if (!file) throw notFoundError("file");
+
+      // S3 presigned URL generation not yet wired
+      throw new AppError({
+        family: "file_upload_failure",
+        statusCode: 501,
+        code: "DOWNLOAD_NOT_IMPLEMENTED",
+        message: "File download via presigned URL is not yet implemented.",
+        userMessage: "File downloads are not available yet.",
+        userAction: "This feature is coming soon.",
+      });
     },
   );
 }

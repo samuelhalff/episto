@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { getDb } from "../../db/index.js";
+import { eq, and } from "drizzle-orm";
+import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import {
   createDraft,
@@ -10,11 +11,9 @@ import {
 } from "./draft.service.js";
 import {
   createSenderProfile,
-  listSenderProfiles,
   createRecipientProfile,
-  listRecipientProfiles,
 } from "./profile.service.js";
-import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { notFoundError } from "../../shared/errors/index.js";
 import {
   UpdateDraftInput,
   CreateSenderProfileInput,
@@ -114,59 +113,63 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // ---- Sender Profiles ----
+  // ---- Sender Profile (draft-scoped) ----
 
-  // POST /drafts/:draftId/sender — create sender profile
-  app.post(
-    "/sender-profiles",
-    async (request: FastifyRequest, reply: FastifyReply) => {
+  // PUT /drafts/:draftId/sender — set or replace sender profile for a draft
+  app.put<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/sender",
+    async (request, reply) => {
       const session = request.session!;
       const db = getDb();
+      const { draftId } = request.params;
+
+      const draft = await getDraftById(db, draftId, session.id);
+      if (!draft) throw notFoundError("draft");
 
       const body = CreateSenderProfileInput.parse(request.body);
       const profile = await createSenderProfile(db, session.id, body);
 
-      reply.status(201).send({ profile });
+      await db
+        .update(schema.draftLetters)
+        .set({ senderProfileId: profile.id, updatedAt: new Date() })
+        .where(
+          and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, session.id),
+          ),
+        );
+
+      reply.send({ sender: profile });
     },
   );
 
-  // GET /sender-profiles — list sender profiles for session
-  app.get(
-    "/sender-profiles",
-    async (request: FastifyRequest, reply: FastifyReply) => {
+  // ---- Recipient Profile (draft-scoped) ----
+
+  // PUT /drafts/:draftId/recipient — set or replace recipient profile for a draft
+  app.put<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/recipient",
+    async (request, reply) => {
       const session = request.session!;
       const db = getDb();
+      const { draftId } = request.params;
 
-      const profiles = await listSenderProfiles(db, session.id);
-      reply.send({ profiles });
-    },
-  );
-
-  // ---- Recipient Profiles ----
-
-  // POST /recipient-profiles — create recipient profile
-  app.post(
-    "/recipient-profiles",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const session = request.session!;
-      const db = getDb();
+      const draft = await getDraftById(db, draftId, session.id);
+      if (!draft) throw notFoundError("draft");
 
       const body = CreateRecipientProfileInput.parse(request.body);
       const profile = await createRecipientProfile(db, session.id, body);
 
-      reply.status(201).send({ profile });
-    },
-  );
+      await db
+        .update(schema.draftLetters)
+        .set({ recipientProfileId: profile.id, updatedAt: new Date() })
+        .where(
+          and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, session.id),
+          ),
+        );
 
-  // GET /recipient-profiles — list recipient profiles for session
-  app.get(
-    "/recipient-profiles",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const session = request.session!;
-      const db = getDb();
-
-      const profiles = await listRecipientProfiles(db, session.id);
-      reply.send({ profiles });
+      reply.send({ recipient: profile });
     },
   );
 
@@ -232,6 +235,44 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           estimatedPages: draft.estimatedPages,
         },
       });
+    },
+  );
+
+  // ---- SSE Stream ----
+
+  // GET /drafts/:draftId/stream — SSE event stream for real-time updates
+  app.get<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/stream",
+    async (request, reply) => {
+      const session = request.session!;
+      const db = getDb();
+      const { draftId } = request.params;
+
+      const draft = await getDraftById(db, draftId, session.id);
+      if (!draft) throw notFoundError("draft");
+
+      reply.raw.writeHead(200, {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        Connection: "keep-alive",
+        "X-Accel-Buffering": "no",
+      });
+
+      reply.raw.write(
+        `event: connected\ndata: ${JSON.stringify({ draftId })}\n\n`,
+      );
+
+      const keepalive = setInterval(() => {
+        reply.raw.write(": keepalive\n\n");
+      }, 30_000);
+
+      request.raw.on("close", () => {
+        clearInterval(keepalive);
+      });
+
+      // NOTE: AI token streaming, field updates, and status events will be
+      // published to this stream via Redis pub/sub when the queue worker
+      // and AI integration are wired. This is the connection shell.
     },
   );
 }
