@@ -96,15 +96,16 @@ function DispatchStateLabel({
     rejected: { key: "stateRejected", icon: AlertCircle },
     unknown: { key: "stateUnknown", icon: HelpCircle },
   };
-  const entry = labels[state ?? "queued"] ?? labels["queued"];
-  const Icon = entry!.icon;
+  const fallback = labels["queued"] as { key: string; icon: typeof Clock };
+  const entry = labels[state ?? "queued"] ?? fallback;
+  const Icon = entry.icon;
   const isError = state === "rejected";
 
   return (
     <div className="flex items-center gap-3">
       <Icon className={`h-5 w-5 ${isError ? "text-destructive" : "text-navy"}`} />
       <p className={`text-sm ${isError ? "text-destructive" : "text-gray-700"}`}>
-        {t(entry!.key)}
+        {t(entry.key)}
       </p>
     </div>
   );
@@ -172,6 +173,17 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   const dispatchState = dispatch.data?.state ?? "queued";
 
+  // Determine which timeline steps are complete based on dispatch progress
+  const dispatchComplete = ["submitted", "accepted", "reconciled"];
+  const isStepComplete = (index: number): boolean => {
+    // Step 0: Payment — always complete in success state
+    if (index === 0) return true;
+    // Step 1: Submitted — complete when dispatch state is past queued
+    if (index === 1) return dispatchComplete.includes(dispatchState);
+    // Steps 2–3: Provider processing / updates — always pending
+    return false;
+  };
+
   return (
     <>
       <main className="mx-auto max-w-2xl space-y-8 px-4 pb-24 pt-12 text-center md:pb-12">
@@ -225,7 +237,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
                 key={step.key}
                 icon={step.icon}
                 label={t(step.key)}
-                isComplete={i === 0}
+                isComplete={isStepComplete(i)}
                 isLast={i === TIMELINE_STEPS.length - 1}
               />
             ))}
