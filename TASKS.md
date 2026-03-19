@@ -14,25 +14,26 @@
 - [x] Shared Schemas (25 Zod schemas in `shared/src/schemas/`)
 - [x] State Machines (`canTransitionDraft`, `canTransitionPayment`, `canTransitionDispatch`)
 - [x] Error Taxonomy (canonical error families, `AppError` class)
-- [x] Env Validation (Zod schema, 50+ vars)
+- [x] Env Validation (Zod schema, 26 vars with typed defaults)
 
 ## 2. Backend Core ✅
 *Functional API and state machines.*
 
 - [x] Database Layer (Drizzle schema — 11 tables, 9 enums, all indexes)
 - [x] Session Module (guest sessions, cookie auth, resume tokens)
-- [x] Drafting Module (CRUD, profiles, transitions, review/preview)
-- [x] Files Module (upload/list/delete with validation — S3 stub)
+- [x] Drafting Module (CRUD, profiles, transitions, review/preview, SSE stream)
+- [x] Files Module (multipart upload, S3 adapter, presigned download, soft-delete)
 - [x] Messages Module (conversation CRUD with cursor pagination)
-- [x] Payments Module (checkout, polling, Stripe webhook with raw body)
-- [x] Dispatch Module (status query, admin retry stub)
+- [x] Payments Module (checkout with idempotency, polling, Stripe webhook with raw body)
+- [x] Dispatch Module (status query, admin retry with auth)
 - [x] Rendering Module (snapshot service — Puppeteer templates pending)
-- [x] Tracking Module (adapter shell)
-- [x] Retention Module (cleanup service shell)
-- [x] Admin Module (Basic Auth, timeline, search, refund/reconcile stubs)
-- [x] Order Module (public token-authenticated status + PDF download)
-- [x] SSE Stream (connection shell with keepalive)
-- [x] Queue Platform (BullMQ setup)
+- [x] Tracking Module (adapter shell — provider API pending)
+- [x] Retention Module (cleanup service: sessions, files, drafts, PDFs)
+- [x] Admin Module (Basic Auth with timingSafeEqual, timeline, search, refund/reconcile stubs)
+- [x] Order Module (public token-authenticated status + PDF download stub)
+- [x] Email Module (Resend adapter + BullMQ worker with 5 templates)
+- [x] Pricing Module (config-driven CHF pricing: 4.90 standard, 8.90 registered)
+- [x] Queue Platform (BullMQ setup, 5 queue types, worker runner with graceful shutdown)
 - [x] All routes match `docs/05-architecture/api-contracts.md`
 
 ## 3. Frontend Core ✅
@@ -40,12 +41,13 @@
 
 - [x] Next.js App Router + i18n (4 Swiss locales)
 - [x] Tailwind + shadcn/ui primitives
-- [x] Draft Workspace (split-pane conversation + preview)
-- [x] Review Page (completion checklist, delivery selector, pricing)
-- [x] Checkout Page (order summary, Stripe placeholder, trust badges)
-- [x] Confirmation Page (success state + timeline)
-- [x] Resume + Status Pages (token-based access)
-- [x] Marketing Pages (homepage, how-it-works, pricing, legal)
+- [x] Draft Workspace (split-pane AI conversation + live letter preview)
+- [x] Review Page (completion checklist, delivery selector, pricing display)
+- [x] Checkout Page (order summary, pricing from config, Stripe Elements placeholder)
+- [x] Confirmation Page (success state + dispatch timeline)
+- [x] Resume Page (`/resume/:token` — validates and redirects to draft)
+- [x] Status Page (`/status/:orderToken` — order tracking display)
+- [x] Marketing Pages (homepage, how-it-works, pricing, terms, privacy, imprint)
 - [x] TanStack Query hooks aligned with backend API contracts
 - [x] Full i18n translations for de-CH, fr-CH, it-CH, en-CH
 
@@ -54,19 +56,21 @@
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
-- [x] 177 unit tests passing (5 test files)
-- [x] Docker Compose (Postgres, Redis, MinIO)
+- [x] 205 unit tests passing (9 test files)
+- [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
+- [x] Security hardening (timingSafeEqual, Zod validation, draft ownership checks)
+- [x] Graceful server shutdown (workers, queues, connections)
 
 ## 5. Remaining Work (blocked or deferred)
 
 ### Blocked on provider/design:
-- [ ] Postal dispatch (Swiss Post API credentials + contract)
-- [ ] Tracking (Swiss Post tracking API)
+- [ ] Postal dispatch adapter (Swiss Post API credentials + contract)
+- [ ] Tracking adapter (Swiss Post tracking API — capabilities unconfirmed)
 - [ ] PDF rendering (HTML letter templates — design needed)
-- [ ] AI chat integration (Azure OpenAI prompts to finalize)
-- [ ] S3 file upload (MinIO adapter wiring)
+- [ ] AI chat integration (Azure OpenAI prompt engineering)
+- [ ] Stripe Elements frontend (needs publishable key)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding
@@ -74,5 +78,7 @@
 - [ ] Bank account setup
 - [ ] Native speaker locale review
 - [ ] Pricing validation (4.90/8.90 viability)
-- [ ] DB migrations + rollback testing
+- [ ] DB migrations generation + rollback testing
+- [ ] Security headers audit
+- [ ] Accessibility testing (WCAG AA)
 - [ ] See `docs/07-operations/pre-launch-checklist.md` for full list
