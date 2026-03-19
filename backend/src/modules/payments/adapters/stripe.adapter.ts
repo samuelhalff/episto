@@ -91,6 +91,29 @@ export async function cancelPaymentIntent(
 }
 
 // ---------------------------------------------------------------------------
+// Create Refund
+// ---------------------------------------------------------------------------
+
+export async function createRefund(
+  paymentIntentId: string,
+  reason: string,
+): Promise<{ refundId: string }> {
+  try {
+    const refund = await getStripe().refunds.create({
+      payment_intent: paymentIntentId,
+      reason: "requested_by_customer",
+      metadata: { admin_reason: reason },
+    });
+    return { refundId: refund.id };
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeError) {
+      throw mapStripeError(err);
+    }
+    throw providerOutageError("Stripe", err);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Construct webhook event (verify signature)
 // ---------------------------------------------------------------------------
 

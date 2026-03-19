@@ -9,6 +9,8 @@ import {
   listSupportEventsForDraft,
   listSupportEventsForSession,
 } from "./index.js";
+import { createRefund } from "../payments/adapters/stripe.adapter.js";
+import { transitionPaymentState } from "../payments/payment.service.js";
 
 // ---------------------------------------------------------------------------
 // Routes
@@ -409,14 +411,50 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         details: { reason: body.reason, paymentId: payment.id },
       });
 
-      // Refund requires Stripe API — stub for now
-      throw new AppError({
-        family: "payment_failure",
-        statusCode: 501,
-        code: "REFUND_NOT_IMPLEMENTED",
-        message: "Stripe refund API integration is not yet implemented.",
-        userMessage: "Refund processing is not available yet.",
-        userAction: "Process refund manually via Stripe dashboard.",
+      if (!payment.stripePaymentIntentId) {
+        throw new AppError({
+          family: "payment_failure",
+          statusCode: 422,
+          code: "NO_STRIPE_INTENT",
+          message: "Payment has no Stripe PaymentIntent to refund.",
+          userMessage: "This payment cannot be refunded automatically.",
+          userAction: "Verify payment was actually processed.",
+        });
+      }
+
+      const refundableStates = ["captured"];
+      if (!refundableStates.includes(payment.state)) {
+        throw new AppError({
+          family: "payment_failure",
+          statusCode: 422,
+          code: "PAYMENT_NOT_REFUNDABLE",
+          message: `Payment is in '${payment.state}' state and cannot be refunded.`,
+          userMessage: "This payment is not in a refundable state.",
+          userAction: "Only captured payments can be refunded.",
+        });
+      }
+
+      const { refundId } = await createRefund(
+        payment.stripePaymentIntentId,
+        body.reason,
+      );
+
+      await transitionPaymentState(db, payment.id, "refund_pending", {
+        refundReason: body.reason,
+      });
+
+      await recordSupportEvent(db, {
+        draftId: id,
+        sessionId: draft.sessionId,
+        eventType: "refund_initiated",
+        actor: env().ADMIN_USERNAME,
+        details: { refundId, paymentId: payment.id, reason: body.reason },
+      });
+
+      reply.send({
+        refundId,
+        paymentAttemptId: payment.id,
+        state: "refund_pending",
       });
     },
   );
