@@ -163,16 +163,46 @@
     "total": "Total",
     "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend"
   },
+  "attachments": {
+    "title": "Anhänge",
+    "uploadLabel": "Anhang hinzufügen",
+    "uploadHint": "PDF, PNG oder JPEG — max. 5 MB pro Datei, bis zu 5 Dateien",
+    "maxReached": "Maximale Anzahl Anhänge erreicht",
+    "tooLarge": "Datei überschreitet das Limit von 5 MB",
+    "invalidType": "Nur PDF-, PNG- und JPEG-Dateien werden akzeptiert",
+    "uploading": "Wird hochgeladen…",
+    "remove": "Entfernen",
+    "empty": "Keine Anhänge hinzugefügt"
+  },
+  "signature": {
+    "title": "Unterschrift",
+    "typedLabel": "Name eingeben",
+    "typedHint": "Ihr Name wird als Unterschrift angezeigt",
+    "imageLabel": "Unterschriftsbild hochladen",
+    "imageHint": "PNG oder JPEG — max. 2 MB",
+    "tooLarge": "Das Unterschriftsbild überschreitet das Limit von 2 MB",
+    "invalidType": "Nur PNG- und JPEG-Dateien werden akzeptiert",
+    "uploading": "Wird hochgeladen…"
+  },
   "confirmation": {
     "title": "Zahlung erhalten",
-    "subtitle": "Ihr Brief wird verarbeitet.",
+    "subtitle": "Ihr Brief wurde zum Versand übermittelt.",
     "orderReference": "Bestellnummer",
+    "copied": "Kopiert",
     "whatHappensNext": "So geht es weiter",
-    "stepProcessing": "Ihr Brief wird für den Druck vorbereitet",
-    "stepPrinting": "Gedruckt und der Schweizerischen Post übergeben",
-    "stepDelivery": "Zustellung an den Empfänger",
+    "stepPayment": "Zahlung bestätigt",
+    "stepSubmitted": "Brief zum Versand übermittelt",
+    "stepProcessing": "Anbieterverarbeitung",
+    "stepUpdates": "Weitere Aktualisierungen hängen von der Bestätigung des Anbieters ab",
     "downloadReceipt": "Quittung herunterladen",
-    "sendAnother": "Weiteren Brief senden"
+    "viewLetter": "Brief ansehen",
+    "sendAnother": "Weiteren Brief senden",
+    "stateQueued": "Ihr Brief ist in der Warteschlange für den Versand",
+    "stateSubmitted": "Zum Versand übermittelt",
+    "stateAccepted": "Zum Versand angenommen",
+    "stateRejected": "Versand wurde abgelehnt — wir untersuchen dies",
+    "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
+    "emailNotice": "Eine Quittung wurde an {email} gesendet"
   },
   "resume": {
     "loading": "Entwurf wird geladen…",

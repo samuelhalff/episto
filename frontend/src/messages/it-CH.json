@@ -163,16 +163,46 @@
     "total": "Totale",
     "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso"
   },
+  "attachments": {
+    "title": "Allegati",
+    "uploadLabel": "Aggiungi allegato",
+    "uploadHint": "PDF, PNG o JPEG — max. 5 MB per file, fino a 5 file",
+    "maxReached": "Numero massimo di allegati raggiunto",
+    "tooLarge": "Il file supera il limite di 5 MB",
+    "invalidType": "Sono accettati solo file PDF, PNG e JPEG",
+    "uploading": "Caricamento…",
+    "remove": "Rimuovi",
+    "empty": "Nessun allegato aggiunto"
+  },
+  "signature": {
+    "title": "Firma",
+    "typedLabel": "Nome digitato",
+    "typedHint": "Il tuo nome apparirà come firma",
+    "imageLabel": "Carica immagine della firma",
+    "imageHint": "PNG o JPEG — max. 2 MB",
+    "tooLarge": "L'immagine della firma supera il limite di 2 MB",
+    "invalidType": "Sono accettati solo file PNG e JPEG",
+    "uploading": "Caricamento…"
+  },
   "confirmation": {
     "title": "Pagamento ricevuto",
-    "subtitle": "La tua lettera è in fase di elaborazione.",
+    "subtitle": "La tua lettera è stata inoltrata per la spedizione.",
     "orderReference": "Numero d'ordine",
+    "copied": "Copiato",
     "whatHappensNext": "Prossimi passi",
-    "stepProcessing": "La tua lettera viene preparata per la stampa",
-    "stepPrinting": "Stampata e consegnata alla Posta Svizzera",
-    "stepDelivery": "Recapitata al destinatario",
+    "stepPayment": "Pagamento confermato",
+    "stepSubmitted": "Lettera inoltrata per la spedizione",
+    "stepProcessing": "Elaborazione del fornitore",
+    "stepUpdates": "Ulteriori aggiornamenti dipendono dalla conferma del fornitore",
     "downloadReceipt": "Scarica la ricevuta",
-    "sendAnother": "Invia un'altra lettera"
+    "viewLetter": "Visualizza la lettera",
+    "sendAnother": "Invia un'altra lettera",
+    "stateQueued": "La tua lettera è in coda per la spedizione",
+    "stateSubmitted": "Inoltrata per la spedizione",
+    "stateAccepted": "Accettata per la spedizione",
+    "stateRejected": "La spedizione è stata rifiutata — stiamo verificando",
+    "stateUnknown": "Lo stato è in fase di conferma — ti aggiorneremo via e-mail",
+    "emailNotice": "Una ricevuta è stata inviata a {email}"
   },
   "resume": {
     "loading": "Ripresa della bozza…",

@@ -163,16 +163,46 @@
     "total": "Total",
     "stripeIntegrationPending": "Stripe payment integration pending"
   },
+  "attachments": {
+    "title": "Attachments",
+    "uploadLabel": "Add attachment",
+    "uploadHint": "PDF, PNG, or JPEG — max 5 MB each, up to 5 files",
+    "maxReached": "Maximum attachments reached",
+    "tooLarge": "File exceeds 5 MB limit",
+    "invalidType": "Only PDF, PNG, and JPEG files are accepted",
+    "uploading": "Uploading…",
+    "remove": "Remove",
+    "empty": "No attachments added"
+  },
+  "signature": {
+    "title": "Signature",
+    "typedLabel": "Typed name",
+    "typedHint": "Your name will appear as the signature",
+    "imageLabel": "Upload signature image",
+    "imageHint": "PNG or JPEG — max 2 MB",
+    "tooLarge": "Signature image exceeds 2 MB limit",
+    "invalidType": "Only PNG and JPEG files are accepted",
+    "uploading": "Uploading…"
+  },
   "confirmation": {
     "title": "Payment received",
-    "subtitle": "Your letter is being processed.",
+    "subtitle": "Your letter has been submitted for dispatch.",
     "orderReference": "Order reference",
+    "copied": "Copied",
     "whatHappensNext": "What happens next",
-    "stepProcessing": "Your letter is being prepared for print",
-    "stepPrinting": "Printed and handed to Swiss Post",
-    "stepDelivery": "Delivered to the recipient",
+    "stepPayment": "Payment confirmed",
+    "stepSubmitted": "Letter submitted for dispatch",
+    "stepProcessing": "Provider processing",
+    "stepUpdates": "Further updates depend on provider confirmation",
     "downloadReceipt": "Download receipt",
-    "sendAnother": "Send another letter"
+    "viewLetter": "View letter",
+    "sendAnother": "Send another letter",
+    "stateQueued": "Your letter is queued for dispatch",
+    "stateSubmitted": "Submitted for dispatch",
+    "stateAccepted": "Accepted for dispatch",
+    "stateRejected": "Dispatch was rejected — we're investigating",
+    "stateUnknown": "Status is being confirmed — we'll update you by email",
+    "emailNotice": "A receipt has been sent to {email}"
   },
   "resume": {
     "loading": "Resuming your draft…",
