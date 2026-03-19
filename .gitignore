@@ -6,7 +6,7 @@ frontend/out/
 frontend/coverage/
 
 backend/dist/
-backend/drizzle/
+# backend/drizzle/ is intentionally tracked — migration files must be in version control
 backend/coverage/
 
 shared/dist/

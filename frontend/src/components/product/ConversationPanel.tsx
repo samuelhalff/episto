@@ -1,18 +1,24 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { useTranslations } from "next-intl";
-import { Send, FileText, Loader2 } from "lucide-react";
-import { useSendMessage } from "../../hooks/use-api.js";
+import { useRef, useState, useEffect } from "react";
+import { useTranslations, useLocale } from "next-intl";
+import { Loader2, FileText } from "lucide-react";
+import { useConversation } from "../../hooks/use-api.js";
+import { useDictation } from "../../hooks/use-dictation.js";
 import type { ConversationMessage } from "@swiss-mail/shared";
 import { MessageRole } from "@swiss-mail/shared";
+import { InputBar, type InputMode } from "./InputBar.js";
 
 /**
- * Conversation panel — displays the AI/user message history
- * and provides a text input for sending new messages.
+ * Conversation panel — displays the AI/user message history,
+ * streams AI token responses via SSE, and provides text input
+ * with dictation-first voice input.
+ *
+ * Voice dictation is presented as the primary, most obvious input method.
+ * Users can switch to typing at any time.
  */
 export function ConversationPanel({
-  messages,
+  messages: _externalMessages,
   draftId,
   isLoading,
 }: {
@@ -21,23 +27,56 @@ export function ConversationPanel({
   isLoading: boolean;
 }) {
   const t = useTranslations("draft");
+  const locale = useLocale();
+
   const [input, setInput] = useState("");
+  const [mode, setMode] = useState<InputMode>("initial");
+
   const bottomRef = useRef<HTMLDivElement>(null);
-  const sendMessage = useSendMessage(draftId);
+  const conversation = useConversation(draftId);
+
+  const {
+    isSupported: dictationSupported,
+    isRecording,
+    interimText,
+    finalText,
+    startRecording,
+    stopRecording,
+    resetText,
+    error: dictationError,
+  } = useDictation();
+
+  // Scroll down when streaming or messages change
+  useEffect(() => {
+    if (conversation.isStreaming || conversation.messages.length > 0) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [conversation.isStreaming, conversation.streamingText, conversation.messages.length]);
+
+  // Append committed dictation text to the input field
+  useEffect(() => {
+    if (!finalText) return;
+    setInput((prev) => (prev ? `${prev} ${finalText}` : finalText).trimStart());
+    resetText();
+  }, [finalText, resetText]);
+
+  // Switch to keyboard mode once there are messages
+  useEffect(() => {
+    if (conversation.messages.length > 0 && mode === "initial") {
+      setMode("keyboard");
+    }
+  }, [conversation.messages.length, mode]);
 
   function handleSend() {
     const content = input.trim();
     if (!content) return;
     setInput("");
-    sendMessage.mutate(
-      { content },
-      {
-        onSuccess: () => {
-          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        },
-      },
-    );
+    void conversation.sendMessage(content);
   }
+
+  const allMessages = conversation.messages;
+  const showStreaming = conversation.isStreaming && conversation.streamingText.length > 0;
+  const showSpinner = conversation.isSending && !conversation.isStreaming;
 
   return (
     <>
@@ -47,66 +86,84 @@ export function ConversationPanel({
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-navy" />
           </div>
-        ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
-            <FileText className="mb-3 h-10 w-10 text-gray-300" />
-            <p className="text-sm">{t("title")}</p>
+        ) : allMessages.length === 0 && !showStreaming ? (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <FileText className="mb-4 h-10 w-10 text-gray-300" />
+            <p className="text-base font-medium text-gray-900">
+              {t("title")}
+            </p>
+            <p className="mt-1.5 max-w-xs text-sm text-gray-500">
+              {t("inputPrompt")}
+            </p>
           </div>
         ) : (
-          messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.role === MessageRole.user ? "justify-end" : "justify-start"}`}
-            >
+          <>
+            {allMessages.map((msg) => (
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
-                  msg.role === MessageRole.user
-                    ? "bg-navy text-white"
-                    : "bg-gray-100 text-gray-800"
-                }`}
+                key={msg.id}
+                className={`flex ${msg.role === MessageRole.user ? "justify-end" : "justify-start"}`}
               >
-                {msg.content}
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
+                    msg.role === MessageRole.user
+                      ? "bg-navy text-white"
+                      : "bg-gray-100 text-gray-800"
+                  }`}
+                >
+                  {msg.content}
+                </div>
               </div>
-            </div>
-          ))
+            ))}
+
+            {showStreaming && (
+              <div className="flex justify-start">
+                <div className="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2.5 text-sm leading-relaxed text-gray-800">
+                  {conversation.streamingText}
+                  <span className="ml-0.5 inline-block h-3.5 w-px animate-pulse bg-gray-500 align-middle" />
+                </div>
+              </div>
+            )}
+          </>
         )}
-        {sendMessage.isPending && (
+
+        {showSpinner && (
           <div className="flex justify-start">
             <div className="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2.5">
               <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
             </div>
           </div>
         )}
+
         <div ref={bottomRef} />
       </div>
 
-      {/* Input area */}
-      <div className="border-t bg-white p-4">
-        <div className="flex items-end gap-2">
-          <textarea
-            className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
-            rows={1}
-            placeholder={t("messagePlaceholder")}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-          />
-          <button
-            type="button"
-            disabled={!input.trim() || sendMessage.isPending}
-            onClick={handleSend}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy text-white transition hover:bg-navy-light disabled:opacity-40"
-          >
-            <Send className="h-4 w-4" />
-            <span className="sr-only">{t("sendMessage")}</span>
-          </button>
-        </div>
-      </div>
+      {/* Input bar — dictation-first with keyboard fallback */}
+      <InputBar
+        mode={mode}
+        input={input}
+        hasMessages={allMessages.length > 0}
+        isRecording={isRecording}
+        isSending={conversation.isSending}
+        interimText={interimText}
+        dictationSupported={dictationSupported}
+        dictationError={dictationError}
+        onInputChange={setInput}
+        onSend={handleSend}
+        onStartVoice={() => {
+          setMode("voice");
+          startRecording(locale);
+        }}
+        onStopVoice={stopRecording}
+        onStartRecording={() => startRecording(locale)}
+        onSwitchToKeyboard={() => {
+          if (isRecording) stopRecording();
+          setMode("keyboard");
+        }}
+        onSwitchToVoice={() => {
+          setMode("voice");
+          startRecording(locale);
+        }}
+      />
     </>
   );
 }

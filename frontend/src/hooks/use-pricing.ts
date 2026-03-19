@@ -1,4 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@swiss-mail/shared";
 import { apiFetch } from "../lib/api.js";
 
 /**
@@ -26,7 +27,7 @@ export interface PricingResponse {
  */
 export function usePricing() {
   return useQuery<PricingResponse>({
-    queryKey: ["pricing"],
+    queryKey: queryKeys.pricing(),
     queryFn: () => apiFetch<PricingResponse>("/v1/pricing"),
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,

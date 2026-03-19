@@ -129,7 +129,17 @@
     "recipientPlaceholder": "Indirizzo del destinatario…",
     "subjectPlaceholder": "Oggetto…",
     "bodyPlaceholder": "Testo della lettera…",
-    "signatureLabel": "Firma"
+    "signatureLabel": "Firma",
+    "startDictation": "Avvia dettatura",
+    "stopDictation": "Interrompi dettatura",
+    "voicePrimary": "Dettate la lettera",
+    "voicePrimaryHint": "Parlate — trascriviamo noi per voi",
+    "typePrimary": "Digita invece",
+    "typePrimaryHint": "Preferite la tastiera? Nessun problema",
+    "switchToKeyboard": "Passa alla tastiera",
+    "switchToVoice": "Passa alla voce",
+    "inputPrompt": "Diteci di cosa avete bisogno — parlate o digitate",
+    "dictationError": "Inserimento vocale non disponibile. Riprovare o digitare."
   },
   "review": {
     "title": "Verifica la tua lettera",
@@ -161,7 +171,11 @@
     "dataProtection": "Crittografato e archiviato in modo sicuro",
     "defaultLetterTitle": "Lettera",
     "total": "Totale",
-    "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso"
+    "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso",
+    "paymentConfirming": "Elaborazione del pagamento…",
+    "paymentError": "Pagamento fallito. Si prega di riprovare.",
+    "enterPaymentDetails": "Inserire i dati di pagamento",
+    "continueToPayment": "Continua al pagamento"
   },
   "attachments": {
     "title": "Allegati",
@@ -175,14 +189,30 @@
     "empty": "Nessun allegato aggiunto"
   },
   "signature": {
-    "title": "Firma",
-    "typedLabel": "Nome digitato",
-    "typedHint": "Il tuo nome apparirà come firma",
-    "imageLabel": "Carica immagine della firma",
-    "imageHint": "PNG o JPEG — max. 2 MB",
-    "tooLarge": "L'immagine della firma supera il limite di 2 MB",
-    "invalidType": "Sono accettati solo file PNG e JPEG",
-    "uploading": "Caricamento…"
+    "prompt": "Come desidera firmare?",
+    "mode": {
+      "typed": {
+        "label": "Digita il nome",
+        "description": "Reso in corsivo"
+      },
+      "image": {
+        "label": "Carica immagine",
+        "description": "PNG o JPEG, max 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Anteprima nella lettera",
+      "placeholder": "Il suo nome"
+    },
+    "imageAlt": "Immagine firma",
+    "remove": "Rimuovi",
+    "uploading": "Caricamento…",
+    "uploadPrompt": "Carica immagine firma",
+    "uploadHint": "PNG o JPEG · max 2 MB",
+    "error": {
+      "unsupportedType": "Sono accettate solo immagini PNG e JPEG.",
+      "tooLarge": "Immagine firma superiore a 2 MB."
+    }
   },
   "confirmation": {
     "title": "Pagamento ricevuto",
@@ -212,8 +242,87 @@
   "status": {
     "title": "Stato della lettera",
     "orderReference": "Numero d'ordine",
-    "dispatchState": "Stato di spedizione",
-    "estimatedDelivery": "Consegna prevista",
-    "sendAnother": "Invia un'altra lettera"
+    "dispatchState": "Stato spedizione",
+    "estimatedDelivery": "Consegna stimata",
+    "sendAnother": "Invia un'altra lettera",
+    "recipient": "Destinatario",
+    "paymentAmount": "Importo pagato",
+    "paidAt": "Data di pagamento"
+  },
+  "files": {
+    "dropZone": {
+      "ariaLabel": "Carica allegato",
+      "prompt": "Trascinare i file qui o fare clic",
+      "maxSize": "Max {mb} MB per file"
+    },
+    "limit": {
+      "maxFiles": "Massimo {max} allegati raggiunto.",
+      "totalSize": "Limite di {mb} MB raggiunto."
+    },
+    "summary": "{count} di {max} file · {used} MB di {limit} MB utilizzati",
+    "remove": {
+      "ariaLabel": "Rimuovi {name}"
+    },
+    "toast": {
+      "unsupportedType": "Sono accettati solo file {formats}.",
+      "fileTooLarge": "Il file supera il limite di {mb} MB."
+    }
+  },
+  "zoneEditor": {
+    "title": "Modifica: {zone}",
+    "ariaLabel": "Modifica {zone}",
+    "optional": "facoltativo",
+    "zone": {
+      "sender": "Indirizzo mittente",
+      "recipient": "Indirizzo destinatario",
+      "date": "Data",
+      "subject": "Oggetto",
+      "salutation": "Formula di saluto",
+      "body": "Corpo della lettera",
+      "closing": "Formula di chiusura"
+    },
+    "field": {
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "company": "Società",
+      "street": "Via e numero",
+      "postalCode": "NPA",
+      "city": "Città",
+      "postalAndCity": "NPA e città"
+    },
+    "validation": {
+      "required": "Campo obbligatorio",
+      "nameOrCompanyRequired": "Nome o società richiesti"
+    },
+    "action": {
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "cancel": "Annulla",
+      "close": "Chiudi"
+    }
+  },
+  "dispatch": {
+    "title": {
+      "dispatched": "Lettera spedita",
+      "queued": "Elaborazione in corso",
+      "rejected": "Spedizione fallita"
+    },
+    "subtitle": {
+      "dispatched": "La lettera è stata consegnata alle Poste.",
+      "queued": "La lettera è in preparazione per la spedizione.",
+      "rejected": "Si è verificato un problema. Il nostro team è stato informato."
+    },
+    "reference": {
+      "label": "Riferimento fornitore",
+      "trackingAvailable": "Tracciamento disponibile",
+      "noTracking": "Nessun tracciamento disponibile"
+    },
+    "step": {
+      "submitted": "Inviato alla stampa",
+      "accepted": "Accettato per la spedizione",
+      "dispatching": "Stato di consegna in attesa",
+      "providerNote": "Gli aggiornamenti dipendono dal fornitore"
+    },
+    "lastChecked": "Ultimo aggiornamento: {time}"
   }
 }

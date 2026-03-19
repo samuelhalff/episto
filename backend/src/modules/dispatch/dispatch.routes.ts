@@ -8,9 +8,20 @@ import { getDispatchForDraft } from "./dispatch.service.js";
 
 export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
   // GET /drafts/:id/dispatch — get canonical dispatch state for a draft
+  // Rate limit: 60/min per session (see docs/05-architecture/rate-limits-and-quotas.md)
   app.get<{ Params: { id: string } }>(
     "/drafts/:id/dispatch",
-    { preHandler: [requireSession] },
+    {
+      preHandler: [requireSession],
+      config: {
+        rateLimit: {
+          max: 60,
+          timeWindow: "1 minute",
+          keyGenerator: (req: FastifyRequest) =>
+            (req as FastifyRequest & { session?: { id: string } }).session?.id ?? req.ip,
+        },
+      },
+    },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       const db = getDb();
       const { id } = request.params;
@@ -36,9 +47,20 @@ export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // POST /drafts/:id/dispatch/retry — admin-only dispatch retry
+  // Rate limit: 10/hour per admin credential (see docs/05-architecture/rate-limits-and-quotas.md)
   app.post<{ Params: { id: string } }>(
     "/drafts/:id/dispatch/retry",
-    { preHandler: [requireAdmin] },
+    {
+      preHandler: [requireAdmin],
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: "1 hour",
+          keyGenerator: (req: FastifyRequest) =>
+            req.headers["authorization"]?.slice(0, 20) ?? req.ip,
+        },
+      },
+    },
     async (_request, _reply) => {
       // Stub: dispatch retry requires provider integration
       throw new AppError({

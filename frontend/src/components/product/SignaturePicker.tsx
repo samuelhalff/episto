@@ -1,139 +1,170 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState, useRef, useCallback } from "react";
+import { Upload, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { PenLine, Image as ImageIcon, Loader2 } from "lucide-react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "../../lib/api.js";
 import type { FileAsset } from "@swiss-mail/shared";
 
-const MAX_SIGNATURE_SIZE = 2 * 1024 * 1024;
-const ACCEPTED_TYPES = ["image/png", "image/jpeg"];
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+interface SignaturePickerProps {
+  /** Typed full name from the sender profile (pre-filled) */
+  signerName: string;
+  /** Existing uploaded signature asset, if any */
+  signatureAsset: FileAsset | null;
+  isUploading: boolean;
+  onUploadImage: (file: File) => Promise<void>;
+  onRemoveImage: () => Promise<void>;
+  /** Called when user selects the "typed" mode */
+  onSelectTyped: () => void;
+}
+
+type SignatureMode = "typed" | "image";
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export function SignaturePicker({
-  mode,
-  onModeChange,
-  draftId,
-  disabled,
-}: {
-  mode: string | null;
-  onModeChange: (mode: string) => void;
-  draftId: string;
-  disabled?: boolean;
-}) {
+  signerName,
+  signatureAsset,
+  isUploading,
+  onUploadImage,
+  onRemoveImage,
+  onSelectTyped,
+}: SignaturePickerProps) {
   const t = useTranslations("signature");
-  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [mode, setMode] = useState<SignatureMode>(signatureAsset ? "image" : "typed");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  const upload = useMutation({
-    mutationFn: (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("kind", "signature");
-      return apiFetch<FileAsset>(`/v1/drafts/${draftId}/files`, {
-        method: "POST",
-        body: formData,
-        headers: { "X-Requested-With": "XMLHttpRequest" },
-      });
+  const handleImageFile = useCallback(
+    async (file: File) => {
+      const ALLOWED = new Set(["image/png", "image/jpeg"]);
+      const MAX_BYTES = 2 * 1024 * 1024; // 2 MB
+
+      if (!ALLOWED.has(file.type)) {
+        setValidationError(t("error.unsupportedType"));
+        return;
+      }
+      if (file.size > MAX_BYTES) {
+        setValidationError(t("error.tooLarge"));
+        return;
+      }
+
+      setValidationError(null);
+      await onUploadImage(file);
     },
-    onSuccess: () => {
-      void queryClient.invalidateQueries({
-        queryKey: ["drafts", draftId, "files"],
-      });
-    },
-  });
+    [onUploadImage, t],
+  );
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setError(null);
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    e.target.value = "";
-
-    if (!ACCEPTED_TYPES.includes(file.type)) {
-      setError(t("invalidType"));
-      return;
+  const handleModeSwitch = (next: SignatureMode) => {
+    setMode(next);
+    setValidationError(null);
+    if (next === "typed") {
+      onSelectTyped();
     }
-
-    if (file.size > MAX_SIGNATURE_SIZE) {
-      setError(t("tooLarge"));
-      return;
-    }
-
-    upload.mutate(file);
-  }
-
-  const options = [
-    { key: "typed", icon: PenLine, label: t("typedLabel"), hint: t("typedHint") },
-    { key: "image", icon: ImageIcon, label: t("imageLabel"), hint: t("imageHint") },
-  ] as const;
+  };
 
   return (
-    <div className="space-y-3">
-      <h3 className="text-sm font-medium text-gray-700">{t("title")}</h3>
+    <div className="space-y-4">
+      <p className="text-sm font-medium">{t("prompt")}</p>
 
-      <div className="space-y-2">
-        {options.map((opt) => {
-          const Icon = opt.icon;
-          return (
-            <button
-              key={opt.key}
-              type="button"
-              disabled={disabled}
-              onClick={() => onModeChange(opt.key)}
-              className={`flex w-full items-center gap-3 rounded-lg border px-4 py-3 text-sm transition ${
-                mode === opt.key
-                  ? "border-navy bg-navy/5 text-navy"
-                  : "border-gray-200 text-gray-600 hover:border-gray-300"
-              }`}
-            >
-              <span
-                className={`inline-flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                  mode === opt.key ? "border-navy" : "border-gray-300"
-                }`}
-              >
-                {mode === opt.key && (
-                  <span className="h-2 w-2 rounded-full bg-navy" />
-                )}
-              </span>
-              <Icon className="h-4 w-4" />
-              <span className="flex flex-col items-start">
-                <span className="font-medium">{opt.label}</span>
-                <span className="text-xs text-gray-400">{opt.hint}</span>
-              </span>
-            </button>
-          );
-        })}
+      {/* Mode toggle */}
+      <div className="flex gap-3">
+        {(["typed", "image"] as const).map((m) => (
+          <button
+            key={m}
+            type="button"
+            aria-pressed={mode === m}
+            onClick={() => handleModeSwitch(m)}
+            className={[
+              "flex-1 rounded-lg border px-4 py-3 text-left transition-colors",
+              mode === m
+                ? "border-primary bg-primary/5"
+                : "border-border bg-card hover:border-primary/50",
+            ].join(" ")}
+          >
+            {mode === m && (
+              <Check className="mb-1 h-4 w-4 text-primary" aria-hidden />
+            )}
+            <span className="block text-sm font-medium">
+              {t(`mode.${m}.label`)}
+            </span>
+            <span className="block text-xs text-muted-foreground">
+              {t(`mode.${m}.description`)}
+            </span>
+          </button>
+        ))}
       </div>
 
+      {/* Typed preview */}
+      {mode === "typed" && (
+        <div className="rounded-lg border border-border bg-card px-4 py-3">
+          <p className="mb-1 text-xs text-muted-foreground">{t("preview.label")}</p>
+          <p
+            className="text-lg italic"
+            style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
+          >
+            {signerName || t("preview.placeholder")}
+          </p>
+        </div>
+      )}
+
+      {/* Image upload */}
       {mode === "image" && (
-        <div>
+        <div className="space-y-3">
+          {signatureAsset ? (
+            <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2">
+              <img
+                src={`/api/v1/drafts/files/${signatureAsset.id}`}
+                alt={t("imageAlt")}
+                className="h-12 max-w-[200px] object-contain"
+              />
+              <div className="flex-1" />
+              <button
+                type="button"
+                className="text-xs text-muted-foreground underline hover:text-destructive"
+                onClick={() => void onRemoveImage()}
+              >
+                {t("remove")}
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={isUploading}
+              className="flex w-full flex-col items-center gap-2 rounded-lg border-2 border-dashed border-border bg-muted/30 px-4 py-6 transition-colors hover:border-primary hover:bg-muted/50 disabled:opacity-50"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Upload className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {isUploading ? t("uploading") : t("uploadPrompt")}
+              </span>
+              <span className="text-xs text-muted-foreground/60">
+                {t("uploadHint")}
+              </span>
+            </button>
+          )}
+
           <input
             ref={fileInputRef}
             type="file"
             accept=".png,.jpg,.jpeg"
-            className="hidden"
-            onChange={handleFileChange}
-            disabled={disabled || upload.isPending}
+            className="sr-only"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) void handleImageFile(file);
+            }}
           />
-          <button
-            type="button"
-            disabled={disabled || upload.isPending}
-            onClick={() => fileInputRef.current?.click()}
-            className="inline-flex items-center gap-2 rounded-lg border border-dashed border-gray-300 px-4 py-2.5 text-sm text-gray-600 transition hover:border-gray-400 hover:text-gray-700 disabled:opacity-40"
-          >
-            {upload.isPending ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <ImageIcon className="h-4 w-4" />
-            )}
-            {upload.isPending ? t("uploading") : t("imageLabel")}
-          </button>
+
+          {validationError && (
+            <p className="text-xs text-destructive">{validationError}</p>
+          )}
         </div>
       )}
-
-      {error && <p className="text-sm text-red-600">{error}</p>}
     </div>
   );
 }

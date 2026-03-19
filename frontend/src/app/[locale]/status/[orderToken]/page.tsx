@@ -1,28 +1,34 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { use } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "../../../../lib/api.js";
+import { Loader2, Package, PenLine, AlertCircle } from "lucide-react";
 import { Link } from "../../../../i18n/navigation.js";
-import {
-  Loader2,
-  Package,
-  PenLine,
-  AlertCircle,
-} from "lucide-react";
+import { apiFetch } from "../../../../lib/api.js";
+import { queryKeys } from "@swiss-mail/shared";
+import type { OrderStatusResponse } from "@swiss-mail/shared";
+import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation.js";
 
 // ---------------------------------------------------------------------------
-// Status types (placeholder until backend defines response shape)
+// Status page — GET /api/v1/orders/:orderToken
 // ---------------------------------------------------------------------------
 
-interface OrderStatus {
-  orderReference: string;
-  dispatchState: string;
-  estimatedDelivery: string | null;
+function useOrderStatus(orderToken: string) {
+  return useQuery({
+    queryKey: queryKeys.order(orderToken),
+    queryFn: () => apiFetch<OrderStatusResponse>(`/v1/orders/${orderToken}`),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+    retry: (count, error) => {
+      const status = (error as { status?: number })?.status;
+      return status !== 404 && count < 3;
+    },
+  });
 }
 
 // ---------------------------------------------------------------------------
-// Status Page
+// Page component
 // ---------------------------------------------------------------------------
 
 export default function StatusPage({
@@ -34,40 +40,9 @@ export default function StatusPage({
   const t = useTranslations("status");
   const tc = useTranslations("common");
 
-  const [status, setStatus] = useState<OrderStatus | undefined>(undefined);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const query = useOrderStatus(orderToken);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    async function fetchStatus() {
-      try {
-        const result = await apiFetch<OrderStatus>(
-          `/v1/orders/${orderToken}`,
-        );
-        if (!cancelled) {
-          setStatus(result);
-        }
-      } catch {
-        if (!cancelled) {
-          setError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
-      }
-    }
-
-    void fetchStatus();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [orderToken]);
-
-  if (loading) {
+  if (query.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-navy" />
@@ -75,18 +50,25 @@ export default function StatusPage({
     );
   }
 
-  if (error || !status) {
+  if (query.error || !query.data) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-        <AlertCircle className="h-12 w-12 text-accent" />
-        <p className="text-sm text-gray-600">{tc("error")}</p>
+        <AlertCircle className="h-12 w-12 text-destructive" />
+        <p className="text-sm text-muted-foreground">{tc("error")}</p>
+        <Link href="/" className="text-sm text-primary underline">
+          {tc("backToHome")}
+        </Link>
       </div>
     );
   }
 
+  const { order } = query.data;
+  const { payment, dispatch: dispatchData } = order;
+
+  const priceCHF = (payment.priceCents / 100).toFixed(2);
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-center">
           <Link href="/" className="font-bold text-navy">
@@ -95,35 +77,54 @@ export default function StatusPage({
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl space-y-8 px-4 py-12">
+      <main className="mx-auto max-w-2xl space-y-6 px-4 py-12">
         <div className="text-center">
           <Package className="mx-auto mb-4 h-12 w-12 text-navy" />
           <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
         </div>
 
+        {/* Order summary */}
         <div className="rounded-lg border border-gray-200 bg-white p-6">
           <dl className="divide-y divide-gray-100">
             <div className="flex items-center justify-between py-3 text-sm">
               <dt className="text-gray-500">{t("orderReference")}</dt>
-              <dd className="font-mono font-medium text-navy">
-                {status.orderReference}
-              </dd>
+              <dd className="font-mono font-medium text-navy">{order.orderRef}</dd>
             </div>
-            <div className="flex items-center justify-between py-3 text-sm">
-              <dt className="text-gray-500">{t("dispatchState")}</dt>
-              <dd className="font-medium text-gray-900">
-                {status.dispatchState}
-              </dd>
-            </div>
-            {status.estimatedDelivery && (
+            {order.recipientName && (
               <div className="flex items-center justify-between py-3 text-sm">
-                <dt className="text-gray-500">{t("estimatedDelivery")}</dt>
-                <dd className="font-medium text-gray-900">
-                  {status.estimatedDelivery}
+                <dt className="text-gray-500">{t("recipient")}</dt>
+                <dd className="font-medium text-gray-900">{order.recipientName}</dd>
+              </div>
+            )}
+            <div className="flex items-center justify-between py-3 text-sm">
+              <dt className="text-gray-500">{t("paymentAmount")}</dt>
+              <dd className="font-medium text-gray-900">
+                CHF {priceCHF}
+                <span className="ml-2 text-xs text-gray-500">({payment.state})</span>
+              </dd>
+            </div>
+            {payment.capturedAt && (
+              <div className="flex items-center justify-between py-3 text-sm">
+                <dt className="text-gray-500">{t("paidAt")}</dt>
+                <dd className="text-gray-900">
+                  {new Date(payment.capturedAt).toLocaleDateString()}
                 </dd>
               </div>
             )}
           </dl>
+        </div>
+
+        {/* Dispatch status */}
+        <div className="rounded-lg border border-gray-200 bg-white p-6">
+          <DispatchConfirmation
+            dispatchState={
+              dispatchData.state as Parameters<typeof DispatchConfirmation>[0]["dispatchState"]
+            }
+            providerReference={dispatchData.providerRef}
+            isTrackable={dispatchData.trackingAvailable}
+            submittedAt={dispatchData.submittedAt}
+            lastCheckedAt={dispatchData.lastCheckedAt}
+          />
         </div>
 
         <div className="text-center">

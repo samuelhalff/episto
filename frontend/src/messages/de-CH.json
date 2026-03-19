@@ -129,7 +129,17 @@
     "recipientPlaceholder": "Empfängeradresse…",
     "subjectPlaceholder": "Betreff…",
     "bodyPlaceholder": "Briefinhalt…",
-    "signatureLabel": "Unterschrift"
+    "signatureLabel": "Unterschrift",
+    "startDictation": "Diktat starten",
+    "stopDictation": "Diktat stoppen",
+    "voicePrimary": "Brief diktieren",
+    "voicePrimaryHint": "Einfach sprechen — wir schreiben mit",
+    "typePrimary": "Lieber tippen",
+    "typePrimaryHint": "Tastatur bevorzugt? Kein Problem",
+    "switchToKeyboard": "Zur Tastatur wechseln",
+    "switchToVoice": "Zur Spracheingabe wechseln",
+    "inputPrompt": "Sagen Sie uns, was Sie brauchen — sprechen oder tippen",
+    "dictationError": "Spracheingabe nicht verfügbar. Bitte erneut versuchen oder tippen."
   },
   "review": {
     "title": "Brief überprüfen",
@@ -161,7 +171,11 @@
     "dataProtection": "Verschlüsselt und sicher gespeichert",
     "defaultLetterTitle": "Brief",
     "total": "Total",
-    "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend"
+    "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend",
+    "paymentConfirming": "Zahlung wird verarbeitet…",
+    "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "enterPaymentDetails": "Zahlungsdetails eingeben",
+    "continueToPayment": "Weiter zur Zahlung"
   },
   "attachments": {
     "title": "Anhänge",
@@ -175,14 +189,30 @@
     "empty": "Keine Anhänge hinzugefügt"
   },
   "signature": {
-    "title": "Unterschrift",
-    "typedLabel": "Name eingeben",
-    "typedHint": "Ihr Name wird als Unterschrift angezeigt",
-    "imageLabel": "Unterschriftsbild hochladen",
-    "imageHint": "PNG oder JPEG — max. 2 MB",
-    "tooLarge": "Das Unterschriftsbild überschreitet das Limit von 2 MB",
-    "invalidType": "Nur PNG- und JPEG-Dateien werden akzeptiert",
-    "uploading": "Wird hochgeladen…"
+    "prompt": "Wie möchten Sie unterschreiben?",
+    "mode": {
+      "typed": {
+        "label": "Name eingeben",
+        "description": "In Kursivschrift gerendert"
+      },
+      "image": {
+        "label": "Bild hochladen",
+        "description": "PNG oder JPEG, max. 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Vorschau im Brief",
+      "placeholder": "Ihr Name"
+    },
+    "imageAlt": "Unterschriftsbild",
+    "remove": "Entfernen",
+    "uploading": "Wird hochgeladen…",
+    "uploadPrompt": "Unterschriftsbild hochladen",
+    "uploadHint": "PNG oder JPEG · max. 2 MB",
+    "error": {
+      "unsupportedType": "Nur PNG- und JPEG-Bilder werden akzeptiert.",
+      "tooLarge": "Unterschriftsbild überschreitet das 2-MB-Limit."
+    }
   },
   "confirmation": {
     "title": "Zahlung erhalten",
@@ -213,7 +243,86 @@
     "title": "Briefstatus",
     "orderReference": "Bestellnummer",
     "dispatchState": "Versandstatus",
-    "estimatedDelivery": "Voraussichtliche Zustellung",
-    "sendAnother": "Weiteren Brief senden"
+    "estimatedDelivery": "Voraussichtliche Lieferung",
+    "sendAnother": "Weiteren Brief senden",
+    "recipient": "Empfänger",
+    "paymentAmount": "Bezahlter Betrag",
+    "paidAt": "Zahlungsdatum"
+  },
+  "files": {
+    "dropZone": {
+      "ariaLabel": "Anhang hochladen",
+      "prompt": "Dateien hierher ziehen oder klicken",
+      "maxSize": "Max. {mb} MB pro Datei"
+    },
+    "limit": {
+      "maxFiles": "Maximum von {max} Anhängen erreicht.",
+      "totalSize": "Gesamtlimit von {mb} MB erreicht."
+    },
+    "summary": "{count} von {max} Dateien · {used} MB von {limit} MB verwendet",
+    "remove": {
+      "ariaLabel": "{name} entfernen"
+    },
+    "toast": {
+      "unsupportedType": "Nur {formats}-Dateien werden akzeptiert.",
+      "fileTooLarge": "Datei überschreitet das {mb}-MB-Limit."
+    }
+  },
+  "zoneEditor": {
+    "title": "Bearbeiten: {zone}",
+    "ariaLabel": "{zone} bearbeiten",
+    "optional": "optional",
+    "zone": {
+      "sender": "Absenderadresse",
+      "recipient": "Empfängeradresse",
+      "date": "Datum",
+      "subject": "Betreff",
+      "salutation": "Anrede",
+      "body": "Brieftext",
+      "closing": "Schlussformel"
+    },
+    "field": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "company": "Firma",
+      "street": "Strasse und Nummer",
+      "postalCode": "PLZ",
+      "city": "Ort",
+      "postalAndCity": "PLZ und Ort"
+    },
+    "validation": {
+      "required": "Pflichtfeld",
+      "nameOrCompanyRequired": "Vorname oder Firma erforderlich"
+    },
+    "action": {
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen",
+      "close": "Schliessen"
+    }
+  },
+  "dispatch": {
+    "title": {
+      "dispatched": "Brief versandt",
+      "queued": "Brief wird verarbeitet",
+      "rejected": "Versand fehlgeschlagen"
+    },
+    "subtitle": {
+      "dispatched": "Ihr Brief wurde der Post übergeben.",
+      "queued": "Ihr Brief wird für den Versand vorbereitet.",
+      "rejected": "Es gab ein Problem beim Versand. Unser Team wurde informiert."
+    },
+    "reference": {
+      "label": "Anbieterreferenz",
+      "trackingAvailable": "Tracking für diese Sendung verfügbar",
+      "noTracking": "Kein Tracking für diese Sendung verfügbar"
+    },
+    "step": {
+      "submitted": "An den Druck übergeben",
+      "accepted": "Zur Zustellung angenommen",
+      "dispatching": "Zustellstatus ausstehend",
+      "providerNote": "Updates hängen von der Anbieterkapazität ab"
+    },
+    "lastChecked": "Zuletzt aktualisiert: {time}"
   }
 }

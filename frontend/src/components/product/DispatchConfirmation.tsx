@@ -1,126 +1,190 @@
 "use client";
 
-import { useState } from "react";
+import { CheckCircle, Clock, AlertTriangle, Circle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import {
-  CheckCircle,
-  Clock,
-  Send,
-  Check,
-  AlertCircle,
-  HelpCircle,
-  Copy,
-  Download,
-  FileText,
-} from "lucide-react";
-import { useDispatchStatus } from "../../hooks/use-api.js";
+import type { DispatchState } from "@swiss-mail/shared";
 
-const STATE_CONFIG = {
-  queued: { icon: Clock, labelKey: "stateQueued" },
-  submitted: { icon: Send, labelKey: "stateSubmitted" },
-  accepted: { icon: Check, labelKey: "stateAccepted" },
-  rejected: { icon: AlertCircle, labelKey: "stateRejected" },
-  unknown: { icon: HelpCircle, labelKey: "stateUnknown" },
-} as const;
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
+interface DispatchConfirmationProps {
+  dispatchState: (typeof DispatchState)[keyof typeof DispatchState] | null;
+  providerReference: string | null;
+  isTrackable: boolean;
+  submittedAt: string | null;
+  lastCheckedAt: string | null;
+}
+
+// ---------------------------------------------------------------------------
+// Timeline step definition
+// ---------------------------------------------------------------------------
+
+interface TimelineStep {
+  key: string;
+  /** States in which this step is 'completed' */
+  completedIn: string[];
+  /** States in which this step is 'current' (active) */
+  activeIn: string[];
+}
+
+const TIMELINE_STEPS: TimelineStep[] = [
+  {
+    key: "submitted",
+    completedIn: ["accepted", "reconciled"],
+    activeIn: ["submitted"],
+  },
+  {
+    key: "accepted",
+    completedIn: ["reconciled"],
+    activeIn: ["accepted"],
+  },
+  {
+    key: "dispatching",
+    completedIn: [],
+    activeIn: ["reconciled"],
+  },
+];
+
+type StepStatus = "completed" | "active" | "upcoming" | "error";
+
+function getStepStatus(step: TimelineStep, state: string | null): StepStatus {
+  if (!state) return "upcoming";
+  if (state === "rejected") return "error";
+  if (step.completedIn.includes(state)) return "completed";
+  if (step.activeIn.includes(state)) return "active";
+  return "upcoming";
+}
+
+// ---------------------------------------------------------------------------
+// Component
+// ---------------------------------------------------------------------------
 
 export function DispatchConfirmation({
-  draftId,
-  orderReference,
-}: {
-  draftId: string;
-  orderReference: string | null;
-}) {
-  const t = useTranslations("confirmation");
-  const dispatch = useDispatchStatus(draftId);
-  const [copied, setCopied] = useState(false);
+  dispatchState,
+  providerReference,
+  isTrackable,
+  submittedAt,
+  lastCheckedAt,
+}: DispatchConfirmationProps) {
+  const t = useTranslations("dispatch");
 
-  const state = dispatch.data?.dispatch.state ?? "unknown";
-  const config =
-    STATE_CONFIG[state as keyof typeof STATE_CONFIG] ?? STATE_CONFIG.unknown;
-  const StateIcon = config.icon;
-
-  async function copyReference() {
-    if (!orderReference) return;
-    await navigator.clipboard.writeText(orderReference);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
+  const isRejected = dispatchState === "rejected";
+  const isQueued = dispatchState === "queued" || dispatchState === null;
 
   return (
-    <div className="mx-auto max-w-lg space-y-8 px-4 py-12 text-center">
-      {/* Success header */}
-      <div className="space-y-3">
-        <CheckCircle className="mx-auto h-12 w-12 text-green-500" />
-        <h1 className="text-2xl font-semibold text-gray-900">{t("title")}</h1>
-        <p className="text-sm text-gray-500">{t("subtitle")}</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        {isRejected ? (
+          <AlertTriangle className="h-6 w-6 text-destructive" />
+        ) : isQueued ? (
+          <Clock className="h-6 w-6 text-amber-500" />
+        ) : (
+          <CheckCircle className="h-6 w-6 text-emerald-600" />
+        )}
+        <div>
+          <h2 className="text-lg font-semibold">
+            {isRejected ? t("title.rejected") : isQueued ? t("title.queued") : t("title.dispatched")}
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {isRejected
+              ? t("subtitle.rejected")
+              : isQueued
+                ? t("subtitle.queued")
+                : t("subtitle.dispatched")}
+          </p>
+        </div>
       </div>
 
-      {/* Order reference */}
-      {orderReference && (
-        <div className="inline-flex items-center gap-2 rounded-lg bg-gray-50 px-4 py-2.5">
-          <span className="text-xs text-gray-500">{t("orderReference")}</span>
-          <span className="font-mono text-sm font-medium text-gray-900">
-            {orderReference}
-          </span>
-          <button
-            type="button"
-            onClick={copyReference}
-            className="text-gray-400 transition hover:text-gray-600"
-          >
-            {copied ? (
-              <Check className="h-4 w-4 text-green-500" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
-            <span className="sr-only">
-              {copied ? t("copied") : t("orderReference")}
-            </span>
-          </button>
+      {/* Provider reference */}
+      {providerReference && (
+        <div className="rounded-lg border border-border bg-muted/20 px-4 py-3">
+          <p className="text-xs font-medium text-muted-foreground">{t("reference.label")}</p>
+          <p className="mt-1 font-mono text-sm font-medium">{providerReference}</p>
+          {isTrackable ? (
+            <p className="mt-1 text-xs text-emerald-700">{t("reference.trackingAvailable")}</p>
+          ) : (
+            <p className="mt-1 text-xs text-muted-foreground">{t("reference.noTracking")}</p>
+          )}
         </div>
       )}
 
-      {/* Dispatch state */}
-      <div className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-3">
-        <StateIcon className="h-5 w-5 text-gray-500" />
-        <span className="text-sm text-gray-700">{t(config.labelKey)}</span>
-      </div>
+      {/* Timeline */}
+      {!isRejected && (
+        <div className="space-y-3">
+          {TIMELINE_STEPS.map((step, i) => {
+            const status = getStepStatus(step, dispatchState);
+            return (
+              <div key={step.key} className="flex gap-3">
+                {/* Connector */}
+                <div className="flex flex-col items-center">
+                  <StepIcon status={status} />
+                  {i < TIMELINE_STEPS.length - 1 && (
+                    <div
+                      className={[
+                        "mt-1 w-px flex-1",
+                        status === "completed" ? "bg-emerald-400" : "bg-border",
+                      ].join(" ")}
+                      style={{ minHeight: "1.5rem" }}
+                    />
+                  )}
+                </div>
+                {/* Label */}
+                <div className="pb-3">
+                  <p
+                    className={[
+                      "text-sm font-medium",
+                      status === "active" ? "text-primary" : "",
+                      status === "upcoming" ? "text-muted-foreground" : "",
+                      status === "completed" ? "text-foreground" : "",
+                    ].join(" ")}
+                  >
+                    {t(`step.${step.key}`)}
+                  </p>
+                  {step.key === "submitted" && submittedAt && (
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(submittedAt).toLocaleString()}
+                    </p>
+                  )}
+                  {status === "active" && step.key === "dispatching" && (
+                    <p className="text-xs text-muted-foreground">
+                      {t("step.providerNote")}
+                    </p>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
-      {/* What happens next */}
-      <div className="space-y-4 text-left">
-        <h2 className="text-sm font-medium text-gray-700">
-          {t("whatHappensNext")}
-        </h2>
-        <ol className="space-y-3 border-l-2 border-gray-200 pl-4">
-          {(
-            ["stepPayment", "stepSubmitted", "stepProcessing", "stepUpdates"] as const
-          ).map((step) => (
-            <li key={step} className="relative text-sm text-gray-600">
-              <span className="absolute -left-[1.3rem] top-1 h-2 w-2 rounded-full bg-gray-300" />
-              {t(step)}
-            </li>
-          ))}
-        </ol>
-      </div>
-
-      {/* Actions */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-        <a
-          href={`${API_BASE}/v1/drafts/${draftId}/receipt`}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-700 transition hover:border-gray-300"
-        >
-          <Download className="h-4 w-4" />
-          {t("downloadReceipt")}
-        </a>
-        <a
-          href={`${API_BASE}/v1/drafts/${draftId}/pdf`}
-          className="inline-flex items-center justify-center gap-2 rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-700 transition hover:border-gray-300"
-        >
-          <FileText className="h-4 w-4" />
-          {t("viewLetter")}
-        </a>
-      </div>
+      {/* Last checked */}
+      {lastCheckedAt && (
+        <p className="text-xs text-muted-foreground">
+          {t("lastChecked", { time: new Date(lastCheckedAt).toLocaleString() })}
+        </p>
+      )}
     </div>
   );
+}
+
+// ---------------------------------------------------------------------------
+// Step icon
+// ---------------------------------------------------------------------------
+
+function StepIcon({ status }: { status: StepStatus }) {
+  switch (status) {
+    case "completed":
+      return <CheckCircle className="h-5 w-5 shrink-0 text-emerald-600" />;
+    case "active":
+      return (
+        <div className="h-5 w-5 shrink-0 animate-pulse rounded-full border-2 border-primary bg-primary/20" />
+      );
+    case "error":
+      return <AlertTriangle className="h-5 w-5 shrink-0 text-destructive" />;
+    case "upcoming":
+    default:
+      return <Circle className="h-5 w-5 shrink-0 text-border" />;
+  }
 }

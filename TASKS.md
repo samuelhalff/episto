@@ -24,13 +24,13 @@
 - [x] Drafting Module (CRUD, profiles, transitions, review/preview, SSE stream)
 - [x] Files Module (multipart upload, S3 adapter, presigned download, soft-delete)
 - [x] Messages Module (conversation CRUD with cursor pagination)
-- [x] Payments Module (checkout with idempotency, polling, Stripe webhook with raw body)
+- [x] Payments Module (checkout with idempotency, polling, Stripe webhook with raw body, distinct 90-day order access token on capture)
 - [x] Dispatch Module (status query, admin retry with auth)
 - [x] Rendering Module (snapshot service — Puppeteer templates pending)
 - [x] Tracking Module (adapter shell — provider API pending)
 - [x] Retention Module (cleanup service: sessions, files, drafts, PDFs)
 - [x] Admin Module (Basic Auth, timeline, search, refund via Stripe API, reconcile pending provider)
-- [x] Order Module (public token-authenticated status + PDF download via S3 presigned URL)
+- [x] Order Module (public token-authenticated status + PDF download via S3 presigned URL; token resolved via payment_attempts.order_access_token_hash)
 - [x] Email Module (Resend adapter + BullMQ worker with 5 templates)
 - [x] Pricing Module (config-driven CHF pricing: 4.90 standard, 8.90 registered)
 - [x] Pricing API (GET /api/v1/pricing — public endpoint returning display prices)
@@ -57,7 +57,7 @@
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
-- [x] 337 unit tests passing (21 test files)
+- [x] 226 unit tests passing (19 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
@@ -82,6 +82,17 @@
 - [x] PDF download endpoint (orders/:token/pdf via S3 presigned URL)
 - [x] Stripe refund implementation in admin endpoint
 - [x] Admin routes split for file-size compliance (admin.routes.ts + admin-actions.routes.ts)
+- [x] Admin overview route (GET /admin/overview — active queue, payment stats, ambiguous dispatches, recent refunds)
+- [x] Distinct order access token (90-day TTL, generated on payment capture, separate from session resume token)
+- [x] Order status page aligned with real backend response shape (OrderStatusResponse shared contract)
+- [x] Centralized query key registry (queryKeys.* in shared package, all hooks migrated)
+- [x] Checkout form validation with React Hook Form + Zod (email + legal consent, proper aria attributes)
+- [x] Frontend product hooks (use-session, use-conversation, use-dictation, use-draft-files, use-checkout, use-dispatch-status, use-letter-preview)
+- [x] Frontend product components (AttachmentUploader, SignaturePicker, ZoneEditor, DispatchConfirmation)
+
+### Pending (not blocked):
+- [ ] Email templates: move hardcoded English subject/body copy into locale-keyed message catalog (de-CH, fr-CH, it-CH, en-CH)
+- [ ] Stripe Elements: wire publishable key into checkout page Stripe provider (needs env var)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding

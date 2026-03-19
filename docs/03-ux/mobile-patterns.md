@@ -292,11 +292,26 @@ The mobile first-impression must be even more carefully choreographed than deskt
 
 ### Session Expiry Warning — Mobile
 
-- Banner appears below the app header, above conversation content
-- Warning state (1h remaining): single-line, dismissible, `bg-warning/10`
-- Critical state (5min remaining): two-line with inline email input, NOT dismissible
-- Email input + "Save" button: stacked full-width within the banner
-- Banner does NOT push conversation content off-screen — it overlays with scroll offset adjustment
+**Warning state** (configurable threshold, e.g. 1 hour remaining):
+- Single-line banner directly below the app header.
+- `bg-warning/10 border-b border-warning/20`. Height: ~44 px.
+- Text: "⏱ Your session expires in {timeRemaining}. [Save via email →]"
+- Dismissible (✕ button, 44×44 px touch target, right-aligned).
+- Banner slides in from top (translateY: -100%→0, 200ms, ease-out). Does not push content — uses `position: sticky top-[headerHeight]` with a scroll-padding-top adjustment on the container.
+
+**Critical state** (configurable threshold, e.g. 5 minutes remaining):
+- Two-line banner, NOT dismissible. Replaces the warning banner.
+- `bg-warning/20 border-b border-warning/40`.
+- Line 1: "⚠️ Your session expires soon."
+- Line 2: Email input (full-width, `type="email"`, `autocomplete="email"`, `inputmode="email"`) + "Save draft" button (full-width, below input, `bg-warning text-white`).
+- Email input must not auto-focus on mount — user may be mid-typing in the conversation.
+- On save success: replace banner with "✓ Check your email to resume this draft." (auto-dismisses after 5 s).
+- On save failure: inline error below input, "Couldn't save. Try again."
+
+**Keyboard interaction:**
+- When the email input in the critical-state banner receives focus, the keyboard appears and conversation content scrolls.
+- Use `window.visualViewport` to track keyboard height and adjust scroll position so the banner input remains visible above the keyboard.
+- Do not use `position: fixed` for the banner — it causes reflow issues with the virtual keyboard on iOS Safari.
 
 **Keyboard handling**
 - Conversation input always visible above software keyboard.
@@ -343,12 +358,26 @@ Touch target: TWINT button must be at least 48×44px with the official TWINT log
 
 ### 5.5 Confirmation (Mobile)
 
-- **Status card**: centered, prominent. Shows dispatch state with honest language (see guardrails docs).
-- **Reference number**: large `font-mono` display, tap-to-copy with toast feedback ("Copied!").
-- **"What's next" timeline**: vertical stepper, 3–4 steps (Payment received → Processing → Dispatch submitted → Delivery estimate).
-- **Download receipt**: secondary button, full-width.
-- **"Send another letter" CTA**: primary button, full-width, at bottom. Returns user to Draft Entry.
-- No decorative animations that could imply things are happening when they are not.
+**Layout:** Full-width, single-column, no sidebars. Vertical scroll.
+
+**Structure (top to bottom):**
+1. **Status icon + headline** — `CheckCircle` (success) or `AlertTriangle` (dispatch ambiguous/rejected), 40 px icon. Headline: "Letter dispatched for delivery" or "Dispatch pending confirmation". Honest language per guardrails.
+2. **Status card** — `border border-border rounded-card p-4`. Shows: dispatch state label, timestamp, brief explanation. If state is ambiguous, shows "We'll update this page as we receive confirmation." — never implies delivery has occurred when only submission is confirmed.
+3. **Reference number** — `font-mono text-2xl`, center-aligned. Tap copies to clipboard with toast feedback ("Copied!"). Label: "Your reference number".
+4. **"What's next" timeline** — vertical stepper, 3–4 steps. On mobile: icon + label in a compact left-aligned list. No horizontal layout.
+5. **Download PDF receipt** — secondary button, full-width, `mt-4`.
+6. **"Send another letter" CTA** — primary button, full-width, `mt-2`. Returns to Draft Entry.
+
+**Animations:**
+- Page enters with a calm `opacity: 0→1, translateY: 8px→0` (300ms, ease-out). No confetti. No particle effects. No celebratory motion.
+- Status icon animates in with a subtle scale-in (0.8→1.0, 300ms, spring) only if dispatch is successful.
+- No animations if dispatch state is ambiguous or rejected — static render only.
+
+**Mobile-specific rules:**
+- No "send again to [same address]" prefill shortcut in MVP — too risky to misaddress.
+- If the user navigates back from confirmation, do not resume the paid draft for editing — show the confirmation page again or route to `/status/:orderToken`.
+- Reference number must be visible without scrolling on screens ≥ 390 px wide.
+- "Download PDF receipt" button must not be the primary visual action — keep it secondary, below the timeline.
 
 ---
 
@@ -486,6 +515,8 @@ When dictation is active:
 | Hero parallax | Subtle scroll-linked background shift (desktop/tablet only) | — |
 | Tap feedback | `scale(0.97)`, revert | 75 ms |
 | Toast / snackbar | Slide up from bottom, auto-dismiss after 3 s | 200 ms |
+| Preview FAB — first draft ready | Scale pulse (1→1.15→1, spring); `accent` border glow (box-shadow fade-in 300ms, hold 500ms, fade-out 300ms) | 1100 ms total |
+| Preview FAB — badge dot appear | Fade-in `opacity: 0→1` | 150 ms |
 
 **`prefers-reduced-motion`**
 
