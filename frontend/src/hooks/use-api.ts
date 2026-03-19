@@ -243,7 +243,7 @@ export function useDeleteFile(draftId: string) {
 export function useCheckout(draftId: string) {
   return useMutation({
     mutationFn: (input: { email: string }) =>
-      apiFetch<{ clientSecret: string; paymentId: string }>(
+      apiFetch<{ clientSecret: string | null; paymentAttemptId: string; priceCents: number; currency: string }>(
         `/v1/drafts/${draftId}/checkout`,
         {
           method: "POST",

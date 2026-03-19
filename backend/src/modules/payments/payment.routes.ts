@@ -153,18 +153,6 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      // Check for existing non-terminal payment to ensure idempotency
-      const existing = await getPaymentForDraft(db, draftId);
-      if (existing && existing.state === "pending") {
-        if (existing.stripePaymentIntentId) {
-          return reply.send({
-            paymentId: existing.id,
-            clientSecret: null,
-            message: "A pending payment already exists for this draft.",
-          });
-        }
-      }
-
       // TODO: Calculate real pricing from draft content.
       // For now, the breakdown is hardcoded — pricing service will replace this.
       const breakdown = { base: 195, pages: 0, delivery: 0, attachments: 0 };
@@ -174,20 +162,43 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         breakdown.delivery +
         breakdown.attachments;
 
-      const payment = await createPaymentAttempt(db, {
-        draftId,
-        sessionId: session.id,
-        amountCents,
-        breakdown,
-      });
+      // Use a transaction to prevent concurrent checkout race conditions.
+      // Re-check for existing non-terminal payment inside the transaction.
+      const result = await db.transaction(async (tx) => {
+        const existing = await getPaymentForDraft(tx, draftId);
+        if (existing && existing.state === "pending") {
+          if (existing.stripePaymentIntentId) {
+            return {
+              isExisting: true as const,
+              paymentAttemptId: existing.id,
+              clientSecret: null as string | null,
+              priceCents: existing.amountCents,
+            };
+          }
+        }
 
-      const result = await createPaymentIntent(amountCents, {
-        draftId,
-        sessionId: session.id,
-      });
+        const payment = await createPaymentAttempt(tx, {
+          draftId,
+          sessionId: session.id,
+          amountCents,
+          breakdown,
+        });
 
-      await transitionPaymentState(db, payment.id, "authorized", {
-        stripePaymentIntentId: result.paymentIntentId,
+        const stripeResult = await createPaymentIntent(amountCents, {
+          draftId,
+          sessionId: session.id,
+        });
+
+        await transitionPaymentState(tx, payment.id, "authorized", {
+          stripePaymentIntentId: stripeResult.paymentIntentId,
+        });
+
+        return {
+          isExisting: false as const,
+          paymentAttemptId: payment.id,
+          clientSecret: stripeResult.clientSecret,
+          priceCents: amountCents,
+        };
       });
 
       // Store email on session for receipt delivery
@@ -198,9 +209,21 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           .where(eq(schema.sessions.id, session.id));
       }
 
+      if (result.isExisting) {
+        return reply.send({
+          paymentAttemptId: result.paymentAttemptId,
+          clientSecret: result.clientSecret,
+          priceCents: result.priceCents,
+          currency: "CHF" as const,
+          message: "A pending payment already exists for this draft.",
+        });
+      }
+
       reply.status(201).send({
-        paymentId: payment.id,
+        paymentAttemptId: result.paymentAttemptId,
         clientSecret: result.clientSecret,
+        priceCents: result.priceCents,
+        currency: "CHF" as const,
       });
     },
   );

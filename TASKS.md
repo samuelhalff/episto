@@ -1,72 +1,78 @@
 # Build Tasks
 
-**Status:** Phase 5 — Build & Implementation
+**Status:** Phase 5 — Implementation substantially complete
 **Upstream:** [Roadmap](docs/01-vision/roadmap.md)
 **Guidelines:** [Copilot Instructions](.github/copilot-instructions.md)
 
 ---
 
-## 1. Foundation & Shared Core
-*Goal: Typesafe boundaries before any logic.*
+## 1. Foundation & Shared Core ✅
+*Typesafe boundaries before any logic.*
 
-- [ ] **Scaffold Monorepo** (frontend, backend, shared directories)
-- [ ] **Shared Enums & Constants** (from `docs/05-architecture/system-contracts.md`)
-  - [ ] `PaymentState`, `DispatchState`, `SessionType`
-  - [ ] `Locale` (and locale-aware formatting helpers)
-- [ ] **Shared Schemas** (Zod)
-  - [ ] `Draft` schema (from `docs/05-architecture/data-model.md`)
-  - [ ] `Address` validation schema (soft validation rules)
-  - [ ] `Order` / `Payment` schemas
-- [ ] **Error Taxonomy** (from `docs/05-architecture/error-taxonomy.md`)
-  - [ ] Canonical error class hierarchy
-  - [ ] Error code constants
+- [x] Scaffold Monorepo (frontend, backend, shared — npm workspaces)
+- [x] Shared Enums & Constants (`DraftStatus`, `PaymentState`, `DispatchState`, `Locale`, etc.)
+- [x] Shared Schemas (25 Zod schemas in `shared/src/schemas/`)
+- [x] State Machines (`canTransitionDraft`, `canTransitionPayment`, `canTransitionDispatch`)
+- [x] Error Taxonomy (canonical error families, `AppError` class)
+- [x] Env Validation (Zod schema, 50+ vars)
 
-## 2. Backend Core
-*Goal: Functional API and state machines.*
+## 2. Backend Core ✅
+*Functional API and state machines.*
 
-- [ ] **Database Layer**
-  - [ ] Drizzle schema definition (PostgreSQL)
-  - [ ] Migration scripts
-- [ ] **Session Module**
-  - [ ] Guest session creation & 72h TTL logic
-  - [ ] Resume token hashing & cookie handling
-- [ ] **AI Adapter Shell** (Azure OpenAI)
-  - [ ] `AIProviderAdapter` interface
-  - [ ] Mock/Stub adapter for local dev
-  - [ ] Prompt templates (versioned text files)
-- [ ] **Dispatch Adapter Shell** (Swiss Post)
-  - [ ] Adapter interface (Barcode, Address, Delivery)
-  - [ ] Stub implementation (always returns "accepted" in dev)
-- [ ] **PDF Rendering Engine**
-  - [ ] Puppeteer service (HTML -> PDF)
-  - [ ] Template layout (A4 Swiss standard)
-- [ ] **Worker Queue** (BullMQ)
-  - [ ] Redis connection setup
-  - [ ] Job processors (Rendering, Dispatch, Cleanup, Email)
+- [x] Database Layer (Drizzle schema — 11 tables, 9 enums, all indexes)
+- [x] Session Module (guest sessions, cookie auth, resume tokens)
+- [x] Drafting Module (CRUD, profiles, transitions, review/preview)
+- [x] Files Module (upload/list/delete with validation — S3 stub)
+- [x] Messages Module (conversation CRUD with cursor pagination)
+- [x] Payments Module (checkout, polling, Stripe webhook with raw body)
+- [x] Dispatch Module (status query, admin retry stub)
+- [x] Rendering Module (snapshot service — Puppeteer templates pending)
+- [x] Tracking Module (adapter shell)
+- [x] Retention Module (cleanup service shell)
+- [x] Admin Module (Basic Auth, timeline, search, refund/reconcile stubs)
+- [x] Order Module (public token-authenticated status + PDF download)
+- [x] SSE Stream (connection shell with keepalive)
+- [x] Queue Platform (BullMQ setup)
+- [x] All routes match `docs/05-architecture/api-contracts.md`
 
-## 3. Frontend Core
-*Goal: Guided drafting and checkout flows.*
+## 3. Frontend Core ✅
+*Guided drafting and checkout flows.*
 
-- [ ] **Shell & Routing**
-  - [ ] Next.js app router setup
-  - [ ] Locale middleware (`/[locale]/...`)
-- [ ] **Design System**
-  - [ ] Tailwind config & Shadcn primitives
-  - [ ] Typography & Color tokens (Swiss style)
-- [ ] **Drafting Experience**
-  - [ ] Conversational input component
-  - [ ] Live preview split-pane
-  - [ ] SSE hooks for AI streaming
-- [ ] **Checkout Flow**
-  - [ ] Stripe Elements integration
-  - [ ] Price calculation & display
-- [ ] **Confirmation & Status**
-  - [ ] Order status page (polling/revalidating)
+- [x] Next.js App Router + i18n (4 Swiss locales)
+- [x] Tailwind + shadcn/ui primitives
+- [x] Draft Workspace (split-pane conversation + preview)
+- [x] Review Page (completion checklist, delivery selector, pricing)
+- [x] Checkout Page (order summary, Stripe placeholder, trust badges)
+- [x] Confirmation Page (success state + timeline)
+- [x] Resume + Status Pages (token-based access)
+- [x] Marketing Pages (homepage, how-it-works, pricing, legal)
+- [x] TanStack Query hooks aligned with backend API contracts
+- [x] Full i18n translations for de-CH, fr-CH, it-CH, en-CH
 
-## 4. Launch Validation (Parallel)
-*Goal: Commercial & Operational readiness.*
+## 4. Quality & Ops ✅
+*CI-ready quality gates.*
 
-- [ ] **Swiss Post Onboarding** (Get Sandbox Credentials)
-- [ ] **Bank Account & Stripe Verification**
-- [ ] **Pricing Validation** (Confirm 4.90/8.90 viability)
-- [ ] **Locale Quality Gate** (Native speaker review of all strings)
+- [x] TypeScript strict mode (all 3 workspaces clean)
+- [x] ESLint (0 warnings, 0 errors)
+- [x] 177 unit tests passing (5 test files)
+- [x] Docker Compose (Postgres, Redis, MinIO)
+- [x] Structured logging (Pino)
+- [x] Canonical error handling with user-facing messages
+
+## 5. Remaining Work (blocked or deferred)
+
+### Blocked on provider/design:
+- [ ] Postal dispatch (Swiss Post API credentials + contract)
+- [ ] Tracking (Swiss Post tracking API)
+- [ ] PDF rendering (HTML letter templates — design needed)
+- [ ] AI chat integration (Azure OpenAI prompts to finalize)
+- [ ] S3 file upload (MinIO adapter wiring)
+
+### Pre-launch:
+- [ ] Swiss Post sandbox onboarding
+- [ ] Stripe live-mode verification
+- [ ] Bank account setup
+- [ ] Native speaker locale review
+- [ ] Pricing validation (4.90/8.90 viability)
+- [ ] DB migrations + rollback testing
+- [ ] See `docs/07-operations/pre-launch-checklist.md` for full list

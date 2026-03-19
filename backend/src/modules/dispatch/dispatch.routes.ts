@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { getDb } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
+import { requireAdmin } from "../../shared/middleware/require-admin.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { getDispatchForDraft } from "./dispatch.service.js";
@@ -37,19 +38,8 @@ export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
   // POST /drafts/:id/dispatch/retry — admin-only dispatch retry
   app.post<{ Params: { id: string } }>(
     "/drafts/:id/dispatch/retry",
-    async (request, _reply) => {
-      const auth = request.headers.authorization;
-      if (!auth || !auth.startsWith("Basic ")) {
-        throw new AppError({
-          family: "validation_error",
-          statusCode: 401,
-          code: "ADMIN_AUTH_REQUIRED",
-          message: "Admin authentication required for dispatch retry",
-          userMessage: "Authentication required.",
-          userAction: null,
-        });
-      }
-
+    { preHandler: [requireAdmin] },
+    async (_request, _reply) => {
       // Stub: dispatch retry requires provider integration
       throw new AppError({
         family: "dispatch_ambiguity",
