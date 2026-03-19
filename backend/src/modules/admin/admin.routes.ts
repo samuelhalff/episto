@@ -9,6 +9,7 @@ import {
   listSupportEventsForSession,
 } from "./index.js";
 import { adminActionRoutes } from "./admin-actions.routes.js";
+import { adminHealthRoutes } from "./admin-health.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin read-only routes (timeline, session details, content access)
@@ -213,4 +214,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
   // Register search and action routes (split for file-size compliance)
   await app.register(adminActionRoutes);
+
+  // Register admin health status endpoint (split for file-size compliance)
+  await app.register(adminHealthRoutes);
 }
