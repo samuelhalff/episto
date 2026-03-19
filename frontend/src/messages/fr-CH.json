@@ -217,8 +217,14 @@
   "confirmation": {
     "title": "Paiement reçu",
     "subtitle": "Votre lettre a été soumise à l'envoi.",
+    "verifying": "Vérification du paiement…",
+    "paymentFailed": "Paiement non effectué",
+    "paymentFailedSubtitle": "Votre paiement n'a pas pu être traité. Veuillez retourner à la page de paiement.",
+    "backToCheckout": "Retour au paiement",
     "orderReference": "Référence de commande",
     "copied": "Copié",
+    "copyReference": "Copier la référence",
+    "dispatchTitle": "Statut de l'envoi",
     "whatHappensNext": "Prochaines étapes",
     "stepPayment": "Paiement confirmé",
     "stepSubmitted": "Lettre soumise à l'envoi",
@@ -232,7 +238,8 @@
     "stateAccepted": "Acceptée pour l'envoi",
     "stateRejected": "L'envoi a été refusé — nous enquêtons",
     "stateUnknown": "Le statut est en cours de confirmation — nous vous informerons par e-mail",
-    "emailNotice": "Un reçu a été envoyé à {email}"
+    "emailNotice": "Un reçu de paiement a été envoyé à votre adresse e-mail",
+    "stickyCtaLabel": "Envoyer une autre lettre"
   },
   "resume": {
     "loading": "Reprise de votre brouillon…",

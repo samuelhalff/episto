@@ -217,8 +217,14 @@
   "confirmation": {
     "title": "Payment received",
     "subtitle": "Your letter has been submitted for dispatch.",
+    "verifying": "Verifying payment…",
+    "paymentFailed": "Payment was not completed",
+    "paymentFailedSubtitle": "Your payment could not be processed. Please return to checkout to try again.",
+    "backToCheckout": "Back to checkout",
     "orderReference": "Order reference",
     "copied": "Copied",
+    "copyReference": "Copy reference",
+    "dispatchTitle": "Dispatch status",
     "whatHappensNext": "What happens next",
     "stepPayment": "Payment confirmed",
     "stepSubmitted": "Letter submitted for dispatch",
@@ -232,7 +238,8 @@
     "stateAccepted": "Accepted for dispatch",
     "stateRejected": "Dispatch was rejected — we're investigating",
     "stateUnknown": "Status is being confirmed — we'll update you by email",
-    "emailNotice": "A receipt has been sent to {email}"
+    "emailNotice": "A payment receipt has been sent to your email",
+    "stickyCtaLabel": "Send another letter"
   },
   "resume": {
     "loading": "Resuming your draft…",

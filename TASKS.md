@@ -57,7 +57,7 @@
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
-- [x] 226 unit tests passing (19 test files)
+- [x] 481 unit tests passing (25 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
@@ -71,7 +71,6 @@
 ### Blocked on provider/design:
 - [ ] Postal dispatch adapter (Swiss Post API credentials + contract)
 - [ ] Tracking adapter (Swiss Post tracking API — capabilities unconfirmed)
-- [ ] Stripe Elements frontend (needs publishable key)
 
 ### Recently completed:
 - [x] AI chat integration (Azure OpenAI adapter, prompt pipeline, streaming)
@@ -89,10 +88,11 @@
 - [x] Checkout form validation with React Hook Form + Zod (email + legal consent, proper aria attributes)
 - [x] Frontend product hooks (use-session, use-conversation, use-dictation, use-draft-files, use-checkout, use-dispatch-status, use-letter-preview)
 - [x] Frontend product components (AttachmentUploader, SignaturePicker, ZoneEditor, DispatchConfirmation)
+- [x] Email templates: full locale-keyed message catalogs for all 5 templates (de-CH, fr-CH, it-CH, en-CH)
+- [x] Stripe Elements: publishable key wired via NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY env var, full payment flow operational
+- [x] Confirmation page: payment status verification via Stripe redirect params + backend polling, dispatch status display, 4-step timeline, copy-to-clipboard reference, email notice, mobile sticky CTA
 
 ### Pending (not blocked):
-- [ ] Email templates: move hardcoded English subject/body copy into locale-keyed message catalog (de-CH, fr-CH, it-CH, en-CH)
-- [ ] Stripe Elements: wire publishable key into checkout page Stripe provider (needs env var)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding

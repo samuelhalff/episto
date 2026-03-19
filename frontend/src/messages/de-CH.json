@@ -217,8 +217,14 @@
   "confirmation": {
     "title": "Zahlung erhalten",
     "subtitle": "Ihr Brief wurde zum Versand übermittelt.",
+    "verifying": "Zahlung wird überprüft…",
+    "paymentFailed": "Zahlung nicht abgeschlossen",
+    "paymentFailedSubtitle": "Ihre Zahlung konnte nicht verarbeitet werden. Bitte kehren Sie zur Kasse zurück.",
+    "backToCheckout": "Zurück zur Kasse",
     "orderReference": "Bestellnummer",
     "copied": "Kopiert",
+    "copyReference": "Referenz kopieren",
+    "dispatchTitle": "Versandstatus",
     "whatHappensNext": "So geht es weiter",
     "stepPayment": "Zahlung bestätigt",
     "stepSubmitted": "Brief zum Versand übermittelt",
@@ -232,7 +238,8 @@
     "stateAccepted": "Zum Versand angenommen",
     "stateRejected": "Versand wurde abgelehnt — wir untersuchen dies",
     "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
-    "emailNotice": "Eine Quittung wurde an {email} gesendet"
+    "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
+    "stickyCtaLabel": "Weiteren Brief senden"
   },
   "resume": {
     "loading": "Entwurf wird geladen…",
