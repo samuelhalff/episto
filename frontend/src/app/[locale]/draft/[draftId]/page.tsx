@@ -4,12 +4,11 @@ import { use, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   useDraft,
-  useMessages,
   useSession,
-  useCreateSession,
+  useConversation,
 } from "../../../../hooks/use-api.js";
 import { Link } from "../../../../i18n/navigation.js";
-import { Eye, X, Loader2 } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import { StepIndicator } from "../../../../components/product/StepIndicator.js";
 import { ConversationPanel } from "../../../../components/product/ConversationPanel.js";
 import { LetterPreview } from "../../../../components/product/LetterPreview.js";
@@ -28,28 +27,22 @@ export default function DraftWorkspacePage({
   const tc = useTranslations("common");
 
   const session = useSession();
-  const createSession = useCreateSession();
   const draft = useDraft(draftId);
-  const messages = useMessages(draftId);
+  const conversation = useConversation(draftId);
 
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
 
   // No session yet — prompt to start
-  if (!session.data && !session.isLoading) {
+  if (!session.session && !session.isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8">
         <h1 className="text-2xl font-bold text-navy">{tc("appName")}</h1>
         <button
           type="button"
-          onClick={() => createSession.mutate({})}
-          disabled={createSession.isPending}
+          onClick={() => void session.createSession("en-CH")}
           className="rounded-lg bg-navy px-6 py-3 text-sm font-medium text-white transition hover:bg-navy-light disabled:opacity-50"
         >
-          {createSession.isPending ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            t("title")
-          )}
+          {t("title")}
         </button>
       </div>
     );
@@ -70,9 +63,9 @@ export default function DraftWorkspacePage({
         {/* Conversation panel — left on desktop, full on mobile */}
         <div className="flex flex-1 flex-col border-r lg:w-2/5 lg:flex-none">
           <ConversationPanel
-            messages={messages.data ?? []}
+            messages={conversation.messages}
             draftId={draftId}
-            isLoading={messages.isLoading}
+            isLoading={conversation.isSending}
           />
         </div>
 

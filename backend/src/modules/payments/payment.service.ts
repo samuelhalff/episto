@@ -167,7 +167,7 @@ export async function transitionPaymentState(
 
   // Idempotency: if already in the target state, return as-is (webhook retries)
   if (existing.state === newState) {
-    return toPaymentRow(existing);
+    return { payment: toPaymentRow(existing), rawOrderAccessToken: null };
   }
 
   try {

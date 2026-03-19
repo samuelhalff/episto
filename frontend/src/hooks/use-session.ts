@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api.js";
 import type { Session } from "@swiss-mail/shared";
-import { Locale, queryKeys } from "@swiss-mail/shared";
+import { type Locale, queryKeys } from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // Types

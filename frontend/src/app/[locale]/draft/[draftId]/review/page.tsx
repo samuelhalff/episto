@@ -2,7 +2,7 @@
 
 import { use } from "react";
 import { useTranslations } from "next-intl";
-import { useDraft, useUpdateDraft, useFiles } from "../../../../../hooks/use-api.js";
+import { useDraft, useUpdateDraft, useDraftFiles } from "../../../../../hooks/use-api.js";
 import { usePricing, formatCentsAsCHF } from "../../../../../hooks/use-pricing.js";
 import { Link } from "../../../../../i18n/navigation.js";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
@@ -25,7 +25,7 @@ export default function ReviewPage({
   const tc = useTranslations("common");
   const draft = useDraft(draftId);
   const updateDraft = useUpdateDraft(draftId);
-  const files = useFiles(draftId);
+  const { attachments } = useDraftFiles(draftId);
   const pricing = usePricing();
 
   if (draft.isLoading) {
@@ -50,7 +50,7 @@ export default function ReviewPage({
   const hasRecipient = Boolean(d.recipientProfileId);
   const hasBody = Boolean(d.body);
   const hasSubject = Boolean(d.subject);
-  const hasAttachments = (files.data?.length ?? 0) > 0;
+  const hasAttachments = attachments.length > 0;
   const allComplete = hasSender && hasRecipient && hasBody && hasSubject;
 
   // Compute display price from backend pricing

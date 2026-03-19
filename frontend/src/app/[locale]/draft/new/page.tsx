@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { useCreateSession, useCreateDraft } from "../../../../hooks/use-api.js";
+import { useSession, useCreateDraft } from "../../../../hooks/use-api.js";
 
 /**
  * /draft/new — entry point that creates a session + draft, then redirects
@@ -12,14 +12,14 @@ import { useCreateSession, useCreateDraft } from "../../../../hooks/use-api.js";
 export default function NewDraftPage() {
   const t = useTranslations("common");
   const router = useRouter();
-  const createSession = useCreateSession();
+  const { createSession } = useSession();
   const createDraft = useCreateDraft();
 
   useEffect(() => {
     async function bootstrap() {
       try {
         // Create a guest session (cookie set automatically)
-        await createSession.mutateAsync(undefined);
+        await createSession("en-CH");
 
         // Create the first draft
         const draft = await createDraft.mutateAsync();

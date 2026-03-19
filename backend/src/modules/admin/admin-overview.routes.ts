@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
-import { getDb, schema } from "../../db/index.js";
+import { getDb } from "../../db/index.js";
 
 // ---------------------------------------------------------------------------
 // Admin overview/dashboard endpoint

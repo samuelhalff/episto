@@ -2,11 +2,8 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useQueryClient } from "@tanstack/react-query";
 import { Send, Mic, MicOff, Loader2, FileText } from "lucide-react";
-import { queryKeys } from "@swiss-mail/shared";
-import { useSendMessage } from "../../hooks/use-api.js";
-import { useDraftStream } from "../../hooks/use-draft-stream.js";
+import { useConversation } from "../../hooks/use-api.js";
 import { useDictation } from "../../hooks/use-dictation.js";
 import type { ConversationMessage } from "@swiss-mail/shared";
 import { MessageRole } from "@swiss-mail/shared";
@@ -17,7 +14,7 @@ import { MessageRole } from "@swiss-mail/shared";
  * with optional voice dictation.
  */
 export function ConversationPanel({
-  messages,
+  messages: _externalMessages,
   draftId,
   isLoading,
 }: {
@@ -27,17 +24,11 @@ export function ConversationPanel({
 }) {
   const t = useTranslations("draft");
   const locale = useLocale();
-  const queryClient = useQueryClient();
 
   const [input, setInput] = useState("");
-  const [streamingContent, setStreamingContent] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
-  const sendMessage = useSendMessage(draftId);
-
-  // SSE connection for real-time AI token streaming
-  const { subscribe } = useDraftStream(draftId);
+  const conversation = useConversation(draftId);
 
   // Dictation (Web Speech API)
   const {
@@ -50,23 +41,12 @@ export function ConversationPanel({
     resetText,
   } = useDictation();
 
-  // Subscribe to SSE events
+  // Scroll down when streaming
   useEffect(() => {
-    return subscribe((event) => {
-      if (event.type === "ai_token") {
-        setIsStreaming(true);
-        setStreamingContent((prev) => prev + event.data.token);
-        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-      } else if (event.type === "ai_message_complete") {
-        setStreamingContent("");
-        setIsStreaming(false);
-        // Fetch the finalised message from the server
-        void queryClient.invalidateQueries({
-          queryKey: queryKeys.draftMessages(draftId),
-        });
-      }
-    });
-  }, [subscribe, draftId, queryClient]);
+    if (conversation.isStreaming || conversation.messages.length > 0) {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [conversation.isStreaming, conversation.streamingText, conversation.messages.length]);
 
   // Append committed dictation text to the input field
   useEffect(() => {
@@ -79,14 +59,7 @@ export function ConversationPanel({
     const content = input.trim();
     if (!content) return;
     setInput("");
-    sendMessage.mutate(
-      { content },
-      {
-        onSuccess: () => {
-          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-        },
-      },
-    );
+    void conversation.sendMessage(content);
   }
 
   function handleMicToggle() {
@@ -97,8 +70,9 @@ export function ConversationPanel({
     }
   }
 
-  const showStreaming = isStreaming && streamingContent.length > 0;
-  const showSpinner = sendMessage.isPending && !isStreaming;
+  const allMessages = conversation.messages;
+  const showStreaming = conversation.isStreaming && conversation.streamingText.length > 0;
+  const showSpinner = conversation.isSending && !conversation.isStreaming;
 
   return (
     <>
@@ -108,14 +82,14 @@ export function ConversationPanel({
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-6 w-6 animate-spin text-navy" />
           </div>
-        ) : messages.length === 0 && !showStreaming ? (
+        ) : allMessages.length === 0 && !showStreaming ? (
           <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
             <FileText className="mb-3 h-10 w-10 text-gray-300" />
             <p className="text-sm">{t("title")}</p>
           </div>
         ) : (
           <>
-            {messages.map((msg) => (
+            {allMessages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex ${msg.role === MessageRole.user ? "justify-end" : "justify-start"}`}
@@ -136,7 +110,7 @@ export function ConversationPanel({
             {showStreaming && (
               <div className="flex justify-start">
                 <div className="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2.5 text-sm leading-relaxed text-gray-800">
-                  {streamingContent}
+                  {conversation.streamingText}
                   {/* Blinking cursor */}
                   <span className="ml-0.5 inline-block h-3.5 w-px animate-pulse bg-gray-500 align-middle" />
                 </div>
@@ -202,7 +176,7 @@ export function ConversationPanel({
 
           <button
             type="button"
-            disabled={!input.trim() || sendMessage.isPending}
+            disabled={!input.trim() || conversation.isSending}
             onClick={handleSend}
             className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy text-white transition hover:bg-navy-light disabled:opacity-40"
           >

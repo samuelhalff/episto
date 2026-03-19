@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -53,9 +53,6 @@ export default function CheckoutPage({
   const checkout = useCheckout(draftId);
   const pricing = usePricing();
 
-  const [clientSecret, setClientSecret] = useState<string | null>(null);
-  const [priceCents, setPriceCents] = useState<number>(0);
-
   const {
     register,
     handleSubmit,
@@ -93,23 +90,15 @@ export default function CheckoutPage({
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
 
-  const isSubmitting = checkout.isPending;
+  const isSubmitting = checkout.isProcessing;
 
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
-    checkout.mutate(
-      { email: values.email },
-      {
-        onSuccess: (data) => {
-          if (data.clientSecret) {
-            setClientSecret(data.clientSecret);
-            setPriceCents(data.priceCents);
-          } else {
-            router.push(`/draft/${draftId}/confirmation`);
-          }
-        },
-      },
-    );
+    void checkout.createPaymentIntent(values.email).then(() => {
+      if (!checkout.clientSecret) {
+        router.push(`/draft/${draftId}/confirmation`);
+      }
+    });
   }
 
   return (
@@ -129,7 +118,7 @@ export default function CheckoutPage({
         <PriceSummary deliveryType={d.deliveryType} subject={d.subject} />
 
         {/* Step 1: Email + consent */}
-        {!clientSecret && (
+        {!checkout.clientSecret && (
           <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
             <div className="rounded-lg border border-gray-200 bg-white p-6">
               <label
@@ -207,7 +196,7 @@ export default function CheckoutPage({
         )}
 
         {/* Step 2: Stripe PaymentElement */}
-        {clientSecret && stripePromise && (
+        {checkout.clientSecret && stripePromise && (
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h2 className="mb-4 text-sm font-semibold text-gray-900">
               {t("enterPaymentDetails")}
@@ -215,7 +204,7 @@ export default function CheckoutPage({
             <Elements
               stripe={stripePromise}
               options={{
-                clientSecret,
+                clientSecret: checkout.clientSecret,
                 locale: locale as Parameters<typeof Elements>[0]["options"] extends { locale?: infer L } ? L : "de",
                 appearance: {
                   theme: "stripe",
@@ -228,7 +217,7 @@ export default function CheckoutPage({
               }}
             >
               <StripePaymentForm
-                priceCents={priceCents}
+                priceCents={checkout.pricing?.priceCents ?? 0}
                 returnUrl={returnUrl}
                 buttonLabel={t("sendMyLetter")}
               />
@@ -236,7 +225,7 @@ export default function CheckoutPage({
           </div>
         )}
 
-        {clientSecret && !stripePromise && (
+        {checkout.clientSecret && !stripePromise && (
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <p className="text-sm text-gray-500">{t("paymentPending")}</p>
           </div>
