@@ -189,5 +189,107 @@
     "dispatchState": "Dispatch status",
     "estimatedDelivery": "Estimated delivery",
     "sendAnother": "Send another letter"
+  },
+  "files": {
+    "dropZone": {
+      "ariaLabel": "Upload attachment",
+      "prompt": "Drop files here or click to select",
+      "maxSize": "Max {mb} MB per file"
+    },
+    "limit": {
+      "maxFiles": "Maximum {max} attachments reached.",
+      "totalSize": "Total attachment limit ({mb} MB) reached."
+    },
+    "summary": "{count} of {max} files · {used} MB of {limit} MB used",
+    "remove": {
+      "ariaLabel": "Remove {name}"
+    },
+    "toast": {
+      "unsupportedType": "Only {formats} files are accepted.",
+      "fileTooLarge": "File exceeds {mb} MB limit."
+    }
+  },
+  "signature": {
+    "prompt": "How would you like to sign?",
+    "mode": {
+      "typed": {
+        "label": "Type name",
+        "description": "Rendered in italic serif"
+      },
+      "image": {
+        "label": "Upload image",
+        "description": "PNG or JPEG, max 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Preview on letter",
+      "placeholder": "Your name"
+    },
+    "imageAlt": "Signature image",
+    "remove": "Remove",
+    "uploading": "Uploading…",
+    "uploadPrompt": "Upload signature image",
+    "uploadHint": "PNG or JPEG · max 2 MB",
+    "error": {
+      "unsupportedType": "Only PNG and JPEG images are accepted.",
+      "tooLarge": "Signature image exceeds 2 MB limit."
+    }
+  },
+  "zoneEditor": {
+    "title": "Edit: {zone}",
+    "ariaLabel": "Edit {zone}",
+    "optional": "optional",
+    "zone": {
+      "sender": "Sender address",
+      "recipient": "Recipient address",
+      "date": "Date",
+      "subject": "Subject",
+      "salutation": "Salutation",
+      "body": "Letter body",
+      "closing": "Closing"
+    },
+    "field": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "company": "Company",
+      "street": "Street and number",
+      "postalCode": "Postcode",
+      "city": "City",
+      "postalAndCity": "Postcode and city"
+    },
+    "validation": {
+      "required": "Required",
+      "nameOrCompanyRequired": "First name or company is required"
+    },
+    "action": {
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "close": "Close"
+    }
+  },
+  "dispatch": {
+    "title": {
+      "dispatched": "Letter dispatched",
+      "queued": "Processing your letter",
+      "rejected": "Dispatch failed"
+    },
+    "subtitle": {
+      "dispatched": "Your letter has been handed to Swiss Post.",
+      "queued": "Your letter is being prepared for dispatch.",
+      "rejected": "There was a problem dispatching your letter. Our team has been notified."
+    },
+    "reference": {
+      "label": "Provider reference",
+      "trackingAvailable": "Tracking available for this shipment",
+      "noTracking": "No tracking available for this shipment"
+    },
+    "step": {
+      "submitted": "Submitted to printing",
+      "accepted": "Accepted for dispatch",
+      "dispatching": "Delivery status pending",
+      "providerNote": "Updates depend on provider capability"
+    },
+    "lastChecked": "Last updated: {time}"
   }
 }

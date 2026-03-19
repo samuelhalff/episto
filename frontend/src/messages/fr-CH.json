@@ -189,5 +189,107 @@
     "dispatchState": "Statut d'envoi",
     "estimatedDelivery": "Livraison estimée",
     "sendAnother": "Envoyer une autre lettre"
+  },
+  "files": {
+    "dropZone": {
+      "ariaLabel": "Télécharger une pièce jointe",
+      "prompt": "Déposez des fichiers ici ou cliquez",
+      "maxSize": "Max {mb} Mo par fichier"
+    },
+    "limit": {
+      "maxFiles": "Maximum de {max} pièces jointes atteint.",
+      "totalSize": "Limite de {mb} Mo atteinte."
+    },
+    "summary": "{count} sur {max} fichiers · {used} Mo sur {limit} Mo utilisés",
+    "remove": {
+      "ariaLabel": "Supprimer {name}"
+    },
+    "toast": {
+      "unsupportedType": "Seuls les fichiers {formats} sont acceptés.",
+      "fileTooLarge": "Le fichier dépasse la limite de {mb} Mo."
+    }
+  },
+  "signature": {
+    "prompt": "Comment souhaitez-vous signer?",
+    "mode": {
+      "typed": {
+        "label": "Taper le nom",
+        "description": "Rendu en italique"
+      },
+      "image": {
+        "label": "Télécharger une image",
+        "description": "PNG ou JPEG, max 2 Mo"
+      }
+    },
+    "preview": {
+      "label": "Aperçu dans la lettre",
+      "placeholder": "Votre nom"
+    },
+    "imageAlt": "Image de signature",
+    "remove": "Supprimer",
+    "uploading": "Téléchargement…",
+    "uploadPrompt": "Télécharger une image de signature",
+    "uploadHint": "PNG ou JPEG · max 2 Mo",
+    "error": {
+      "unsupportedType": "Seuls les images PNG et JPEG sont acceptées.",
+      "tooLarge": "Image de signature supérieure à 2 Mo."
+    }
+  },
+  "zoneEditor": {
+    "title": "Modifier : {zone}",
+    "ariaLabel": "Modifier {zone}",
+    "optional": "facultatif",
+    "zone": {
+      "sender": "Adresse expéditeur",
+      "recipient": "Adresse destinataire",
+      "date": "Date",
+      "subject": "Objet",
+      "salutation": "Formule de salutation",
+      "body": "Corps de la lettre",
+      "closing": "Formule de clôture"
+    },
+    "field": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "company": "Société",
+      "street": "Rue et numéro",
+      "postalCode": "Code postal",
+      "city": "Ville",
+      "postalAndCity": "Code postal et ville"
+    },
+    "validation": {
+      "required": "Champ obligatoire",
+      "nameOrCompanyRequired": "Prénom ou société requis"
+    },
+    "action": {
+      "save": "Enregistrer",
+      "saving": "Enregistrement…",
+      "cancel": "Annuler",
+      "close": "Fermer"
+    }
+  },
+  "dispatch": {
+    "title": {
+      "dispatched": "Lettre expédiée",
+      "queued": "Traitement en cours",
+      "rejected": "Envoi échoué"
+    },
+    "subtitle": {
+      "dispatched": "Votre lettre a été remise à La Poste.",
+      "queued": "Votre lettre est en cours de préparation.",
+      "rejected": "Un problème est survenu. Notre équipe a été informée."
+    },
+    "reference": {
+      "label": "Référence du prestataire",
+      "trackingAvailable": "Suivi disponible",
+      "noTracking": "Aucun suivi disponible"
+    },
+    "step": {
+      "submitted": "Soumis à l'impression",
+      "accepted": "Accepté pour expédition",
+      "dispatching": "Statut de livraison en attente",
+      "providerNote": "Les mises à jour dépendent du prestataire"
+    },
+    "lastChecked": "Dernière mise à jour : {time}"
   }
 }
