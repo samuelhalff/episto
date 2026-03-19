@@ -44,33 +44,48 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
         .where(eq(schema.dispatchAttempts.draftId, draft.id))
         .limit(1);
 
+      // Fetch recipient name for display
+      let recipientName = "";
+      if (draft.recipientProfileId) {
+        const [recipient] = await db
+          .select({
+            firstName: schema.recipientProfiles.firstName,
+            lastName: schema.recipientProfiles.lastName,
+            companyName: schema.recipientProfiles.companyName,
+          })
+          .from(schema.recipientProfiles)
+          .where(eq(schema.recipientProfiles.id, draft.recipientProfileId))
+          .limit(1);
+        if (recipient) {
+          recipientName = [recipient.firstName, recipient.lastName]
+            .filter(Boolean)
+            .join(" ") || recipient.companyName || "";
+        }
+      }
+
       reply.send({
         order: {
           draftId: draft.id,
+          orderRef: `SM-${draft.id.slice(0, 8).toUpperCase()}`,
           locale: draft.locale,
-          payment: payment
-            ? {
-                state: payment.state,
-                priceCents: payment.amountCents,
-                currency: "CHF" as const,
-                capturedAt: payment.updatedAt.toISOString(),
-                refundedAt: null,
-              }
-            : null,
-          dispatch: dispatch
-            ? {
-                state: dispatch.state,
-                providerRef: dispatch.providerReference,
-                submittedAt:
-                  dispatch.submittedAt?.toISOString() ?? null,
-                acceptedAt: null,
-                rejectedAt: null,
-                trackingAvailable: false,
-                lastCheckedAt:
-                  dispatch.lastCheckedAt?.toISOString() ?? null,
-              }
-            : null,
+          payment: {
+            state: payment?.state ?? "pending",
+            priceCents: payment?.amountCents ?? 0,
+            currency: "CHF" as const,
+            capturedAt: payment?.updatedAt?.toISOString() ?? null,
+            refundedAt: null,
+          },
+          dispatch: {
+            state: dispatch?.state ?? "queued",
+            providerRef: dispatch?.providerReference ?? null,
+            submittedAt: dispatch?.submittedAt?.toISOString() ?? null,
+            acceptedAt: null,
+            rejectedAt: null,
+            trackingAvailable: false,
+            lastCheckedAt: dispatch?.lastCheckedAt?.toISOString() ?? null,
+          },
           deliveryType: draft.deliveryType,
+          recipientName,
           createdAt: draft.createdAt.toISOString(),
         },
       });

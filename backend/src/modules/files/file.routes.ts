@@ -236,7 +236,10 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         request.log.warn({ fileId, storageKey: asset.storageKey }, "Failed to delete object from storage");
       }
 
-      reply.send({ deleted: true });
+      reply.send({
+        fileId,
+        deletedAt: new Date().toISOString(),
+      });
     },
   );
 

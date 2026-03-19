@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import {
@@ -72,7 +72,27 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
 
-      reply.send({ draft });
+      // Fetch conversationMessageCount
+      const [msgCount] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.conversationMessages)
+        .where(eq(schema.conversationMessages.draftId, draftId));
+
+      // Fetch latestSnapshotId
+      const [latestSnapshot] = await db
+        .select({ id: schema.draftSnapshots.id })
+        .from(schema.draftSnapshots)
+        .where(eq(schema.draftSnapshots.draftId, draftId))
+        .orderBy(desc(schema.draftSnapshots.createdAt))
+        .limit(1);
+
+      reply.send({
+        draft: {
+          ...draft,
+          conversationMessageCount: msgCount?.count ?? 0,
+          latestSnapshotId: latestSnapshot?.id ?? null,
+        },
+      });
     },
   );
 
