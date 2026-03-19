@@ -15,6 +15,7 @@ import {
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
+import { recordEvent } from "../modules/analytics/index.js";
 
 const logger = createLogger("submit-dispatch-worker");
 
@@ -112,6 +113,13 @@ export function startSubmitDispatchWorker(): Worker<SubmitDispatchJob> {
         await transitionDispatchState(db, attempt.id, "submitted", {
           providerReference: result.providerReference,
           providerPayload: result.providerPayload,
+        });
+
+        recordEvent({
+          event: "dispatch_submitted",
+          draftId,
+          dispatchAttemptId: attempt.id,
+          deliveryType: snapshotData.deliveryType ?? "standard",
         });
 
         // 5. Transition draft to submitted

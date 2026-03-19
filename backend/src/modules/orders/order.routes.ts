@@ -6,6 +6,7 @@ import { AppError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
 import { getPresignedDownloadUrl } from "../files/adapters/s3.adapter.js";
+import { recordEvent } from "../analytics/index.js";
 
 /**
  * Resolve an order access token to its payment attempt.
@@ -112,6 +113,12 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
           recipientName,
           createdAt: draft.createdAt.toISOString(),
         },
+      });
+
+      recordEvent({
+        event: "order_status_viewed",
+        draftId: draft.id,
+        dispatchState: dispatch?.state ?? "queued",
       });
     },
   );

@@ -16,6 +16,7 @@ import {
 import { calculatePrice, type DeliveryType } from "../pricing/index.js";
 import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
 import { env } from "../../shared/config/index.js";
+import { recordEvent } from "../analytics/index.js";
 
 // ---------------------------------------------------------------------------
 // Input schemas
@@ -83,6 +84,13 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
             stripeChargeId: chargeId ?? undefined,
           });
 
+          recordEvent({
+            event: "payment_captured",
+            draftId,
+            paymentAttemptId: payment.id,
+            amountCents: payment.amountCents,
+          });
+
           if (rawOrderAccessToken) {
             // Enqueue payment receipt email with the order status link.
             // Fire-and-forget: a queue failure must not cause Stripe to retry the webhook.
@@ -141,6 +149,13 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
 
           await transitionPaymentState(db, payment.id, "failed", {
             failureReason: failureMessage,
+          });
+
+          recordEvent({
+            event: "payment_failed",
+            draftId,
+            paymentAttemptId: payment.id,
+            errorFamily: "payment_failure",
           });
           break;
         }
@@ -274,6 +289,18 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           currency: "CHF" as const,
         });
       }
+
+      recordEvent({
+        event: "checkout_started",
+        draftId,
+        deliveryType: draft.deliveryType,
+        priceCents: result.priceCents,
+      });
+      recordEvent({
+        event: "payment_intent_created",
+        draftId,
+        paymentAttemptId: result.paymentAttemptId,
+      });
 
       reply.send({
         paymentAttemptId: result.paymentAttemptId,

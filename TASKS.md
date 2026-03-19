@@ -57,7 +57,7 @@
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
-- [x] 481 unit tests passing (25 test files)
+- [x] 521 unit tests passing (28 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
@@ -91,11 +91,18 @@
 - [x] Email templates: full locale-keyed message catalogs for all 5 templates (de-CH, fr-CH, it-CH, en-CH)
 - [x] Stripe Elements: publishable key wired via NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY env var, full payment flow operational
 - [x] Confirmation page: payment status verification via Stripe redirect params + backend polling, dispatch status display, 4-step timeline, copy-to-clipboard reference, email notice, mobile sticky CTA
+- [x] Retention module tests (17 tests: cleanupExpiredSessions, cleanupDeletedFiles, findExpiredDraftContent, findExpiredRenderedPdfs)
+- [x] Scheduled retention cleanup via BullMQ repeatable job (hourly cron, registerScheduledJobs)
+- [x] Product analytics event taxonomy (backend: 23 events, frontend: 9 events — per analytics-and-observability.md §4)
+- [x] Analytics module with replaceable sink (backend: modules/analytics/index.ts, frontend: lib/analytics.ts)
+- [x] Backend route instrumentation (session_created, resume_link_opened, draft_created, review_reached, checkout_started, payment_intent_created, payment_captured, payment_failed, dispatch_submitted, order_status_viewed)
 
 ### Pending (not blocked):
 - [x] UX documentation audit findings resolved (all 12 findings verified — see `AUDIT_FINDINGS.md`)
 - [x] Security headers audit (Helmet + CSP in frontend + custom headers all verified)
 - [x] Unused `@fastify/csrf-protection` dependency removed (custom X-Requested-With validation used instead)
+- [x] Retention module unit tests + scheduled cleanup job
+- [x] Product analytics event taxonomy and instrumentation
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding
