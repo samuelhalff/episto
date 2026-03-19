@@ -113,6 +113,21 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
     },
   );
 
+  // ---- Request/Response logging ----
+
+  app.addHook("onResponse", (request, reply, done) => {
+    request.log.info(
+      {
+        method: request.method,
+        url: request.url,
+        statusCode: reply.statusCode,
+        durationMs: Math.round(reply.elapsedTime),
+      },
+      "request completed",
+    );
+    done();
+  });
+
   // ---- Routes ----
 
   await app.register(healthRoutes, { prefix: "/api" });

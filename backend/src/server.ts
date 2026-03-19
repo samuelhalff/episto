@@ -3,6 +3,7 @@ import { createLogger } from "./shared/logging/index.js";
 import { buildApp } from "./app.js";
 import { startWorkers, stopWorkers } from "./workers/index.js";
 import { closeAllQueues } from "./queue/index.js";
+import { closeDb } from "./db/index.js";
 
 async function main(): Promise<void> {
   loadEnv();
@@ -23,6 +24,7 @@ async function main(): Promise<void> {
     await app.close();
     await stopWorkers();
     await closeAllQueues();
+    await closeDb();
     process.exit(0);
   };
 

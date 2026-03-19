@@ -2,7 +2,10 @@
   "common": {
     "appName": "Swiss Mail",
     "loading": "Caricamento…",
-    "error": "Si è verificato un errore"
+    "error": "Si è verificato un errore",
+    "tryAgain": "Riprova",
+    "pageNotFound": "Pagina non trovata",
+    "backToHome": "Torna alla home"
   },
   "home": {
     "title": "Lettere formali, inviate con semplicità",

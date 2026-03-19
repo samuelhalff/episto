@@ -2,7 +2,10 @@
   "common": {
     "appName": "Swiss Mail",
     "loading": "Wird geladen…",
-    "error": "Ein Fehler ist aufgetreten"
+    "error": "Ein Fehler ist aufgetreten",
+    "tryAgain": "Erneut versuchen",
+    "pageNotFound": "Seite nicht gefunden",
+    "backToHome": "Zurück zur Startseite"
   },
   "home": {
     "title": "Formelle Briefe, einfach versendet",

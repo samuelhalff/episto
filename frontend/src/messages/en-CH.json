@@ -2,7 +2,10 @@
   "common": {
     "appName": "Swiss Mail",
     "loading": "Loading…",
-    "error": "An error occurred"
+    "error": "An error occurred",
+    "tryAgain": "Try again",
+    "pageNotFound": "Page not found",
+    "backToHome": "Back to home"
   },
   "home": {
     "title": "Formal letters, sent with ease",
