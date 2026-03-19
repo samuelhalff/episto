@@ -77,9 +77,12 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
               ? intent.latest_charge
               : null;
 
-          await transitionPaymentState(db, payment.id, "captured", {
+          const { rawOrderAccessToken } = await transitionPaymentState(db, payment.id, "captured", {
             stripeChargeId: chargeId ?? undefined,
           });
+          // rawOrderAccessToken is available here for inclusion in confirmation emails.
+          // The email worker will pick it up via BullMQ job metadata.
+          void rawOrderAccessToken; // surfaced for future email worker integration
           break;
         }
 

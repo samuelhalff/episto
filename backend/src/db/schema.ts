@@ -329,6 +329,10 @@ export const paymentAttempts = pgTable(
     breakdown: jsonb("breakdown").notNull(),
     failureReason: text("failure_reason"),
     refundReason: text("refund_reason"),
+    // Long-lived order access token (90-day TTL, distinct from the drafting session token).
+    // Generated on payment capture; used by GET /orders/:orderToken for status/PDF access.
+    orderAccessTokenHash: text("order_access_token_hash").unique(),
+    orderAccessTokenExpiresAt: ts("order_access_token_expires_at"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -336,6 +340,7 @@ export const paymentAttempts = pgTable(
     draftIdIdx: index("payment_attempts_draft_id_idx").on(t.draftId),
     sessionIdIdx: index("payment_attempts_session_id_idx").on(t.sessionId),
     stateIdx: index("payment_attempts_state_idx").on(t.state),
+    orderTokenIdx: index("payment_attempts_order_token_idx").on(t.orderAccessTokenHash),
   }),
 );
 
