@@ -103,13 +103,70 @@ export function useUpdateDraft(draftId: string) {
 export function useTransitionDraft(draftId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: { transition: string }) =>
+    mutationFn: (input: { status: string }) =>
       apiFetch<DraftLetter>(`/v1/drafts/${draftId}/transition`, {
         method: "POST",
         body: JSON.stringify(input),
       }),
     onSuccess: (data) => {
       queryClient.setQueryData(draftOptions(draftId).queryKey, data);
+    },
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Profiles
+// ---------------------------------------------------------------------------
+
+export function useSetSender(draftId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      firstName: string;
+      lastName: string;
+      addressLine1: string;
+      postalCode: string;
+      city: string;
+      country?: string | undefined;
+      companyName?: string | undefined;
+      addressLine2?: string | undefined;
+      email?: string | undefined;
+      phone?: string | undefined;
+    }) =>
+      apiFetch(`/v1/drafts/${draftId}/sender`, {
+        method: "PUT",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: draftOptions(draftId).queryKey,
+      });
+    },
+  });
+}
+
+export function useSetRecipient(draftId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: {
+      addressLine1: string;
+      postalCode: string;
+      city: string;
+      country?: string | undefined;
+      firstName?: string | undefined;
+      lastName?: string | undefined;
+      companyName?: string | undefined;
+      department?: string | undefined;
+      addressLine2?: string | undefined;
+    }) =>
+      apiFetch(`/v1/drafts/${draftId}/recipient`, {
+        method: "PUT",
+        body: JSON.stringify(input),
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: draftOptions(draftId).queryKey,
+      });
     },
   });
 }
@@ -183,12 +240,30 @@ export function useDeleteFile(draftId: string) {
 // Payments
 // ---------------------------------------------------------------------------
 
-export function useCreatePaymentIntent() {
+export function useCheckout(draftId: string) {
   return useMutation({
-    mutationFn: (input: { draftId: string; email: string }) =>
-      apiFetch<{ clientSecret: string }>("/v1/payments/create-intent", {
-        method: "POST",
-        body: JSON.stringify(input),
-      }),
+    mutationFn: (input: { email: string }) =>
+      apiFetch<{ clientSecret: string; paymentId: string }>(
+        `/v1/drafts/${draftId}/checkout`,
+        {
+          method: "POST",
+          body: JSON.stringify(input),
+        },
+      ),
   });
+}
+
+function paymentOptions(draftId: string) {
+  return queryOptions({
+    queryKey: ["drafts", draftId, "payment"] as const,
+    queryFn: () =>
+      apiFetch<{ payment: { state: string; priceCents: number | null } }>(
+        `/v1/drafts/${draftId}/payment`,
+      ),
+    staleTime: 10_000,
+  });
+}
+
+export function usePayment(draftId: string) {
+  return useQuery(paymentOptions(draftId));
 }
