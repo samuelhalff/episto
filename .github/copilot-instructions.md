@@ -1,6 +1,6 @@
 # Copilot Instructions for Swiss Mail
 
-Swiss Mail is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction. The repository has completed the documentation phase and has a prepared TypeScript foundation. Full feature implementation has not yet started.
+Swiss Mail is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction. The repository has completed both the documentation phase and the core feature implementation. The monorepo is operational with backend, frontend, and shared packages all substantially implemented.
 
 ## Documentation is the source of truth
 
@@ -16,10 +16,10 @@ Key files for implementation safety:
 
 ## Repository structure
 
-Monorepo with three top-level application directories (to be created):
+Monorepo with three top-level application directories:
 - `frontend/` — Next.js + TypeScript, Tailwind, shadcn/ui primitives
-- `backend/` — Node.js + TypeScript, modular monolith
-- `shared/` — canonical TypeScript schemas, enums, and types used by both sides
+- `backend/` — Node.js + TypeScript, modular monolith (Fastify, Drizzle ORM, BullMQ)
+- `shared/` — canonical TypeScript schemas, enums, state machines, query keys, and contracts used by both sides
 
 ## Stack decisions (locked)
 
