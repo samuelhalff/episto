@@ -3,6 +3,7 @@
 import { use, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useDraft, useCheckout } from "../../../../../hooks/use-api.js";
+import { usePricing, formatCentsAsCHF } from "../../../../../hooks/use-pricing.js";
 import { Link, useRouter } from "../../../../../i18n/navigation.js";
 import {
   CreditCard,
@@ -12,12 +13,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { DeliveryType } from "@swiss-mail/shared";
-
-// MVP locked prices (display only — real charge computed by backend)
-const DISPLAY_PRICES: Record<string, string> = {
-  standard: "4.90",
-  registered: "8.90",
-};
+import { PriceSummary } from "../../../../../components/product/PriceSummary.js";
 
 // ---------------------------------------------------------------------------
 // Checkout Page
@@ -35,6 +31,7 @@ export default function CheckoutPage({
 
   const draft = useDraft(draftId);
   const checkout = useCheckout(draftId);
+  const pricing = usePricing();
 
   const [email, setEmail] = useState("");
   const [legalConsent, setLegalConsent] = useState(false);
@@ -59,8 +56,13 @@ export default function CheckoutPage({
   }
 
   const d = draft.data;
-  const price =
-    DISPLAY_PRICES[d.deliveryType === DeliveryType.registered ? "registered" : "standard"] ?? "4.90";
+
+  const isRegistered = d.deliveryType === DeliveryType.registered;
+  const buttonPrice = pricing.data
+    ? isRegistered
+      ? pricing.data.registered.displayPrice
+      : pricing.data.standard.displayPrice
+    : formatCentsAsCHF(isRegistered ? 890 : 490);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -99,23 +101,10 @@ export default function CheckoutPage({
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Order summary */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">
-              {t("orderSummary")}
-            </h2>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-gray-600">
-                <span>{d.subject ?? t("defaultLetterTitle")}</span>
-                <span className="font-medium">CHF {price}</span>
-              </div>
-              <div className="border-t pt-2">
-                <div className="flex justify-between font-semibold text-gray-900">
-                  <span>{t("total")}</span>
-                  <span>CHF {price}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+          <PriceSummary
+            deliveryType={d.deliveryType}
+            subject={d.subject}
+          />
 
           {/* Email */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
@@ -178,7 +167,7 @@ export default function CheckoutPage({
             {isSubmitting ? (
               <Loader2 className="mx-auto h-5 w-5 animate-spin" />
             ) : (
-              `${t("sendMyLetter")} — CHF ${price}`
+              `${t("sendMyLetter")} — ${buttonPrice}`
             )}
           </button>
 

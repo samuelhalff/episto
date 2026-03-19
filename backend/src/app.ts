@@ -19,6 +19,7 @@ import { messageRoutes } from "./modules/messages/index.js";
 import { fileRoutes } from "./modules/files/index.js";
 import { adminRoutes } from "./modules/admin/index.js";
 import { orderRoutes } from "./modules/orders/index.js";
+import { pricingRoutes } from "./modules/pricing/pricing.routes.js";
 
 export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   const config = env();
@@ -167,6 +168,7 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   await app.register(orderRoutes, { prefix: "/api/v1" });
   await app.register(messageRoutes, { prefix: "/api/v1" });
   await app.register(adminRoutes, { prefix: "/api/v1" });
+  await app.register(pricingRoutes, { prefix: "/api/v1" });
 
   return app;
 }

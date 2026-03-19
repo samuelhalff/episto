@@ -29,10 +29,11 @@
 - [x] Rendering Module (snapshot service — Puppeteer templates pending)
 - [x] Tracking Module (adapter shell — provider API pending)
 - [x] Retention Module (cleanup service: sessions, files, drafts, PDFs)
-- [x] Admin Module (Basic Auth with timingSafeEqual, timeline, search, refund/reconcile stubs)
-- [x] Order Module (public token-authenticated status + PDF download stub)
+- [x] Admin Module (Basic Auth, timeline, search, refund via Stripe API, reconcile pending provider)
+- [x] Order Module (public token-authenticated status + PDF download via S3 presigned URL)
 - [x] Email Module (Resend adapter + BullMQ worker with 5 templates)
 - [x] Pricing Module (config-driven CHF pricing: 4.90 standard, 8.90 registered)
+- [x] Pricing API (GET /api/v1/pricing — public endpoint returning display prices)
 - [x] Queue Platform (BullMQ setup, 5 queue types, worker runner with graceful shutdown)
 - [x] All routes match `docs/05-architecture/api-contracts.md`
 
@@ -42,8 +43,8 @@
 - [x] Next.js App Router + i18n (4 Swiss locales)
 - [x] Tailwind + shadcn/ui primitives
 - [x] Draft Workspace (split-pane AI conversation + live letter preview)
-- [x] Review Page (completion checklist, delivery selector, pricing display)
-- [x] Checkout Page (order summary, pricing from config, Stripe Elements placeholder)
+- [x] Review Page (completion checklist, delivery selector, backend-driven pricing)
+- [x] Checkout Page (order summary, backend-driven pricing, Stripe Elements placeholder)
 - [x] Confirmation Page (success state + dispatch timeline)
 - [x] Resume Page (`/resume/:token` — validates and redirects to draft)
 - [x] Status Page (`/status/:orderToken` — order tracking display)
@@ -56,7 +57,7 @@
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
-- [x] 326 unit tests passing (18 test files)
+- [x] 337 unit tests passing (21 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
@@ -76,6 +77,11 @@
 - [x] AI chat integration (Azure OpenAI adapter, prompt pipeline, streaming)
 - [x] AI → SSE wiring (event bus, message handler, SSE relay)
 - [x] PDF rendering pipeline (Puppeteer HTML→PDF, A4 template, storage upload)
+- [x] Product component extraction (StepIndicator, ConversationPanel, LetterPreview, DeliverySelector, ChecklistItem, PriceSummary → components/product/)
+- [x] Centralized pricing via usePricing hook and backend /pricing endpoint
+- [x] PDF download endpoint (orders/:token/pdf via S3 presigned URL)
+- [x] Stripe refund implementation in admin endpoint
+- [x] Admin routes split for file-size compliance (admin.routes.ts + admin-actions.routes.ts)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding

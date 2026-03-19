@@ -4,6 +4,8 @@ import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
+import { getLatestSnapshot } from "../rendering/snapshot.service.js";
+import { getPresignedDownloadUrl } from "../files/adapters/s3.adapter.js";
 
 function ipKey(req: FastifyRequest): string {
   return req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ?? req.ip;
@@ -117,7 +119,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
         },
       },
     },
-    async (request, _reply) => {
+    async (request, reply) => {
       const db = getDb();
       const { orderToken } = request.params;
 
@@ -130,16 +132,54 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
 
       if (!session) throw notFoundError("order");
 
-      // PDF download requires rendered file in object storage — not yet implemented
-      throw new AppError({
-        family: "rendering_failure",
-        statusCode: 501,
-        code: "PDF_DOWNLOAD_NOT_IMPLEMENTED",
-        message:
-          "PDF download is not yet implemented. Rendering pipeline pending.",
-        userMessage: "PDF download is not available yet.",
-        userAction: "This feature is coming soon.",
-      });
+      const [draft] = await db
+        .select()
+        .from(schema.draftLetters)
+        .where(eq(schema.draftLetters.sessionId, session.id))
+        .limit(1);
+
+      if (!draft) throw notFoundError("order");
+
+      // Find the latest snapshot with a rendered PDF
+      const snapshot = await getLatestSnapshot(db, draft.id);
+      if (!snapshot?.renderedPdfAssetId) {
+        throw new AppError({
+          family: "rendering_failure",
+          statusCode: 404,
+          code: "PDF_NOT_READY",
+          message: "No rendered PDF is available for this order yet.",
+          userMessage: "Your letter PDF is not ready yet.",
+          userAction: "Please try again in a few moments.",
+        });
+      }
+
+      // Look up the file asset to get the storage key
+      const [pdfAsset] = await db
+        .select({
+          storageKey: schema.fileAssets.storageKey,
+          status: schema.fileAssets.status,
+        })
+        .from(schema.fileAssets)
+        .where(eq(schema.fileAssets.id, snapshot.renderedPdfAssetId))
+        .limit(1);
+
+      if (!pdfAsset || pdfAsset.status !== "active") {
+        throw new AppError({
+          family: "rendering_failure",
+          statusCode: 410,
+          code: "PDF_EXPIRED",
+          message: "The rendered PDF has been deleted per retention policy.",
+          userMessage: "This PDF is no longer available.",
+          userAction: "PDFs are retained for a limited time after dispatch.",
+        });
+      }
+
+      const downloadUrl = await getPresignedDownloadUrl(
+        pdfAsset.storageKey,
+        300,
+      );
+
+      reply.redirect(downloadUrl);
     },
   );
 }
