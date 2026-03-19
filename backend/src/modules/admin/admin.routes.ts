@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { eq, desc, or, ilike, sql } from "drizzle-orm";
+import { timingSafeEqual } from "node:crypto";
 import { getDb, schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
 import { AppError } from "../../shared/errors/index.js";
@@ -46,10 +47,20 @@ async function requireAdmin(
   const password = decoded.slice(colon + 1);
   const config = env();
 
-  if (
-    username !== config.ADMIN_USERNAME ||
-    password !== config.ADMIN_PASSWORD
-  ) {
+  // Constant-time comparison to prevent timing attacks
+  const expectedUser = Buffer.from(config.ADMIN_USERNAME);
+  const expectedPass = Buffer.from(config.ADMIN_PASSWORD);
+  const givenUser = Buffer.from(username);
+  const givenPass = Buffer.from(password);
+
+  const userMatch =
+    expectedUser.length === givenUser.length &&
+    timingSafeEqual(expectedUser, givenUser);
+  const passMatch =
+    expectedPass.length === givenPass.length &&
+    timingSafeEqual(expectedPass, givenPass);
+
+  if (!userMatch || !passMatch) {
     throw new AppError({
       family: "validation_error",
       statusCode: 403,

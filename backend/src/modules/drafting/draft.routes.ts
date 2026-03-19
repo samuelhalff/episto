@@ -14,12 +14,28 @@ import {
   createRecipientProfile,
   listRecipientProfiles,
 } from "./profile.service.js";
-import { notFoundError } from "../../shared/errors/index.js";
+import { notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   UpdateDraftInput,
   CreateSenderProfileInput,
   CreateRecipientProfileInput,
+  DraftStatus,
 } from "@swiss-mail/shared";
+
+import { z } from "zod";
+
+const TransitionBody = z.object({
+  status: z.enum([
+    DraftStatus.collecting,
+    DraftStatus.fields_complete,
+    DraftStatus.reviewed,
+    DraftStatus.rendering,
+    DraftStatus.ready,
+    DraftStatus.submitted,
+    DraftStatus.dispatched,
+    DraftStatus.closed,
+  ]),
+});
 
 export async function draftRoutes(app: FastifyInstance): Promise<void> {
   // All draft routes require an active session
@@ -85,14 +101,13 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     async (
       request: FastifyRequest<{
         Params: { draftId: string };
-        Body: { status: string };
       }>,
       reply: FastifyReply,
     ) => {
       const session = request.session!;
       const db = getDb();
       const { draftId } = request.params;
-      const { status } = request.body as { status: string };
+      const { status } = TransitionBody.parse(request.body);
 
       const draft = await transitionDraftStatus(db, draftId, session.id, status);
       reply.send({ draft });
