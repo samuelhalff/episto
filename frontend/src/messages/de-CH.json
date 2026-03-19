@@ -43,7 +43,8 @@
       "terms": "AGB",
       "imprint": "Impressum",
       "copyright": "© 2025 Swiss Mail. Alle Rechte vorbehalten."
-    }
+    },
+    "appName": "Swiss Mail"
   },
   "howItWorks": {
     "title": "So funktioniert Swiss Mail",
@@ -146,7 +147,10 @@
     "sendMyLetter": "Brief absenden",
     "securedByStripe": "Gesichert durch Stripe",
     "swissDelivery": "Versand über die Schweizerische Post",
-    "dataProtection": "Verschlüsselt und sicher gespeichert"
+    "dataProtection": "Verschlüsselt und sicher gespeichert",
+    "defaultLetterTitle": "Brief",
+    "total": "Total",
+    "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend"
   },
   "confirmation": {
     "title": "Zahlung erhalten",

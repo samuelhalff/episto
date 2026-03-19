@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 
 export function Header() {
   const t = useTranslations("marketing");
+  const tc = useTranslations("common");
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -14,7 +15,7 @@ export function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link href="/" className="text-xl font-bold tracking-tight text-navy">
-          Swiss Mail
+          {tc("appName")}
         </Link>
 
         {/* Desktop nav */}

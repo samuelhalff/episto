@@ -2,7 +2,7 @@
 
 import { use, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useDraft } from "../../../../../hooks/use-api.js";
+import { useDraft, useCheckout } from "../../../../../hooks/use-api.js";
 import { Link, useRouter } from "../../../../../i18n/navigation.js";
 import {
   CreditCard,
@@ -12,6 +12,12 @@ import {
   Loader2,
 } from "lucide-react";
 import { DeliveryType } from "@swiss-mail/shared";
+
+// MVP locked prices (display only — real charge computed by backend)
+const DISPLAY_PRICES: Record<string, string> = {
+  standard: "4.90",
+  registered: "8.90",
+};
 
 // ---------------------------------------------------------------------------
 // Checkout Page
@@ -28,12 +34,13 @@ export default function CheckoutPage({
   const router = useRouter();
 
   const draft = useDraft(draftId);
+  const checkout = useCheckout(draftId);
 
   const [email, setEmail] = useState("");
   const [legalConsent, setLegalConsent] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isFormValid = email.includes("@") && legalConsent;
+  const isSubmitting = checkout.isPending;
 
   if (draft.isLoading) {
     return (
@@ -53,17 +60,26 @@ export default function CheckoutPage({
 
   const d = draft.data;
   const price =
-    d.deliveryType === DeliveryType.registered ? "7.90" : "2.90";
+    DISPLAY_PRICES[d.deliveryType === DeliveryType.registered ? "registered" : "standard"] ?? "4.90";
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!isFormValid) return;
-    setIsSubmitting(true);
-    // Placeholder: real flow would create PaymentIntent, confirm via Stripe,
-    // then redirect on success
-    setTimeout(() => {
-      router.push(`/draft/${draftId}/confirmation`);
-    }, 1500);
+    if (!isFormValid || isSubmitting) return;
+
+    checkout.mutate(
+      { email },
+      {
+        onSuccess: (data) => {
+          if (data.clientSecret) {
+            // Stripe Elements integration pending — for now, redirect to confirmation
+            router.push(`/draft/${draftId}/confirmation`);
+          } else {
+            // Existing payment — redirect directly
+            router.push(`/draft/${draftId}/confirmation`);
+          }
+        },
+      },
+    );
   }
 
   return (
@@ -89,12 +105,12 @@ export default function CheckoutPage({
             </h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-gray-600">
-                <span>{d.subject ?? "Letter"}</span>
+                <span>{d.subject ?? t("defaultLetterTitle")}</span>
                 <span className="font-medium">CHF {price}</span>
               </div>
               <div className="border-t pt-2">
                 <div className="flex justify-between font-semibold text-gray-900">
-                  <span>Total</span>
+                  <span>{t("total")}</span>
                   <span>CHF {price}</span>
                 </div>
               </div>
@@ -121,7 +137,7 @@ export default function CheckoutPage({
             />
           </div>
 
-          {/* Payment (placeholder) */}
+          {/* Payment (placeholder until Stripe Elements integration) */}
           <div className="rounded-lg border border-gray-200 bg-white p-6">
             <h2 className="mb-3 text-sm font-semibold text-gray-900">
               {t("paymentMethod")}
@@ -131,7 +147,7 @@ export default function CheckoutPage({
                 <CreditCard className="mx-auto mb-2 h-8 w-8 text-gray-300" />
                 <p>{t("paymentPending")}</p>
                 <p className="mt-1 text-xs">
-                  Stripe integration pending
+                  {t("stripeIntegrationPending")}
                 </p>
               </div>
             </div>
@@ -147,6 +163,11 @@ export default function CheckoutPage({
             />
             <span className="text-gray-600">{t("legalConsent")}</span>
           </label>
+
+          {/* Error message */}
+          {checkout.error && (
+            <p className="text-sm text-red-600">{tc("error")}</p>
+          )}
 
           {/* Submit */}
           <button
