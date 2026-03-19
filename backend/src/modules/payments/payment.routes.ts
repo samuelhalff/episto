@@ -231,7 +231,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      reply.status(201).send({
+      reply.send({
         paymentAttemptId: result.paymentAttemptId,
         clientSecret: result.clientSecret,
         priceCents: result.priceCents,

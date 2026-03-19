@@ -353,23 +353,68 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
 
-      // Return the full draft content needed for preview rendering
+      // Fetch sender profile if set
+      let sender = null;
+      if (draft.senderProfileId) {
+        const [s] = await db
+          .select()
+          .from(schema.senderProfiles)
+          .where(eq(schema.senderProfiles.id, draft.senderProfileId))
+          .limit(1);
+        if (s) sender = s;
+      }
+
+      // Fetch recipient profile if set
+      let recipient = null;
+      if (draft.recipientProfileId) {
+        const [r] = await db
+          .select()
+          .from(schema.recipientProfiles)
+          .where(eq(schema.recipientProfiles.id, draft.recipientProfileId))
+          .limit(1);
+        if (r) recipient = r;
+      }
+
+      // Fetch latest snapshot ID
+      const [latestSnapshot] = await db
+        .select({ id: schema.draftSnapshots.id })
+        .from(schema.draftSnapshots)
+        .where(eq(schema.draftSnapshots.draftId, draftId))
+        .orderBy(desc(schema.draftSnapshots.createdAt))
+        .limit(1);
+
+      // Count attachments
+      const [attachmentCountResult] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(schema.fileAssets)
+        .where(
+          and(
+            eq(schema.fileAssets.draftId, draftId),
+            eq(schema.fileAssets.kind, "attachment"),
+            eq(schema.fileAssets.status, "active"),
+          ),
+        );
+
+      // Calculate price if delivery type is known
+      const deliveryType = draft.deliveryType as "standard" | "registered";
+      const price = calculatePrice(deliveryType);
+
       reply.send({
         preview: {
-          id: draft.id,
-          status: draft.status,
+          draftId: draft.id,
+          snapshotId: latestSnapshot?.id ?? null,
           locale: draft.locale,
           deliveryType: draft.deliveryType,
           subject: draft.subject,
           body: draft.body,
-          tone: draft.tone,
-          intent: draft.intent,
           enclosureNote: draft.enclosureNote,
+          sender,
+          recipient,
           signatureMode: draft.signatureMode,
-          senderProfileId: draft.senderProfileId,
-          recipientProfileId: draft.recipientProfileId,
-          signatureAssetId: draft.signatureAssetId,
-          estimatedPages: draft.estimatedPages,
+          signatureFileId: draft.signatureAssetId ?? null,
+          attachmentCount: attachmentCountResult?.count ?? 0,
+          priceCents: price.totalCents,
+          updatedAt: draft.updatedAt.toISOString(),
         },
       });
     },
