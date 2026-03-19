@@ -89,6 +89,7 @@ function DetailStep({
   title: string;
   description: string;
 }) {
+  const t = useTranslations("howItWorks");
   return (
     <div className="flex gap-6">
       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-50">
@@ -96,7 +97,7 @@ function DetailStep({
       </div>
       <div>
         <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-          Step {number}
+          {t("stepLabel", { number })}
         </span>
         <h3 className="mt-1 text-lg font-semibold text-navy">{title}</h3>
         <p className="mt-2 leading-relaxed text-gray-500">{description}</p>

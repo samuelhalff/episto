@@ -98,23 +98,24 @@ function DeliverySelector({
 // ---------------------------------------------------------------------------
 
 function ReadOnlyLetterPreview({ draft }: { draft: DraftLetter }) {
+  const td = useTranslations("draft");
   return (
     <div className="mx-auto w-full max-w-[595px]">
       <div className="rounded-lg border border-gray-200 bg-white p-10 shadow-sm">
         <div className="min-h-[500px] space-y-6 text-sm text-gray-700">
           <div className="text-xs text-gray-400">
             {draft.senderProfileId ? (
-              <span className="text-gray-600">&#x2709; Sender</span>
+              <span className="text-gray-600">&#x2709; {td("senderLabel")}</span>
             ) : (
-              <span className="italic">Sender address…</span>
+              <span className="italic">{td("senderPlaceholder")}</span>
             )}
           </div>
 
           <div className="text-gray-400">
             {draft.recipientProfileId ? (
-              <span className="text-gray-600">Recipient</span>
+              <span className="text-gray-600">{td("recipientLabel")}</span>
             ) : (
-              <span className="italic">Recipient address…</span>
+              <span className="italic">{td("recipientPlaceholder")}</span>
             )}
           </div>
 

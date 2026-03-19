@@ -174,6 +174,7 @@ function ConversationPanel({
 // ---------------------------------------------------------------------------
 
 function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
+  const t = useTranslations("draft");
 
   if (!draft) {
     return (
@@ -191,18 +192,18 @@ function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
           {/* Sender placeholder */}
           <div className="text-xs text-gray-400">
             {draft.senderProfileId ? (
-              <span className="text-gray-600">&#x2709; Sender</span>
+              <span className="text-gray-600">&#x2709; {t("senderLabel")}</span>
             ) : (
-              <span className="italic">Sender address…</span>
+              <span className="italic">{t("senderPlaceholder")}</span>
             )}
           </div>
 
           {/* Recipient placeholder */}
           <div className="mt-6 text-gray-400">
             {draft.recipientProfileId ? (
-              <span className="text-gray-600">Recipient</span>
+              <span className="text-gray-600">{t("recipientLabel")}</span>
             ) : (
-              <span className="italic">Recipient address…</span>
+              <span className="italic">{t("recipientPlaceholder")}</span>
             )}
           </div>
 
@@ -219,7 +220,7 @@ function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
           <div className="font-semibold text-gray-900">
             {draft.subject ?? (
               <span className="font-normal italic text-gray-400">
-                Subject…
+                {t("subjectPlaceholder")}
               </span>
             )}
           </div>
@@ -228,7 +229,7 @@ function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
           <div className="whitespace-pre-wrap leading-relaxed">
             {draft.body ?? (
               <span className="italic text-gray-400">
-                Letter body…
+                {t("bodyPlaceholder")}
               </span>
             )}
           </div>
@@ -236,7 +237,7 @@ function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
           {/* Closing */}
           {draft.signatureMode && (
             <div className="pt-6 text-gray-500">
-              <span className="italic">Signature</span>
+              <span className="italic">{t("signatureLabel")}</span>
             </div>
           )}
         </div>

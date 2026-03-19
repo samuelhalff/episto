@@ -1,14 +1,27 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
 
+function ipKey(req: FastifyRequest): string {
+  return req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ?? req.ip;
+}
+
 export async function orderRoutes(app: FastifyInstance): Promise<void> {
   // GET /orders/:orderToken — public order status (token-authenticated)
   app.get<{ Params: { orderToken: string } }>(
     "/orders/:orderToken",
+    {
+      config: {
+        rateLimit: {
+          max: 30,
+          timeWindow: "1 minute",
+          keyGenerator: ipKey,
+        },
+      },
+    },
     async (request, reply) => {
       const db = getDb();
       const { orderToken } = request.params;
@@ -51,7 +64,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
           .select({
             firstName: schema.recipientProfiles.firstName,
             lastName: schema.recipientProfiles.lastName,
-            companyName: schema.recipientProfiles.companyName,
+            company: schema.recipientProfiles.company,
           })
           .from(schema.recipientProfiles)
           .where(eq(schema.recipientProfiles.id, draft.recipientProfileId))
@@ -59,7 +72,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
         if (recipient) {
           recipientName = [recipient.firstName, recipient.lastName]
             .filter(Boolean)
-            .join(" ") || recipient.companyName || "";
+            .join(" ") || recipient.company || "";
         }
       }
 
@@ -95,6 +108,15 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
   // GET /orders/:orderToken/pdf — download final rendered PDF
   app.get<{ Params: { orderToken: string } }>(
     "/orders/:orderToken/pdf",
+    {
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: "1 hour",
+          keyGenerator: ipKey,
+        },
+      },
+    },
     async (request, _reply) => {
       const db = getDb();
       const { orderToken } = request.params;

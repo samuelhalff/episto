@@ -132,7 +132,16 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
   // ---- POST /drafts/:draftId/checkout (session required) ----
   app.post<{ Params: { draftId: string } }>(
     "/drafts/:draftId/checkout",
-    { preHandler: [requireSession] },
+    {
+      preHandler: [requireSession],
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: "1 hour",
+          keyGenerator: (req: FastifyRequest) => req.session!.id,
+        },
+      },
+    },
     async (request, reply) => {
       const session = request.session!;
       const db = getDb();

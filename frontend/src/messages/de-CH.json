@@ -52,6 +52,7 @@
   "howItWorks": {
     "title": "So funktioniert Swiss Mail",
     "subtitle": "Drei einfache Schritte, um einen professionellen Brief zu versenden.",
+    "stepLabel": "Schritt {number}",
     "step1Detail": "Teilen Sie uns mit, welche Art von Brief Sie benötigen. Unser KI-Assistent stellt die richtigen Fragen und verfasst einen formellen Brief im korrekten Schweizer Format.",
     "step2Detail": "Überprüfen Sie jeden Abschnitt Ihres Briefes. Bearbeiten Sie Absender, Empfänger, Inhalt und Beilagen. Fügen Sie bei Bedarf Ihre Unterschrift hinzu.",
     "step3Detail": "Wählen Sie Standard- oder Einschreibeversand. Bezahlen Sie sicher mit Karte oder TWINT. Wir drucken Ihren Brief auf Qualitätspapier und übergeben ihn der Schweizerischen Post.",
@@ -121,7 +122,14 @@
     "stepDraft": "Entwurf",
     "stepReview": "Prüfen",
     "stepPay": "Bezahlen",
-    "stepDone": "Fertig"
+    "stepDone": "Fertig",
+    "senderLabel": "Absender",
+    "senderPlaceholder": "Absenderadresse…",
+    "recipientLabel": "Empfänger",
+    "recipientPlaceholder": "Empfängeradresse…",
+    "subjectPlaceholder": "Betreff…",
+    "bodyPlaceholder": "Briefinhalt…",
+    "signatureLabel": "Unterschrift"
   },
   "review": {
     "title": "Brief überprüfen",

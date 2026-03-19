@@ -52,6 +52,7 @@
   "howItWorks": {
     "title": "Comment fonctionne Swiss Mail",
     "subtitle": "Trois étapes simples pour envoyer une lettre professionnelle.",
+    "stepLabel": "Étape {number}",
     "step1Detail": "Dites-nous quel type de lettre vous avez besoin. Notre assistant IA pose les bonnes questions et rédige une lettre formelle au format suisse correct.",
     "step2Detail": "Vérifiez chaque section de votre lettre. Modifiez l'expéditeur, le destinataire, le contenu et les pièces jointes. Ajoutez votre signature si nécessaire.",
     "step3Detail": "Choisissez l'envoi standard ou recommandé. Payez en toute sécurité par carte ou TWINT. Nous imprimons votre lettre sur du papier de qualité et la remettons à la Poste Suisse.",
@@ -121,7 +122,14 @@
     "stepDraft": "Brouillon",
     "stepReview": "Vérifier",
     "stepPay": "Payer",
-    "stepDone": "Terminé"
+    "stepDone": "Terminé",
+    "senderLabel": "Expéditeur",
+    "senderPlaceholder": "Adresse de l'expéditeur…",
+    "recipientLabel": "Destinataire",
+    "recipientPlaceholder": "Adresse du destinataire…",
+    "subjectPlaceholder": "Objet…",
+    "bodyPlaceholder": "Corps de la lettre…",
+    "signatureLabel": "Signature"
   },
   "review": {
     "title": "Vérifier votre lettre",

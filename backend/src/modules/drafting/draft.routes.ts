@@ -13,7 +13,9 @@ import {
   createSenderProfile,
   createRecipientProfile,
 } from "./profile.service.js";
-import { notFoundError } from "../../shared/errors/index.js";
+import { createSnapshot } from "../rendering/snapshot.service.js";
+import { calculatePrice } from "../pricing/index.js";
+import { notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   UpdateDraftInput,
   CreateSenderProfileInput,
@@ -41,7 +43,15 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
   app.addHook("preHandler", requireSession);
 
   // POST /drafts — create a new draft
-  app.post("/drafts", async (request: FastifyRequest, reply: FastifyReply) => {
+  app.post("/drafts", {
+    config: {
+      rateLimit: {
+        max: 20,
+        timeWindow: "1 day",
+        keyGenerator: (req: FastifyRequest) => req.session!.id,
+      },
+    },
+  }, async (request: FastifyRequest, reply: FastifyReply) => {
     const session = request.session!;
     const db = getDb();
 
@@ -198,6 +208,15 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
   // POST /drafts/:draftId/review — create immutable snapshot and advance to reviewed
   app.post(
     "/drafts/:draftId/review",
+    {
+      config: {
+        rateLimit: {
+          max: 30,
+          timeWindow: "1 hour",
+          keyGenerator: (req: FastifyRequest) => req.session!.id,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Params: { draftId: string } }>,
       reply: FastifyReply,
@@ -210,15 +229,113 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
 
-      // Transition to reviewed (validates current state allows this)
-      const updated = await transitionDraftStatus(
-        db,
-        draftId,
-        session.id,
-        "reviewed",
-      );
+      // Validate required fields for review
+      const missingFields: { field: string; message: string }[] = [];
+      if (!draft.subject) missingFields.push({ field: "subject", message: "Subject is required" });
+      if (!draft.body) missingFields.push({ field: "body", message: "Body is required" });
+      if (!draft.signatureMode) missingFields.push({ field: "signatureMode", message: "Signature mode is required" });
+      if (!draft.senderProfileId) missingFields.push({ field: "sender", message: "Sender profile is required" });
+      if (!draft.recipientProfileId) missingFields.push({ field: "recipient", message: "Recipient profile is required" });
+      if (missingFields.length > 0) {
+        throw validationError("Required fields missing for review", missingFields);
+      }
 
-      reply.send({ draft: updated });
+      // Fetch sender profile
+      const [sender] = await db
+        .select()
+        .from(schema.senderProfiles)
+        .where(eq(schema.senderProfiles.id, draft.senderProfileId!))
+        .limit(1);
+      if (!sender) throw validationError("Sender profile not found", [{ field: "sender", message: "Sender profile not found" }]);
+
+      // Fetch recipient profile
+      const [recipient] = await db
+        .select()
+        .from(schema.recipientProfiles)
+        .where(eq(schema.recipientProfiles.id, draft.recipientProfileId!))
+        .limit(1);
+      if (!recipient) throw validationError("Recipient profile not found", [{ field: "recipient", message: "Recipient profile not found" }]);
+
+      // Fetch file assets (attachments + signature)
+      const files = await db
+        .select()
+        .from(schema.fileAssets)
+        .where(
+          and(
+            eq(schema.fileAssets.draftId, draftId),
+            eq(schema.fileAssets.sessionId, session.id),
+            eq(schema.fileAssets.status, "active"),
+          ),
+        );
+      const attachmentFileIds = files.filter((f) => f.kind === "attachment").map((f) => f.id);
+      const signatureFile = files.find((f) => f.kind === "signature");
+
+      // Calculate locked price
+      const deliveryType = draft.deliveryType as "standard" | "registered";
+      const price = calculatePrice(deliveryType);
+
+      // Build snapshot data
+      const snapshotData = {
+        schemaVersion: draft.schemaVersion,
+        locale: draft.locale,
+        deliveryType: draft.deliveryType,
+        subject: draft.subject,
+        body: draft.body,
+        enclosureNote: draft.enclosureNote,
+        signatureMode: draft.signatureMode,
+        tone: draft.tone,
+        intent: draft.intent,
+        sender: {
+          firstName: sender.firstName,
+          lastName: sender.lastName,
+          company: sender.company ?? null,
+          addressLine1: sender.addressLine1,
+          addressLine2: sender.addressLine2 ?? null,
+          postalCode: sender.postalCode,
+          city: sender.city,
+          country: sender.country,
+        },
+        recipient: {
+          firstName: recipient.firstName ?? null,
+          lastName: recipient.lastName ?? null,
+          company: recipient.company ?? null,
+          department: recipient.department ?? null,
+          addressLine1: recipient.addressLine1,
+          addressLine2: recipient.addressLine2 ?? null,
+          postalCode: recipient.postalCode,
+          city: recipient.city,
+          country: recipient.country,
+        },
+        attachmentAssetIds: attachmentFileIds,
+        signatureAssetId: signatureFile?.id ?? null,
+        metadata: draft.metadata as Record<string, unknown> | null,
+      };
+
+      // Create immutable snapshot
+      const snapshot = await createSnapshot(db, draftId, snapshotData);
+
+      // Transition to reviewed (validates current state allows this)
+      await transitionDraftStatus(db, draftId, session.id, "reviewed");
+
+      reply.status(201).send({
+        snapshot: {
+          id: snapshot.id,
+          draftId: snapshot.draftId,
+          schemaVersion: snapshotData.schemaVersion,
+          locale: snapshotData.locale,
+          deliveryType: snapshotData.deliveryType,
+          subject: snapshotData.subject,
+          body: snapshotData.body,
+          enclosureNote: snapshotData.enclosureNote,
+          signatureMode: snapshotData.signatureMode,
+          sender: snapshotData.sender,
+          recipient: snapshotData.recipient,
+          attachmentFileIds,
+          signatureFileId: signatureFile?.id ?? null,
+          priceCents: price.totalCents,
+          createdAt: snapshot.createdAt.toISOString(),
+        },
+      });
     },
   );
 

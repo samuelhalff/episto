@@ -17,7 +17,7 @@ import {
 export async function adminRoutes(app: FastifyInstance): Promise<void> {
   app.addHook("preHandler", requireAdmin);
 
-  // GET /admin/drafts/:id/timeline — full event timeline for a draft
+  // GET /admin/drafts/:id/timeline — full ordered event timeline for a draft
   app.get<{ Params: { id: string } }>(
     "/admin/drafts/:id/timeline",
     async (request, reply) => {
@@ -35,31 +35,83 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         return;
       }
 
+      // Collect all event sources into a unified timeline
+      interface TimelineEvent {
+        id: string;
+        eventType: string;
+        from: string | null;
+        to: string | null;
+        actor: "system" | "user" | "admin" | "webhook" | "provider";
+        meta: Record<string, unknown> | null;
+        occurredAt: string;
+      }
+      const events: TimelineEvent[] = [];
+
+      // Support events
       const supportEvents = await listSupportEventsForDraft(db, id);
+      for (const se of supportEvents) {
+        events.push({
+          id: se.id,
+          eventType: `support_${se.eventType}`,
+          from: null,
+          to: null,
+          actor: "admin",
+          meta: (se.details as Record<string, unknown>) ?? null,
+          occurredAt: se.createdAt.toISOString(),
+        });
+      }
 
-      const dispatchEvents = await db
+      // Dispatch status events
+      const dispatchAttempts = await db
         .select()
-        .from(schema.dispatchStatusEvents)
-        .where(eq(schema.dispatchStatusEvents.dispatchAttemptId, id))
-        .orderBy(desc(schema.dispatchStatusEvents.createdAt));
+        .from(schema.dispatchAttempts)
+        .where(eq(schema.dispatchAttempts.draftId, id));
 
+      for (const da of dispatchAttempts) {
+        const dse = await db
+          .select()
+          .from(schema.dispatchStatusEvents)
+          .where(eq(schema.dispatchStatusEvents.dispatchAttemptId, da.id))
+          .orderBy(desc(schema.dispatchStatusEvents.createdAt));
+
+        for (const evt of dse) {
+          events.push({
+            id: evt.id,
+            eventType: "dispatch_state_changed",
+            from: evt.previousState,
+            to: evt.newState,
+            actor: "system",
+            meta: { dispatchAttemptId: da.id, providerName: da.providerName },
+            occurredAt: evt.createdAt.toISOString(),
+          });
+        }
+      }
+
+      // Payment events (each payment attempt represents a state change)
       const payments = await db
         .select()
         .from(schema.paymentAttempts)
         .where(eq(schema.paymentAttempts.draftId, id))
         .orderBy(desc(schema.paymentAttempts.createdAt));
 
+      for (const p of payments) {
+        events.push({
+          id: p.id,
+          eventType: "payment_state_changed",
+          from: null,
+          to: p.state,
+          actor: "system",
+          meta: { amountCents: p.amountCents, stripePaymentIntentId: p.stripePaymentIntentId },
+          occurredAt: (p.updatedAt ?? p.createdAt).toISOString(),
+        });
+      }
+
+      // Sort all events by occurredAt ascending
+      events.sort((a, b) => a.occurredAt.localeCompare(b.occurredAt));
+
       reply.send({
-        draft: {
-          id: draft.id,
-          status: draft.status,
-          sessionId: draft.sessionId,
-          createdAt: draft.createdAt,
-          updatedAt: draft.updatedAt,
-        },
-        payments,
-        dispatchEvents,
-        supportEvents,
+        draftId: id,
+        events,
       });
     },
   );
@@ -160,19 +212,31 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   );
 
   // GET /admin/search?q=... — search sessions/drafts by email or ID
-  app.get<{ Querystring: { q?: string } }>(
+  app.get<{ Querystring: { q?: string; limit?: string; cursor?: string } }>(
     "/admin/search",
     async (request, reply) => {
       const db = getDb();
-      const q = (request.query as { q?: string }).q?.trim();
+      const query = request.query as { q?: string; limit?: string; cursor?: string };
+      const q = query.q?.trim();
+      const limit = Math.min(Math.max(parseInt(query.limit ?? "20", 10) || 20, 1), 50);
 
-      if (!q || q.length < 3) {
-        reply.status(400).send({ error: "Query must be at least 3 characters." });
+      if (!q || q.length < 1) {
+        reply.status(400).send({ error: "Query must be at least 1 character." });
         return;
       }
 
+      interface SearchResultItem {
+        kind: "draft" | "session" | "payment_attempt" | "dispatch_attempt";
+        id: string;
+        label: string;
+        matchedOn: string;
+        createdAt: string;
+      }
+      const data: SearchResultItem[] = [];
+
       const pattern = `%${q}%`;
 
+      // Search sessions by email or ID
       const sessions = await db
         .select({
           id: schema.sessions.id,
@@ -187,8 +251,19 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
             eq(schema.sessions.id, q),
           ),
         )
-        .limit(20);
+        .limit(limit);
 
+      for (const s of sessions) {
+        data.push({
+          kind: "session",
+          id: s.id,
+          label: s.email ?? `Session ${s.id.slice(0, 8)}`,
+          matchedOn: s.id === q ? "id" : "email",
+          createdAt: s.createdAt.toISOString(),
+        });
+      }
+
+      // Search drafts by ID
       const drafts = await db
         .select({
           id: schema.draftLetters.id,
@@ -198,9 +273,84 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         })
         .from(schema.draftLetters)
         .where(eq(schema.draftLetters.id, q))
-        .limit(5);
+        .limit(limit);
 
-      reply.send({ sessions, drafts });
+      for (const d of drafts) {
+        data.push({
+          kind: "draft",
+          id: d.id,
+          label: `Draft ${d.id.slice(0, 8)} (${d.status})`,
+          matchedOn: "id",
+          createdAt: d.createdAt.toISOString(),
+        });
+      }
+
+      // Search payment attempts by stripe ID or draft ID
+      const payments = await db
+        .select({
+          id: schema.paymentAttempts.id,
+          draftId: schema.paymentAttempts.draftId,
+          state: schema.paymentAttempts.state,
+          stripePaymentIntentId: schema.paymentAttempts.stripePaymentIntentId,
+          createdAt: schema.paymentAttempts.createdAt,
+        })
+        .from(schema.paymentAttempts)
+        .where(
+          or(
+            eq(schema.paymentAttempts.id, q),
+            eq(schema.paymentAttempts.stripePaymentIntentId, q),
+          ),
+        )
+        .limit(limit);
+
+      for (const p of payments) {
+        data.push({
+          kind: "payment_attempt",
+          id: p.id,
+          label: `Payment ${p.id.slice(0, 8)} (${p.state})`,
+          matchedOn: p.id === q ? "id" : "stripePaymentIntentId",
+          createdAt: p.createdAt.toISOString(),
+        });
+      }
+
+      // Search dispatch attempts by provider reference
+      const dispatches = await db
+        .select({
+          id: schema.dispatchAttempts.id,
+          draftId: schema.dispatchAttempts.draftId,
+          state: schema.dispatchAttempts.state,
+          providerReference: schema.dispatchAttempts.providerReference,
+          createdAt: schema.dispatchAttempts.createdAt,
+        })
+        .from(schema.dispatchAttempts)
+        .where(
+          or(
+            eq(schema.dispatchAttempts.id, q),
+            eq(schema.dispatchAttempts.providerReference, q),
+          ),
+        )
+        .limit(limit);
+
+      for (const d of dispatches) {
+        data.push({
+          kind: "dispatch_attempt",
+          id: d.id,
+          label: `Dispatch ${d.id.slice(0, 8)} (${d.state})`,
+          matchedOn: d.id === q ? "id" : "providerReference",
+          createdAt: d.createdAt.toISOString(),
+        });
+      }
+
+      // Sort by createdAt descending
+      data.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+      // Truncate to limit
+      const truncated = data.slice(0, limit);
+
+      reply.send({
+        data: truncated,
+        hasMore: data.length > limit,
+      });
     },
   );
 
