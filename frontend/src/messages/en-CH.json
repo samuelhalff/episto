@@ -131,7 +131,15 @@
     "bodyPlaceholder": "Letter body…",
     "signatureLabel": "Signature",
     "startDictation": "Start dictation",
-    "stopDictation": "Stop dictation"
+    "stopDictation": "Stop dictation",
+    "voicePrimary": "Speak your letter",
+    "voicePrimaryHint": "Just talk — we'll transcribe it for you",
+    "typePrimary": "Type instead",
+    "typePrimaryHint": "Prefer the keyboard? No problem",
+    "switchToKeyboard": "Switch to keyboard",
+    "switchToVoice": "Switch to voice",
+    "inputPrompt": "Tell us what you need — speak or type",
+    "dictationError": "Voice input unavailable. Please try again or type instead."
   },
   "review": {
     "title": "Review your letter",
@@ -181,14 +189,30 @@
     "empty": "No attachments added"
   },
   "signature": {
-    "title": "Signature",
-    "typedLabel": "Typed name",
-    "typedHint": "Your name will appear as the signature",
-    "imageLabel": "Upload signature image",
-    "imageHint": "PNG or JPEG — max 2 MB",
-    "tooLarge": "Signature image exceeds 2 MB limit",
-    "invalidType": "Only PNG and JPEG files are accepted",
-    "uploading": "Uploading…"
+    "prompt": "How would you like to sign?",
+    "mode": {
+      "typed": {
+        "label": "Type name",
+        "description": "Rendered in italic serif"
+      },
+      "image": {
+        "label": "Upload image",
+        "description": "PNG or JPEG, max 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Preview on letter",
+      "placeholder": "Your name"
+    },
+    "imageAlt": "Signature image",
+    "remove": "Remove",
+    "uploading": "Uploading…",
+    "uploadPrompt": "Upload signature image",
+    "uploadHint": "PNG or JPEG · max 2 MB",
+    "error": {
+      "unsupportedType": "Only PNG and JPEG images are accepted.",
+      "tooLarge": "Signature image exceeds 2 MB limit."
+    }
   },
   "confirmation": {
     "title": "Payment received",
@@ -242,32 +266,6 @@
     "toast": {
       "unsupportedType": "Only {formats} files are accepted.",
       "fileTooLarge": "File exceeds {mb} MB limit."
-    }
-  },
-  "signature": {
-    "prompt": "How would you like to sign?",
-    "mode": {
-      "typed": {
-        "label": "Type name",
-        "description": "Rendered in italic serif"
-      },
-      "image": {
-        "label": "Upload image",
-        "description": "PNG or JPEG, max 2 MB"
-      }
-    },
-    "preview": {
-      "label": "Preview on letter",
-      "placeholder": "Your name"
-    },
-    "imageAlt": "Signature image",
-    "remove": "Remove",
-    "uploading": "Uploading…",
-    "uploadPrompt": "Upload signature image",
-    "uploadHint": "PNG or JPEG · max 2 MB",
-    "error": {
-      "unsupportedType": "Only PNG and JPEG images are accepted.",
-      "tooLarge": "Signature image exceeds 2 MB limit."
     }
   },
   "zoneEditor": {

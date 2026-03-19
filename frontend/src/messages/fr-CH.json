@@ -131,7 +131,15 @@
     "bodyPlaceholder": "Corps de la lettre…",
     "signatureLabel": "Signature",
     "startDictation": "Démarrer la dictée",
-    "stopDictation": "Arrêter la dictée"
+    "stopDictation": "Arrêter la dictée",
+    "voicePrimary": "Dictez votre lettre",
+    "voicePrimaryHint": "Parlez simplement — on transcrit pour vous",
+    "typePrimary": "Taper plutôt",
+    "typePrimaryHint": "Vous préférez le clavier ? Pas de souci",
+    "switchToKeyboard": "Passer au clavier",
+    "switchToVoice": "Passer à la voix",
+    "inputPrompt": "Dites-nous ce dont vous avez besoin — parlez ou tapez",
+    "dictationError": "Saisie vocale indisponible. Réessayez ou tapez."
   },
   "review": {
     "title": "Vérifier votre lettre",
@@ -181,14 +189,30 @@
     "empty": "Aucune pièce jointe ajoutée"
   },
   "signature": {
-    "title": "Signature",
-    "typedLabel": "Nom saisi",
-    "typedHint": "Votre nom apparaîtra comme signature",
-    "imageLabel": "Télécharger une image de signature",
-    "imageHint": "PNG ou JPEG — max. 2 Mo",
-    "tooLarge": "L'image de signature dépasse la limite de 2 Mo",
-    "invalidType": "Seuls les fichiers PNG et JPEG sont acceptés",
-    "uploading": "Téléchargement…"
+    "prompt": "Comment souhaitez-vous signer?",
+    "mode": {
+      "typed": {
+        "label": "Taper le nom",
+        "description": "Rendu en italique"
+      },
+      "image": {
+        "label": "Télécharger une image",
+        "description": "PNG ou JPEG, max 2 Mo"
+      }
+    },
+    "preview": {
+      "label": "Aperçu dans la lettre",
+      "placeholder": "Votre nom"
+    },
+    "imageAlt": "Image de signature",
+    "remove": "Supprimer",
+    "uploading": "Téléchargement…",
+    "uploadPrompt": "Télécharger une image de signature",
+    "uploadHint": "PNG ou JPEG · max 2 Mo",
+    "error": {
+      "unsupportedType": "Seuls les images PNG et JPEG sont acceptées.",
+      "tooLarge": "Image de signature supérieure à 2 Mo."
+    }
   },
   "confirmation": {
     "title": "Paiement reçu",
@@ -242,32 +266,6 @@
     "toast": {
       "unsupportedType": "Seuls les fichiers {formats} sont acceptés.",
       "fileTooLarge": "Le fichier dépasse la limite de {mb} Mo."
-    }
-  },
-  "signature": {
-    "prompt": "Comment souhaitez-vous signer?",
-    "mode": {
-      "typed": {
-        "label": "Taper le nom",
-        "description": "Rendu en italique"
-      },
-      "image": {
-        "label": "Télécharger une image",
-        "description": "PNG ou JPEG, max 2 Mo"
-      }
-    },
-    "preview": {
-      "label": "Aperçu dans la lettre",
-      "placeholder": "Votre nom"
-    },
-    "imageAlt": "Image de signature",
-    "remove": "Supprimer",
-    "uploading": "Téléchargement…",
-    "uploadPrompt": "Télécharger une image de signature",
-    "uploadHint": "PNG ou JPEG · max 2 Mo",
-    "error": {
-      "unsupportedType": "Seuls les images PNG et JPEG sont acceptées.",
-      "tooLarge": "Image de signature supérieure à 2 Mo."
     }
   },
   "zoneEditor": {

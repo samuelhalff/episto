@@ -131,7 +131,15 @@
     "bodyPlaceholder": "Testo della lettera…",
     "signatureLabel": "Firma",
     "startDictation": "Avvia dettatura",
-    "stopDictation": "Interrompi dettatura"
+    "stopDictation": "Interrompi dettatura",
+    "voicePrimary": "Dettate la lettera",
+    "voicePrimaryHint": "Parlate — trascriviamo noi per voi",
+    "typePrimary": "Digita invece",
+    "typePrimaryHint": "Preferite la tastiera? Nessun problema",
+    "switchToKeyboard": "Passa alla tastiera",
+    "switchToVoice": "Passa alla voce",
+    "inputPrompt": "Diteci di cosa avete bisogno — parlate o digitate",
+    "dictationError": "Inserimento vocale non disponibile. Riprovare o digitare."
   },
   "review": {
     "title": "Verifica la tua lettera",
@@ -181,14 +189,30 @@
     "empty": "Nessun allegato aggiunto"
   },
   "signature": {
-    "title": "Firma",
-    "typedLabel": "Nome digitato",
-    "typedHint": "Il tuo nome apparirà come firma",
-    "imageLabel": "Carica immagine della firma",
-    "imageHint": "PNG o JPEG — max. 2 MB",
-    "tooLarge": "L'immagine della firma supera il limite di 2 MB",
-    "invalidType": "Sono accettati solo file PNG e JPEG",
-    "uploading": "Caricamento…"
+    "prompt": "Come desidera firmare?",
+    "mode": {
+      "typed": {
+        "label": "Digita il nome",
+        "description": "Reso in corsivo"
+      },
+      "image": {
+        "label": "Carica immagine",
+        "description": "PNG o JPEG, max 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Anteprima nella lettera",
+      "placeholder": "Il suo nome"
+    },
+    "imageAlt": "Immagine firma",
+    "remove": "Rimuovi",
+    "uploading": "Caricamento…",
+    "uploadPrompt": "Carica immagine firma",
+    "uploadHint": "PNG o JPEG · max 2 MB",
+    "error": {
+      "unsupportedType": "Sono accettate solo immagini PNG e JPEG.",
+      "tooLarge": "Immagine firma superiore a 2 MB."
+    }
   },
   "confirmation": {
     "title": "Pagamento ricevuto",
@@ -242,32 +266,6 @@
     "toast": {
       "unsupportedType": "Sono accettati solo file {formats}.",
       "fileTooLarge": "Il file supera il limite di {mb} MB."
-    }
-  },
-  "signature": {
-    "prompt": "Come desidera firmare?",
-    "mode": {
-      "typed": {
-        "label": "Digita il nome",
-        "description": "Reso in corsivo"
-      },
-      "image": {
-        "label": "Carica immagine",
-        "description": "PNG o JPEG, max 2 MB"
-      }
-    },
-    "preview": {
-      "label": "Anteprima nella lettera",
-      "placeholder": "Il suo nome"
-    },
-    "imageAlt": "Immagine firma",
-    "remove": "Rimuovi",
-    "uploading": "Caricamento…",
-    "uploadPrompt": "Carica immagine firma",
-    "uploadHint": "PNG o JPEG · max 2 MB",
-    "error": {
-      "unsupportedType": "Sono accettate solo immagini PNG e JPEG.",
-      "tooLarge": "Immagine firma superiore a 2 MB."
     }
   },
   "zoneEditor": {

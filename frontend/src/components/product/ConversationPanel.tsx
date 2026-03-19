@@ -2,16 +2,20 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Send, Mic, MicOff, Loader2, FileText } from "lucide-react";
+import { Loader2, FileText } from "lucide-react";
 import { useConversation } from "../../hooks/use-api.js";
 import { useDictation } from "../../hooks/use-dictation.js";
 import type { ConversationMessage } from "@swiss-mail/shared";
 import { MessageRole } from "@swiss-mail/shared";
+import { InputBar, type InputMode } from "./InputBar.js";
 
 /**
  * Conversation panel — displays the AI/user message history,
  * streams AI token responses via SSE, and provides text input
- * with optional voice dictation.
+ * with dictation-first voice input.
+ *
+ * Voice dictation is presented as the primary, most obvious input method.
+ * Users can switch to typing at any time.
  */
 export function ConversationPanel({
   messages: _externalMessages,
@@ -26,11 +30,11 @@ export function ConversationPanel({
   const locale = useLocale();
 
   const [input, setInput] = useState("");
+  const [mode, setMode] = useState<InputMode>("initial");
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const conversation = useConversation(draftId);
 
-  // Dictation (Web Speech API)
   const {
     isSupported: dictationSupported,
     isRecording,
@@ -39,9 +43,10 @@ export function ConversationPanel({
     startRecording,
     stopRecording,
     resetText,
+    error: dictationError,
   } = useDictation();
 
-  // Scroll down when streaming
+  // Scroll down when streaming or messages change
   useEffect(() => {
     if (conversation.isStreaming || conversation.messages.length > 0) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -55,19 +60,18 @@ export function ConversationPanel({
     resetText();
   }, [finalText, resetText]);
 
+  // Switch to keyboard mode once there are messages
+  useEffect(() => {
+    if (conversation.messages.length > 0 && mode === "initial") {
+      setMode("keyboard");
+    }
+  }, [conversation.messages.length, mode]);
+
   function handleSend() {
     const content = input.trim();
     if (!content) return;
     setInput("");
     void conversation.sendMessage(content);
-  }
-
-  function handleMicToggle() {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording(locale);
-    }
   }
 
   const allMessages = conversation.messages;
@@ -83,9 +87,14 @@ export function ConversationPanel({
             <Loader2 className="h-6 w-6 animate-spin text-navy" />
           </div>
         ) : allMessages.length === 0 && !showStreaming ? (
-          <div className="flex flex-col items-center justify-center py-12 text-center text-gray-500">
-            <FileText className="mb-3 h-10 w-10 text-gray-300" />
-            <p className="text-sm">{t("title")}</p>
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <FileText className="mb-4 h-10 w-10 text-gray-300" />
+            <p className="text-base font-medium text-gray-900">
+              {t("title")}
+            </p>
+            <p className="mt-1.5 max-w-xs text-sm text-gray-500">
+              {t("inputPrompt")}
+            </p>
           </div>
         ) : (
           <>
@@ -106,12 +115,10 @@ export function ConversationPanel({
               </div>
             ))}
 
-            {/* Live streaming AI response */}
             {showStreaming && (
               <div className="flex justify-start">
                 <div className="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2.5 text-sm leading-relaxed text-gray-800">
                   {conversation.streamingText}
-                  {/* Blinking cursor */}
                   <span className="ml-0.5 inline-block h-3.5 w-px animate-pulse bg-gray-500 align-middle" />
                 </div>
               </div>
@@ -119,7 +126,6 @@ export function ConversationPanel({
           </>
         )}
 
-        {/* Thinking spinner (before first token arrives) */}
         {showSpinner && (
           <div className="flex justify-start">
             <div className="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2.5">
@@ -131,60 +137,33 @@ export function ConversationPanel({
         <div ref={bottomRef} />
       </div>
 
-      {/* Input area */}
-      <div className="border-t bg-white p-4">
-        {/* Interim dictation preview (greyed, not yet committed) */}
-        {interimText && (
-          <p className="mb-2 text-sm italic text-gray-400">{interimText}</p>
-        )}
-
-        <div className="flex items-end gap-2">
-          <textarea
-            className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
-            rows={1}
-            placeholder={t("messagePlaceholder")}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-          />
-
-          {/* Mic button — only rendered when Web Speech API is available */}
-          {dictationSupported && (
-            <button
-              type="button"
-              onClick={handleMicToggle}
-              aria-pressed={isRecording}
-              aria-label={isRecording ? t("stopDictation") : t("startDictation")}
-              className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full transition ${
-                isRecording
-                  ? "bg-red-500 text-white hover:bg-red-600"
-                  : "border border-gray-200 text-gray-500 hover:bg-gray-100"
-              }`}
-            >
-              {isRecording ? (
-                <MicOff className="h-4 w-4" />
-              ) : (
-                <Mic className="h-4 w-4" />
-              )}
-            </button>
-          )}
-
-          <button
-            type="button"
-            disabled={!input.trim() || conversation.isSending}
-            onClick={handleSend}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy text-white transition hover:bg-navy-light disabled:opacity-40"
-          >
-            <Send className="h-4 w-4" />
-            <span className="sr-only">{t("sendMessage")}</span>
-          </button>
-        </div>
-      </div>
+      {/* Input bar — dictation-first with keyboard fallback */}
+      <InputBar
+        mode={mode}
+        input={input}
+        hasMessages={allMessages.length > 0}
+        isRecording={isRecording}
+        isSending={conversation.isSending}
+        interimText={interimText}
+        dictationSupported={dictationSupported}
+        dictationError={dictationError}
+        onInputChange={setInput}
+        onSend={handleSend}
+        onStartVoice={() => {
+          setMode("voice");
+          startRecording(locale);
+        }}
+        onStopVoice={stopRecording}
+        onStartRecording={() => startRecording(locale)}
+        onSwitchToKeyboard={() => {
+          if (isRecording) stopRecording();
+          setMode("keyboard");
+        }}
+        onSwitchToVoice={() => {
+          setMode("voice");
+          startRecording(locale);
+        }}
+      />
     </>
   );
 }
