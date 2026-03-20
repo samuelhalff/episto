@@ -23,6 +23,7 @@ import {
   DraftStatusSchema,
 } from "@swiss-mail/shared";
 import { recordEvent } from "../analytics/index.js";
+import { getQueue, QUEUE_NAMES, type RenderPdfJob } from "../../queue/index.js";
 
 import { z } from "zod";
 
@@ -309,8 +310,17 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       // Create immutable snapshot
       const snapshot = await createSnapshot(db, draftId, snapshotData);
 
-      // Transition to reviewed (validates current state allows this)
+      // Transition to reviewed, then rendering once the PDF job is queued.
       await transitionDraftStatus(db, draftId, session.id, "reviewed");
+      await transitionDraftStatus(db, draftId, session.id, "rendering");
+      await getQueue(QUEUE_NAMES.RENDER_PDF).add(
+        "render-pdf",
+        {
+          snapshotId: snapshot.id,
+          draftId,
+        } satisfies RenderPdfJob,
+        { jobId: `snapshot:${snapshot.id}` },
+      );
 
       recordEvent({
         event: "review_reached",

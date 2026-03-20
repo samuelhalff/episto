@@ -21,7 +21,7 @@ interface PaymentState {
 }
 
 interface CheckoutResponse {
-  clientSecret: string;
+  clientSecret: string | null;
   paymentAttemptId: string;
   priceCents: number;
   currency: string;
@@ -31,7 +31,7 @@ interface PaymentResponse {
   payment: {
     state: string;
     paymentAttemptId: string | null;
-    amountCents: number;
+    priceCents: number;
     currency: string;
   };
 }
@@ -40,8 +40,8 @@ export interface UseCheckoutReturn {
   pricing: PricingBreakdown | null;
   paymentState: PaymentState | null;
   clientSecret: string | null;
-  /** Initiates a payment intent; sets clientSecret on success */
-  createPaymentIntent: (email: string) => Promise<void>;
+  /** Initiates or resumes a payment intent and returns the latest checkout payload. */
+  createPaymentIntent: (email: string) => Promise<CheckoutResponse>;
   isProcessing: boolean;
   error: Error | null;
 }
@@ -77,9 +77,7 @@ export function useCheckout(draftId: string): UseCheckoutReturn {
   });
 
   const createPaymentIntent = useCallback(
-    async (email: string): Promise<void> => {
-      await checkoutMutation.mutateAsync(email);
-    },
+    async (email: string): Promise<CheckoutResponse> => checkoutMutation.mutateAsync(email),
     [checkoutMutation],
   );
 
@@ -87,7 +85,7 @@ export function useCheckout(draftId: string): UseCheckoutReturn {
 
   const pricing: PricingBreakdown | null = paymentData
     ? {
-        priceCents: (paymentData as { amountCents: number }).amountCents,
+        priceCents: paymentData.priceCents,
         currency: (paymentData as { currency: string }).currency ?? "CHF",
         deliveryType: "standard",
       }

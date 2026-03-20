@@ -2,9 +2,9 @@
 
 import { use } from "react";
 import { useTranslations } from "next-intl";
-import { useDraft, useUpdateDraft, useDraftFiles } from "../../../../../hooks/use-api.js";
+import { useDraft, useUpdateDraft, useDraftFiles, useReviewDraft } from "../../../../../hooks/use-api.js";
 import { usePricing, formatCentsAsCHF } from "../../../../../hooks/use-pricing.js";
-import { Link } from "../../../../../i18n/navigation.js";
+import { Link, useRouter } from "../../../../../i18n/navigation.js";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { DeliveryType } from "@swiss-mail/shared";
 import { ChecklistItem } from "../../../../../components/product/ChecklistItem.js";
@@ -25,8 +25,10 @@ export default function ReviewPage({
   const tc = useTranslations("common");
   const draft = useDraft(draftId);
   const updateDraft = useUpdateDraft(draftId);
+  const reviewDraft = useReviewDraft(draftId);
   const { attachments } = useDraftFiles(draftId);
   const pricing = usePricing();
+  const router = useRouter();
 
   if (draft.isLoading) {
     return (
@@ -63,6 +65,22 @@ export default function ReviewPage({
 
   function handleDeliveryChange(type: string) {
     updateDraft.mutate({ deliveryType: type as "standard" | "registered" });
+  }
+
+  function handleProceedToPayment() {
+    if (reviewDraft.isPending) return;
+
+    const alreadyPrepared = ["reviewed", "rendering", "ready", "submitted", "dispatched"].includes(
+      d.status,
+    );
+    if (alreadyPrepared) {
+      router.push(`/draft/${draftId}/checkout`);
+      return;
+    }
+
+    void reviewDraft.mutateAsync().then(() => {
+      router.push(`/draft/${draftId}/checkout`);
+    });
   }
 
   return (
@@ -137,17 +155,20 @@ export default function ReviewPage({
             {t("backToEditing")}
           </Link>
 
-          <Link
-            href={`/draft/${draftId}/checkout`}
+          <button
+            type="button"
+            onClick={handleProceedToPayment}
+            disabled={!allComplete || reviewDraft.isPending}
             className={`inline-flex items-center gap-2 rounded-lg px-8 py-3 text-sm font-semibold text-white transition ${
               allComplete
-                ? "bg-navy hover:bg-navy-light"
+                ? "bg-navy hover:bg-navy-light disabled:opacity-60"
                 : "pointer-events-none bg-gray-300"
             }`}
           >
+            {reviewDraft.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             {t("proceedToPayment")}
             <ChevronRight className="h-4 w-4" />
-          </Link>
+          </button>
         </div>
       </main>
     </div>

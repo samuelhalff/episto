@@ -35,6 +35,15 @@ export function useDrafts() {
   return useQuery(draftsOptions());
 }
 
+export interface ReviewDraftResponse {
+  snapshot: {
+    id: string;
+    draftId: string;
+    priceCents: number;
+    createdAt: string;
+  };
+}
+
 export function useCreateDraft() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -70,6 +79,19 @@ export function useTransitionDraft(draftId: string) {
       }).then((r) => r.draft),
     onSuccess: (data) => {
       queryClient.setQueryData(draftOptions(draftId).queryKey, data);
+    },
+  });
+}
+
+export function useReviewDraft(draftId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () =>
+      apiFetch<ReviewDraftResponse>(`/v1/drafts/${draftId}/review`, {
+        method: "POST",
+      }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: draftOptions(draftId).queryKey });
     },
   });
 }
