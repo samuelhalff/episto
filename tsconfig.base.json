@@ -18,6 +18,7 @@
     "verbatimModuleSyntax": true,
     "baseUrl": ".",
     "paths": {
+      "@swiss-mail/shared": ["shared/src/index.ts"],
       "@swiss-mail/shared/*": ["shared/src/*"]
     }
   }

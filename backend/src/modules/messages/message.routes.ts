@@ -6,10 +6,14 @@ import { schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { notFoundError, AppError } from "../../shared/errors/index.js";
 import { createMessage, listMessages } from "./message.service.js";
+import { handleAiMessage } from "../ai/index.js";
+import { createLogger } from "../../shared/logging/index.js";
 
 // ---------------------------------------------------------------------------
 // Input schemas
 // ---------------------------------------------------------------------------
+
+const logger = createLogger("message-routes");
 
 const SendMessageBody = z.object({
   content: z.string().min(1).max(4000),
@@ -106,6 +110,16 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
         content: body.content,
       });
 
+      // Fire AI processing asynchronously — don't block the 202 response
+      handleAiMessage({
+        draftId,
+        sessionId: session.id,
+        userMessageId: message.id,
+        userContent: body.content,
+      }).catch((err) => {
+        logger.error({ err, draftId, messageId: message.id }, "AI handler failed");
+      });
+
       reply.status(202).send({
         message: {
           id: message.id,
@@ -114,14 +128,26 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
           content: message.content,
           createdAt: message.createdAt,
         },
+        streamUrl: `/api/v1/drafts/${draftId}/stream`,
       });
     },
   );
 
   // GET /drafts/:id/messages — fetch conversation history
+  // Rate limit: 60/min per session (see docs/05-architecture/rate-limits-and-quotas.md)
   app.get<{ Params: { id: string }; Querystring: { cursor?: string; limit?: string } }>(
     "/drafts/:id/messages",
-    { preHandler: [requireSession] },
+    {
+      preHandler: [requireSession],
+      config: {
+        rateLimit: {
+          max: 60,
+          timeWindow: "1 minute",
+          keyGenerator: (req: FastifyRequest) =>
+            (req as FastifyRequest & { session?: { id: string } }).session?.id ?? req.ip,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{
         Params: { id: string };

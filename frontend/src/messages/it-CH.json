@@ -5,7 +5,8 @@
     "error": "Si è verificato un errore",
     "tryAgain": "Riprova",
     "pageNotFound": "Pagina non trovata",
-    "backToHome": "Torna alla home"
+    "backToHome": "Torna alla home",
+    "skipToContent": "Vai al contenuto"
   },
   "home": {
     "title": "Lettere formali, inviate con semplicità",
@@ -39,12 +40,14 @@
     "nav": {
       "howItWorks": "Come funziona",
       "pricing": "Prezzi",
+      "help": "Aiuto",
       "writeLetter": "Scrivere una lettera"
     },
     "footer": {
       "privacy": "Privacy",
       "terms": "Condizioni",
       "imprint": "Colofone",
+      "help": "Aiuto",
       "copyright": "© 2025 Swiss Mail. Tutti i diritti riservati."
     },
     "appName": "Swiss Mail"
@@ -52,6 +55,7 @@
   "howItWorks": {
     "title": "Come funziona Swiss Mail",
     "subtitle": "Tre semplici passi per inviare una lettera professionale.",
+    "stepLabel": "Passo {number}",
     "step1Detail": "Ci dica che tipo di lettera Le serve. Il nostro assistente IA pone le domande giuste e redige una lettera formale nel formato svizzero corretto.",
     "step2Detail": "Verifichi ogni sezione della Sua lettera. Modifichi mittente, destinatario, contenuto e allegati. Aggiunga la Sua firma se necessario.",
     "step3Detail": "Scelga la spedizione standard o raccomandata. Paghi in modo sicuro con carta o TWINT. Stampiamo la Sua lettera su carta di qualità e la consegniamo alla Posta Svizzera.",
@@ -121,7 +125,24 @@
     "stepDraft": "Bozza",
     "stepReview": "Verifica",
     "stepPay": "Paga",
-    "stepDone": "Fatto"
+    "stepDone": "Fatto",
+    "senderLabel": "Mittente",
+    "senderPlaceholder": "Indirizzo del mittente…",
+    "recipientLabel": "Destinatario",
+    "recipientPlaceholder": "Indirizzo del destinatario…",
+    "subjectPlaceholder": "Oggetto…",
+    "bodyPlaceholder": "Testo della lettera…",
+    "signatureLabel": "Firma",
+    "startDictation": "Avvia dettatura",
+    "stopDictation": "Interrompi dettatura",
+    "voicePrimary": "Dettate la lettera",
+    "voicePrimaryHint": "Parlate — trascriviamo noi per voi",
+    "typePrimary": "Digita invece",
+    "typePrimaryHint": "Preferite la tastiera? Nessun problema",
+    "switchToKeyboard": "Passa alla tastiera",
+    "switchToVoice": "Passa alla voce",
+    "inputPrompt": "Diteci di cosa avete bisogno — parlate o digitate",
+    "dictationError": "Inserimento vocale non disponibile. Riprovare o digitare."
   },
   "review": {
     "title": "Verifica la tua lettera",
@@ -133,6 +154,7 @@
     "subjectLine": "Oggetto",
     "signature": "Firma",
     "attachments": "Allegati",
+    "deliveryTypeLabel": "Tipo di spedizione",
     "deliveryStandard": "Spedizione standard",
     "deliveryRegistered": "Raccomandata",
     "proceedToPayment": "Procedi al pagamento",
@@ -146,6 +168,8 @@
     "emailHelp": "Invieremo la ricevuta e lo stato della lettera a questo indirizzo.",
     "paymentMethod": "Metodo di pagamento",
     "paymentPending": "Caricamento del modulo di pagamento…",
+    "paymentConfigError": "Il sistema di pagamento non è configurato. Si prega di riprovare più tardi.",
+    "consentRequired": "È necessario accettare le condizioni per continuare.",
     "legalConsent": "Ho letto e accetto le Condizioni d'uso e sono consapevole che Swiss Mail non fornisce servizi legali.",
     "sendMyLetter": "Invia la mia lettera",
     "securedByStripe": "Protetto da Stripe",
@@ -153,18 +177,76 @@
     "dataProtection": "Crittografato e archiviato in modo sicuro",
     "defaultLetterTitle": "Lettera",
     "total": "Totale",
-    "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso"
+    "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso",
+    "paymentConfirming": "Elaborazione del pagamento…",
+    "paymentError": "Pagamento fallito. Si prega di riprovare.",
+    "enterPaymentDetails": "Inserire i dati di pagamento",
+    "continueToPayment": "Continua al pagamento"
+  },
+  "attachments": {
+    "title": "Allegati",
+    "uploadLabel": "Aggiungi allegato",
+    "uploadHint": "PDF, PNG o JPEG — max. 5 MB per file, fino a 5 file",
+    "maxReached": "Numero massimo di allegati raggiunto",
+    "tooLarge": "Il file supera il limite di 5 MB",
+    "invalidType": "Sono accettati solo file PDF, PNG e JPEG",
+    "uploading": "Caricamento…",
+    "remove": "Rimuovi",
+    "empty": "Nessun allegato aggiunto"
+  },
+  "signature": {
+    "prompt": "Come desidera firmare?",
+    "mode": {
+      "typed": {
+        "label": "Digita il nome",
+        "description": "Reso in corsivo"
+      },
+      "image": {
+        "label": "Carica immagine",
+        "description": "PNG o JPEG, max 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Anteprima nella lettera",
+      "placeholder": "Il suo nome"
+    },
+    "imageAlt": "Immagine firma",
+    "remove": "Rimuovi",
+    "uploading": "Caricamento…",
+    "uploadPrompt": "Carica immagine firma",
+    "uploadHint": "PNG o JPEG · max 2 MB",
+    "error": {
+      "unsupportedType": "Sono accettate solo immagini PNG e JPEG.",
+      "tooLarge": "Immagine firma superiore a 2 MB."
+    }
   },
   "confirmation": {
     "title": "Pagamento ricevuto",
-    "subtitle": "La tua lettera è in fase di elaborazione.",
+    "subtitle": "La tua lettera è stata inoltrata per la spedizione.",
+    "verifying": "Verifica del pagamento…",
+    "paymentFailed": "Pagamento non completato",
+    "paymentFailedSubtitle": "Il tuo pagamento non è stato elaborato. Torna alla cassa per riprovare.",
+    "backToCheckout": "Torna alla cassa",
     "orderReference": "Numero d'ordine",
+    "copied": "Copiato",
+    "copyFailed": "Seleziona e copia manualmente",
+    "copyReference": "Copia il riferimento",
+    "dispatchTitle": "Stato della spedizione",
     "whatHappensNext": "Prossimi passi",
-    "stepProcessing": "La tua lettera viene preparata per la stampa",
-    "stepPrinting": "Stampata e consegnata alla Posta Svizzera",
-    "stepDelivery": "Recapitata al destinatario",
+    "stepPayment": "Pagamento confermato",
+    "stepSubmitted": "Lettera inoltrata per la spedizione",
+    "stepProcessing": "Elaborazione del fornitore",
+    "stepUpdates": "Ulteriori aggiornamenti dipendono dalla conferma del fornitore",
     "downloadReceipt": "Scarica la ricevuta",
-    "sendAnother": "Invia un'altra lettera"
+    "viewLetter": "Visualizza la lettera",
+    "sendAnother": "Invia un'altra lettera",
+    "stateQueued": "La tua lettera è in coda per la spedizione",
+    "stateSubmitted": "Inoltrata per la spedizione",
+    "stateAccepted": "Accettata per la spedizione",
+    "stateRejected": "La spedizione è stata rifiutata — stiamo verificando",
+    "stateUnknown": "Lo stato è in fase di conferma — ti aggiorneremo via e-mail",
+    "emailNotice": "Una ricevuta di pagamento è stata inviata alla tua e-mail",
+    "stickyCtaLabel": "Invia un'altra lettera"
   },
   "resume": {
     "loading": "Ripresa della bozza…",
@@ -174,8 +256,109 @@
   "status": {
     "title": "Stato della lettera",
     "orderReference": "Numero d'ordine",
-    "dispatchState": "Stato di spedizione",
-    "estimatedDelivery": "Consegna prevista",
-    "sendAnother": "Invia un'altra lettera"
+    "dispatchState": "Stato spedizione",
+    "estimatedDelivery": "Consegna stimata",
+    "sendAnother": "Invia un'altra lettera",
+    "recipient": "Destinatario",
+    "paymentAmount": "Importo pagato",
+    "paidAt": "Data di pagamento"
+  },
+  "files": {
+    "dropZone": {
+      "ariaLabel": "Carica allegato",
+      "prompt": "Trascinare i file qui o fare clic",
+      "maxSize": "Max {mb} MB per file"
+    },
+    "limit": {
+      "maxFiles": "Massimo {max} allegati raggiunto.",
+      "totalSize": "Limite di {mb} MB raggiunto."
+    },
+    "summary": "{count} di {max} file · {used} MB di {limit} MB utilizzati",
+    "remove": {
+      "ariaLabel": "Rimuovi {name}"
+    },
+    "toast": {
+      "unsupportedType": "Sono accettati solo file {formats}.",
+      "fileTooLarge": "Il file supera il limite di {mb} MB."
+    }
+  },
+  "zoneEditor": {
+    "title": "Modifica: {zone}",
+    "ariaLabel": "Modifica {zone}",
+    "optional": "facoltativo",
+    "zone": {
+      "sender": "Indirizzo mittente",
+      "recipient": "Indirizzo destinatario",
+      "date": "Data",
+      "subject": "Oggetto",
+      "salutation": "Formula di saluto",
+      "body": "Corpo della lettera",
+      "closing": "Formula di chiusura"
+    },
+    "field": {
+      "firstName": "Nome",
+      "lastName": "Cognome",
+      "company": "Società",
+      "street": "Via e numero",
+      "postalCode": "NPA",
+      "city": "Città",
+      "postalAndCity": "NPA e città"
+    },
+    "validation": {
+      "required": "Campo obbligatorio",
+      "nameOrCompanyRequired": "Nome o società richiesti"
+    },
+    "action": {
+      "save": "Salva",
+      "saving": "Salvataggio…",
+      "cancel": "Annulla",
+      "close": "Chiudi"
+    }
+  },
+  "dispatch": {
+    "title": {
+      "dispatched": "Lettera spedita",
+      "queued": "Elaborazione in corso",
+      "rejected": "Spedizione fallita"
+    },
+    "subtitle": {
+      "dispatched": "La lettera è stata consegnata alle Poste.",
+      "queued": "La lettera è in preparazione per la spedizione.",
+      "rejected": "Si è verificato un problema. Il nostro team è stato informato."
+    },
+    "reference": {
+      "label": "Riferimento fornitore",
+      "trackingAvailable": "Tracciamento disponibile",
+      "noTracking": "Nessun tracciamento disponibile"
+    },
+    "step": {
+      "submitted": "Inviato alla stampa",
+      "accepted": "Accettato per la spedizione",
+      "dispatching": "Stato di consegna in attesa",
+      "providerNote": "Gli aggiornamenti dipendono dal fornitore"
+    },
+    "lastChecked": "Ultimo aggiornamento: {time}"
+  },
+  "help": {
+    "title": "Aiuto & Supporto",
+    "subtitle": "Trova risposte alle domande frequenti o contattaci.",
+    "faqTitle": "Domande frequenti",
+    "faq1q": "Come scrivo una lettera?",
+    "faq1a": "Clicca su «Scrivi una lettera». Il nostro assistente IA ti guida attraverso il processo. Descrivi semplicemente la tua situazione e noi redigeremo una lettera professionale per te.",
+    "faq2q": "Quanto tempo richiede la consegna?",
+    "faq2a": "Le lettere standard vengono generalmente consegnate entro 1–3 giorni lavorativi in Svizzera.",
+    "faq3q": "Posso tracciare la mia lettera?",
+    "faq3a": "Le lettere raccomandate includono il tracciamento. Le lettere standard non includono il tracciamento, ma la consegna tramite la Posta Svizzera è affidabile.",
+    "faq4q": "Cosa succede in caso di problemi con il pagamento?",
+    "faq4a": "Se un pagamento non va a buon fine, puoi riprovare al momento del pagamento. Se sei stato addebitato ma qualcosa è andato storto, contattaci — indagheremo immediatamente.",
+    "faq5q": "Posso modificare la mia lettera dopo il pagamento?",
+    "faq5a": "Una volta confermato il pagamento e inviata la lettera per la spedizione, non può più essere modificata. Controlla attentamente la tua lettera prima del pagamento.",
+    "faq6q": "Quali formati di file posso allegare?",
+    "faq6a": "Accettiamo file PDF, PNG e JPEG. Ogni file può pesare fino a 5 MB, con un massimo di 5 allegati per lettera.",
+    "contactTitle": "Hai bisogno di ulteriore aiuto?",
+    "contactDescription": "Se la tua domanda non ha trovato risposta sopra, contattaci.",
+    "contactEmailLabel": "E-mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Rispondiamo generalmente entro un giorno lavorativo."
   }
 }

@@ -1,23 +1,25 @@
 import type { FastifyInstance } from "fastify";
-import { eq, desc, or, ilike } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
-import { AppError } from "../../shared/errors/index.js";
 import { requireAdmin } from "../../shared/middleware/require-admin.js";
 import {
   recordSupportEvent,
   listSupportEventsForDraft,
   listSupportEventsForSession,
 } from "./index.js";
+import { adminActionRoutes } from "./admin-actions.routes.js";
+import { adminHealthRoutes } from "./admin-health.routes.js";
+import { adminOverviewRoutes } from "./admin-overview.routes.js";
 
 // ---------------------------------------------------------------------------
-// Routes
+// Admin read-only routes (timeline, session details, content access)
 // ---------------------------------------------------------------------------
 
 export async function adminRoutes(app: FastifyInstance): Promise<void> {
   app.addHook("preHandler", requireAdmin);
 
-  // GET /admin/drafts/:id/timeline — full event timeline for a draft
+  // GET /admin/drafts/:id/timeline — full ordered event timeline for a draft
   app.get<{ Params: { id: string } }>(
     "/admin/drafts/:id/timeline",
     async (request, reply) => {
@@ -35,31 +37,83 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         return;
       }
 
+      // Collect all event sources into a unified timeline
+      interface TimelineEvent {
+        id: string;
+        eventType: string;
+        from: string | null;
+        to: string | null;
+        actor: "system" | "user" | "admin" | "webhook" | "provider";
+        meta: Record<string, unknown> | null;
+        occurredAt: string;
+      }
+      const events: TimelineEvent[] = [];
+
+      // Support events
       const supportEvents = await listSupportEventsForDraft(db, id);
+      for (const se of supportEvents) {
+        events.push({
+          id: se.id,
+          eventType: `support_${se.eventType}`,
+          from: null,
+          to: null,
+          actor: "admin",
+          meta: (se.details as Record<string, unknown>) ?? null,
+          occurredAt: se.createdAt.toISOString(),
+        });
+      }
 
-      const dispatchEvents = await db
+      // Dispatch status events
+      const dispatchAttempts = await db
         .select()
-        .from(schema.dispatchStatusEvents)
-        .where(eq(schema.dispatchStatusEvents.dispatchAttemptId, id))
-        .orderBy(desc(schema.dispatchStatusEvents.createdAt));
+        .from(schema.dispatchAttempts)
+        .where(eq(schema.dispatchAttempts.draftId, id));
 
+      for (const da of dispatchAttempts) {
+        const dse = await db
+          .select()
+          .from(schema.dispatchStatusEvents)
+          .where(eq(schema.dispatchStatusEvents.dispatchAttemptId, da.id))
+          .orderBy(desc(schema.dispatchStatusEvents.createdAt));
+
+        for (const evt of dse) {
+          events.push({
+            id: evt.id,
+            eventType: "dispatch_state_changed",
+            from: evt.previousState,
+            to: evt.newState,
+            actor: "system",
+            meta: { dispatchAttemptId: da.id, providerName: da.providerName },
+            occurredAt: evt.createdAt.toISOString(),
+          });
+        }
+      }
+
+      // Payment events (each payment attempt represents a state change)
       const payments = await db
         .select()
         .from(schema.paymentAttempts)
         .where(eq(schema.paymentAttempts.draftId, id))
         .orderBy(desc(schema.paymentAttempts.createdAt));
 
+      for (const p of payments) {
+        events.push({
+          id: p.id,
+          eventType: "payment_state_changed",
+          from: null,
+          to: p.state,
+          actor: "system",
+          meta: { amountCents: p.amountCents, stripePaymentIntentId: p.stripePaymentIntentId },
+          occurredAt: (p.updatedAt ?? p.createdAt).toISOString(),
+        });
+      }
+
+      // Sort all events by occurredAt ascending
+      events.sort((a, b) => a.occurredAt.localeCompare(b.occurredAt));
+
       reply.send({
-        draft: {
-          id: draft.id,
-          status: draft.status,
-          sessionId: draft.sessionId,
-          createdAt: draft.createdAt,
-          updatedAt: draft.updatedAt,
-        },
-        payments,
-        dispatchEvents,
-        supportEvents,
+        draftId: id,
+        events,
       });
     },
   );
@@ -159,167 +213,12 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // GET /admin/search?q=... — search sessions/drafts by email or ID
-  app.get<{ Querystring: { q?: string } }>(
-    "/admin/search",
-    async (request, reply) => {
-      const db = getDb();
-      const q = (request.query as { q?: string }).q?.trim();
+  // Register search and action routes (split for file-size compliance)
+  await app.register(adminActionRoutes);
 
-      if (!q || q.length < 3) {
-        reply.status(400).send({ error: "Query must be at least 3 characters." });
-        return;
-      }
+  // Register admin health status endpoint (split for file-size compliance)
+  await app.register(adminHealthRoutes);
 
-      const pattern = `%${q}%`;
-
-      const sessions = await db
-        .select({
-          id: schema.sessions.id,
-          email: schema.sessions.email,
-          locale: schema.sessions.locale,
-          createdAt: schema.sessions.createdAt,
-        })
-        .from(schema.sessions)
-        .where(
-          or(
-            ilike(schema.sessions.email, pattern),
-            eq(schema.sessions.id, q),
-          ),
-        )
-        .limit(20);
-
-      const drafts = await db
-        .select({
-          id: schema.draftLetters.id,
-          status: schema.draftLetters.status,
-          sessionId: schema.draftLetters.sessionId,
-          createdAt: schema.draftLetters.createdAt,
-        })
-        .from(schema.draftLetters)
-        .where(eq(schema.draftLetters.id, q))
-        .limit(5);
-
-      reply.send({ sessions, drafts });
-    },
-  );
-
-  // POST /admin/drafts/:id/refund — initiate refund for paid draft
-  app.post<{ Params: { id: string } }>(
-    "/admin/drafts/:id/refund",
-    async (request, reply) => {
-      const db = getDb();
-      const { id } = request.params;
-
-      const body = request.body as
-        | { reason?: string | undefined; notifyCustomer?: boolean | undefined }
-        | null
-        | undefined;
-      if (
-        !body?.reason ||
-        typeof body.reason !== "string" ||
-        body.reason.length < 1 ||
-        body.reason.length > 500
-      ) {
-        reply
-          .status(400)
-          .send({ error: "reason is required (1-500 chars)" });
-        return;
-      }
-
-      const [draft] = await db
-        .select()
-        .from(schema.draftLetters)
-        .where(eq(schema.draftLetters.id, id))
-        .limit(1);
-
-      if (!draft) {
-        reply.status(404).send({ error: "Draft not found" });
-        return;
-      }
-
-      const [payment] = await db
-        .select()
-        .from(schema.paymentAttempts)
-        .where(eq(schema.paymentAttempts.draftId, id))
-        .limit(1);
-
-      if (!payment) {
-        reply
-          .status(404)
-          .send({ error: "No payment record found for this draft" });
-        return;
-      }
-
-      await recordSupportEvent(db, {
-        draftId: id,
-        sessionId: draft.sessionId,
-        eventType: "refund_requested",
-        actor: env().ADMIN_USERNAME,
-        details: { reason: body.reason, paymentId: payment.id },
-      });
-
-      // Refund requires Stripe API — stub for now
-      throw new AppError({
-        family: "payment_failure",
-        statusCode: 501,
-        code: "REFUND_NOT_IMPLEMENTED",
-        message: "Stripe refund API integration is not yet implemented.",
-        userMessage: "Refund processing is not available yet.",
-        userAction: "Process refund manually via Stripe dashboard.",
-      });
-    },
-  );
-
-  // POST /admin/drafts/:id/reconcile — manual dispatch reconciliation
-  app.post<{ Params: { id: string } }>(
-    "/admin/drafts/:id/reconcile",
-    async (request, reply) => {
-      const db = getDb();
-      const { id } = request.params;
-
-      const [draft] = await db
-        .select()
-        .from(schema.draftLetters)
-        .where(eq(schema.draftLetters.id, id))
-        .limit(1);
-
-      if (!draft) {
-        reply.status(404).send({ error: "Draft not found" });
-        return;
-      }
-
-      const [dispatch] = await db
-        .select()
-        .from(schema.dispatchAttempts)
-        .where(eq(schema.dispatchAttempts.draftId, id))
-        .limit(1);
-
-      if (!dispatch) {
-        reply
-          .status(404)
-          .send({ error: "No dispatch attempt found for this draft" });
-        return;
-      }
-
-      await recordSupportEvent(db, {
-        draftId: id,
-        sessionId: draft.sessionId,
-        eventType: "reconciliation_requested",
-        actor: env().ADMIN_USERNAME,
-        details: { dispatchId: dispatch.id, currentState: dispatch.state },
-      });
-
-      // Manual reconciliation requires provider verification — stub for now
-      throw new AppError({
-        family: "dispatch_ambiguity",
-        statusCode: 501,
-        code: "RECONCILE_NOT_IMPLEMENTED",
-        message:
-          "Manual dispatch reconciliation requires provider API integration.",
-        userMessage: "Reconciliation is not available yet.",
-        userAction: "Check dispatch status manually with postal provider.",
-      });
-    },
-  );
+  // Register admin overview/dashboard counters endpoint
+  await app.register(adminOverviewRoutes);
 }

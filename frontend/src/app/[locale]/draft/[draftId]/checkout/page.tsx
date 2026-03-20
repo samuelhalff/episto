@@ -1,23 +1,53 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useTranslations } from "next-intl";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements } from "@stripe/react-stripe-js";
 import { useDraft, useCheckout } from "../../../../../hooks/use-api.js";
+import { usePricing, formatCentsAsCHF } from "../../../../../hooks/use-pricing.js";
 import { Link, useRouter } from "../../../../../i18n/navigation.js";
-import {
-  CreditCard,
-  Lock,
-  Truck,
-  ShieldCheck,
-  Loader2,
-} from "lucide-react";
+import { Lock, Truck, ShieldCheck, Loader2 } from "lucide-react";
 import { DeliveryType } from "@swiss-mail/shared";
+import { PriceSummary } from "../../../../../components/product/PriceSummary.js";
+import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm.js";
 
-// MVP locked prices (display only — real charge computed by backend)
-const DISPLAY_PRICES: Record<string, string> = {
-  standard: "4.90",
-  registered: "8.90",
+// ---------------------------------------------------------------------------
+// Stripe setup
+// ---------------------------------------------------------------------------
+
+const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
+const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+
+/** Map Swiss locale codes to Stripe-supported locale strings */
+const STRIPE_LOCALE_MAP: Record<string, "de" | "fr" | "it" | "en"> = {
+  "de-CH": "de",
+  "fr-CH": "fr",
+  "it-CH": "it",
+  "en-CH": "en",
 };
+
+function toStripeLocale(locale: string): "de" | "fr" | "it" | "en" {
+  return STRIPE_LOCALE_MAP[locale] ?? "de";
+}
+
+// ---------------------------------------------------------------------------
+// Form schema — email + legal consent
+// ---------------------------------------------------------------------------
+
+function createCheckoutSchema(consentMessage: string) {
+  return z.object({
+    email: z.string().email(),
+    legalConsent: z.literal(true, {
+      errorMap: () => ({ message: consentMessage }),
+    }),
+  });
+}
+
+type CheckoutFormValues = z.infer<ReturnType<typeof createCheckoutSchema>>;
 
 // ---------------------------------------------------------------------------
 // Checkout Page
@@ -26,21 +56,26 @@ const DISPLAY_PRICES: Record<string, string> = {
 export default function CheckoutPage({
   params,
 }: {
-  params: Promise<{ draftId: string }>;
+  params: Promise<{ draftId: string; locale: string }>;
 }) {
-  const { draftId } = use(params);
+  const { draftId, locale } = use(params);
   const t = useTranslations("checkout");
   const tc = useTranslations("common");
   const router = useRouter();
 
   const draft = useDraft(draftId);
   const checkout = useCheckout(draftId);
+  const pricing = usePricing();
 
-  const [email, setEmail] = useState("");
-  const [legalConsent, setLegalConsent] = useState(false);
-
-  const isFormValid = email.includes("@") && legalConsent;
-  const isSubmitting = checkout.isPending;
+  const checkoutSchema = createCheckoutSchema(t("consentRequired"));
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm<CheckoutFormValues>({
+    resolver: zodResolver(checkoutSchema),
+    mode: "onTouched",
+  });
 
   if (draft.isLoading) {
     return (
@@ -59,32 +94,36 @@ export default function CheckoutPage({
   }
 
   const d = draft.data;
-  const price =
-    DISPLAY_PRICES[d.deliveryType === DeliveryType.registered ? "registered" : "standard"] ?? "4.90";
+  const isRegistered = d.deliveryType === DeliveryType.registered;
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!isFormValid || isSubmitting) return;
+  const displayPrice = pricing.data
+    ? isRegistered
+      ? pricing.data.registered.displayPrice
+      : pricing.data.standard.displayPrice
+    : formatCentsAsCHF(isRegistered ? 890 : 490);
 
-    checkout.mutate(
-      { email },
-      {
-        onSuccess: (data) => {
-          if (data.clientSecret) {
-            // Stripe Elements integration pending — for now, redirect to confirmation
-            router.push(`/draft/${draftId}/confirmation`);
-          } else {
-            // Existing payment — redirect directly
-            router.push(`/draft/${draftId}/confirmation`);
-          }
-        },
-      },
-    );
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
+
+  const isSubmitting = checkout.isProcessing;
+
+  useEffect(() => {
+    if (["authorized", "captured"].includes(checkout.paymentState?.state ?? "")) {
+      router.replace(`/draft/${draftId}/confirmation`);
+    }
+  }, [checkout.paymentState?.state, draftId, router]);
+
+  function onSubmit(values: CheckoutFormValues) {
+    if (isSubmitting) return;
+    void checkout.createPaymentIntent(values.email).then((result) => {
+      if (!result.clientSecret) {
+        router.push(`/draft/${draftId}/confirmation`);
+      }
+    });
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
           <Link href="/" className="font-bold text-navy">
@@ -97,107 +136,136 @@ export default function CheckoutPage({
       <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Order summary */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">
-              {t("orderSummary")}
-            </h2>
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between text-gray-600">
-                <span>{d.subject ?? t("defaultLetterTitle")}</span>
-                <span className="font-medium">CHF {price}</span>
-              </div>
-              <div className="border-t pt-2">
-                <div className="flex justify-between font-semibold text-gray-900">
-                  <span>{t("total")}</span>
-                  <span>CHF {price}</span>
-                </div>
-              </div>
-            </div>
-          </div>
+        <PriceSummary deliveryType={d.deliveryType} subject={d.subject} />
 
-          {/* Email */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <label
-              htmlFor="email"
-              className="block text-sm font-semibold text-gray-900"
-            >
-              {t("email")}
-            </label>
-            <p className="mt-1 text-xs text-gray-500">{t("emailHelp")}</p>
-            <input
-              id="email"
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-3 w-full rounded-lg border border-gray-200 px-4 py-2.5 text-sm placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
-              placeholder="name@example.com"
-            />
-          </div>
-
-          {/* Payment (placeholder until Stripe Elements integration) */}
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <h2 className="mb-3 text-sm font-semibold text-gray-900">
-              {t("paymentMethod")}
-            </h2>
-            <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-gray-200 py-12 text-sm text-gray-400">
-              <div className="text-center">
-                <CreditCard className="mx-auto mb-2 h-8 w-8 text-gray-300" />
-                <p>{t("paymentPending")}</p>
-                <p className="mt-1 text-xs">
-                  {t("stripeIntegrationPending")}
+        {/* Step 1: Email + consent */}
+        {!checkout.clientSecret && (
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
+            <div className="rounded-lg border border-gray-200 bg-white p-6">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-900"
+              >
+                {t("email")}
+              </label>
+              <p className="mt-1 text-xs text-gray-500">{t("emailHelp")}</p>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                inputMode="email"
+                placeholder="name@example.com"
+                {...register("email")}
+                aria-describedby={errors.email ? "email-error" : undefined}
+                aria-invalid={errors.email ? "true" : undefined}
+                className={[
+                  "mt-3 w-full rounded-lg border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1",
+                  errors.email
+                    ? "border-destructive focus:border-destructive focus:ring-destructive"
+                    : "border-gray-200 focus:border-navy focus:ring-navy",
+                ].join(" ")}
+              />
+              {errors.email && (
+                <p id="email-error" role="alert" className="mt-1 text-xs text-destructive">
+                  {errors.email.message}
                 </p>
-              </div>
+              )}
             </div>
-          </div>
 
-          {/* Legal consent */}
-          <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-gray-200 bg-white p-4 text-sm">
-            <input
-              type="checkbox"
-              checked={legalConsent}
-              onChange={(e) => setLegalConsent(e.target.checked)}
-              className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-navy focus:ring-navy"
-            />
-            <span className="text-gray-600">{t("legalConsent")}</span>
-          </label>
+            {/* Legal consent */}
+            <div
+              className={[
+                "rounded-lg border bg-white p-4",
+                errors.legalConsent ? "border-destructive" : "border-gray-200",
+              ].join(" ")}
+            >
+              <label className="flex cursor-pointer items-start gap-3 text-sm">
+                <input
+                  type="checkbox"
+                  {...register("legalConsent")}
+                  aria-describedby={errors.legalConsent ? "consent-error" : undefined}
+                  aria-invalid={errors.legalConsent ? "true" : undefined}
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-navy focus:ring-navy"
+                />
+                <span className="text-gray-600">{t("legalConsent")}</span>
+              </label>
+              {errors.legalConsent && (
+                <p id="consent-error" role="alert" className="mt-1 text-xs text-destructive">
+                  {errors.legalConsent.message}
+                </p>
+              )}
+            </div>
 
-          {/* Error message */}
-          {checkout.error && (
-            <p className="text-sm text-red-600">{tc("error")}</p>
-          )}
-
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={!isFormValid || isSubmitting}
-            className="w-full rounded-lg bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-40"
-          >
-            {isSubmitting ? (
-              <Loader2 className="mx-auto h-5 w-5 animate-spin" />
-            ) : (
-              `${t("sendMyLetter")} — CHF ${price}`
+            {checkout.error && (
+              <p role="alert" className="text-sm text-destructive">
+                {tc("error")}
+              </p>
             )}
-          </button>
 
-          {/* Trust badges */}
-          <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs text-gray-400">
-            <span className="flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5" />
-              {t("securedByStripe")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Truck className="h-3.5 w-3.5" />
-              {t("swissDelivery")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              {t("dataProtection")}
-            </span>
+            <button
+              type="submit"
+              disabled={!isValid || isSubmitting}
+              className="w-full rounded-lg bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-40"
+            >
+              {isSubmitting ? (
+                <Loader2 className="mx-auto h-5 w-5 animate-spin" />
+              ) : (
+                `${t("continueToPayment")} — ${displayPrice}`
+              )}
+            </button>
+          </form>
+        )}
+
+        {/* Step 2: Stripe PaymentElement */}
+        {checkout.clientSecret && stripePromise && (
+          <div className="rounded-lg border border-gray-200 bg-white p-6">
+            <h2 className="mb-4 text-sm font-semibold text-gray-900">
+              {t("enterPaymentDetails")}
+            </h2>
+            <Elements
+              stripe={stripePromise}
+              options={{
+                clientSecret: checkout.clientSecret,
+                locale: toStripeLocale(locale),
+                appearance: {
+                  theme: "stripe",
+                  variables: {
+                    colorPrimary: "#1a2e4a",
+                    borderRadius: "8px",
+                    fontFamily: "inherit",
+                  },
+                },
+              }}
+            >
+              <StripePaymentForm
+                priceCents={checkout.pricing?.priceCents ?? 0}
+                returnUrl={returnUrl}
+                buttonLabel={t("sendMyLetter")}
+              />
+            </Elements>
           </div>
-        </form>
+        )}
+
+        {checkout.clientSecret && !stripePromise && (
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6">
+            <p className="text-sm text-destructive">{t("paymentConfigError")}</p>
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-center gap-6 pt-2 text-xs text-gray-400">
+          <span className="flex items-center gap-1.5">
+            <Lock className="h-3.5 w-3.5" />
+            {t("securedByStripe")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <Truck className="h-3.5 w-3.5" />
+            {t("swissDelivery")}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <ShieldCheck className="h-3.5 w-3.5" />
+            {t("dataProtection")}
+          </span>
+        </div>
       </main>
     </div>
   );

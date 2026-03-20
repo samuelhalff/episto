@@ -20,6 +20,9 @@ export const DraftStatus = {
   closed: "closed",
 } as const;
 
+export type DraftStatusValue =
+  (typeof DraftStatus)[keyof typeof DraftStatus];
+
 export const DeliveryType = {
   standard: "standard",
   registered: "registered",

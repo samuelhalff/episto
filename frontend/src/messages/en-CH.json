@@ -5,7 +5,8 @@
     "error": "An error occurred",
     "tryAgain": "Try again",
     "pageNotFound": "Page not found",
-    "backToHome": "Back to home"
+    "backToHome": "Back to home",
+    "skipToContent": "Skip to content"
   },
   "home": {
     "title": "Formal letters, sent with ease",
@@ -39,12 +40,14 @@
     "nav": {
       "howItWorks": "How it works",
       "pricing": "Pricing",
+      "help": "Help",
       "writeLetter": "Write a letter"
     },
     "footer": {
       "privacy": "Privacy",
       "terms": "Terms",
       "imprint": "Imprint",
+      "help": "Help",
       "copyright": "© 2025 Swiss Mail. All rights reserved."
     },
     "appName": "Swiss Mail"
@@ -52,6 +55,7 @@
   "howItWorks": {
     "title": "How Swiss Mail works",
     "subtitle": "Three simple steps to send a professional letter.",
+    "stepLabel": "Step {number}",
     "step1Detail": "Tell us what kind of letter you need. Our AI assistant asks the right questions and drafts a formal letter in the correct Swiss format.",
     "step2Detail": "Review every section of your letter. Edit the sender, recipient, body, and attachments. Add your signature if needed.",
     "step3Detail": "Choose standard or registered delivery. Pay securely with card or TWINT. We print your letter on quality paper and hand it to Swiss Post.",
@@ -121,7 +125,24 @@
     "stepDraft": "Draft",
     "stepReview": "Review",
     "stepPay": "Pay",
-    "stepDone": "Done"
+    "stepDone": "Done",
+    "senderLabel": "Sender",
+    "senderPlaceholder": "Sender address…",
+    "recipientLabel": "Recipient",
+    "recipientPlaceholder": "Recipient address…",
+    "subjectPlaceholder": "Subject…",
+    "bodyPlaceholder": "Letter body…",
+    "signatureLabel": "Signature",
+    "startDictation": "Start dictation",
+    "stopDictation": "Stop dictation",
+    "voicePrimary": "Speak your letter",
+    "voicePrimaryHint": "Just talk — we'll transcribe it for you",
+    "typePrimary": "Type instead",
+    "typePrimaryHint": "Prefer the keyboard? No problem",
+    "switchToKeyboard": "Switch to keyboard",
+    "switchToVoice": "Switch to voice",
+    "inputPrompt": "Tell us what you need — speak or type",
+    "dictationError": "Voice input unavailable. Please try again or type instead."
   },
   "review": {
     "title": "Review your letter",
@@ -133,6 +154,7 @@
     "subjectLine": "Subject line",
     "signature": "Signature",
     "attachments": "Attachments",
+    "deliveryTypeLabel": "Delivery type",
     "deliveryStandard": "Standard delivery",
     "deliveryRegistered": "Registered delivery",
     "proceedToPayment": "Proceed to payment",
@@ -146,6 +168,8 @@
     "emailHelp": "We'll send your receipt and letter status to this address.",
     "paymentMethod": "Payment method",
     "paymentPending": "Payment form loading…",
+    "paymentConfigError": "Payment system is not configured. Please try again later.",
+    "consentRequired": "You must accept the terms to continue.",
     "legalConsent": "I have read and agree to the Terms of Service and understand that Swiss Mail is not a legal service.",
     "sendMyLetter": "Send my letter",
     "securedByStripe": "Secured by Stripe",
@@ -153,18 +177,76 @@
     "dataProtection": "Encrypted and securely stored",
     "defaultLetterTitle": "Letter",
     "total": "Total",
-    "stripeIntegrationPending": "Stripe payment integration pending"
+    "stripeIntegrationPending": "Stripe payment integration pending",
+    "paymentConfirming": "Processing payment…",
+    "paymentError": "Payment failed. Please try again.",
+    "enterPaymentDetails": "Enter payment details",
+    "continueToPayment": "Continue to payment"
+  },
+  "attachments": {
+    "title": "Attachments",
+    "uploadLabel": "Add attachment",
+    "uploadHint": "PDF, PNG, or JPEG — max 5 MB each, up to 5 files",
+    "maxReached": "Maximum attachments reached",
+    "tooLarge": "File exceeds 5 MB limit",
+    "invalidType": "Only PDF, PNG, and JPEG files are accepted",
+    "uploading": "Uploading…",
+    "remove": "Remove",
+    "empty": "No attachments added"
+  },
+  "signature": {
+    "prompt": "How would you like to sign?",
+    "mode": {
+      "typed": {
+        "label": "Type name",
+        "description": "Rendered in italic serif"
+      },
+      "image": {
+        "label": "Upload image",
+        "description": "PNG or JPEG, max 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Preview on letter",
+      "placeholder": "Your name"
+    },
+    "imageAlt": "Signature image",
+    "remove": "Remove",
+    "uploading": "Uploading…",
+    "uploadPrompt": "Upload signature image",
+    "uploadHint": "PNG or JPEG · max 2 MB",
+    "error": {
+      "unsupportedType": "Only PNG and JPEG images are accepted.",
+      "tooLarge": "Signature image exceeds 2 MB limit."
+    }
   },
   "confirmation": {
     "title": "Payment received",
-    "subtitle": "Your letter is being processed.",
+    "subtitle": "Your letter has been submitted for dispatch.",
+    "verifying": "Verifying payment…",
+    "paymentFailed": "Payment was not completed",
+    "paymentFailedSubtitle": "Your payment could not be processed. Please return to checkout to try again.",
+    "backToCheckout": "Back to checkout",
     "orderReference": "Order reference",
+    "copied": "Copied",
+    "copyFailed": "Select and copy manually",
+    "copyReference": "Copy reference",
+    "dispatchTitle": "Dispatch status",
     "whatHappensNext": "What happens next",
-    "stepProcessing": "Your letter is being prepared for print",
-    "stepPrinting": "Printed and handed to Swiss Post",
-    "stepDelivery": "Delivered to the recipient",
+    "stepPayment": "Payment confirmed",
+    "stepSubmitted": "Letter submitted for dispatch",
+    "stepProcessing": "Provider processing",
+    "stepUpdates": "Further updates depend on provider confirmation",
     "downloadReceipt": "Download receipt",
-    "sendAnother": "Send another letter"
+    "viewLetter": "View letter",
+    "sendAnother": "Send another letter",
+    "stateQueued": "Your letter is queued for dispatch",
+    "stateSubmitted": "Submitted for dispatch",
+    "stateAccepted": "Accepted for dispatch",
+    "stateRejected": "Dispatch was rejected — we're investigating",
+    "stateUnknown": "Status is being confirmed — we'll update you by email",
+    "emailNotice": "A payment receipt has been sent to your email",
+    "stickyCtaLabel": "Send another letter"
   },
   "resume": {
     "loading": "Resuming your draft…",
@@ -176,6 +258,107 @@
     "orderReference": "Order reference",
     "dispatchState": "Dispatch status",
     "estimatedDelivery": "Estimated delivery",
-    "sendAnother": "Send another letter"
+    "sendAnother": "Send another letter",
+    "recipient": "Recipient",
+    "paymentAmount": "Amount paid",
+    "paidAt": "Payment date"
+  },
+  "files": {
+    "dropZone": {
+      "ariaLabel": "Upload attachment",
+      "prompt": "Drop files here or click to select",
+      "maxSize": "Max {mb} MB per file"
+    },
+    "limit": {
+      "maxFiles": "Maximum {max} attachments reached.",
+      "totalSize": "Total attachment limit ({mb} MB) reached."
+    },
+    "summary": "{count} of {max} files · {used} MB of {limit} MB used",
+    "remove": {
+      "ariaLabel": "Remove {name}"
+    },
+    "toast": {
+      "unsupportedType": "Only {formats} files are accepted.",
+      "fileTooLarge": "File exceeds {mb} MB limit."
+    }
+  },
+  "zoneEditor": {
+    "title": "Edit: {zone}",
+    "ariaLabel": "Edit {zone}",
+    "optional": "optional",
+    "zone": {
+      "sender": "Sender address",
+      "recipient": "Recipient address",
+      "date": "Date",
+      "subject": "Subject",
+      "salutation": "Salutation",
+      "body": "Letter body",
+      "closing": "Closing"
+    },
+    "field": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "company": "Company",
+      "street": "Street and number",
+      "postalCode": "Postcode",
+      "city": "City",
+      "postalAndCity": "Postcode and city"
+    },
+    "validation": {
+      "required": "Required",
+      "nameOrCompanyRequired": "First name or company is required"
+    },
+    "action": {
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "close": "Close"
+    }
+  },
+  "dispatch": {
+    "title": {
+      "dispatched": "Letter dispatched",
+      "queued": "Processing your letter",
+      "rejected": "Dispatch failed"
+    },
+    "subtitle": {
+      "dispatched": "Your letter has been handed to Swiss Post.",
+      "queued": "Your letter is being prepared for dispatch.",
+      "rejected": "There was a problem dispatching your letter. Our team has been notified."
+    },
+    "reference": {
+      "label": "Provider reference",
+      "trackingAvailable": "Tracking available for this shipment",
+      "noTracking": "No tracking available for this shipment"
+    },
+    "step": {
+      "submitted": "Submitted to printing",
+      "accepted": "Accepted for dispatch",
+      "dispatching": "Delivery status pending",
+      "providerNote": "Updates depend on provider capability"
+    },
+    "lastChecked": "Last updated: {time}"
+  },
+  "help": {
+    "title": "Help & Support",
+    "subtitle": "Find answers to common questions or get in touch.",
+    "faqTitle": "Frequently asked questions",
+    "faq1q": "How do I write a letter?",
+    "faq1a": "Start by clicking 'Write a letter'. Our AI assistant guides you through the process. Just describe your situation and we'll draft a professional letter for you.",
+    "faq2q": "How long does delivery take?",
+    "faq2a": "Standard letters are typically delivered within 1–3 business days within Switzerland.",
+    "faq3q": "Can I track my letter?",
+    "faq3a": "Registered letters include tracking. Standard letters do not include tracking, but delivery is reliable through Swiss Post.",
+    "faq4q": "What if something goes wrong with my payment?",
+    "faq4a": "If a payment fails, you can retry at checkout. If you were charged but something went wrong, contact us and we'll investigate immediately.",
+    "faq5q": "Can I edit my letter after paying?",
+    "faq5a": "Once payment is confirmed and the letter is submitted for dispatch, it cannot be edited. Review your letter carefully before checkout.",
+    "faq6q": "What file formats can I attach?",
+    "faq6a": "We accept PDF, PNG, and JPEG files. Each file can be up to 5 MB, with a maximum of 5 attachments per letter.",
+    "contactTitle": "Need more help?",
+    "contactDescription": "If your question isn't answered above, reach out to us.",
+    "contactEmailLabel": "Email",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "We aim to respond within one business day."
   }
 }

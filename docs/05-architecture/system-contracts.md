@@ -344,19 +344,36 @@ Frontend must never:
 - Decide payment or dispatch truth by inference
 - Read `DispatchState` from anything other than a backend response
 
-### Suggested endpoint groups
+### Canonical endpoint groups
+
+> The authoritative endpoint reference is [`api-contracts.md`](api-contracts.md). The patterns below
+> summarize the canonical routes; see that document for full request/response schemas.
 
 ```
-POST   /sessions
-GET    /sessions/:id
-PATCH  /drafts/:id
-POST   /drafts/:id/snapshot       ← creates DraftSnapshot at review time
-POST   /drafts/:id/render
-POST   /payments/:draftId/create
-POST   /dispatch/:draftId/submit
-GET    /dispatch/:id/status
-POST   /files
-DELETE /files/:id
+POST   /api/v1/sessions
+GET    /api/v1/sessions/current
+PATCH  /api/v1/sessions/current
+GET    /api/v1/resume/:token
+POST   /api/v1/drafts
+GET    /api/v1/drafts/:id
+PATCH  /api/v1/drafts/:id
+POST   /api/v1/drafts/:id/review       ← creates DraftSnapshot
+GET    /api/v1/drafts/:id/preview
+POST   /api/v1/drafts/:id/messages
+GET    /api/v1/drafts/:id/messages
+GET    /api/v1/drafts/:id/stream        ← SSE
+PUT    /api/v1/drafts/:id/sender
+PUT    /api/v1/drafts/:id/recipient
+POST   /api/v1/drafts/:id/files
+GET    /api/v1/drafts/:id/files
+DELETE /api/v1/drafts/:id/files/:fileId
+GET    /api/v1/files/:fileId/download
+POST   /api/v1/drafts/:id/checkout
+GET    /api/v1/drafts/:id/payment
+POST   /api/v1/webhooks/stripe
+GET    /api/v1/drafts/:id/dispatch
+GET    /api/v1/orders/:orderToken
+GET    /api/v1/orders/:orderToken/pdf
 ```
 
 ---

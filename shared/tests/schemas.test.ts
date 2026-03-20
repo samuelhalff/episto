@@ -4,6 +4,7 @@ import {
   LocaleSchema,
   DeliveryTypeSchema,
   DraftLetterSchema,
+  DraftSnapshotSchema,
   SenderProfileSchema,
   RecipientProfileSchema,
   PaymentAttemptSchema,
@@ -258,10 +259,9 @@ describe("PaymentAttemptSchema", () => {
   });
 
   it("rejects negative amountCents", () => {
-    // amountCents is z.number().int() — negative ints are technically valid at schema level,
-    // but let's verify the schema accepts it since there's no .nonnegative() constraint.
+    // amountCents is z.number().int() — negative ints are technically valid at schema level.
+    // The breakdown fields now enforce .nonnegative() but amountCents itself does not.
     const result = PaymentAttemptSchema.safeParse({ ...validPayment(), amountCents: -100 });
-    // If the schema allows it, we just verify it parsed; the test documents current behavior.
     if (result.success) {
       expect(result.data.amountCents).toBe(-100);
     } else {
@@ -375,6 +375,7 @@ describe("SnapshotDataSchema", () => {
     },
     attachmentAssetIds: [],
     signatureAssetId: null,
+    estimatedPages: null,
     metadata: null,
   });
 
@@ -407,6 +408,81 @@ describe("SnapshotDataSchema", () => {
       SnapshotDataSchema.parse({ ...validSnapshot(), attachmentAssetIds: ["not-a-uuid"] }),
     ).toThrow();
   });
+
+  it("accepts estimatedPages as a number", () => {
+    const result = SnapshotDataSchema.parse({ ...validSnapshot(), estimatedPages: 3 });
+    expect(result.estimatedPages).toBe(3);
+  });
+
+  it("accepts null estimatedPages", () => {
+    const result = SnapshotDataSchema.parse({ ...validSnapshot(), estimatedPages: null });
+    expect(result.estimatedPages).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// DraftSnapshotSchema
+// ---------------------------------------------------------------------------
+
+describe("DraftSnapshotSchema", () => {
+  const validDraftSnapshot = () => ({
+    id: uuid(),
+    draftId: uuid(),
+    version: 1,
+    snapshotData: {
+      schemaVersion: 1,
+      locale: "de-CH",
+      deliveryType: "standard",
+      subject: "Test",
+      body: "Body text",
+      enclosureNote: null,
+      signatureMode: null,
+      tone: null,
+      intent: null,
+      sender: {
+        firstName: "Max",
+        lastName: "Muster",
+        company: null,
+        addressLine1: "Bahnhofstrasse 1",
+        addressLine2: null,
+        postalCode: "8001",
+        city: "Zürich",
+        country: "CH",
+      },
+      recipient: {
+        firstName: null,
+        lastName: null,
+        company: "ACME",
+        department: null,
+        addressLine1: "Seestrasse 10",
+        addressLine2: null,
+        postalCode: "6300",
+        city: "Zug",
+        country: "CH",
+      },
+      attachmentAssetIds: [],
+      signatureAssetId: null,
+      estimatedPages: 1,
+      metadata: null,
+    },
+    renderedPdfAssetId: null,
+    createdAt: now,
+  });
+
+  it("parses a valid draft snapshot", () => {
+    const result = DraftSnapshotSchema.parse(validDraftSnapshot());
+    expect(result.version).toBe(1);
+  });
+
+  it("applies default schemaVersion of 1", () => {
+    const result = DraftSnapshotSchema.parse(validDraftSnapshot());
+    expect(result.schemaVersion).toBe(1);
+  });
+
+  it("accepts explicit schemaVersion", () => {
+    const result = DraftSnapshotSchema.parse({ ...validDraftSnapshot(), schemaVersion: 2 });
+    expect(result.schemaVersion).toBe(2);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -434,19 +510,15 @@ describe("PaymentBreakdownSchema", () => {
     expect(result.base).toBe(0);
   });
 
-  it("accepts negative values (no .nonnegative constraint)", () => {
-    // PaymentBreakdownSchema uses z.number().int() without .nonnegative()
-    const result = PaymentBreakdownSchema.safeParse({
-      base: -100,
-      pages: 0,
-      delivery: 0,
-      attachments: 0,
-    });
-    if (result.success) {
-      expect(result.data.base).toBe(-100);
-    } else {
-      expect(result.success).toBe(false);
-    }
+  it("rejects negative values", () => {
+    expect(() =>
+      PaymentBreakdownSchema.parse({
+        base: -100,
+        pages: 0,
+        delivery: 0,
+        attachments: 0,
+      }),
+    ).toThrow();
   });
 
   it("rejects non-integer values", () => {

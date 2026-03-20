@@ -4,7 +4,7 @@ import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   assertTransitionDraft,
-  type DraftStatus,
+  type DraftStatusValue,
 } from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
@@ -193,14 +193,14 @@ export async function transitionDraftStatus(
   db: Db,
   draftId: string,
   sessionId: string,
-  newStatus: string,
+  newStatus: DraftStatusValue,
 ): Promise<DraftRow> {
   const existing = await getDraftById(db, draftId, sessionId);
   if (!existing) throw notFoundError("draft");
 
   assertTransitionDraft(
-    existing.status as (typeof DraftStatus)[keyof typeof DraftStatus],
-    newStatus as (typeof DraftStatus)[keyof typeof DraftStatus],
+    existing.status as DraftStatusValue,
+    newStatus,
   );
 
   const values: Record<string, unknown> = {

@@ -4,6 +4,7 @@ import {
   SessionType,
   Locale,
   DraftStatus,
+  type DraftStatusValue,
   DeliveryType,
   PaymentState,
   DispatchState,
@@ -11,6 +12,7 @@ import {
   FileStatus,
   MessageRole,
 } from "../enums.js";
+import { DRAFT_CONTENT_LIMITS } from "../limits.js";
 
 // ---------------------------------------------------------------------------
 // Enum Zod schemas
@@ -22,7 +24,10 @@ export const SessionTypeSchema = z.enum(sessionTypeValues);
 const localeValues = Object.values(Locale) as [string, ...string[]];
 export const LocaleSchema = z.enum(localeValues);
 
-const draftStatusValues = Object.values(DraftStatus) as [string, ...string[]];
+const draftStatusValues = Object.values(DraftStatus) as [
+  DraftStatusValue,
+  ...DraftStatusValue[],
+];
 export const DraftStatusSchema = z.enum(draftStatusValues);
 
 const deliveryTypeValues = Object.values(DeliveryType) as [string, ...string[]];
@@ -112,8 +117,8 @@ export const DraftLetterSchema = z.object({
   status: DraftStatusSchema,
   locale: LocaleSchema,
   deliveryType: DeliveryTypeSchema,
-  subject: z.string().max(200).nullable(),
-  body: z.string().max(10000).nullable(),
+  subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).nullable(),
+  body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable(),
   tone: z.string().nullable(),
   intent: z.string().nullable(),
   enclosureNote: z.string().nullable(),
@@ -170,6 +175,7 @@ export const SnapshotDataSchema = z.object({
   recipient: SnapshotRecipientSchema,
   attachmentAssetIds: z.array(z.string().uuid()),
   signatureAssetId: z.string().uuid().nullable(),
+  estimatedPages: z.number().int().nullable(),
   metadata: z.record(z.unknown()).nullable(),
 });
 
@@ -181,6 +187,7 @@ export const DraftSnapshotSchema = z.object({
   id: z.string().uuid(),
   draftId: z.string().uuid(),
   version: z.number().int(),
+  schemaVersion: z.number().int().default(1),
   snapshotData: SnapshotDataSchema,
   renderedPdfAssetId: z.string().uuid().nullable(),
   createdAt: z.coerce.date(),
@@ -223,10 +230,10 @@ export const ConversationMessageSchema = z.object({
 // ---------------------------------------------------------------------------
 
 export const PaymentBreakdownSchema = z.object({
-  base: z.number().int(),
-  pages: z.number().int(),
-  delivery: z.number().int(),
-  attachments: z.number().int(),
+  base: z.number().int().nonnegative(),
+  pages: z.number().int().nonnegative(),
+  delivery: z.number().int().nonnegative(),
+  attachments: z.number().int().nonnegative(),
 });
 
 export const PaymentAttemptSchema = z.object({

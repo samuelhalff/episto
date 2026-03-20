@@ -11,7 +11,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
+    <header role="banner" className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
         {/* Logo */}
         <Link href="/" className="text-xl font-bold tracking-tight text-navy">
@@ -19,7 +19,7 @@ export function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Main navigation" className="hidden items-center gap-8 md:flex">
           <Link
             href="/how-it-works"
             className="text-sm text-gray-600 hover:text-navy"
@@ -31,6 +31,12 @@ export function Header() {
             className="text-sm text-gray-600 hover:text-navy"
           >
             {t("nav.pricing")}
+          </Link>
+          <Link
+            href="/help"
+            className="text-sm text-gray-600 hover:text-navy"
+          >
+            {t("nav.help")}
           </Link>
         </nav>
 
@@ -61,7 +67,7 @@ export function Header() {
 
       {/* Mobile nav */}
       {menuOpen && (
-        <nav className="border-t border-gray-100 bg-white px-6 pb-6 pt-4 md:hidden">
+        <nav aria-label="Mobile navigation" className="border-t border-gray-100 bg-white px-6 pb-6 pt-4 md:hidden">
           <div className="flex flex-col gap-4">
             <Link
               href="/how-it-works"
@@ -80,6 +86,15 @@ export function Header() {
               }}
             >
               {t("nav.pricing")}
+            </Link>
+            <Link
+              href="/help"
+              className="text-sm text-gray-600 hover:text-navy"
+              onClick={() => {
+                setMenuOpen(false);
+              }}
+            >
+              {t("nav.help")}
             </Link>
             <Link
               href="/draft/new"

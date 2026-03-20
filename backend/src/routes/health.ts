@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
 import { getDb } from "../db/index.js";
+import { getQueue, QUEUE_NAMES } from "../queue/index.js";
 
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
   app.get("/health", async (_req, reply) => {
@@ -18,6 +19,16 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       checks.database = "ok";
     } catch {
       checks.database = "fail";
+      allOk = false;
+    }
+
+    // Redis connectivity (via BullMQ queue ping)
+    try {
+      const q = getQueue(QUEUE_NAMES.SEND_EMAIL);
+      await q.getJobCounts("waiting");
+      checks.redis = "ok";
+    } catch {
+      checks.redis = "fail";
       allOk = false;
     }
 

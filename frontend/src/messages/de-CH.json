@@ -5,7 +5,8 @@
     "error": "Ein Fehler ist aufgetreten",
     "tryAgain": "Erneut versuchen",
     "pageNotFound": "Seite nicht gefunden",
-    "backToHome": "Zurück zur Startseite"
+    "backToHome": "Zurück zur Startseite",
+    "skipToContent": "Zum Inhalt springen"
   },
   "home": {
     "title": "Formelle Briefe, einfach versendet",
@@ -39,12 +40,14 @@
     "nav": {
       "howItWorks": "So funktioniert es",
       "pricing": "Preise",
+      "help": "Hilfe",
       "writeLetter": "Brief schreiben"
     },
     "footer": {
       "privacy": "Datenschutz",
       "terms": "AGB",
       "imprint": "Impressum",
+      "help": "Hilfe",
       "copyright": "© 2025 Swiss Mail. Alle Rechte vorbehalten."
     },
     "appName": "Swiss Mail"
@@ -52,6 +55,7 @@
   "howItWorks": {
     "title": "So funktioniert Swiss Mail",
     "subtitle": "Drei einfache Schritte, um einen professionellen Brief zu versenden.",
+    "stepLabel": "Schritt {number}",
     "step1Detail": "Teilen Sie uns mit, welche Art von Brief Sie benötigen. Unser KI-Assistent stellt die richtigen Fragen und verfasst einen formellen Brief im korrekten Schweizer Format.",
     "step2Detail": "Überprüfen Sie jeden Abschnitt Ihres Briefes. Bearbeiten Sie Absender, Empfänger, Inhalt und Beilagen. Fügen Sie bei Bedarf Ihre Unterschrift hinzu.",
     "step3Detail": "Wählen Sie Standard- oder Einschreibeversand. Bezahlen Sie sicher mit Karte oder TWINT. Wir drucken Ihren Brief auf Qualitätspapier und übergeben ihn der Schweizerischen Post.",
@@ -121,7 +125,24 @@
     "stepDraft": "Entwurf",
     "stepReview": "Prüfen",
     "stepPay": "Bezahlen",
-    "stepDone": "Fertig"
+    "stepDone": "Fertig",
+    "senderLabel": "Absender",
+    "senderPlaceholder": "Absenderadresse…",
+    "recipientLabel": "Empfänger",
+    "recipientPlaceholder": "Empfängeradresse…",
+    "subjectPlaceholder": "Betreff…",
+    "bodyPlaceholder": "Briefinhalt…",
+    "signatureLabel": "Unterschrift",
+    "startDictation": "Diktat starten",
+    "stopDictation": "Diktat stoppen",
+    "voicePrimary": "Brief diktieren",
+    "voicePrimaryHint": "Einfach sprechen — wir schreiben mit",
+    "typePrimary": "Lieber tippen",
+    "typePrimaryHint": "Tastatur bevorzugt? Kein Problem",
+    "switchToKeyboard": "Zur Tastatur wechseln",
+    "switchToVoice": "Zur Spracheingabe wechseln",
+    "inputPrompt": "Sagen Sie uns, was Sie brauchen — sprechen oder tippen",
+    "dictationError": "Spracheingabe nicht verfügbar. Bitte erneut versuchen oder tippen."
   },
   "review": {
     "title": "Brief überprüfen",
@@ -133,6 +154,7 @@
     "subjectLine": "Betreff",
     "signature": "Unterschrift",
     "attachments": "Beilagen",
+    "deliveryTypeLabel": "Versandart",
     "deliveryStandard": "Standardversand",
     "deliveryRegistered": "Einschreiben",
     "proceedToPayment": "Weiter zur Zahlung",
@@ -146,6 +168,8 @@
     "emailHelp": "Wir senden Ihre Quittung und den Briefstatus an diese Adresse.",
     "paymentMethod": "Zahlungsmethode",
     "paymentPending": "Zahlungsformular wird geladen…",
+    "paymentConfigError": "Das Zahlungssystem ist nicht konfiguriert. Bitte versuchen Sie es später erneut.",
+    "consentRequired": "Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.",
     "legalConsent": "Ich habe die Nutzungsbedingungen gelesen und stimme diesen zu. Ich verstehe, dass Swiss Mail keine Rechtsdienstleistung erbringt.",
     "sendMyLetter": "Brief absenden",
     "securedByStripe": "Gesichert durch Stripe",
@@ -153,18 +177,76 @@
     "dataProtection": "Verschlüsselt und sicher gespeichert",
     "defaultLetterTitle": "Brief",
     "total": "Total",
-    "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend"
+    "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend",
+    "paymentConfirming": "Zahlung wird verarbeitet…",
+    "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "enterPaymentDetails": "Zahlungsdetails eingeben",
+    "continueToPayment": "Weiter zur Zahlung"
+  },
+  "attachments": {
+    "title": "Anhänge",
+    "uploadLabel": "Anhang hinzufügen",
+    "uploadHint": "PDF, PNG oder JPEG — max. 5 MB pro Datei, bis zu 5 Dateien",
+    "maxReached": "Maximale Anzahl Anhänge erreicht",
+    "tooLarge": "Datei überschreitet das Limit von 5 MB",
+    "invalidType": "Nur PDF-, PNG- und JPEG-Dateien werden akzeptiert",
+    "uploading": "Wird hochgeladen…",
+    "remove": "Entfernen",
+    "empty": "Keine Anhänge hinzugefügt"
+  },
+  "signature": {
+    "prompt": "Wie möchten Sie unterschreiben?",
+    "mode": {
+      "typed": {
+        "label": "Name eingeben",
+        "description": "In Kursivschrift gerendert"
+      },
+      "image": {
+        "label": "Bild hochladen",
+        "description": "PNG oder JPEG, max. 2 MB"
+      }
+    },
+    "preview": {
+      "label": "Vorschau im Brief",
+      "placeholder": "Ihr Name"
+    },
+    "imageAlt": "Unterschriftsbild",
+    "remove": "Entfernen",
+    "uploading": "Wird hochgeladen…",
+    "uploadPrompt": "Unterschriftsbild hochladen",
+    "uploadHint": "PNG oder JPEG · max. 2 MB",
+    "error": {
+      "unsupportedType": "Nur PNG- und JPEG-Bilder werden akzeptiert.",
+      "tooLarge": "Unterschriftsbild überschreitet das 2-MB-Limit."
+    }
   },
   "confirmation": {
     "title": "Zahlung erhalten",
-    "subtitle": "Ihr Brief wird verarbeitet.",
+    "subtitle": "Ihr Brief wurde zum Versand übermittelt.",
+    "verifying": "Zahlung wird überprüft…",
+    "paymentFailed": "Zahlung nicht abgeschlossen",
+    "paymentFailedSubtitle": "Ihre Zahlung konnte nicht verarbeitet werden. Bitte kehren Sie zur Kasse zurück.",
+    "backToCheckout": "Zurück zur Kasse",
     "orderReference": "Bestellnummer",
+    "copied": "Kopiert",
+    "copyFailed": "Bitte manuell markieren und kopieren",
+    "copyReference": "Referenz kopieren",
+    "dispatchTitle": "Versandstatus",
     "whatHappensNext": "So geht es weiter",
-    "stepProcessing": "Ihr Brief wird für den Druck vorbereitet",
-    "stepPrinting": "Gedruckt und der Schweizerischen Post übergeben",
-    "stepDelivery": "Zustellung an den Empfänger",
+    "stepPayment": "Zahlung bestätigt",
+    "stepSubmitted": "Brief zum Versand übermittelt",
+    "stepProcessing": "Anbieterverarbeitung",
+    "stepUpdates": "Weitere Aktualisierungen hängen von der Bestätigung des Anbieters ab",
     "downloadReceipt": "Quittung herunterladen",
-    "sendAnother": "Weiteren Brief senden"
+    "viewLetter": "Brief ansehen",
+    "sendAnother": "Weiteren Brief senden",
+    "stateQueued": "Ihr Brief ist in der Warteschlange für den Versand",
+    "stateSubmitted": "Zum Versand übermittelt",
+    "stateAccepted": "Zum Versand angenommen",
+    "stateRejected": "Versand wurde abgelehnt — wir untersuchen dies",
+    "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
+    "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
+    "stickyCtaLabel": "Weiteren Brief senden"
   },
   "resume": {
     "loading": "Entwurf wird geladen…",
@@ -175,7 +257,108 @@
     "title": "Briefstatus",
     "orderReference": "Bestellnummer",
     "dispatchState": "Versandstatus",
-    "estimatedDelivery": "Voraussichtliche Zustellung",
-    "sendAnother": "Weiteren Brief senden"
+    "estimatedDelivery": "Voraussichtliche Lieferung",
+    "sendAnother": "Weiteren Brief senden",
+    "recipient": "Empfänger",
+    "paymentAmount": "Bezahlter Betrag",
+    "paidAt": "Zahlungsdatum"
+  },
+  "files": {
+    "dropZone": {
+      "ariaLabel": "Anhang hochladen",
+      "prompt": "Dateien hierher ziehen oder klicken",
+      "maxSize": "Max. {mb} MB pro Datei"
+    },
+    "limit": {
+      "maxFiles": "Maximum von {max} Anhängen erreicht.",
+      "totalSize": "Gesamtlimit von {mb} MB erreicht."
+    },
+    "summary": "{count} von {max} Dateien · {used} MB von {limit} MB verwendet",
+    "remove": {
+      "ariaLabel": "{name} entfernen"
+    },
+    "toast": {
+      "unsupportedType": "Nur {formats}-Dateien werden akzeptiert.",
+      "fileTooLarge": "Datei überschreitet das {mb}-MB-Limit."
+    }
+  },
+  "zoneEditor": {
+    "title": "Bearbeiten: {zone}",
+    "ariaLabel": "{zone} bearbeiten",
+    "optional": "optional",
+    "zone": {
+      "sender": "Absenderadresse",
+      "recipient": "Empfängeradresse",
+      "date": "Datum",
+      "subject": "Betreff",
+      "salutation": "Anrede",
+      "body": "Brieftext",
+      "closing": "Schlussformel"
+    },
+    "field": {
+      "firstName": "Vorname",
+      "lastName": "Nachname",
+      "company": "Firma",
+      "street": "Strasse und Nummer",
+      "postalCode": "PLZ",
+      "city": "Ort",
+      "postalAndCity": "PLZ und Ort"
+    },
+    "validation": {
+      "required": "Pflichtfeld",
+      "nameOrCompanyRequired": "Vorname oder Firma erforderlich"
+    },
+    "action": {
+      "save": "Speichern",
+      "saving": "Wird gespeichert…",
+      "cancel": "Abbrechen",
+      "close": "Schliessen"
+    }
+  },
+  "dispatch": {
+    "title": {
+      "dispatched": "Brief versandt",
+      "queued": "Brief wird verarbeitet",
+      "rejected": "Versand fehlgeschlagen"
+    },
+    "subtitle": {
+      "dispatched": "Ihr Brief wurde der Post übergeben.",
+      "queued": "Ihr Brief wird für den Versand vorbereitet.",
+      "rejected": "Es gab ein Problem beim Versand. Unser Team wurde informiert."
+    },
+    "reference": {
+      "label": "Anbieterreferenz",
+      "trackingAvailable": "Tracking für diese Sendung verfügbar",
+      "noTracking": "Kein Tracking für diese Sendung verfügbar"
+    },
+    "step": {
+      "submitted": "An den Druck übergeben",
+      "accepted": "Zur Zustellung angenommen",
+      "dispatching": "Zustellstatus ausstehend",
+      "providerNote": "Updates hängen von der Anbieterkapazität ab"
+    },
+    "lastChecked": "Zuletzt aktualisiert: {time}"
+  },
+  "help": {
+    "title": "Hilfe & Support",
+    "subtitle": "Finden Sie Antworten auf häufige Fragen oder kontaktieren Sie uns.",
+    "faqTitle": "Häufig gestellte Fragen",
+    "faq1q": "Wie schreibe ich einen Brief?",
+    "faq1a": "Klicken Sie auf «Brief schreiben». Unser KI-Assistent führt Sie durch den Prozess. Beschreiben Sie einfach Ihre Situation und wir erstellen einen professionellen Brief für Sie.",
+    "faq2q": "Wie lange dauert die Zustellung?",
+    "faq2a": "Standardbriefe werden in der Regel innerhalb von 1–3 Werktagen innerhalb der Schweiz zugestellt.",
+    "faq3q": "Kann ich meinen Brief verfolgen?",
+    "faq3a": "Eingeschriebene Briefe beinhalten eine Sendungsverfolgung. Standardbriefe haben keine Sendungsverfolgung, die Zustellung durch die Schweizerische Post ist jedoch zuverlässig.",
+    "faq4q": "Was passiert bei einem Zahlungsproblem?",
+    "faq4a": "Falls eine Zahlung fehlschlägt, können Sie es beim Checkout erneut versuchen. Falls Sie belastet wurden und etwas schiefging, kontaktieren Sie uns — wir klären das sofort.",
+    "faq5q": "Kann ich meinen Brief nach der Bezahlung bearbeiten?",
+    "faq5a": "Sobald die Zahlung bestätigt und der Brief zum Versand übermittelt wurde, kann er nicht mehr bearbeitet werden. Überprüfen Sie Ihren Brief sorgfältig vor dem Checkout.",
+    "faq6q": "Welche Dateiformate kann ich anhängen?",
+    "faq6a": "Wir akzeptieren PDF-, PNG- und JPEG-Dateien. Jede Datei darf maximal 5 MB gross sein, mit maximal 5 Anhängen pro Brief.",
+    "contactTitle": "Weitere Hilfe?",
+    "contactDescription": "Wenn Ihre Frage oben nicht beantwortet wird, kontaktieren Sie uns.",
+    "contactEmailLabel": "E-Mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Wir antworten in der Regel innerhalb eines Werktags."
   }
 }

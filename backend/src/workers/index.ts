@@ -1,6 +1,10 @@
 import type { Worker } from "bullmq";
 import { createLogger } from "../shared/logging/index.js";
 import { startEmailWorker } from "./email.worker.js";
+import { startRenderPdfWorker } from "./render-pdf.worker.js";
+import { startSubmitDispatchWorker } from "./submit-dispatch.worker.js";
+import { startReconcileDispatchWorker } from "./reconcile-dispatch.worker.js";
+import { startCleanupAssetsWorker } from "./cleanup-assets.worker.js";
 
 const logger = createLogger();
 
@@ -14,14 +18,34 @@ const workers: Worker[] = [];
  */
 export function startWorkers(): void {
   const emailWorker = startEmailWorker();
-  workers.push(emailWorker);
+  const renderPdfWorker = startRenderPdfWorker();
+  const submitDispatchWorker = startSubmitDispatchWorker();
+  const reconcileDispatchWorker = startReconcileDispatchWorker();
+  const cleanupAssetsWorker = startCleanupAssetsWorker();
 
-  emailWorker.on("completed", (job) => {
-    logger.info({ jobId: job?.id, template: job?.data.template }, "Email job completed");
-  });
-  emailWorker.on("failed", (job, err) => {
-    logger.error({ jobId: job?.id, err: err.message }, "Email job failed");
-  });
+  workers.push(
+    emailWorker,
+    renderPdfWorker,
+    submitDispatchWorker,
+    reconcileDispatchWorker,
+    cleanupAssetsWorker,
+  );
+
+  // Log completion/failure events for all workers
+  for (const worker of workers) {
+    worker.on("completed", (job) => {
+      logger.info(
+        { queue: worker.name, jobId: job?.id },
+        "Job completed",
+      );
+    });
+    worker.on("failed", (job, err) => {
+      logger.error(
+        { queue: worker.name, jobId: job?.id, err: err.message },
+        "Job failed",
+      );
+    });
+  }
 
   logger.info(`Started ${workers.length} worker(s)`);
 }

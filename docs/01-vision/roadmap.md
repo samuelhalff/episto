@@ -18,10 +18,10 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | 2 — Architecture Freeze | Implementation-grade technical decisions | ✅ Complete — stack, contracts, schemas, state machines locked |
 | 3 — Build Packs | AI-safe implementation blueprints | ✅ Complete — frontend, backend, admin build packs; guardrails; error taxonomy; i18n; dev workflow |
 | 4 — Pre-Dev Gate | Final review before implementation | ✅ Complete — doc hardening and recursive closeout passed |
-| 5 — Build | Code scaffolding and feature implementation | 🚧 Ready to start |
-| 6 — Launch Validation | Commercial and operational verification | 🛑 Blocked on Build & Provider Contract |
+| 5 — Build | Code scaffolding and feature implementation | 🚧 Substantially complete — see TASKS.md §5 for remaining items |
+| 6 — Launch Validation | Commercial and operational verification | 🚧 Pre-launch hardening complete; awaiting provider contract and commercial sign-offs |
 
-**Current phase:** Phase 5 (Build). Implementation can proceed in parallel with Phase 6 preparations.
+**Current phase:** Phase 5 (Build) — substantially complete. Core backend modules, frontend flows, shared schemas, and payment/dispatch state machines are implemented. Pre-launch hardening phases (6A–7C) have been completed: accessibility, error tracking, admin dashboard, SEO, build pipeline, and operational readiness. Remaining work: dispatch adapter internals (blocked on Swiss Post provider contract), plus external launch gates (Stripe live-mode, native speaker review, pricing validation).
 
 ---
 

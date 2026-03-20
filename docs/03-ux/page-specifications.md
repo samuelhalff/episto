@@ -1110,7 +1110,7 @@ The "Continue to Review" button in `<StatusStrip>` (or sticky bottom button on m
 |---|---|
 | AI response failure | `<ErrorBanner>` in conversation panel: "Couldn't get a response. Try again." with retry button |
 | Session expired | `<Dialog>` "Your session has expired. Start a new letter or use your resume link." No post-expiry save flow |
-| Network offline | `<ErrorBanner>` (top of page): "You're offline. Autosave is paused until you reconnect." |
+| Network offline | `<ErrorBanner>` (top of page): "You're offline. Recent changes are not saved yet." |
 | Rendering failure | Warning in preview area: "Preview unavailable — your content is saved." |
 
 ### Empty State
@@ -1611,7 +1611,7 @@ The page behaviour depends on what the token resolves to:
 
 #### 10.3 Token valid — draft expired
 - `<Card>` centred: "This session has expired."
-- `text-secondary` "Sessions are kept for {configuredSessionRetentionLabel} after your last activity."
+- `text-secondary` "Sessions are kept for a limited time after your last activity."
 - `<Button>` "Start a new letter" → `/draft/new`
 
 #### 10.4 Token invalid / not found
