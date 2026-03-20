@@ -14,6 +14,7 @@ import { Lock, Truck, ShieldCheck, Loader2 } from "lucide-react";
 import { DeliveryType } from "@swiss-mail/shared";
 import { PriceSummary } from "../../../../../components/product/PriceSummary.js";
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm.js";
+import { captureError } from "../../../../../lib/error-tracking.js";
 
 // ---------------------------------------------------------------------------
 // Stripe setup
@@ -80,7 +81,7 @@ export default function CheckoutPage({
   if (draft.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-navy" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -119,6 +120,8 @@ export default function CheckoutPage({
       if (!result.clientSecret) {
         router.push(`/draft/${draftId}/confirmation`);
       }
+    }).catch((err: unknown) => {
+      captureError(err instanceof Error ? err : new Error(String(err)), { component: "CheckoutPage", route: `/draft/${draftId}/checkout` });
     });
   }
 
@@ -126,14 +129,14 @@ export default function CheckoutPage({
     <div className="min-h-screen bg-gray-50">
       <header className="border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-between">
-          <Link href="/" className="font-bold text-navy">
+          <Link href="/" className="font-bold text-gray-900">
             {tc("appName")}
           </Link>
-          <span className="text-sm font-medium text-navy">{t("title")}</span>
+          <span className="text-sm font-medium text-gray-900">{t("title")}</span>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
 
         <PriceSummary deliveryType={d.deliveryType} subject={d.subject} />
@@ -162,7 +165,7 @@ export default function CheckoutPage({
                   "mt-3 w-full rounded-lg border px-4 py-2.5 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1",
                   errors.email
                     ? "border-destructive focus:border-destructive focus:ring-destructive"
-                    : "border-gray-200 focus:border-navy focus:ring-navy",
+                    : "border-gray-200 focus:border-primary focus:ring-primary",
                 ].join(" ")}
               />
               {errors.email && (
@@ -185,7 +188,7 @@ export default function CheckoutPage({
                   {...register("legalConsent")}
                   aria-describedby={errors.legalConsent ? "consent-error" : undefined}
                   aria-invalid={errors.legalConsent ? "true" : undefined}
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-navy focus:ring-navy"
+                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary"
                 />
                 <span className="text-gray-600">{t("legalConsent")}</span>
               </label>
@@ -205,7 +208,7 @@ export default function CheckoutPage({
             <button
               type="submit"
               disabled={!isValid || isSubmitting}
-              className="w-full rounded-lg bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light disabled:opacity-40"
+              className="w-full rounded-lg bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-40"
             >
               {isSubmitting ? (
                 <Loader2 className="mx-auto h-5 w-5 animate-spin" />
@@ -230,7 +233,7 @@ export default function CheckoutPage({
                 appearance: {
                   theme: "stripe",
                   variables: {
-                    colorPrimary: "#1a2e4a",
+                    colorPrimary: "#F59E0B",
                     borderRadius: "8px",
                     fontFamily: "inherit",
                   },

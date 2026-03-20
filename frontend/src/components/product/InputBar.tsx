@@ -127,7 +127,7 @@ export function InputBar({
             <button
               type="button"
               onClick={onStartVoice}
-              className="group flex w-full items-center gap-3 rounded-xl bg-navy px-5 py-4 text-left text-white transition hover:bg-navy-light"
+              className="group flex w-full items-center gap-3 rounded-xl bg-primary px-5 py-4 text-left text-white transition hover:bg-primary-dark"
             >
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
                 <MicIcon className="h-5 w-5" />
@@ -198,7 +198,7 @@ export function InputBar({
               <button
                 type="button"
                 onClick={onStartRecording}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-navy py-3.5 text-sm font-semibold text-white transition hover:bg-navy-light"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
               >
                 <MicIcon className="h-4 w-4" />
                 <span>{t("startDictation")}</span>
@@ -210,7 +210,7 @@ export function InputBar({
                 type="button"
                 onClick={onSend}
                 disabled={isSending}
-                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-navy text-white transition hover:bg-navy-light disabled:opacity-40"
+                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
               </button>
@@ -234,7 +234,7 @@ export function InputBar({
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
-              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
+              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               rows={1}
               placeholder={t("messagePlaceholder")}
               value={input}
@@ -246,7 +246,7 @@ export function InputBar({
                 type="button"
                 onClick={onSwitchToVoice}
                 aria-label={t("startDictation")}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-navy hover:text-navy"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-primary hover:text-primary"
               >
                 <MicIcon className="h-4 w-4" />
               </button>
@@ -255,7 +255,7 @@ export function InputBar({
               type="button"
               disabled={!hasInput || isSending}
               onClick={onSend}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy text-white transition hover:bg-navy-light disabled:opacity-40"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
               <span className="sr-only">{t("sendMessage")}</span>
@@ -269,7 +269,7 @@ export function InputBar({
         <div className="px-4 py-3">
           <div className="flex items-end gap-2">
             <textarea
-              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
+              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               rows={1}
               placeholder={t("messagePlaceholder")}
               value={input}
@@ -281,7 +281,7 @@ export function InputBar({
                 type="button"
                 onClick={onSwitchToVoice}
                 aria-label={t("startDictation")}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-navy hover:text-navy"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-primary hover:text-primary"
               >
                 <MicIcon className="h-4 w-4" />
               </button>
@@ -290,7 +290,7 @@ export function InputBar({
               type="button"
               disabled={!hasInput || isSending}
               onClick={onSend}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-navy text-white transition hover:bg-navy-light disabled:opacity-40"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
               <span className="sr-only">{t("sendMessage")}</span>

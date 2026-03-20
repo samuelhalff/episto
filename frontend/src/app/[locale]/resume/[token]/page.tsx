@@ -53,7 +53,7 @@ export default function ResumePage({
         <p className="text-sm text-gray-600">{t("error")}</p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
         >
           <PenLine className="h-4 w-4" />
           {t("startNew")}
@@ -64,7 +64,7 @@ export default function ResumePage({
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-3 p-8">
-      <Loader2 className="h-8 w-8 animate-spin text-navy" />
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
       <p className="text-sm text-gray-500">{t("loading")}</p>
     </div>
   );

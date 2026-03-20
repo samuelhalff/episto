@@ -23,6 +23,12 @@ export const DraftStatus = {
 export type DraftStatusValue =
   (typeof DraftStatus)[keyof typeof DraftStatus];
 
+export type PaymentStateValue =
+  (typeof PaymentState)[keyof typeof PaymentState];
+
+export type DispatchStateValue =
+  (typeof DispatchState)[keyof typeof DispatchState];
+
 export const DeliveryType = {
   standard: "standard",
   registered: "registered",
