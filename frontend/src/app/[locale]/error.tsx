@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { captureError } from "../../lib/error-tracking.js";
 
 export default function Error({
   error,
@@ -10,6 +12,13 @@ export default function Error({
   reset: () => void;
 }) {
   const t = useTranslations("common");
+
+  useEffect(() => {
+    captureError(error, {
+      component: "ErrorBoundary",
+      route: typeof window !== "undefined" ? window.location.pathname : undefined,
+    });
+  }, [error]);
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">

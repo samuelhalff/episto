@@ -5,7 +5,8 @@
     "error": "Une erreur est survenue",
     "tryAgain": "Réessayer",
     "pageNotFound": "Page non trouvée",
-    "backToHome": "Retour à l'accueil"
+    "backToHome": "Retour à l'accueil",
+    "skipToContent": "Aller au contenu"
   },
   "home": {
     "title": "Lettres formelles, envoyées simplement",
@@ -39,12 +40,14 @@
     "nav": {
       "howItWorks": "Comment ça fonctionne",
       "pricing": "Tarifs",
+      "help": "Aide",
       "writeLetter": "Écrire une lettre"
     },
     "footer": {
       "privacy": "Confidentialité",
       "terms": "Conditions",
       "imprint": "Mentions légales",
+      "help": "Aide",
       "copyright": "© 2025 Swiss Mail. Tous droits réservés."
     },
     "appName": "Swiss Mail"
@@ -331,5 +334,27 @@
       "providerNote": "Les mises à jour dépendent du prestataire"
     },
     "lastChecked": "Dernière mise à jour : {time}"
+  },
+  "help": {
+    "title": "Aide & Support",
+    "subtitle": "Trouvez des réponses aux questions fréquentes ou contactez-nous.",
+    "faqTitle": "Questions fréquentes",
+    "faq1q": "Comment écrire une lettre ?",
+    "faq1a": "Cliquez sur « Écrire une lettre ». Notre assistant IA vous guide tout au long du processus. Décrivez simplement votre situation et nous rédigerons une lettre professionnelle pour vous.",
+    "faq2q": "Combien de temps prend la livraison ?",
+    "faq2a": "Les lettres standard sont généralement distribuées sous 1 à 3 jours ouvrables en Suisse.",
+    "faq3q": "Puis-je suivre ma lettre ?",
+    "faq3a": "Les lettres recommandées incluent le suivi. Les lettres standard ne disposent pas de suivi, mais la distribution par La Poste suisse est fiable.",
+    "faq4q": "Que se passe-t-il en cas de problème de paiement ?",
+    "faq4a": "En cas d'échec de paiement, vous pouvez réessayer au moment du paiement. Si vous avez été débité mais qu'un problème est survenu, contactez-nous — nous enquêterons immédiatement.",
+    "faq5q": "Puis-je modifier ma lettre après le paiement ?",
+    "faq5a": "Une fois le paiement confirmé et la lettre soumise à l'expédition, elle ne peut plus être modifiée. Vérifiez soigneusement votre lettre avant de payer.",
+    "faq6q": "Quels formats de fichiers puis-je joindre ?",
+    "faq6a": "Nous acceptons les fichiers PDF, PNG et JPEG. Chaque fichier peut peser jusqu'à 5 Mo, avec un maximum de 5 pièces jointes par lettre.",
+    "contactTitle": "Besoin d'aide supplémentaire ?",
+    "contactDescription": "Si votre question n'est pas traitée ci-dessus, contactez-nous.",
+    "contactEmailLabel": "E-mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Nous répondons généralement sous un jour ouvrable."
   }
 }

@@ -5,7 +5,8 @@
     "error": "Si è verificato un errore",
     "tryAgain": "Riprova",
     "pageNotFound": "Pagina non trovata",
-    "backToHome": "Torna alla home"
+    "backToHome": "Torna alla home",
+    "skipToContent": "Vai al contenuto"
   },
   "home": {
     "title": "Lettere formali, inviate con semplicità",
@@ -39,12 +40,14 @@
     "nav": {
       "howItWorks": "Come funziona",
       "pricing": "Prezzi",
+      "help": "Aiuto",
       "writeLetter": "Scrivere una lettera"
     },
     "footer": {
       "privacy": "Privacy",
       "terms": "Condizioni",
       "imprint": "Colofone",
+      "help": "Aiuto",
       "copyright": "© 2025 Swiss Mail. Tutti i diritti riservati."
     },
     "appName": "Swiss Mail"
@@ -331,5 +334,27 @@
       "providerNote": "Gli aggiornamenti dipendono dal fornitore"
     },
     "lastChecked": "Ultimo aggiornamento: {time}"
+  },
+  "help": {
+    "title": "Aiuto & Supporto",
+    "subtitle": "Trova risposte alle domande frequenti o contattaci.",
+    "faqTitle": "Domande frequenti",
+    "faq1q": "Come scrivo una lettera?",
+    "faq1a": "Clicca su «Scrivi una lettera». Il nostro assistente IA ti guida attraverso il processo. Descrivi semplicemente la tua situazione e noi redigeremo una lettera professionale per te.",
+    "faq2q": "Quanto tempo richiede la consegna?",
+    "faq2a": "Le lettere standard vengono generalmente consegnate entro 1–3 giorni lavorativi in Svizzera.",
+    "faq3q": "Posso tracciare la mia lettera?",
+    "faq3a": "Le lettere raccomandate includono il tracciamento. Le lettere standard non includono il tracciamento, ma la consegna tramite la Posta Svizzera è affidabile.",
+    "faq4q": "Cosa succede in caso di problemi con il pagamento?",
+    "faq4a": "Se un pagamento non va a buon fine, puoi riprovare al momento del pagamento. Se sei stato addebitato ma qualcosa è andato storto, contattaci — indagheremo immediatamente.",
+    "faq5q": "Posso modificare la mia lettera dopo il pagamento?",
+    "faq5a": "Una volta confermato il pagamento e inviata la lettera per la spedizione, non può più essere modificata. Controlla attentamente la tua lettera prima del pagamento.",
+    "faq6q": "Quali formati di file posso allegare?",
+    "faq6a": "Accettiamo file PDF, PNG e JPEG. Ogni file può pesare fino a 5 MB, con un massimo di 5 allegati per lettera.",
+    "contactTitle": "Hai bisogno di ulteriore aiuto?",
+    "contactDescription": "Se la tua domanda non ha trovato risposta sopra, contattaci.",
+    "contactEmailLabel": "E-mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Rispondiamo generalmente entro un giorno lavorativo."
   }
 }

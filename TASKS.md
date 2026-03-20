@@ -1,6 +1,6 @@
 # Build Tasks
 
-**Status:** Phase 5 — Implementation substantially complete
+**Status:** Phase 7 — Pre-launch hardening and operational UI complete
 **Upstream:** [Roadmap](docs/01-vision/roadmap.md)
 **Guidelines:** [Copilot Instructions](.github/copilot-instructions.md)
 
@@ -58,6 +58,7 @@
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
 - [x] 521 unit tests passing (28 test files)
+- [x] 538 unit tests passing (30 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
@@ -103,6 +104,37 @@
 - [x] Unused `@fastify/csrf-protection` dependency removed (custom X-Requested-With validation used instead)
 - [x] Retention module unit tests + scheduled cleanup job
 - [x] Product analytics event taxonomy and instrumentation
+
+### Phase 6A — Frontend Quality & Completeness:
+- [x] Help & Support page (FAQ + contact section, all 4 locales — `/help`)
+- [x] Global loading skeleton (locale-level `loading.tsx` with pulse animation)
+- [x] Skip-to-content accessibility link + ARIA landmarks (layout, header, footer, nav)
+- [x] Help link added to Header (desktop + mobile) and Footer navigation
+
+### Phase 6B — Operational Readiness:
+- [x] Error tracking adapter — backend (replaceable sink pattern matching analytics, Pino-based MVP)
+- [x] Error tracking adapter — frontend (replaceable sink pattern matching analytics, console-based MVP)
+- [x] Error boundary integration (error.tsx now reports to error tracking sink)
+- [x] Backend error tracking tests (9 tests) + frontend error tracking tests (8 tests)
+- [x] Readiness probe enhanced with Redis health check (via BullMQ queue ping)
+
+### Phase 7A — Build & CI Fix:
+- [x] Next.js build fix: webpack `extensionAlias` for `.js` → `.ts`/`.tsx` module resolution
+- [x] ESLint config: ignore auto-generated `next-env.d.ts` (Next 15.5 routes.d.ts reference)
+- [x] Full CI pipeline now passes: lint ✅ typecheck ✅ tests ✅ build ✅
+
+### Phase 7B — SEO & Web Basics:
+- [x] `robots.txt` (Disallow /api/ and /admin/)
+- [x] Dynamic `sitemap.xml` (all static pages × 4 locales via Next.js app router)
+- [x] Web app manifest (`manifest.json` with Swiss Mail branding)
+- [x] HTML metadata (title, description, manifest link in locale layout)
+
+### Phase 7C — Admin Dashboard UI:
+- [x] Admin login page (HTTP Basic Auth, client-side credential prompt)
+- [x] Service health panel (API, database, Redis, object storage status with green/red indicators)
+- [x] Operational overview panel (ambiguous dispatches, recent refunds, payment/dispatch state counts)
+- [x] Queue status panel (waiting, active, failed job counts per queue)
+- [x] Files split for file-size compliance: `page.tsx` (176 lines) + `admin-panels.tsx` (206 lines) + `admin-api.ts` (56 lines)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding

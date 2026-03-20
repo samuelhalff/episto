@@ -23,6 +23,7 @@ export default tseslint.config(
       "**/coverage/",
       "backend/dist/",
       "shared/dist/",
+      "frontend/next-env.d.ts",
     ],
   },
 );

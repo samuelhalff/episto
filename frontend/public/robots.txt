@@ -1,0 +1,10 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow admin, API, and internal pages
+Disallow: /api/
+Disallow: /admin/
+
+# Sitemap
+Sitemap: https://swissmail.ch/sitemap.xml

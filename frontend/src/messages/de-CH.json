@@ -5,7 +5,8 @@
     "error": "Ein Fehler ist aufgetreten",
     "tryAgain": "Erneut versuchen",
     "pageNotFound": "Seite nicht gefunden",
-    "backToHome": "Zurück zur Startseite"
+    "backToHome": "Zurück zur Startseite",
+    "skipToContent": "Zum Inhalt springen"
   },
   "home": {
     "title": "Formelle Briefe, einfach versendet",
@@ -39,12 +40,14 @@
     "nav": {
       "howItWorks": "So funktioniert es",
       "pricing": "Preise",
+      "help": "Hilfe",
       "writeLetter": "Brief schreiben"
     },
     "footer": {
       "privacy": "Datenschutz",
       "terms": "AGB",
       "imprint": "Impressum",
+      "help": "Hilfe",
       "copyright": "© 2025 Swiss Mail. Alle Rechte vorbehalten."
     },
     "appName": "Swiss Mail"
@@ -331,5 +334,27 @@
       "providerNote": "Updates hängen von der Anbieterkapazität ab"
     },
     "lastChecked": "Zuletzt aktualisiert: {time}"
+  },
+  "help": {
+    "title": "Hilfe & Support",
+    "subtitle": "Finden Sie Antworten auf häufige Fragen oder kontaktieren Sie uns.",
+    "faqTitle": "Häufig gestellte Fragen",
+    "faq1q": "Wie schreibe ich einen Brief?",
+    "faq1a": "Klicken Sie auf «Brief schreiben». Unser KI-Assistent führt Sie durch den Prozess. Beschreiben Sie einfach Ihre Situation und wir erstellen einen professionellen Brief für Sie.",
+    "faq2q": "Wie lange dauert die Zustellung?",
+    "faq2a": "Standardbriefe werden in der Regel innerhalb von 1–3 Werktagen innerhalb der Schweiz zugestellt.",
+    "faq3q": "Kann ich meinen Brief verfolgen?",
+    "faq3a": "Eingeschriebene Briefe beinhalten eine Sendungsverfolgung. Standardbriefe haben keine Sendungsverfolgung, die Zustellung durch die Schweizerische Post ist jedoch zuverlässig.",
+    "faq4q": "Was passiert bei einem Zahlungsproblem?",
+    "faq4a": "Falls eine Zahlung fehlschlägt, können Sie es beim Checkout erneut versuchen. Falls Sie belastet wurden und etwas schiefging, kontaktieren Sie uns — wir klären das sofort.",
+    "faq5q": "Kann ich meinen Brief nach der Bezahlung bearbeiten?",
+    "faq5a": "Sobald die Zahlung bestätigt und der Brief zum Versand übermittelt wurde, kann er nicht mehr bearbeitet werden. Überprüfen Sie Ihren Brief sorgfältig vor dem Checkout.",
+    "faq6q": "Welche Dateiformate kann ich anhängen?",
+    "faq6a": "Wir akzeptieren PDF-, PNG- und JPEG-Dateien. Jede Datei darf maximal 5 MB gross sein, mit maximal 5 Anhängen pro Brief.",
+    "contactTitle": "Weitere Hilfe?",
+    "contactDescription": "Wenn Ihre Frage oben nicht beantwortet wird, kontaktieren Sie uns.",
+    "contactEmailLabel": "E-Mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Wir antworten in der Regel innerhalb eines Werktags."
   }
 }
