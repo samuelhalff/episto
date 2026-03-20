@@ -8,14 +8,13 @@ import {
   useConversation,
 } from "../../../../hooks/use-api.js";
 import { Link } from "../../../../i18n/navigation.js";
-import { Eye, X } from "lucide-react";
+import { Eye, X, Mail, PanelRightClose, PanelRightOpen } from "lucide-react";
 import { StepIndicator } from "../../../../components/product/StepIndicator.js";
 import { ConversationPanel } from "../../../../components/product/ConversationPanel.js";
 import { LetterPreview } from "../../../../components/product/LetterPreview.js";
-
-// ---------------------------------------------------------------------------
-// Main Draft Workspace Page
-// ---------------------------------------------------------------------------
+import { Button } from "../../../../components/ui/button.js";
+import { Badge } from "../../../../components/ui/badge.js";
+import { cn } from "../../../../lib/utils.js";
 
 export default function DraftWorkspacePage({
   params,
@@ -31,37 +30,69 @@ export default function DraftWorkspacePage({
   const conversation = useConversation(draftId);
 
   const [mobilePreviewOpen, setMobilePreviewOpen] = useState(false);
+  const [previewCollapsed, setPreviewCollapsed] = useState(false);
 
-  // No session yet — prompt to start
+  // No session yet
   if (!session.session && !session.isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8">
-        <h1 className="text-2xl font-bold text-gray-900">{tc("appName")}</h1>
-        <button
-          type="button"
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-8">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
+          <Mail className="h-6 w-6 text-primary-foreground" />
+        </div>
+        <h1 className="text-2xl font-bold text-foreground">{tc("appName")}</h1>
+        <Button
           onClick={() => void session.createSession("en-CH")}
-          className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition hover:bg-primary-dark disabled:opacity-50"
+          size="lg"
         >
           {t("title")}
-        </button>
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col bg-background">
       {/* Header */}
-      <header className="flex items-center justify-between border-b bg-white px-4 py-3">
-        <Link href="/" className="font-bold text-gray-900">
-          {tc("appName")}
+      <header className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
+            <Mail className="h-3.5 w-3.5 text-primary-foreground" />
+          </div>
+          <span className="hidden font-semibold text-foreground sm:inline">
+            {tc("appName")}
+          </span>
         </Link>
+
         <StepIndicator currentStep={0} />
-        <span className="text-sm text-gray-500">{t("saved")}</span>
+
+        <div className="flex items-center gap-2">
+          <Badge variant="secondary" className="text-xs">
+            {t("saved")}
+          </Badge>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="hidden lg:inline-flex"
+            onClick={() => setPreviewCollapsed(!previewCollapsed)}
+            aria-label="Toggle preview"
+          >
+            {previewCollapsed ? (
+              <PanelRightOpen className="h-4 w-4" />
+            ) : (
+              <PanelRightClose className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Conversation panel — left on desktop, full on mobile */}
-        <div className="flex flex-1 flex-col border-r lg:w-2/5 lg:flex-none">
+        {/* Conversation panel */}
+        <div
+          className={cn(
+            "flex flex-1 flex-col border-r border-border",
+            !previewCollapsed && "lg:w-[45%] lg:flex-none"
+          )}
+        >
           <ConversationPanel
             messages={conversation.messages}
             draftId={draftId}
@@ -69,37 +100,43 @@ export default function DraftWorkspacePage({
           />
         </div>
 
-        {/* Letter preview — right on desktop, hidden on mobile */}
-        <div className="hidden flex-1 flex-col overflow-y-auto bg-gray-50 p-6 lg:flex">
-          <LetterPreview draft={draft.data} />
-        </div>
+        {/* Letter preview — right on desktop */}
+        {!previewCollapsed && (
+          <div className="hidden flex-1 flex-col overflow-y-auto bg-muted/30 p-8 lg:flex">
+            <div className="mx-auto w-full max-w-2xl">
+              <LetterPreview draft={draft.data} />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Mobile floating preview button */}
-      <button
-        type="button"
+      <Button
+        size="icon"
         onClick={() => setMobilePreviewOpen(true)}
-        className="fixed bottom-6 right-6 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition hover:bg-primary-dark lg:hidden"
+        className="fixed bottom-6 right-6 z-30 h-14 w-14 rounded-full shadow-lg lg:hidden"
       >
         <Eye className="h-5 w-5" />
         <span className="sr-only">{t("preview")}</span>
-      </button>
+      </Button>
 
       {/* Mobile preview overlay */}
       {mobilePreviewOpen && (
-        <div className="fixed inset-0 z-40 flex flex-col bg-gray-50 lg:hidden">
-          <div className="flex items-center justify-between border-b bg-white px-4 py-3">
-            <span className="font-medium text-gray-900">{t("preview")}</span>
-            <button
-              type="button"
+        <div className="fixed inset-0 z-40 flex flex-col bg-background lg:hidden">
+          <div className="flex h-14 shrink-0 items-center justify-between border-b border-border px-4">
+            <span className="font-medium text-foreground">{t("preview")}</span>
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => setMobilePreviewOpen(false)}
-              className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
             >
               <X className="h-5 w-5" />
-            </button>
+            </Button>
           </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            <LetterPreview draft={draft.data} />
+          <div className="flex-1 overflow-y-auto bg-muted/30 p-6">
+            <div className="mx-auto max-w-2xl">
+              <LetterPreview draft={draft.data} />
+            </div>
           </div>
         </div>
       )}

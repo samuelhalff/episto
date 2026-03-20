@@ -4,11 +4,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useSession, useCreateDraft } from "../../../../hooks/use-api.js";
+import { Mail, Loader2 } from "lucide-react";
 
-/**
- * /draft/new — entry point that creates a session + draft, then redirects
- * to the draft workspace. This is the primary CTA destination.
- */
 export default function NewDraftPage() {
   const t = useTranslations("common");
   const router = useRouter();
@@ -18,34 +15,29 @@ export default function NewDraftPage() {
   useEffect(() => {
     async function bootstrap() {
       try {
-        // Create a guest session (cookie set automatically)
         await createSession("en-CH");
-
-        // Create the first draft
         const draft = await createDraft.mutateAsync();
-
-        // Redirect to workspace
         router.replace(`/draft/${draft.id}`);
       } catch {
-        // Session may already exist — try creating draft directly
         try {
           const draft = await createDraft.mutateAsync();
           router.replace(`/draft/${draft.id}`);
         } catch {
-          // If everything fails, redirect home
           router.replace("/");
         }
       }
     }
-
     void bootstrap();
   }, []);
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="mt-4 text-sm text-gray-500">{t("loading")}</p>
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background">
+      <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary">
+        <Mail className="h-6 w-6 text-primary-foreground" />
+      </div>
+      <div className="flex items-center gap-3">
+        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">{t("loading")}</p>
       </div>
     </div>
   );

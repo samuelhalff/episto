@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { captureError } from "../../lib/error-tracking.js";
+import { Button } from "../../components/ui/button.js";
+import { AlertCircle } from "lucide-react";
 
 export default function Error({
   error,
@@ -23,18 +25,18 @@ export default function Error({
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">
       <div className="mx-auto max-w-md">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900">
+        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+          <AlertCircle className="h-8 w-8 text-destructive" />
+        </div>
+        <h1 className="mb-4 text-2xl font-bold text-foreground">
           {t("error")}
         </h1>
-        <p className="mb-6 text-gray-600">
+        <p className="mb-6 text-muted-foreground">
           {error.message || "Something went wrong. Please try again."}
         </p>
-        <button
-          onClick={reset}
-          className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-        >
+        <Button onClick={reset}>
           {t("tryAgain")}
-        </button>
+        </Button>
       </div>
     </div>
   );

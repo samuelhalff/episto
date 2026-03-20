@@ -3,16 +3,14 @@
 import { use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
-import { Loader2, Package, PenLine, AlertCircle } from "lucide-react";
+import { Loader2, Package, PenLine, AlertCircle, Mail } from "lucide-react";
 import { Link } from "../../../../i18n/navigation.js";
 import { apiFetch } from "../../../../lib/api.js";
 import { queryKeys } from "@swiss-mail/shared";
 import type { OrderStatusResponse } from "@swiss-mail/shared";
 import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation.js";
-
-// ---------------------------------------------------------------------------
-// Status page — GET /api/v1/orders/:orderToken
-// ---------------------------------------------------------------------------
+import { Button } from "../../../../components/ui/button.js";
+import { Card, CardContent } from "../../../../components/ui/card.js";
 
 function useOrderStatus(orderToken: string) {
   return useQuery({
@@ -29,10 +27,6 @@ function useOrderStatus(orderToken: string) {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Page component
-// ---------------------------------------------------------------------------
-
 export default function StatusPage({
   params,
 }: {
@@ -46,7 +40,7 @@ export default function StatusPage({
 
   if (query.isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
@@ -54,89 +48,96 @@ export default function StatusPage({
 
   if (query.error || !query.data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-        <AlertCircle className="h-12 w-12 text-destructive" />
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background p-8 text-center">
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-destructive/10">
+          <AlertCircle className="h-8 w-8 text-destructive" />
+        </div>
         <p className="text-sm text-muted-foreground">{tc("error")}</p>
-        <Link href="/" className="text-sm text-primary underline">
-          {tc("backToHome")}
-        </Link>
+        <Button asChild variant="outline" size="sm">
+          <Link href="/">{tc("backToHome")}</Link>
+        </Button>
       </div>
     );
   }
 
   const { order } = query.data;
   const { payment, dispatch: dispatchData } = order;
-
   const priceCHF = (payment.priceCents / 100).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="border-b bg-white px-4 py-3">
+    <div className="min-h-screen bg-muted/30">
+      <header className="border-b border-border bg-background px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-center">
-          <Link href="/" className="font-bold text-gray-900">
-            {tc("appName")}
+          <Link href="/" className="flex items-center gap-2">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary">
+              <Mail className="h-3.5 w-3.5 text-primary-foreground" />
+            </div>
+            <span className="font-semibold text-foreground">{tc("appName")}</span>
           </Link>
         </div>
       </header>
 
       <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-12">
         <div className="text-center">
-          <Package className="mx-auto mb-4 h-12 w-12 text-primary" />
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+            <Package className="h-8 w-8 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
         </div>
 
-        {/* Order summary */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <dl className="divide-y divide-gray-100">
-            <div className="flex items-center justify-between py-3 text-sm">
-              <dt className="text-gray-500">{t("orderReference")}</dt>
-              <dd className="font-mono font-medium text-gray-900">{order.orderRef}</dd>
-            </div>
-            {order.recipientName && (
+        <Card>
+          <CardContent className="p-6">
+            <dl className="divide-y divide-border">
               <div className="flex items-center justify-between py-3 text-sm">
-                <dt className="text-gray-500">{t("recipient")}</dt>
-                <dd className="font-medium text-gray-900">{order.recipientName}</dd>
+                <dt className="text-muted-foreground">{t("orderReference")}</dt>
+                <dd className="font-mono font-medium text-foreground">{order.orderRef}</dd>
               </div>
-            )}
-            <div className="flex items-center justify-between py-3 text-sm">
-              <dt className="text-gray-500">{t("paymentAmount")}</dt>
-              <dd className="font-medium text-gray-900">
-                CHF {priceCHF}
-                <span className="ml-2 text-xs text-gray-500">({payment.state})</span>
-              </dd>
-            </div>
-            {payment.capturedAt && (
+              {order.recipientName && (
+                <div className="flex items-center justify-between py-3 text-sm">
+                  <dt className="text-muted-foreground">{t("recipient")}</dt>
+                  <dd className="font-medium text-foreground">{order.recipientName}</dd>
+                </div>
+              )}
               <div className="flex items-center justify-between py-3 text-sm">
-                <dt className="text-gray-500">{t("paidAt")}</dt>
-                <dd className="text-gray-900">
-                  {new Date(payment.capturedAt).toLocaleDateString()}
+                <dt className="text-muted-foreground">{t("paymentAmount")}</dt>
+                <dd className="font-medium text-foreground">
+                  CHF {priceCHF}
+                  <span className="ml-2 text-xs text-muted-foreground">({payment.state})</span>
                 </dd>
               </div>
-            )}
-          </dl>
-        </div>
+              {payment.capturedAt && (
+                <div className="flex items-center justify-between py-3 text-sm">
+                  <dt className="text-muted-foreground">{t("paidAt")}</dt>
+                  <dd className="text-foreground">
+                    {new Date(payment.capturedAt).toLocaleDateString()}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </CardContent>
+        </Card>
 
-        {/* Dispatch status */}
-        <div className="rounded-lg border border-gray-200 bg-white p-6">
-          <DispatchConfirmation
-            dispatchState={
-              dispatchData.state as Parameters<typeof DispatchConfirmation>[0]["dispatchState"]
-            }
-            providerReference={dispatchData.providerRef}
-            isTrackable={dispatchData.trackingAvailable}
-            submittedAt={dispatchData.submittedAt}
-            lastCheckedAt={dispatchData.lastCheckedAt}
-          />
-        </div>
+        <Card>
+          <CardContent className="p-6">
+            <DispatchConfirmation
+              dispatchState={
+                dispatchData.state as Parameters<typeof DispatchConfirmation>[0]["dispatchState"]
+              }
+              providerReference={dispatchData.providerRef}
+              isTrackable={dispatchData.trackingAvailable}
+              submittedAt={dispatchData.submittedAt}
+              lastCheckedAt={dispatchData.lastCheckedAt}
+            />
+          </CardContent>
+        </Card>
 
         <div className="text-center">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
-          >
-            <PenLine className="h-4 w-4" />
-            {t("sendAnother")}
-          </Link>
+          <Button asChild>
+            <Link href="/">
+              <PenLine className="mr-1.5 h-4 w-4" />
+              {t("sendAnother")}
+            </Link>
+          </Button>
         </div>
       </main>
     </div>
