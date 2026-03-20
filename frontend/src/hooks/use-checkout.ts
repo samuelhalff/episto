@@ -54,11 +54,22 @@ export function useCheckout(draftId: string): UseCheckoutReturn {
   const queryClient = useQueryClient();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-  // Payment state — always fresh from server (no stale cache)
+  // Payment state — always fresh from server (no stale cache).
+  // Returns null if no payment exists yet (404 from backend is expected).
   const paymentQuery = useQuery({
     queryKey: queryKeys.payment(draftId),
-    queryFn: () =>
-      apiFetch<PaymentResponse>(`/v1/drafts/${draftId}/payment`).then((r) => r.payment),
+    queryFn: async () => {
+      try {
+        const res = await apiFetch<PaymentResponse>(`/v1/drafts/${draftId}/payment`);
+        return res.payment;
+      } catch (err) {
+        const status = err != null && typeof err === "object" && "status" in err
+          ? (err as { status: number }).status
+          : undefined;
+        if (status === 404) return null;
+        throw err;
+      }
+    },
     staleTime: 0,
     enabled: Boolean(draftId),
   });
