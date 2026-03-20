@@ -22,18 +22,32 @@ import { StripePaymentForm } from "../../../../../components/product/StripePayme
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
+/** Map Swiss locale codes to Stripe-supported locale strings */
+const STRIPE_LOCALE_MAP: Record<string, "de" | "fr" | "it" | "en"> = {
+  "de-CH": "de",
+  "fr-CH": "fr",
+  "it-CH": "it",
+  "en-CH": "en",
+};
+
+function toStripeLocale(locale: string): "de" | "fr" | "it" | "en" {
+  return STRIPE_LOCALE_MAP[locale] ?? "de";
+}
+
 // ---------------------------------------------------------------------------
 // Form schema — email + legal consent
 // ---------------------------------------------------------------------------
 
-const checkoutSchema = z.object({
-  email: z.string().email(),
-  legalConsent: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms to continue." }),
-  }),
-});
+function createCheckoutSchema(consentMessage: string) {
+  return z.object({
+    email: z.string().email(),
+    legalConsent: z.literal(true, {
+      errorMap: () => ({ message: consentMessage }),
+    }),
+  });
+}
 
-type CheckoutFormValues = z.infer<typeof checkoutSchema>;
+type CheckoutFormValues = z.infer<ReturnType<typeof createCheckoutSchema>>;
 
 // ---------------------------------------------------------------------------
 // Checkout Page
@@ -53,6 +67,7 @@ export default function CheckoutPage({
   const checkout = useCheckout(draftId);
   const pricing = usePricing();
 
+  const checkoutSchema = createCheckoutSchema(t("consentRequired"));
   const {
     register,
     handleSubmit,
@@ -205,7 +220,7 @@ export default function CheckoutPage({
               stripe={stripePromise}
               options={{
                 clientSecret: checkout.clientSecret,
-                locale: locale as Parameters<typeof Elements>[0]["options"] extends { locale?: infer L } ? L : "de",
+                locale: toStripeLocale(locale),
                 appearance: {
                   theme: "stripe",
                   variables: {
@@ -226,8 +241,8 @@ export default function CheckoutPage({
         )}
 
         {checkout.clientSecret && !stripePromise && (
-          <div className="rounded-lg border border-gray-200 bg-white p-6">
-            <p className="text-sm text-gray-500">{t("paymentPending")}</p>
+          <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-6">
+            <p className="text-sm text-destructive">{t("paymentConfigError")}</p>
           </div>
         )}
 

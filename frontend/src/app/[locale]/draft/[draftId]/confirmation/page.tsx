@@ -119,6 +119,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
   const t = useTranslations("confirmation");
   const searchParams = useSearchParams();
   const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
 
   const redirectStatus = searchParams.get("redirect_status");
   const payment = usePaymentStatus(draftId);
@@ -138,9 +139,11 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     try {
       await navigator.clipboard.writeText(orderRef);
       setCopied(true);
+      setCopyFailed(false);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      /* clipboard may be unavailable */
+      setCopyFailed(true);
+      setTimeout(() => setCopyFailed(false), 3000);
     }
   }, [orderRef]);
 
@@ -212,6 +215,9 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           )}
           {copied && (
             <span className="text-xs text-emerald-600">{t("copied")}</span>
+          )}
+          {copyFailed && (
+            <span className="text-xs text-gray-500">{t("copyFailed")}</span>
           )}
         </button>
 

@@ -44,9 +44,9 @@ export function useConversation(draftId: string): UseConversationReturn {
   const messagesQuery = useQuery({
     queryKey: queryKeys.draftMessages(draftId),
     queryFn: () =>
-      apiFetch<{ messages: ConversationMessage[] }>(`/v1/drafts/${draftId}/messages`).then(
-        (r) => r.messages,
-      ),
+      apiFetch<{ data: ConversationMessage[]; cursor: string | null; hasMore: boolean }>(
+        `/v1/drafts/${draftId}/messages`,
+      ).then((r) => r.data),
     staleTime: 10_000,
   });
 

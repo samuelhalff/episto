@@ -30,7 +30,8 @@ export interface UseSessionReturn {
 function currentSessionOptions() {
   return queryOptions({
     queryKey: queryKeys.session("current"),
-    queryFn: () => apiFetch<Session>("/v1/sessions/current"),
+    queryFn: () =>
+      apiFetch<{ session: Session }>("/v1/sessions/current").then((r) => r.session),
     staleTime: 30_000,
     refetchOnWindowFocus: true,
   });
@@ -81,10 +82,10 @@ export function useSession(): UseSessionReturn {
 
   const createSession = useMutation({
     mutationFn: (locale: (typeof Locale)[keyof typeof Locale]) =>
-      apiFetch<Session>("/v1/sessions", {
+      apiFetch<{ session: Session }>("/v1/sessions", {
         method: "POST",
         body: JSON.stringify({ locale }),
-      }),
+      }).then((r) => r.session),
     onSuccess: (data) => {
       queryClient.setQueryData(currentSessionOptions().queryKey, data);
     },
@@ -92,10 +93,10 @@ export function useSession(): UseSessionReturn {
 
   const resumeSession = useMutation({
     mutationFn: (token: string) =>
-      apiFetch<Session>("/v1/sessions/resume", {
+      apiFetch<{ session: Session }>("/v1/sessions/resume", {
         method: "POST",
         body: JSON.stringify({ token }),
-      }),
+      }).then((r) => r.session),
     onSuccess: (data) => {
       queryClient.setQueryData(currentSessionOptions().queryKey, data);
     },

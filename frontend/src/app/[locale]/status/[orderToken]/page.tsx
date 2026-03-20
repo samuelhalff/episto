@@ -21,7 +21,9 @@ function useOrderStatus(orderToken: string) {
     staleTime: 30_000,
     refetchInterval: 60_000,
     retry: (count, error) => {
-      const status = (error as { status?: number })?.status;
+      const status = error != null && typeof error === "object" && "status" in error
+        ? (error as { status: number }).status
+        : undefined;
       return status !== 404 && count < 3;
     },
   });

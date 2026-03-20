@@ -72,7 +72,10 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
 
   const previewQuery = useQuery({
     queryKey: queryKeys.draftPreview(draftId),
-    queryFn: () => apiFetch<LetterPreviewData>(`/v1/drafts/${draftId}/preview`),
+    queryFn: () =>
+      apiFetch<{ preview: LetterPreviewData }>(`/v1/drafts/${draftId}/preview`).then(
+        (r) => r.preview,
+      ),
     staleTime: 60_000,
   });
 

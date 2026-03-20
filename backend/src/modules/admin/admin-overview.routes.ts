@@ -36,7 +36,11 @@ interface OverviewResponse {
 }
 
 export async function adminOverviewRoutes(app: FastifyInstance): Promise<void> {
-  app.get("/admin/overview", async (_request, reply) => {
+  app.get("/admin/overview", {
+    config: {
+      rateLimit: { max: 30, timeWindow: "1 minute" },
+    },
+  }, async (_request, reply) => {
     const db = getDb();
 
     try {

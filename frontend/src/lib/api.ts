@@ -13,13 +13,17 @@ export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
+  // Don't set Content-Type for FormData — browser sets it with multipart boundary
+  const isFormData = init?.body instanceof FormData;
+  const headers: Record<string, string> = {
+    "X-Requested-With": "XMLHttpRequest",
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...(init?.headers as Record<string, string> | undefined),
+  };
+
   const res = await fetch(`${API_BASE}${path}`, {
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
-      ...init?.headers,
-    },
+    headers,
     ...init,
   });
 
