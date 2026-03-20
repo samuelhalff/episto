@@ -10,6 +10,7 @@ import { DeliveryType } from "@swiss-mail/shared";
 import { ChecklistItem } from "../../../../../components/product/ChecklistItem.js";
 import { DeliverySelector } from "../../../../../components/product/DeliverySelector.js";
 import { LetterPreview } from "../../../../../components/product/LetterPreview.js";
+import { captureError } from "../../../../../lib/error-tracking.js";
 
 // ---------------------------------------------------------------------------
 // Review Page
@@ -80,8 +81,8 @@ export default function ReviewPage({
 
     void reviewDraft.mutateAsync().then(() => {
       router.push(`/draft/${draftId}/checkout`);
-    }).catch(() => {
-      // Error state is surfaced via reviewDraft.error in the UI
+    }).catch((err: unknown) => {
+      captureError(err instanceof Error ? err : new Error(String(err)), { component: "ReviewPage", route: `/draft/${draftId}/review` });
     });
   }
 

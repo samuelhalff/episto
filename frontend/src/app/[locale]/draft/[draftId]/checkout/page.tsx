@@ -14,6 +14,7 @@ import { Lock, Truck, ShieldCheck, Loader2 } from "lucide-react";
 import { DeliveryType } from "@swiss-mail/shared";
 import { PriceSummary } from "../../../../../components/product/PriceSummary.js";
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm.js";
+import { captureError } from "../../../../../lib/error-tracking.js";
 
 // ---------------------------------------------------------------------------
 // Stripe setup
@@ -119,8 +120,8 @@ export default function CheckoutPage({
       if (!result.clientSecret) {
         router.push(`/draft/${draftId}/confirmation`);
       }
-    }).catch(() => {
-      // Error state is surfaced via checkout.error in the UI
+    }).catch((err: unknown) => {
+      captureError(err instanceof Error ? err : new Error(String(err)), { component: "CheckoutPage", route: `/draft/${draftId}/checkout` });
     });
   }
 
