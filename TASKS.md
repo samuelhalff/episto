@@ -1,6 +1,6 @@
 # Build Tasks
 
-**Status:** Phase 5 — Implementation substantially complete
+**Status:** Phase 6A/6B — Pre-launch quality and operational readiness underway
 **Upstream:** [Roadmap](docs/01-vision/roadmap.md)
 **Guidelines:** [Copilot Instructions](.github/copilot-instructions.md)
 
@@ -58,6 +58,7 @@
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
 - [x] 521 unit tests passing (28 test files)
+- [x] 538 unit tests passing (30 test files)
 - [x] Docker Compose (Postgres, Redis, MinIO with healthchecks)
 - [x] Structured logging (Pino)
 - [x] Canonical error handling with user-facing messages
@@ -103,6 +104,19 @@
 - [x] Unused `@fastify/csrf-protection` dependency removed (custom X-Requested-With validation used instead)
 - [x] Retention module unit tests + scheduled cleanup job
 - [x] Product analytics event taxonomy and instrumentation
+
+### Phase 6A — Frontend Quality & Completeness:
+- [x] Help & Support page (FAQ + contact section, all 4 locales — `/help`)
+- [x] Global loading skeleton (locale-level `loading.tsx` with pulse animation)
+- [x] Skip-to-content accessibility link + ARIA landmarks (layout, header, footer, nav)
+- [x] Help link added to Header (desktop + mobile) and Footer navigation
+
+### Phase 6B — Operational Readiness:
+- [x] Error tracking adapter — backend (replaceable sink pattern matching analytics, Pino-based MVP)
+- [x] Error tracking adapter — frontend (replaceable sink pattern matching analytics, console-based MVP)
+- [x] Error boundary integration (error.tsx now reports to error tracking sink)
+- [x] Backend error tracking tests (9 tests) + frontend error tracking tests (8 tests)
+- [x] Readiness probe enhanced with Redis health check (via BullMQ queue ping)
 
 ### Pre-launch:
 - [ ] Swiss Post sandbox onboarding
