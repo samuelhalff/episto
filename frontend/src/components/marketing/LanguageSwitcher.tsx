@@ -19,7 +19,7 @@ export function LanguageSwitcher() {
             locale={l}
             className={
               l === locale
-                ? "font-semibold text-navy"
+                ? "font-semibold text-primary"
                 : "text-gray-400 hover:text-gray-600"
             }
           >

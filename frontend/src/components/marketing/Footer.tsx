@@ -10,16 +10,16 @@ export function Footer() {
       <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-10 md:flex-row md:justify-between">
         {/* Links */}
         <nav aria-label="Footer navigation" className="flex gap-6 text-sm text-gray-500">
-          <Link href="/help" className="hover:text-navy">
+          <Link href="/help" className="hover:text-gray-900">
             {t("footer.help")}
           </Link>
-          <Link href="/privacy" className="hover:text-navy">
+          <Link href="/privacy" className="hover:text-gray-900">
             {t("footer.privacy")}
           </Link>
-          <Link href="/terms" className="hover:text-navy">
+          <Link href="/terms" className="hover:text-gray-900">
             {t("footer.terms")}
           </Link>
-          <Link href="/imprint" className="hover:text-navy">
+          <Link href="/imprint" className="hover:text-gray-900">
             {t("footer.imprint")}
           </Link>
         </nav>
