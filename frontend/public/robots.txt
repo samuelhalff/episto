@@ -2,9 +2,12 @@
 User-agent: *
 Allow: /
 
-# Disallow admin, API, and internal pages
+# Disallow admin, API, and transactional pages
 Disallow: /api/
 Disallow: /admin/
+Disallow: /*/draft/
+Disallow: /*/status/
+Disallow: /*/resume/
 
 # Sitemap
 Sitemap: https://swissmail.ch/sitemap.xml
