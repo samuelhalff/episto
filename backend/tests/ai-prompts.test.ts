@@ -123,6 +123,7 @@ describe("draftLetterPrompt", () => {
     const messages = draftLetterPrompt(input);
     const system = messages[0]!.content as string;
     expect(system).toContain("NEVER invent facts");
+    expect(system).toContain("JSON contract");
     expect(system).toContain("NEVER invent or cite specific legal articles");
   });
 
@@ -143,6 +144,8 @@ describe("draftLetterPrompt", () => {
     const messages = draftLetterPrompt(input);
     const system = messages[0]!.content as string;
     expect(system).toContain("BODY ONLY");
+    expect(system).toContain("structured_edit");
+    expect(system).toContain("Do not use markdown headings");
   });
 
   it("includes conversation history", () => {
@@ -179,6 +182,7 @@ describe("reviseLetterPrompt", () => {
     });
     const system = messages[0]!.content as string;
     expect(system).toContain("NEVER invent facts");
+    expect(system).toContain("JSON contract");
   });
 });
 

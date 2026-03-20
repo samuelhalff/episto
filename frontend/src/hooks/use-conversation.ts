@@ -58,12 +58,18 @@ export function useConversation(draftId: string): UseConversationReturn {
         streamingMessageIdRef.current = event.data.messageId;
         setStreamingText((prev) => prev + event.data.token);
       } else if (event.type === "ai_message_complete") {
-        // Flush streaming state and refresh messages from server
         setIsStreaming(false);
         setStreamingText("");
         streamingMessageIdRef.current = null;
         void queryClient.invalidateQueries({
           queryKey: queryKeys.draftMessages(draftId),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: ["drafts", draftId],
+        });
+      } else if (event.type === "field_update") {
+        void queryClient.invalidateQueries({
+          queryKey: ["drafts", draftId],
         });
       } else if (event.type === "error") {
         setIsStreaming(false);

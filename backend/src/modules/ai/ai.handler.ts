@@ -46,6 +46,7 @@ const DRAFT_FIELD_COLUMNS = new Set([
   "enclosureNote",
   "deliveryType",
   "signatureMode",
+  "metadata",
 ]);
 
 // ---------------------------------------------------------------------------
@@ -134,6 +135,7 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
       intent: draft.intent,
       enclosureNote: draft.enclosureNote,
       deliveryType: draft.deliveryType,
+      metadata: draft.metadata,
     };
 
     // Stage 1: Classify intent

@@ -21,6 +21,7 @@ import { createFileAsset, renderStorageKey } from "../files/file.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
 import { createLogger } from "../../shared/logging/index.js";
+import { extractAiDocumentMetadata, type DocumentModel, type DocumentBlock, type InlineSpan, type ListItem } from "@swiss-mail/shared";
 
 const logger = createLogger("render-service");
 
@@ -120,6 +121,7 @@ function renderLetterHtml(data: SnapshotData): string {
     month: "long",
     day: "numeric",
   });
+  const document = extractAiDocumentMetadata(data.metadata)?.document ?? fallbackDocument(data.body ?? "");
 
   const senderBlock = sender
     ? [
@@ -182,8 +184,48 @@ function renderLetterHtml(data: SnapshotData): string {
       margin-bottom: 8mm;
     }
     .letter-body {
-      white-space: pre-wrap;
       margin-bottom: 10mm;
+    }
+    .letter-paragraph {
+      margin: 0 0 6mm 0;
+      white-space: pre-wrap;
+    }
+    .letter-heading-1 {
+      font-size: 16pt;
+      font-weight: 700;
+      margin: 0 0 5mm 0;
+    }
+    .letter-heading-2 {
+      font-size: 13pt;
+      font-weight: 700;
+      margin: 0 0 4mm 0;
+    }
+    .letter-heading-3 {
+      font-size: 11pt;
+      font-weight: 700;
+      margin: 0 0 3mm 0;
+    }
+    .letter-list {
+      margin: 0 0 6mm 24px;
+      padding: 0;
+    }
+    .letter-list li {
+      margin-bottom: 2mm;
+    }
+    .letter-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0 0 6mm 0;
+    }
+    .letter-table th,
+    .letter-table td {
+      border: 1px solid #d1d5db;
+      padding: 6px 8px;
+      vertical-align: top;
+    }
+    .letter-table th {
+      background: #f3f4f6;
+      text-align: left;
     }
     .enclosure-note {
       font-size: 9pt;
@@ -199,10 +241,121 @@ function renderLetterHtml(data: SnapshotData): string {
   <div class="recipient-block">${recipientBlock}</div>
   <div class="date-line">${escapeHtml(today)}</div>
   ${data.subject ? `<div class="subject-line">${escapeHtml(data.subject)}</div>` : ""}
-  <div class="letter-body">${escapeHtml(data.body ?? "")}</div>
+  <div class="letter-body">${renderDocumentHtml(document)}</div>
   ${data.enclosureNote ? `<div class="enclosure-note">${escapeHtml(data.enclosureNote)}</div>` : ""}
 </body>
 </html>`;
+}
+
+function renderDocumentHtml(document: DocumentModel): string {
+  return document.blocks.map(renderBlockHtml).join("\n");
+}
+
+function renderBlockHtml(block: DocumentBlock): string {
+  if (block.type === "paragraph") {
+    const tag = paragraphTag(block.style);
+    const className = paragraphClassName(block.style);
+    const style = renderParagraphStyle(block.alignment, block.spacingBefore, block.spacingAfter, block.indentation);
+    return `<${tag} class="${className}"${style ? ` style="${style}"` : ""}>${renderInlineText(block.text, block.spans ?? [])}</${tag}>`;
+  }
+
+  if (block.type === "list") {
+    const tag = block.listType === "numbered" ? "ol" : "ul";
+    return `<${tag} class="letter-list">${renderListItemsHtml(block.items)}</${tag}>`;
+  }
+
+  const headerHtml = block.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("");
+  const rowsHtml = block.rows
+    .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+    .join("");
+  return `<table class="letter-table"><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
+}
+
+function renderListItemsHtml(items: ListItem[]): string {
+  return items
+    .map((item) => {
+      const nested = item.children?.length
+        ? `<ul class="letter-list">${renderListItemsHtml(item.children)}</ul>`
+        : "";
+      return `<li>${renderInlineText(item.text, item.spans ?? [])}${nested}</li>`;
+    })
+    .join("");
+}
+
+function renderInlineText(text: string, spans: InlineSpan[]): string {
+  if (spans.length === 0) {
+    return escapeHtml(text);
+  }
+
+  const sorted = [...spans].sort((a, b) => a.start - b.start || a.end - b.end);
+  let cursor = 0;
+  const segments: string[] = [];
+
+  for (const span of sorted) {
+    if (span.start > cursor) {
+      segments.push(escapeHtml(text.slice(cursor, span.start)));
+    }
+
+    const content = escapeHtml(text.slice(span.start, span.end));
+    const wrappers: string[] = [];
+    if (span.bold) wrappers.push("strong");
+    if (span.italic) wrappers.push("em");
+    if (span.underline) wrappers.push("u");
+
+    let wrapped = content;
+    for (const wrapper of wrappers) {
+      wrapped = `<${wrapper}>${wrapped}</${wrapper}>`;
+    }
+    segments.push(wrapped);
+    cursor = span.end;
+  }
+
+  if (cursor < text.length) {
+    segments.push(escapeHtml(text.slice(cursor)));
+  }
+
+  return segments.join("");
+}
+
+function paragraphTag(style: string): string {
+  if (style === "Heading 1") return "h1";
+  if (style === "Heading 2") return "h2";
+  if (style === "Heading 3") return "h3";
+  return "p";
+}
+
+function paragraphClassName(style: string): string {
+  if (style === "Heading 1") return "letter-heading-1";
+  if (style === "Heading 2") return "letter-heading-2";
+  if (style === "Heading 3") return "letter-heading-3";
+  return "letter-paragraph";
+}
+
+function renderParagraphStyle(
+  alignment?: string,
+  spacingBefore?: number,
+  spacingAfter?: number,
+  indentation?: number,
+): string {
+  const styles: string[] = [];
+  if (alignment) styles.push(`text-align:${alignment}`);
+  if (spacingBefore) styles.push(`margin-top:${spacingBefore}pt`);
+  if (spacingAfter) styles.push(`margin-bottom:${spacingAfter}pt`);
+  if (indentation) styles.push(`padding-left:${indentation}pt`);
+  return styles.join(";");
+}
+
+function fallbackDocument(body: string): DocumentModel {
+  return {
+    version: "1.0",
+    blocks: [
+      {
+        type: "paragraph",
+        text: body,
+        style: "Normal",
+      },
+    ],
+  };
 }
 
 function escapeHtml(str: string): string {

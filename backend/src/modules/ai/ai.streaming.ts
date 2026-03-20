@@ -1,38 +1,30 @@
 /**
- * AI streaming helpers — draft generation and revision via streaming.
+ * AI generation helpers — document generation and revision.
  *
- * These functions handle the streaming stages of the AI pipeline:
- * - Draft letter generation (stage 5)
- * - Letter revision (stage 6 variant)
+ * These functions handle the structured document stages of the AI pipeline:
+ * - Draft letter generation
+ * - Letter revision
  * - Post-generation validation
  *
- * Each function streams tokens via the draft event bus and persists
- * the completed content as an assistant message and draft body update.
+ * The model now returns a machine-readable contract that is parsed,
+ * validated, converted into a structured document model, and then
+ * persisted as both a compatibility plain-text body and metadata.
  */
 
-import { randomUUID } from "node:crypto";
 import { getDb } from "../../db/index.js";
 import { draftLetter, reviseLetter, validateOutput } from "./ai.service.js";
 import { createMessage } from "../messages/message.service.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
 import type { schema } from "../../db/index.js";
+import { extractAiDocumentMetadata, type DocumentModel } from "@swiss-mail/shared";
 
-// Re-export for use by handler
 export type DraftRecord = typeof schema.draftLetters.$inferSelect;
-
-// ---------------------------------------------------------------------------
-// Update draft fields helper
-// ---------------------------------------------------------------------------
 
 export type FieldUpdater = (
   draftId: string,
   sessionId: string,
   fields: Record<string, unknown>,
 ) => Promise<void>;
-
-// ---------------------------------------------------------------------------
-// Draft generation (streaming)
-// ---------------------------------------------------------------------------
 
 export async function streamDraftGeneration(
   draftId: string,
@@ -44,9 +36,6 @@ export async function streamDraftGeneration(
   userInstructions: string,
   updateFields: FieldUpdater,
 ): Promise<void> {
-  const messageId = randomUUID();
-  let fullContent = "";
-
   const sender = {
     firstName: (fields.senderFirstName as string) ?? "",
     lastName: (fields.senderLastName as string) ?? "",
@@ -65,26 +54,27 @@ export async function streamDraftGeneration(
     city: (fields.recipientCity as string) ?? "",
   };
 
-  const stream = draftLetter({
-    subject: (fields.subject as string) ?? (draft.subject ?? ""),
-    intent,
-    tone: (fields.tone as string) ?? (draft.tone ?? "formal"),
-    locale: draft.locale,
-    sender,
-    recipient,
-    enclosureNote: (fields.enclosureNote as string | null) ?? draft.enclosureNote,
-    userInstructions,
-    conversationHistory: history,
-  });
+  const applied = await draftLetter(
+    {
+      subject: (fields.subject as string) ?? (draft.subject ?? ""),
+      intent,
+      tone: (fields.tone as string) ?? (draft.tone ?? "formal"),
+      locale: draft.locale,
+      sender,
+      recipient,
+      enclosureNote: (fields.enclosureNote as string | null) ?? draft.enclosureNote,
+      userInstructions,
+      conversationHistory: history,
+    },
+    {
+      expectedMode: "structured_edit",
+      allowPlainTextFallback: true,
+      compatibilityMode: "plain_text_only",
+    },
+  );
 
-  for await (const token of stream) {
-    fullContent += token;
-    emitDraftEvent(draftId, "ai_token", { token, messageId });
-  }
-
-  // Post-generation validation
   const validation = await validateOutput({
-    generatedContent: fullContent,
+    generatedContent: applied.body,
     locale: draft.locale,
   });
 
@@ -96,26 +86,25 @@ export async function streamDraftGeneration(
     return;
   }
 
-  // Save assistant message
   const assistantMsg = await createMessage(getDb(), {
     draftId,
     role: "assistant",
-    content: fullContent,
+    content: applied.body,
   });
 
-  // Update draft body
-  await updateFields(draftId, sessionId, { body: fullContent });
+  const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata);
+  await updateFields(draftId, sessionId, {
+    body: applied.body,
+    metadata: nextMetadata,
+  });
 
   emitDraftEvent(draftId, "ai_message_complete", {
     messageId: assistantMsg.id,
-    fullContent,
-    extractedFields: { body: fullContent },
+    fullContent: applied.body,
+    documentModel: applied.document,
+    extractedFields: { body: applied.body, metadata: nextMetadata },
   });
 }
-
-// ---------------------------------------------------------------------------
-// Revision (streaming)
-// ---------------------------------------------------------------------------
 
 export async function streamRevision(
   draftId: string,
@@ -124,24 +113,25 @@ export async function streamRevision(
   revisionInstruction: string,
   updateFields: FieldUpdater,
 ): Promise<void> {
-  const messageId = randomUUID();
-  let fullContent = "";
+  const currentDocument = extractAiDocumentMetadata(draft.metadata)?.document ?? fallbackDocument(draft.body);
 
-  const stream = reviseLetter({
-    currentBody: draft.body ?? "",
-    revisionInstruction,
-    locale: draft.locale,
-    tone: draft.tone ?? "formal",
-  });
+  const applied = await reviseLetter(
+    {
+      currentBody: draft.body ?? "",
+      revisionInstruction,
+      locale: draft.locale,
+      tone: draft.tone ?? "formal",
+    },
+    currentDocument,
+    {
+      expectedMode: "structured_edit",
+      allowPlainTextFallback: true,
+      compatibilityMode: "plain_text_only",
+    },
+  );
 
-  for await (const token of stream) {
-    fullContent += token;
-    emitDraftEvent(draftId, "ai_token", { token, messageId });
-  }
-
-  // Validate revised output
   const validation = await validateOutput({
-    generatedContent: fullContent,
+    generatedContent: applied.body,
     locale: draft.locale,
   });
 
@@ -153,19 +143,48 @@ export async function streamRevision(
     return;
   }
 
-  // Save assistant message
   const assistantMsg = await createMessage(getDb(), {
     draftId,
     role: "assistant",
-    content: fullContent,
+    content: applied.body,
   });
 
-  // Update draft body with revised content
-  await updateFields(draftId, sessionId, { body: fullContent });
+  const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata);
+  await updateFields(draftId, sessionId, {
+    body: applied.body,
+    metadata: nextMetadata,
+  });
 
   emitDraftEvent(draftId, "ai_message_complete", {
     messageId: assistantMsg.id,
-    fullContent,
-    extractedFields: { body: fullContent },
+    fullContent: applied.body,
+    documentModel: applied.document,
+    extractedFields: { body: applied.body, metadata: nextMetadata },
   });
+}
+
+function mergeAiDocumentMetadata(
+  existingMetadata: unknown,
+  aiDocument: Record<string, unknown>,
+): Record<string, unknown> {
+  const base = existingMetadata && typeof existingMetadata === "object"
+    ? (existingMetadata as Record<string, unknown>)
+    : {};
+  return {
+    ...base,
+    aiDocument,
+  };
+}
+
+function fallbackDocument(body: string | null): DocumentModel {
+  return {
+    version: "1.0",
+    blocks: [
+      {
+        type: "paragraph",
+        text: body ?? "",
+        style: "Normal",
+      },
+    ],
+  };
 }

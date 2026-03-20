@@ -18,7 +18,7 @@ import type { ChatMessage } from "../adapters/azure-openai.js";
 // Prompt version — increment when prompts change significantly
 // ---------------------------------------------------------------------------
 
-export const PROMPT_VERSION = "1.0.0";
+export const PROMPT_VERSION = "2.0.0";
 
 // ---------------------------------------------------------------------------
 // Locale instructions
@@ -48,6 +48,71 @@ STRICT RULES:
 - NEVER impersonate another person or organization.
 - If information is missing, ask the user to provide it rather than filling in placeholders.
 - Output only the letter content requested. Do not add meta-commentary unless specifically asked.`;
+
+const DOCUMENT_RESPONSE_RULES = `Return a strict JSON object that follows this exact contract:
+{
+  "mode": "plain_text" | "structured_edit",
+  "version": "1.0",
+  "summary": "optional short explanation",
+  "plainText": {
+    "text": "full plain-text content"
+  },
+  "structuredEdit": {
+    "target": {
+      "scope": "selection"
+    },
+    "operations": [
+      {
+        "type": "replace_with_blocks",
+        "blocks": [
+          {
+            "type": "paragraph",
+            "text": "optional paragraph text",
+            "style": "Normal | Heading 1 | Heading 2 | Heading 3",
+            "alignment": "left | center | right | justify",
+            "spans": [
+              {
+                "start": 0,
+                "end": 5,
+                "bold": true,
+                "italic": false,
+                "underline": false
+              }
+            ]
+          },
+          {
+            "type": "list",
+            "listType": "bulleted | numbered",
+            "restartNumbering": false,
+            "items": [
+              {
+                "text": "item text without bullet or number prefix",
+                "level": 1
+              }
+            ]
+          },
+          {
+            "type": "table",
+            "headers": ["Column A", "Column B"],
+            "rows": [["Cell A1", "Cell B1"]]
+          }
+        ]
+      }
+    ]
+  }
+}
+
+Important rules:
+- Output JSON only. No markdown fences. No explanatory prose outside the JSON.
+- Do not use markdown headings, markdown bullets, markdown numbering, or pipe tables as a substitute for structure.
+- Text like "1. Title" is plain text unless you encode it as a structured list or heading block.
+- Text like "## Heading" is plain text unless you encode it as a paragraph block with a heading style.
+- Text like "A | B" is plain text unless you encode it as a table block.
+- Prefer "structured_edit" whenever the output contains headings, multiple paragraphs, lists, tables, or inline emphasis.
+- Use "plain_text" only when the entire result should be inserted as raw text with no structural formatting.
+- When returning list items, remove literal bullet or numbering prefixes from item text unless the prefix itself must remain visible.
+- For emphasis inside a paragraph, keep the clean paragraph text in "text" and express bold/italic/underline with spans.
+- If you cannot comply safely, return a plain_text response instead of malformed JSON.`;
 
 // ---------------------------------------------------------------------------
 // 1. classify-intent
@@ -197,11 +262,12 @@ ${input.enclosureNote ? `- Enclosure note: ${input.enclosureNote}` : ""}
 
 Generate the letter BODY ONLY (the content between the salutation and closing).
 Do NOT include the sender address block, recipient address block, date, or subject line — those are rendered separately from structured data.
-Include an appropriate salutation and closing signature line.
+Represent the body using the JSON contract below.
+
+${DOCUMENT_RESPONSE_RULES}
 
 Use facts ONLY from the user's input. Never invent dates, reference numbers, amounts, or legal citations.`,
     },
-    // Include conversation history for context
     ...input.conversationHistory.map(
       (msg) =>
         ({
@@ -237,13 +303,15 @@ ${localeInstruction(input.locale)}
 
 You are revising a formal Swiss letter. The current letter body is provided below.
 Apply the user's revision instruction while maintaining the ${input.tone} tone.
+Return the COMPLETE revised letter body using the JSON contract below.
 
 CURRENT LETTER BODY:
 ---
 ${input.currentBody}
 ---
 
-Output the COMPLETE revised letter body. Do not add commentary — output only the letter text.
+${DOCUMENT_RESPONSE_RULES}
+
 Use facts ONLY from the existing letter and user instruction. Never invent new facts.`,
     },
     {

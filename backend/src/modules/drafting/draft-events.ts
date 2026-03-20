@@ -20,9 +20,12 @@ export interface AiTokenPayload {
   messageId: string;
 }
 
+import type { DocumentModel } from "@swiss-mail/shared";
+
 export interface AiMessageCompletePayload {
   messageId: string;
   fullContent: string;
+  documentModel?: DocumentModel | undefined;
   extractedFields?: Record<string, unknown> | undefined;
 }
 

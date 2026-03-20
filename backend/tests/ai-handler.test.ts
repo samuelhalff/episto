@@ -181,12 +181,38 @@ describe("handleAiMessage", () => {
       message: "Ready to draft.",
     });
 
-    async function* mockStream() {
-      yield "Sehr ";
-      yield "geehrte ";
-      yield "Damen";
-    }
-    vi.mocked(draftLetter).mockReturnValue(mockStream());
+    vi.mocked(draftLetter).mockResolvedValue({
+      mode: "structured_edit",
+      body: "Sehr geehrte Damen",
+      document: {
+        version: "1.0",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "Sehr geehrte Damen",
+            style: "Normal",
+          },
+        ],
+      },
+      operationsApplied: ["replace_with_blocks"],
+      warnings: [],
+      metadata: {
+        schemaVersion: "1.0",
+        mode: "structured_edit",
+        document: {
+          version: "1.0",
+          blocks: [
+            {
+              type: "paragraph",
+              text: "Sehr geehrte Damen",
+              style: "Normal",
+            },
+          ],
+        },
+        operationsApplied: ["replace_with_blocks"],
+        warnings: [],
+      },
+    });
 
     vi.mocked(validateOutput).mockResolvedValue({
       valid: true,
@@ -209,9 +235,6 @@ describe("handleAiMessage", () => {
       userMessageId: "user-msg-1",
       userContent: "Write the letter now",
     });
-
-    const tokenEvents = events.filter(([e]) => e === "ai_token");
-    expect(tokenEvents.length).toBeGreaterThanOrEqual(3);
 
     const fieldEvents = events.filter(([e]) => e === "field_update");
     expect(fieldEvents.length).toBeGreaterThanOrEqual(1);

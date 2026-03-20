@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback, useState } from "react";
+import type { DocumentModel } from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // SSE event types per realtime-strategy.md
@@ -14,6 +15,7 @@ export interface AiTokenEvent {
 export interface AiMessageCompleteEvent {
   messageId: string;
   fullContent: string;
+  documentModel?: DocumentModel;
   extractedFields?: Record<string, unknown>;
 }
 

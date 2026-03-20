@@ -5,12 +5,12 @@
  * 1. Intent and risk classification
  * 2. Structured field extraction
  * 3. Missing-field detection + follow-up question generation
- * 4. Draft generation (streaming)
+ * 4. Draft generation (structured document response)
  * 5. Post-generation validation
- * 6. Revision (streaming)
+ * 6. Revision (structured document response)
  */
 
-import { complete, streamComplete } from "./adapters/azure-openai.js";
+import { complete } from "./adapters/azure-openai.js";
 import {
   classifyIntentPrompt,
   extractFieldsPrompt,
@@ -27,6 +27,13 @@ import {
 } from "./prompts/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import { AppError } from "../../shared/errors/index.js";
+import {
+  applyStructuredEdit,
+  parseModelResponse,
+  type AppliedDocumentResult,
+  type ParseModelResponseOptions,
+} from "./document-response.js";
+import type { DocumentModel } from "@swiss-mail/shared";
 
 const logger = createLogger("ai-service");
 
@@ -64,7 +71,6 @@ export async function classifyIntent(
   } catch (err) {
     if (err instanceof AppError) throw err;
     logger.error({ raw }, "Failed to parse classification result");
-    // Fallback: treat as general low-risk if parsing fails
     return { intent: "general", risk: "low", summary: "Unable to classify" };
   }
 }
@@ -112,19 +118,15 @@ export async function askFollowUp(
 }
 
 // ---------------------------------------------------------------------------
-// 4. Draft letter (streaming)
+// 4. Draft letter (structured response)
 // ---------------------------------------------------------------------------
 
-export async function* draftLetter(
+export async function draftLetter(
   input: DraftLetterInput,
-): AsyncIterable<string> {
+  options: ParseModelResponseOptions = {},
+): Promise<AppliedDocumentResult> {
   const messages = draftLetterPrompt(input);
-  yield* streamComplete({
-    model: "draft",
-    messages,
-    temperature: 0.7,
-    maxTokens: 4096,
-  });
+  return generateStructuredDocument(messages, undefined, options);
 }
 
 // ---------------------------------------------------------------------------
@@ -147,25 +149,75 @@ export async function validateOutput(
     return JSON.parse(raw) as ValidationResult;
   } catch {
     logger.error({ raw }, "Failed to parse validation result");
-    // Conservative fallback: flag as warning
     return { valid: true, violations: [], severity: "none" };
   }
 }
 
 // ---------------------------------------------------------------------------
-// 6. Revise letter (streaming)
+// 6. Revise letter (structured response)
 // ---------------------------------------------------------------------------
 
-export async function* reviseLetter(
+export async function reviseLetter(
   input: ReviseLetterInput,
-): AsyncIterable<string> {
+  currentDocument?: DocumentModel,
+  options: ParseModelResponseOptions = {},
+): Promise<AppliedDocumentResult> {
   const messages = reviseLetterPrompt(input);
-  yield* streamComplete({
+  return generateStructuredDocument(messages, currentDocument, options);
+}
+
+async function generateStructuredDocument(
+  messages: ReturnType<typeof draftLetterPrompt>,
+  currentDocument?: DocumentModel,
+  options: ParseModelResponseOptions = {},
+): Promise<AppliedDocumentResult> {
+  const raw = await complete({
     model: "draft",
     messages,
     temperature: 0.6,
     maxTokens: 4096,
   });
+
+  const parsed = parseModelResponse(raw, {
+    expectedMode: "structured_edit",
+    allowPlainTextFallback: options.allowPlainTextFallback ?? true,
+    compatibilityMode: options.compatibilityMode ?? "plain_text_only",
+  });
+
+  if (!parsed.ok || !parsed.response) {
+    logger.error({ errors: parsed.errors }, "Model response could not be interpreted safely");
+    throw new AppError({
+      family: "validation_error",
+      statusCode: 502,
+      code: "AI_RESPONSE_INVALID",
+      message: `Model response invalid: ${parsed.errors.join(" | ")}`,
+      userMessage: "The AI response could not be interpreted safely.",
+      userAction: "Please try again or continue editing manually.",
+    });
+  }
+
+  logger.info(
+    {
+      mode: parsed.mode,
+      warnings: parsed.warnings,
+      errors: parsed.errors,
+    },
+    "Model response parsed",
+  );
+
+  const applied = applyStructuredEdit(parsed.response, currentDocument);
+  applied.warnings.push(...parsed.warnings, ...parsed.errors);
+
+  logger.info(
+    {
+      mode: applied.mode,
+      operationsApplied: applied.operationsApplied,
+      warnings: applied.warnings,
+    },
+    "Structured document response applied",
+  );
+
+  return applied;
 }
 
 // ---------------------------------------------------------------------------
@@ -186,15 +238,9 @@ export interface ProcessMessageResult {
   followUp: FollowUpResult;
 }
 
-/**
- * Process a user message through the non-streaming classification pipeline.
- * Returns extracted fields and a follow-up question (or readiness signal).
- * Draft generation is handled separately via streaming.
- */
 export async function processUserMessage(
   input: ProcessMessageInput,
 ): Promise<ProcessMessageResult> {
-  // Stage 1: Classify intent
   const classification = await classifyIntent({
     userMessage: input.userMessage,
     locale: input.locale,
@@ -205,17 +251,14 @@ export async function processUserMessage(
     "Message classified",
   );
 
-  // Stage 2: Extract fields
   const extractedFields = await extractFields({
     userMessage: input.userMessage,
     existingFields: input.existingFields,
     locale: input.locale,
   });
 
-  // Merge extracted fields with existing
   const mergedFields = { ...input.existingFields, ...extractedFields };
 
-  // Stage 3: Follow-up question
   const followUp = await askFollowUp({
     intent: classification.intent,
     existingFields: mergedFields,
