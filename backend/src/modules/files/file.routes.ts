@@ -5,35 +5,24 @@ import { requireSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import {
-  createFileAsset,
-  listFileAssets,
-  deleteFileAsset,
-  getFileAsset,
   attachmentStorageKey,
+  createFileAsset,
+  deleteFileAsset,
+  getDraftUploadTotalBytes,
+  getFileAsset,
+  listFileAssets,
   signatureStorageKey,
 } from "./file.service.js";
-import { uploadObject, getPresignedDownloadUrl, deleteObject } from "./adapters/s3.adapter.js";
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
-
-const MAX_ATTACHMENT_SIZE = 5 * 1024 * 1024; // 5 MB
-const MAX_SIGNATURE_SIZE = 2 * 1024 * 1024; // 2 MB
-
-const ALLOWED_ATTACHMENT_MIMES = new Set([
-  "application/pdf",
-  "image/png",
-  "image/jpeg",
-]);
-
-const ALLOWED_SIGNATURE_MIMES = new Set([
-  "image/png",
-  "image/jpeg",
-]);
-
-const MAX_ATTACHMENTS = 5;
-const MAX_SIGNATURES = 1;
+import {
+  uploadObject,
+  getPresignedDownloadUrl,
+  deleteObject,
+} from "./adapters/s3.adapter.js";
+import {
+  FILE_LIMITS,
+  getUploadByteLimit,
+  isAllowedUploadMimeType,
+} from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // Plugin
@@ -88,33 +77,37 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const fileName = data.filename ?? "untitled";
       const mimeType = data.mimetype ?? "application/octet-stream";
 
-      // Validate MIME type
-      if (kind === "attachment" && !ALLOWED_ATTACHMENT_MIMES.has(mimeType)) {
+      if (!isAllowedUploadMimeType(kind, mimeType)) {
         throw validationError(
-          "Unsupported file type for attachment. Allowed: PDF, PNG, JPEG",
-          [{ field: "file", message: "Allowed types: application/pdf, image/png, image/jpeg" }],
-        );
-      }
-      if (kind === "signature" && !ALLOWED_SIGNATURE_MIMES.has(mimeType)) {
-        throw validationError(
-          "Unsupported file type for signature. Allowed: PNG, JPEG",
-          [{ field: "file", message: "Allowed types: image/png, image/jpeg" }],
+          kind === "attachment"
+            ? "Unsupported file type for attachment. Allowed: PDF, PNG, JPEG"
+            : "Unsupported file type for signature. Allowed: PNG, JPEG",
+          [
+            {
+              field: "file",
+              message: `Allowed types: ${FILE_LIMITS[kind].allowedMimeTypes.join(", ")}`,
+            },
+          ],
         );
       }
 
       // Read file into buffer and validate size
       const buffer = await data.toBuffer();
       const sizeBytes = buffer.byteLength;
+      const maxBytes = getUploadByteLimit(kind);
 
-      if (kind === "attachment" && sizeBytes > MAX_ATTACHMENT_SIZE) {
-        throw validationError("Attachment exceeds maximum size of 5 MB", [
-          { field: "file", message: "Maximum attachment size is 5 MB" },
-        ]);
-      }
-      if (kind === "signature" && sizeBytes > MAX_SIGNATURE_SIZE) {
-        throw validationError("Signature exceeds maximum size of 2 MB", [
-          { field: "file", message: "Maximum signature size is 2 MB" },
-        ]);
+      if (sizeBytes > maxBytes) {
+        throw validationError(
+          kind === "attachment"
+            ? "Attachment exceeds maximum size of 5 MB"
+            : "Signature exceeds maximum size of 2 MB",
+          [
+            {
+              field: "file",
+              message: `Maximum ${kind} size is ${Math.round(maxBytes / 1024 / 1024)} MB`,
+            },
+          ],
+        );
       }
 
       // Check per-draft limits
@@ -133,23 +126,21 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         const attachmentCount = existingFiles.filter(
           (f) => f.kind === "attachment",
         ).length;
-        if (attachmentCount >= MAX_ATTACHMENTS) {
+        if (attachmentCount >= FILE_LIMITS.maxAttachmentsPerDraft) {
           throw new AppError({
             family: "policy_refusal",
             statusCode: 422,
             code: "ATTACHMENT_LIMIT_REACHED",
-            message: `Maximum ${MAX_ATTACHMENTS} attachments per draft`,
-            userMessage: `You can attach up to ${MAX_ATTACHMENTS} files per letter.`,
+            message: `Maximum ${FILE_LIMITS.maxAttachmentsPerDraft} attachments per draft`,
+            userMessage: `You can attach up to ${FILE_LIMITS.maxAttachmentsPerDraft} files per letter.`,
             userAction: "Remove an existing attachment before adding a new one.",
           });
         }
       }
 
       if (kind === "signature") {
-        const signatureCount = existingFiles.filter(
-          (f) => f.kind === "signature",
-        ).length;
-        if (signatureCount >= MAX_SIGNATURES) {
+        const signatureCount = existingFiles.filter((f) => f.kind === "signature").length;
+        if (signatureCount >= FILE_LIMITS.maxSignaturesPerDraft) {
           throw new AppError({
             family: "policy_refusal",
             statusCode: 422,
@@ -159,6 +150,13 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
             userAction: "Remove the existing signature before adding a new one.",
           });
         }
+      }
+
+      const existingTotalBytes = await getDraftUploadTotalBytes(db, draftId, session.id);
+      if (existingTotalBytes + sizeBytes > FILE_LIMITS.totalDraftUploadBytes) {
+        throw validationError("Total upload exceeds maximum size of 20 MB", [
+          { field: "file", message: "Total uploads per draft cannot exceed 20 MB" },
+        ]);
       }
 
       // Generate storage key (deterministic namespacing per docs)
@@ -233,7 +231,10 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       try {
         await deleteObject(asset.storageKey);
       } catch {
-        request.log.warn({ fileId, storageKey: asset.storageKey }, "Failed to delete object from storage");
+        request.log.warn(
+          { fileId, storageKey: asset.storageKey },
+          "Failed to delete object from storage",
+        );
       }
 
       reply.send({

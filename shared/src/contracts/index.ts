@@ -5,6 +5,7 @@ import {
   DeliveryTypeSchema,
   SwissPostalCodeSchema,
 } from "../schemas/index.js";
+import { DRAFT_CONTENT_LIMITS } from "../limits.js";
 
 // ---------------------------------------------------------------------------
 // API input schemas (what the client sends)
@@ -15,8 +16,8 @@ export const CreateSessionInput = z.object({
 });
 
 export const UpdateDraftInput = z.object({
-  subject: z.string().max(200).optional(),
-  body: z.string().max(10000).optional(),
+  subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).optional(),
+  body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).optional(),
   tone: z.string().optional(),
   intent: z.string().optional(),
   deliveryType: DeliveryTypeSchema.optional(),
@@ -54,7 +55,7 @@ export const CreateRecipientProfileInput = z.object({
 });
 
 export const SendMessageInput = z.object({
-  content: z.string().min(1).max(2000),
+  content: z.string().min(1).max(DRAFT_CONTENT_LIMITS.messageChars),
 });
 
 // ---------------------------------------------------------------------------

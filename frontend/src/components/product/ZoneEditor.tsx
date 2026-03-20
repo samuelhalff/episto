@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { DRAFT_CONTENT_LIMITS } from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -100,7 +101,9 @@ function AddressEditor({
     <div>
       <label className={labelClass}>
         {label}
-        {optional && <span className="ml-1 text-muted-foreground/60">({t("optional")})</span>}
+        {optional && (
+          <span className="ml-1 text-muted-foreground/60">({t("optional")})</span>
+        )}
       </label>
       <input
         ref={ref as React.RefObject<HTMLInputElement>}
@@ -133,9 +136,11 @@ function AddressEditor({
               const v = e.target.value.replace(/\D/g, "").slice(0, 4);
               setFields((p) => ({ ...p, postalCode: v }));
             }}
-            className={[inputClass, "w-20", errors.postalCode ? "border-destructive" : ""].join(
-              " ",
-            )}
+            className={[
+              inputClass,
+              "w-20",
+              errors.postalCode ? "border-destructive" : "",
+            ].join(" ")}
           />
           {errors.postalCode && (
             <p className="mt-1 text-xs text-destructive">{errors.postalCode}</p>
@@ -179,7 +184,12 @@ function TextEditor({
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
 
   const isMultiline = zone === "body";
-  const maxLength = zone === "body" ? 2000 : 300;
+  const maxLength =
+    zone === "body"
+      ? DRAFT_CONTENT_LIMITS.bodyChars
+      : zone === "subject"
+        ? DRAFT_CONTENT_LIMITS.subjectChars
+        : 300;
 
   useEffect(() => {
     inputRef.current?.focus();

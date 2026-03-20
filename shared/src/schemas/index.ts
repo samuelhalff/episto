@@ -12,6 +12,7 @@ import {
   FileStatus,
   MessageRole,
 } from "../enums.js";
+import { DRAFT_CONTENT_LIMITS } from "../limits.js";
 
 // ---------------------------------------------------------------------------
 // Enum Zod schemas
@@ -116,8 +117,8 @@ export const DraftLetterSchema = z.object({
   status: DraftStatusSchema,
   locale: LocaleSchema,
   deliveryType: DeliveryTypeSchema,
-  subject: z.string().max(200).nullable(),
-  body: z.string().max(10000).nullable(),
+  subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).nullable(),
+  body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable(),
   tone: z.string().nullable(),
   intent: z.string().nullable(),
   enclosureNote: z.string().nullable(),
