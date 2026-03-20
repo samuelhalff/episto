@@ -39,6 +39,16 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
+  webpack(config) {
+    // Resolve .js extension imports to .ts/.tsx files (TypeScript ESM convention).
+    // Required because tsconfig uses moduleResolution "Bundler" with verbatimModuleSyntax,
+    // which emits .js extensions in imports that webpack must resolve to source files.
+    config.resolve.extensionAlias = {
+      ".js": [".js", ".ts", ".tsx"],
+      ".jsx": [".jsx", ".tsx"],
+    };
+    return config;
+  },
   async headers() {
     return [
       {
