@@ -5,20 +5,24 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        navy: {
-          DEFAULT: "#1a365d",
-          light: "#2a4a7f",
+        primary: {
+          DEFAULT: "#F59E0B",
+          dark: "#D97706",
+          light: "#FCD34D",
+        },
+        secondary: {
+          DEFAULT: "#111827",
+          light: "#1F2937",
         },
         accent: "#c53030",
         success: "#276749",
         destructive: "#c53030",
-        primary: "#1a365d",
         muted: {
           DEFAULT: "#f1f5f9",
           foreground: "#64748b",
         },
         border: "#e2e8f0",
-        ring: "#1a365d",
+        ring: "#F59E0B",
         card: "#ffffff",
         foreground: "#0f172a",
       },
