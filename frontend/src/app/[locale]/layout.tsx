@@ -12,9 +12,7 @@ export const metadata: Metadata = {
   description:
     "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
   manifest: "/manifest.json",
-  icons: [
-    { rel: "icon", url: "/icon-192.png", sizes: "192x192" },
-  ],
+  // PWA icons: add /icon-192.png and /icon-512.png to frontend/public/ before launch
 };
 
 export function generateStaticParams() {

@@ -94,7 +94,7 @@ export default function AdminPage() {
                 type="text"
                 autoComplete="username"
                 value={username}
-                onChange={(e) => { setUsername(e.target.value); }}
+                onChange={(e) => setUsername(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
               />
             </div>
@@ -107,7 +107,7 @@ export default function AdminPage() {
                 type="password"
                 autoComplete="current-password"
                 value={password}
-                onChange={(e) => { setPassword(e.target.value); }}
+                onChange={(e) => setPassword(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
               />
             </div>
@@ -146,7 +146,7 @@ export default function AdminPage() {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              onClick={() => { void refresh(); }}
+              onClick={() => void refresh()}
               disabled={loading}
               className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-50 disabled:opacity-40"
             >
