@@ -92,7 +92,7 @@ describe("adminHealthRoutes", () => {
   it("registers a GET /admin/health route on the app instance", async () => {
     const routes: Array<{ method: string; url: string }> = [];
     const mockApp = {
-      get: vi.fn((url: string, _handler: unknown) => {
+      get: vi.fn((url: string, _opts: unknown, _handler: unknown) => {
         routes.push({ method: "GET", url });
       }),
     };
@@ -109,7 +109,7 @@ describe("adminHealthRoutes", () => {
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
 
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -144,7 +144,7 @@ describe("adminHealthRoutes", () => {
 
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -172,7 +172,7 @@ describe("adminHealthRoutes", () => {
 
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -195,7 +195,7 @@ describe("adminHealthRoutes", () => {
 
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };

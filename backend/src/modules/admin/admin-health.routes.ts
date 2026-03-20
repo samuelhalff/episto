@@ -113,7 +113,11 @@ async function getLastDispatchAt(): Promise<string | null> {
 export async function adminHealthRoutes(app: FastifyInstance): Promise<void> {
   // GET /admin/health — internal status dashboard
   // Requires HTTP Basic Auth (enforced by the parent adminRoutes preHandler).
-  app.get("/admin/health", async (_request, reply) => {
+  app.get("/admin/health", {
+    config: {
+      rateLimit: { max: 30, timeWindow: "1 minute" },
+    },
+  }, async (_request, reply) => {
     const [database, objectStorage, queueResult, lastPaymentAt, lastDispatchAt] =
       await Promise.all([
         checkDatabase(),

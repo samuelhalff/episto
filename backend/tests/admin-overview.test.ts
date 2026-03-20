@@ -66,7 +66,7 @@ describe("adminOverviewRoutes", () => {
   it("registers a GET /admin/overview route", async () => {
     const routes: Array<{ method: string; url: string }> = [];
     const mockApp = {
-      get: vi.fn((url: string) => {
+      get: vi.fn((url: string, _opts: unknown) => {
         routes.push({ method: "GET", url });
       }),
     };
@@ -80,7 +80,7 @@ describe("adminOverviewRoutes", () => {
   it("returns 200 with all required top-level fields", async () => {
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -103,7 +103,7 @@ describe("adminOverviewRoutes", () => {
   it("returns all six dispatch state keys initialised to zero when no rows", async () => {
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -141,7 +141,7 @@ describe("adminOverviewRoutes", () => {
 
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -171,7 +171,7 @@ describe("adminOverviewRoutes", () => {
 
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -192,7 +192,7 @@ describe("adminOverviewRoutes", () => {
 
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };
@@ -211,7 +211,7 @@ describe("adminOverviewRoutes", () => {
   it("generatedAt is a valid ISO 8601 timestamp", async () => {
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
     const mockApp = {
-      get: vi.fn((_url: string, handler: typeof capturedHandler) => {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
         capturedHandler = handler;
       }),
     };

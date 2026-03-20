@@ -68,7 +68,23 @@ const EnvSchema = z.object({
   // Pricing (integer cents, CHF only)
   PRICE_STANDARD_CENTS: z.coerce.number().int().positive().default(490),
   PRICE_REGISTERED_CENTS: z.coerce.number().int().positive().default(890),
-});
+}).refine(
+  (data) => {
+    if (data.NODE_ENV === "production") {
+      return data.ADMIN_PASSWORD !== "changeme-in-production";
+    }
+    return true;
+  },
+  { message: "ADMIN_PASSWORD must be changed from default in production" },
+).refine(
+  (data) => {
+    if (data.NODE_ENV === "production") {
+      return data.CORS_ORIGIN.startsWith("https://");
+    }
+    return true;
+  },
+  { message: "CORS_ORIGIN must use HTTPS in production" },
+);
 
 export type Env = z.infer<typeof EnvSchema>;
 

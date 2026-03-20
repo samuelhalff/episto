@@ -126,9 +126,13 @@ function AddressEditor({
           <input
             type="text"
             inputMode="numeric"
-            maxLength={6}
+            maxLength={4}
+            pattern="[0-9]{4}"
             value={fields.postalCode}
-            onChange={(e) => setFields((p) => ({ ...p, postalCode: e.target.value }))}
+            onChange={(e) => {
+              const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+              setFields((p) => ({ ...p, postalCode: v }));
+            }}
             className={[inputClass, "w-20", errors.postalCode ? "border-destructive" : ""].join(
               " ",
             )}

@@ -8,6 +8,7 @@ import {
 } from "./session.service.js";
 import { requireSession, COOKIE_NAME } from "./session.middleware.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { z } from "zod";
 import { CreateSessionInput, LocaleSchema } from "@swiss-mail/shared";
 import { eq, sql } from "drizzle-orm";
 import { schema } from "../../db/index.js";
@@ -119,16 +120,13 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
       }
 
       if (body?.email !== undefined) {
-        if (
-          typeof body.email !== "string" ||
-          body.email.length > 254 ||
-          !body.email.includes("@")
-        ) {
+        const emailResult = z.string().email().max(254).safeParse(body.email);
+        if (!emailResult.success) {
           throw validationError("Invalid email", [
             { field: "email", message: "Must be a valid email address" },
           ]);
         }
-        updates.email = body.email;
+        updates.email = emailResult.data;
       }
 
       const updated = await updateSession(db, session.id, updates);

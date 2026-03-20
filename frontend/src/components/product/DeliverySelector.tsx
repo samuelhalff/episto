@@ -32,11 +32,14 @@ export function DeliverySelector({
   ] as const;
 
   return (
-    <div className="space-y-2">
+    <div role="radiogroup" aria-label={t("deliveryTypeLabel")} className="space-y-2">
       {options.map((opt) => (
         <button
           key={opt.key}
           type="button"
+          role="radio"
+          aria-checked={value === opt.key}
+          aria-label={`${opt.label} — ${opt.price}`}
           onClick={() => onChange(opt.key)}
           className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm transition ${
             value === opt.key
