@@ -13,7 +13,8 @@ import type { UpdateDraftInputType } from "@swiss-mail/shared";
 export function draftOptions(draftId: string) {
   return queryOptions({
     queryKey: ["drafts", draftId] as const,
-    queryFn: () => apiFetch<DraftLetter>(`/v1/drafts/${draftId}`),
+    queryFn: () =>
+      apiFetch<{ draft: DraftLetter }>(`/v1/drafts/${draftId}`).then((r) => r.draft),
     staleTime: 30_000,
   });
 }
@@ -25,7 +26,8 @@ export function useDraft(draftId: string) {
 function draftsOptions() {
   return queryOptions({
     queryKey: ["drafts"] as const,
-    queryFn: () => apiFetch<DraftLetter[]>("/v1/drafts"),
+    queryFn: () =>
+      apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts").then((r) => r.drafts),
   });
 }
 
@@ -37,7 +39,7 @@ export function useCreateDraft() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      apiFetch<DraftLetter>("/v1/drafts", { method: "POST" }),
+      apiFetch<{ draft: DraftLetter }>("/v1/drafts", { method: "POST" }).then((r) => r.draft),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["drafts"] });
     },
@@ -48,10 +50,10 @@ export function useUpdateDraft(draftId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: UpdateDraftInputType) =>
-      apiFetch<DraftLetter>(`/v1/drafts/${draftId}`, {
+      apiFetch<{ draft: DraftLetter }>(`/v1/drafts/${draftId}`, {
         method: "PATCH",
         body: JSON.stringify(input),
-      }),
+      }).then((r) => r.draft),
     onSuccess: (data) => {
       queryClient.setQueryData(draftOptions(draftId).queryKey, data);
     },
@@ -62,10 +64,10 @@ export function useTransitionDraft(draftId: string) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: { status: string }) =>
-      apiFetch<DraftLetter>(`/v1/drafts/${draftId}/transition`, {
+      apiFetch<{ draft: DraftLetter }>(`/v1/drafts/${draftId}/transition`, {
         method: "POST",
         body: JSON.stringify(input),
-      }),
+      }).then((r) => r.draft),
     onSuccess: (data) => {
       queryClient.setQueryData(draftOptions(draftId).queryKey, data);
     },

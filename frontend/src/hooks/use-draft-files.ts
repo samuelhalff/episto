@@ -90,7 +90,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
   const filesQuery = useQuery({
     queryKey: queryKeys.draftFiles(draftId),
     queryFn: () =>
-      apiFetch<FileAsset[]>(`/v1/drafts/${draftId}/files`),
+      apiFetch<{ files: FileAsset[] }>(`/v1/drafts/${draftId}/files`).then((r) => r.files),
     staleTime: 30_000,
   });
 
@@ -123,13 +123,12 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
 
       // Simulate progress (actual streaming progress is not available via fetch)
       setUploadProgress(10);
-      const result = await apiFetch<FileAsset>(`/v1/drafts/${draftId}/files`, {
+      const result = await apiFetch<{ file: FileAsset }>(`/v1/drafts/${draftId}/files`, {
         method: "POST",
         body: formData,
-        // Do not set Content-Type — browser sets it with boundary for multipart
       });
       setUploadProgress(100);
-      return result;
+      return result.file;
     },
     onSuccess: () => {
       setUploadProgress(0);
