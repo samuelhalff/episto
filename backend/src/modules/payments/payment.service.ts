@@ -132,6 +132,24 @@ export async function getPaymentForDraft(
   return row ? toPaymentRow(row) : null;
 }
 
+export async function setPaymentIntentId(
+  db: Db,
+  paymentId: string,
+  stripePaymentIntentId: string,
+): Promise<PaymentAttemptRow> {
+  const [row] = await db
+    .update(schema.paymentAttempts)
+    .set({
+      stripePaymentIntentId,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.paymentAttempts.id, paymentId))
+    .returning();
+
+  if (!row) throw notFoundError("payment attempt");
+  return toPaymentRow(row);
+}
+
 // ---------------------------------------------------------------------------
 // Transition payment state
 // ---------------------------------------------------------------------------

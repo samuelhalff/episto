@@ -5,6 +5,8 @@ import { createLogger } from "../shared/logging/index.js";
 import { getDb } from "../db/index.js";
 import { schema } from "../db/index.js";
 import { renderSnapshotToPdf } from "../modules/rendering/render.service.js";
+import { getPaymentForDraft } from "../modules/payments/payment.service.js";
+import { enqueueDispatchSubmission } from "../modules/dispatch/dispatch.jobs.js";
 
 const logger = createLogger("render-pdf-worker");
 
@@ -50,6 +52,15 @@ export function startRenderPdfWorker(): Worker<RenderPdfJob> {
           updatedAt: new Date(),
         })
         .where(eq(schema.draftLetters.id, draftId));
+
+      const payment = await getPaymentForDraft(db, draftId);
+      if (payment && ["authorized", "captured"].includes(payment.state)) {
+        await enqueueDispatchSubmission({
+          draftId,
+          snapshotId,
+          paymentId: payment.id,
+        });
+      }
 
       job.log(
         `PDF rendered: asset=${result.pdfAssetId}, pages=${result.pageCount}, size=${result.sizeBytes}`,

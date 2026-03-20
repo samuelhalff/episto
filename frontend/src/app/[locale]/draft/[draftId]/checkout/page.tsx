@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -107,10 +107,16 @@ export default function CheckoutPage({
 
   const isSubmitting = checkout.isProcessing;
 
+  useEffect(() => {
+    if (["authorized", "captured"].includes(checkout.paymentState?.state ?? "")) {
+      router.replace(`/draft/${draftId}/confirmation`);
+    }
+  }, [checkout.paymentState?.state, draftId, router]);
+
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
-    void checkout.createPaymentIntent(values.email).then(() => {
-      if (!checkout.clientSecret) {
+    void checkout.createPaymentIntent(values.email).then((result) => {
+      if (!result.clientSecret) {
         router.push(`/draft/${draftId}/confirmation`);
       }
     });

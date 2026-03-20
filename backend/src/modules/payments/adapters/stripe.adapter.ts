@@ -23,7 +23,7 @@ function getStripe(): Stripe {
 
 export async function createPaymentIntent(
   amountCents: number,
-  metadata: { draftId: string; sessionId: string },
+  metadata: { draftId: string; sessionId: string; paymentAttemptId: string },
 ): Promise<{ paymentIntentId: string; clientSecret: string }> {
   try {
     const intent = await getStripe().paymentIntents.create({
@@ -32,6 +32,7 @@ export async function createPaymentIntent(
       metadata: {
         draftId: metadata.draftId,
         sessionId: metadata.sessionId,
+        paymentAttemptId: metadata.paymentAttemptId,
       },
       capture_method: "manual",
     });
@@ -44,6 +45,21 @@ export async function createPaymentIntent(
       paymentIntentId: intent.id,
       clientSecret: intent.client_secret,
     };
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeError) {
+      throw mapStripeError(err);
+    }
+    throw providerOutageError("Stripe", err);
+  }
+}
+
+
+export async function getPaymentIntentClientSecret(
+  paymentIntentId: string,
+): Promise<string | null> {
+  try {
+    const intent = await getStripe().paymentIntents.retrieve(paymentIntentId);
+    return intent.client_secret ?? null;
   } catch (err) {
     if (err instanceof Stripe.errors.StripeError) {
       throw mapStripeError(err);
