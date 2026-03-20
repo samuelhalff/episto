@@ -11,6 +11,7 @@ import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { CreateSessionInput, LocaleSchema } from "@swiss-mail/shared";
 import { eq, sql } from "drizzle-orm";
 import { schema } from "../../db/index.js";
+import { recordEvent } from "../analytics/index.js";
 
 function setSessionCookie(
   reply: FastifyReply,
@@ -50,6 +51,8 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
         locale: body.locale,
         ipAddress: request.ip,
       });
+
+      recordEvent({ event: "session_created", sessionId: session.id, locale: session.locale });
 
       setSessionCookie(reply, resumeToken, config.SESSION_TTL_HOURS * 3600);
 
@@ -172,6 +175,8 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
       if (!session) {
         throw notFoundError("resume token");
       }
+
+      recordEvent({ event: "resume_link_opened", sessionId: session.id, result: "success" });
 
       setSessionCookie(reply, token, config.SESSION_TTL_HOURS * 3600);
 

@@ -10,7 +10,7 @@
 import { loadEnv } from "../shared/config/index.js";
 import { createLogger } from "../shared/logging/index.js";
 import { startWorkers, stopWorkers } from "./index.js";
-import { closeAllQueues } from "../queue/index.js";
+import { closeAllQueues, registerScheduledJobs } from "../queue/index.js";
 import { closeDb } from "../db/index.js";
 
 loadEnv();
@@ -18,6 +18,9 @@ const logger = createLogger();
 
 logger.info("Starting worker process");
 startWorkers();
+void registerScheduledJobs().then(() => {
+  logger.info("Scheduled jobs registered");
+});
 
 const shutdown = async (signal: string) => {
   logger.info({ signal }, "Worker shutting down…");

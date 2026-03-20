@@ -100,6 +100,29 @@ export interface CleanupAssetsJob {
 }
 
 // ---------------------------------------------------------------------------
+// Scheduled jobs — repeatable BullMQ jobs for periodic tasks
+// ---------------------------------------------------------------------------
+
+/**
+ * Register repeatable cleanup job.
+ * Runs every hour to enforce retention policies (expired sessions,
+ * deleted files, old draft content, expired rendered PDFs).
+ *
+ * Safe to call multiple times — BullMQ deduplicates repeatable jobs by key.
+ */
+export async function registerScheduledJobs(): Promise<void> {
+  const cleanupQueue = getQueue(QUEUE_NAMES.CLEANUP_ASSETS);
+  await cleanupQueue.add(
+    "scheduled-cleanup",
+    { batchSize: 100 } satisfies CleanupAssetsJob,
+    {
+      repeat: { pattern: "0 * * * *" }, // every hour at :00
+      jobId: "scheduled-cleanup",
+    },
+  );
+}
+
+// ---------------------------------------------------------------------------
 // Graceful shutdown
 // ---------------------------------------------------------------------------
 

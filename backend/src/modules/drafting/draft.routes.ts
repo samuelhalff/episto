@@ -22,6 +22,7 @@ import {
   CreateRecipientProfileInput,
   DraftStatusSchema,
 } from "@swiss-mail/shared";
+import { recordEvent } from "../analytics/index.js";
 
 import { z } from "zod";
 
@@ -47,6 +48,9 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     const db = getDb();
 
     const draft = await createDraft(db, session.id, session.locale);
+
+    recordEvent({ event: "draft_created", sessionId: session.id, draftId: draft.id });
+
     reply.status(201).send({ draft });
   });
 
@@ -307,6 +311,13 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
 
       // Transition to reviewed (validates current state allows this)
       await transitionDraftStatus(db, draftId, session.id, "reviewed");
+
+      recordEvent({
+        event: "review_reached",
+        draftId,
+        pageCountEstimate: draft.estimatedPages ?? 1,
+        attachmentCount: attachmentFileIds.length,
+      });
 
       reply.status(201).send({
         snapshot: {

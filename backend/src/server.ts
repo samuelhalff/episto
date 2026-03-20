@@ -2,7 +2,7 @@ import { loadEnv, env } from "./shared/config/index.js";
 import { createLogger } from "./shared/logging/index.js";
 import { buildApp } from "./app.js";
 import { startWorkers, stopWorkers } from "./workers/index.js";
-import { closeAllQueues } from "./queue/index.js";
+import { closeAllQueues, registerScheduledJobs } from "./queue/index.js";
 import { closeDb } from "./db/index.js";
 
 async function main(): Promise<void> {
@@ -14,6 +14,9 @@ async function main(): Promise<void> {
 
   // Start BullMQ workers (in-process for MVP)
   startWorkers();
+
+  // Register scheduled cleanup job (hourly retention enforcement)
+  await registerScheduledJobs();
 
   await app.listen({ port: config.PORT, host: config.HOST });
   logger.info(`Server listening on ${config.HOST}:${config.PORT}`);

@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { QUEUE_NAMES } from "../src/queue/index.js";
+import { QUEUE_NAMES, registerScheduledJobs } from "../src/queue/index.js";
+
+// Track mock queue add calls for assertion
+const addSpy = vi.fn().mockResolvedValue({ id: "mock-job-id" });
 
 // Mock BullMQ — workers require Redis in real use
 vi.mock("bullmq", () => {
@@ -24,8 +27,8 @@ vi.mock("bullmq", () => {
     constructor(name: string) {
       this.name = name;
     }
-    add() {
-      return Promise.resolve({ id: "mock-job-id" });
+    add(...args: unknown[]) {
+      return addSpy(...args);
     }
     close() {
       return Promise.resolve();
@@ -124,5 +127,31 @@ describe("startWorkers orchestrator", () => {
     // Should not throw
     startWorkers();
     await stopWorkers();
+  });
+});
+
+describe("registerScheduledJobs", () => {
+  beforeEach(() => {
+    addSpy.mockClear();
+  });
+
+  it("registers a repeatable cleanup job with hourly cron pattern", async () => {
+    await registerScheduledJobs();
+    expect(addSpy).toHaveBeenCalledWith(
+      "scheduled-cleanup",
+      { batchSize: 100 },
+      expect.objectContaining({
+        repeat: { pattern: "0 * * * *" },
+        jobId: "scheduled-cleanup",
+      }),
+    );
+  });
+
+  it("is idempotent — safe to call multiple times", async () => {
+    addSpy.mockClear();
+    await registerScheduledJobs();
+    await registerScheduledJobs();
+    // BullMQ deduplicates by jobId; we verify no errors thrown
+    expect(addSpy).toHaveBeenCalledTimes(2);
   });
 });
