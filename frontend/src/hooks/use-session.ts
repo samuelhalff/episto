@@ -93,10 +93,7 @@ export function useSession(): UseSessionReturn {
 
   const resumeSession = useMutation({
     mutationFn: (token: string) =>
-      apiFetch<{ session: Session }>("/v1/sessions/resume", {
-        method: "POST",
-        body: JSON.stringify({ token }),
-      }).then((r) => r.session),
+      apiFetch<{ session: Session; draftId?: string }>(`/v1/resume/${token}`).then((r) => r.session),
     onSuccess: (data) => {
       queryClient.setQueryData(currentSessionOptions().queryKey, data);
     },

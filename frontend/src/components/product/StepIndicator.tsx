@@ -27,7 +27,7 @@ export function StepIndicator({ currentStep }: { currentStep: number }) {
             <span
               className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium ${
                 isActive
-                  ? "bg-primary text-white"
+                  ? "bg-primary text-primary-foreground"
                   : isDone
                     ? "bg-success/10 text-success"
                     : "bg-muted text-muted-foreground"

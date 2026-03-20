@@ -50,10 +50,10 @@ export default function ResumePage({
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
         <AlertCircle className="h-12 w-12 text-accent" />
-        <p className="text-sm text-gray-600">{t("error")}</p>
+        <p className="text-sm text-muted-foreground">{t("error")}</p>
         <Link
           href="/"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
         >
           <PenLine className="h-4 w-4" />
           {t("startNew")}
@@ -65,7 +65,7 @@ export default function ResumePage({
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-3 p-8">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p className="text-sm text-gray-500">{t("loading")}</p>
+      <p className="text-sm text-muted-foreground">{t("loading")}</p>
     </div>
   );
 }
