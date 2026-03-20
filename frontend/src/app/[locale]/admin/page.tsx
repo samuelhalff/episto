@@ -55,8 +55,9 @@ export default function AdminPage() {
     if (!msalInstance) return;
     void msalInstance.initialize().then(() => {
       setMsalReady(true);
-    }).catch(() => {
+    }).catch((err: unknown) => {
       setMsalReady(false);
+      setMsalError(err instanceof Error ? err.message : "SSO initialization failed");
     });
   }, []);
 
