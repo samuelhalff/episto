@@ -22,7 +22,7 @@ export function StepIndicator({ currentStep }: { currentStep: number }) {
         return (
           <span key={key} className="flex items-center gap-1.5 text-sm">
             {i > 0 && (
-              <ChevronRight className="h-3.5 w-3.5 text-gray-300" />
+              <ChevronRight className="h-3.5 w-3.5 text-border" />
             )}
             <span
               className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium ${
@@ -30,14 +30,14 @@ export function StepIndicator({ currentStep }: { currentStep: number }) {
                   ? "bg-primary text-white"
                   : isDone
                     ? "bg-success/10 text-success"
-                    : "bg-gray-100 text-gray-400"
+                    : "bg-muted text-muted-foreground"
               }`}
             >
               {isDone ? "✓" : i + 1}
             </span>
             <span
               className={
-                isActive ? "font-medium text-gray-900" : "text-gray-400"
+                isActive ? "font-medium text-foreground" : "text-muted-foreground"
               }
             >
               {t(key)}

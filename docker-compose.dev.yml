@@ -1,0 +1,148 @@
+# Swiss Mail — Development with Hot Reload
+# Usage:
+#   docker compose -f docker-compose.dev.yml up        → start everything with hot reload
+#   docker compose -f docker-compose.dev.yml up -d     → same but detached
+#   docker compose -f docker-compose.dev.yml down -v   → stop and remove volumes
+#
+# No need to run npm install or npm run dev manually.
+# Source code is mounted into containers — changes auto-reload.
+
+services:
+  # ── Infrastructure ────────────────────────────────────────────────────────
+
+  postgres:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: swissmail
+      POSTGRES_PASSWORD: swissmail
+      POSTGRES_DB: swissmail
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U swissmail"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb --ignore-existing local/swiss-mail;
+      exit 0;
+      "
+
+  # ── Application (dev mode with hot reload) ──────────────────────────────
+
+  backend:
+    image: node:20-alpine
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install --prefer-offline 2>/dev/null;
+        npm run build -w shared;
+        cd backend && npx drizzle-kit push 2>/dev/null || true;
+        cd /app && npm run dev -w backend
+      "
+    ports:
+      - "4000:4000"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - backend_node_modules:/app/backend/node_modules
+      - shared_node_modules:/app/shared/node_modules
+      - frontend_node_modules:/app/frontend/node_modules
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql://swissmail:swissmail@postgres:5432/swissmail
+      REDIS_URL: redis://redis:6379
+      S3_ENDPOINT: http://minio:9000
+      S3_BUCKET: swiss-mail
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      CORS_ORIGIN: http://localhost:3000
+      NODE_ENV: development
+      PORT: "4000"
+      HOST: "0.0.0.0"
+      # Dummy values for required env vars in dev (override in .env)
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-sk_test_placeholder_for_dev}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-whsec_placeholder_for_dev}
+      AZURE_OPENAI_ENDPOINT: ${AZURE_OPENAI_ENDPOINT:-https://placeholder.openai.azure.com}
+      AZURE_OPENAI_API_KEY: ${AZURE_OPENAI_API_KEY:-placeholder_key}
+      RESEND_API_KEY: ${RESEND_API_KEY:-re_placeholder_for_dev}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-setup:
+        condition: service_completed_successfully
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: >
+      sh -c "
+        npm install --prefer-offline 2>/dev/null;
+        npm run build -w shared;
+        npm run dev -w frontend
+      "
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - backend_node_modules:/app/backend/node_modules
+      - shared_node_modules:/app/shared/node_modules
+      - frontend_node_modules:/app/frontend/node_modules
+    environment:
+      NODE_ENV: development
+      API_URL: http://backend:4000
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  redisdata:
+  miniodata:
+  node_modules:
+  backend_node_modules:
+  shared_node_modules:
+  frontend_node_modules:

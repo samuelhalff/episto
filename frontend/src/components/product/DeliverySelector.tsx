@@ -44,7 +44,7 @@ export function DeliverySelector({
           className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm transition ${
             value === opt.key
               ? "border-primary bg-primary/5 text-primary"
-              : "border-gray-200 text-gray-600 hover:border-gray-300"
+              : "border-border text-muted-foreground hover:border-border"
           }`}
         >
           <span className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export function DeliverySelector({
               className={`inline-flex h-4 w-4 items-center justify-center rounded-full border-2 ${
                 value === opt.key
                   ? "border-primary"
-                  : "border-gray-300"
+                  : "border-muted-foreground"
               }`}
             >
               {value === opt.key && (

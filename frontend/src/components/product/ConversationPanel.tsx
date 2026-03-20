@@ -88,11 +88,11 @@ export function ConversationPanel({
           </div>
         ) : allMessages.length === 0 && !showStreaming ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
-            <FileText className="mb-4 h-10 w-10 text-gray-300" />
-            <p className="text-base font-medium text-gray-900">
+            <FileText className="mb-4 h-10 w-10 text-muted-foreground/50" />
+            <p className="text-base font-medium text-foreground">
               {t("title")}
             </p>
-            <p className="mt-1.5 max-w-xs text-sm text-gray-500">
+            <p className="mt-1.5 max-w-xs text-sm text-muted-foreground">
               {t("inputPrompt")}
             </p>
           </div>
@@ -106,8 +106,8 @@ export function ConversationPanel({
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                     msg.role === MessageRole.user
-                      ? "bg-gray-900 text-white"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-foreground text-background"
+                      : "bg-muted text-foreground"
                   }`}
                 >
                   {msg.content}
@@ -117,9 +117,9 @@ export function ConversationPanel({
 
             {showStreaming && (
               <div className="flex justify-start">
-                <div className="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2.5 text-sm leading-relaxed text-gray-800">
+                <div className="max-w-[80%] rounded-2xl bg-muted px-4 py-2.5 text-sm leading-relaxed text-foreground">
                   {conversation.streamingText}
-                  <span className="ml-0.5 inline-block h-3.5 w-px animate-pulse bg-gray-500 align-middle" />
+                  <span className="ml-0.5 inline-block h-3.5 w-px animate-pulse bg-muted-foreground align-middle" />
                 </div>
               </div>
             )}
@@ -128,8 +128,8 @@ export function ConversationPanel({
 
         {showSpinner && (
           <div className="flex justify-start">
-            <div className="max-w-[80%] rounded-2xl bg-gray-100 px-4 py-2.5">
-              <Loader2 className="h-4 w-4 animate-spin text-gray-500" />
+            <div className="max-w-[80%] rounded-2xl bg-muted px-4 py-2.5">
+              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
             </div>
           </div>
         )}

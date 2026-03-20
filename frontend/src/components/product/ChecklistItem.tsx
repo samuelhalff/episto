@@ -19,9 +19,9 @@ export function ChecklistItem({
           <Check className="h-3.5 w-3.5" />
         </span>
       ) : (
-        <Circle className="h-5 w-5 text-gray-300" />
+        <Circle className="h-5 w-5 text-border" />
       )}
-      <span className={complete ? "text-gray-700" : "text-gray-400"}>
+      <span className={complete ? "text-foreground" : "text-muted-foreground"}>
         {label}
       </span>
     </li>

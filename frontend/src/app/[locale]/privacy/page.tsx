@@ -1,6 +1,17 @@
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { Header } from "../../../components/marketing/Header.js";
 import { Footer } from "../../../components/marketing/Footer.js";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "legal" });
+  return {
+    title: t("metaTitle", { defaultValue: "Privacy Policy — Swiss Mail" }),
+    description: t("metaDescription", { defaultValue: "How Swiss Mail handles your data. Privacy policy and data protection information." }),
+  };
+}
 
 export default function PrivacyPage() {
   const t = useTranslations("legal");

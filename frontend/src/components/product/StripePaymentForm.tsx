@@ -94,7 +94,7 @@ export function StripePaymentForm({
       />
 
       {errorMessage && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-destructive">
           {errorMessage}
         </p>
       )}
@@ -102,7 +102,7 @@ export function StripePaymentForm({
       <button
         type="submit"
         disabled={!stripe || !elements || isSubmitting}
-        className="w-full rounded-lg bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-40"
+        className="w-full rounded-lg bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
       >
         {isSubmitting ? (
           <span className="flex items-center justify-center gap-2">

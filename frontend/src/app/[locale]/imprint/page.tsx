@@ -1,6 +1,17 @@
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { Header } from "../../../components/marketing/Header.js";
 import { Footer } from "../../../components/marketing/Footer.js";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "legal" });
+  return {
+    title: t("metaTitle", { defaultValue: "Imprint — Swiss Mail" }),
+    description: t("metaDescription", { defaultValue: "Legal information and company details for Swiss Mail." }),
+  };
+}
 
 export default function ImprintPage() {
   const t = useTranslations("legal");

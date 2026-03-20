@@ -1,4 +1,6 @@
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { Link } from "../../i18n/navigation.js";
 import { Header } from "../../components/marketing/Header.js";
 import { Footer } from "../../components/marketing/Footer.js";
@@ -21,6 +23,15 @@ import {
   Zap,
   Check,
 } from "lucide-react";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "marketing" });
+  return {
+    title: t("metaTitle", { defaultValue: "Swiss Mail — Send formal letters via Swiss Post" }),
+    description: t("metaDescription", { defaultValue: "Draft and send formal letters via Swiss Post with AI assistance. Standard from CHF 4.90." }),
+  };
+}
 
 export default function HomePage() {
   const t = useTranslations("marketing");

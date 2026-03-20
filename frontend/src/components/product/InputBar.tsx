@@ -20,7 +20,7 @@ function VoiceBars() {
       {[0, 1, 2, 3, 4].map((i) => (
         <span
           key={i}
-          className="inline-block w-[3px] rounded-full bg-white"
+          className="inline-block w-[3px] rounded-full bg-primary-foreground"
           style={{
             animation: `voice-bar 1s ease-in-out ${i * 0.12}s infinite`,
           }}
@@ -119,7 +119,7 @@ export function InputBar({
   }
 
   return (
-    <div className="border-t bg-white">
+    <div className="border-t bg-background">
       {/* ── Initial state: two clear input options ── */}
       {mode === "initial" && !hasMessages && (
         <div className="px-4 py-5 space-y-3">
@@ -127,16 +127,16 @@ export function InputBar({
             <button
               type="button"
               onClick={onStartVoice}
-              className="group flex w-full items-center gap-3 rounded-xl bg-primary px-5 py-4 text-left text-white transition hover:bg-primary-dark"
+              className="group flex w-full items-center gap-3 rounded-xl bg-primary px-5 py-4 text-left text-primary-foreground transition hover:bg-primary/90"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-foreground/15">
                 <MicIcon className="h-5 w-5" />
               </span>
               <span>
                 <span className="block text-sm font-semibold">
                   {t("voicePrimary")}
                 </span>
-                <span className="block text-xs text-white/60">
+                <span className="block text-xs text-primary-foreground/60">
                   {t("voicePrimaryHint")}
                 </span>
               </span>
@@ -145,16 +145,16 @@ export function InputBar({
           <button
             type="button"
             onClick={handleSwitchToKeyboard}
-            className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-5 py-4 text-left text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
+            className="flex w-full items-center gap-3 rounded-xl border border-border bg-background px-5 py-4 text-left text-foreground transition hover:border-border hover:bg-muted/50"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-              <Keyboard className="h-5 w-5 text-gray-500" />
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
+              <Keyboard className="h-5 w-5 text-muted-foreground" />
             </span>
             <span>
               <span className="block text-sm font-medium">
                 {t("typePrimary")}
               </span>
-              <span className="block text-xs text-gray-400">
+              <span className="block text-xs text-muted-foreground/70">
                 {t("typePrimaryHint")}
               </span>
             </span>
@@ -166,11 +166,11 @@ export function InputBar({
       {(mode === "voice" || isRecording) && (
         <div className="px-4 py-4 space-y-3">
           {(interimText || (input && mode === "voice")) && (
-            <div className="rounded-lg bg-gray-50 px-3 py-2">
-              <p className="text-sm text-gray-600">
+            <div className="rounded-lg bg-muted/50 px-3 py-2">
+              <p className="text-sm text-muted-foreground">
                 {input}
                 {interimText && (
-                  <span className="text-gray-400">
+                  <span className="text-muted-foreground/70">
                     {input ? " " : ""}
                     {interimText}
                   </span>
@@ -180,7 +180,7 @@ export function InputBar({
           )}
 
           {dictationError && (
-            <p className="text-xs text-red-500">{t("dictationError")}</p>
+            <p className="text-xs text-destructive">{t("dictationError")}</p>
           )}
 
           <div className="flex items-center gap-3">
@@ -188,7 +188,7 @@ export function InputBar({
               <button
                 type="button"
                 onClick={onStopVoice}
-                className="flex flex-1 items-center justify-center gap-3 rounded-xl bg-red-500 py-3.5 text-sm font-semibold text-white transition hover:bg-red-600"
+                className="flex flex-1 items-center justify-center gap-3 rounded-xl bg-destructive py-3.5 text-sm font-semibold text-destructive-foreground transition hover:bg-destructive/90"
               >
                 <Square className="h-4 w-4 fill-current" />
                 <span>{t("stopDictation")}</span>
@@ -198,7 +198,7 @@ export function InputBar({
               <button
                 type="button"
                 onClick={onStartRecording}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90"
               >
                 <MicIcon className="h-4 w-4" />
                 <span>{t("startDictation")}</span>
@@ -210,7 +210,7 @@ export function InputBar({
                 type="button"
                 onClick={onSend}
                 disabled={isSending}
-                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
+                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
               </button>
@@ -220,7 +220,7 @@ export function InputBar({
           <button
             type="button"
             onClick={handleSwitchToKeyboard}
-            className="mx-auto flex items-center gap-1.5 text-xs text-gray-400 transition hover:text-gray-600"
+            className="mx-auto flex items-center gap-1.5 text-xs text-muted-foreground/70 transition hover:text-foreground"
           >
             <Keyboard className="h-3.5 w-3.5" />
             {t("switchToKeyboard")}
@@ -234,7 +234,7 @@ export function InputBar({
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
-              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1 resize-none rounded-xl border border-border px-4 py-3 text-sm placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               rows={1}
               placeholder={t("messagePlaceholder")}
               value={input}
@@ -246,7 +246,7 @@ export function InputBar({
                 type="button"
                 onClick={onSwitchToVoice}
                 aria-label={t("startDictation")}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-primary hover:text-primary"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground/70 transition hover:border-primary hover:text-primary"
               >
                 <MicIcon className="h-4 w-4" />
               </button>
@@ -255,7 +255,7 @@ export function InputBar({
               type="button"
               disabled={!hasInput || isSending}
               onClick={onSend}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
               <span className="sr-only">{t("sendMessage")}</span>
@@ -269,7 +269,7 @@ export function InputBar({
         <div className="px-4 py-3">
           <div className="flex items-end gap-2">
             <textarea
-              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="flex-1 resize-none rounded-xl border border-border px-4 py-3 text-sm placeholder:text-muted-foreground/70 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               rows={1}
               placeholder={t("messagePlaceholder")}
               value={input}
@@ -281,7 +281,7 @@ export function InputBar({
                 type="button"
                 onClick={onSwitchToVoice}
                 aria-label={t("startDictation")}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-primary hover:text-primary"
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground/70 transition hover:border-primary hover:text-primary"
               >
                 <MicIcon className="h-4 w-4" />
               </button>
@@ -290,7 +290,7 @@ export function InputBar({
               type="button"
               disabled={!hasInput || isSending}
               onClick={onSend}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground transition hover:bg-primary/90 disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
               <span className="sr-only">{t("sendMessage")}</span>

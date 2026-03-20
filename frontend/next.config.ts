@@ -22,12 +22,12 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' https://js.stripe.com",
+      "script-src 'self' 'unsafe-inline' https://js.stripe.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
       "connect-src 'self' https://api.stripe.com",
       "img-src 'self' data: https:",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self'",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
@@ -59,7 +59,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    const apiUrl = process.env.API_URL || "http://localhost:3001";
+    const apiUrl = process.env.API_URL || "http://localhost:4000";
     return [
       {
         source: "/api/:path*",

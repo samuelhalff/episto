@@ -18,11 +18,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   for (const route of STATIC_ROUTES) {
     for (const locale of LOCALES) {
+      const alternates: Record<string, string> = {};
+      for (const alt of LOCALES) {
+        alternates[alt] = `${BASE_URL}/${alt}${route}`;
+      }
+
       entries.push({
         url: `${BASE_URL}/${locale}${route}`,
         lastModified: new Date(),
         changeFrequency: route === "" ? "weekly" : "monthly",
         priority: route === "" ? 1.0 : 0.7,
+        alternates: { languages: alternates },
       });
     }
   }

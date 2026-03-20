@@ -9,11 +9,35 @@ import { ThemeProvider } from "../../components/ui/theme-provider.js";
 import { TooltipProvider } from "../../components/ui/tooltip.js";
 import "../globals.css";
 
+const BASE_URL = "https://swissmail.ch";
+
 export const metadata: Metadata = {
-  title: "Swiss Mail — Send formal letters via Swiss Post",
+  title: {
+    default: "Swiss Mail — Send formal letters via Swiss Post",
+    template: "%s | Swiss Mail",
+  },
   description:
     "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
   manifest: "/manifest.json",
+  metadataBase: new URL(BASE_URL),
+  openGraph: {
+    type: "website",
+    siteName: "Swiss Mail",
+    locale: "de_CH",
+    alternateLocale: ["fr_CH", "it_CH", "en_CH"],
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
+  alternates: {
+    canonical: BASE_URL,
+    languages: {
+      "de-CH": `${BASE_URL}/de-CH`,
+      "fr-CH": `${BASE_URL}/fr-CH`,
+      "it-CH": `${BASE_URL}/it-CH`,
+      "en-CH": `${BASE_URL}/en-CH`,
+    },
+  },
 };
 
 export function generateStaticParams() {

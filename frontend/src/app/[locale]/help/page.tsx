@@ -1,4 +1,6 @@
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { Link } from "../../../i18n/navigation.js";
 import { Header } from "../../../components/marketing/Header.js";
 import { Footer } from "../../../components/marketing/Footer.js";
@@ -6,6 +8,15 @@ import { Button } from "../../../components/ui/button.js";
 import { Card, CardContent } from "../../../components/ui/card.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { HelpCircle, Mail, ArrowRight, MessageCircle } from "lucide-react";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "help" });
+  return {
+    title: t("metaTitle", { defaultValue: "Help & Support — Swiss Mail" }),
+    description: t("metaDescription", { defaultValue: "Frequently asked questions and support for Swiss Mail letter sending service." }),
+  };
+}
 
 export default function HelpPage() {
   const t = useTranslations("help");

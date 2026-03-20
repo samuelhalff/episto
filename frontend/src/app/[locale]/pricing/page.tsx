@@ -1,4 +1,6 @@
 import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { Link } from "../../../i18n/navigation.js";
 import { Header } from "../../../components/marketing/Header.js";
 import { Footer } from "../../../components/marketing/Footer.js";
@@ -6,6 +8,15 @@ import { Button } from "../../../components/ui/button.js";
 import { Card, CardContent, CardHeader, CardTitle } from "../../../components/ui/card.js";
 import { Badge } from "../../../components/ui/badge.js";
 import { Check, ArrowRight, Shield } from "lucide-react";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "pricing" });
+  return {
+    title: t("metaTitle", { defaultValue: "Pricing — Swiss Mail" }),
+    description: t("metaDescription", { defaultValue: "Transparent pricing for sending letters via Swiss Post. Standard from CHF 4.90, Registered from CHF 8.90." }),
+  };
+}
 
 export default function PricingPage() {
   const t = useTranslations("pricing");

@@ -28,17 +28,17 @@ export function PriceSummary({
     : formatCentsAsCHF(isRegistered ? 890 : 490);
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-6">
-      <h2 className="mb-3 text-sm font-semibold text-gray-900">
+    <div className="rounded-lg border border-border bg-card p-6">
+      <h2 className="mb-3 text-sm font-semibold text-foreground">
         {t("orderSummary")}
       </h2>
       <div className="space-y-2 text-sm">
-        <div className="flex justify-between text-gray-600">
+        <div className="flex justify-between text-muted-foreground">
           <span>{subject ?? t("defaultLetterTitle")}</span>
           <span className="font-medium">{price}</span>
         </div>
         <div className="border-t pt-2">
-          <div className="flex justify-between font-semibold text-gray-900">
+          <div className="flex justify-between font-semibold text-foreground">
             <span>{t("total")}</span>
             <span>{price}</span>
           </div>
