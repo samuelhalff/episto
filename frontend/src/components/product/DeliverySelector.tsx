@@ -43,7 +43,7 @@ export function DeliverySelector({
           onClick={() => onChange(opt.key)}
           className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm transition ${
             value === opt.key
-              ? "border-navy bg-navy/5 text-navy"
+              ? "border-primary bg-primary/5 text-primary"
               : "border-gray-200 text-gray-600 hover:border-gray-300"
           }`}
         >
@@ -51,12 +51,12 @@ export function DeliverySelector({
             <span
               className={`inline-flex h-4 w-4 items-center justify-center rounded-full border-2 ${
                 value === opt.key
-                  ? "border-navy"
+                  ? "border-primary"
                   : "border-gray-300"
               }`}
             >
               {value === opt.key && (
-                <span className="h-2 w-2 rounded-full bg-navy" />
+                <span className="h-2 w-2 rounded-full bg-primary" />
               )}
             </span>
             {opt.label}

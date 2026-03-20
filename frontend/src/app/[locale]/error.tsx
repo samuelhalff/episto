@@ -31,7 +31,7 @@ export default function Error({
         </p>
         <button
           onClick={reset}
-          className="rounded-lg bg-navy px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-navy-light"
+          className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
         >
           {t("tryAgain")}
         </button>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import type { DocumentModel } from "@swiss-mail/shared";
+import { captureMessage } from "../lib/error-tracking.js";
 
 // ---------------------------------------------------------------------------
 // SSE event types per realtime-strategy.md
@@ -96,31 +97,41 @@ export function useDraftStream(draftId: string | null) {
         setConnected(true);
         try {
           dispatch({ type: "connected", data: JSON.parse(e.data) });
-        } catch { /* ignore parse errors */ }
+        } catch {
+          captureMessage("SSE connected event parse error", "warning", { component: "useDraftStream" });
+        }
       });
 
       es.addEventListener("ai_token", (e) => {
         try {
           dispatch({ type: "ai_token", data: JSON.parse(e.data) });
-        } catch { /* ignore */ }
+        } catch {
+          captureMessage("SSE ai_token event parse error", "warning", { component: "useDraftStream" });
+        }
       });
 
       es.addEventListener("ai_message_complete", (e) => {
         try {
           dispatch({ type: "ai_message_complete", data: JSON.parse(e.data) });
-        } catch { /* ignore */ }
+        } catch {
+          captureMessage("SSE ai_message_complete event parse error", "warning", { component: "useDraftStream" });
+        }
       });
 
       es.addEventListener("field_update", (e) => {
         try {
           dispatch({ type: "field_update", data: JSON.parse(e.data) });
-        } catch { /* ignore */ }
+        } catch {
+          captureMessage("SSE field_update event parse error", "warning", { component: "useDraftStream" });
+        }
       });
 
       es.addEventListener("draft_status", (e) => {
         try {
           dispatch({ type: "draft_status", data: JSON.parse(e.data) });
-        } catch { /* ignore */ }
+        } catch {
+          captureMessage("SSE draft_status event parse error", "warning", { component: "useDraftStream" });
+        }
       });
 
       es.addEventListener("error", (e) => {
@@ -155,7 +166,9 @@ export function useDraftStream(draftId: string | null) {
         if (messageEvent.data) {
           try {
             dispatch({ type: "error", data: JSON.parse(messageEvent.data) });
-          } catch { /* ignore */ }
+          } catch {
+            captureMessage("SSE error event parse error", "warning", { component: "useDraftStream" });
+          }
         }
       });
     }

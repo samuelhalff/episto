@@ -11,11 +11,11 @@ export default function HowItWorksPage() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         {/* Heading */}
         <section className="px-6 pb-16 pt-20 md:pt-28">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-navy md:text-4xl lg:text-5xl">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
               {t("title")}
             </h1>
             <p className="mt-4 text-lg text-gray-500">{t("subtitle")}</p>
@@ -26,19 +26,19 @@ export default function HowItWorksPage() {
         <section className="px-6 pb-20">
           <div className="mx-auto max-w-3xl space-y-16">
             <DetailStep
-              icon={<PenLine className="h-8 w-8 text-navy" />}
+              icon={<PenLine className="h-8 w-8 text-primary" />}
               number="1"
               title={tm("step1Title")}
               description={t("step1Detail")}
             />
             <DetailStep
-              icon={<FileSearch className="h-8 w-8 text-navy" />}
+              icon={<FileSearch className="h-8 w-8 text-primary" />}
               number="2"
               title={tm("step2Title")}
               description={t("step2Detail")}
             />
             <DetailStep
-              icon={<Send className="h-8 w-8 text-navy" />}
+              icon={<Send className="h-8 w-8 text-primary" />}
               number="3"
               title={tm("step3Title")}
               description={t("step3Detail")}
@@ -49,7 +49,7 @@ export default function HowItWorksPage() {
         {/* FAQ */}
         <section className="bg-gray-50 px-6 py-20 md:py-28">
           <div className="mx-auto max-w-3xl">
-            <h2 className="text-center text-2xl font-bold text-navy md:text-3xl">
+            <h2 className="text-center text-2xl font-bold text-gray-900 md:text-3xl">
               {t("faqTitle")}
             </h2>
             <div className="mt-12 space-y-8">
@@ -66,7 +66,7 @@ export default function HowItWorksPage() {
           <div className="mx-auto max-w-3xl text-center">
             <Link
               href="/draft/new"
-              className="inline-block rounded-lg bg-navy px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-navy-light"
+              className="inline-block rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-primary-dark"
             >
               {t("cta")}
             </Link>
@@ -99,7 +99,7 @@ function DetailStep({
         <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
           {t("stepLabel", { number })}
         </span>
-        <h3 className="mt-1 text-lg font-semibold text-navy">{title}</h3>
+        <h3 className="mt-1 text-lg font-semibold text-gray-900">{title}</h3>
         <p className="mt-2 leading-relaxed text-gray-500">{description}</p>
       </div>
     </div>
@@ -115,7 +115,7 @@ function FaqItem({
 }) {
   return (
     <div>
-      <h3 className="font-semibold text-navy">{question}</h3>
+      <h3 className="font-semibold text-gray-900">{question}</h3>
       <p className="mt-2 leading-relaxed text-gray-500">{answer}</p>
     </div>
   );

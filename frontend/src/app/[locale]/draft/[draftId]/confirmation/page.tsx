@@ -103,7 +103,7 @@ function DispatchStateLabel({
 
   return (
     <div className="flex items-center gap-3">
-      <Icon className={`h-5 w-5 ${isError ? "text-destructive" : "text-navy"}`} />
+      <Icon className={`h-5 w-5 ${isError ? "text-destructive" : "text-primary"}`} />
       <p className={`text-sm ${isError ? "text-destructive" : "text-gray-700"}`}>
         {t(entry.key)}
       </p>
@@ -149,8 +149,8 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   if (isVerifying) {
     return (
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
-        <Loader2 className="mx-auto h-12 w-12 animate-spin text-navy" />
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
+        <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
         <p className="text-sm text-gray-500">{t("verifying")}</p>
       </main>
     );
@@ -158,7 +158,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   if (isFailed) {
     return (
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
         <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
         <h1 className="text-2xl font-bold text-gray-900">{t("paymentFailed")}</h1>
         <p className="text-sm text-gray-500">
@@ -166,7 +166,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         </p>
         <Link
           href={`/draft/${draftId}/checkout`}
-          className="inline-flex items-center gap-2 rounded-lg bg-navy px-6 py-3 text-sm font-semibold text-white transition hover:bg-navy-light"
+          className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-white transition hover:bg-primary-dark"
         >
           {t("backToCheckout")}
         </Link>
@@ -189,7 +189,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   return (
     <>
-      <main className="mx-auto max-w-2xl space-y-8 px-4 pb-24 pt-12 text-center md:pb-12">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-8 px-4 pb-24 pt-12 text-center md:pb-12">
         <div className="flex justify-center">
           <CheckCircle2 className="h-16 w-16 text-success" />
         </div>
@@ -207,7 +207,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           aria-label={t("copyReference")}
         >
           <span className="font-medium">{t("orderReference")}:</span>
-          <code className="font-mono text-navy">{orderRef}</code>
+          <code className="font-mono text-gray-900">{orderRef}</code>
           {copied ? (
             <Check className="h-3.5 w-3.5 text-emerald-600" />
           ) : (
@@ -267,7 +267,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           </Link>
           <Link
             href="/draft/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
           >
             <PenLine className="h-4 w-4" />
             {t("sendAnother")}
@@ -279,7 +279,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
       <div className="fixed bottom-0 left-0 right-0 border-t bg-white p-4 md:hidden">
         <Link
           href="/draft/new"
-          className="block rounded-lg bg-navy py-3 text-center text-sm font-semibold text-white transition hover:bg-navy-light"
+          className="block rounded-lg bg-primary py-3 text-center text-sm font-semibold text-white transition hover:bg-primary-dark"
         >
           {t("stickyCtaLabel")}
         </Link>
@@ -304,7 +304,7 @@ export default function ConfirmationPage({
     <div className="min-h-screen bg-gray-50">
       <header className="border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-center">
-          <Link href="/" className="font-bold text-navy">
+          <Link href="/" className="font-bold text-gray-900">
             {tc("appName")}
           </Link>
         </div>
@@ -313,7 +313,7 @@ export default function ConfirmationPage({
       <Suspense
         fallback={
           <div className="flex min-h-[60vh] items-center justify-center">
-            <Loader2 className="h-6 w-6 animate-spin text-navy" />
+            <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         }
       >

@@ -47,7 +47,7 @@ export default function StatusPage({
   if (query.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-navy" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -73,15 +73,15 @@ export default function StatusPage({
     <div className="min-h-screen bg-gray-50">
       <header className="border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-2xl items-center justify-center">
-          <Link href="/" className="font-bold text-navy">
+          <Link href="/" className="font-bold text-gray-900">
             {tc("appName")}
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-12">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-12">
         <div className="text-center">
-          <Package className="mx-auto mb-4 h-12 w-12 text-navy" />
+          <Package className="mx-auto mb-4 h-12 w-12 text-primary" />
           <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
         </div>
 
@@ -90,7 +90,7 @@ export default function StatusPage({
           <dl className="divide-y divide-gray-100">
             <div className="flex items-center justify-between py-3 text-sm">
               <dt className="text-gray-500">{t("orderReference")}</dt>
-              <dd className="font-mono font-medium text-navy">{order.orderRef}</dd>
+              <dd className="font-mono font-medium text-gray-900">{order.orderRef}</dd>
             </div>
             {order.recipientName && (
               <div className="flex items-center justify-between py-3 text-sm">
@@ -132,7 +132,7 @@ export default function StatusPage({
         <div className="text-center">
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-navy-light"
+            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
           >
             <PenLine className="h-4 w-4" />
             {t("sendAnother")}
