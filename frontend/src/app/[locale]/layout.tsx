@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { NextIntlClientProvider } from "next-intl";
-import { getMessages } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "../../i18n/routing.js";
 import { QueryProvider } from "../../lib/query-client.js";
@@ -24,6 +24,7 @@ export default async function LocaleLayout({
   }
 
   const messages = await getMessages();
+  const t = await getTranslations("common");
 
   return (
     <html lang={locale}>
@@ -32,7 +33,7 @@ export default async function LocaleLayout({
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-navy focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"
         >
-          Skip to content
+          {t("skipToContent")}
         </a>
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>{children}</QueryProvider>

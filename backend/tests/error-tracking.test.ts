@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Mock logging before import
 vi.mock("../src/shared/logging/index.js", () => ({
@@ -38,10 +38,8 @@ describe("error-tracking module", () => {
   });
 
   // Reset after all tests
-  beforeEach(() => {
-    return () => {
-      resetErrorTrackingSink();
-    };
+  afterEach(() => {
+    resetErrorTrackingSink();
   });
 
   describe("captureError", () => {

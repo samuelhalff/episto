@@ -5,7 +5,8 @@
     "error": "Une erreur est survenue",
     "tryAgain": "Réessayer",
     "pageNotFound": "Page non trouvée",
-    "backToHome": "Retour à l'accueil"
+    "backToHome": "Retour à l'accueil",
+    "skipToContent": "Aller au contenu"
   },
   "home": {
     "title": "Lettres formelles, envoyées simplement",

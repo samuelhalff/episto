@@ -5,7 +5,8 @@
     "error": "Ein Fehler ist aufgetreten",
     "tryAgain": "Erneut versuchen",
     "pageNotFound": "Seite nicht gefunden",
-    "backToHome": "Zurück zur Startseite"
+    "backToHome": "Zurück zur Startseite",
+    "skipToContent": "Zum Inhalt springen"
   },
   "home": {
     "title": "Formelle Briefe, einfach versendet",

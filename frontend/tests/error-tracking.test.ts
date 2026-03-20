@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   captureError,
   captureMessage,
@@ -27,10 +27,8 @@ describe("frontend error-tracking module", () => {
     setFrontendErrorTrackingSink(mockSink);
   });
 
-  beforeEach(() => {
-    return () => {
-      resetFrontendErrorTrackingSink();
-    };
+  afterEach(() => {
+    resetFrontendErrorTrackingSink();
   });
 
   describe("captureError", () => {

@@ -5,7 +5,8 @@
     "error": "An error occurred",
     "tryAgain": "Try again",
     "pageNotFound": "Page not found",
-    "backToHome": "Back to home"
+    "backToHome": "Back to home",
+    "skipToContent": "Skip to content"
   },
   "home": {
     "title": "Formal letters, sent with ease",

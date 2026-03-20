@@ -5,7 +5,8 @@
     "error": "Si è verificato un errore",
     "tryAgain": "Riprova",
     "pageNotFound": "Pagina non trovata",
-    "backToHome": "Torna alla home"
+    "backToHome": "Torna alla home",
+    "skipToContent": "Vai al contenuto"
   },
   "home": {
     "title": "Lettere formali, inviate con semplicità",
