@@ -10,7 +10,7 @@ export default function TermsPage() {
       <Header />
       <main id="main-content" className="px-6 pb-20 pt-20 md:pt-28">
         <article className="mx-auto max-w-3xl">
-          <h1 className="text-3xl font-bold text-navy md:text-4xl">
+          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
             {t("termsTitle")}
           </h1>
           <p className="mt-2 text-sm text-gray-400">
@@ -36,7 +36,7 @@ export default function TermsPage() {
 function LegalSection({ title, note }: { title: string; note: string }) {
   return (
     <section className="mt-10">
-      <h2 className="text-lg font-semibold text-navy">{title}</h2>
+      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
       <p className="mt-2 text-sm italic text-gray-400">{note}</p>
     </section>
   );

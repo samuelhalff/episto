@@ -71,8 +71,8 @@ export default function AdminPage() {
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-6">
         <div className="w-full max-w-sm">
           <div className="mb-8 text-center">
-            <ShieldCheck className="mx-auto h-10 w-10 text-navy" />
-            <h1 className="mt-4 text-xl font-bold text-navy">Admin Access</h1>
+            <ShieldCheck className="mx-auto h-10 w-10 text-primary" />
+            <h1 className="mt-4 text-xl font-bold text-gray-900">Admin Access</h1>
             <p className="mt-2 text-sm text-gray-500">
               Enter your admin credentials to continue.
             </p>
@@ -95,7 +95,7 @@ export default function AdminPage() {
                 autoComplete="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
+                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
             <div>
@@ -108,7 +108,7 @@ export default function AdminPage() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-navy focus:outline-none focus:ring-1 focus:ring-navy"
+                className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
 
@@ -121,7 +121,7 @@ export default function AdminPage() {
             <button
               type="submit"
               disabled={loading || !username || !password}
-              className="w-full rounded-lg bg-navy py-2.5 text-sm font-medium text-white hover:bg-navy-light disabled:opacity-40"
+              className="w-full rounded-lg bg-primary py-2.5 text-sm font-medium text-white hover:bg-primary-dark disabled:opacity-40"
             >
               {loading ? (
                 <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -140,8 +140,8 @@ export default function AdminPage() {
       <header className="border-b bg-white px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <ShieldCheck className="h-5 w-5 text-navy" />
-            <h1 className="text-lg font-bold text-navy">Admin Dashboard</h1>
+            <ShieldCheck className="h-5 w-5 text-primary" />
+            <h1 className="text-lg font-bold text-gray-900">Admin Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -153,7 +153,7 @@ export default function AdminPage() {
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
               Refresh
             </button>
-            <Link href="/" className="text-sm text-gray-500 hover:text-navy">
+            <Link href="/" className="text-sm text-gray-500 hover:text-gray-900">
               ← Back to site
             </Link>
           </div>

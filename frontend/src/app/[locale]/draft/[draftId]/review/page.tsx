@@ -34,7 +34,7 @@ export default function ReviewPage({
   if (draft.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-navy" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </div>
     );
   }
@@ -91,10 +91,10 @@ export default function ReviewPage({
       {/* Header */}
       <header className="border-b bg-white px-4 py-3">
         <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <Link href="/" className="font-bold text-navy">
+          <Link href="/" className="font-bold text-gray-900">
             {tc("appName")}
           </Link>
-          <span className="text-sm font-medium text-navy">{t("title")}</span>
+          <span className="text-sm font-medium text-gray-900">{t("title")}</span>
         </div>
       </header>
 
@@ -141,7 +141,7 @@ export default function ReviewPage({
 
             <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-6 py-4 text-sm">
               <span className="font-medium text-gray-700">{t("total")}</span>
-              <span className="text-lg font-bold text-navy">
+              <span className="text-lg font-bold text-gray-900">
                 {totalDisplay}
               </span>
             </div>
@@ -152,7 +152,7 @@ export default function ReviewPage({
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
           <Link
             href={`/draft/${draftId}`}
-            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-navy"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4" />
             {t("backToEditing")}
@@ -164,7 +164,7 @@ export default function ReviewPage({
             disabled={!allComplete || reviewDraft.isPending}
             className={`inline-flex items-center gap-2 rounded-lg px-8 py-3 text-sm font-semibold text-white transition ${
               allComplete
-                ? "bg-navy hover:bg-navy-light disabled:opacity-60"
+                ? "bg-primary hover:bg-primary-dark disabled:opacity-60"
                 : "pointer-events-none bg-gray-300"
             }`}
           >

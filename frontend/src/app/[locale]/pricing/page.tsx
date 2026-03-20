@@ -14,7 +14,7 @@ export default function PricingPage() {
         {/* Heading */}
         <section className="px-6 pb-16 pt-20 md:pt-28">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-navy md:text-4xl lg:text-5xl">
+            <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
               {t("title")}
             </h1>
             <p className="mt-4 text-lg text-gray-500">{t("subtitle")}</p>
@@ -26,7 +26,7 @@ export default function PricingPage() {
           <div className="mx-auto max-w-xl">
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
               <div className="border-b border-gray-100 bg-gray-50 px-6 py-4">
-                <div className="flex items-center gap-2 text-sm font-semibold text-navy">
+                <div className="flex items-center gap-2 text-sm font-semibold text-primary">
                   <Check className="h-4 w-4" />
                   {t("noHiddenFees")}
                 </div>
@@ -69,7 +69,7 @@ export default function PricingPage() {
           <div className="mx-auto max-w-3xl text-center">
             <Link
               href="/draft/new"
-              className="inline-block rounded-lg bg-navy px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-navy-light"
+              className="inline-block rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-primary-dark"
             >
               {t("cta")}
             </Link>
@@ -94,7 +94,7 @@ function PricingRow({
     <div className="flex items-center justify-between px-6 py-4">
       <span className="text-sm text-gray-600">{label}</span>
       <span
-        className={`text-sm font-medium ${highlight === true ? "text-navy" : "text-gray-900"}`}
+        className={`text-sm font-medium ${highlight === true ? "text-primary" : "text-gray-900"}`}
       >
         {price}
       </span>

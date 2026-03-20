@@ -36,11 +36,11 @@ export default function DraftWorkspacePage({
   if (!session.session && !session.isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8">
-        <h1 className="text-2xl font-bold text-navy">{tc("appName")}</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{tc("appName")}</h1>
         <button
           type="button"
           onClick={() => void session.createSession("en-CH")}
-          className="rounded-lg bg-navy px-6 py-3 text-sm font-medium text-white transition hover:bg-navy-light disabled:opacity-50"
+          className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition hover:bg-primary-dark disabled:opacity-50"
         >
           {t("title")}
         </button>
@@ -52,7 +52,7 @@ export default function DraftWorkspacePage({
     <div className="flex min-h-screen flex-col">
       {/* Header */}
       <header className="flex items-center justify-between border-b bg-white px-4 py-3">
-        <Link href="/" className="font-bold text-navy">
+        <Link href="/" className="font-bold text-gray-900">
           {tc("appName")}
         </Link>
         <StepIndicator currentStep={0} />
@@ -79,7 +79,7 @@ export default function DraftWorkspacePage({
       <button
         type="button"
         onClick={() => setMobilePreviewOpen(true)}
-        className="fixed bottom-6 right-6 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-navy text-white shadow-lg transition hover:bg-navy-light lg:hidden"
+        className="fixed bottom-6 right-6 z-30 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg transition hover:bg-primary-dark lg:hidden"
       >
         <Eye className="h-5 w-5" />
         <span className="sr-only">{t("preview")}</span>
@@ -89,7 +89,7 @@ export default function DraftWorkspacePage({
       {mobilePreviewOpen && (
         <div className="fixed inset-0 z-40 flex flex-col bg-gray-50 lg:hidden">
           <div className="flex items-center justify-between border-b bg-white px-4 py-3">
-            <span className="font-medium text-navy">{t("preview")}</span>
+            <span className="font-medium text-gray-900">{t("preview")}</span>
             <button
               type="button"
               onClick={() => setMobilePreviewOpen(false)}
