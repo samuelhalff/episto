@@ -27,7 +27,7 @@ export function StepIndicator({ currentStep }: { currentStep: number }) {
             <span
               className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-xs font-medium ${
                 isActive
-                  ? "bg-navy text-white"
+                  ? "bg-primary text-white"
                   : isDone
                     ? "bg-success/10 text-success"
                     : "bg-gray-100 text-gray-400"
@@ -37,7 +37,7 @@ export function StepIndicator({ currentStep }: { currentStep: number }) {
             </span>
             <span
               className={
-                isActive ? "font-medium text-navy" : "text-gray-500"
+                isActive ? "font-medium text-gray-900" : "text-gray-400"
               }
             >
               {t(key)}
