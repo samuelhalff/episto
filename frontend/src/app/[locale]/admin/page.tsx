@@ -160,7 +160,7 @@ export default function AdminPage() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl space-y-8 px-6 py-8">
+      <main id="main-content" className="mx-auto max-w-6xl space-y-8 px-6 py-8">
         {error && (
           <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
             {error}

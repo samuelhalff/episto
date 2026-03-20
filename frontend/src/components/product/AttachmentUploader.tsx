@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState, useCallback, useEffect } from "react";
 import { Paperclip, X, FileText, Image, Loader2, CheckCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { FileAsset } from "@swiss-mail/shared";
@@ -59,6 +59,13 @@ export function AttachmentUploader({
   const inputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
 
   const totalBytes = attachments.reduce((sum, f) => sum + (f.sizeBytes ?? 0), 0);
   const totalMB = totalBytes / (1024 * 1024);
@@ -68,7 +75,8 @@ export function AttachmentUploader({
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 4000);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToastMessage(null), 4000);
   };
 
   const handleFiles = useCallback(

@@ -11,6 +11,16 @@ const config: Config = {
         },
         accent: "#c53030",
         success: "#276749",
+        destructive: "#c53030",
+        primary: "#1a365d",
+        muted: {
+          DEFAULT: "#f1f5f9",
+          foreground: "#64748b",
+        },
+        border: "#e2e8f0",
+        ring: "#1a365d",
+        card: "#ffffff",
+        foreground: "#0f172a",
       },
       fontFamily: {
         sans: [

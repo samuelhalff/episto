@@ -79,7 +79,7 @@ export default function StatusPage({
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-12">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-12">
         <div className="text-center">
           <Package className="mx-auto mb-4 h-12 w-12 text-navy" />
           <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>

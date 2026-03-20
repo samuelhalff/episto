@@ -119,6 +119,8 @@ export default function CheckoutPage({
       if (!result.clientSecret) {
         router.push(`/draft/${draftId}/confirmation`);
       }
+    }).catch(() => {
+      // Error state is surfaced via checkout.error in the UI
     });
   }
 
@@ -133,7 +135,7 @@ export default function CheckoutPage({
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-8">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-8">
         <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
 
         <PriceSummary deliveryType={d.deliveryType} subject={d.subject} />

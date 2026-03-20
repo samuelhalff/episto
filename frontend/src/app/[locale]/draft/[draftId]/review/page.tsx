@@ -80,6 +80,8 @@ export default function ReviewPage({
 
     void reviewDraft.mutateAsync().then(() => {
       router.push(`/draft/${draftId}/checkout`);
+    }).catch(() => {
+      // Error state is surfaced via reviewDraft.error in the UI
     });
   }
 
@@ -95,7 +97,7 @@ export default function ReviewPage({
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl space-y-8 px-4 py-8">
+      <main id="main-content" className="mx-auto max-w-4xl space-y-8 px-4 py-8">
         {/* Subtitle */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>

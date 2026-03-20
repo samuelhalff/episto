@@ -149,7 +149,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   if (isVerifying) {
     return (
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-navy" />
         <p className="text-sm text-gray-500">{t("verifying")}</p>
       </main>
@@ -158,7 +158,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   if (isFailed) {
     return (
-      <main className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center">
         <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
         <h1 className="text-2xl font-bold text-gray-900">{t("paymentFailed")}</h1>
         <p className="text-sm text-gray-500">
@@ -189,7 +189,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   return (
     <>
-      <main className="mx-auto max-w-2xl space-y-8 px-4 pb-24 pt-12 text-center md:pb-12">
+      <main id="main-content" className="mx-auto max-w-2xl space-y-8 px-4 pb-24 pt-12 text-center md:pb-12">
         <div className="flex justify-center">
           <CheckCircle2 className="h-16 w-16 text-success" />
         </div>

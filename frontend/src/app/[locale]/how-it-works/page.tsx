@@ -11,7 +11,7 @@ export default function HowItWorksPage() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         {/* Heading */}
         <section className="px-6 pb-16 pt-20 md:pt-28">
           <div className="mx-auto max-w-3xl text-center">

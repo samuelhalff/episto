@@ -21,7 +21,7 @@ export default function HomePage() {
   return (
     <>
       <Header />
-      <main>
+      <main id="main-content">
         {/* Hero */}
         <section className="px-6 pb-20 pt-24 md:pb-32 md:pt-36">
           <div className="mx-auto max-w-3xl text-center">

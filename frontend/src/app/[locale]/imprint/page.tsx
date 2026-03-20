@@ -8,7 +8,7 @@ export default function ImprintPage() {
   return (
     <>
       <Header />
-      <main className="px-6 pb-20 pt-20 md:pt-28">
+      <main id="main-content" className="px-6 pb-20 pt-20 md:pt-28">
         <article className="mx-auto max-w-3xl">
           <h1 className="text-3xl font-bold text-navy md:text-4xl">
             {t("imprintTitle")}
