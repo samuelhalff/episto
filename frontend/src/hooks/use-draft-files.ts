@@ -2,30 +2,15 @@
 
 import { useState, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@swiss-mail/shared";
+import {
+  queryKeys,
+  FileAssetKind,
+  type FileAsset,
+  FILE_LIMITS,
+  getUploadByteLimit,
+  isAllowedUploadMimeType,
+} from "@swiss-mail/shared";
 import { apiFetch } from "../lib/api.js";
-import type { FileAsset } from "@swiss-mail/shared";
-import { FileAssetKind } from "@swiss-mail/shared";
-
-// ---------------------------------------------------------------------------
-// File limits — canonical values from docs/04-product/file-handling.md
-// ---------------------------------------------------------------------------
-
-const MAX_ATTACHMENT_FILE_BYTES = 5 * 1024 * 1024;    // 5 MB
-const MAX_SIGNATURE_FILE_BYTES = 2 * 1024 * 1024;     // 2 MB
-const MAX_TOTAL_UPLOAD_BYTES = 20 * 1024 * 1024;      // 20 MB
-const MAX_ATTACHMENTS_PER_DRAFT = 5;
-
-const ALLOWED_ATTACHMENT_TYPES = new Set([
-  "application/pdf",
-  "image/png",
-  "image/jpeg",
-]);
-
-const ALLOWED_SIGNATURE_TYPES = new Set([
-  "image/png",
-  "image/jpeg",
-]);
 
 // ---------------------------------------------------------------------------
 // Types
@@ -52,29 +37,36 @@ function validateFile(
   file: File,
   kind: "attachment" | "signature",
   existingAttachments: FileAsset[],
+  hasSignature: boolean,
   existingTotalBytes: number,
 ): string | null {
-  if (kind === "attachment") {
-    if (!ALLOWED_ATTACHMENT_TYPES.has(file.type)) {
-      return `Unsupported file type. Allowed: PDF, PNG, JPEG.`;
-    }
-    if (file.size > MAX_ATTACHMENT_FILE_BYTES) {
-      return `Attachment exceeds 5 MB limit.`;
-    }
-    if (existingAttachments.length >= MAX_ATTACHMENTS_PER_DRAFT) {
-      return `Maximum ${MAX_ATTACHMENTS_PER_DRAFT} attachments per draft.`;
-    }
-    if (existingTotalBytes + file.size > MAX_TOTAL_UPLOAD_BYTES) {
-      return `Total upload would exceed 20 MB limit.`;
-    }
-  } else {
-    if (!ALLOWED_SIGNATURE_TYPES.has(file.type)) {
-      return `Unsupported signature format. Allowed: PNG, JPEG.`;
-    }
-    if (file.size > MAX_SIGNATURE_FILE_BYTES) {
-      return `Signature image exceeds 2 MB limit.`;
-    }
+  if (!isAllowedUploadMimeType(kind, file.type)) {
+    return kind === "attachment"
+      ? "Unsupported file type. Allowed: PDF, PNG, JPEG."
+      : "Unsupported signature format. Allowed: PNG, JPEG.";
   }
+
+  if (file.size > getUploadByteLimit(kind)) {
+    return kind === "attachment"
+      ? "Attachment exceeds 5 MB limit."
+      : "Signature image exceeds 2 MB limit.";
+  }
+
+  if (
+    kind === "attachment" &&
+    existingAttachments.length >= FILE_LIMITS.maxAttachmentsPerDraft
+  ) {
+    return `Maximum ${FILE_LIMITS.maxAttachmentsPerDraft} attachments per draft.`;
+  }
+
+  if (kind === "signature" && hasSignature) {
+    return "Only one signature image is allowed per draft.";
+  }
+
+  if (existingTotalBytes + file.size > FILE_LIMITS.totalDraftUploadBytes) {
+    return "Total upload would exceed 20 MB limit.";
+  }
+
   return null;
 }
 
@@ -90,7 +82,9 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
   const filesQuery = useQuery({
     queryKey: queryKeys.draftFiles(draftId),
     queryFn: () =>
-      apiFetch<{ files: FileAsset[] }>(`/v1/drafts/${draftId}/files`).then((r) => r.files),
+      apiFetch<{ files: FileAsset[] }>(`/v1/drafts/${draftId}/files`).then(
+        (r) => r.files,
+      ),
     staleTime: 30_000,
   });
 
@@ -149,7 +143,13 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
 
   const uploadFile = useCallback(
     async (file: File, kind: "attachment" | "signature"): Promise<FileAsset> => {
-      const error = validateFile(file, kind, attachments, existingTotalBytes);
+      const error = validateFile(
+        file,
+        kind,
+        attachments,
+        Boolean(signature),
+        existingTotalBytes,
+      );
       if (error) {
         setValidationError(error);
         throw new Error(error);
@@ -157,7 +157,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
       setValidationError(null);
       return uploadMutation.mutateAsync({ file, kind });
     },
-    [uploadMutation, attachments, existingTotalBytes],
+    [uploadMutation, attachments, signature, existingTotalBytes],
   );
 
   const removeFile = useCallback(
