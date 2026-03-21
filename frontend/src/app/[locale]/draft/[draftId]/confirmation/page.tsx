@@ -129,7 +129,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     return (
       <main
         id="main-content"
-        className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center"
+        className="mx-auto max-w-2xl space-y-6 px-4 py-12 text-center"
       >
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
         <p className="text-sm text-gray-500">{t("verifying")}</p>
@@ -141,7 +141,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     return (
       <main
         id="main-content"
-        className="mx-auto max-w-2xl space-y-6 px-4 py-20 text-center"
+        className="mx-auto max-w-2xl space-y-6 px-4 py-12 text-center"
       >
         <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
         <h1 className="text-2xl font-bold text-gray-900">{t("paymentFailed")}</h1>
@@ -209,7 +209,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     <>
       <main
         id="main-content"
-        className="mx-auto max-w-2xl space-y-8 px-4 pb-20 pt-8 text-center md:pb-10"
+        className="mx-auto max-w-2xl space-y-8 px-4 pb-12 pt-8 text-center md:pb-10"
       >
         <div className="flex justify-center">{activeStateCopy.icon}</div>
 

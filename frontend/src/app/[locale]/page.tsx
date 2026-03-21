@@ -97,7 +97,7 @@ export default function HomePage() {
     <>
       <Header />
       <main id="main-content">
-        <section className="relative overflow-hidden px-6 pb-14 pt-12 md:pb-16 md:pt-16 lg:pb-14 lg:pt-24">
+        <section className="relative overflow-hidden px-6 pb-8 pt-10 md:pb-14 md:pt-16 lg:pb-14 lg:pt-24">
           <div
             aria-hidden="true"
             className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[82%] rounded-[2.5rem] opacity-50 md:inset-x-8 md:rounded-[3rem]"
@@ -118,7 +118,7 @@ export default function HomePage() {
               <p className="mt-5 max-w-2xl text-base leading-7 text-stone-600 md:mt-6 md:text-lg md:leading-8 lg:text-xl">
                 {t("heroSubtitle")}
               </p>
-              <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <div className="mt-7 flex flex-col gap-4 sm:flex-row sm:items-center">
                 <Link
                   href="/draft/new"
                   className="cta-sheen inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3.5 text-base font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 md:px-7 md:py-4"
@@ -133,7 +133,7 @@ export default function HomePage() {
                   {t("nav.howItWorks")}
                 </Link>
               </div>
-              <div className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                 {trustItems.map((item, index) => (
                   <div
                     key={item.label}
@@ -206,7 +206,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-8 pt-10 md:pb-10 md:pt-12 lg:pb-10 lg:pt-14">
+        <section className="px-6 pb-4 pt-6 md:pb-8 md:pt-10 lg:pb-10 lg:pt-14">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-5xl">
@@ -216,7 +216,7 @@ export default function HomePage() {
                 {t("step1Desc")} {t("step2Desc")} {t("step3Desc")}
               </p>
             </div>
-            <div className="mt-8 grid gap-6 lg:grid-cols-3">
+            <div className="mt-6 grid gap-5 lg:grid-cols-3">
               {steps.map((step) => (
                 <StepCard
                   key={step.number}
@@ -231,8 +231,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 py-10 md:py-12 lg:py-16">
-          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_58%)] px-5 py-8 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-8 md:py-10">
+        <section className="px-6 py-6 md:py-10 lg:py-14">
+          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_58%)] px-5 py-6 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-8 md:py-10">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
                 {t("useCasesTitle")}
@@ -241,7 +241,7 @@ export default function HomePage() {
                 {t("heroSubtitle")}
               </p>
             </div>
-            <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {useCases.map((useCase) => (
                 <UseCaseCard
                   key={useCase.label}
@@ -256,7 +256,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-12 pt-6 md:pb-14 md:pt-8 lg:pb-16 lg:pt-10">
+        <section className="px-6 pb-8 pt-4 md:pb-12 md:pt-6 lg:pb-14 lg:pt-8">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="rounded-[2.5rem] bg-stone-950 px-6 py-8 text-white shadow-[0_34px_90px_rgba(28,25,23,0.24)] md:px-8">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300/80">
@@ -311,8 +311,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-16 pt-8 md:pb-20">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.75rem] bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,#1c1917_0%,#292524_55%,#451a03_100%)] px-6 py-10 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.26)] md:px-10 md:py-14">
+        <section className="px-6 pb-10 pt-4 md:pb-16 md:pt-6">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.75rem] bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,#1c1917_0%,#292524_55%,#451a03_100%)] px-6 py-8 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.26)] md:px-10 md:py-14">
             <div className="mx-auto max-w-3xl">
               <div className="inline-flex animate-rise-in items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
                 <Sparkles className="h-4 w-4" />
@@ -325,7 +325,7 @@ export default function HomePage() {
                 {t("heroSubtitle")}
               </p>
             </div>
-            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
+            <div className="mt-6 flex flex-col justify-center gap-4 sm:flex-row">
               <Link
                 href="/draft/new"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-lg font-semibold text-stone-950 shadow-[0_18px_50px_rgba(255,255,255,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-50"
@@ -374,10 +374,10 @@ function StepCard({
           {number}
         </span>
       </div>
-      <h3 className="mt-6 text-2xl font-semibold tracking-[-0.03em] text-stone-950">
+      <h3 className="mt-4 text-xl font-semibold tracking-[-0.03em] text-stone-950 sm:mt-6 sm:text-2xl">
         {title}
       </h3>
-      <p className="mt-4 text-base leading-7 text-stone-600">{description}</p>
+      <p className="mt-2 text-base leading-7 text-stone-600 sm:mt-4">{description}</p>
     </article>
   );
 }
@@ -403,10 +403,10 @@ function UseCaseCard({
       <div className="inline-flex h-14 w-14 items-center justify-center rounded-[1.4rem] bg-white shadow-sm">
         {icon}
       </div>
-      <h3 className="mt-8 text-xl font-semibold tracking-[-0.03em] text-stone-950">
+      <h3 className="mt-4 text-xl font-semibold tracking-[-0.03em] text-stone-950 sm:mt-8">
         {label}
       </h3>
-      <p className="mt-3 text-sm leading-7 text-stone-600">{description}</p>
+      <p className="mt-2 text-sm leading-7 text-stone-600 sm:mt-3">{description}</p>
     </article>
   );
 }
