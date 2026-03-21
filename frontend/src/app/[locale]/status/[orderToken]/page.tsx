@@ -85,7 +85,7 @@ export default function StatusPage({
       </header>
 
       <main id="main-content" className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
-        <div className="rounded-[2.5rem] border border-stone-200/80 bg-white/92 p-8 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)]">
+        <div className="rounded-[2.5rem] border border-stone-200/80 bg-white/92 p-5 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
           <Package className="mx-auto mb-4 h-12 w-12 text-primary" />
           <h1 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950">
             {t("title")}

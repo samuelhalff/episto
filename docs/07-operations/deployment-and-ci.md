@@ -450,7 +450,7 @@ Staging is identical to production in infrastructure. Differences are configurat
 | Stripe | Test mode (`sk_test_...`) | Live mode (`sk_live_...`) |
 | Postal provider | Chosen provider sandbox or explicitly non-production adapter | Chosen production provider |
 | Email | Real delivery to test addresses | Real delivery |
-| Domain | `staging.swissmail.ch` | `swissmail.ch` |
+| Domain | `staging.swissmail.ch` (prod staging), `ark-fid.ddns.net` (dev staging) | `swissmail.ch` |
 | Sentry environment | `staging` | `production` |
 | `NODE_ENV` | `production` (same runtime) | `production` |
 

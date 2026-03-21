@@ -8,13 +8,13 @@ export default function ImprintPage() {
   return (
     <>
       <Header />
-      <main id="main-content" className="px-6 pb-20 pt-20 md:pt-28">
+      <main id="main-content" className="px-6 pb-16 pt-16 md:pt-24">
         <article className="mx-auto max-w-3xl">
           <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
             {t("imprintTitle")}
           </h1>
 
-          <section className="mt-10">
+          <section className="mt-8">
             <p className="text-sm text-gray-500">{t("operatedBy")}</p>
             <p className="mt-2 text-lg font-semibold text-gray-900">
               {t("companyName")}
@@ -24,7 +24,7 @@ export default function ImprintPage() {
             </p>
           </section>
 
-          <section className="mt-10">
+          <section className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900">
               {t("contactTitle")}
             </h2>
@@ -38,7 +38,7 @@ export default function ImprintPage() {
             </div>
           </section>
 
-          <section className="mt-10">
+          <section className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900">
               {t("commercialRegister")}
             </h2>
@@ -47,7 +47,7 @@ export default function ImprintPage() {
             </p>
           </section>
 
-          <section className="mt-10">
+          <section className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900">
               {t("vatNumber")}
             </h2>
@@ -56,7 +56,7 @@ export default function ImprintPage() {
             </p>
           </section>
 
-          <section className="mt-10">
+          <section className="mt-8">
             <h2 className="text-lg font-semibold text-gray-900">
               {t("disputeResolution")}
             </h2>

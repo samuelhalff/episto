@@ -209,7 +209,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     <>
       <main
         id="main-content"
-        className="mx-auto max-w-2xl space-y-8 px-4 pb-24 pt-12 text-center md:pb-12"
+        className="mx-auto max-w-2xl space-y-8 px-4 pb-20 pt-8 text-center md:pb-10"
       >
         <div className="flex justify-center">{activeStateCopy.icon}</div>
 

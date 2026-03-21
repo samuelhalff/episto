@@ -50,9 +50,9 @@ export default function PricingPage() {
           }
         />
 
-        <section className="px-6 pb-20 md:pb-24">
+        <section className="px-6 pb-14 md:pb-16">
           <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="rounded-[2.5rem] bg-stone-950 px-8 py-10 text-white shadow-[0_28px_80px_rgba(28,25,23,0.22)]">
+            <div className="rounded-[2.5rem] bg-stone-950 px-6 py-8 text-white shadow-[0_28px_80px_rgba(28,25,23,0.22)]">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300/80">
                 {tm("pricingTitle")}
               </p>

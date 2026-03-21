@@ -52,8 +52,8 @@ export default function HelpPage() {
           }
         />
 
-        <section className="px-6 pb-20 md:pb-24">
-          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_100%)] px-6 py-10 shadow-[0_24px_70px_rgba(120,53,15,0.08)] md:px-10 md:py-12">
+        <section className="px-6 pb-14 md:pb-16">
+          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_100%)] px-5 py-8 shadow-[0_24px_70px_rgba(120,53,15,0.08)] md:px-8 md:py-10">
             <div className="mx-auto max-w-3xl text-center">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
                 {t("faqTitle")}

@@ -79,7 +79,7 @@ const EnvSchema = z.object({
 ).refine(
   (data) => {
     if (data.NODE_ENV === "production") {
-      return data.CORS_ORIGIN.startsWith("https://");
+      return data.CORS_ORIGIN.split(",").every((o) => o.trim().startsWith("https://"));
     }
     return true;
   },

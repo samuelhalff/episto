@@ -25,14 +25,14 @@ const securityHeaders = [
       // Next.js app router injects inline bootstrap scripts for RSC/hydration.
       "script-src 'self' 'unsafe-inline' https://js.stripe.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
-      "connect-src 'self' https://api.stripe.com",
+      // ws:/wss: needed for HMR WebSocket in dev; EventSource SSE is same-origin.
+      "connect-src 'self' https://api.stripe.com ws: wss:",
       "img-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self'",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
-      "upgrade-insecure-requests",
     ].join("; "),
   },
 ];
@@ -60,7 +60,7 @@ const nextConfig: NextConfig = {
     ];
   },
   async rewrites() {
-    const apiUrl = process.env.API_URL || "http://localhost:3001";
+    const apiUrl = process.env.API_URL || "http://localhost:4000";
     return [
       {
         source: "/api/:path*",

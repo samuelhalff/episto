@@ -97,7 +97,7 @@ export default function HomePage() {
     <>
       <Header />
       <main id="main-content">
-        <section className="relative overflow-hidden px-6 pb-24 pt-16 md:pb-28 md:pt-20 lg:pb-20 lg:pt-28">
+        <section className="relative overflow-hidden px-6 pb-14 pt-12 md:pb-16 md:pt-16 lg:pb-14 lg:pt-24">
           <div
             aria-hidden="true"
             className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[82%] rounded-[2.5rem] opacity-50 md:inset-x-8 md:rounded-[3rem]"
@@ -206,7 +206,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-10 pt-16 md:pb-12 md:pt-20 lg:pb-14 lg:pt-20">
+        <section className="px-6 pb-8 pt-10 md:pb-10 md:pt-12 lg:pb-10 lg:pt-14">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-5xl">
@@ -216,7 +216,7 @@ export default function HomePage() {
                 {t("step1Desc")} {t("step2Desc")} {t("step3Desc")}
               </p>
             </div>
-            <div className="mt-12 grid gap-6 lg:grid-cols-3">
+            <div className="mt-8 grid gap-6 lg:grid-cols-3">
               {steps.map((step) => (
                 <StepCard
                   key={step.number}
@@ -231,8 +231,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-20 lg:py-24">
-          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_58%)] px-6 py-10 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-10 md:py-14">
+        <section className="px-6 py-10 md:py-12 lg:py-16">
+          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_58%)] px-5 py-8 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-8 md:py-10">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
                 {t("useCasesTitle")}
@@ -241,7 +241,7 @@ export default function HomePage() {
                 {t("heroSubtitle")}
               </p>
             </div>
-            <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {useCases.map((useCase) => (
                 <UseCaseCard
                   key={useCase.label}
@@ -256,9 +256,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-16 pt-8 md:pb-20 md:pt-10 lg:pb-24 lg:pt-12">
+        <section className="px-6 pb-12 pt-6 md:pb-14 md:pt-8 lg:pb-16 lg:pt-10">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[2.5rem] bg-stone-950 px-8 py-10 text-white shadow-[0_34px_90px_rgba(28,25,23,0.24)] md:px-10">
+            <div className="rounded-[2.5rem] bg-stone-950 px-6 py-8 text-white shadow-[0_34px_90px_rgba(28,25,23,0.24)] md:px-8">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300/80">
                 {t("trustTitle")}
               </p>
@@ -284,7 +284,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-[2.5rem] border border-amber-200/80 bg-[linear-gradient(180deg,#fffbeb_0%,#fff7ed_50%,#ffffff_100%)] px-8 py-10 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-10">
+            <div className="rounded-[2.5rem] border border-amber-200/80 bg-[linear-gradient(180deg,#fffbeb_0%,#fff7ed_50%,#ffffff_100%)] px-6 py-8 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-8">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-sm">
                 <CheckCircle2 className="h-4 w-4" />
                 {t("pricingTitle")}
@@ -311,8 +311,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-24 pt-12 md:pb-28">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.75rem] bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,#1c1917_0%,#292524_55%,#451a03_100%)] px-8 py-12 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.26)] md:px-12 md:py-16">
+        <section className="px-6 pb-16 pt-8 md:pb-20">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.75rem] bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,#1c1917_0%,#292524_55%,#451a03_100%)] px-6 py-10 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.26)] md:px-10 md:py-14">
             <div className="mx-auto max-w-3xl">
               <div className="inline-flex animate-rise-in items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
                 <Sparkles className="h-4 w-4" />
@@ -325,7 +325,7 @@ export default function HomePage() {
                 {t("heroSubtitle")}
               </p>
             </div>
-            <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+            <div className="mt-8 flex flex-col justify-center gap-4 sm:flex-row">
               <Link
                 href="/draft/new"
                 className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-8 py-4 text-lg font-semibold text-stone-950 shadow-[0_18px_50px_rgba(255,255,255,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-50"

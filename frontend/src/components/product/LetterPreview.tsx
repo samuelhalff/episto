@@ -29,7 +29,7 @@ export function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
 
   return (
     <div className="mx-auto w-full max-w-[720px]">
-      <div className="rounded-[2rem] border border-stone-200/80 bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.08)] sm:p-8 lg:p-10">
+      <div className="rounded-[2rem] border border-stone-200/80 bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.08)] sm:p-6 lg:p-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">
@@ -41,7 +41,7 @@ export function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
             A4
           </span>
         </div>
-        <div className="rounded-[1.5rem] border border-stone-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-6 shadow-inner sm:p-8">
+        <div className="rounded-[1.5rem] border border-stone-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-inner sm:p-6">
           <div className="min-h-[560px] space-y-8 text-sm text-stone-700">
             <div className="text-xs text-stone-400">
               {draft.senderProfileId ? (

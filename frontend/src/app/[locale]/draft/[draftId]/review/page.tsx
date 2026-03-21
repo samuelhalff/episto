@@ -91,7 +91,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
 
       <main
         id="main-content"
-        className="mx-auto max-w-7xl space-y-8 px-4 pb-32 pt-8 sm:px-6 lg:pb-10"
+        className="mx-auto max-w-7xl space-y-8 px-4 pb-24 pt-8 sm:px-6 lg:pb-12"
       >
         <div className="max-w-2xl">
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">

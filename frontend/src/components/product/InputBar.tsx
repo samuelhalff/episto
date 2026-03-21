@@ -106,7 +106,7 @@ export function InputBar({
             <button
               type="button"
               onClick={onStartVoice}
-              className="group flex min-h-[84px] w-full items-center gap-3 rounded-[1.5rem] bg-primary px-4 py-4 text-left text-white shadow-[0_20px_45px_rgba(245,158,11,0.28)] transition hover:bg-primary-dark"
+              className="group flex min-h-[72px] sm:min-h-[84px] w-full items-center gap-3 rounded-[1.5rem] bg-primary px-4 py-4 text-left text-white shadow-[0_20px_45px_rgba(245,158,11,0.28)] transition hover:bg-primary-dark"
             >
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/18">
                 <MicIcon className="h-5 w-5" />
@@ -124,7 +124,7 @@ export function InputBar({
           <button
             type="button"
             onClick={handleSwitchToKeyboard}
-            className="flex min-h-[84px] w-full items-center gap-3 rounded-[1.5rem] border border-stone-200 bg-stone-50/70 px-4 py-4 text-left text-stone-700 transition hover:border-stone-300 hover:bg-white"
+            className="flex min-h-[72px] sm:min-h-[84px] w-full items-center gap-3 rounded-[1.5rem] border border-stone-200 bg-stone-50/70 px-4 py-4 text-left text-stone-700 transition hover:border-stone-300 hover:bg-white"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
               <Keyboard className="h-5 w-5 text-stone-500" />

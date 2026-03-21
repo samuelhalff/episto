@@ -16,12 +16,16 @@ import { recordEvent } from "../analytics/index.js";
 
 function setSessionCookie(
   reply: FastifyReply,
+  request: FastifyRequest,
   token: string,
   maxAgeSeconds: number,
 ): void {
+  const isSecure =
+    env().NODE_ENV === "production" ||
+    request.headers["x-forwarded-proto"] === "https";
   reply.setCookie(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: env().NODE_ENV === "production",
+    secure: isSecure,
     sameSite: "lax",
     path: "/",
     maxAge: maxAgeSeconds,
@@ -55,7 +59,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
 
       recordEvent({ event: "session_created", sessionId: session.id, locale: session.locale });
 
-      setSessionCookie(reply, resumeToken, config.SESSION_TTL_HOURS * 3600);
+      setSessionCookie(reply, request, resumeToken, config.SESSION_TTL_HOURS * 3600);
 
       reply.status(200).send({
         session: {
@@ -176,7 +180,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
 
       recordEvent({ event: "resume_link_opened", sessionId: session.id, result: "success" });
 
-      setSessionCookie(reply, token, config.SESSION_TTL_HOURS * 3600);
+      setSessionCookie(reply, request, token, config.SESSION_TTL_HOURS * 3600);
 
       // Find the most recent draft for this session to determine redirect
       const [latestDraft] = await db

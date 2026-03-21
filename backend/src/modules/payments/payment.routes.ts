@@ -146,7 +146,8 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
               if (sessionRow?.email) {
                 const locale = sessionRow.locale ?? "en-CH";
                 const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
-                const statusUrl = `${env().CORS_ORIGIN}/${locale}/status/${rawOrderAccessToken}`;
+                const siteUrl = env().CORS_ORIGIN.split(",")[0]?.trim() ?? env().CORS_ORIGIN;
+                const statusUrl = `${siteUrl}/${locale}/status/${rawOrderAccessToken}`;
 
                 const job: SendEmailJob = {
                   to: sessionRow.email,

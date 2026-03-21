@@ -57,8 +57,9 @@ export async function buildApp(logger: pino.Logger) {
     done();
   });
 
+  const corsOrigins = config.CORS_ORIGIN.split(",").map((s) => s.trim()).filter(Boolean);
   await app.register(fastifyCors, {
-    origin: config.CORS_ORIGIN,
+    origin: corsOrigins.length === 1 ? (corsOrigins[0] ?? config.CORS_ORIGIN) : corsOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "X-Requested-With"],
