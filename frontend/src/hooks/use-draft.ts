@@ -48,7 +48,10 @@ export function useCreateDraft() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: () =>
-      apiFetch<{ draft: DraftLetter }>("/v1/drafts", { method: "POST" }).then((r) => r.draft),
+      apiFetch<{ draft: DraftLetter }>("/v1/drafts", {
+        method: "POST",
+        body: JSON.stringify({}),
+      }).then((r) => r.draft),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["drafts"] });
     },

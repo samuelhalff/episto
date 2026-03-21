@@ -147,6 +147,26 @@ export async function buildApp(logger: pino.Logger) {
         return;
       }
 
+      if (typeof error.statusCode === "number" && error.statusCode >= 400) {
+        const isRateLimited = error.statusCode === 429;
+
+        reply.status(error.statusCode).send({
+          error: {
+            code: isRateLimited ? "RATE_LIMITED" : "REQUEST_ERROR",
+            family: isRateLimited ? "policy_refusal" : "validation_error",
+            message: error.message,
+            userMessage: isRateLimited
+              ? "Too many attempts were made. Please wait a moment and try again."
+              : "The request could not be processed.",
+            userAction: isRateLimited
+              ? "Wait briefly, then retry."
+              : "Review the request and try again.",
+            requestId,
+          },
+        });
+        return;
+      }
+
       // Unexpected errors
       req.log.error({ err: error }, "Unhandled error");
       reply.status(500).send({

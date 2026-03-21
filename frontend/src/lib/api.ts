@@ -12,9 +12,10 @@ export class ApiError extends Error {
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   // Don't set Content-Type for FormData — browser sets it with multipart boundary
   const isFormData = init?.body instanceof FormData;
+  const hasBody = init?.body !== undefined && init?.body !== null;
   const headers: Record<string, string> = {
     "X-Requested-With": "XMLHttpRequest",
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
+    ...(hasBody && !isFormData ? { "Content-Type": "application/json" } : {}),
     ...(init?.headers as Record<string, string> | undefined),
   };
 
