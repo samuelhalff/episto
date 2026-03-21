@@ -99,7 +99,7 @@ export function InputBar({
   }
 
   return (
-    <div className="border-t border-stone-200/80 bg-white/95 px-4 py-4 backdrop-blur sm:px-5">
+    <div className="border-t border-stone-200/80 bg-white/95 px-3 py-3 backdrop-blur sm:px-5 sm:py-4">
       {mode === "initial" && !hasMessages && (
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {dictationSupported && (
