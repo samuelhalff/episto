@@ -97,7 +97,7 @@ export default function HomePage() {
     <>
       <Header />
       <main id="main-content">
-        <section className="relative overflow-hidden px-4 pb-4 pt-8 sm:px-6 sm:pb-8 sm:pt-10 md:pb-14 md:pt-16 lg:pb-14 lg:pt-24">
+        <section className="relative overflow-hidden px-4 pb-8 pt-12 sm:px-6 sm:pb-12 sm:pt-16 md:pb-16 md:pt-20 lg:pb-20 lg:pt-28">
           <div
             aria-hidden="true"
             className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[82%] rounded-[2.5rem] opacity-50 md:inset-x-8 md:rounded-[3rem]"
@@ -106,7 +106,7 @@ export default function HomePage() {
             aria-hidden="true"
             className="animate-glow-pulse pointer-events-none absolute left-1/2 top-16 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-amber-200/40 blur-3xl md:top-24 md:h-72 md:w-72"
           />
-          <div className="mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+          <div className="mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
             <div className="animate-rise-in">
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-[0_14px_35px_rgba(120,53,15,0.08)] sm:px-4 sm:py-2 sm:text-xs">
                 <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
@@ -115,37 +115,41 @@ export default function HomePage() {
               <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-stone-950 sm:mt-5 sm:text-5xl md:mt-7 md:text-6xl lg:text-7xl">
                 {t("heroTitle")}
               </h1>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-600 sm:text-base sm:leading-7 md:mt-5 md:text-lg md:leading-8 lg:text-xl">
+              <p className="mt-4 max-w-2xl text-sm leading-6 text-stone-600 sm:mt-5 sm:text-base sm:leading-7 md:mt-5 md:text-lg md:leading-8 lg:text-xl">
                 {t("heroSubtitle")}
               </p>
-              <div className="mt-5 flex gap-3 sm:flex-col sm:gap-3 md:flex-row md:items-center">
+              <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:gap-4 md:flex-row md:items-center">
                 <Link
                   href="/draft/new"
-                  className="cta-sheen inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:px-6 sm:py-3.5 sm:text-base md:px-7 md:py-4"
+                  className="cta-sheen inline-flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:px-6 sm:py-4 sm:text-base md:w-auto md:px-7 md:py-4"
                 >
                   {t("heroCta")}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/how-it-works"
-                  className="inline-flex items-center justify-center rounded-full border border-stone-300/70 bg-white/80 px-5 py-3 text-sm font-medium text-stone-700 shadow-[0_12px_30px_rgba(120,53,15,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950 sm:px-6 sm:py-3.5 sm:text-base md:px-7 md:py-4"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-stone-300/70 bg-white/80 px-5 py-3.5 text-sm font-medium text-stone-700 shadow-[0_12px_30px_rgba(120,53,15,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950 sm:px-6 sm:py-4 sm:text-base md:w-auto md:px-7 md:py-4"
                 >
                   {t("nav.howItWorks")}
                 </Link>
               </div>
-              <div className="mt-4 flex flex-wrap gap-2 sm:mt-5 sm:grid sm:grid-cols-2 sm:gap-3 xl:grid-cols-3">
-                {trustItems.map((item, index) => (
-                  <div
-                    key={item.label}
-                    className="animate-rise-in inline-flex items-center gap-2 rounded-xl border border-white/70 bg-white/75 px-2.5 py-2 text-xs font-medium text-stone-700 shadow-[0_18px_40px_rgba(120,53,15,0.08)] backdrop-blur sm:gap-3 sm:rounded-[1.5rem] sm:px-4 sm:py-3 sm:text-sm"
-                    style={{ animationDelay: `${0.18 + index * 0.08}s` }}
-                  >
-                    <span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-50 sm:h-9 sm:w-9 sm:rounded-xl">
-                      {item.icon}
-                    </span>
-                    {item.label}
+              <div className="mt-10 sm:mt-14">
+                <div className="paper-noise rounded-2xl border border-stone-200/60 px-4 py-4 shadow-[0_18px_50px_rgba(120,53,15,0.06)] sm:rounded-[2rem] sm:px-6 sm:py-5">
+                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+                    {trustItems.map((item, index) => (
+                      <div
+                        key={item.label}
+                        className="animate-rise-in flex items-center gap-2.5 rounded-xl px-1 py-1 sm:gap-3 sm:px-2 sm:py-1.5"
+                        style={{ animationDelay: `${0.18 + index * 0.08}s` }}
+                      >
+                        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50/80 sm:h-9 sm:w-9 sm:rounded-xl">
+                          {item.icon}
+                        </span>
+                        <span className="text-xs font-medium text-stone-600 sm:text-sm">{item.label}</span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
               </div>
             </div>
 
@@ -204,12 +208,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-4 py-4 sm:px-6 md:pb-8 md:pt-10 lg:pb-10 lg:pt-14">
+        {/* How It Works */}
+        <section className="bg-stone-50/50 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
           <div className="mx-auto max-w-7xl">
-            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-3xl md:text-5xl">
-              {t("howItWorksTitle")}
-            </h2>
-            <div className="mt-3 grid gap-2.5 sm:mt-5 lg:grid-cols-3 lg:gap-4">
+            <div className="mb-10 text-center sm:mb-12 md:mb-16">
+              <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-3xl md:text-4xl lg:text-5xl">
+                {t("howItWorksTitle")}
+              </h2>
+            </div>
+            <div className="grid gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
               {steps.map((step) => (
                 <StepCard
                   key={step.number}
@@ -224,12 +231,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-4 py-3 sm:px-6 md:py-10 lg:py-14">
-          <div className="mx-auto max-w-7xl rounded-2xl border border-stone-200/80 bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_58%)] px-3 py-4 shadow-[0_28px_80px_rgba(120,53,15,0.12)] sm:rounded-[2.5rem] sm:px-4 md:px-8 md:py-10">
-            <h2 className="text-xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-3xl md:text-4xl">
-              {t("useCasesTitle")}
-            </h2>
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-5 sm:gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {/* Use Cases */}
+        <section className="px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-10 text-center sm:mb-12 md:mb-16">
+              <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-3xl md:text-4xl lg:text-5xl">
+                {t("useCasesTitle")}
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
               {useCases.map((useCase) => (
                 <UseCaseCard
                   key={useCase.label}
@@ -244,81 +254,86 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-4 py-4 sm:px-6 md:pb-12 md:pt-6 lg:pb-14 lg:pt-8">
-          <div className="mx-auto grid max-w-7xl gap-3 sm:gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-2xl bg-stone-950 px-4 py-4 text-white shadow-[0_34px_90px_rgba(28,25,23,0.24)] sm:rounded-[2.5rem] sm:px-6 md:px-8 md:py-8">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-amber-300/80 sm:text-xs">
+        {/* Trust & Pricing */}
+        <section className="bg-stone-50/50 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-10 text-center sm:mb-12 md:mb-16">
+              <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-3xl md:text-4xl lg:text-5xl">
                 {t("trustTitle")}
-              </p>
-              <h2 className="mt-2 text-xl font-semibold tracking-[-0.04em] sm:mt-4 sm:text-3xl md:text-4xl">
-                {t("howItWorksTitle")}
               </h2>
-              <div className="mt-3 space-y-2 sm:mt-5 sm:space-y-3">
-                {trustItems.map((item, index) => (
-                  <div
-                    key={item.label}
-                    className="animate-rise-in flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 sm:gap-4 sm:rounded-[1.5rem] sm:px-4 sm:py-3"
-                    style={{ animationDelay: `${0.08 + index * 0.08}s` }}
-                  >
-                    <div className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white/10 sm:h-12 sm:w-12 sm:rounded-2xl">
-                      {item.icon}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-white">{item.label}</p>
-                      <p className="text-sm text-stone-300">{item.detail}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
             </div>
+            <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:gap-8">
+              <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-8">
+                <div className="space-y-3 sm:space-y-4">
+                  {trustItems.map((item, index) => (
+                    <div
+                      key={item.label}
+                      className="animate-rise-in flex items-start gap-4 rounded-xl p-2 sm:p-3"
+                      style={{ animationDelay: `${0.08 + index * 0.08}s` }}
+                    >
+                      <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 sm:h-12 sm:w-12 sm:rounded-2xl">
+                        {item.icon}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-stone-950 sm:text-base">{item.label}</p>
+                        <p className="mt-1 text-sm leading-relaxed text-stone-500">{item.detail}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            <div className="rounded-2xl border border-amber-200/80 bg-[linear-gradient(180deg,#fffbeb_0%,#fff7ed_50%,#ffffff_100%)] px-4 py-4 shadow-[0_28px_80px_rgba(120,53,15,0.12)] sm:rounded-[2.5rem] sm:px-6 md:px-8 md:py-8">
-              <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-sm sm:px-4 sm:py-2 sm:text-xs">
-                <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {t("pricingTitle")}
+              <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-8">
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 sm:px-4 sm:py-2 sm:text-xs">
+                  <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  {t("pricingTitle")}
+                </div>
+                <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-stone-950 sm:mt-6 sm:text-4xl md:text-5xl">
+                  {t("pricingFrom")}
+                </p>
+                <p className="mt-2 max-w-md text-sm leading-relaxed text-stone-500 sm:mt-4 sm:text-base">
+                  {t("pricingNotes")}
+                </p>
+                <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-3">
+                  <PricingRow label={tReview("deliveryStandard")} value={t("pricingNotes")} />
+                  <PricingRow label={tReview("deliveryRegistered")} value={t("step3Desc")} />
+                  <PricingRow label={tCheckout("securedByStripe")} value={tCheckout("paymentHelp")} />
+                </div>
+                <Link
+                  href="/pricing"
+                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-stone-700 transition-colors hover:text-stone-950"
+                >
+                  {t("nav.pricing")}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
               </div>
-              <p className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-stone-950 sm:mt-6 sm:text-4xl md:text-5xl">
-                {t("pricingFrom")}
-              </p>
-              <p className="mt-2 max-w-md text-sm leading-6 text-stone-600 sm:mt-4 sm:text-base sm:leading-7">
-                {t("pricingNotes")}
-              </p>
-              <div className="mt-3 space-y-2 sm:mt-5 sm:space-y-3">
-                <PricingRow label={tReview("deliveryStandard")} value={t("pricingNotes")} />
-                <PricingRow label={tReview("deliveryRegistered")} value={t("step3Desc")} />
-                <PricingRow label={tCheckout("securedByStripe")} value={tCheckout("paymentHelp")} />
-              </div>
-              <Link
-                href="/pricing"
-                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-stone-700 transition-colors hover:text-stone-950"
-              >
-                {t("nav.pricing")}
-                <ArrowRight className="h-4 w-4" />
-              </Link>
             </div>
           </div>
         </section>
 
-        <section className="px-4 pb-6 pt-3 sm:px-6 md:pb-16 md:pt-6">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,#1c1917_0%,#292524_55%,#451a03_100%)] px-5 py-6 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.26)] sm:rounded-[2.75rem] md:px-10 md:py-14">
+        {/* Final CTA */}
+        <section className="px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-stone-950 px-6 py-10 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.22)] sm:rounded-3xl sm:px-10 md:px-16 md:py-16">
             <div className="mx-auto max-w-3xl">
-              <h2 className="text-2xl font-semibold tracking-[-0.05em] sm:text-4xl md:text-6xl">
+              <h2 className="text-2xl font-semibold tracking-[-0.05em] sm:text-4xl md:text-5xl lg:text-6xl">
                 {t("ctaTitle")}
               </h2>
-              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-stone-200 sm:text-base sm:leading-8 md:text-lg">
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-stone-400 sm:mt-6 sm:text-base md:text-lg">
                 {t("heroSubtitle")}
               </p>
             </div>
-            <div className="mt-5 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
+            <div className="mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:justify-center sm:gap-4">
               <Link
                 href="/draft/new"
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-stone-950 shadow-[0_18px_50px_rgba(255,255,255,0.2)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-50 sm:px-8 sm:py-4 sm:text-lg">
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-50 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+              >
                 {t("ctaButton")}
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 href="/pricing"
-                className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10 sm:px-8 sm:py-4 sm:text-lg">
+                className="inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+              >
                 {t("nav.pricing")}
               </Link>
             </div>
@@ -345,7 +360,7 @@ function StepCard({
 }) {
   return (
     <article
-      className="animate-rise-in rounded-2xl border border-stone-200/80 bg-white/85 p-3 shadow-[0_20px_60px_rgba(120,53,15,0.08)] backdrop-blur sm:rounded-[2rem] sm:p-6"
+      className="animate-rise-in rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-7"
       style={{ animationDelay: delay } as CSSProperties}
     >
       <div className="flex items-center gap-3 sm:block">
@@ -386,10 +401,10 @@ function UseCaseCard({
 }) {
   return (
     <article
-      className={`animate-rise-in group rounded-xl border border-stone-200/80 bg-gradient-to-br ${accent} p-3 shadow-[0_18px_50px_rgba(120,53,15,0.08)] transition-transform duration-300 hover:-translate-y-1 sm:rounded-[2rem] sm:p-6`}
+      className="animate-rise-in group rounded-2xl border border-stone-200/80 bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:rounded-3xl sm:p-6"
       style={{ animationDelay: delay } as CSSProperties}
     >
-      <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-white shadow-sm sm:h-14 sm:w-14 sm:rounded-[1.4rem]">
+      <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${accent} sm:h-12 sm:w-12 sm:rounded-2xl`}>
         {icon}
       </div>
       <h3 className="mt-1.5 text-sm font-semibold tracking-[-0.03em] text-stone-950 sm:mt-6 sm:text-xl">
@@ -408,7 +423,7 @@ function PricingRow({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border border-stone-200/80 bg-white/90 px-3 py-2.5 shadow-sm sm:rounded-[1.5rem] sm:px-5 sm:py-4">
+    <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 px-4 py-3 sm:rounded-2xl sm:px-5 sm:py-4">
       <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-400 sm:text-xs">
         {label}
       </p>
