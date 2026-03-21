@@ -130,6 +130,15 @@
   }
 }
 
+@media (max-width: 767px) {
+  .animate-float-slow,
+  .animate-float-reverse,
+  .animate-glow-pulse,
+  .cta-sheen::after {
+    animation: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
