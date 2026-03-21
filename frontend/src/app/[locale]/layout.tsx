@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Swiss Mail — Send formal letters via Swiss Post",
   description:
     "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ark-fid.ddns.net"),
   manifest: "/manifest.json",
   // PWA icons: add /icon-192.png and /icon-512.png to frontend/public/ before launch
 };

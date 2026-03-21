@@ -22,7 +22,8 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' https://js.stripe.com",
+      // Next.js app router injects inline bootstrap scripts for RSC/hydration.
+      "script-src 'self' 'unsafe-inline' https://js.stripe.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
       "connect-src 'self' https://api.stripe.com",
       "img-src 'self' data: https:",
