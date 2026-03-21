@@ -5,7 +5,7 @@ import fastifyCookie from "@fastify/cookie";
 import fastifyMultipart from "@fastify/multipart";
 import fastifyRateLimit from "@fastify/rate-limit";
 import { randomUUID } from "node:crypto";
-import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyRequest, FastifyReply } from "fastify";
 import type pino from "pino";
 
 import { env } from "./shared/config/index.js";
@@ -21,11 +21,11 @@ import { adminRoutes } from "./modules/admin/index.js";
 import { orderRoutes } from "./modules/orders/index.js";
 import { pricingRoutes } from "./modules/pricing/pricing.routes.js";
 
-export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
+export async function buildApp(logger: pino.Logger) {
   const config = env();
 
   const app = Fastify({
-    logger: logger as unknown as boolean,
+    loggerInstance: logger,
     genReqId: () => randomUUID(),
     requestTimeout: 30_000,
     bodyLimit: 5 * 1024 * 1024, // 5 MB
@@ -77,10 +77,7 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
     max: 100,
     timeWindow: "1 minute",
     keyGenerator: (req: FastifyRequest) => {
-      const forwarded = req.headers["x-forwarded-for"]
-        ?.toString()
-        .split(",")[0]
-        ?.trim();
+      const forwarded = req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim();
       return forwarded && forwarded.length > 0 ? forwarded : req.ip;
     },
   });
@@ -92,7 +89,10 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   app.addHook("onRequest", (request, reply, done) => {
     const method = request.method;
     if (
-      (method === "POST" || method === "PUT" || method === "PATCH" || method === "DELETE") &&
+      (method === "POST" ||
+        method === "PUT" ||
+        method === "PATCH" ||
+        method === "DELETE") &&
       !request.url.includes("/webhooks/")
     ) {
       const xrw = request.headers["x-requested-with"];
@@ -115,7 +115,11 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
   // ---- Error handler ----
 
   app.setErrorHandler(
-    (error: Error & { statusCode?: number; validation?: unknown }, req: FastifyRequest, reply: FastifyReply) => {
+    (
+      error: Error & { statusCode?: number; validation?: unknown },
+      req: FastifyRequest,
+      reply: FastifyReply,
+    ) => {
       const requestId = req.id as string;
 
       // Zod / Fastify validation errors
@@ -150,9 +154,7 @@ export async function buildApp(logger: pino.Logger): Promise<FastifyInstance> {
           code: "INTERNAL_ERROR",
           family: "rendering_failure" as const,
           message:
-            config.NODE_ENV === "development"
-              ? error.message
-              : "Internal server error",
+            config.NODE_ENV === "development" ? error.message : "Internal server error",
           userMessage: "Something went wrong. Please try again.",
           userAction: "If the problem persists, contact support.",
           requestId,
