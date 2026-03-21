@@ -51,7 +51,7 @@ type EventListener = (event: DraftStreamEvent) => void;
 // Hook: useDraftStream
 // ---------------------------------------------------------------------------
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 const MAX_RECONNECT_FAILURES = 3;
 const POLL_INTERVAL_MS = 5_000;
 
@@ -98,7 +98,9 @@ export function useDraftStream(draftId: string | null) {
         try {
           dispatch({ type: "connected", data: JSON.parse(e.data) });
         } catch {
-          captureMessage("SSE connected event parse error", "warning", { component: "useDraftStream" });
+          captureMessage("SSE connected event parse error", "warning", {
+            component: "useDraftStream",
+          });
         }
       });
 
@@ -106,7 +108,9 @@ export function useDraftStream(draftId: string | null) {
         try {
           dispatch({ type: "ai_token", data: JSON.parse(e.data) });
         } catch {
-          captureMessage("SSE ai_token event parse error", "warning", { component: "useDraftStream" });
+          captureMessage("SSE ai_token event parse error", "warning", {
+            component: "useDraftStream",
+          });
         }
       });
 
@@ -114,7 +118,9 @@ export function useDraftStream(draftId: string | null) {
         try {
           dispatch({ type: "ai_message_complete", data: JSON.parse(e.data) });
         } catch {
-          captureMessage("SSE ai_message_complete event parse error", "warning", { component: "useDraftStream" });
+          captureMessage("SSE ai_message_complete event parse error", "warning", {
+            component: "useDraftStream",
+          });
         }
       });
 
@@ -122,7 +128,9 @@ export function useDraftStream(draftId: string | null) {
         try {
           dispatch({ type: "field_update", data: JSON.parse(e.data) });
         } catch {
-          captureMessage("SSE field_update event parse error", "warning", { component: "useDraftStream" });
+          captureMessage("SSE field_update event parse error", "warning", {
+            component: "useDraftStream",
+          });
         }
       });
 
@@ -130,7 +138,9 @@ export function useDraftStream(draftId: string | null) {
         try {
           dispatch({ type: "draft_status", data: JSON.parse(e.data) });
         } catch {
-          captureMessage("SSE draft_status event parse error", "warning", { component: "useDraftStream" });
+          captureMessage("SSE draft_status event parse error", "warning", {
+            component: "useDraftStream",
+          });
         }
       });
 
@@ -167,7 +177,9 @@ export function useDraftStream(draftId: string | null) {
           try {
             dispatch({ type: "error", data: JSON.parse(messageEvent.data) });
           } catch {
-            captureMessage("SSE error event parse error", "warning", { component: "useDraftStream" });
+            captureMessage("SSE error event parse error", "warning", {
+              component: "useDraftStream",
+            });
           }
         }
       });

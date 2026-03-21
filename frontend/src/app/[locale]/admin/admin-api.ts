@@ -38,12 +38,9 @@ export function makeAuthHeader(username: string, password: string): string {
   return `Basic ${btoa(`${username}:${password}`)}`;
 }
 
-export async function adminFetch<T>(
-  path: string,
-  authHeader: string,
-): Promise<T> {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "";
-  const res = await fetch(`${apiBase}/api/v1${path}`, {
+export async function adminFetch<T>(path: string, authHeader: string): Promise<T> {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/api";
+  const res = await fetch(`${apiBase}/v1${path}`, {
     headers: {
       Authorization: authHeader,
       "X-Requested-With": "XMLHttpRequest",
