@@ -45,7 +45,7 @@ These values must stay in sync with [`api-contracts.md`](api-contracts.md).
 
 | Endpoint / concern | Limit | Window | Key |
 |---|---|---|---|
-| `POST /api/v1/sessions` | 10 | 1 hour | IP |
+| `POST /api/v1/sessions` | 60 | 1 hour | IP |
 | `GET /api/v1/sessions/current` | 60 | 1 min | Session |
 | `PATCH /api/v1/sessions/current` | 20 | 1 min | Session |
 | `GET /api/v1/resume/:token` | 20 | 1 hour | IP |

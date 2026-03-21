@@ -1164,7 +1164,7 @@ All responses use the canonical error envelope from §1 (sourced from `error-tax
 
 | Endpoint | Limit | Window | Keyed By |
 |----------|-------|--------|----------|
-| `POST /api/v1/sessions` | 10 | 1 hour | IP |
+| `POST /api/v1/sessions` | 60 | 1 hour | IP |
 | `GET /api/v1/sessions/current` | 60 | 1 min | Session |
 | `PATCH /api/v1/sessions/current` | 20 | 1 min | Session |
 | `GET /api/v1/resume/:token` | 20 | 1 hour | IP |

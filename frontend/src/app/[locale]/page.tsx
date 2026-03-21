@@ -151,69 +151,56 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="relative mx-auto w-full max-w-[34rem] lg:min-h-[40rem]">
-              <div className="paper-noise relative w-full rounded-[2rem] border border-white/80 p-5 shadow-[0_28px_70px_rgba(120,53,15,0.16)] md:p-6 lg:absolute lg:right-0 lg:top-6 lg:max-w-[32rem] lg:animate-float-slow lg:shadow-[0_35px_90px_rgba(120,53,15,0.18)]">
+            <div className="mx-auto w-full max-w-[34rem]">
+              <div className="paper-noise relative w-full rounded-[2rem] border border-white/80 p-5 shadow-[0_28px_70px_rgba(120,53,15,0.16)] md:rotate-[1deg] md:p-6 lg:shadow-[0_35px_90px_rgba(120,53,15,0.18)]">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
-                      {t("step1Title")}
-                    </p>
-                    <h2 className="mt-3 max-w-sm text-2xl font-semibold tracking-[-0.04em] text-stone-950 md:text-3xl">
-                      {t("heroTitle")}
-                    </h2>
+                  <div className="rounded-full border border-amber-200/80 bg-amber-50/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-700">
+                    {t("step1Title")}
                   </div>
                   <div className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
                     {t("heroPanelBadge")}
                   </div>
                 </div>
+
+                <div className="mt-8 space-y-3 text-sm text-stone-500">
+                  <div className="space-y-2">
+                    <LetterLine width="34%" />
+                    <LetterLine width="28%" />
+                    <LetterLine width="41%" />
+                  </div>
+                  <div className="pt-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
+                      {t("step2Title")}
+                    </p>
+                    <h2 className="mt-3 max-w-sm text-2xl font-semibold tracking-[-0.04em] text-stone-950 md:text-3xl">
+                      {t("heroTitle")}
+                    </h2>
+                  </div>
+                </div>
+
                 <div className="mt-8 space-y-4 text-sm text-stone-500">
+                  <LetterLine width="22%" />
                   <LetterLine width="78%" />
                   <LetterLine width="93%" />
                   <LetterLine width="88%" />
                   <LetterLine width="70%" />
+                  <LetterLine width="82%" />
                 </div>
-                <div className="mt-8 rounded-[1.5rem] bg-stone-950 px-5 py-4 text-white shadow-[0_20px_60px_rgba(28,25,23,0.18)]">
-                  <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-stone-300">
-                    <span>{t("step3Title")}</span>
-                    <span>{t("pricingFrom")}</span>
-                  </div>
-                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                    <MetricCard
-                      eyebrow={tReview("deliveryRegistered")}
-                      value={t("trustSwissPost")}
-                    />
-                    <MetricCard
-                      eyebrow={tCheckout("securedByStripe")}
-                      value={t("trustSecure")}
-                    />
-                  </div>
-                </div>
-              </div>
 
-              <div className="mt-4 rounded-[1.6rem] border border-stone-200/80 bg-white/92 p-5 shadow-[0_18px_45px_rgba(120,53,15,0.12)] lg:absolute lg:-left-2 lg:bottom-10 lg:mt-0 lg:max-w-[18rem] lg:animate-float-reverse lg:rounded-[1.75rem] lg:shadow-[0_20px_60px_rgba(120,53,15,0.14)]">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
-                  {t("howItWorksTitle")}
-                </p>
-                <div className="mt-4 space-y-3">
-                  {steps.map((step) => (
-                    <div
-                      key={step.number}
-                      className="flex items-center gap-3 rounded-2xl bg-stone-50 px-3 py-3"
-                    >
-                      <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-white text-sm font-semibold text-stone-900 shadow-sm">
-                        {step.number}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-stone-900">{step.title}</p>
-                        <p className="text-xs text-stone-500">{step.description}</p>
-                      </div>
-                    </div>
-                  ))}
+                <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80 pt-5">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-amber-300" />
+                    {t("trustSwissPost")}
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+                      {t("step3Title")}
+                    </p>
+                    <p className="mt-1 text-sm font-semibold text-stone-900">
+                      {t("pricingFrom")}
+                    </p>
+                  </div>
                 </div>
-              </div>
-
-              <div className="mt-4 inline-flex rounded-full border border-amber-200/60 bg-amber-50/90 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-[0_10px_30px_rgba(120,53,15,0.12)] lg:absolute lg:bottom-4 lg:right-6 lg:mt-0">
-                {t("trustNoAccount")}
               </div>
             </div>
           </div>
@@ -421,23 +408,6 @@ function UseCaseCard({
       </h3>
       <p className="mt-3 text-sm leading-7 text-stone-600">{description}</p>
     </article>
-  );
-}
-
-function MetricCard({
-  eyebrow,
-  value,
-}: {
-  eyebrow: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-[1.25rem] border border-white/10 bg-white/5 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-300">
-        {eyebrow}
-      </p>
-      <p className="mt-3 text-base font-semibold text-white">{value}</p>
-    </div>
   );
 }
 

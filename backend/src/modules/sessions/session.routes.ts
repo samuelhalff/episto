@@ -35,7 +35,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
     {
       config: {
         rateLimit: {
-          max: 10,
+          max: 60,
           timeWindow: "1 hour",
           keyGenerator: (req: FastifyRequest) =>
             req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ??
