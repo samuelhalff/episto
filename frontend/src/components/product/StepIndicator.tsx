@@ -52,21 +52,21 @@ export function StepIndicator({
   }
 
   return (
-    <div className="relative w-full max-w-xs sm:max-w-sm" ref={menuRef}>
+    <div className="relative w-full max-w-full sm:max-w-md" ref={menuRef}>
       <button
         type="button"
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-label={t("stepMenuLabel")}
         onClick={() => setIsOpen((open) => !open)}
-        className="flex w-full items-center justify-between gap-4 rounded-[1.4rem] border border-stone-200 bg-white px-4 py-3 text-left shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:border-stone-300 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
+        className="flex w-full items-center justify-between gap-3 rounded-[1.4rem] border border-stone-200/90 bg-white px-3.5 py-3 text-left shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:border-stone-300 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:px-4"
       >
         <div className="flex min-w-0 items-center gap-3">
           <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-white">
             {currentStep + 1}
           </span>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-400 sm:text-[11px]">
               {t("stepProgress", { current: currentStep + 1, total: STEPS.length })}
             </p>
             <p className="truncate text-sm font-semibold text-stone-950 sm:text-base">
@@ -100,9 +100,7 @@ export function StepIndicator({
                   router.push(stepHref(index));
                 }}
                 className={`flex w-full items-center justify-between gap-3 rounded-[1.15rem] px-3 py-3 text-left transition ${
-                  isAvailable
-                    ? "hover:bg-stone-50"
-                    : "cursor-not-allowed opacity-55"
+                  isAvailable ? "hover:bg-stone-50" : "cursor-not-allowed opacity-55"
                 } ${isCurrent ? "bg-amber-50/80" : ""}`}
               >
                 <div className="flex min-w-0 items-center gap-3">
@@ -125,7 +123,7 @@ export function StepIndicator({
                   </div>
                 </div>
                 {!isAvailable ? (
-                  <span className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-400">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400 sm:text-xs">
                     {t("stepLocked")}
                   </span>
                 ) : null}

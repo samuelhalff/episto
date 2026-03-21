@@ -146,7 +146,11 @@
     "switchToKeyboard": "Zur Tastatur wechseln",
     "switchToVoice": "Zur Spracheingabe wechseln",
     "inputPrompt": "Sagen Sie uns, was Sie brauchen — sprechen oder tippen",
-    "dictationError": "Spracheingabe nicht verfügbar. Bitte erneut versuchen oder tippen."
+    "dictationError": "Spracheingabe nicht verfügbar. Bitte erneut versuchen oder tippen.",
+    "workspaceTab": "Schreiben",
+    "previewHint": "Hier sehen Sie die finale Briefansicht, während Ihr Entwurf Form annimmt.",
+    "previewSheetHint": "Das Briefblatt aktualisiert sich mit Ihrem Entwurf.",
+    "welcomeHint": "Starten Sie mit ein paar Stichworten und verfeinern Sie danach."
   },
   "review": {
     "title": "Brief überprüfen",

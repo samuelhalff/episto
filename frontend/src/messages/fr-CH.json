@@ -146,7 +146,11 @@
     "switchToKeyboard": "Passer au clavier",
     "switchToVoice": "Passer à la voix",
     "inputPrompt": "Dites-nous ce dont vous avez besoin — parlez ou tapez",
-    "dictationError": "Saisie vocale indisponible. Réessayez ou tapez."
+    "dictationError": "Saisie vocale indisponible. Réessayez ou tapez.",
+    "workspaceTab": "Rédiger",
+    "previewHint": "Visualisez ici la lettre finale au fur et à mesure de la rédaction.",
+    "previewSheetHint": "La mise en page se met à jour à chaque modification du brouillon.",
+    "welcomeHint": "Commencez avec quelques points, puis affinez-les."
   },
   "review": {
     "title": "Vérifier votre lettre",
