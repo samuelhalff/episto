@@ -3,9 +3,9 @@
   "short_name": "Swiss Mail",
   "description": "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
   "start_url": "/de-CH",
-  "display": "standalone",
+  "display": "browser",
   "background_color": "#ffffff",
-  "theme_color": "#1a2e4a",
+  "theme_color": "#F59E0B",
   "icons": [
     {
       "src": "/icon-192.png",

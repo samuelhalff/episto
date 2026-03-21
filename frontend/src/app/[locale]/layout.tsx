@@ -37,8 +37,8 @@ export default async function LocaleLayout({
   const t = await getTranslations("common");
 
   return (
-    <html lang={locale}>
-      <body className="min-h-screen bg-white text-gray-900 antialiased">
+    <html lang={locale} suppressHydrationWarning>
+      <body className="min-h-screen bg-white text-gray-900 antialiased" suppressHydrationWarning>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-secondary focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-white"

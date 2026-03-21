@@ -70,13 +70,19 @@ function getSpeechRecognitionConstructor(): (new () => SpeechRecognition) | null
 }
 
 export function useDictation(): UseDictationReturn {
-  const [isSupported] = useState(() => getSpeechRecognitionConstructor() !== null);
+  // Start false to match server render; detect browser support in useEffect to avoid hydration mismatch
+  const [isSupported, setIsSupported] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [interimText, setInterimText] = useState("");
   const [finalText, setFinalText] = useState("");
   const [error, setError] = useState<DictationError | null>(null);
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Detect browser support after mount (client-only)
+  useEffect(() => {
+    setIsSupported(getSpeechRecognitionConstructor() !== null);
+  }, []);
 
   // Cleanup on unmount
   useEffect(() => {
