@@ -1,75 +1,116 @@
 import { useTranslations } from "next-intl";
-import { Link } from "../../../i18n/navigation.js";
 import { Header } from "../../../components/marketing/Header.js";
 import { Footer } from "../../../components/marketing/Footer.js";
-import { PenLine, FileSearch, Send } from "lucide-react";
+import { MarketingHero } from "../../../components/marketing/MarketingHero.js";
+import { FileSearch, PenLine, Send } from "lucide-react";
 
 export default function HowItWorksPage() {
   const tm = useTranslations("marketing");
   const t = useTranslations("howItWorks");
 
+  const steps = [
+    {
+      icon: <PenLine className="h-6 w-6 text-amber-600" />,
+      number: "1",
+      title: tm("step1Title"),
+      description: t("step1Detail"),
+    },
+    {
+      icon: <FileSearch className="h-6 w-6 text-amber-600" />,
+      number: "2",
+      title: tm("step2Title"),
+      description: t("step2Detail"),
+    },
+    {
+      icon: <Send className="h-6 w-6 text-amber-600" />,
+      number: "3",
+      title: tm("step3Title"),
+      description: t("step3Detail"),
+    },
+  ];
+
   return (
     <>
       <Header />
       <main id="main-content">
-        {/* Heading */}
-        <section className="px-6 pb-16 pt-20 md:pt-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
-              {t("title")}
-            </h1>
-            <p className="mt-4 text-lg text-gray-500">{t("subtitle")}</p>
-          </div>
-        </section>
-
-        {/* Steps */}
-        <section className="px-6 pb-20">
-          <div className="mx-auto max-w-3xl space-y-16">
-            <DetailStep
-              icon={<PenLine className="h-8 w-8 text-primary" />}
-              number="1"
-              title={tm("step1Title")}
-              description={t("step1Detail")}
-            />
-            <DetailStep
-              icon={<FileSearch className="h-8 w-8 text-primary" />}
-              number="2"
-              title={tm("step2Title")}
-              description={t("step2Detail")}
-            />
-            <DetailStep
-              icon={<Send className="h-8 w-8 text-primary" />}
-              number="3"
-              title={tm("step3Title")}
-              description={t("step3Detail")}
-            />
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="bg-gray-50 px-6 py-20 md:py-28">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="text-center text-2xl font-bold text-gray-900 md:text-3xl">
-              {t("faqTitle")}
-            </h2>
-            <div className="mt-12 space-y-8">
-              <FaqItem question={t("faq1q")} answer={t("faq1a")} />
-              <FaqItem question={t("faq2q")} answer={t("faq2a")} />
-              <FaqItem question={t("faq3q")} answer={t("faq3a")} />
-              <FaqItem question={t("faq4q")} answer={t("faq4a")} />
+        <MarketingHero
+          eyebrow={tm("howItWorksTitle")}
+          title={t("title")}
+          subtitle={t("subtitle")}
+          primaryAction={{ href: "/draft/new", label: t("cta") }}
+          secondaryAction={{ href: "/pricing", label: tm("nav.pricing") }}
+          panel={
+            <div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
+                    {tm("howItWorksTitle")}
+                  </p>
+                  <h2 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-stone-950 md:text-3xl">
+                    {tm("step1Title")} • {tm("step2Title")} • {tm("step3Title")}
+                  </h2>
+                </div>
+                <div className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+                  3 steps
+                </div>
+              </div>
+              <div className="mt-6 space-y-3">
+                {steps.map((step) => (
+                  <div
+                    key={step.number}
+                    className="flex items-center gap-3 rounded-2xl bg-white/90 px-4 py-3 shadow-sm"
+                  >
+                    <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50">
+                      {step.icon}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-stone-400">
+                        {t("stepLabel", { number: step.number })}
+                      </p>
+                      <p className="text-sm font-semibold text-stone-900">{step.title}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+          }
+        />
+
+        <section className="px-6 py-16 md:py-20 lg:py-24">
+          <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-3">
+            {steps.map((step) => (
+              <article
+                key={step.number}
+                className="rounded-[2rem] border border-stone-200/80 bg-white/90 p-6 shadow-[0_18px_50px_rgba(120,53,15,0.08)]"
+              >
+                <div className="inline-flex h-12 w-12 items-center justify-center rounded-[1.25rem] bg-amber-50">
+                  {step.icon}
+                </div>
+                <p className="mt-5 text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
+                  {t("stepLabel", { number: step.number })}
+                </p>
+                <h3 className="mt-2 text-xl font-semibold tracking-[-0.03em] text-stone-950">
+                  {step.title}
+                </h3>
+                <p className="mt-4 text-sm leading-7 text-stone-600">{step.description}</p>
+              </article>
+            ))}
           </div>
         </section>
 
-        {/* CTA */}
-        <section className="px-6 py-20 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <Link
-              href="/draft/new"
-              className="inline-block rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-primary-dark"
-            >
-              {t("cta")}
-            </Link>
+        <section className="px-6 pb-20 md:pb-24">
+          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_100%)] px-6 py-10 shadow-[0_24px_70px_rgba(120,53,15,0.08)] md:px-10 md:py-12">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
+                {t("faqTitle")}
+              </h2>
+            </div>
+            <div className="mx-auto mt-10 grid max-w-5xl gap-5 md:grid-cols-2">
+              <FaqCard question={t("faq1q")} answer={t("faq1a")} />
+              <FaqCard question={t("faq2q")} answer={t("faq2a")} />
+              <FaqCard question={t("faq3q")} answer={t("faq3a")} />
+              <FaqCard question={t("faq4q")} answer={t("faq4a")} />
+            </div>
           </div>
         </section>
       </main>
@@ -78,35 +119,7 @@ export default function HowItWorksPage() {
   );
 }
 
-function DetailStep({
-  icon,
-  number,
-  title,
-  description,
-}: {
-  icon: React.ReactNode;
-  number: string;
-  title: string;
-  description: string;
-}) {
-  const t = useTranslations("howItWorks");
-  return (
-    <div className="flex gap-6">
-      <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gray-50">
-        {icon}
-      </div>
-      <div>
-        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400">
-          {t("stepLabel", { number })}
-        </span>
-        <h3 className="mt-1 text-lg font-semibold text-gray-900">{title}</h3>
-        <p className="mt-2 leading-relaxed text-gray-500">{description}</p>
-      </div>
-    </div>
-  );
-}
-
-function FaqItem({
+function FaqCard({
   question,
   answer,
 }: {
@@ -114,9 +127,9 @@ function FaqItem({
   answer: string;
 }) {
   return (
-    <div>
-      <h3 className="font-semibold text-gray-900">{question}</h3>
-      <p className="mt-2 leading-relaxed text-gray-500">{answer}</p>
-    </div>
+    <article className="rounded-[1.75rem] border border-stone-200/80 bg-white/95 p-5 shadow-sm">
+      <h3 className="text-base font-semibold text-stone-950">{question}</h3>
+      <p className="mt-3 text-sm leading-7 text-stone-600">{answer}</p>
+    </article>
   );
 }

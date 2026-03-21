@@ -1,102 +1,69 @@
 import { useTranslations } from "next-intl";
-import { Link } from "../../../i18n/navigation.js";
+import { HelpCircle, Mail } from "lucide-react";
 import { Header } from "../../../components/marketing/Header.js";
 import { Footer } from "../../../components/marketing/Footer.js";
-import { HelpCircle, Mail } from "lucide-react";
+import { MarketingHero } from "../../../components/marketing/MarketingHero.js";
 
 export default function HelpPage() {
   const t = useTranslations("help");
   const tm = useTranslations("marketing");
 
+  const faqs = [
+    { question: t("faq1q"), answer: t("faq1a") },
+    { question: t("faq2q"), answer: t("faq2a") },
+    { question: t("faq3q"), answer: t("faq3a") },
+    { question: t("faq4q"), answer: t("faq4a") },
+    { question: t("faq5q"), answer: t("faq5a") },
+    { question: t("faq6q"), answer: t("faq6a") },
+  ];
+
   return (
     <>
       <Header />
       <main id="main-content">
-        {/* Heading */}
-        <section className="px-6 pb-16 pt-20 md:pt-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 md:text-4xl lg:text-5xl">
-              {t("title")}
-            </h1>
-            <p className="mt-4 text-lg text-gray-500">{t("subtitle")}</p>
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="px-6 pb-20">
-          <div className="mx-auto max-w-3xl">
-            <h2 className="text-center text-2xl font-bold text-gray-900 md:text-3xl">
-              {t("faqTitle")}
-            </h2>
-            <div className="mt-12 space-y-8">
-              <FaqItem
-                icon={<HelpCircle className="h-5 w-5 text-primary" />}
-                question={t("faq1q")}
-                answer={t("faq1a")}
-              />
-              <FaqItem
-                icon={<HelpCircle className="h-5 w-5 text-primary" />}
-                question={t("faq2q")}
-                answer={t("faq2a")}
-              />
-              <FaqItem
-                icon={<HelpCircle className="h-5 w-5 text-primary" />}
-                question={t("faq3q")}
-                answer={t("faq3a")}
-              />
-              <FaqItem
-                icon={<HelpCircle className="h-5 w-5 text-primary" />}
-                question={t("faq4q")}
-                answer={t("faq4a")}
-              />
-              <FaqItem
-                icon={<HelpCircle className="h-5 w-5 text-primary" />}
-                question={t("faq5q")}
-                answer={t("faq5a")}
-              />
-              <FaqItem
-                icon={<HelpCircle className="h-5 w-5 text-primary" />}
-                question={t("faq6q")}
-                answer={t("faq6a")}
-              />
+        <MarketingHero
+          eyebrow={t("contactTitle")}
+          title={t("title")}
+          subtitle={t("subtitle")}
+          primaryAction={{ href: "/draft/new", label: tm("ctaButton") }}
+          secondaryAction={{ href: "/how-it-works", label: tm("nav.howItWorks") }}
+          panel={
+            <div>
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-[1.25rem] bg-amber-50">
+                <Mail className="h-6 w-6 text-amber-600" />
+              </div>
+              <h2 className="mt-5 text-2xl font-semibold tracking-[-0.04em] text-stone-950 md:text-3xl">
+                {t("contactTitle")}
+              </h2>
+              <p className="mt-4 text-base leading-7 text-stone-600">{t("contactDescription")}</p>
+              <div className="mt-6 rounded-[1.5rem] border border-stone-200/80 bg-white/90 px-5 py-4 shadow-sm">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
+                  {t("contactEmailLabel")}
+                </p>
+                <a
+                  href={`mailto:${t("contactEmail")}`}
+                  className="mt-2 inline-block text-lg font-semibold text-amber-700 hover:underline"
+                >
+                  {t("contactEmail")}
+                </a>
+                <p className="mt-3 text-sm text-stone-500">{t("contactResponseTime")}</p>
+              </div>
             </div>
-          </div>
-        </section>
+          }
+        />
 
-        {/* Contact */}
-        <section className="bg-gray-50 px-6 py-20 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <Mail className="mx-auto h-10 w-10 text-primary" />
-            <h2 className="mt-4 text-2xl font-bold text-gray-900 md:text-3xl">
-              {t("contactTitle")}
-            </h2>
-            <p className="mt-4 text-gray-500">{t("contactDescription")}</p>
-            <div className="mt-6">
-              <p className="text-sm font-medium text-gray-600">
-                {t("contactEmailLabel")}
-              </p>
-              <a
-                href={`mailto:${t("contactEmail")}`}
-                className="mt-1 inline-block text-lg font-semibold text-primary hover:underline"
-              >
-                {t("contactEmail")}
-              </a>
+        <section className="px-6 pb-20 md:pb-24">
+          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_100%)] px-6 py-10 shadow-[0_24px_70px_rgba(120,53,15,0.08)] md:px-10 md:py-12">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
+                {t("faqTitle")}
+              </h2>
             </div>
-            <p className="mt-4 text-sm text-gray-400">
-              {t("contactResponseTime")}
-            </p>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="px-6 py-20 md:py-28">
-          <div className="mx-auto max-w-3xl text-center">
-            <Link
-              href="/draft/new"
-              className="inline-block rounded-full bg-primary px-8 py-4 text-base font-semibold text-white shadow-sm hover:bg-primary-dark"
-            >
-              {tm("ctaButton")}
-            </Link>
+            <div className="mx-auto mt-10 grid max-w-6xl gap-5 md:grid-cols-2">
+              {faqs.map((faq) => (
+                <FaqCard key={faq.question} question={faq.question} answer={faq.answer} />
+              ))}
+            </div>
           </div>
         </section>
       </main>
@@ -105,22 +72,24 @@ export default function HelpPage() {
   );
 }
 
-function FaqItem({
-  icon,
+function FaqCard({
   question,
   answer,
 }: {
-  icon: React.ReactNode;
   question: string;
   answer: string;
 }) {
   return (
-    <div className="flex gap-4">
-      <div className="mt-1 shrink-0">{icon}</div>
-      <div>
-        <h3 className="font-semibold text-gray-900">{question}</h3>
-        <p className="mt-2 leading-relaxed text-gray-500">{answer}</p>
+    <article className="rounded-[1.75rem] border border-stone-200/80 bg-white/95 p-5 shadow-sm">
+      <div className="flex gap-3">
+        <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-50">
+          <HelpCircle className="h-4 w-4 text-amber-600" />
+        </div>
+        <div>
+          <h3 className="text-base font-semibold text-stone-950">{question}</h3>
+          <p className="mt-3 text-sm leading-7 text-stone-600">{answer}</p>
+        </div>
       </div>
-    </div>
+    </article>
   );
 }
