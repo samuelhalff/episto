@@ -97,7 +97,7 @@ export default function HomePage() {
     <>
       <Header />
       <main id="main-content">
-        <section className="relative overflow-hidden px-6 pb-8 pt-10 md:pb-14 md:pt-16 lg:pb-14 lg:pt-24">
+        <section className="relative overflow-hidden px-4 pb-6 pt-8 sm:px-6 md:pb-14 md:pt-16 lg:pb-14 lg:pt-24">
           <div
             aria-hidden="true"
             className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[82%] rounded-[2.5rem] opacity-50 md:inset-x-8 md:rounded-[3rem]"
@@ -106,7 +106,7 @@ export default function HomePage() {
             aria-hidden="true"
             className="animate-glow-pulse pointer-events-none absolute left-1/2 top-16 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-amber-200/40 blur-3xl md:top-24 md:h-72 md:w-72"
           />
-          <div className="mx-auto grid max-w-7xl items-center gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
+          <div className="mx-auto grid max-w-7xl items-center gap-6 sm:gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-14">
             <div className="animate-rise-in">
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-[0_14px_35px_rgba(120,53,15,0.08)]">
                 <Sparkles className="h-4 w-4" />
@@ -162,13 +162,13 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="mt-8 space-y-3 text-sm text-stone-500">
+                <div className="mt-5 space-y-3 text-sm text-stone-500">
                   <div className="space-y-2">
                     <LetterLine width="34%" />
                     <LetterLine width="28%" />
                     <LetterLine width="41%" />
                   </div>
-                  <div className="pt-5">
+                  <div className="pt-3">
                     <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
                       {t("step2Title")}
                     </p>
@@ -178,7 +178,7 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="mt-8 space-y-4 text-sm text-stone-500">
+                <div className="mt-5 space-y-3 text-sm text-stone-500">
                   <LetterLine width="22%" />
                   <LetterLine width="78%" />
                   <LetterLine width="93%" />
@@ -187,7 +187,7 @@ export default function HomePage() {
                   <LetterLine width="82%" />
                 </div>
 
-                <div className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80 pt-5">
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80 pt-4">
                   <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
                     <span className="inline-flex h-2.5 w-2.5 rounded-full bg-amber-300" />
                     {t("trustSwissPost")}
@@ -206,7 +206,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-4 pt-6 md:pb-8 md:pt-10 lg:pb-10 lg:pt-14">
+        <section className="px-4 pb-2 pt-4 sm:px-6 md:pb-8 md:pt-10 lg:pb-10 lg:pt-14">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-5xl">
@@ -216,7 +216,7 @@ export default function HomePage() {
                 {t("step1Desc")} {t("step2Desc")} {t("step3Desc")}
               </p>
             </div>
-            <div className="mt-6 grid gap-5 lg:grid-cols-3">
+            <div className="mt-5 grid gap-4 lg:grid-cols-3">
               {steps.map((step) => (
                 <StepCard
                   key={step.number}
@@ -231,8 +231,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 py-6 md:py-10 lg:py-14">
-          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_58%)] px-5 py-6 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-8 md:py-10">
+        <section className="px-4 py-4 sm:px-6 md:py-10 lg:py-14">
+          <div className="mx-auto max-w-7xl rounded-[2rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fff7ed_0%,#ffffff_58%)] px-4 py-5 shadow-[0_28px_80px_rgba(120,53,15,0.12)] sm:rounded-[2.5rem] md:px-8 md:py-10">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
                 {t("useCasesTitle")}
@@ -241,7 +241,7 @@ export default function HomePage() {
                 {t("heroSubtitle")}
               </p>
             </div>
-            <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {useCases.map((useCase) => (
                 <UseCaseCard
                   key={useCase.label}
@@ -256,20 +256,20 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-8 pt-4 md:pb-12 md:pt-6 lg:pb-14 lg:pt-8">
-          <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[2.5rem] bg-stone-950 px-6 py-8 text-white shadow-[0_34px_90px_rgba(28,25,23,0.24)] md:px-8">
+        <section className="px-4 pb-6 pt-2 sm:px-6 md:pb-12 md:pt-6 lg:pb-14 lg:pt-8">
+          <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="rounded-[2rem] bg-stone-950 px-4 py-6 text-white shadow-[0_34px_90px_rgba(28,25,23,0.24)] sm:rounded-[2.5rem] sm:px-6 md:px-8 md:py-8">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300/80">
                 {t("trustTitle")}
               </p>
               <h2 className="mt-4 text-3xl font-semibold tracking-[-0.04em] md:text-4xl">
                 {t("howItWorksTitle")}
               </h2>
-              <div className="mt-8 space-y-4">
+              <div className="mt-5 space-y-3">
                 {trustItems.map((item, index) => (
                   <div
                     key={item.label}
-                    className="animate-rise-in flex items-center gap-4 rounded-[1.5rem] border border-white/10 bg-white/5 px-4 py-4"
+                    className="animate-rise-in flex items-center gap-3 rounded-[1.25rem] border border-white/10 bg-white/5 px-3 py-3 sm:gap-4 sm:rounded-[1.5rem] sm:px-4 sm:py-4"
                     style={{ animationDelay: `${0.08 + index * 0.08}s` }}
                   >
                     <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
@@ -284,7 +284,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="rounded-[2.5rem] border border-amber-200/80 bg-[linear-gradient(180deg,#fffbeb_0%,#fff7ed_50%,#ffffff_100%)] px-6 py-8 shadow-[0_28px_80px_rgba(120,53,15,0.12)] md:px-8">
+            <div className="rounded-[2rem] border border-amber-200/80 bg-[linear-gradient(180deg,#fffbeb_0%,#fff7ed_50%,#ffffff_100%)] px-4 py-6 shadow-[0_28px_80px_rgba(120,53,15,0.12)] sm:rounded-[2.5rem] sm:px-6 md:px-8 md:py-8">
               <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-sm">
                 <CheckCircle2 className="h-4 w-4" />
                 {t("pricingTitle")}
@@ -295,14 +295,14 @@ export default function HomePage() {
               <p className="mt-4 max-w-md text-base leading-7 text-stone-600">
                 {t("pricingNotes")}
               </p>
-              <div className="mt-8 space-y-4">
+              <div className="mt-5 space-y-3">
                 <PricingRow label={tReview("deliveryStandard")} value={t("pricingNotes")} />
                 <PricingRow label={tReview("deliveryRegistered")} value={t("step3Desc")} />
                 <PricingRow label={tCheckout("securedByStripe")} value={tCheckout("paymentHelp")} />
               </div>
               <Link
                 href="/pricing"
-                className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-stone-700 transition-colors hover:text-stone-950"
+                className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-stone-700 transition-colors hover:text-stone-950"
               >
                 {t("nav.pricing")}
                 <ArrowRight className="h-4 w-4" />
@@ -311,8 +311,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 pb-10 pt-4 md:pb-16 md:pt-6">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2.75rem] bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,#1c1917_0%,#292524_55%,#451a03_100%)] px-6 py-8 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.26)] md:px-10 md:py-14">
+        <section className="px-4 pb-8 pt-2 sm:px-6 md:pb-16 md:pt-6">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.18),transparent_28%),linear-gradient(135deg,#1c1917_0%,#292524_55%,#451a03_100%)] px-4 py-6 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.26)] sm:rounded-[2.75rem] md:px-10 md:py-14">
             <div className="mx-auto max-w-3xl">
               <div className="inline-flex animate-rise-in items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-200">
                 <Sparkles className="h-4 w-4" />
@@ -363,7 +363,7 @@ function StepCard({
 }) {
   return (
     <article
-      className="animate-rise-in rounded-[2rem] border border-stone-200/80 bg-white/85 p-6 shadow-[0_20px_60px_rgba(120,53,15,0.08)] backdrop-blur"
+      className="animate-rise-in rounded-[1.5rem] border border-stone-200/80 bg-white/85 p-4 shadow-[0_20px_60px_rgba(120,53,15,0.08)] backdrop-blur sm:rounded-[2rem] sm:p-6"
       style={{ animationDelay: delay } as CSSProperties}
     >
       <div className="flex items-start justify-between gap-5">
@@ -397,7 +397,7 @@ function UseCaseCard({
 }) {
   return (
     <article
-      className={`animate-rise-in group rounded-[2rem] border border-stone-200/80 bg-gradient-to-br ${accent} p-6 shadow-[0_18px_50px_rgba(120,53,15,0.08)] transition-transform duration-300 hover:-translate-y-1`}
+      className={`animate-rise-in group rounded-[1.5rem] border border-stone-200/80 bg-gradient-to-br ${accent} p-4 shadow-[0_18px_50px_rgba(120,53,15,0.08)] transition-transform duration-300 hover:-translate-y-1 sm:rounded-[2rem] sm:p-6`}
       style={{ animationDelay: delay } as CSSProperties}
     >
       <div className="inline-flex h-14 w-14 items-center justify-center rounded-[1.4rem] bg-white shadow-sm">
