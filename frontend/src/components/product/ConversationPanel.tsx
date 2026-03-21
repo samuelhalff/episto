@@ -81,16 +81,16 @@ export function ConversationPanel({
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : isEmpty ? (
-          <div className="flex h-full min-h-[280px] flex-col justify-end">
-            <div className="mx-auto mb-4 w-full max-w-md rounded-[2rem] border border-stone-200/80 bg-white/90 p-6 text-center shadow-[0_18px_50px_rgba(120,53,15,0.08)]">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[1.5rem] bg-amber-50 text-amber-600">
-                <FileText className="h-7 w-7" />
+          <div className="flex h-full min-h-[200px] flex-col justify-end sm:min-h-[280px]">
+            <div className="mx-auto mb-4 w-full max-w-md rounded-[2rem] border border-stone-200/80 bg-white/90 p-4 text-center shadow-[0_18px_50px_rgba(120,53,15,0.08)] sm:p-6">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-[1.25rem] bg-amber-50 text-amber-600 sm:h-14 sm:w-14 sm:rounded-[1.5rem]">
+                <FileText className="h-6 w-6 sm:h-7 sm:w-7" />
               </div>
-              <p className="mt-5 text-xl font-semibold tracking-[-0.03em] text-stone-950">
+              <p className="mt-3 text-lg font-semibold tracking-[-0.03em] text-stone-950 sm:mt-5 sm:text-xl">
                 {t("title")}
               </p>
-              <p className="mt-2 text-sm leading-6 text-stone-500">{t("inputPrompt")}</p>
-              <div className="mt-5 flex items-center justify-center gap-2 rounded-full bg-stone-50 px-4 py-2 text-xs font-medium text-stone-500">
+              <p className="mt-1.5 text-sm leading-6 text-stone-500 sm:mt-2">{t("inputPrompt")}</p>
+              <div className="mt-3 flex items-center justify-center gap-2 rounded-full bg-stone-50 px-4 py-1.5 text-xs font-medium text-stone-500 sm:mt-5 sm:py-2">
                 <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                 {t("welcomeHint")}
               </div>

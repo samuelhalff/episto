@@ -24,7 +24,7 @@ export function FlowHeader({
 
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200/80 bg-[rgba(255,255,255,0.96)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl">
-      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-2.5 sm:gap-4 sm:py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-center justify-between gap-3 lg:w-auto lg:min-w-[11rem] lg:flex-1 lg:justify-start">
           <Link
             href="/"
