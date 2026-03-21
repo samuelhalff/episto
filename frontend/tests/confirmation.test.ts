@@ -44,6 +44,11 @@ import itCH from "../src/messages/it-CH.json";
 const REQUIRED_CONFIRMATION_KEYS = [
   "title",
   "subtitle",
+  "queuedSubtitle",
+  "submittedSubtitle",
+  "acceptedSubtitle",
+  "rejectedSubtitle",
+  "unknownSubtitle",
   "verifying",
   "paymentFailed",
   "paymentFailedSubtitle",
@@ -54,9 +59,13 @@ const REQUIRED_CONFIRMATION_KEYS = [
   "dispatchTitle",
   "whatHappensNext",
   "stepPayment",
+  "stepPaymentDetail",
   "stepSubmitted",
+  "stepSubmittedDetail",
   "stepProcessing",
+  "stepProcessingDetail",
   "stepUpdates",
+  "stepUpdatesDetail",
   "downloadReceipt",
   "viewLetter",
   "sendAnother",
@@ -66,6 +75,7 @@ const REQUIRED_CONFIRMATION_KEYS = [
   "stateRejected",
   "stateUnknown",
   "emailNotice",
+  "emailNoticeDetail",
   "stickyCtaLabel",
 ] as const;
 
@@ -79,7 +89,9 @@ const locales = [
 describe("confirmation i18n keys", () => {
   for (const locale of locales) {
     describe(locale.name, () => {
-      const confirmation = (locale.data as Record<string, Record<string, string>>)["confirmation"];
+      const confirmation = (locale.data as Record<string, Record<string, string>>)[
+        "confirmation"
+      ];
 
       it("has a confirmation section", () => {
         expect(confirmation).toBeDefined();

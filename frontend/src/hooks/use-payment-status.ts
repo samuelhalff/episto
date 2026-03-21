@@ -21,6 +21,7 @@ export interface DispatchInfo {
   providerRef: string | null;
   submittedAt: string | null;
   trackingAvailable: boolean;
+  lastCheckedAt: string | null;
 }
 
 // ---------------------------------------------------------------------------

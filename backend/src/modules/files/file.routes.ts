@@ -38,7 +38,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         rateLimit: {
           max: 20,
           timeWindow: "1 hour",
-          keyGenerator: (req: FastifyRequest) => req.session!.id,
+          keyGenerator: (req: FastifyRequest) => req.session?.id ?? req.ip,
         },
       },
     },

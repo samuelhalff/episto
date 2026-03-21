@@ -1,6 +1,13 @@
 "use client";
 
-import { CheckCircle, Clock, AlertTriangle, Circle } from "lucide-react";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Circle,
+  Clock,
+  HelpCircle,
+  Send,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { DispatchState } from "@swiss-mail/shared";
 
@@ -31,18 +38,18 @@ interface TimelineStep {
 const TIMELINE_STEPS: TimelineStep[] = [
   {
     key: "submitted",
-    completedIn: ["accepted", "reconciled"],
-    activeIn: ["submitted"],
+    completedIn: ["submitted", "accepted", "unknown", "rejected", "reconciled"],
+    activeIn: ["queued"],
   },
   {
     key: "accepted",
-    completedIn: ["reconciled"],
-    activeIn: ["accepted"],
+    completedIn: ["accepted", "reconciled"],
+    activeIn: ["submitted", "unknown"],
   },
   {
     key: "dispatching",
-    completedIn: [],
-    activeIn: ["reconciled"],
+    completedIn: ["reconciled"],
+    activeIn: ["accepted"],
   },
 ];
 
@@ -69,44 +76,76 @@ export function DispatchConfirmation({
 }: DispatchConfirmationProps) {
   const t = useTranslations("dispatch");
 
-  const isRejected = dispatchState === "rejected";
-  const isQueued = dispatchState === "queued" || dispatchState === null;
+  const state = dispatchState ?? "queued";
+  const statusCopy = {
+    queued: {
+      title: t("title.queued"),
+      subtitle: t("subtitle.queued"),
+      icon: <Clock className="h-6 w-6 text-amber-500" />,
+    },
+    submitted: {
+      title: t("title.submitted"),
+      subtitle: t("subtitle.submitted"),
+      icon: <Send className="h-6 w-6 text-primary" />,
+    },
+    accepted: {
+      title: t("title.accepted"),
+      subtitle: t("subtitle.accepted"),
+      icon: <CheckCircle className="h-6 w-6 text-emerald-600" />,
+    },
+    rejected: {
+      title: t("title.rejected"),
+      subtitle: t("subtitle.rejected"),
+      icon: <AlertTriangle className="h-6 w-6 text-destructive" />,
+    },
+    unknown: {
+      title: t("title.unknown"),
+      subtitle: t("subtitle.unknown"),
+      icon: <HelpCircle className="h-6 w-6 text-amber-500" />,
+    },
+    reconciled: {
+      title: t("title.accepted"),
+      subtitle: t("subtitle.accepted"),
+      icon: <CheckCircle className="h-6 w-6 text-emerald-600" />,
+    },
+  } as const;
+
+  const current = statusCopy[state as keyof typeof statusCopy] ?? statusCopy.queued;
+  const isRejected = state === "rejected";
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
-        {isRejected ? (
-          <AlertTriangle className="h-6 w-6 text-destructive" />
-        ) : isQueued ? (
-          <Clock className="h-6 w-6 text-amber-500" />
-        ) : (
-          <CheckCircle className="h-6 w-6 text-emerald-600" />
-        )}
+        {current.icon}
         <div>
-          <h2 className="text-lg font-semibold">
-            {isRejected ? t("title.rejected") : isQueued ? t("title.queued") : t("title.dispatched")}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {isRejected
-              ? t("subtitle.rejected")
-              : isQueued
-                ? t("subtitle.queued")
-                : t("subtitle.dispatched")}
-          </p>
+          <h2 className="text-lg font-semibold">{current.title}</h2>
+          <p className="text-sm text-muted-foreground">{current.subtitle}</p>
         </div>
       </div>
 
       {/* Provider reference */}
       {providerReference && (
         <div className="rounded-lg border border-border bg-muted/20 px-4 py-3">
-          <p className="text-xs font-medium text-muted-foreground">{t("reference.label")}</p>
+          <p className="text-xs font-medium text-muted-foreground">
+            {t("reference.label")}
+          </p>
           <p className="mt-1 font-mono text-sm font-medium">{providerReference}</p>
           {isTrackable ? (
-            <p className="mt-1 text-xs text-emerald-700">{t("reference.trackingAvailable")}</p>
+            <p className="mt-1 text-xs text-emerald-700">
+              {t("reference.trackingAvailable")}
+            </p>
           ) : (
-            <p className="mt-1 text-xs text-muted-foreground">{t("reference.noTracking")}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t("reference.noTracking")}
+            </p>
           )}
+        </div>
+      )}
+
+      {!providerReference && (
+        <div className="rounded-lg border border-border bg-muted/20 px-4 py-3">
+          <p className="text-xs text-muted-foreground">{t("reference.pending")}</p>
         </div>
       )}
 
@@ -114,7 +153,7 @@ export function DispatchConfirmation({
       {!isRejected && (
         <div className="space-y-3">
           {TIMELINE_STEPS.map((step, i) => {
-            const status = getStepStatus(step, dispatchState);
+            const status = getStepStatus(step, state);
             return (
               <div key={step.key} className="flex gap-3">
                 {/* Connector */}
@@ -147,7 +186,7 @@ export function DispatchConfirmation({
                       {new Date(submittedAt).toLocaleString()}
                     </p>
                   )}
-                  {status === "active" && step.key === "dispatching" && (
+                  {status === "active" && step.key !== "submitted" && (
                     <p className="text-xs text-muted-foreground">
                       {t("step.providerNote")}
                     </p>

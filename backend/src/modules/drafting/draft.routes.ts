@@ -9,11 +9,9 @@ import {
   updateDraft,
   transitionDraftStatus,
 } from "./draft.service.js";
-import {
-  createSenderProfile,
-  createRecipientProfile,
-} from "./profile.service.js";
+import { createSenderProfile, createRecipientProfile } from "./profile.service.js";
 import { createSnapshot } from "../rendering/snapshot.service.js";
+import { redirectToRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { calculatePrice } from "../pricing/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import {
@@ -36,24 +34,28 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
   app.addHook("preHandler", requireSession);
 
   // POST /drafts — create a new draft
-  app.post("/drafts", {
-    config: {
-      rateLimit: {
-        max: 20,
-        timeWindow: "1 day",
-        keyGenerator: (req: FastifyRequest) => req.session!.id,
+  app.post(
+    "/drafts",
+    {
+      config: {
+        rateLimit: {
+          max: 20,
+          timeWindow: "1 day",
+          keyGenerator: (req: FastifyRequest) => req.session?.id ?? req.ip,
+        },
       },
     },
-  }, async (request: FastifyRequest, reply: FastifyReply) => {
-    const session = request.session!;
-    const db = getDb();
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const session = request.session!;
+      const db = getDb();
 
-    const draft = await createDraft(db, session.id, session.locale);
+      const draft = await createDraft(db, session.id, session.locale);
 
-    recordEvent({ event: "draft_created", sessionId: session.id, draftId: draft.id });
+      recordEvent({ event: "draft_created", sessionId: session.id, draftId: draft.id });
 
-    reply.status(201).send({ draft });
-  });
+      reply.status(201).send({ draft });
+    },
+  );
 
   // GET /drafts — list drafts for current session
   app.get("/drafts", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -99,6 +101,24 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           latestSnapshotId: latestSnapshot?.id ?? null,
         },
       });
+    },
+  );
+
+  // GET /drafts/:draftId/pdf — download the latest rendered PDF for the session-owned draft
+  app.get(
+    "/drafts/:draftId/pdf",
+    async (
+      request: FastifyRequest<{ Params: { draftId: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const session = request.session!;
+      const db = getDb();
+      const { draftId } = request.params;
+
+      const draft = await getDraftById(db, draftId, session.id);
+      if (!draft) throw notFoundError("draft");
+
+      await redirectToRenderedDraftPdf(db, draft.id, reply);
     },
   );
 
@@ -209,7 +229,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         rateLimit: {
           max: 30,
           timeWindow: "1 hour",
-          keyGenerator: (req: FastifyRequest) => req.session!.id,
+          keyGenerator: (req: FastifyRequest) => req.session?.id ?? req.ip,
         },
       },
     },
@@ -227,11 +247,21 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
 
       // Validate required fields for review
       const missingFields: { field: string; message: string }[] = [];
-      if (!draft.subject) missingFields.push({ field: "subject", message: "Subject is required" });
+      if (!draft.subject)
+        missingFields.push({ field: "subject", message: "Subject is required" });
       if (!draft.body) missingFields.push({ field: "body", message: "Body is required" });
-      if (!draft.signatureMode) missingFields.push({ field: "signatureMode", message: "Signature mode is required" });
-      if (!draft.senderProfileId) missingFields.push({ field: "sender", message: "Sender profile is required" });
-      if (!draft.recipientProfileId) missingFields.push({ field: "recipient", message: "Recipient profile is required" });
+      if (!draft.signatureMode)
+        missingFields.push({
+          field: "signatureMode",
+          message: "Signature mode is required",
+        });
+      if (!draft.senderProfileId)
+        missingFields.push({ field: "sender", message: "Sender profile is required" });
+      if (!draft.recipientProfileId)
+        missingFields.push({
+          field: "recipient",
+          message: "Recipient profile is required",
+        });
       if (missingFields.length > 0) {
         throw validationError("Required fields missing for review", missingFields);
       }
@@ -242,7 +272,10 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         .from(schema.senderProfiles)
         .where(eq(schema.senderProfiles.id, draft.senderProfileId!))
         .limit(1);
-      if (!sender) throw validationError("Sender profile not found", [{ field: "sender", message: "Sender profile not found" }]);
+      if (!sender)
+        throw validationError("Sender profile not found", [
+          { field: "sender", message: "Sender profile not found" },
+        ]);
 
       // Fetch recipient profile
       const [recipient] = await db
@@ -250,7 +283,10 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         .from(schema.recipientProfiles)
         .where(eq(schema.recipientProfiles.id, draft.recipientProfileId!))
         .limit(1);
-      if (!recipient) throw validationError("Recipient profile not found", [{ field: "recipient", message: "Recipient profile not found" }]);
+      if (!recipient)
+        throw validationError("Recipient profile not found", [
+          { field: "recipient", message: "Recipient profile not found" },
+        ]);
 
       // Fetch file assets (attachments + signature)
       const files = await db
@@ -263,7 +299,9 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
             eq(schema.fileAssets.status, "active"),
           ),
         );
-      const attachmentFileIds = files.filter((f) => f.kind === "attachment").map((f) => f.id);
+      const attachmentFileIds = files
+        .filter((f) => f.kind === "attachment")
+        .map((f) => f.id);
       const signatureFile = files.find((f) => f.kind === "signature");
 
       // Calculate locked price
@@ -307,20 +345,26 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         metadata: draft.metadata as Record<string, unknown> | null,
       };
 
+      // Review is only valid from `fields_complete`; promote directly when
+      // the required fields now satisfy that state.
+      if (draft.status === "collecting") {
+        await transitionDraftStatus(db, draftId, session.id, "fields_complete");
+      }
+
       // Create immutable snapshot
       const snapshot = await createSnapshot(db, draftId, snapshotData);
 
       // Transition to reviewed, then rendering once the PDF job is queued.
       await transitionDraftStatus(db, draftId, session.id, "reviewed");
-      await transitionDraftStatus(db, draftId, session.id, "rendering");
       await getQueue(QUEUE_NAMES.RENDER_PDF).add(
         "render-pdf",
         {
           snapshotId: snapshot.id,
           draftId,
         } satisfies RenderPdfJob,
-        { jobId: `snapshot:${snapshot.id}` },
+        { jobId: `snapshot-${snapshot.id}` },
       );
+      await transitionDraftStatus(db, draftId, session.id, "rendering");
 
       recordEvent({
         event: "review_reached",
@@ -431,5 +475,4 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       });
     },
   );
-
 }

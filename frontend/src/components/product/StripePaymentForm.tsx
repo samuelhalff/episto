@@ -1,11 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import {
-  PaymentElement,
-  useStripe,
-  useElements,
-} from "@stripe/react-stripe-js";
+import { useEffect, useState } from "react";
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { formatCentsAsCHF } from "../../hooks/use-pricing.js";
@@ -39,6 +35,18 @@ export function StripePaymentForm({
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isSubmitting) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isSubmitting]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -99,20 +107,22 @@ export function StripePaymentForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={!stripe || !elements || isSubmitting}
-        className="w-full rounded-lg bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-40"
-      >
-        {isSubmitting ? (
-          <span className="flex items-center justify-center gap-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            {t("paymentConfirming")}
-          </span>
-        ) : (
-          `${buttonLabel} — ${formatCentsAsCHF(priceCents)}`
-        )}
-      </button>
+      <div className="sticky bottom-4 z-10 rounded-2xl bg-white/95 p-2 backdrop-blur sm:static sm:bg-transparent sm:p-0">
+        <button
+          type="submit"
+          disabled={!stripe || !elements || isSubmitting}
+          className="w-full rounded-lg bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-40"
+        >
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              {t("paymentConfirming")}
+            </span>
+          ) : (
+            `${buttonLabel} — ${formatCentsAsCHF(priceCents)}`
+          )}
+        </button>
+      </div>
     </form>
   );
 }

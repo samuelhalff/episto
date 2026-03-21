@@ -157,6 +157,15 @@
     "deliveryTypeLabel": "Tipo di spedizione",
     "deliveryStandard": "Spedizione standard",
     "deliveryRegistered": "Raccomandata",
+    "deliveryStandardBadge": "La più comune",
+    "deliveryStandardDescription": "Adatta alla corrispondenza di tutti i giorni.",
+    "deliveryRegisteredBadge": "Consigliata",
+    "deliveryRegisteredDescription": "Ideale per lettere più formali che richiedono una conferma postale aggiuntiva.",
+    "requiredBeforeSending": "Completa tutte le sezioni obbligatorie prima di procedere al pagamento.",
+    "signatureMissingHelp": "L'assenza di firma va bene per la maggior parte della corrispondenza, ma è consigliata per gli avvisi formali.",
+    "attachmentsOptionalHelp": "Gli allegati sono facoltativi. Aggiungili solo se la lettera richiede documenti di supporto.",
+    "edit": "Modifica",
+    "add": "Aggiungi",
     "proceedToPayment": "Procedi al pagamento",
     "backToEditing": "Torna alla modifica",
     "total": "Totale"
@@ -164,18 +173,25 @@
   "checkout": {
     "title": "Pagamento",
     "orderSummary": "Il tuo ordine",
+    "checkoutIntro": "Controlla il totale, conferma la tua e-mail e paga in modo sicuro.",
     "email": "Indirizzo e-mail",
-    "emailHelp": "Invieremo la ricevuta e lo stato della lettera a questo indirizzo.",
+    "emailHelp": "Invieremo la ricevuta di pagamento e gli aggiornamenti sulla lettera a questo indirizzo. Non la useremo per marketing.",
     "paymentMethod": "Metodo di pagamento",
     "paymentPending": "Caricamento del modulo di pagamento…",
     "paymentConfigError": "Il sistema di pagamento non è configurato. Si prega di riprovare più tardi.",
     "consentRequired": "È necessario accettare le condizioni per continuare.",
-    "legalConsent": "Ho letto e accetto le Condizioni d'uso e sono consapevole che Swiss Mail non fornisce servizi legali.",
+    "legalConsent": "Ho letto e accetto le <terms>Condizioni d'uso</terms> e sono consapevole che Swiss Mail non fornisce servizi legali.",
     "sendMyLetter": "Invia la mia lettera",
     "securedByStripe": "Protetto da Stripe",
     "swissDelivery": "Spedizione tramite la Posta Svizzera",
     "dataProtection": "Crittografato e archiviato in modo sicuro",
     "defaultLetterTitle": "Lettera",
+    "draftingIncluded": "Redazione, formattazione e gestione della spedizione sono incluse nel totale.",
+    "delivery": "Spedizione",
+    "deliveryStandardLabel": "Standard",
+    "deliveryRegisteredLabel": "Raccomandata",
+    "secureCheckout": "Pagamento sicuro tramite Stripe",
+    "paymentHelp": "Stripe gestisce i dati di pagamento. Noi non raccogliamo mai i dati grezzi della carta.",
     "total": "Totale",
     "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso",
     "paymentConfirming": "Elaborazione del pagamento…",
@@ -223,6 +239,11 @@
   "confirmation": {
     "title": "Pagamento ricevuto",
     "subtitle": "La tua lettera è stata inoltrata per la spedizione.",
+    "queuedSubtitle": "Il tuo pagamento è confermato. Stiamo preparando ora il passaggio finale alla spedizione.",
+    "submittedSubtitle": "La tua lettera è stata inoltrata per la spedizione. Aggiorneremo questa pagina quando il fornitore risponderà.",
+    "acceptedSubtitle": "La tua lettera è stata accettata per la spedizione. Gli aggiornamenti successivi dipendono dal fornitore.",
+    "rejectedSubtitle": "Il tuo pagamento è confermato, ma la spedizione richiede una verifica manuale. Ti contatteremo se sarà necessario.",
+    "unknownSubtitle": "Il tuo pagamento è confermato. Lo stato della spedizione è ancora in verifica e ti aggiorneremo via e-mail.",
     "verifying": "Verifica del pagamento…",
     "paymentFailed": "Pagamento non completato",
     "paymentFailedSubtitle": "Il tuo pagamento non è stato elaborato. Torna alla cassa per riprovare.",
@@ -234,11 +255,15 @@
     "dispatchTitle": "Stato della spedizione",
     "whatHappensNext": "Prossimi passi",
     "stepPayment": "Pagamento confermato",
+    "stepPaymentDetail": "Il pagamento è stato acquisito in modo sicuro.",
     "stepSubmitted": "Lettera inoltrata per la spedizione",
+    "stepSubmittedDetail": "Abbiamo generato il PDF finale e consegnato il lavoro alla pipeline di spedizione.",
     "stepProcessing": "Elaborazione del fornitore",
+    "stepProcessingDetail": "Il fornitore potrebbe impiegare un po' di tempo per confermare la presa in carico.",
     "stepUpdates": "Ulteriori aggiornamenti dipendono dalla conferma del fornitore",
+    "stepUpdatesDetail": "Se lo stato cambia, aggiorneremo questa pagina e ti invieremo un'e-mail.",
     "downloadReceipt": "Scarica la ricevuta",
-    "viewLetter": "Visualizza la lettera",
+    "viewLetter": "Visualizza il PDF finale",
     "sendAnother": "Invia un'altra lettera",
     "stateQueued": "La tua lettera è in coda per la spedizione",
     "stateSubmitted": "Inoltrata per la spedizione",
@@ -246,6 +271,7 @@
     "stateRejected": "La spedizione è stata rifiutata — stiamo verificando",
     "stateUnknown": "Lo stato è in fase di conferma — ti aggiorneremo via e-mail",
     "emailNotice": "Una ricevuta di pagamento è stata inviata alla tua e-mail",
+    "emailNoticeDetail": "Riceverai un altro aggiornamento se lo stato della spedizione cambia.",
     "stickyCtaLabel": "Invia un'altra lettera"
   },
   "resume": {
@@ -317,19 +343,24 @@
   },
   "dispatch": {
     "title": {
-      "dispatched": "Lettera spedita",
       "queued": "Elaborazione in corso",
-      "rejected": "Spedizione fallita"
+      "submitted": "Inoltrata per la spedizione",
+      "accepted": "Accettata per la spedizione",
+      "rejected": "Spedizione fallita",
+      "unknown": "Stato spedizione in attesa"
     },
     "subtitle": {
-      "dispatched": "La lettera è stata consegnata alle Poste.",
       "queued": "La lettera è in preparazione per la spedizione.",
-      "rejected": "Si è verificato un problema. Il nostro team è stato informato."
+      "submitted": "Il PDF finale è pronto ed è stato consegnato al fornitore di spedizione.",
+      "accepted": "Il fornitore ha confermato la presa in carico della lettera per la spedizione.",
+      "rejected": "Si è verificato un problema. Il nostro team è stato informato.",
+      "unknown": "Abbiamo inoltrato la lettera, ma il fornitore non ha ancora confermato l'esito."
     },
     "reference": {
       "label": "Riferimento fornitore",
       "trackingAvailable": "Tracciamento disponibile",
-      "noTracking": "Nessun tracciamento disponibile"
+      "noTracking": "Nessun tracciamento disponibile",
+      "pending": "Un riferimento del fornitore comparirà qui se diventa disponibile."
     },
     "step": {
       "submitted": "Inviato alla stampa",

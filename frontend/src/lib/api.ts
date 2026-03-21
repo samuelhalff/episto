@@ -9,10 +9,7 @@ export class ApiError extends Error {
   }
 }
 
-export async function apiFetch<T>(
-  path: string,
-  init?: RequestInit,
-): Promise<T> {
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   // Don't set Content-Type for FormData — browser sets it with multipart boundary
   const isFormData = init?.body instanceof FormData;
   const headers: Record<string, string> = {
@@ -33,4 +30,8 @@ export async function apiFetch<T>(
   }
 
   return res.json() as Promise<T>;
+}
+
+export function getApiUrl(path: string): string {
+  return `${API_BASE}${path}`;
 }

@@ -2,10 +2,8 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
-import { AppError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
-import { getLatestSnapshot } from "../rendering/snapshot.service.js";
-import { getPresignedDownloadUrl } from "../files/adapters/s3.adapter.js";
+import { redirectToRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { recordEvent } from "../analytics/index.js";
 
 /**
@@ -82,9 +80,10 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
           .where(eq(schema.recipientProfiles.id, draft.recipientProfileId))
           .limit(1);
         if (recipient) {
-          recipientName = [recipient.firstName, recipient.lastName]
-            .filter(Boolean)
-            .join(" ") || recipient.company || "";
+          recipientName =
+            [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") ||
+            recipient.company ||
+            "";
         }
       }
 
@@ -97,8 +96,10 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
             state: payment.state,
             priceCents: payment.amountCents,
             currency: "CHF" as const,
-            capturedAt: payment.state === "captured" ? payment.updatedAt.toISOString() : null,
-            refundedAt: payment.state === "refunded" ? payment.updatedAt.toISOString() : null,
+            capturedAt:
+              payment.state === "captured" ? payment.updatedAt.toISOString() : null,
+            refundedAt:
+              payment.state === "refunded" ? payment.updatedAt.toISOString() : null,
           },
           dispatch: {
             state: dispatch?.state ?? "queued",
@@ -149,47 +150,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!draft) throw notFoundError("order");
-
-      // Find the latest snapshot with a rendered PDF
-      const snapshot = await getLatestSnapshot(db, draft.id);
-      if (!snapshot?.renderedPdfAssetId) {
-        throw new AppError({
-          family: "rendering_failure",
-          statusCode: 404,
-          code: "PDF_NOT_READY",
-          message: "No rendered PDF is available for this order yet.",
-          userMessage: "Your letter PDF is not ready yet.",
-          userAction: "Please try again in a few moments.",
-        });
-      }
-
-      // Look up the file asset to get the storage key
-      const [pdfAsset] = await db
-        .select({
-          storageKey: schema.fileAssets.storageKey,
-          status: schema.fileAssets.status,
-        })
-        .from(schema.fileAssets)
-        .where(eq(schema.fileAssets.id, snapshot.renderedPdfAssetId))
-        .limit(1);
-
-      if (!pdfAsset || pdfAsset.status !== "active") {
-        throw new AppError({
-          family: "rendering_failure",
-          statusCode: 410,
-          code: "PDF_EXPIRED",
-          message: "The rendered PDF has been deleted per retention policy.",
-          userMessage: "This PDF is no longer available.",
-          userAction: "PDFs are retained for a limited time after dispatch.",
-        });
-      }
-
-      const downloadUrl = await getPresignedDownloadUrl(
-        pdfAsset.storageKey,
-        300,
-      );
-
-      reply.redirect(downloadUrl);
+      await redirectToRenderedDraftPdf(db, draft.id, reply);
     },
   );
 }

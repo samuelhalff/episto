@@ -157,6 +157,15 @@
     "deliveryTypeLabel": "Versandart",
     "deliveryStandard": "Standardversand",
     "deliveryRegistered": "Einschreiben",
+    "deliveryStandardBadge": "Am häufigsten",
+    "deliveryStandardDescription": "Gut geeignet für alltägliche Korrespondenz.",
+    "deliveryRegisteredBadge": "Empfohlen",
+    "deliveryRegisteredDescription": "Ideal für formellere Schreiben mit zusätzlicher postalischer Bestätigung.",
+    "requiredBeforeSending": "Vervollständigen Sie alle Pflichtangaben, bevor Sie zur Zahlung weitergehen.",
+    "signatureMissingHelp": "Ohne Unterschrift ist für die meisten Schreiben in Ordnung, für formelle Mitteilungen aber empfohlen.",
+    "attachmentsOptionalHelp": "Beilagen sind optional. Fügen Sie sie nur hinzu, wenn Ihr Schreiben Belege benötigt.",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
     "proceedToPayment": "Weiter zur Zahlung",
     "backToEditing": "Zurück zum Bearbeiten",
     "total": "Total"
@@ -164,18 +173,25 @@
   "checkout": {
     "title": "Kasse",
     "orderSummary": "Ihre Bestellung",
+    "checkoutIntro": "Prüfen Sie den Gesamtbetrag, bestätigen Sie Ihre E-Mail und bezahlen Sie sicher.",
     "email": "E-Mail-Adresse",
-    "emailHelp": "Wir senden Ihre Quittung und den Briefstatus an diese Adresse.",
+    "emailHelp": "Wir senden Ihre Zahlungsquittung und Brief-Updates an diese Adresse. Wir verwenden sie nicht für Marketing.",
     "paymentMethod": "Zahlungsmethode",
     "paymentPending": "Zahlungsformular wird geladen…",
     "paymentConfigError": "Das Zahlungssystem ist nicht konfiguriert. Bitte versuchen Sie es später erneut.",
     "consentRequired": "Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.",
-    "legalConsent": "Ich habe die Nutzungsbedingungen gelesen und stimme diesen zu. Ich verstehe, dass Swiss Mail keine Rechtsdienstleistung erbringt.",
+    "legalConsent": "Ich habe die <terms>Nutzungsbedingungen</terms> gelesen und stimme diesen zu. Ich verstehe, dass Swiss Mail keine Rechtsdienstleistung erbringt.",
     "sendMyLetter": "Brief absenden",
     "securedByStripe": "Gesichert durch Stripe",
     "swissDelivery": "Versand über die Schweizerische Post",
     "dataProtection": "Verschlüsselt und sicher gespeichert",
     "defaultLetterTitle": "Brief",
+    "draftingIncluded": "Ausarbeitung, Formatierung und Versandabwicklung sind im Gesamtbetrag enthalten.",
+    "delivery": "Versand",
+    "deliveryStandardLabel": "Standard",
+    "deliveryRegisteredLabel": "Einschreiben",
+    "secureCheckout": "Sichere Zahlung über Stripe",
+    "paymentHelp": "Stripe verarbeitet die Zahlungsdaten. Wir erfassen selbst keine rohen Kartendaten.",
     "total": "Total",
     "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend",
     "paymentConfirming": "Zahlung wird verarbeitet…",
@@ -223,6 +239,11 @@
   "confirmation": {
     "title": "Zahlung erhalten",
     "subtitle": "Ihr Brief wurde zum Versand übermittelt.",
+    "queuedSubtitle": "Ihre Zahlung ist bestätigt. Wir bereiten nun die endgültige Versandübergabe vor.",
+    "submittedSubtitle": "Ihr Brief wurde zum Versand übermittelt. Wir halten diese Seite aktuell, sobald der Anbieter reagiert.",
+    "acceptedSubtitle": "Ihr Brief wurde für den Versand angenommen. Weitere Aktualisierungen hängen vom Anbieter ab.",
+    "rejectedSubtitle": "Ihre Zahlung ist bestätigt, aber der Versand braucht manuelle Prüfung. Falls nötig, kontaktieren wir Sie.",
+    "unknownSubtitle": "Ihre Zahlung ist bestätigt. Der Versandstatus wird noch geprüft und wir informieren Sie per E-Mail.",
     "verifying": "Zahlung wird überprüft…",
     "paymentFailed": "Zahlung nicht abgeschlossen",
     "paymentFailedSubtitle": "Ihre Zahlung konnte nicht verarbeitet werden. Bitte kehren Sie zur Kasse zurück.",
@@ -234,11 +255,15 @@
     "dispatchTitle": "Versandstatus",
     "whatHappensNext": "So geht es weiter",
     "stepPayment": "Zahlung bestätigt",
+    "stepPaymentDetail": "Ihre Zahlung wurde sicher erfasst.",
     "stepSubmitted": "Brief zum Versand übermittelt",
+    "stepSubmittedDetail": "Wir haben das endgültige PDF erstellt und an die Versandpipeline übergeben.",
     "stepProcessing": "Anbieterverarbeitung",
+    "stepProcessingDetail": "Der Anbieter kann etwas Zeit benötigen, um die Übergabe zu bestätigen.",
     "stepUpdates": "Weitere Aktualisierungen hängen von der Bestätigung des Anbieters ab",
+    "stepUpdatesDetail": "Wenn sich der Status ändert, aktualisieren wir diese Seite und senden eine E-Mail.",
     "downloadReceipt": "Quittung herunterladen",
-    "viewLetter": "Brief ansehen",
+    "viewLetter": "Finales PDF ansehen",
     "sendAnother": "Weiteren Brief senden",
     "stateQueued": "Ihr Brief ist in der Warteschlange für den Versand",
     "stateSubmitted": "Zum Versand übermittelt",
@@ -246,6 +271,7 @@
     "stateRejected": "Versand wurde abgelehnt — wir untersuchen dies",
     "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
     "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
+    "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
     "stickyCtaLabel": "Weiteren Brief senden"
   },
   "resume": {
@@ -317,19 +343,24 @@
   },
   "dispatch": {
     "title": {
-      "dispatched": "Brief versandt",
       "queued": "Brief wird verarbeitet",
-      "rejected": "Versand fehlgeschlagen"
+      "submitted": "Zum Versand übermittelt",
+      "accepted": "Zum Versand angenommen",
+      "rejected": "Versand fehlgeschlagen",
+      "unknown": "Versandstatus ausstehend"
     },
     "subtitle": {
-      "dispatched": "Ihr Brief wurde der Post übergeben.",
       "queued": "Ihr Brief wird für den Versand vorbereitet.",
-      "rejected": "Es gab ein Problem beim Versand. Unser Team wurde informiert."
+      "submitted": "Das endgültige PDF ist bereit und an den Versandanbieter übergeben.",
+      "accepted": "Der Anbieter hat den Brief für den Versand bestätigt.",
+      "rejected": "Es gab ein Problem beim Versand. Unser Team wurde informiert.",
+      "unknown": "Wir haben Ihren Brief übermittelt, aber der Anbieter hat das Ergebnis noch nicht bestätigt."
     },
     "reference": {
       "label": "Anbieterreferenz",
       "trackingAvailable": "Tracking für diese Sendung verfügbar",
-      "noTracking": "Kein Tracking für diese Sendung verfügbar"
+      "noTracking": "Kein Tracking für diese Sendung verfügbar",
+      "pending": "Eine Anbieterreferenz erscheint hier, falls sie verfügbar wird."
     },
     "step": {
       "submitted": "An den Druck übergeben",

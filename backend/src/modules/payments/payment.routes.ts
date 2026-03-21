@@ -52,167 +52,169 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  app.post(
-    "/webhooks/stripe",
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const signature = request.headers["stripe-signature"];
-      if (typeof signature !== "string") {
-        throw validationError("Missing stripe-signature header");
-      }
+  app.post("/webhooks/stripe", async (request: FastifyRequest, reply: FastifyReply) => {
+    const signature = request.headers["stripe-signature"];
+    if (typeof signature !== "string") {
+      throw validationError("Missing stripe-signature header");
+    }
 
-      // Raw body preserved by our custom content type parser
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const rawBody: Buffer | undefined = (request as any).rawBodyBuffer;
-      if (!rawBody) {
-        throw validationError("Missing request body");
-      }
+    // Raw body preserved by our custom content type parser
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rawBody: Buffer | undefined = (request as any).rawBodyBuffer;
+    if (!rawBody) {
+      throw validationError("Missing request body");
+    }
 
-      const event = constructWebhookEvent(rawBody, signature);
+    const event = constructWebhookEvent(rawBody, signature);
 
-      switch (event.type) {
-        case "payment_intent.amount_capturable_updated": {
-          const intent = event.data.object;
-          const draftId = intent.metadata?.draftId;
-          const paymentAttemptId = intent.metadata?.paymentAttemptId;
-          if (!draftId || !paymentAttemptId || intent.status !== "requires_capture") break;
+    switch (event.type) {
+      case "payment_intent.amount_capturable_updated": {
+        const intent = event.data.object;
+        const draftId = intent.metadata?.draftId;
+        const paymentAttemptId = intent.metadata?.paymentAttemptId;
+        if (!draftId || !paymentAttemptId || intent.status !== "requires_capture") break;
 
-          const db = getDb();
-          const payment = await getPaymentForDraft(db, draftId);
-          if (!payment || payment.id !== paymentAttemptId) break;
+        const db = getDb();
+        const payment = await getPaymentForDraft(db, draftId);
+        if (!payment || payment.id !== paymentAttemptId) break;
 
-          await transitionPaymentState(db, payment.id, "authorized", {
-            stripePaymentIntentId: intent.id,
+        await transitionPaymentState(db, payment.id, "authorized", {
+          stripePaymentIntentId: intent.id,
+        });
+
+        const snapshot = await getLatestSnapshot(db, draftId);
+        if (snapshot?.renderedPdfAssetId) {
+          await enqueueDispatchSubmission({
+            draftId,
+            snapshotId: snapshot.id,
+            paymentId: payment.id,
           });
-
-          const snapshot = await getLatestSnapshot(db, draftId);
-          if (snapshot?.renderedPdfAssetId) {
-            await enqueueDispatchSubmission({
-              draftId,
-              snapshotId: snapshot.id,
-              paymentId: payment.id,
-            });
-          }
-          break;
         }
+        break;
+      }
 
-        case "payment_intent.succeeded": {
-          const intent = event.data.object;
-          const draftId = intent.metadata?.draftId;
-          const paymentAttemptId = intent.metadata?.paymentAttemptId;
-          if (!draftId || !paymentAttemptId) break;
+      case "payment_intent.succeeded": {
+        const intent = event.data.object;
+        const draftId = intent.metadata?.draftId;
+        const paymentAttemptId = intent.metadata?.paymentAttemptId;
+        if (!draftId || !paymentAttemptId) break;
 
-          const db = getDb();
-          const payment = await getPaymentForDraft(db, draftId);
-          if (!payment || payment.id !== paymentAttemptId) break;
+        const db = getDb();
+        const payment = await getPaymentForDraft(db, draftId);
+        if (!payment || payment.id !== paymentAttemptId) break;
 
-          const chargeId =
-            typeof intent.latest_charge === "string"
-              ? intent.latest_charge
-              : null;
+        const chargeId =
+          typeof intent.latest_charge === "string" ? intent.latest_charge : null;
 
-          const { rawOrderAccessToken } = await transitionPaymentState(db, payment.id, "captured", {
+        const { rawOrderAccessToken } = await transitionPaymentState(
+          db,
+          payment.id,
+          "captured",
+          {
             stripeChargeId: chargeId ?? undefined,
-          });
+          },
+        );
 
-          recordEvent({
-            event: "payment_captured",
-            draftId,
-            paymentAttemptId: payment.id,
-            amountCents: payment.amountCents,
-          });
+        recordEvent({
+          event: "payment_captured",
+          draftId,
+          paymentAttemptId: payment.id,
+          amountCents: payment.amountCents,
+        });
 
-          if (rawOrderAccessToken) {
-            // Enqueue payment receipt email with the order status link.
-            // Fire-and-forget: a queue failure must not cause Stripe to retry the webhook.
-            void (async () => {
-              try {
-                const [[sessionRow], [draft]] = await Promise.all([
-                  db
-                    .select({ email: schema.sessions.email, locale: schema.sessions.locale })
-                    .from(schema.sessions)
-                    .where(eq(schema.sessions.id, payment.sessionId))
-                    .limit(1),
-                  db
-                    .select({ deliveryType: schema.draftLetters.deliveryType })
-                    .from(schema.draftLetters)
-                    .where(eq(schema.draftLetters.id, payment.draftId))
-                    .limit(1),
-                ]);
+        if (rawOrderAccessToken) {
+          // Enqueue payment receipt email with the order status link.
+          // Fire-and-forget: a queue failure must not cause Stripe to retry the webhook.
+          void (async () => {
+            try {
+              const [[sessionRow], [draft]] = await Promise.all([
+                db
+                  .select({
+                    email: schema.sessions.email,
+                    locale: schema.sessions.locale,
+                  })
+                  .from(schema.sessions)
+                  .where(eq(schema.sessions.id, payment.sessionId))
+                  .limit(1),
+                db
+                  .select({ deliveryType: schema.draftLetters.deliveryType })
+                  .from(schema.draftLetters)
+                  .where(eq(schema.draftLetters.id, payment.draftId))
+                  .limit(1),
+              ]);
 
-                if (sessionRow?.email) {
-                  const locale = sessionRow.locale ?? "en-CH";
-                  const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
-                  const statusUrl = `${env().CORS_ORIGIN}/${locale}/status/${rawOrderAccessToken}`;
+              if (sessionRow?.email) {
+                const locale = sessionRow.locale ?? "en-CH";
+                const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
+                const statusUrl = `${env().CORS_ORIGIN}/${locale}/status/${rawOrderAccessToken}`;
 
-                  const job: SendEmailJob = {
-                    to: sessionRow.email,
-                    template: "payment-receipt",
-                    locale,
-                    data: {
-                      orderRef,
-                      amount: (payment.amountCents / 100).toFixed(2),
-                      deliveryType: draft?.deliveryType ?? "standard",
-                      statusUrl,
-                    },
-                  };
-                  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("payment-receipt", job);
-                }
-              } catch (err) {
-                request.log.error({ err }, "Failed to enqueue payment receipt email");
+                const job: SendEmailJob = {
+                  to: sessionRow.email,
+                  template: "payment-receipt",
+                  locale,
+                  data: {
+                    orderRef,
+                    amount: (payment.amountCents / 100).toFixed(2),
+                    deliveryType: draft?.deliveryType ?? "standard",
+                    statusUrl,
+                  },
+                };
+                await getQueue(QUEUE_NAMES.SEND_EMAIL).add("payment-receipt", job);
               }
-            })();
-          }
-          break;
+            } catch (err) {
+              request.log.error({ err }, "Failed to enqueue payment receipt email");
+            }
+          })();
         }
-
-        case "payment_intent.payment_failed": {
-          const intent = event.data.object;
-          const draftId = intent.metadata?.draftId;
-          const paymentAttemptId = intent.metadata?.paymentAttemptId;
-          if (!draftId || !paymentAttemptId) break;
-
-          const db = getDb();
-          const payment = await getPaymentForDraft(db, draftId);
-          if (!payment || payment.id !== paymentAttemptId) break;
-
-          const failureMessage =
-            intent.last_payment_error?.message ?? "Payment failed";
-
-          await transitionPaymentState(db, payment.id, "failed", {
-            failureReason: failureMessage,
-          });
-
-          recordEvent({
-            event: "payment_failed",
-            draftId,
-            paymentAttemptId: payment.id,
-            errorFamily: "payment_failure",
-          });
-          break;
-        }
-
-        case "payment_intent.canceled": {
-          const intent = event.data.object;
-          const draftId = intent.metadata?.draftId;
-          const paymentAttemptId = intent.metadata?.paymentAttemptId;
-          if (!draftId || !paymentAttemptId) break;
-
-          const db = getDb();
-          const payment = await getPaymentForDraft(db, draftId);
-          if (!payment || payment.id !== paymentAttemptId) break;
-
-          await transitionPaymentState(db, payment.id, "cancelled");
-          break;
-        }
-
-        default:
-          // Unhandled event type — acknowledge receipt
-          break;
+        break;
       }
 
-      reply.status(200).send({ received: true });
-    },
-  );
+      case "payment_intent.payment_failed": {
+        const intent = event.data.object;
+        const draftId = intent.metadata?.draftId;
+        const paymentAttemptId = intent.metadata?.paymentAttemptId;
+        if (!draftId || !paymentAttemptId) break;
+
+        const db = getDb();
+        const payment = await getPaymentForDraft(db, draftId);
+        if (!payment || payment.id !== paymentAttemptId) break;
+
+        const failureMessage = intent.last_payment_error?.message ?? "Payment failed";
+
+        await transitionPaymentState(db, payment.id, "failed", {
+          failureReason: failureMessage,
+        });
+
+        recordEvent({
+          event: "payment_failed",
+          draftId,
+          paymentAttemptId: payment.id,
+          errorFamily: "payment_failure",
+        });
+        break;
+      }
+
+      case "payment_intent.canceled": {
+        const intent = event.data.object;
+        const draftId = intent.metadata?.draftId;
+        const paymentAttemptId = intent.metadata?.paymentAttemptId;
+        if (!draftId || !paymentAttemptId) break;
+
+        const db = getDb();
+        const payment = await getPaymentForDraft(db, draftId);
+        if (!payment || payment.id !== paymentAttemptId) break;
+
+        await transitionPaymentState(db, payment.id, "cancelled");
+        break;
+      }
+
+      default:
+        // Unhandled event type — acknowledge receipt
+        break;
+    }
+
+    reply.status(200).send({ received: true });
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -229,7 +231,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         rateLimit: {
           max: 10,
           timeWindow: "1 hour",
-          keyGenerator: (req: FastifyRequest) => req.session!.id,
+          keyGenerator: (req: FastifyRequest) => req.session?.id ?? req.ip,
         },
       },
     },
@@ -388,8 +390,10 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           priceCents: payment.amountCents,
           currency: "CHF" as const,
           authorizedAt: null,
-          capturedAt: payment.state === "captured" ? payment.updatedAt.toISOString() : null,
-          refundedAt: payment.state === "refunded" ? payment.updatedAt.toISOString() : null,
+          capturedAt:
+            payment.state === "captured" ? payment.updatedAt.toISOString() : null,
+          refundedAt:
+            payment.state === "refunded" ? payment.updatedAt.toISOString() : null,
           failureReason: payment.failureReason ?? null,
         },
       });

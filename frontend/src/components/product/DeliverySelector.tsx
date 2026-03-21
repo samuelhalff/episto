@@ -27,12 +27,24 @@ export function DeliverySelector({
     : formatCentsAsCHF(890);
 
   const options = [
-    { key: DeliveryType.standard, label: t("deliveryStandard"), price: standardPrice },
-    { key: DeliveryType.registered, label: t("deliveryRegistered"), price: registeredPrice },
+    {
+      key: DeliveryType.standard,
+      label: t("deliveryStandard"),
+      price: standardPrice,
+      badge: t("deliveryStandardBadge"),
+      description: t("deliveryStandardDescription"),
+    },
+    {
+      key: DeliveryType.registered,
+      label: t("deliveryRegistered"),
+      price: registeredPrice,
+      badge: t("deliveryRegisteredBadge"),
+      description: t("deliveryRegisteredDescription"),
+    },
   ] as const;
 
   return (
-    <div role="radiogroup" aria-label={t("deliveryTypeLabel")} className="space-y-2">
+    <div role="radiogroup" aria-label={t("deliveryTypeLabel")} className="space-y-3">
       {options.map((opt) => (
         <button
           key={opt.key}
@@ -41,27 +53,37 @@ export function DeliverySelector({
           aria-checked={value === opt.key}
           aria-label={`${opt.label} — ${opt.price}`}
           onClick={() => onChange(opt.key)}
-          className={`flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm transition ${
+          className={`w-full rounded-2xl border px-4 py-4 text-left text-sm transition ${
             value === opt.key
               ? "border-primary bg-primary/5 text-primary"
-              : "border-gray-200 text-gray-600 hover:border-gray-300"
+              : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
           }`}
         >
-          <span className="flex items-center gap-2">
-            <span
-              className={`inline-flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                value === opt.key
-                  ? "border-primary"
-                  : "border-gray-300"
-              }`}
-            >
-              {value === opt.key && (
-                <span className="h-2 w-2 rounded-full bg-primary" />
-              )}
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <span
+                className={`mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full border-2 ${
+                  value === opt.key ? "border-primary" : "border-gray-300"
+                }`}
+              >
+                {value === opt.key && (
+                  <span className="h-2 w-2 rounded-full bg-primary" />
+                )}
+              </span>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-gray-900">{opt.label}</span>
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
+                    {opt.badge}
+                  </span>
+                </div>
+                <p className="mt-1 text-sm text-gray-500">{opt.description}</p>
+              </div>
+            </div>
+            <span className="shrink-0 text-base font-semibold text-gray-900">
+              {opt.price}
             </span>
-            {opt.label}
-          </span>
-          <span className="font-medium">{opt.price}</span>
+          </div>
         </button>
       ))}
     </div>

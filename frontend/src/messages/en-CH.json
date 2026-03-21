@@ -157,6 +157,15 @@
     "deliveryTypeLabel": "Delivery type",
     "deliveryStandard": "Standard delivery",
     "deliveryRegistered": "Registered delivery",
+    "deliveryStandardBadge": "Most common",
+    "deliveryStandardDescription": "A good fit for everyday correspondence.",
+    "deliveryRegisteredBadge": "Recommended",
+    "deliveryRegisteredDescription": "Best for more formal notices that need extra postal confirmation.",
+    "requiredBeforeSending": "Complete every required section before you continue to payment.",
+    "signatureMissingHelp": "No signature is fine for most correspondence, but it is recommended for formal notices.",
+    "attachmentsOptionalHelp": "Attachments are optional. Add them only if your letter needs supporting documents.",
+    "edit": "Edit",
+    "add": "Add",
     "proceedToPayment": "Proceed to payment",
     "backToEditing": "Back to editing",
     "total": "Total"
@@ -164,18 +173,25 @@
   "checkout": {
     "title": "Checkout",
     "orderSummary": "Your order",
+    "checkoutIntro": "Review the total, confirm your email, and pay securely.",
     "email": "Email address",
-    "emailHelp": "We'll send your receipt and letter status to this address.",
+    "emailHelp": "We'll send your payment receipt and letter updates to this address. We won't use it for marketing.",
     "paymentMethod": "Payment method",
     "paymentPending": "Payment form loading…",
     "paymentConfigError": "Payment system is not configured. Please try again later.",
     "consentRequired": "You must accept the terms to continue.",
-    "legalConsent": "I have read and agree to the Terms of Service and understand that Swiss Mail is not a legal service.",
+    "legalConsent": "I have read and agree to the <terms>Terms of Service</terms> and understand that Swiss Mail is not a legal service.",
     "sendMyLetter": "Send my letter",
     "securedByStripe": "Secured by Stripe",
     "swissDelivery": "Swiss postal delivery",
     "dataProtection": "Encrypted and securely stored",
     "defaultLetterTitle": "Letter",
+    "draftingIncluded": "Drafting, formatting, and dispatch handling are included in the total.",
+    "delivery": "Delivery",
+    "deliveryStandardLabel": "Standard",
+    "deliveryRegisteredLabel": "Registered",
+    "secureCheckout": "Secure checkout through Stripe",
+    "paymentHelp": "Stripe handles the payment details. We never collect raw card data ourselves.",
     "total": "Total",
     "stripeIntegrationPending": "Stripe payment integration pending",
     "paymentConfirming": "Processing payment…",
@@ -223,6 +239,11 @@
   "confirmation": {
     "title": "Payment received",
     "subtitle": "Your letter has been submitted for dispatch.",
+    "queuedSubtitle": "Your payment is confirmed. We are preparing the final dispatch handoff now.",
+    "submittedSubtitle": "Your letter has been submitted for dispatch. We will keep this page updated as the provider responds.",
+    "acceptedSubtitle": "Your letter has been accepted for dispatch. Any later updates depend on the provider.",
+    "rejectedSubtitle": "Your payment is confirmed, but dispatch needs manual attention. We will contact you if anything is required.",
+    "unknownSubtitle": "Your payment is confirmed. Dispatch status is still being checked and we will update you by email.",
     "verifying": "Verifying payment…",
     "paymentFailed": "Payment was not completed",
     "paymentFailedSubtitle": "Your payment could not be processed. Please return to checkout to try again.",
@@ -234,11 +255,15 @@
     "dispatchTitle": "Dispatch status",
     "whatHappensNext": "What happens next",
     "stepPayment": "Payment confirmed",
+    "stepPaymentDetail": "Your payment has been captured securely.",
     "stepSubmitted": "Letter submitted for dispatch",
+    "stepSubmittedDetail": "We generated the final PDF and handed the job to the dispatch pipeline.",
     "stepProcessing": "Provider processing",
+    "stepProcessingDetail": "The provider may take a little time to confirm the handoff.",
     "stepUpdates": "Further updates depend on provider confirmation",
+    "stepUpdatesDetail": "If the status changes, we will update this page and email you.",
     "downloadReceipt": "Download receipt",
-    "viewLetter": "View letter",
+    "viewLetter": "View final PDF",
     "sendAnother": "Send another letter",
     "stateQueued": "Your letter is queued for dispatch",
     "stateSubmitted": "Submitted for dispatch",
@@ -246,6 +271,7 @@
     "stateRejected": "Dispatch was rejected — we're investigating",
     "stateUnknown": "Status is being confirmed — we'll update you by email",
     "emailNotice": "A payment receipt has been sent to your email",
+    "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
     "stickyCtaLabel": "Send another letter"
   },
   "resume": {
@@ -317,19 +343,24 @@
   },
   "dispatch": {
     "title": {
-      "dispatched": "Letter dispatched",
       "queued": "Processing your letter",
-      "rejected": "Dispatch failed"
+      "submitted": "Submitted for dispatch",
+      "accepted": "Accepted for dispatch",
+      "rejected": "Dispatch failed",
+      "unknown": "Dispatch status pending"
     },
     "subtitle": {
-      "dispatched": "Your letter has been handed to Swiss Post.",
       "queued": "Your letter is being prepared for dispatch.",
-      "rejected": "There was a problem dispatching your letter. Our team has been notified."
+      "submitted": "The final PDF is ready and queued with the dispatch provider.",
+      "accepted": "The provider has confirmed receipt of your letter for dispatch.",
+      "rejected": "There was a problem dispatching your letter. Our team has been notified.",
+      "unknown": "We submitted your letter, but the provider has not confirmed the outcome yet."
     },
     "reference": {
       "label": "Provider reference",
       "trackingAvailable": "Tracking available for this shipment",
-      "noTracking": "No tracking available for this shipment"
+      "noTracking": "No tracking available for this shipment",
+      "pending": "A provider reference will appear here if one becomes available."
     },
     "step": {
       "submitted": "Submitted to printing",
