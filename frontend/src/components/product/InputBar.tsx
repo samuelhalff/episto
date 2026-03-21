@@ -4,15 +4,7 @@ import { useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Send, Keyboard, Square } from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// Input mode — user can switch between voice and keyboard
-// ---------------------------------------------------------------------------
-
 export type InputMode = "initial" | "voice" | "keyboard";
-
-// ---------------------------------------------------------------------------
-// Animated voice bars — visual feedback during recording
-// ---------------------------------------------------------------------------
 
 function VoiceBars() {
   return (
@@ -36,10 +28,6 @@ function VoiceBars() {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Clean mic icon (replaces lucide Mic which user disliked)
-// ---------------------------------------------------------------------------
-
 function MicIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -59,10 +47,6 @@ function MicIcon({ className }: { className?: string }) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Props
-// ---------------------------------------------------------------------------
-
 export interface InputBarProps {
   mode: InputMode;
   input: string;
@@ -80,10 +64,6 @@ export interface InputBarProps {
   onSwitchToKeyboard: () => void;
   onSwitchToVoice: () => void;
 }
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 export function InputBar({
   mode,
@@ -119,24 +99,23 @@ export function InputBar({
   }
 
   return (
-    <div className="border-t bg-white">
-      {/* ── Initial state: two clear input options ── */}
+    <div className="border-t border-stone-200/80 bg-white/95 px-4 py-4 backdrop-blur sm:px-5">
       {mode === "initial" && !hasMessages && (
-        <div className="px-4 py-5 space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {dictationSupported && (
             <button
               type="button"
               onClick={onStartVoice}
-              className="group flex w-full items-center gap-3 rounded-xl bg-primary px-5 py-4 text-left text-white transition hover:bg-primary-dark"
+              className="group flex min-h-[84px] w-full items-center gap-3 rounded-[1.5rem] bg-primary px-4 py-4 text-left text-white shadow-[0_20px_45px_rgba(245,158,11,0.28)] transition hover:bg-primary-dark"
             >
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/15">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/18">
                 <MicIcon className="h-5 w-5" />
               </span>
-              <span>
-                <span className="block text-sm font-semibold">
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold sm:text-base">
                   {t("voicePrimary")}
                 </span>
-                <span className="block text-xs text-white/60">
+                <span className="mt-1 block text-xs leading-5 text-white/75 sm:text-sm">
                   {t("voicePrimaryHint")}
                 </span>
               </span>
@@ -145,16 +124,16 @@ export function InputBar({
           <button
             type="button"
             onClick={handleSwitchToKeyboard}
-            className="flex w-full items-center gap-3 rounded-xl border border-gray-200 bg-white px-5 py-4 text-left text-gray-700 transition hover:border-gray-300 hover:bg-gray-50"
+            className="flex min-h-[84px] w-full items-center gap-3 rounded-[1.5rem] border border-stone-200 bg-stone-50/70 px-4 py-4 text-left text-stone-700 transition hover:border-stone-300 hover:bg-white"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gray-100">
-              <Keyboard className="h-5 w-5 text-gray-500" />
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
+              <Keyboard className="h-5 w-5 text-stone-500" />
             </span>
-            <span>
-              <span className="block text-sm font-medium">
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold sm:text-base">
                 {t("typePrimary")}
               </span>
-              <span className="block text-xs text-gray-400">
+              <span className="mt-1 block text-xs leading-5 text-stone-500 sm:text-sm">
                 {t("typePrimaryHint")}
               </span>
             </span>
@@ -162,15 +141,14 @@ export function InputBar({
         </div>
       )}
 
-      {/* ── Voice recording state ── */}
       {(mode === "voice" || isRecording) && (
-        <div className="px-4 py-4 space-y-3">
+        <div className="space-y-3">
           {(interimText || (input && mode === "voice")) && (
-            <div className="rounded-lg bg-gray-50 px-3 py-2">
-              <p className="text-sm text-gray-600">
+            <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3 shadow-sm">
+              <p className="text-sm leading-6 text-stone-600">
                 {input}
                 {interimText && (
-                  <span className="text-gray-400">
+                  <span className="text-stone-400">
                     {input ? " " : ""}
                     {interimText}
                   </span>
@@ -188,7 +166,7 @@ export function InputBar({
               <button
                 type="button"
                 onClick={onStopVoice}
-                className="flex flex-1 items-center justify-center gap-3 rounded-xl bg-red-500 py-3.5 text-sm font-semibold text-white transition hover:bg-red-600"
+                className="flex flex-1 items-center justify-center gap-3 rounded-[1.25rem] bg-red-500 py-3.5 text-sm font-semibold text-white transition hover:bg-red-600"
               >
                 <Square className="h-4 w-4 fill-current" />
                 <span>{t("stopDictation")}</span>
@@ -198,7 +176,7 @@ export function InputBar({
               <button
                 type="button"
                 onClick={onStartRecording}
-                className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+                className="flex flex-1 items-center justify-center gap-2 rounded-[1.25rem] bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
               >
                 <MicIcon className="h-4 w-4" />
                 <span>{t("startDictation")}</span>
@@ -210,7 +188,7 @@ export function InputBar({
                 type="button"
                 onClick={onSend}
                 disabled={isSending}
-                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
+                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.1rem] bg-stone-950 text-white transition hover:bg-stone-800 disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
               </button>
@@ -220,7 +198,7 @@ export function InputBar({
           <button
             type="button"
             onClick={handleSwitchToKeyboard}
-            className="mx-auto flex items-center gap-1.5 text-xs text-gray-400 transition hover:text-gray-600"
+            className="mx-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs text-stone-500 transition hover:bg-stone-100 hover:text-stone-700"
           >
             <Keyboard className="h-3.5 w-3.5" />
             {t("switchToKeyboard")}
@@ -228,13 +206,12 @@ export function InputBar({
         </div>
       )}
 
-      {/* ── Keyboard input state ── */}
       {mode === "keyboard" && !isRecording && (
-        <div className="px-4 py-3">
+        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50/70 p-2 shadow-sm">
           <div className="flex items-end gap-2">
             <textarea
               ref={textareaRef}
-              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="min-h-[48px] flex-1 resize-none rounded-[1.1rem] border-0 bg-transparent px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0"
               rows={1}
               placeholder={t("messagePlaceholder")}
               value={input}
@@ -246,7 +223,7 @@ export function InputBar({
                 type="button"
                 onClick={onSwitchToVoice}
                 aria-label={t("startDictation")}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-primary hover:text-primary"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:border-primary hover:text-primary"
               >
                 <MicIcon className="h-4 w-4" />
               </button>
@@ -255,7 +232,7 @@ export function InputBar({
               type="button"
               disabled={!hasInput || isSending}
               onClick={onSend}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition hover:bg-stone-800 disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
               <span className="sr-only">{t("sendMessage")}</span>
@@ -264,12 +241,11 @@ export function InputBar({
         </div>
       )}
 
-      {/* ── Fallback: initial mode with existing messages ── */}
       {mode === "initial" && hasMessages && (
-        <div className="px-4 py-3">
+        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50/70 p-2 shadow-sm">
           <div className="flex items-end gap-2">
             <textarea
-              className="flex-1 resize-none rounded-xl border border-gray-200 px-4 py-3 text-sm placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+              className="min-h-[48px] flex-1 resize-none rounded-[1.1rem] border-0 bg-transparent px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0"
               rows={1}
               placeholder={t("messagePlaceholder")}
               value={input}
@@ -281,7 +257,7 @@ export function InputBar({
                 type="button"
                 onClick={onSwitchToVoice}
                 aria-label={t("startDictation")}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-gray-200 text-gray-400 transition hover:border-primary hover:text-primary"
+                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:border-primary hover:text-primary"
               >
                 <MicIcon className="h-4 w-4" />
               </button>
@@ -290,7 +266,7 @@ export function InputBar({
               type="button"
               disabled={!hasInput || isSending}
               onClick={onSend}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-white transition hover:bg-primary-dark disabled:opacity-40"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition hover:bg-stone-800 disabled:opacity-40"
             >
               <Send className="h-4 w-4" />
               <span className="sr-only">{t("sendMessage")}</span>

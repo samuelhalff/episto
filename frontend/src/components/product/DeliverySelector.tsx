@@ -1,14 +1,10 @@
 "use client";
 
+import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DeliveryType } from "@swiss-mail/shared";
 import { usePricing, formatCentsAsCHF } from "../../hooks/use-pricing.js";
 
-/**
- * Delivery type selector for the review page.
- *
- * Shows Standard vs Registered options with backend-driven prices.
- */
 export function DeliverySelector({
   value,
   onChange,
@@ -45,47 +41,63 @@ export function DeliverySelector({
 
   return (
     <div role="radiogroup" aria-label={t("deliveryTypeLabel")} className="space-y-3">
-      {options.map((opt) => (
-        <button
-          key={opt.key}
-          type="button"
-          role="radio"
-          aria-checked={value === opt.key}
-          aria-label={`${opt.label} — ${opt.price}`}
-          onClick={() => onChange(opt.key)}
-          className={`w-full rounded-2xl border px-4 py-4 text-left text-sm transition ${
-            value === opt.key
-              ? "border-primary bg-primary/5 text-primary"
-              : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-gray-50"
-          }`}
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex items-start gap-3">
-              <span
-                className={`mt-0.5 inline-flex h-4 w-4 items-center justify-center rounded-full border-2 ${
-                  value === opt.key ? "border-primary" : "border-gray-300"
-                }`}
-              >
-                {value === opt.key && (
-                  <span className="h-2 w-2 rounded-full bg-primary" />
-                )}
-              </span>
-              <div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-semibold text-gray-900">{opt.label}</span>
-                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
-                    {opt.badge}
-                  </span>
+      {options.map((opt) => {
+        const selected = value === opt.key;
+
+        return (
+          <button
+            key={opt.key}
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            aria-label={`${opt.label} — ${opt.price}`}
+            onClick={() => onChange(opt.key)}
+            className={`w-full rounded-[1.5rem] border px-4 py-4 text-left text-sm transition ${
+              selected
+                ? "border-stone-900 bg-stone-950 text-white shadow-[0_18px_40px_rgba(28,25,23,0.16)]"
+                : "border-stone-200 bg-stone-50/60 text-stone-600 hover:border-stone-300 hover:bg-white"
+            }`}
+          >
+            <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <span
+                  className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border ${
+                    selected
+                      ? "border-white/40 bg-white/15 text-white"
+                      : "border-stone-300 bg-white text-transparent"
+                  }`}
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                </span>
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span
+                      className={`font-semibold ${selected ? "text-white" : "text-stone-900"}`}
+                    >
+                      {opt.label}
+                    </span>
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${selected ? "bg-white/12 text-white/80" : "bg-stone-100 text-stone-600"}`}
+                    >
+                      {opt.badge}
+                    </span>
+                  </div>
+                  <p
+                    className={`mt-1 text-sm ${selected ? "text-white/75" : "text-stone-500"}`}
+                  >
+                    {opt.description}
+                  </p>
                 </div>
-                <p className="mt-1 text-sm text-gray-500">{opt.description}</p>
               </div>
+              <span
+                className={`shrink-0 text-base font-semibold ${selected ? "text-white" : "text-stone-900"}`}
+              >
+                {opt.price}
+              </span>
             </div>
-            <span className="shrink-0 text-base font-semibold text-gray-900">
-              {opt.price}
-            </span>
-          </div>
-        </button>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }

@@ -146,7 +146,11 @@
     "switchToKeyboard": "Passa alla tastiera",
     "switchToVoice": "Passa alla voce",
     "inputPrompt": "Diteci di cosa avete bisogno — parlate o digitate",
-    "dictationError": "Inserimento vocale non disponibile. Riprovare o digitare."
+    "dictationError": "Inserimento vocale non disponibile. Riprovare o digitare.",
+    "workspaceTab": "Scrivi",
+    "previewHint": "Qui vede l’anteprima finale della lettera mentre la bozza prende forma.",
+    "previewSheetHint": "L’impaginazione si aggiorna insieme alla bozza.",
+    "welcomeHint": "Iniziate con qualche punto e rifinite poi il testo."
   },
   "review": {
     "title": "Verifica la tua lettera",

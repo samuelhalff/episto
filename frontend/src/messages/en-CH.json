@@ -146,7 +146,11 @@
     "switchToKeyboard": "Switch to keyboard",
     "switchToVoice": "Switch to voice",
     "inputPrompt": "Tell us what you need — speak or type",
-    "dictationError": "Voice input unavailable. Please try again or type instead."
+    "dictationError": "Voice input unavailable. Please try again or type instead.",
+    "workspaceTab": "Write",
+    "previewHint": "Preview the final letter here as it takes shape.",
+    "previewSheetHint": "Paper layout updates as your draft changes.",
+    "welcomeHint": "Start with a few notes and refine from there."
   },
   "review": {
     "title": "Review your letter",

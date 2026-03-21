@@ -15,14 +15,9 @@ import { PriceSummary } from "../../../../../components/product/PriceSummary.js"
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm.js";
 import { captureError } from "../../../../../lib/error-tracking.js";
 
-// ---------------------------------------------------------------------------
-// Stripe setup
-// ---------------------------------------------------------------------------
-
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
 
-/** Map Swiss locale codes to Stripe-supported locale strings */
 const STRIPE_LOCALE_MAP: Record<string, "de" | "fr" | "it" | "en"> = {
   "de-CH": "de",
   "fr-CH": "fr",
@@ -34,10 +29,6 @@ function toStripeLocale(locale: string): "de" | "fr" | "it" | "en" {
   return STRIPE_LOCALE_MAP[locale] ?? "de";
 }
 
-// ---------------------------------------------------------------------------
-// Form schema — email + legal consent
-// ---------------------------------------------------------------------------
-
 function createCheckoutSchema(consentMessage: string) {
   return z.object({
     email: z.string().email(),
@@ -48,10 +39,6 @@ function createCheckoutSchema(consentMessage: string) {
 }
 
 type CheckoutFormValues = z.infer<ReturnType<typeof createCheckoutSchema>>;
-
-// ---------------------------------------------------------------------------
-// Checkout Page
-// ---------------------------------------------------------------------------
 
 export default function CheckoutPage({
   params,
@@ -123,33 +110,40 @@ export default function CheckoutPage({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf4_0%,#ffffff_28%)]">
       <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
 
       <main
         id="main-content"
-        className="mx-auto grid max-w-5xl gap-6 px-4 pb-12 pt-8 lg:grid-cols-[320px_minmax(0,1fr)]"
+        className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 pt-8 sm:px-6 lg:grid-cols-[340px_minmax(0,1fr)]"
       >
-        <aside className="space-y-4 lg:sticky lg:top-6">
+        <aside className="space-y-4 lg:sticky lg:top-28">
           <PriceSummary deliveryType={d.deliveryType} subject={d.subject} showTrustNote />
         </aside>
 
         <div className="space-y-6">
           <div className="max-w-2xl">
-            <h1 className="text-3xl font-bold text-gray-900">{t("title")}</h1>
-            <p className="mt-2 text-sm text-gray-500">{t("checkoutIntro")}</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
+              {t("orderSummary")}
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
+              {t("title")}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-stone-500 md:text-base">
+              {t("checkoutIntro")}
+            </p>
           </div>
 
           {!checkout.clientSecret && (
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
-              <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
+              <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
                 <label
                   htmlFor="email"
-                  className="block text-sm font-semibold text-gray-900"
+                  className="block text-sm font-semibold text-stone-900"
                 >
                   {t("email")}
                 </label>
-                <p className="mt-1 text-xs text-gray-500">{t("emailHelp")}</p>
+                <p className="mt-1 text-xs text-stone-500">{t("emailHelp")}</p>
                 <input
                   id="email"
                   type="email"
@@ -160,10 +154,10 @@ export default function CheckoutPage({
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={errors.email ? "true" : undefined}
                   className={[
-                    "mt-3 w-full rounded-lg border px-4 py-3 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-1",
+                    "mt-3 w-full rounded-[1rem] border px-4 py-3 text-sm placeholder:text-stone-400 focus:outline-none focus:ring-1",
                     errors.email
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
-                      : "border-gray-200 focus:border-primary focus:ring-primary",
+                      : "border-stone-200 focus:border-primary focus:ring-primary",
                   ].join(" ")}
                 />
                 {errors.email && (
@@ -179,8 +173,8 @@ export default function CheckoutPage({
 
               <div
                 className={[
-                  "rounded-2xl border bg-white p-5 shadow-sm",
-                  errors.legalConsent ? "border-destructive" : "border-gray-200",
+                  "rounded-[2rem] border bg-white/92 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]",
+                  errors.legalConsent ? "border-destructive" : "border-stone-200/80",
                 ].join(" ")}
               >
                 <label className="flex cursor-pointer items-start gap-3 text-sm">
@@ -189,9 +183,9 @@ export default function CheckoutPage({
                     {...register("legalConsent")}
                     aria-describedby={errors.legalConsent ? "consent-error" : undefined}
                     aria-invalid={errors.legalConsent ? "true" : undefined}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-gray-300 text-primary focus:ring-primary"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-stone-300 text-primary focus:ring-primary"
                   />
-                  <span className="text-gray-600">
+                  <span className="text-stone-600">
                     {t.rich("legalConsent", {
                       terms: (chunks) => (
                         <Link
@@ -222,11 +216,11 @@ export default function CheckoutPage({
                 </p>
               )}
 
-              <div className="sticky bottom-4 z-10 rounded-2xl bg-white/95 p-2 backdrop-blur lg:static lg:bg-transparent lg:p-0">
+              <div className="sticky bottom-4 z-10 rounded-[1.5rem] border border-stone-200/80 bg-white/95 p-2 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur lg:static lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
-                  className="w-full rounded-lg bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-40"
+                  className="w-full rounded-full bg-stone-950 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-40"
                 >
                   {isSubmitting ? (
                     <Loader2 className="mx-auto h-5 w-5 animate-spin" />
@@ -239,11 +233,11 @@ export default function CheckoutPage({
           )}
 
           {checkout.clientSecret && stripePromise && (
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-gray-500">
+            <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+              <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
                 {t("enterPaymentDetails")}
               </h2>
-              <p className="mb-5 text-sm text-gray-500">{t("paymentHelp")}</p>
+              <p className="mb-5 text-sm text-stone-500">{t("paymentHelp")}</p>
               <Elements
                 stripe={stripePromise}
                 options={{
@@ -269,12 +263,12 @@ export default function CheckoutPage({
           )}
 
           {checkout.clientSecret && !stripePromise && (
-            <div className="rounded-2xl border border-destructive/20 bg-destructive/5 p-6">
+            <div className="rounded-[2rem] border border-destructive/20 bg-destructive/5 p-6">
               <p className="text-sm text-destructive">{t("paymentConfigError")}</p>
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-6 pt-2 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center gap-6 pt-2 text-xs text-stone-500">
             <span className="flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5" />
               {t("securedByStripe")}
