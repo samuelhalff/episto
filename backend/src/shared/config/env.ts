@@ -113,3 +113,7 @@ export function env(): Env {
   }
   return _env;
 }
+
+export function isEnvLoaded(): boolean {
+  return _env !== undefined;
+}

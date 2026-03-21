@@ -1,12 +1,17 @@
 import pino from "pino";
-import { env } from "../config/index.js";
+import { env, isEnvLoaded } from "../config/index.js";
 
 export function createLogger(name?: string): pino.Logger {
-  const e = env();
+  // Support top-level module initialization before loadEnv() has been called.
+  // In production the env is always loaded before any request is served;
+  // this fallback only covers the brief window during ESM module evaluation.
+  const level = isEnvLoaded() ? env().LOG_LEVEL : "info";
+  const isDev = isEnvLoaded() ? env().NODE_ENV === "development" : false;
+
   return pino({
     name: name ?? "swiss-mail",
-    level: e.LOG_LEVEL,
-    ...(e.NODE_ENV === "development"
+    level,
+    ...(isDev
       ? { transport: { target: "pino-pretty", options: { colorize: true } } }
       : {}),
     serializers: pino.stdSerializers,
