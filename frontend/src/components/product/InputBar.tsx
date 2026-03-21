@@ -98,24 +98,27 @@ export function InputBar({
     setTimeout(() => textareaRef.current?.focus(), 50);
   }
 
+  const showInitialPicker = mode === "initial" && !hasMessages;
+  const showTextarea = (mode === "keyboard" && !isRecording) || (mode === "initial" && hasMessages);
+
   return (
-    <div className="border-t border-stone-200/80 bg-white/95 px-3 py-3 backdrop-blur sm:px-5 sm:py-4">
-      {mode === "initial" && !hasMessages && (
-        <div className="grid grid-cols-2 gap-2 sm:gap-3">
+    <div className="border-t border-stone-200/80 bg-white px-3 pb-[env(safe-area-inset-bottom,8px)] pt-3 sm:px-4 sm:pt-4">
+      {showInitialPicker && (
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {dictationSupported && (
             <button
               type="button"
               onClick={onStartVoice}
-              className="group flex w-full items-center gap-2.5 rounded-[1.25rem] bg-primary px-3 py-3 text-left text-white shadow-[0_20px_45px_rgba(245,158,11,0.28)] transition hover:bg-primary-dark sm:gap-3 sm:rounded-[1.5rem] sm:px-4 sm:py-4"
+              className="group flex w-full flex-col items-center gap-3 rounded-2xl bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] px-3 py-5 text-center text-white shadow-[0_16px_40px_rgba(245,158,11,0.3)] transition hover:brightness-105 sm:gap-4 sm:px-5 sm:py-7"
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/18 sm:h-11 sm:w-11">
-                <MicIcon className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 sm:h-16 sm:w-16">
+                <MicIcon className="h-6 w-6 sm:h-7 sm:w-7" />
               </span>
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold sm:text-base">
+              <span>
+                <span className="block text-base font-bold sm:text-lg">
                   {t("voicePrimary")}
                 </span>
-                <span className="mt-0.5 hidden text-xs leading-5 text-white/75 sm:block sm:text-sm">
+                <span className="mt-1 block text-[11px] leading-4 text-white/70 sm:text-sm">
                   {t("voicePrimaryHint")}
                 </span>
               </span>
@@ -124,16 +127,16 @@ export function InputBar({
           <button
             type="button"
             onClick={handleSwitchToKeyboard}
-            className="flex w-full items-center gap-2.5 rounded-[1.25rem] border border-stone-200 bg-stone-50/70 px-3 py-3 text-left text-stone-700 transition hover:border-stone-300 hover:bg-white sm:gap-3 sm:rounded-[1.5rem] sm:px-4 sm:py-4"
+            className="flex w-full flex-col items-center gap-3 rounded-2xl border-2 border-stone-200 bg-white px-3 py-5 text-center text-stone-700 shadow-sm transition hover:border-stone-300 hover:shadow-md sm:gap-4 sm:px-5 sm:py-7"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white shadow-sm sm:h-11 sm:w-11">
-              <Keyboard className="h-4 w-4 text-stone-500 sm:h-5 sm:w-5" />
+            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 sm:h-16 sm:w-16">
+              <Keyboard className="h-6 w-6 text-stone-500 sm:h-7 sm:w-7" />
             </span>
-            <span className="min-w-0">
-              <span className="block text-sm font-semibold sm:text-base">
+            <span>
+              <span className="block text-base font-bold sm:text-lg">
                 {t("typePrimary")}
               </span>
-              <span className="mt-0.5 hidden text-xs leading-5 text-stone-500 sm:block sm:text-sm">
+              <span className="mt-1 block text-[11px] leading-4 text-stone-500 sm:text-sm">
                 {t("typePrimaryHint")}
               </span>
             </span>
@@ -144,8 +147,8 @@ export function InputBar({
       {(mode === "voice" || isRecording) && (
         <div className="space-y-3">
           {(interimText || (input && mode === "voice")) && (
-            <div className="rounded-[1.25rem] border border-stone-200 bg-stone-50 px-4 py-3 shadow-sm">
-              <p className="text-sm leading-6 text-stone-600">
+            <div className="rounded-2xl bg-stone-100 px-4 py-3">
+              <p className="text-[15px] leading-relaxed text-stone-700">
                 {input}
                 {interimText && (
                   <span className="text-stone-400">
@@ -166,7 +169,7 @@ export function InputBar({
               <button
                 type="button"
                 onClick={onStopVoice}
-                className="flex flex-1 items-center justify-center gap-3 rounded-[1.25rem] bg-red-500 py-3.5 text-sm font-semibold text-white transition hover:bg-red-600"
+                className="flex flex-1 items-center justify-center gap-3 rounded-2xl bg-red-500 py-3.5 text-sm font-semibold text-white transition hover:bg-red-600"
               >
                 <Square className="h-4 w-4 fill-current" />
                 <span>{t("stopDictation")}</span>
@@ -176,7 +179,7 @@ export function InputBar({
               <button
                 type="button"
                 onClick={onStartRecording}
-                className="flex flex-1 items-center justify-center gap-2 rounded-[1.25rem] bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
+                className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
               >
                 <MicIcon className="h-4 w-4" />
                 <span>{t("startDictation")}</span>
@@ -188,7 +191,7 @@ export function InputBar({
                 type="button"
                 onClick={onSend}
                 disabled={isSending}
-                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-[1.1rem] bg-stone-950 text-white transition hover:bg-stone-800 disabled:opacity-40"
+                className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition hover:bg-stone-800 disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
               </button>
@@ -206,72 +209,36 @@ export function InputBar({
         </div>
       )}
 
-      {mode === "keyboard" && !isRecording && (
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50/70 p-2 shadow-sm">
-          <div className="flex items-end gap-2">
-            <textarea
-              ref={textareaRef}
-              className="min-h-[48px] flex-1 resize-none rounded-[1.1rem] border-0 bg-transparent px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0"
-              rows={1}
-              placeholder={t("messagePlaceholder")}
-              value={input}
-              onChange={(e) => onInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            {dictationSupported && (
-              <button
-                type="button"
-                onClick={onSwitchToVoice}
-                aria-label={t("startDictation")}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:border-primary hover:text-primary"
-              >
-                <MicIcon className="h-4 w-4" />
-              </button>
-            )}
+      {showTextarea && (
+        <div className="flex items-end gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-1.5 sm:p-2">
+          <textarea
+            ref={textareaRef}
+            className="min-h-[44px] max-h-[120px] flex-1 resize-none rounded-xl border-0 bg-transparent px-3 py-2.5 text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0"
+            rows={1}
+            placeholder={t("messagePlaceholder")}
+            value={input}
+            onChange={(e) => onInputChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          {dictationSupported && !isRecording && (
             <button
               type="button"
-              disabled={!hasInput || isSending}
-              onClick={onSend}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition hover:bg-stone-800 disabled:opacity-40"
+              onClick={onSwitchToVoice}
+              aria-label={t("startDictation")}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-stone-400 transition hover:bg-stone-200 hover:text-stone-600"
             >
-              <Send className="h-4 w-4" />
-              <span className="sr-only">{t("sendMessage")}</span>
+              <MicIcon className="h-5 w-5" />
             </button>
-          </div>
-        </div>
-      )}
-
-      {mode === "initial" && hasMessages && (
-        <div className="rounded-[1.5rem] border border-stone-200 bg-stone-50/70 p-2 shadow-sm">
-          <div className="flex items-end gap-2">
-            <textarea
-              className="min-h-[48px] flex-1 resize-none rounded-[1.1rem] border-0 bg-transparent px-3 py-2.5 text-sm text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0"
-              rows={1}
-              placeholder={t("messagePlaceholder")}
-              value={input}
-              onChange={(e) => onInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-            />
-            {dictationSupported && (
-              <button
-                type="button"
-                onClick={onSwitchToVoice}
-                aria-label={t("startDictation")}
-                className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-500 transition hover:border-primary hover:text-primary"
-              >
-                <MicIcon className="h-4 w-4" />
-              </button>
-            )}
-            <button
-              type="button"
-              disabled={!hasInput || isSending}
-              onClick={onSend}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-stone-950 text-white transition hover:bg-stone-800 disabled:opacity-40"
-            >
-              <Send className="h-4 w-4" />
-              <span className="sr-only">{t("sendMessage")}</span>
-            </button>
-          </div>
+          )}
+          <button
+            type="button"
+            disabled={!hasInput || isSending}
+            onClick={onSend}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition hover:bg-stone-800 disabled:opacity-30"
+          >
+            <Send className="h-4 w-4" />
+            <span className="sr-only">{t("sendMessage")}</span>
+          </button>
         </div>
       )}
     </div>

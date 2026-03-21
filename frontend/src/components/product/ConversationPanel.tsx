@@ -74,40 +74,41 @@ export function ConversationPanel({
     allMessages.length === 0 && !showStreaming && !showSpinner && !isLoading;
 
   return (
-    <div className="flex h-[calc(100dvh-60px)] flex-col bg-[linear-gradient(180deg,#fffdf9_0%,#ffffff_60%)]">
-      <div className="flex-1 overflow-y-auto px-4 pb-2 pt-3 sm:px-5 sm:pt-4">
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Scrollable message area */}
+      <div className="flex-1 overflow-y-auto">
         {isLoading ? (
-          <div className="flex items-center justify-center py-8">
+          <div className="flex h-full items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-primary" />
           </div>
         ) : isEmpty ? (
-          <div className="flex h-full flex-col justify-end">
-            <div className="mx-auto mb-2 w-full max-w-md rounded-2xl border border-stone-200/80 bg-white/90 p-4 text-center shadow-[0_18px_50px_rgba(120,53,15,0.08)] sm:rounded-[2rem] sm:p-6">
-              <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 sm:h-14 sm:w-14 sm:rounded-[1.5rem]">
-                <FileText className="h-5 w-5 sm:h-7 sm:w-7" />
-              </div>
-              <p className="mt-2 text-base font-semibold tracking-[-0.03em] text-stone-950 sm:mt-4 sm:text-xl">
-                {t("title")}
-              </p>
-              <p className="mt-1 text-xs leading-5 text-stone-500 sm:mt-2 sm:text-sm sm:leading-6">{t("inputPrompt")}</p>
-              <div className="mt-2 flex items-center justify-center gap-2 rounded-full bg-stone-50 px-3 py-1.5 text-[11px] font-medium text-stone-500 sm:mt-4 sm:py-2 sm:text-xs">
-                <Sparkles className="h-3 w-3 text-amber-500 sm:h-3.5 sm:w-3.5" />
-                {t("welcomeHint")}
-              </div>
+          <div className="flex h-full flex-col items-center justify-center px-6 py-8">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 sm:h-16 sm:w-16">
+              <FileText className="h-7 w-7 sm:h-8 sm:w-8" />
+            </div>
+            <p className="mt-5 text-center text-xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-2xl">
+              {t("title")}
+            </p>
+            <p className="mt-2 max-w-xs text-center text-sm leading-relaxed text-stone-500 sm:max-w-sm sm:text-base">
+              {t("inputPrompt")}
+            </p>
+            <div className="mt-4 hidden items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-xs font-medium text-stone-500 sm:inline-flex">
+              <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+              {t("welcomeHint")}
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-3 px-4 py-4 sm:px-5">
             {allMessages.map((msg) => (
               <div
                 key={msg.id}
                 className={`flex ${msg.role === MessageRole.user ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`max-w-[85%] rounded-[1.5rem] px-4 py-3 text-sm leading-6 shadow-sm ${
+                  className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-[15px] leading-relaxed ${
                     msg.role === MessageRole.user
-                      ? "bg-stone-950 text-white"
-                      : "border border-stone-200 bg-white text-stone-700"
+                      ? "bg-stone-900 text-white"
+                      : "bg-stone-100 text-stone-800"
                   }`}
                 >
                   {msg.content}
@@ -117,54 +118,53 @@ export function ConversationPanel({
 
             {showStreaming && (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-[1.5rem] border border-stone-200 bg-white px-4 py-3 text-sm leading-6 text-stone-700 shadow-sm">
+                <div className="max-w-[85%] rounded-2xl bg-stone-100 px-4 py-2.5 text-[15px] leading-relaxed text-stone-800">
                   {conversation.streamingText}
-                  <span className="ml-0.5 inline-block h-3.5 w-px animate-pulse bg-stone-400 align-middle" />
+                  <span className="ml-0.5 inline-block h-4 w-px animate-pulse bg-stone-400 align-middle" />
                 </div>
               </div>
             )}
+
+            {showSpinner && (
+              <div className="flex justify-start">
+                <div className="rounded-2xl bg-stone-100 px-4 py-3">
+                  <Loader2 className="h-4 w-4 animate-spin text-stone-400" />
+                </div>
+              </div>
+            )}
+
+            <div ref={bottomRef} />
           </div>
         )}
-
-        {showSpinner && (
-          <div className="mt-4 flex justify-start">
-            <div className="max-w-[85%] rounded-[1.5rem] border border-stone-200 bg-white px-4 py-3 shadow-sm">
-              <Loader2 className="h-4 w-4 animate-spin text-stone-500" />
-            </div>
-          </div>
-        )}
-
-        <div ref={bottomRef} />
       </div>
 
-      <div className="sticky bottom-0 bg-white/92 backdrop-blur">
-        <InputBar
-          mode={mode}
-          input={input}
-          hasMessages={allMessages.length > 0}
-          isRecording={isRecording}
-          isSending={conversation.isSending}
-          interimText={interimText}
-          dictationSupported={dictationSupported}
-          dictationError={dictationError}
-          onInputChange={setInput}
-          onSend={handleSend}
-          onStartVoice={() => {
-            setMode("voice");
-            startRecording(locale);
-          }}
-          onStopVoice={stopRecording}
-          onStartRecording={() => startRecording(locale)}
-          onSwitchToKeyboard={() => {
-            if (isRecording) stopRecording();
-            setMode("keyboard");
-          }}
-          onSwitchToVoice={() => {
-            setMode("voice");
-            startRecording(locale);
-          }}
-        />
-      </div>
+      {/* Pinned input area */}
+      <InputBar
+        mode={mode}
+        input={input}
+        hasMessages={allMessages.length > 0}
+        isRecording={isRecording}
+        isSending={conversation.isSending}
+        interimText={interimText}
+        dictationSupported={dictationSupported}
+        dictationError={dictationError}
+        onInputChange={setInput}
+        onSend={handleSend}
+        onStartVoice={() => {
+          setMode("voice");
+          startRecording(locale);
+        }}
+        onStopVoice={stopRecording}
+        onStartRecording={() => startRecording(locale)}
+        onSwitchToKeyboard={() => {
+          if (isRecording) stopRecording();
+          setMode("keyboard");
+        }}
+        onSwitchToVoice={() => {
+          setMode("voice");
+          startRecording(locale);
+        }}
+      />
     </div>
   );
 }

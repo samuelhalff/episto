@@ -254,87 +254,47 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Trust & Pricing */}
+        {/* Pricing */}
         <section className="bg-stone-50/50 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-10 text-center sm:mb-12 md:mb-16">
-              <h2 className="text-2xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-3xl md:text-4xl lg:text-5xl">
-                {t("trustTitle")}
-              </h2>
+          <div className="mx-auto max-w-2xl text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 sm:px-4 sm:py-2 sm:text-xs">
+              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              {t("pricingTitle")}
             </div>
-            <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:gap-8">
-              <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-8">
-                <div className="space-y-3 sm:space-y-4">
-                  {trustItems.map((item, index) => (
-                    <div
-                      key={item.label}
-                      className="animate-rise-in flex items-start gap-4 rounded-xl p-2 sm:p-3"
-                      style={{ animationDelay: `${0.08 + index * 0.08}s` }}
-                    >
-                      <div className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 sm:h-12 sm:w-12 sm:rounded-2xl">
-                        {item.icon}
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-stone-950 sm:text-base">{item.label}</p>
-                        <p className="mt-1 text-sm leading-relaxed text-stone-500">{item.detail}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:rounded-3xl sm:p-8">
-                <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 sm:px-4 sm:py-2 sm:text-xs">
-                  <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  {t("pricingTitle")}
-                </div>
-                <p className="mt-4 text-3xl font-semibold tracking-[-0.05em] text-stone-950 sm:mt-6 sm:text-4xl md:text-5xl">
-                  {t("pricingFrom")}
-                </p>
-                <p className="mt-2 max-w-md text-sm leading-relaxed text-stone-500 sm:mt-4 sm:text-base">
-                  {t("pricingNotes")}
-                </p>
-                <div className="mt-5 space-y-3 sm:mt-6 sm:space-y-3">
-                  <PricingRow label={tReview("deliveryStandard")} value={t("pricingNotes")} />
-                  <PricingRow label={tReview("deliveryRegistered")} value={t("step3Desc")} />
-                  <PricingRow label={tCheckout("securedByStripe")} value={tCheckout("paymentHelp")} />
-                </div>
-                <Link
-                  href="/pricing"
-                  className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-stone-700 transition-colors hover:text-stone-950"
-                >
-                  {t("nav.pricing")}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+            <p className="mt-5 text-4xl font-semibold tracking-[-0.05em] text-stone-950 sm:mt-6 sm:text-5xl md:text-6xl">
+              {t("pricingFrom")}
+            </p>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-stone-500 sm:mt-4 sm:text-base">
+              {t("pricingNotes")}
+            </p>
+            <div className="mx-auto mt-8 grid max-w-lg gap-3 sm:mt-10">
+              <PricingRow label={tReview("deliveryStandard")} value={t("pricingNotes")} />
+              <PricingRow label={tReview("deliveryRegistered")} value={t("step3Desc")} />
+              <PricingRow label={tCheckout("securedByStripe")} value={tCheckout("paymentHelp")} />
             </div>
+            <Link
+              href="/draft/new"
+              className="cta-sheen mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-7 py-4 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.20)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:mt-10 sm:text-base"
+            >
+              {t("heroCta")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </section>
 
         {/* Final CTA */}
         <section className="px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-stone-950 px-6 py-10 text-center text-white shadow-[0_36px_100px_rgba(28,25,23,0.22)] sm:rounded-3xl sm:px-10 md:px-16 md:py-16">
-            <div className="mx-auto max-w-3xl">
-              <h2 className="text-2xl font-semibold tracking-[-0.05em] sm:text-4xl md:text-5xl lg:text-6xl">
-                {t("ctaTitle")}
-              </h2>
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-stone-400 sm:mt-6 sm:text-base md:text-lg">
-                {t("heroSubtitle")}
-              </p>
-            </div>
-            <div className="mt-8 flex flex-col items-center gap-3 sm:mt-10 sm:flex-row sm:justify-center sm:gap-4">
+          <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-stone-950 px-6 py-10 text-center text-white sm:rounded-3xl sm:px-10 md:px-16 md:py-16">
+            <h2 className="mx-auto max-w-3xl text-2xl font-semibold tracking-[-0.05em] sm:text-4xl md:text-5xl lg:text-6xl">
+              {t("ctaTitle")}
+            </h2>
+            <div className="mt-8 sm:mt-10">
               <Link
                 href="/draft/new"
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3.5 text-sm font-semibold text-stone-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-50 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-stone-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-amber-50 sm:px-8 sm:py-4 sm:text-base"
               >
                 {t("ctaButton")}
                 <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                href="/pricing"
-                className="inline-flex w-full items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-white transition-colors hover:bg-white/10 sm:w-auto sm:px-8 sm:py-4 sm:text-base"
-              >
-                {t("nav.pricing")}
               </Link>
             </div>
           </div>
