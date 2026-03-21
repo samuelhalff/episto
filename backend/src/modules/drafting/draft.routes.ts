@@ -11,7 +11,7 @@ import {
 } from "./draft.service.js";
 import { createSenderProfile, createRecipientProfile } from "./profile.service.js";
 import { createSnapshot } from "../rendering/snapshot.service.js";
-import { redirectToRenderedDraftPdf } from "../rendering/pdf-access.js";
+import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { calculatePrice } from "../pricing/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import {
@@ -118,7 +118,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
 
-      await redirectToRenderedDraftPdf(db, draft.id, reply);
+      await sendRenderedDraftPdf(db, draft.id, reply);
     },
   );
 

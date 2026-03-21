@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
-import { redirectToRenderedDraftPdf } from "../rendering/pdf-access.js";
+import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { recordEvent } from "../analytics/index.js";
 
 /**
@@ -150,7 +150,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!draft) throw notFoundError("order");
-      await redirectToRenderedDraftPdf(db, draft.id, reply);
+      await sendRenderedDraftPdf(db, draft.id, reply);
     },
   );
 }

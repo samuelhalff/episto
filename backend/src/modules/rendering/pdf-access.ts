@@ -3,13 +3,13 @@ import { eq } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { AppError } from "../../shared/errors/index.js";
-import { getPresignedDownloadUrl } from "../files/adapters/s3.adapter.js";
+import { downloadObject } from "../files/adapters/s3.adapter.js";
 import { getLatestSnapshot } from "./snapshot.service.js";
 
-export async function getRenderedDraftPdfDownloadUrl(
+async function getRenderedDraftPdfAsset(
   db: Db,
   draftId: string,
-): Promise<string> {
+): Promise<{ storageKey: string }> {
   const snapshot = await getLatestSnapshot(db, draftId);
   if (!snapshot?.renderedPdfAssetId) {
     throw new AppError({
@@ -42,14 +42,34 @@ export async function getRenderedDraftPdfDownloadUrl(
     });
   }
 
-  return getPresignedDownloadUrl(pdfAsset.storageKey, 300);
+  return {
+    storageKey: pdfAsset.storageKey,
+  };
 }
 
-export async function redirectToRenderedDraftPdf(
+export async function sendRenderedDraftPdf(
   db: Db,
   draftId: string,
   reply: FastifyReply,
 ): Promise<void> {
-  const downloadUrl = await getRenderedDraftPdfDownloadUrl(db, draftId);
-  reply.redirect(downloadUrl);
+  const pdfAsset = await getRenderedDraftPdfAsset(db, draftId);
+  const pdf = await downloadObject(pdfAsset.storageKey);
+
+  reply.header("Content-Type", pdf.contentType ?? "application/pdf");
+  if (pdf.contentLength !== undefined) {
+    reply.header("Content-Length", String(pdf.contentLength));
+  }
+  if (pdf.eTag) {
+    reply.header("ETag", pdf.eTag);
+  }
+  if (pdf.lastModified) {
+    reply.header("Last-Modified", pdf.lastModified.toUTCString());
+  }
+  reply.header(
+    "Content-Disposition",
+    `attachment; filename="swiss-mail-${draftId.slice(0, 8)}.pdf"`,
+  );
+  reply.header("Cache-Control", "private, max-age=300");
+
+  await reply.send(pdf.body);
 }
