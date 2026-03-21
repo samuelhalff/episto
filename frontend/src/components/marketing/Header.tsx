@@ -13,7 +13,7 @@ export function Header() {
   return (
     <header
       role="banner"
-      className="sticky top-0 z-50 border-b border-white/60 bg-[rgba(255,250,240,0.88)] backdrop-blur-xl"
+      className="sticky top-0 z-50 border-b border-stone-200/80 bg-[rgba(255,255,255,0.97)] shadow-[0_10px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
         <Link
@@ -28,7 +28,7 @@ export function Header() {
 
         <nav
           aria-label="Main navigation"
-          className="hidden items-center gap-2 rounded-full border border-white/70 bg-white/75 p-1.5 shadow-[0_10px_30px_rgba(120,53,15,0.08)] md:flex"
+          className="hidden items-center gap-2 rounded-full border border-stone-200/80 bg-white p-1.5 shadow-[0_10px_30px_rgba(15,23,42,0.05)] md:flex"
         >
           <Link
             href="/how-it-works"
@@ -59,7 +59,7 @@ export function Header() {
 
         <button
           type="button"
-          className="rounded-full border border-white/70 bg-white/85 p-2 text-stone-700 shadow-sm md:hidden"
+          className="rounded-full border border-stone-200/80 bg-white p-2 text-stone-700 shadow-sm md:hidden"
           onClick={() => {
             setMenuOpen(!menuOpen);
           }}
@@ -72,9 +72,9 @@ export function Header() {
       {menuOpen && (
         <nav
           aria-label="Mobile navigation"
-          className="border-t border-white/60 bg-[rgba(255,250,240,0.94)] px-6 pb-6 pt-4 md:hidden"
+          className="border-t border-stone-200/70 bg-[rgba(255,255,255,0.98)] px-6 pb-6 pt-4 md:hidden"
         >
-          <div className="flex flex-col gap-3 rounded-[1.75rem] border border-white/80 bg-white/80 p-4 shadow-[0_18px_45px_rgba(120,53,15,0.12)]">
+          <div className="flex flex-col gap-3 rounded-[1.75rem] border border-stone-200/80 bg-white p-4 shadow-[0_18px_45px_rgba(15,23,42,0.07)]">
             <Link
               href="/how-it-works"
               className="rounded-2xl px-4 py-3 text-sm text-stone-600 transition-colors hover:bg-amber-50 hover:text-stone-950"

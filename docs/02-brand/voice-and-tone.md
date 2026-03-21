@@ -86,6 +86,8 @@ Same voice, different tone. The core attributes never change — but warmth, for
 > "Formal letters, handled. In minutes."
 
 Do not use hollow superlatives ("best", "fastest", "most powerful"). Let the benefit speak.
+Do not market the product as "AI-powered" in headlines, badges, or hero copy. Follow the Google
+Maps rule: the capability stays in the background, the result stays in the foreground.
 
 ### Onboarding / empty states
 
@@ -103,7 +105,7 @@ Do not use pressure language ("Get started now!") or make empty feel like failur
 
 > "Recipient" (label — not "Who are you sending to?")
 > "Saving…" (status — not "Hang on, we're saving your progress!")
-> "AI draft ready. Review and edit before sending." (notice — not a celebration)
+> "Draft ready. Review and edit before sending." (notice — not a celebration)
 
 Avoid over-explaining features in the workspace. Contextual help belongs in tooltips or help overlays, not inline labels.
 

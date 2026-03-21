@@ -124,7 +124,7 @@ export default function CheckoutPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <FlowHeader currentStep={2} title={t("title")} />
+      <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
 
       <main
         id="main-content"

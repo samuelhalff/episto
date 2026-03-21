@@ -7,11 +7,10 @@ import {
   useSession,
   useConversation,
 } from "../../../../hooks/use-api.js";
-import { Link } from "../../../../i18n/navigation.js";
 import { Eye, X } from "lucide-react";
-import { StepIndicator } from "../../../../components/product/StepIndicator.js";
 import { ConversationPanel } from "../../../../components/product/ConversationPanel.js";
 import { LetterPreview } from "../../../../components/product/LetterPreview.js";
+import { FlowHeader } from "../../../../components/product/FlowHeader.js";
 
 // ---------------------------------------------------------------------------
 // Main Draft Workspace Page
@@ -50,14 +49,12 @@ export default function DraftWorkspacePage({
 
   return (
     <div className="flex min-h-screen flex-col">
-      {/* Header */}
-      <header className="flex items-center justify-between border-b bg-white px-4 py-3">
-        <Link href="/" className="font-bold text-gray-900">
-          {tc("appName")}
-        </Link>
-        <StepIndicator currentStep={0} />
-        <span className="text-sm text-gray-500">{t("saved")}</span>
-      </header>
+      <FlowHeader
+        currentStep={0}
+        draftId={draftId}
+        title={t("title")}
+        statusLabel={t("saved")}
+      />
 
       <div className="flex flex-1 overflow-hidden">
         {/* Conversation panel — left on desktop, full on mobile */}

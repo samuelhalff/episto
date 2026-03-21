@@ -91,7 +91,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <FlowHeader currentStep={1} title={t("title")} />
+      <FlowHeader currentStep={1} draftId={draftId} title={t("title")} />
 
       <main
         id="main-content"

@@ -330,7 +330,7 @@ export default function ConfirmationPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <FlowHeader currentStep={3} title={t("title")} />
+      <FlowHeader currentStep={3} draftId={draftId} title={t("title")} />
 
       <Suspense
         fallback={

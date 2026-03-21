@@ -163,7 +163,7 @@ export default function HomePage() {
                     </h2>
                   </div>
                   <div className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                    AI
+                    {t("heroPanelBadge")}
                   </div>
                 </div>
                 <div className="mt-8 space-y-4 text-sm text-stone-500">
@@ -219,7 +219,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-20 lg:py-24">
+        <section className="px-6 pb-10 pt-16 md:pb-12 md:pt-20 lg:pb-14 lg:pt-20">
           <div className="mx-auto max-w-7xl">
             <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-5xl">
@@ -269,7 +269,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="px-6 py-16 md:py-24">
+        <section className="px-6 pb-16 pt-8 md:pb-20 md:pt-10 lg:pb-24 lg:pt-12">
           <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="rounded-[2.5rem] bg-stone-950 px-8 py-10 text-white shadow-[0_34px_90px_rgba(28,25,23,0.24)] md:px-10">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300/80">

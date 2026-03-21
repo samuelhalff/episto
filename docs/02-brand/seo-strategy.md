@@ -20,8 +20,10 @@ Switzerland has four language communities. Each deserves its own properly locali
 **Performance is a ranking signal.**  
 Core Web Vitals directly affect search rankings. Next.js SSR/SSG gives us the structural capability; the team must not let runtime bloat undermine it.
 
-**AI-assistance stays in the background.**  
-The product's positioning is calm, trustworthy, Swiss-style simplicity. SEO copy should reinforce that — not oversell the AI angle, which can trigger scepticism.
+**Capability stays in the background.**  
+The product's positioning is calm, trustworthy, Swiss-style simplicity. Follow the Google Maps
+rule: describe the result, not the machinery. SEO copy should not lead with AI claims, badges, or
+gimmicky automation language.
 
 ---
 
@@ -487,4 +489,5 @@ For positioning context only — not an authoritative analysis:
 | Pingen | pingen.ch | API-first postal dispatch, developer-oriented |
 | Swiss Post ePost | epost.ch | Official postal offering |
 
-Swiss Mail should differentiate on: guided mobile workflow, AI-assisted drafting, calm consumer-first UX — not purely on price or dispatch speed.
+Swiss Mail should differentiate on: guided mobile workflow, calm consumer-first UX, and a faster
+path from intent to posted letter — not purely on price or dispatch speed.
