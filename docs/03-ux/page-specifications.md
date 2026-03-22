@@ -740,6 +740,10 @@ Draft state auto-saves on every meaningful change (message sent, field edited, z
 
 **Rule:** Never show a "Save" button. Auto-save is the only save mechanism. If auto-save fails silently, the user will lose work — which violates the core promise. The failed state must be visible and actionable.
 
+#### Step Indicator
+
+See [`chat-ui-audit.md` § Step Indicator — Locked Design](chat-ui-audit.md#step-indicator--locked-design) for the canonical specification. The indicator appears in FlowHeader across all draft flow pages, using compact mode on mobile and the full connected rail on desktop.
+
 #### 6.2 `<ConversationPanel>`
 Scrollable, fills available height.
 

@@ -139,9 +139,9 @@ The top bar has a fixed height. It does not collapse on scroll, expand on hover,
 
 The typing/streaming indicator is a message bubble at the bottom of the thread, inside the scroll container. It occupies the same vertical space the response will fill. There is never blank white space between the last message and the input bar.
 
-### Rule 8: Multi-step progress belongs in-thread, not in chrome
+### Rule 8: Pure chat apps keep progress in-thread; transactional funnels can use compact chrome
 
-Slack embeds workflow steps as structured blocks inside the message stream. ChatGPT/Claude show no step indicators at all — the conversation *is* the progress. If progress must be shown, it should be a message card inside the thread, not a header widget.
+Slack embeds workflow steps as structured blocks inside the message stream. ChatGPT/Claude show no step indicators at all because the conversation *is* the progress. Transactional funnels are different: they can keep progress in the header, but it should stay compact, fixed-height, and secondary to the conversation while drafting.
 
 ### Rule 9: Mobile keyboard shrinks the viewport, not the layout
 
@@ -162,15 +162,19 @@ Current implementation files:
 - `frontend/src/components/product/FlowHeader.tsx`
 - `frontend/src/components/product/LetterPreview.tsx`
 
-### 3.1 FlowHeader causes layout instability
+### 3.1 FlowHeader height varies with step indicator
 
-**Problem:** FlowHeader is sticky (`z-40`) and contains a `StepIndicator` that adds a second row on mobile. The header height varies between mobile and desktop, and the step indicator strip adds visual weight that competes with the conversation.
+**Problem:** FlowHeader is sticky (`z-40`) and contains a `StepIndicator` that can spill onto a second row on mobile. That makes the header height vary by viewport and state, which creates avoidable layout movement at the top of the workspace.
 
-**Violation of:** Rule 6 (static geometry), Rule 8 (progress in chrome).
+**Violation of:** Rule 6 (static geometry).
 
-**What the best apps do:** ChatGPT, Claude, WhatsApp — all have thin, fixed-height headers. None show a step indicator. Slack shows workflow progress as in-thread message blocks.
+**What the best transactional flows do:** Stripe and Shopify keep checkout progress in the header, but make it compact, single-row, and fixed-height. The issue here is not showing progress chrome at all; it is letting the progress chrome change the header height.
 
-**Impact:** The step indicator is visual noise during active conversation. The user is talking to the AI — they know what step they're on. The indicator only becomes useful at the transition from drafting → review → payment, which happens on separate routes anyway.
+**Note:** Swiss Mail is not an open-ended chat app like ChatGPT or Claude. It is a transactional funnel (`Draft → Review → Pay → Sent`), so persistent progress chrome is appropriate as long as it stays compact and stable.
+
+**Status:** ✅ Resolved.
+
+**Impact:** Users spending money benefit from knowing where they are in the funnel. The fix was to keep the progress chrome but lock the header to a fixed single row. That is now implemented: the header stays `h-14`, mobile uses compact dots, and desktop uses a slimmer rail without wrapping.
 
 ### 3.2 Mobile tab toggle causes scroll position loss
 
@@ -237,15 +241,15 @@ Current implementation files:
 
 **Partial compliance:** The streaming cursor is good. But the transition moments (workspace load, first message, mode switches) could be smoother.
 
-### 3.7 Step indicator adds noise without conversation value
+### 3.7 Step indicator has value, but should not compete with drafting
 
-**Problem:** The `StepIndicator` in `FlowHeader` shows dots for the four-step flow (Draft → Review → Pay → Done). During active drafting (which is 90%+ of time in the workspace), this indicator is static — it always shows "step 1". It consumes vertical space and visual attention for zero information value.
+**Problem:** The `StepIndicator` in `FlowHeader` is useful because Swiss Mail is a paid multi-step funnel (`Draft → Review → Pay → Sent`). Users need to know where they are and how many steps remain. The issue is not its existence; the issue is that its current presentation takes too much visual priority during active drafting.
 
-**Violation of:** Rule 8 (progress in-thread, not in chrome).
+**What the right pattern looks like:** E-commerce checkouts such as Stripe and Shopify keep progress visible in header chrome because users are moving through a paid funnel. The correct pattern is a subtle, fixed-height treatment during drafting, with enough visibility to preserve orientation without overpowering the conversation.
 
-**What Slack does:** Workflow progress is a structured card inside the message thread. The user sees it in context.
+**Status:** ✅ Resolved.
 
-**Impact:** The header is doing too much. Logo + step indicator + save status + price = cognitive overload for a screen whose primary job is "talk to the AI, watch the letter form."
+**Impact:** During drafting, the conversation and live preview should dominate. A compact, low-contrast step indicator preserves orientation without turning the header into the loudest element on screen. Swiss Mail now follows the checkout pattern: compact dots on mobile, a slim rail on desktop, and no variable header height.
 
 ### 3.8 Summary table
 
@@ -258,7 +262,7 @@ Current implementation files:
 | Side panel doesn't reflow chat | ⚠️ Fixed split, but 42% is too narrow | Medium |
 | Static header geometry | ⚠️ Step indicator adds variable height | Medium |
 | Loading states in-thread | ✅ Streaming cursor present | Minor polish needed |
-| Progress in-thread, not chrome | ❌ Step indicator in header | Medium |
+| Progress in-thread, not chrome | ✅ Kept in header — appropriate for transactional flow. Now compact and fixed-height. | — |
 | Mobile keyboard handling | ⚠️ Relies on `dvh` only | Medium on older iOS |
 | View switch preserves scroll | ❌ Tab toggle likely resets scroll | High on mobile |
 
@@ -268,21 +272,33 @@ Current implementation files:
 
 ### P0 — Layout Stability
 
-**P0.1: Remove StepIndicator from FlowHeader during active drafting**
+**P0.1: Compact step indicator into fixed-height header row**
 
-The step indicator adds no value while the user is conversing. Replace it with a minimal header: logo + draft title (or "New Letter") + save status. The step indicator can appear as a transition card *inside the conversation thread* when the draft is complete and the user is prompted to move to review.
+**Status:** ✅ DONE.
 
-*Reference:* Slack (workflow progress as in-thread cards), ChatGPT (no step indicator at all).
+Keep the step indicator in the header because Swiss Mail is a transactional funnel. The implementation now keeps the full header, including progress, within `h-14` (56px) on every viewport.
+
+Implemented treatment:
+- Mobile gets 4 compact dots.
+- Desktop gets a slimmer rail.
+- The header stays `h-14` on all viewports.
+
+*Reference:* Stripe Checkout and Shopify checkout keep progress visible in chrome, but compact and fixed-height rather than chat-like or multi-row.
 
 *Implementation:*
 ```
-Before:  Logo | ● ● ○ ○ Step Indicator | Saved | CHF 2.49
-After:   Logo | "New Letter" or draft title | Saved
+Before:  Logo | Draft | Review | Pay | Sent
+         Saved | CHF 2.49
+
+After:   Logo | • • • • | Saved   (mobile)
+         Logo | slim progress rail | Saved   (desktop)
 ```
 
-The price moves to the review step (where it's decision-relevant). The header becomes a single fixed-height row on all viewports.
+The step indicator stays in the header, but becomes a single-row, non-wrapping element appropriate for a checkout funnel.
 
 **P0.2: Widen conversation column on desktop**
+
+**Status:** ✅ DONE.
 
 Flip the split from 42/58 to 55/45 or 58/42, giving the conversation the majority of space. The preview is a reference panel, not the primary workspace. The user's attention is on the conversation — the preview updates passively.
 
@@ -304,6 +320,8 @@ After:
 
 **P0.3: Preserve scroll position on mobile view toggle**
 
+**Status:** ✅ DONE.
+
 When toggling between Conversation and Preview on mobile, preserve the thread's `scrollTop` value. Two approaches:
 
 1. **Keep both mounted, toggle visibility with `hidden` class** — the DOM stays alive, scroll position is inherently preserved. (Simplest.)
@@ -314,6 +332,8 @@ When toggling between Conversation and Preview on mobile, preserve the thread's 
 ### P1 — Scroll Behaviour
 
 **P1.1: Add a scroll-to-bottom FAB**
+
+**Status:** ✅ DONE.
 
 When `isStickToBottom` is false, render a floating "↓" button at the bottom-centre of the thread container (not the viewport — it should scroll-anchor to the thread area).
 
@@ -330,6 +350,8 @@ Behaviour:    onClick → smooth scroll to bottom
 
 **P1.2: Always scroll to bottom on message send**
 
+**Status:** ✅ DONE.
+
 When the user sends a message (submit from InputBar), unconditionally scroll to bottom. Every reference app does this. It re-anchors the user's attention to the latest exchange.
 
 Current implementation likely does this via the auto-scroll logic, but it should be an explicit `scrollTo({ top: scrollHeight, behavior: 'smooth' })` on send, not dependent on proximity detection.
@@ -337,6 +359,8 @@ Current implementation likely does this via the auto-scroll logic, but it should
 ### P2 — Preview Integration
 
 **P2.1: Make preview collapsible on desktop**
+
+**Status:** ✅ DONE.
 
 Add a toggle to collapse the preview panel entirely, giving the conversation 100% width. The toggle should be a small button at the panel boundary (like VS Code's sidebar toggle).
 
@@ -361,6 +385,8 @@ The current mobile approach (preview in a bottom sheet) is actually correct — 
 ### P3 — Polish
 
 **P3.1: Add skeleton state for initial workspace load**
+
+**Status:** ✅ DONE.
 
 Before the session loads and the first AI message arrives, show a skeleton inside the thread area: 2–3 grey pill shapes (message bubble skeletons) with a subtle pulse animation. This prevents the empty state from feeling blank.
 
@@ -391,6 +417,8 @@ The current empty state (welcome icon + prompt) should fade out (150ms) while th
 
 **P3.3: Use `visualViewport` API for mobile keyboard resilience**
 
+**Status:** ✅ DONE.
+
 Add a `useVisualViewport` hook that listens to `window.visualViewport.resize` and adjusts the thread container height. This is more reliable than `dvh` on older iOS Safari.
 
 ```typescript
@@ -410,11 +438,13 @@ useEffect(() => {
 
 **P3.4: Reduce FlowHeader to single-row on all viewports**
 
-After removing the step indicator (P0.1), ensure the header is always a single row:
+**Status:** ✅ DONE (implemented with P0.1).
+
+Ensure the header, including the step indicator, fits in `h-14`:
 
 ```
-Mobile:   [Logo]  "New Letter"  [Saved ✓]
-Desktop:  [Logo]  "New Letter"  [Saved ✓]          [···] menu
+Mobile:   [Logo]  [• — • — ○ — ○]  [Saved ✓]
+Desktop:  [Logo]  "New Letter"  [• — • — ○ — ○]  [Saved ✓]  [···]
 ```
 
 Fixed height: `h-14` (56px). No wrapping, no second row, no conditional rows.
@@ -425,17 +455,33 @@ Fixed height: `h-14` (56px). No wrapping, no second row, no conditional rows.
 
 | ID | Change | Priority | Effort |
 |---|---|---|---|
-| P0.1 | Remove step indicator from header; show progress in-thread | P0 | Small |
-| P0.2 | Flip column split to 58/42 (chat/preview) | P0 | Trivial |
-| P0.3 | Preserve scroll position on mobile view toggle | P0 | Small |
-| P1.1 | Add scroll-to-bottom FAB | P1 | Small |
-| P1.2 | Explicit scroll-to-bottom on send | P1 | Trivial |
-| P2.1 | Collapsible preview panel on desktop | P2 | Medium |
+| P0.1 | ✅ DONE — Compact step indicator into fixed-height header row | P0 | Small |
+| P0.2 | ✅ DONE — Flip column split to 58/42 (chat/preview) | P0 | Trivial |
+| P0.3 | ✅ DONE — Preserve scroll position on mobile view toggle | P0 | Small |
+| P1.1 | ✅ DONE — Add scroll-to-bottom FAB | P1 | Small |
+| P1.2 | ✅ DONE — Explicit scroll-to-bottom on send | P1 | Trivial |
+| P2.1 | ✅ DONE — Collapsible preview panel on desktop | P2 | Medium |
 | P2.2 | Keep mobile bottom sheet, fix scroll (see P0.3) | P2 | — |
-| P3.1 | Skeleton state for initial load | P3 | Small |
+| P3.1 | ✅ DONE — Skeleton state for initial load | P3 | Small |
 | P3.2 | Smooth empty-to-first-message transition | P3 | Small |
-| P3.3 | `visualViewport` hook for keyboard resilience | P3 | Medium |
-| P3.4 | Single-row header on all viewports | P3 | Small |
+| P3.3 | ✅ DONE — `visualViewport` hook for keyboard resilience | P3 | Medium |
+| P3.4 | ✅ DONE — Ensure header including step indicator fits in `h-14` | P3 | Small |
+
+### Step Indicator — Locked Design
+
+> **Decision (2026-03):** The step indicator is a core UX element and must not be removed or reduced to invisible dots. Swiss Mail is a transactional checkout funnel, not an open-ended chat. Users spending money need visible, confident progress indication.
+
+**Mobile (compact):** Animated node-and-track progress bar with current step label. Nodes are connected by colored lines (emerald for complete, stone for future). Current node has a subtle pulse ring animation. Fits in a single header row.
+
+**Desktop (full):** Connected pill rail with an animated emerald progress line running behind the step buttons. Completed steps show a check icon in an emerald circle. Current step is highlighted with amber. Future steps are muted. Labels visible at lg+ breakpoint.
+
+**Rules:**
+- Must always be visible in the FlowHeader on all pages of the draft flow
+- Must fit within h-14 header height
+- Must not be reduced to fewer than 4 visible nodes
+- Completed steps must be navigable (clickable)
+- Current step must have visual emphasis (not just a color change — animation or shadow)
+- The progress line must animate on step transitions (CSS transition, 300-500ms)
 
 ---
 
@@ -444,8 +490,7 @@ Fixed height: `h-14` (56px). No wrapping, no second row, no conditional rows.
 1. **Should the preview panel auto-open on first draft render (~15–25s)?**
    Currently the preview is always visible on desktop. An alternative: start with chat at 100% width, then animate the preview panel open when the first draft content appears. This would eliminate the "empty preview" phase. Needs user testing.
 
-2. **Step indicator: remove entirely or move in-thread?**
-   P0.1 recommends removing from the header. Should we add an in-thread progress card (Slack-style) at key transitions, or rely entirely on the route change (draft → review → checkout) as the progress signal?
+2. **Decided:** Step indicator stays in header. Compact dots on mobile, slim rail on desktop. Transactional flows need visible progress — this is a checkout funnel, not an open-ended chat.
 
 3. **Preview panel width: fixed or user-resizable?**
    The recommendation is a fixed 42% for preview. Should users be able to drag the divider (like VS Code)? Adds complexity but some power users may want it.
@@ -455,4 +500,3 @@ Fixed height: `h-14` (56px). No wrapping, no second row, no conditional rows.
 
 5. **Voice mode layout implications?**
    The InputBar has a voice recording mode with animated bars and a different control layout. Does the voice UI need its own layout audit, or does it follow the same rules (input bar stays at bottom, thread above)?
-
