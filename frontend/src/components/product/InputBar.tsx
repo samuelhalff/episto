@@ -241,12 +241,22 @@ export function InputBar({
                   if (mode === "initial") {
                     handleSwitchToKeyboard();
                   }
-                  // Counteract browser native scroll-into-view behavior
-                  // that can push the layout up on mobile keyboards
-                  requestAnimationFrame(() => {
-                    const root = document.getElementById("draft-workspace-root");
+                  // Aggressively counteract browser's scroll-into-view
+                  // which fires multiple times during mobile keyboard animation
+                  const resetAncestorScroll = () => {
+                    document.documentElement.scrollTop = 0;
+                    document.body.scrollTop = 0;
+                    const root =
+                      document.getElementById("draft-workspace-root");
                     if (root) root.scrollTop = 0;
-                  });
+                  };
+                  resetAncestorScroll();
+                  requestAnimationFrame(resetAncestorScroll);
+                  requestAnimationFrame(() =>
+                    requestAnimationFrame(resetAncestorScroll),
+                  );
+                  setTimeout(resetAncestorScroll, 150);
+                  setTimeout(resetAncestorScroll, 350);
                 }}
                 enterKeyHint="send"
               />

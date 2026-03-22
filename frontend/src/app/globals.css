@@ -161,3 +161,13 @@
     animation: none !important;
   }
 }
+
+/* Prevent body scroll when draft workspace is active — stops mobile keyboard
+   from pushing the entire page layout upward on textarea focus */
+html:has(#draft-workspace-root),
+html:has(#draft-workspace-root) body {
+  overflow: hidden;
+  position: fixed;
+  inset: 0;
+  height: 100%;
+}
