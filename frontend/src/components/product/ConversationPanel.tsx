@@ -2,7 +2,7 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { Loader2, FileText, Sparkles } from "lucide-react";
+import { ChevronDown, FileText, Loader2, Sparkles } from "lucide-react";
 import { useConversation } from "../../hooks/use-api.js";
 import { useDictation } from "../../hooks/use-dictation.js";
 import type { ConversationMessage } from "@swiss-mail/shared";
@@ -23,6 +23,7 @@ export function ConversationPanel({
 
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<InputMode>("initial");
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   const threadRef = useRef<HTMLDivElement>(null);
   const stickToBottomRef = useRef(true);
@@ -71,8 +72,15 @@ export function ConversationPanel({
     const content = input.trim();
     if (!content) return;
     stickToBottomRef.current = true;
+    setShowScrollButton(false);
     setInput("");
     void conversation.sendMessage(content);
+    requestAnimationFrame(() => {
+      threadRef.current?.scrollTo({
+        top: threadRef.current.scrollHeight,
+        behavior: "smooth",
+      });
+    });
   }
 
   function handleThreadScroll() {
@@ -83,46 +91,50 @@ export function ConversationPanel({
 
     const distanceFromBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight;
     stickToBottomRef.current = distanceFromBottom < 80;
+    setShowScrollButton(distanceFromBottom >= 80);
   }
 
   const allMessages = conversation.messages;
+  const orderedMessages = [...allMessages].reverse();
   const showStreaming = conversation.isStreaming && conversation.streamingText.length > 0;
   const showSpinner = conversation.isSending && !conversation.isStreaming;
   const isEmpty =
     allMessages.length === 0 && !showStreaming && !showSpinner && !isLoading;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+    <div className="relative flex h-full min-h-0 flex-1 flex-col overflow-hidden">
       {/* Only the thread scrolls. Composer stays locked to the viewport. */}
       <div
         ref={threadRef}
         onScroll={handleThreadScroll}
-        className="flex-1 overflow-y-auto overscroll-contain"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
       >
-        <div className="flex min-h-full flex-col justify-end px-4 py-4 sm:px-5">
+        <div className="flex min-h-full flex-col justify-end px-4 py-3 sm:px-5">
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
             </div>
           ) : isEmpty ? (
-            <div className="flex flex-col items-center justify-center py-12 sm:py-20">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600 sm:h-16 sm:w-16">
-                <FileText className="h-7 w-7 sm:h-8 sm:w-8" />
-              </div>
-              <p className="mt-5 text-center text-xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-2xl">
-                {t("title")}
-              </p>
-              <p className="mt-2 max-w-xs text-center text-sm leading-relaxed text-stone-500 sm:max-w-sm sm:text-base">
-                {t("inputPrompt")}
-              </p>
-              <div className="mt-4 hidden items-center gap-2 rounded-full bg-stone-100 px-4 py-2 text-xs font-medium text-stone-500 sm:inline-flex">
-                <Sparkles className="h-3.5 w-3.5 text-amber-500" />
-                {t("welcomeHint")}
+            <div className="px-1 pb-6 pt-8">
+              <div className="mx-auto max-w-sm rounded-[1.75rem] border border-stone-200/80 bg-white p-6 text-center shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <p className="mt-4 text-2xl font-semibold tracking-[-0.03em] text-stone-950">
+                  {t("title")}
+                </p>
+                <p className="mt-2 text-sm leading-relaxed text-stone-500">
+                  {t("inputPrompt")}
+                </p>
+                <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-stone-100 px-3 py-1.5 text-[11px] font-medium text-stone-500">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  {t("welcomeHint")}
+                </div>
               </div>
             </div>
           ) : (
             <>
-              {allMessages.map((msg) => (
+              {orderedMessages.map((msg) => (
                 <div
                   key={msg.id}
                   className={`mb-3 flex ${msg.role === MessageRole.user ? "justify-end" : "justify-start"}`}
@@ -160,33 +172,52 @@ export function ConversationPanel({
         </div>
       </div>
 
+      {showScrollButton && (
+        <button
+          type="button"
+          onClick={() => {
+            threadRef.current?.scrollTo({
+              top: threadRef.current.scrollHeight,
+              behavior: "smooth",
+            });
+            setShowScrollButton(false);
+          }}
+          aria-label={t("scrollToBottom")}
+          className="absolute bottom-16 left-1/2 z-10 inline-flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full bg-stone-900 text-white shadow-lg transition-opacity hover:bg-stone-800"
+        >
+          <ChevronDown className="h-4 w-4" />
+        </button>
+      )}
+
       {/* Pinned input area */}
-      <InputBar
-        mode={mode}
-        input={input}
-        hasMessages={allMessages.length > 0}
-        isRecording={isRecording}
-        isSending={conversation.isSending}
-        interimText={interimText}
-        dictationSupported={dictationSupported}
-        dictationError={dictationError}
-        onInputChange={setInput}
-        onSend={handleSend}
-        onStartVoice={() => {
-          setMode("voice");
-          startRecording(locale);
-        }}
-        onStopVoice={stopRecording}
-        onStartRecording={() => startRecording(locale)}
-        onSwitchToKeyboard={() => {
-          if (isRecording) stopRecording();
-          setMode("keyboard");
-        }}
-        onSwitchToVoice={() => {
-          setMode("voice");
-          startRecording(locale);
-        }}
-      />
+      <div className="shrink-0">
+        <InputBar
+          mode={mode}
+          input={input}
+          hasMessages={allMessages.length > 0}
+          isRecording={isRecording}
+          isSending={conversation.isSending}
+          interimText={interimText}
+          dictationSupported={dictationSupported}
+          dictationError={dictationError}
+          onInputChange={setInput}
+          onSend={handleSend}
+          onStartVoice={() => {
+            setMode("voice");
+            startRecording(locale);
+          }}
+          onStopVoice={stopRecording}
+          onStartRecording={() => startRecording(locale)}
+          onSwitchToKeyboard={() => {
+            if (isRecording) stopRecording();
+            setMode("keyboard");
+          }}
+          onSwitchToVoice={() => {
+            setMode("voice");
+            startRecording(locale);
+          }}
+        />
+      </div>
     </div>
   );
 }

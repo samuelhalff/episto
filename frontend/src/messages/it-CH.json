@@ -153,7 +153,10 @@
     "previewSheetHint": "L’impaginazione si aggiorna insieme alla bozza.",
     "previewReadyToast": "La lettera è pronta per l’anteprima.",
     "closePreview": "Chiudi anteprima",
-    "welcomeHint": "Iniziate con qualche punto e rifinite poi il testo."
+    "welcomeHint": "Iniziate con qualche punto e rifinite poi il testo.",
+    "scrollToBottom": "Scorri in basso",
+    "showPreview": "Mostra anteprima",
+    "hidePreview": "Nascondi anteprima"
   },
   "review": {
     "title": "Verifica la tua lettera",

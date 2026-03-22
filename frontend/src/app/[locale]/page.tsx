@@ -290,7 +290,3 @@ function UseCaseCard({
     </article>
   );
 }
-
-function LetterLine({ width }: { width: string }) {
-  return <div className="h-3 rounded-full bg-stone-900/8" style={{ width }} />;
-}

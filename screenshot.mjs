@@ -32,6 +32,38 @@ try {
   await page.screenshot({ path: `${OUT}/write-mobile-full.png`, fullPage: true });
   console.log('Write page screenshots done');
 
+  try {
+    await page.waitForSelector('button', { timeout: 5000 });
+    await page.evaluate(() => {
+      const buttons = Array.from(document.querySelectorAll('button'));
+      const typeButton = buttons.find((button) =>
+        (button.textContent || '').includes('Type instead'),
+      );
+      typeButton?.click();
+    });
+
+    await new Promise(r => setTimeout(r, 300));
+    await page.waitForSelector('textarea', { timeout: 5000 });
+    await page.focus('textarea');
+    await page.keyboard.type('I need to cancel a gym membership.', { delay: 20 });
+
+    await page.waitForFunction(
+      () => Boolean(document.querySelector('button[aria-label="Send"]:not([disabled])')),
+      { timeout: 5000 },
+    );
+    await page.evaluate(() => {
+      const sendButton = document.querySelector('button[aria-label="Send"]:not([disabled])');
+      if (sendButton instanceof HTMLElement) {
+        sendButton.click();
+      }
+    });
+    await new Promise(r => setTimeout(r, 5000));
+    await page.screenshot({ path: `${OUT}/write-mobile-thread.png`, fullPage: false });
+    console.log('Thread screenshot done');
+  } catch (e) {
+    console.warn('Thread capture skipped:', e.message);
+  }
+
   const previewButton = await page.waitForSelector('button[aria-label="Preview"]', { timeout: 5000 });
   await previewButton.click();
 

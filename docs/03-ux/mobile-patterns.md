@@ -245,6 +245,8 @@ This is the heart of the product. Every detail matters.
 - Input box pins to bottom of visible viewport above keyboard.
 - Messages scroll above.
 - No letter preview visible by default.
+- On mobile, the conversation thread is the only scrollable region. Header, step strip, preview trigger, and composer stay spatially stable.
+- The empty-thread state must sit close to the composer, not in the visual middle of a tall blank page.
 
 **The first 30 seconds on mobile:**
 The mobile first-impression must be even more carefully choreographed than desktop, because the user has less screen real estate and no visible preview panel.
@@ -254,28 +256,29 @@ The mobile first-impression must be even more carefully choreographed than deskt
 3. **1–2.5s:** AI first message appears. Quick-reply chips stagger in (50ms per chip).
 4. **2.5–8s:** User responds (types, taps chip, or uses voice).
 5. **8–20s:** Conversation progresses through field collection.
-6. **15–25s:** First draft is generated. The floating Preview FAB:
-   - Pulses once (scale 1→1.15→1, 300ms, spring easing).
-   - Gets a brief `accent` border glow (box-shadow pulse, 300ms in, 500ms hold, 300ms out).
-   - A toast notification slides in from top: "Your letter is ready — tap to preview" with `FileText` icon.
-7. **25–30s:** User taps FAB or toast → preview sheet opens with the populated letter.
+6. **15–25s:** First draft is generated. The Preview toggle:
+   - A subtle badge/update signal appears on the Preview toggle.
+   - The toggle becomes the obvious secondary action beside "Write".
+7. **25–30s:** User taps the Preview toggle → preview replaces the conversation panel on mobile.
 
-**Critical mobile rule:** The Preview FAB must NEVER be invisible or disabled when a draft exists. If the draft has content, the FAB is always present and tappable. A badge dot on the FAB indicates "preview has changed since you last looked."
+**Critical mobile rule:** Preview must NEVER be hidden behind the composer or overlap the input region. On mobile it stays available as a stable top toggle with a badge when the preview changed since the user last viewed it.
+
+**Composer hierarchy rule:**
+- Voice should be gently pushed, not forced.
+- The initial empty composer may contain a strong dictation starter row, but typing must remain available in the same composer with no separate mode-picking detour.
+- After the first interaction, the composer simplifies: textarea, mic, send. Do not keep a large dictation banner competing with active typing.
+- Never place the preview trigger inside the composer card. Keep preview as a separate top toggle.
 
 **Preview toggle**
-- Floating action button (FAB): `"👁 Preview"`, bottom-right corner.
-- Position: 16 px from right edge, above safe area (`fixed bottom-[calc(env(safe-area-inset-bottom)+80px)] right-4`).
-- Size: 48 px circle with "Preview" label.
-- Badge: dot indicator when preview has been updated since last viewed.
-- Scroll behavior: FAB stays fixed during conversation scroll.
-- During dictation: FAB moves up to avoid overlap with dictation indicator.
+- Render a two-option segmented control directly below the step strip: `Write | Preview`.
+- Active state is obvious and high contrast; inactive state remains visible but secondary.
+- Badge: Preview shows a dot indicator when the letter changed since the user last viewed the preview.
+- Scroll behavior: the toggle stays fixed with the app frame; it is not part of the scrollable thread.
 
-**Preview mode: Bottom sheet**
-- Initial height: ~50% of viewport.
-- Drag up for full-screen preview.
-- Drag down to collapse back to conversation.
-- Sheet contains a scaled-down PDF-style letter preview.
-- Scrollable independently.
+**Preview mode**
+- Preview replaces the conversation panel in the main mobile workspace area.
+- The same app frame remains visible: header, step indicator, workspace toggle.
+- The preview panel itself may scroll independently if the letter is longer than the viewport.
 
 **Zone editing**
 1. User taps a field/zone on the preview (recipient address, body paragraph, sender name, etc.).
@@ -515,8 +518,7 @@ When dictation is active:
 | Hero parallax | Subtle scroll-linked background shift (desktop/tablet only) | — |
 | Tap feedback | `scale(0.97)`, revert | 75 ms |
 | Toast / snackbar | Slide up from bottom, auto-dismiss after 3 s | 200 ms |
-| Preview FAB — first draft ready | Scale pulse (1→1.15→1, spring); `accent` border glow (box-shadow fade-in 300ms, hold 500ms, fade-out 300ms) | 1100 ms total |
-| Preview FAB — badge dot appear | Fade-in `opacity: 0→1` | 150 ms |
+| Preview toggle — first draft ready | Badge/update signal appears on the Preview option | 150 ms |
 
 **`prefers-reduced-motion`**
 
@@ -556,7 +558,7 @@ Apply this globally. Sheet open/close should still function — just without ani
 - Use `env(safe-area-inset-*)` CSS variables for all edge-pinned elements
 - Sticky bottom bars (status strip, CTA buttons): add `pb-[env(safe-area-inset-bottom)]`
 - Top header: add `pt-[env(safe-area-inset-top)]` on standalone/PWA mode
-- Floating action buttons (Preview FAB): position accounts for bottom safe area
+- The mobile workspace toggle stays within the top app frame, outside the scrollable thread
 - Bottom sheets: drag handle and content respect bottom inset
 - Test on: iPhone with notch, iPhone with Dynamic Island, Android with gesture nav bar
 
@@ -644,13 +646,13 @@ _Last updated: 2026-03-15. See `docs/03-ux/user-flows.md` for flow-level decisio
 
 ## Appendix: Mobile Implementation Danger Zones
 
-### MDZ-1: Do not treat the preview sheet as a separate page
+### MDZ-1: Do not treat the mobile preview as a separate route
 
-The preview bottom sheet is part of the draft workspace, not a separate route. Do not use `router.push` to open it. Use component state (`isPreviewOpen: boolean`). The sheet shares the same React context as the conversation panel — zone edits in the sheet must update the conversation state and vice versa.
+The mobile preview is part of the draft workspace, not a separate route. Do not use `router.push` to open it. Use local workspace state (`mobileView: "conversation" | "preview"`). The preview shares the same React context as the conversation panel — zone edits in preview must update the conversation state and vice versa.
 
 ### MDZ-2: Do not forget safe area insets
 
-Every fixed-position element at the bottom of the screen (input bar, sticky CTA, FAB, status strip, bottom sheet) must account for `env(safe-area-inset-bottom)`. On iPhone models with the home indicator, this adds ~34px. Without it, interactive elements are partially hidden behind the home indicator.
+Every fixed-position element at the bottom of the screen (input bar, sticky CTA, status strip) must account for `env(safe-area-inset-bottom)`. On iPhone models with the home indicator, this adds ~34px. Without it, interactive elements are partially hidden behind the home indicator.
 
 ### MDZ-3: Do not use 100vh on mobile
 
@@ -664,6 +666,6 @@ This entire document assumes mobile-first. All base styles target 375–430px vi
 
 Use `navigator.hardwareConcurrency` or a similar heuristic to detect low-end devices. On devices with ≤4 cores, reduce animation complexity: skip non-essential completion effects, reduce stagger animations to instant, and use `will-change: auto` instead of `will-change: transform`.
 
-### MDZ-6: Do not use pinch-to-zoom on the letter preview
+### MDZ-6: Do not let mobile preview and composer compete for space
 
-The letter preview in the bottom sheet should be scrollable and pageable, but NOT pinch-to-zoomable. Pinch-to-zoom on an A4 preview within a sheet creates a confusing nested-scroll situation. Instead, provide a "Full screen" button that opens the preview in a full-viewport overlay where pinch-to-zoom IS enabled.
+On mobile, preview and conversation are sibling workspace views. Do not float preview controls over the composer or nest preview interactions inside the input region. This causes layout collisions, unstable composer positioning, and poor thumb-zone behavior.

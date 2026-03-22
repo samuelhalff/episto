@@ -153,7 +153,10 @@
     "previewSheetHint": "Paper layout updates as your draft changes.",
     "previewReadyToast": "Your letter is ready to preview.",
     "closePreview": "Close preview",
-    "welcomeHint": "Start with a few notes and refine from there."
+    "welcomeHint": "Start with a few notes and refine from there.",
+    "scrollToBottom": "Scroll to bottom",
+    "showPreview": "Show preview",
+    "hidePreview": "Hide preview"
   },
   "review": {
     "title": "Review your letter",

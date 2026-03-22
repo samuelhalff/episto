@@ -113,7 +113,7 @@ export function InputBar({
     mode === "initial" && !hasMessages && !hasInput && dictationSupported;
 
   return (
-    <div className="border-t border-stone-200/80 bg-white px-3 pb-[env(safe-area-inset-bottom,8px)] pt-3 sm:px-4 sm:pt-4">
+    <div className="shrink-0 border-t border-stone-200/80 bg-white px-3 pb-[env(safe-area-inset-bottom,8px)] pt-3 sm:px-4 sm:pt-4">
       {(mode === "voice" || isRecording) && (
         <div className="space-y-3">
           {(interimText || (input && mode === "voice")) && (
@@ -161,6 +161,7 @@ export function InputBar({
                 type="button"
                 onClick={onSend}
                 disabled={isSending}
+                aria-label={t("sendMessage")}
                 className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition hover:bg-stone-800 disabled:opacity-40"
               >
                 <Send className="h-4 w-4" />
@@ -183,21 +184,26 @@ export function InputBar({
         <div className="flex items-end gap-2 rounded-[1.75rem] border border-stone-200 bg-white p-2 shadow-[0_10px_24px_rgba(15,23,42,0.06)]">
           <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-[1.2rem] bg-stone-50 p-1.5">
             {showPrimaryVoicePrompt ? (
-              <button
-                type="button"
-                onClick={onStartVoice}
-                className="group flex w-full items-center gap-3 rounded-[1.2rem] bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] px-3.5 py-3 text-left text-white transition hover:brightness-105"
-              >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/18">
+              <div className="flex items-center gap-3 rounded-[1.2rem] border border-amber-200 bg-amber-50 px-3 py-3">
+                <button
+                  type="button"
+                  onClick={onStartVoice}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] text-white shadow-[0_10px_25px_rgba(245,158,11,0.28)] transition hover:brightness-105"
+                >
                   <MicIcon className="h-5 w-5" />
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-semibold">{t("voicePrimary")}</span>
-                  <span className="block text-xs leading-4 text-white/75">
-                    {t("voicePrimaryHint")}
-                  </span>
-                </span>
-              </button>
+                </button>
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="truncate text-sm font-semibold text-stone-950">{t("voicePrimary")}</p>
+                  <p className="text-xs leading-4 text-stone-500">{t("voicePrimaryHint")}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSwitchToKeyboard}
+                  className="shrink-0 rounded-full bg-white px-3 py-2 text-xs font-medium text-stone-600 shadow-sm transition hover:bg-stone-100"
+                >
+                  {t("typePrimary")}
+                </button>
+              </div>
             ) : null}
 
             <div className="flex items-end gap-2">
@@ -244,6 +250,7 @@ export function InputBar({
             type="button"
             disabled={!hasInput || isSending}
             onClick={onSend}
+            aria-label={t("sendMessage")}
             className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-900 text-white transition hover:bg-stone-800 disabled:opacity-30"
           >
             <Send className="h-4 w-4" />

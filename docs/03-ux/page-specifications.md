@@ -617,7 +617,7 @@ This is the most critical UX window in the entire product. The user has committe
 | 2.5–4s | Quick-reply chips appear | `<QuickReplyChips>` stagger in (50ms per chip, 200ms fade) below the AI message. These are contextual — see "First Quick Replies" below. |
 | 4–8s | User responds (typical) | User either types, taps a chip, or uses voice. The moment user input is submitted, the AI typing indicator appears within 100ms. |
 | 8–15s | First field extraction | `<FieldExtractionCard>` appears in conversation, showing what the AI understood. Fields animate in as key-value pairs. |
-| 15–25s | **First draft appears in preview** | This is THE wow moment. See "First Draft Reveal" below. The letter preview transitions from blank template to populated content. On mobile, a subtle haptic pulse + the Preview FAB briefly glows `accent` to draw attention. |
+| 15–25s | **First draft appears in preview** | This is THE wow moment. See "First Draft Reveal" below. The letter preview transitions from blank template to populated content. On mobile, the Preview toggle gains a visible update signal so the user notices the letter is ready to inspect. |
 | 25–30s | Refinement begins | AI sends a follow-up: "I've drafted your letter. Take a look — anything you'd like to change?" Quick-reply chips: "Looks good", "Make it more formal", "Change the tone", "I want to edit the [section]" |
 
 **Perceived latency rule:** The user must never stare at an empty screen for more than 300ms. Skeletons appear instantly. The AI typing indicator must appear within 100ms of the user sending a message. If the AI response takes longer than 3 seconds, show a contextual "thinking" label below the typing indicator (e.g., "Drafting your letter…" or "Researching the right format…").
@@ -669,9 +669,9 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 6. System message in conversation: `"Your letter is ready to review"` — centered, `text-tertiary`.
 
 **Mobile:**
-1. The Preview FAB pulses once (scale 1→1.1→1, 300ms, spring easing) and briefly shows an `accent` border glow.
-2. A toast notification slides in: "Your letter is ready — tap to preview" with a `FileText` icon.
-3. Tapping the FAB or toast opens the preview sheet, where content is already fully populated (no stagger animation — the reveal should feel instant when the sheet opens).
+1. The Preview toggle receives a badge/update signal.
+2. The user switches from `Write` to `Preview` using the segmented workspace toggle directly below the step strip.
+3. The preview panel replaces the conversation panel, where content is already fully populated.
 
 **Anti-hallucination rule:** The first draft is explicitly labeled as a draft. The AI message accompanying it must say "I've drafted your letter" or "Here's a first draft" — never "Your letter is ready to send" or "Your letter is complete". The user must review and confirm before any payment or dispatch flow begins.
 
@@ -705,15 +705,16 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 ├────────────────────────┤
 │ <StepIndicator> strip  │
 ├────────────────────────┤
+│ [ Write | Preview ]    │
+├────────────────────────┤
 │                        │
-│  <ConversationPanel>   │
-│  (full screen)         │
+│  Active workspace view │
+│  (conversation or      │
+│   preview)             │
 │                        │
-│  [floating Preview btn]│ ← bottom-right FAB
 └────────────────────────┘
 ```
-Tapping "Preview" FAB: opens `<Sheet>` from bottom (80vh) containing `<LetterPreview>`.  
-Sheet can be dismissed by drag-down or close button.
+The workspace toggle swaps between `<ConversationPanel>` and `<LetterPreview>` in-place on mobile.
 
 ---
 
@@ -748,10 +749,34 @@ Scrollable, fills available height.
 - System message: centred, `text-tertiary text-xs` (e.g. "Letter type detected: Cancellation")
 - Field extraction card: `<FieldExtractionCard>` — shows extracted fields as key-value pairs with edit icons
 
+**Scroll model:**
+- The conversation thread is the only scroll container in the drafting workspace.
+- The header, step strip, preview trigger, and composer remain fixed in place while the thread is shorter than the viewport.
+- Auto-scroll-to-bottom is allowed only while the user is already near the bottom. Once the user scrolls upward, new AI output must not steal scroll position.
+- Do not make the entire workspace column scroll as one page. That creates dead movement and makes the composer feel unstable.
+
+**Empty-thread layout:**
+- The empty state sits in the lower half of the workspace, visually tied to the composer.
+- Do not vertically centre the empty state in the full viewport with a large dead zone above and below.
+- The empty state is a compact starter card: icon, short title, short prompt, one supporting hint. It introduces the task; it does not compete with the composer.
+
 **Input area** (pinned at bottom):
 - `<Textarea>` auto-resize, `min-h-[48px] max-h-[120px]`
 - Send button `<Button variant="ghost" size="icon">` with `Send` icon, or Enter key
 - Microphone button `<Button variant="ghost" size="icon">` with `Mic` icon
+
+**Composer rules:**
+- The composer is a single surface. Voice encouragement, textarea, mic affordance, and send action belong to one visual object.
+- On an empty draft, voice gets the strongest emphasis, but typing is immediately available in the same composer without a separate mode-selection screen.
+- Do not stack a separate dictation promo/banner above the textarea once the composer is visible. That reads like an ad bolted onto the chat input.
+- In typing mode, the mic remains clearly visible inside the composer as a secondary but prominent control. Dictation stays discoverable after the user chooses the keyboard.
+- Placeholder copy should explicitly support both paths, for example "Type or dictate…", so the voice path stays mentally available.
+
+**Preview separation:**
+- On mobile, preview is a separate top-level toggle beside "Write", not a floating control inside or around the composer.
+- The preview toggle must remain visually distinct from the composer and from the step indicator.
+- Preview access should not compete for space with dictation copy, the textarea, or the send button.
+- This separation is required to avoid turning the composer into a crowded toolbar.
 
 **`<QuickReplyChips>`:**
 - Row of `<Badge variant="outline">` chips with suggested responses
@@ -2092,7 +2117,7 @@ Every error state in this document has specific copy. An implementing LLM may be
 
 ### DZ-8: Do not build mobile as a compressed desktop
 
-Mobile is not "desktop but smaller." The mobile workspace (§6 mobile layout) has fundamentally different interaction patterns: conversation is full-screen, preview is a bottom sheet, navigation uses a floating FAB, status uses a compact bar. An implementing LLM may apply responsive breakpoints to the desktop layout and call it done. This produces a cramped, unusable mobile experience. Build mobile-first, then expand for desktop.
+Mobile is not "desktop but smaller." The mobile workspace (§6 mobile layout) has fundamentally different interaction patterns: conversation is full-screen, preview is a separate workspace toggle, and the composer stays pinned while only the thread scrolls. An implementing LLM may apply responsive breakpoints to the desktop layout and call it done. This produces a cramped, unusable mobile experience. Build mobile-first, then expand for desktop.
 
 ### DZ-9: Do not fake the typing indicator
 

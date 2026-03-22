@@ -2,7 +2,12 @@
 
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { FileText, ScrollText, X } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  LayoutPanelLeft,
+  ScrollText,
+} from "lucide-react";
 import { useDraft, useSession, useConversation } from "../../../../hooks/use-api.js";
 import { ConversationPanel } from "../../../../components/product/ConversationPanel.js";
 import { LetterPreview } from "../../../../components/product/LetterPreview.js";
@@ -21,9 +26,9 @@ export default function DraftWorkspacePage({
   const draft = useDraft(draftId);
   const conversation = useConversation(draftId);
 
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [mobileView, setMobileView] = useState<"conversation" | "preview">("conversation");
+  const [previewCollapsed, setPreviewCollapsed] = useState(false);
   const [hasUnseenPreviewChanges, setHasUnseenPreviewChanges] = useState(false);
-  const [showPreviewCue, setShowPreviewCue] = useState(false);
   const previewSignatureRef = useRef<string | null>(null);
 
   if (!session.session && !session.isLoading) {
@@ -41,7 +46,6 @@ export default function DraftWorkspacePage({
     );
   }
 
-  const hasPreviewSurface = Boolean(draft.data);
   const hasPopulatedPreview = Boolean(
     draft.data &&
       [
@@ -69,58 +73,70 @@ export default function DraftWorkspacePage({
     if (!previewSignature) {
       previewSignatureRef.current = null;
       setHasUnseenPreviewChanges(false);
-      setShowPreviewCue(false);
       return;
     }
 
     if (!previewSignatureRef.current) {
       previewSignatureRef.current = previewSignature;
-      if (hasPopulatedPreview) {
+      if (hasPopulatedPreview && mobileView !== "preview") {
         setHasUnseenPreviewChanges(true);
-        setShowPreviewCue(true);
       }
       return;
     }
 
     if (previewSignatureRef.current !== previewSignature) {
       previewSignatureRef.current = previewSignature;
-      if (isPreviewOpen) {
+      if (mobileView === "preview") {
         setHasUnseenPreviewChanges(false);
-        setShowPreviewCue(false);
         return;
       }
 
       setHasUnseenPreviewChanges(true);
-      if (hasPopulatedPreview) {
-        setShowPreviewCue(true);
-      }
     }
-  }, [hasPopulatedPreview, isPreviewOpen, previewSignature]);
+  }, [hasPopulatedPreview, mobileView, previewSignature]);
 
   useEffect(() => {
-    if (!isPreviewOpen) {
-      return;
+    if (mobileView === "preview") {
+      setHasUnseenPreviewChanges(false);
     }
+  }, [mobileView]);
 
-    setHasUnseenPreviewChanges(false);
-    setShowPreviewCue(false);
-
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsPreviewOpen(false);
-      }
-    }
-
-    window.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.body.style.overflow = previousOverflow;
-      window.removeEventListener("keydown", handleEscape);
-    };
-  }, [isPreviewOpen]);
+  const mobileViewToggle = (
+    <div className="border-b border-stone-200/80 bg-white px-3 py-2 lg:hidden">
+      <div className="grid grid-cols-2 gap-2 rounded-[1.25rem] border border-stone-200 bg-stone-50 p-1">
+        <button
+          type="button"
+          onClick={() => setMobileView("conversation")}
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-[1rem] px-3 py-2 text-sm font-semibold transition ${
+            mobileView === "conversation"
+              ? "bg-white text-stone-950 shadow-sm"
+              : "text-stone-500 hover:text-stone-700"
+          }`}
+        >
+          <LayoutPanelLeft className="h-4 w-4" />
+          {t("workspaceTab")}
+        </button>
+        <button
+          type="button"
+          onClick={() => setMobileView("preview")}
+          aria-label={t("preview")}
+          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-[1rem] px-3 py-2 text-sm font-semibold transition ${
+            mobileView === "preview"
+              ? "bg-white text-stone-950 shadow-sm"
+              : "text-stone-500 hover:text-stone-700"
+          }`}
+        >
+          <span className="relative inline-flex h-5 w-5 items-center justify-center">
+            <ScrollText className="h-4 w-4" />
+            {hasUnseenPreviewChanges ? (
+              <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-amber-500" />
+            ) : null}
+          </span>
+          {t("preview")}
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex h-[100dvh] flex-col bg-white">
@@ -130,114 +146,55 @@ export default function DraftWorkspacePage({
         title={t("title")}
         statusLabel={t("saved")}
       />
+      {mobileViewToggle}
 
-      {/* Desktop: side-by-side panels */}
       <div className="hidden min-h-0 flex-1 lg:flex">
-        <div className="flex w-[42%] min-w-0 flex-col border-r border-stone-200/80">
+        <div
+          className={`flex ${previewCollapsed ? "flex-1" : "w-[58%]"} min-w-0 flex-col border-r border-stone-200/80`}
+        >
           <ConversationPanel
             messages={conversation.messages}
             draftId={draftId}
             isLoading={conversation.isSending}
           />
         </div>
-        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-6">
-          <LetterPreview draft={draft.data} />
-        </div>
+        {!previewCollapsed ? (
+          <div className="flex min-w-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-6">
+            <LetterPreview draft={draft.data} />
+          </div>
+        ) : null}
+        <button
+          type="button"
+          onClick={() => setPreviewCollapsed((collapsed) => !collapsed)}
+          aria-label={previewCollapsed ? t("showPreview") : t("hidePreview")}
+          className="flex w-8 shrink-0 items-center justify-center border-l border-stone-200/80 bg-stone-50 text-stone-400 transition hover:bg-stone-100 hover:text-stone-600"
+        >
+          {previewCollapsed ? (
+            <ChevronLeft className="h-4 w-4" />
+          ) : (
+            <ChevronRight className="h-4 w-4" />
+          )}
+        </button>
       </div>
 
-      {/* Mobile/Tablet: conversation first, preview stays one tap away */}
       <div className="flex min-h-0 flex-1 flex-col lg:hidden">
-        <ConversationPanel
-          messages={conversation.messages}
-          draftId={draftId}
-          isLoading={conversation.isSending}
-        />
-      </div>
-
-      {showPreviewCue && hasPopulatedPreview ? (
-        <button
-          type="button"
-          onClick={() => setIsPreviewOpen(true)}
-          className="fixed inset-x-4 top-[calc(env(safe-area-inset-top)+6.25rem)] z-30 rounded-[1.35rem] border border-amber-200 bg-white/95 px-4 py-3 text-left shadow-[0_18px_44px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden"
+        <div
+          className={`${mobileView === "conversation" ? "flex" : "hidden"} min-h-0 flex-1 flex-col`}
         >
-          <div className="flex items-center gap-3">
-            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
-              <FileText className="h-5 w-5" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-stone-950">{t("previewReadyToast")}</p>
-              <p className="text-xs text-stone-500">{t("previewSheetHint")}</p>
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-[0.16em] text-stone-500">
-              {t("preview")}
-            </span>
-          </div>
-        </button>
-      ) : null}
-
-      {hasPreviewSurface ? (
-        <button
-          type="button"
-          onClick={() => setIsPreviewOpen(true)}
-          aria-label={t("preview")}
-          className={`fixed right-4 z-30 inline-flex items-center justify-center gap-2 border text-sm font-semibold shadow-[0_18px_44px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 lg:hidden ${
-            hasPopulatedPreview
-              ? "bottom-[calc(env(safe-area-inset-bottom)+8.5rem)] min-h-12 rounded-full px-4 py-3"
-              : "bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] h-12 w-12 rounded-full"
-          } ${
-            hasUnseenPreviewChanges
-              ? "border-amber-200 bg-stone-950 text-white"
-              : "border-stone-200 bg-white text-stone-900"
-          }`}
-        >
-          <span
-            className={`relative inline-flex h-9 w-9 items-center justify-center rounded-full ${
-              hasUnseenPreviewChanges ? "bg-white/12 text-white" : "bg-stone-100 text-stone-700"
-            }`}
-          >
-            <ScrollText className="h-4 w-4" />
-            {hasUnseenPreviewChanges ? (
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-amber-300" />
-            ) : null}
-          </span>
-          {hasPopulatedPreview ? <span>{t("preview")}</span> : null}
-        </button>
-      ) : null}
-
-      {isPreviewOpen ? (
-        <div className="fixed inset-0 z-40 lg:hidden" aria-modal="true" role="dialog">
-          <button
-            type="button"
-            aria-label={t("closePreview")}
-            onClick={() => setIsPreviewOpen(false)}
-            className="absolute inset-0 bg-stone-950/45"
+          <ConversationPanel
+            messages={conversation.messages}
+            draftId={draftId}
+            isLoading={conversation.isSending}
           />
-
-          <div className="absolute inset-x-0 bottom-0 max-h-[88dvh] rounded-t-[2rem] border-t border-stone-200 bg-stone-50 shadow-[0_-24px_80px_rgba(15,23,42,0.24)]">
-            <div className="mx-auto mt-3 h-1.5 w-14 rounded-full bg-stone-300" />
-            <div className="flex items-center justify-between gap-3 px-4 pb-3 pt-4">
-              <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
-                  {t("preview")}
-                </p>
-                <p className="mt-1 text-sm text-stone-500">{t("previewSheetHint")}</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsPreviewOpen(false)}
-                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-white text-stone-600 transition hover:bg-stone-100"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">{t("closePreview")}</span>
-              </button>
-            </div>
-
-            <div className="max-h-[calc(88dvh-5.5rem)] overflow-y-auto px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-              <LetterPreview draft={draft.data} />
-            </div>
+        </div>
+        <div
+          className={`${mobileView === "preview" ? "flex" : "hidden"} min-h-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-4`}
+        >
+          <div className="pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+            <LetterPreview draft={draft.data} />
           </div>
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }

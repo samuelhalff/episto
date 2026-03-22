@@ -15,6 +15,27 @@ export default tseslint.config(
     },
   },
   {
+    files: ["frontend/public/sw.js"],
+    languageOptions: {
+      globals: {
+        caches: "readonly",
+        self: "readonly",
+      },
+    },
+  },
+  {
+    files: ["screenshot.mjs"],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        document: "readonly",
+        HTMLElement: "readonly",
+        setTimeout: "readonly",
+        window: "readonly",
+      },
+    },
+  },
+  {
     ignores: [
       "**/node_modules/",
       "**/dist/",
