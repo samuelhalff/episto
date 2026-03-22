@@ -4,7 +4,6 @@ import { Link } from "../../i18n/navigation.js";
 import {
   ArrowRight,
   Building2,
-  CheckCircle2,
   FileWarning,
   Home,
   PenLine,
@@ -196,33 +195,16 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Pricing */}
-        <section className="bg-stone-50/50 px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
-          <div className="mx-auto max-w-2xl text-center">
-            <div className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 sm:px-4 sm:py-2 sm:text-xs">
-              <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              {t("pricingTitle")}
-            </div>
-            <p className="mt-5 text-4xl font-semibold tracking-[-0.05em] text-stone-950 sm:mt-6 sm:text-5xl md:text-6xl">
-              {t("pricingFrom")}
-            </p>
-            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-stone-500 sm:mt-4 sm:text-base">
-              {t("pricingNotes")}
-            </p>
-            <Link
-              href="/draft/new"
-              className="cta-sheen mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-7 py-4 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.20)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:mt-10 sm:text-base"
-            >
-              {t("heroCta")}
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </section>
-
         {/* Final CTA */}
         <section className="px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
           <div className="mx-auto max-w-7xl overflow-hidden rounded-2xl bg-stone-950 px-6 py-10 text-center text-white sm:rounded-3xl sm:px-10 md:px-16 md:py-16">
-            <h2 className="mx-auto max-w-3xl text-2xl font-semibold tracking-[-0.05em] sm:text-4xl md:text-5xl lg:text-6xl">
+            <p className="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-6xl">
+              {t("pricingFrom")}
+            </p>
+            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/60 sm:mt-4 sm:text-base">
+              {t("pricingNotes")}
+            </p>
+            <h2 className="mx-auto mt-8 max-w-3xl text-2xl font-semibold tracking-[-0.05em] sm:mt-10 sm:text-4xl md:text-5xl">
               {t("ctaTitle")}
             </h2>
             <div className="mt-8 sm:mt-10">

@@ -150,6 +150,8 @@
     "workspaceTab": "Schreiben",
     "previewHint": "Hier sehen Sie die finale Briefansicht, während Ihr Entwurf Form annimmt.",
     "previewSheetHint": "Das Briefblatt aktualisiert sich mit Ihrem Entwurf.",
+    "previewReadyToast": "Ihr Brief ist zur Vorschau bereit.",
+    "closePreview": "Vorschau schliessen",
     "welcomeHint": "Starten Sie mit ein paar Stichworten und verfeinern Sie danach."
   },
   "review": {

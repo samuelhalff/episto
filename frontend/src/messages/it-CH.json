@@ -150,6 +150,8 @@
     "workspaceTab": "Scrivi",
     "previewHint": "Qui vede l’anteprima finale della lettera mentre la bozza prende forma.",
     "previewSheetHint": "L’impaginazione si aggiorna insieme alla bozza.",
+    "previewReadyToast": "La lettera è pronta per l’anteprima.",
+    "closePreview": "Chiudi anteprima",
     "welcomeHint": "Iniziate con qualche punto e rifinite poi il testo."
   },
   "review": {

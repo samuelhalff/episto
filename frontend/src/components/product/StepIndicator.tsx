@@ -11,15 +11,18 @@ const STEP_SUFFIXES = ["", "/review", "/checkout", "/confirmation"] as const;
 export function StepIndicator({
   currentStep,
   draftId,
+  compact = false,
 }: {
   currentStep: number;
   draftId: string;
+  compact?: boolean;
 }) {
   const t = useTranslations("draft");
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const activeStep = STEPS[currentStep] ?? STEPS[0];
+  const progressPercent = ((currentStep + 1) / STEPS.length) * 100;
 
   useEffect(() => {
     if (!isOpen) {
@@ -51,33 +54,96 @@ export function StepIndicator({
     return `/draft/${draftId}${STEP_SUFFIXES[index]}`;
   }
 
-  return (
-    <div className="relative w-full max-w-full sm:max-w-md" ref={menuRef}>
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={isOpen}
-        aria-label={t("stepMenuLabel")}
-        onClick={() => setIsOpen((open) => !open)}
-        className="flex w-full items-center justify-between gap-3 rounded-[1.4rem] border border-stone-200/90 bg-white px-3.5 py-3 text-left shadow-[0_12px_30px_rgba(15,23,42,0.06)] transition hover:border-stone-300 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)] sm:px-4"
-      >
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-white">
-            {currentStep + 1}
-          </span>
-          <div className="min-w-0">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-stone-400 sm:text-[11px]">
-              {t("stepProgress", { current: currentStep + 1, total: STEPS.length })}
-            </p>
-            <p className="truncate text-sm font-semibold text-stone-950 sm:text-base">
-              {t(activeStep)}
+  function navigateToStep(index: number) {
+    setIsOpen(false);
+    router.push(stepHref(index));
+  }
+
+  const desktopRail = (
+    <div className="hidden w-full grid-cols-4 gap-2 sm:grid">
+      {STEPS.map((key, index) => {
+        const isCurrent = index === currentStep;
+        const isComplete = index < currentStep;
+        const isAvailable = index <= currentStep;
+
+        return (
+          <button
+            key={key}
+            type="button"
+            disabled={!isAvailable}
+            onClick={() => navigateToStep(index)}
+            className={`flex min-w-0 items-center gap-3 rounded-[1.35rem] border px-3 py-3 text-left transition ${
+              isAvailable
+                ? "border-stone-200 bg-white hover:border-stone-300 hover:bg-stone-50"
+                : "cursor-not-allowed border-stone-200/70 bg-stone-50/80 opacity-65"
+            } ${isCurrent ? "border-amber-300 bg-amber-50/70" : ""}`}
+          >
+            <span
+              className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold ${
+                isCurrent
+                  ? "bg-stone-950 text-white"
+                  : isComplete
+                    ? "bg-emerald-100 text-emerald-700"
+                    : "bg-stone-100 text-stone-400"
+              }`}
+            >
+              {isComplete ? <Check className="h-4 w-4" /> : index + 1}
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-stone-950">{t(key)}</p>
+              <p className="text-[11px] uppercase tracking-[0.18em] text-stone-400">
+                {t("stepProgress", { current: index + 1, total: STEPS.length })}
+              </p>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  const mobileStrip = (
+    <div className="sm:hidden">
+      <div className="flex items-center gap-3 rounded-[1.35rem] border border-stone-200 bg-white px-3 py-2.5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <p className="truncate text-sm font-semibold text-stone-950">{t(activeStep)}</p>
+            <p className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
+              {currentStep + 1}/{STEPS.length}
             </p>
           </div>
+          <div className="h-1.5 rounded-full bg-stone-100">
+            <div
+              className="h-full rounded-full bg-stone-950 transition-[width]"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+          <div className="mt-2 flex items-center gap-1.5">
+            {STEPS.map((key, index) => (
+              <span
+                key={key}
+                className={`h-2 w-2 rounded-full transition ${
+                  index < currentStep
+                    ? "bg-emerald-500"
+                    : index === currentStep
+                      ? "bg-stone-950"
+                      : "bg-stone-200"
+                }`}
+              />
+            ))}
+          </div>
         </div>
-        <ChevronDown
-          className={`h-4 w-4 shrink-0 text-stone-500 transition ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
+
+        <button
+          type="button"
+          aria-haspopup="menu"
+          aria-expanded={isOpen}
+          aria-label={t("stepMenuLabel")}
+          onClick={() => setIsOpen((open) => !open)}
+          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-600 transition hover:border-stone-300 hover:bg-stone-100"
+        >
+          <ChevronDown className={`h-4 w-4 transition ${isOpen ? "rotate-180" : ""}`} />
+        </button>
+      </div>
 
       {isOpen ? (
         <div
@@ -95,10 +161,7 @@ export function StepIndicator({
                 type="button"
                 role="menuitem"
                 disabled={!isAvailable}
-                onClick={() => {
-                  setIsOpen(false);
-                  router.push(stepHref(index));
-                }}
+                onClick={() => navigateToStep(index)}
                 className={`flex w-full items-center justify-between gap-3 rounded-[1.15rem] px-3 py-3 text-left transition ${
                   isAvailable ? "hover:bg-stone-50" : "cursor-not-allowed opacity-55"
                 } ${isCurrent ? "bg-amber-50/80" : ""}`}
@@ -123,7 +186,7 @@ export function StepIndicator({
                   </div>
                 </div>
                 {!isAvailable ? (
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400 sm:text-xs">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400">
                     {t("stepLocked")}
                   </span>
                 ) : null}
@@ -132,6 +195,12 @@ export function StepIndicator({
           })}
         </div>
       ) : null}
+    </div>
+  );
+
+  return (
+    <div className="relative w-full" ref={menuRef}>
+      {compact ? mobileStrip : desktopRail}
     </div>
   );
 }
