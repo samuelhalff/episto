@@ -6,7 +6,6 @@ const LOCALES = ["de-CH", "fr-CH", "it-CH", "en-CH"] as const;
 const STATIC_ROUTES = [
   "",
   "/pricing",
-  "/how-it-works",
   "/help",
   "/privacy",
   "/terms",

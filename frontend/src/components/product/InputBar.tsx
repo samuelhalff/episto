@@ -108,91 +108,12 @@ export function InputBar({
     setTimeout(() => textareaRef.current?.focus(), 50);
   }
 
-  const showInitialPicker = mode === "initial" && !hasMessages;
-  const showTextarea = (mode === "keyboard" && !isRecording) || (mode === "initial" && hasMessages);
-  const showVoiceRail = showTextarea || (mode === "voice" && !isRecording);
+  const showTextarea = mode !== "voice" && !isRecording;
+  const showPrimaryVoicePrompt =
+    mode === "initial" && !hasMessages && !hasInput && dictationSupported;
 
   return (
     <div className="border-t border-stone-200/80 bg-white px-3 pb-[env(safe-area-inset-bottom,8px)] pt-3 sm:px-4 sm:pt-4">
-      {showInitialPicker && (
-        <div className="space-y-3">
-          <button
-            type="button"
-            onClick={() => {
-              if (dictationSupported) {
-                onStartVoice();
-              }
-            }}
-            disabled={!dictationSupported}
-            aria-disabled={!dictationSupported}
-            className={`group flex w-full items-center justify-center gap-3 rounded-2xl px-5 py-4 text-left shadow-[0_16px_40px_rgba(245,158,11,0.16)] transition sm:gap-4 sm:py-5 ${
-              dictationSupported
-                ? "bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] text-white hover:brightness-105"
-                : "cursor-not-allowed border border-stone-200 bg-stone-100 text-stone-500 shadow-none"
-            }`}
-          >
-            <span
-              className={`flex h-12 w-12 items-center justify-center rounded-full sm:h-14 sm:w-14 ${
-                dictationSupported ? "bg-white/20" : "bg-white"
-              }`}
-            >
-              <MicIcon className="h-6 w-6 sm:h-7 sm:w-7" />
-            </span>
-            <span className="flex-1 text-left">
-              <span className="block text-base font-bold sm:text-lg">{t("voicePrimary")}</span>
-              <span
-                className={`block text-xs leading-4 sm:text-sm ${
-                  dictationSupported ? "text-white/70" : "text-stone-500"
-                }`}
-              >
-                {dictationSupported ? t("voicePrimaryHint") : t("dictationError")}
-              </span>
-            </span>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleSwitchToKeyboard}
-            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200 bg-white px-4 py-3 text-stone-600 transition hover:border-stone-300 hover:bg-stone-50"
-          >
-            <Keyboard className="h-4 w-4 text-stone-400" />
-            <span className="text-sm font-medium">
-              {t("typePrimary")}
-            </span>
-          </button>
-        </div>
-      )}
-
-      {showVoiceRail ? (
-        <div className="mb-2.5 flex items-center justify-between gap-2 rounded-2xl border border-stone-200 bg-stone-50 px-3 py-2.5">
-          {dictationSupported ? (
-            <button
-              type="button"
-              onClick={onSwitchToVoice}
-              aria-label={t("startDictation")}
-              aria-pressed={mode === "voice"}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-stone-900 shadow-sm transition hover:bg-stone-100"
-            >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-700">
-                <MicIcon className="h-4 w-4" />
-              </span>
-              <span>{t("switchToVoice")}</span>
-            </button>
-          ) : (
-            <div className="inline-flex min-h-11 items-center gap-2 rounded-full bg-white px-3 py-2 text-sm font-semibold text-stone-500 shadow-sm">
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-stone-100">
-                <MicIcon className="h-4 w-4" />
-              </span>
-              <span>{t("voicePrimary")}</span>
-            </div>
-          )}
-
-          <p className="max-w-[11rem] text-right text-[11px] leading-4 text-stone-500">
-            {dictationSupported ? t("voicePrimaryHint") : t("dictationError")}
-          </p>
-        </div>
-      ) : null}
-
       {(mode === "voice" || isRecording) && (
         <div className="space-y-3">
           {(interimText || (input && mode === "voice")) && (
@@ -259,28 +180,66 @@ export function InputBar({
       )}
 
       {showTextarea && (
-        <div className="flex items-end gap-2 rounded-2xl border border-stone-200 bg-stone-50 p-1.5 sm:p-2">
-          <textarea
-            ref={textareaRef}
-            className="min-h-[44px] max-h-[120px] flex-1 resize-none overflow-y-auto rounded-xl border-0 bg-transparent px-3 py-2.5 text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0"
-            rows={1}
-            placeholder={t("messagePlaceholder")}
-            value={input}
-            onChange={(e) => onInputChange(e.target.value)}
-            onKeyDown={handleKeyDown}
-            enterKeyHint="send"
-          />
-          {dictationSupported && !isRecording && (
-            <button
-              type="button"
-              onClick={onSwitchToVoice}
-              aria-label={t("startDictation")}
-              aria-pressed={mode === "voice"}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-stone-400 transition hover:bg-stone-200 hover:text-stone-600"
-            >
-              <MicIcon className="h-5 w-5" />
-            </button>
-          )}
+        <div className="flex items-end gap-2 rounded-[1.75rem] border border-stone-200 bg-white p-2 shadow-[0_10px_24px_rgba(15,23,42,0.06)]">
+          <div className="flex min-w-0 flex-1 flex-col gap-2 rounded-[1.2rem] bg-stone-50 p-1.5">
+            {showPrimaryVoicePrompt ? (
+              <button
+                type="button"
+                onClick={onStartVoice}
+                className="group flex w-full items-center gap-3 rounded-[1.2rem] bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] px-3.5 py-3 text-left text-white transition hover:brightness-105"
+              >
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/18">
+                  <MicIcon className="h-5 w-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-sm font-semibold">{t("voicePrimary")}</span>
+                  <span className="block text-xs leading-4 text-white/75">
+                    {t("voicePrimaryHint")}
+                  </span>
+                </span>
+              </button>
+            ) : null}
+
+            <div className="flex items-end gap-2">
+              {!isRecording && !showPrimaryVoicePrompt ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (dictationSupported) {
+                      onSwitchToVoice();
+                    }
+                  }}
+                  disabled={!dictationSupported}
+                  aria-disabled={!dictationSupported}
+                  aria-label={t("startDictation")}
+                  aria-pressed={false}
+                  className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border transition ${
+                    dictationSupported
+                      ? "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
+                      : "cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400"
+                  }`}
+                >
+                  <MicIcon className="h-5 w-5" />
+                </button>
+              ) : null}
+
+              <textarea
+                ref={textareaRef}
+                className="min-h-[44px] max-h-[120px] flex-1 resize-none overflow-y-auto rounded-[1.1rem] border-0 bg-transparent px-2 py-2.5 text-base text-stone-900 placeholder:text-stone-400 focus:outline-none focus:ring-0"
+                rows={1}
+                placeholder={t("messagePlaceholder")}
+                value={input}
+                onChange={(e) => onInputChange(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onFocus={() => {
+                  if (mode === "initial") {
+                    handleSwitchToKeyboard();
+                  }
+                }}
+                enterKeyHint="send"
+              />
+            </div>
+          </div>
           <button
             type="button"
             disabled={!hasInput || isSending}

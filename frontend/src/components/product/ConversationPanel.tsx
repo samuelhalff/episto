@@ -24,7 +24,8 @@ export function ConversationPanel({
   const [input, setInput] = useState("");
   const [mode, setMode] = useState<InputMode>("initial");
 
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const stickToBottomRef = useRef(true);
   const conversation = useConversation(draftId);
 
   const {
@@ -39,9 +40,15 @@ export function ConversationPanel({
   } = useDictation();
 
   useEffect(() => {
-    if (conversation.isStreaming || conversation.messages.length > 0) {
-      bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    const thread = threadRef.current;
+    if (!thread || !stickToBottomRef.current) {
+      return;
     }
+
+    thread.scrollTo({
+      top: thread.scrollHeight,
+      behavior: conversation.isStreaming ? "auto" : "smooth",
+    });
   }, [
     conversation.isStreaming,
     conversation.streamingText,
@@ -63,8 +70,19 @@ export function ConversationPanel({
   function handleSend() {
     const content = input.trim();
     if (!content) return;
+    stickToBottomRef.current = true;
     setInput("");
     void conversation.sendMessage(content);
+  }
+
+  function handleThreadScroll() {
+    const thread = threadRef.current;
+    if (!thread) {
+      return;
+    }
+
+    const distanceFromBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight;
+    stickToBottomRef.current = distanceFromBottom < 80;
   }
 
   const allMessages = conversation.messages;
@@ -74,10 +92,14 @@ export function ConversationPanel({
     allMessages.length === 0 && !showStreaming && !showSpinner && !isLoading;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      {/* Scrollable message area — flex-col-reverse anchors scroll to bottom */}
-      <div className="flex flex-1 flex-col-reverse overflow-y-auto overscroll-contain">
-        <div className="px-4 py-4 sm:px-5">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      {/* Only the thread scrolls. Composer stays locked to the viewport. */}
+      <div
+        ref={threadRef}
+        onScroll={handleThreadScroll}
+        className="flex-1 overflow-y-auto overscroll-contain"
+      >
+        <div className="flex min-h-full flex-col justify-end px-4 py-4 sm:px-5">
           {isLoading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
@@ -133,8 +155,6 @@ export function ConversationPanel({
                   </div>
                 </div>
               )}
-
-              <div ref={bottomRef} />
             </>
           )}
         </div>

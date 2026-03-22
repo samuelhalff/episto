@@ -179,7 +179,12 @@ export default function DraftWorkspacePage({
         <button
           type="button"
           onClick={() => setIsPreviewOpen(true)}
-          className={`fixed bottom-[calc(env(safe-area-inset-bottom)+5.75rem)] right-4 z-30 inline-flex min-h-12 items-center gap-2 rounded-full border px-4 py-3 text-sm font-semibold shadow-[0_18px_44px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 lg:hidden ${
+          aria-label={t("preview")}
+          className={`fixed right-4 z-30 inline-flex items-center justify-center gap-2 border text-sm font-semibold shadow-[0_18px_44px_rgba(15,23,42,0.16)] transition hover:-translate-y-0.5 lg:hidden ${
+            hasPopulatedPreview
+              ? "bottom-[calc(env(safe-area-inset-bottom)+8.5rem)] min-h-12 rounded-full px-4 py-3"
+              : "bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] h-12 w-12 rounded-full"
+          } ${
             hasUnseenPreviewChanges
               ? "border-amber-200 bg-stone-950 text-white"
               : "border-stone-200 bg-white text-stone-900"
@@ -195,7 +200,7 @@ export default function DraftWorkspacePage({
               <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-amber-300" />
             ) : null}
           </span>
-          <span>{t("preview")}</span>
+          {hasPopulatedPreview ? <span>{t("preview")}</span> : null}
         </button>
       ) : null}
 

@@ -25,7 +25,7 @@ export function FlowHeader({
   return (
     <header className="sticky top-0 z-40 border-b border-stone-200 bg-white">
       <div className="mx-auto max-w-6xl px-3 sm:px-6">
-        <div className="flex h-14 items-center justify-between gap-3 sm:hidden">
+        <div className="flex h-12 items-center justify-between gap-3 sm:hidden">
           <Link
             href="/"
             className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold tracking-[-0.02em] text-stone-950"
@@ -39,7 +39,7 @@ export function FlowHeader({
           <div className="flex shrink-0 items-center gap-2">{actions}</div>
         </div>
 
-        <div className="pb-2 sm:hidden">
+        <div className="pb-1.5 sm:hidden">
           <StepIndicator currentStep={currentStep} draftId={draftId} compact />
         </div>
 

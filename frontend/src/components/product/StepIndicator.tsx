@@ -22,7 +22,6 @@ export function StepIndicator({
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const activeStep = STEPS[currentStep] ?? STEPS[0];
-  const progressPercent = ((currentStep + 1) / STEPS.length) * 100;
 
   useEffect(() => {
     if (!isOpen) {
@@ -103,25 +102,19 @@ export function StepIndicator({
 
   const mobileStrip = (
     <div className="sm:hidden">
-      <div className="flex items-center gap-3 rounded-[1.35rem] border border-stone-200 bg-white px-3 py-2.5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+      <div className="flex items-center gap-2.5 rounded-[1.15rem] border border-stone-200 bg-white px-3 py-2 shadow-[0_8px_24px_rgba(15,23,42,0.05)]">
         <div className="min-w-0 flex-1">
-          <div className="mb-2 flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-3">
             <p className="truncate text-sm font-semibold text-stone-950">{t(activeStep)}</p>
             <p className="shrink-0 text-[11px] font-semibold uppercase tracking-[0.2em] text-stone-400">
               {currentStep + 1}/{STEPS.length}
             </p>
           </div>
-          <div className="h-1.5 rounded-full bg-stone-100">
-            <div
-              className="h-full rounded-full bg-stone-950 transition-[width]"
-              style={{ width: `${progressPercent}%` }}
-            />
-          </div>
-          <div className="mt-2 flex items-center gap-1.5">
+          <div className="mt-1.5 flex items-center gap-1.5">
             {STEPS.map((key, index) => (
               <span
                 key={key}
-                className={`h-2 w-2 rounded-full transition ${
+                className={`h-1.5 w-1.5 rounded-full transition ${
                   index < currentStep
                     ? "bg-emerald-500"
                     : index === currentStep
@@ -139,7 +132,7 @@ export function StepIndicator({
           aria-expanded={isOpen}
           aria-label={t("stepMenuLabel")}
           onClick={() => setIsOpen((open) => !open)}
-          className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-600 transition hover:border-stone-300 hover:bg-stone-100"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-600 transition hover:border-stone-300 hover:bg-stone-100"
         >
           <ChevronDown className={`h-4 w-4 transition ${isOpen ? "rotate-180" : ""}`} />
         </button>

@@ -1,8 +1,8 @@
 import { useTranslations } from "next-intl";
-import { HelpCircle, Mail } from "lucide-react";
+import { ArrowRight, HelpCircle, Mail } from "lucide-react";
 import { Header } from "../../../components/marketing/Header.js";
 import { Footer } from "../../../components/marketing/Footer.js";
-import { MarketingHero } from "../../../components/marketing/MarketingHero.js";
+import { Link } from "../../../i18n/navigation.js";
 
 export default function HelpPage() {
   const t = useTranslations("help");
@@ -15,55 +15,63 @@ export default function HelpPage() {
     { question: t("faq4q"), answer: t("faq4a") },
     { question: t("faq5q"), answer: t("faq5a") },
     { question: t("faq6q"), answer: t("faq6a") },
+    { question: t("faq7q"), answer: t("faq7a") },
+    { question: t("faq8q"), answer: t("faq8a") },
   ];
 
   return (
     <>
       <Header />
       <main id="main-content">
-        <MarketingHero
-          eyebrow={t("contactTitle")}
-          title={t("title")}
-          subtitle={t("subtitle")}
-          primaryAction={{ href: "/draft/new", label: tm("ctaButton") }}
-          secondaryAction={{ href: "/how-it-works", label: tm("nav.howItWorks") }}
-          panel={
-            <div>
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-[1.25rem] bg-amber-50">
-                <Mail className="h-6 w-6 text-amber-600" />
-              </div>
-              <h2 className="mt-5 text-2xl font-semibold tracking-[-0.04em] text-stone-950 md:text-3xl">
-                {t("contactTitle")}
-              </h2>
-              <p className="mt-4 text-base leading-7 text-stone-600">{t("contactDescription")}</p>
-              <div className="mt-6 rounded-[1.5rem] border border-stone-200/80 bg-white/90 px-5 py-4 shadow-sm">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
-                  {t("contactEmailLabel")}
-                </p>
-                <a
-                  href={`mailto:${t("contactEmail")}`}
-                  className="mt-2 inline-block text-lg font-semibold text-amber-700 hover:underline"
-                >
-                  {t("contactEmail")}
-                </a>
-                <p className="mt-3 text-sm text-stone-500">{t("contactResponseTime")}</p>
-              </div>
-            </div>
-          }
-        />
+        {/* FAQ Section */}
+        <section className="px-4 pt-12 pb-10 sm:px-6 sm:pt-16 md:pt-20 md:pb-14">
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 sm:text-4xl md:text-5xl">
+              {t("faqTitle")}
+            </h1>
+            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-stone-500 sm:text-base">
+              {t("subtitle")}
+            </p>
+          </div>
+          <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:mt-12 md:grid-cols-2 md:gap-5">
+            {faqs.map((faq) => (
+              <FaqCard key={faq.question} question={faq.question} answer={faq.answer} />
+            ))}
+          </div>
+        </section>
 
-        <section className="px-6 pb-10 md:pb-14">
-          <div className="mx-auto max-w-7xl rounded-[2.5rem] border border-stone-200/80 bg-[linear-gradient(180deg,#fffaf2_0%,#ffffff_100%)] px-5 py-8 shadow-[0_24px_70px_rgba(120,53,15,0.08)] md:px-8 md:py-10">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
-                {t("faqTitle")}
-              </h2>
+        {/* Write a letter CTA */}
+        <section className="px-4 py-8 sm:px-6 sm:py-10 md:py-12">
+          <div className="mx-auto max-w-2xl text-center">
+            <Link
+              href="/draft/new"
+              className="cta-sheen inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-7 py-3.5 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.20)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:px-8 sm:py-4 sm:text-base"
+            >
+              {tm("ctaButton")}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </section>
+
+        {/* Contact — below FAQs */}
+        <section className="px-4 pb-12 sm:px-6 md:pb-16">
+          <div className="mx-auto max-w-2xl rounded-2xl border border-stone-200/80 bg-stone-50/50 p-6 text-center sm:rounded-3xl sm:p-8 md:p-10">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50">
+              <Mail className="h-6 w-6 text-amber-600" />
             </div>
-            <div className="mx-auto mt-10 grid max-w-6xl gap-5 md:grid-cols-2">
-              {faqs.map((faq) => (
-                <FaqCard key={faq.question} question={faq.question} answer={faq.answer} />
-              ))}
-            </div>
+            <h2 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-stone-950 sm:text-2xl">
+              {t("contactTitle")}
+            </h2>
+            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-stone-500 sm:text-base">
+              {t("contactDescription")}
+            </p>
+            <a
+              href={`mailto:${t("contactEmail")}`}
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-stone-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
+            >
+              {t("contactEmail")}
+            </a>
+            <p className="mt-3 text-xs text-stone-400">{t("contactResponseTime")}</p>
           </div>
         </section>
       </main>
@@ -80,14 +88,14 @@ function FaqCard({
   answer: string;
 }) {
   return (
-    <article className="rounded-[1.75rem] border border-stone-200/80 bg-white/95 p-5 shadow-sm">
+    <article className="rounded-2xl border border-stone-200/80 bg-white p-5 shadow-sm sm:rounded-3xl">
       <div className="flex gap-3">
         <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-50">
           <HelpCircle className="h-4 w-4 text-amber-600" />
         </div>
         <div>
           <h3 className="text-base font-semibold text-stone-950">{question}</h3>
-          <p className="mt-3 text-sm leading-7 text-stone-600">{answer}</p>
+          <p className="mt-2 text-sm leading-relaxed text-stone-600">{answer}</p>
         </div>
       </div>
     </article>

@@ -25,7 +25,7 @@ export default function PricingPage() {
           title={t("title")}
           subtitle={t("subtitle")}
           primaryAction={{ href: "/draft/new", label: t("cta") }}
-          secondaryAction={{ href: "/how-it-works", label: tm("nav.howItWorks") }}
+          secondaryAction={{ href: "/help", label: tm("nav.help") }}
           panel={
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700 shadow-sm">

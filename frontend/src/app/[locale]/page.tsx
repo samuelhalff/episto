@@ -122,10 +122,10 @@ export default function HomePage() {
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
-                  href="/how-it-works"
+                  href="/help"
                   className="inline-flex w-full items-center justify-center rounded-full border border-stone-300/70 bg-white/80 px-5 py-3.5 text-sm font-medium text-stone-700 shadow-[0_12px_30px_rgba(120,53,15,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950 sm:w-auto sm:px-7 sm:py-4 sm:text-base"
                 >
-                  {t("nav.howItWorks")}
+                  {t("faqCta")}
                 </Link>
               </div>
               <div className="mx-auto mt-10 max-w-xl sm:mt-14">
