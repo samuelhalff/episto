@@ -2,21 +2,32 @@
 
 import { useRef, useState, useEffect } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { ChevronDown, FileText, Loader2, Sparkles } from "lucide-react";
+import { Check, ChevronDown, Circle, FileText, Loader2, Sparkles } from "lucide-react";
 import { useConversation } from "../../hooks/use-api.js";
 import { useDictation } from "../../hooks/use-dictation.js";
 import type { ConversationMessage } from "@swiss-mail/shared";
 import { MessageRole } from "@swiss-mail/shared";
 import { InputBar, type InputMode } from "./InputBar.js";
 
+interface ZoneStatus {
+  sender: boolean;
+  recipient: boolean;
+  subject: boolean;
+  body: boolean;
+}
+
 export function ConversationPanel({
   messages: _externalMessages,
   draftId,
   isLoading,
+  zoneStatus,
+  onZoneChipClick,
 }: {
   messages: ConversationMessage[];
   draftId: string;
   isLoading: boolean;
+  zoneStatus?: ZoneStatus;
+  onZoneChipClick?: (zone: string) => void;
 }) {
   const t = useTranslations("draft");
   const locale = useLocale();
@@ -195,6 +206,35 @@ export function ConversationPanel({
         >
           <ChevronDown className="h-4 w-4" />
         </button>
+      )}
+
+      {zoneStatus && (
+        <div className="shrink-0 border-t border-stone-100 bg-stone-50/50 px-3 py-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {(["sender", "recipient", "subject", "body"] as const).map((zone) => {
+              const filled = zoneStatus[zone];
+              return (
+                <button
+                  key={zone}
+                  type="button"
+                  onClick={() => onZoneChipClick?.(zone)}
+                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium transition ${
+                    filled
+                      ? "bg-emerald-50 text-emerald-700"
+                      : "bg-stone-100 text-stone-500 hover:bg-amber-50 hover:text-amber-700"
+                  }`}
+                >
+                  {filled ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    <Circle className="h-3 w-3" />
+                  )}
+                  {t(`zone_${zone}`)}
+                </button>
+              );
+            })}
+          </div>
+        </div>
       )}
 
       {/* Pinned input area */}

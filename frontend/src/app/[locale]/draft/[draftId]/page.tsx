@@ -3,11 +3,20 @@
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight, LayoutPanelLeft, ScrollText } from "lucide-react";
-import { useDraft, useSession, useConversation } from "../../../../hooks/use-api.js";
+import {
+  useConversation,
+  useDraft,
+  useSession,
+  useUpdateDraft,
+} from "../../../../hooks/use-api.js";
 import { useVisualViewport } from "../../../../hooks/use-visual-viewport.js";
 import { ConversationPanel } from "../../../../components/product/ConversationPanel.js";
 import { LetterPreview } from "../../../../components/product/LetterPreview.js";
 import { FlowHeader } from "../../../../components/product/FlowHeader.js";
+import {
+  ZoneEditor,
+  type ZoneKind,
+} from "../../../../components/product/ZoneEditor.js";
 
 export default function DraftWorkspacePage({
   params,
@@ -21,11 +30,14 @@ export default function DraftWorkspacePage({
   const session = useSession();
   const draft = useDraft(draftId);
   const conversation = useConversation(draftId);
+  const updateDraft = useUpdateDraft(draftId);
   const viewportHeight = useVisualViewport();
 
   const [mobileView, setMobileView] = useState<"conversation" | "preview">("conversation");
   const [hasUnseenPreviewChanges, setHasUnseenPreviewChanges] = useState(false);
   const [previewCollapsed, setPreviewCollapsed] = useState(false);
+  const [activeZone, setActiveZone] = useState<ZoneKind | null>(null);
+  const [isMobileZoneEditor, setIsMobileZoneEditor] = useState(false);
   const previewSignatureRef = useRef<string | null>(null);
 
   if (!session.session && !session.isLoading) {
@@ -52,6 +64,12 @@ export default function DraftWorkspacePage({
         draft.data.body?.trim(),
       ].some(Boolean),
   );
+  const zoneStatus = {
+    sender: Boolean(draft.data?.senderProfileId),
+    recipient: Boolean(draft.data?.recipientProfileId),
+    subject: Boolean(draft.data?.subject?.trim()),
+    body: Boolean(draft.data?.body?.trim()),
+  };
   const previewSignature = useMemo(() => {
     if (!draft.data) {
       return null;
@@ -98,6 +116,33 @@ export default function DraftWorkspacePage({
     }
   }, [mobileView]);
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+    const updateEditorMode = () => setIsMobileZoneEditor(mediaQuery.matches);
+
+    updateEditorMode();
+    mediaQuery.addEventListener("change", updateEditorMode);
+    return () => mediaQuery.removeEventListener("change", updateEditorMode);
+  }, []);
+
+  function handleZoneClick(zone: ZoneKind | string) {
+    setActiveZone(zone as ZoneKind);
+  }
+
+  async function handleZoneSave(value: string | object) {
+    if (activeZone === "subject" && typeof value === "string") {
+      await updateDraft.mutateAsync({ subject: value });
+    } else if (activeZone === "body" && typeof value === "string") {
+      await updateDraft.mutateAsync({ body: value });
+    }
+
+    setActiveZone(null);
+  }
+
   const mobileViewToggle = (
     <div className="border-b border-stone-200/80 bg-white px-3 py-2 lg:hidden">
       <div className="grid grid-cols-2 gap-2 rounded-[1.25rem] border border-stone-200 bg-stone-50 p-1">
@@ -138,7 +183,7 @@ export default function DraftWorkspacePage({
   return (
     <div
       id="draft-workspace-root"
-      className="flex flex-col overflow-hidden bg-white"
+      className="relative flex flex-col overflow-hidden bg-white"
       style={{ height: viewportHeight ? `${viewportHeight}px` : "100dvh" }}
     >
       <FlowHeader
@@ -158,11 +203,17 @@ export default function DraftWorkspacePage({
             messages={conversation.messages}
             draftId={draftId}
             isLoading={conversation.isSending}
+            zoneStatus={zoneStatus}
+            onZoneChipClick={handleZoneClick}
           />
         </div>
         {!previewCollapsed && (
           <div className="flex min-w-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-6">
-            <LetterPreview draft={draft.data} />
+            <LetterPreview
+              draft={draft.data}
+              onZoneClick={handleZoneClick}
+              activeZone={activeZone}
+            />
           </div>
         )}
         <button
@@ -188,16 +239,46 @@ export default function DraftWorkspacePage({
             messages={conversation.messages}
             draftId={draftId}
             isLoading={conversation.isSending}
+            zoneStatus={zoneStatus}
+            onZoneChipClick={handleZoneClick}
           />
         </div>
         <div
           className={`${mobileView === "preview" ? "flex" : "hidden"} min-h-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-4`}
         >
           <div className="pb-[calc(env(safe-area-inset-bottom)+1rem)]">
-            <LetterPreview draft={draft.data} />
+            <LetterPreview
+              draft={draft.data}
+              onZoneClick={handleZoneClick}
+              activeZone={activeZone}
+            />
           </div>
         </div>
       </div>
+
+      {activeZone && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/20"
+            onClick={() => setActiveZone(null)}
+          />
+          <div className="fixed inset-x-0 bottom-0 z-50 lg:absolute lg:inset-auto lg:right-4 lg:top-20 lg:w-96">
+            <ZoneEditor
+              zone={activeZone}
+              initialValue={
+                activeZone === "subject"
+                  ? (draft.data?.subject ?? null)
+                  : activeZone === "body"
+                    ? (draft.data?.body ?? null)
+                    : null
+              }
+              onSave={handleZoneSave}
+              onCancel={() => setActiveZone(null)}
+              isMobile={isMobileZoneEditor}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 }

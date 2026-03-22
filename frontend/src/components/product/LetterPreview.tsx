@@ -2,7 +2,7 @@
 
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2 } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
 import type {
   DraftLetter,
   DocumentBlock,
@@ -11,8 +11,19 @@ import type {
   ListItem,
 } from "@swiss-mail/shared";
 import { extractAiDocumentMetadata } from "@swiss-mail/shared";
+import type { ZoneKind } from "./ZoneEditor.js";
 
-export function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
+interface LetterPreviewProps {
+  draft: DraftLetter | undefined;
+  onZoneClick?: ((zone: ZoneKind) => void) | undefined;
+  activeZone?: ZoneKind | null | undefined;
+}
+
+export function LetterPreview({
+  draft,
+  onZoneClick,
+  activeZone,
+}: LetterPreviewProps) {
   const t = useTranslations("draft");
 
   if (!draft) {
@@ -43,21 +54,33 @@ export function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
         </div>
         <div className="rounded-[1.5rem] border border-stone-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-inner sm:p-6">
           <div className="min-h-[560px] space-y-8 text-sm text-stone-700">
-            <div className="text-xs text-stone-400">
-              {draft.senderProfileId ? (
-                <span className="text-stone-600">&#x2709; {t("senderLabel")}</span>
-              ) : (
-                <span className="italic">{t("senderPlaceholder")}</span>
-              )}
-            </div>
+            <ZoneBlock
+              zone="sender"
+              onZoneClick={onZoneClick}
+              isActive={activeZone === "sender"}
+            >
+              <div className="text-xs text-stone-400">
+                {draft.senderProfileId ? (
+                  <span className="text-stone-600">&#x2709; {t("senderLabel")}</span>
+                ) : (
+                  <span className="italic">{t("senderPlaceholder")}</span>
+                )}
+              </div>
+            </ZoneBlock>
 
-            <div className="mt-6 text-stone-400">
-              {draft.recipientProfileId ? (
-                <span className="text-stone-600">{t("recipientLabel")}</span>
-              ) : (
-                <span className="italic">{t("recipientPlaceholder")}</span>
-              )}
-            </div>
+            <ZoneBlock
+              zone="recipient"
+              onZoneClick={onZoneClick}
+              isActive={activeZone === "recipient"}
+            >
+              <div className="mt-6 text-stone-400">
+                {draft.recipientProfileId ? (
+                  <span className="text-stone-600">{t("recipientLabel")}</span>
+                ) : (
+                  <span className="italic">{t("recipientPlaceholder")}</span>
+                )}
+              </div>
+            </ZoneBlock>
 
             <div className="text-right text-xs text-stone-400">
               {new Date().toLocaleDateString(draft.locale, {
@@ -67,21 +90,33 @@ export function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
               })}
             </div>
 
-            <div className="font-semibold text-stone-900">
-              {draft.subject ?? (
-                <span className="font-normal italic text-stone-400">
-                  {t("subjectPlaceholder")}
-                </span>
-              )}
-            </div>
+            <ZoneBlock
+              zone="subject"
+              onZoneClick={onZoneClick}
+              isActive={activeZone === "subject"}
+            >
+              <div className="font-semibold text-stone-900">
+                {draft.subject ?? (
+                  <span className="font-normal italic text-stone-400">
+                    {t("subjectPlaceholder")}
+                  </span>
+                )}
+              </div>
+            </ZoneBlock>
 
-            <div className="space-y-4 leading-relaxed">
-              {draft.body ? (
-                <DocumentPreview document={document} />
-              ) : (
-                <span className="italic text-stone-400">{t("bodyPlaceholder")}</span>
-              )}
-            </div>
+            <ZoneBlock
+              zone="body"
+              onZoneClick={onZoneClick}
+              isActive={activeZone === "body"}
+            >
+              <div className="space-y-4 leading-relaxed">
+                {draft.body ? (
+                  <DocumentPreview document={document} />
+                ) : (
+                  <span className="italic text-stone-400">{t("bodyPlaceholder")}</span>
+                )}
+              </div>
+            </ZoneBlock>
 
             {draft.enclosureNote && (
               <div className="border-t border-stone-100 pt-4 text-xs text-stone-500">
@@ -98,6 +133,37 @@ export function LetterPreview({ draft }: { draft: DraftLetter | undefined }) {
         </div>
       </div>
     </div>
+  );
+}
+
+function ZoneBlock({
+  zone,
+  onZoneClick,
+  isActive,
+  children,
+}: {
+  zone: ZoneKind;
+  onZoneClick?: ((zone: ZoneKind) => void) | undefined;
+  isActive?: boolean | undefined;
+  children: ReactNode;
+}) {
+  if (!onZoneClick) {
+    return <div className="-mx-2 w-[calc(100%+1rem)] px-2 py-1">{children}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => onZoneClick(zone)}
+      className={`group relative -mx-2 w-[calc(100%+1rem)] cursor-pointer rounded-lg px-2 py-1 text-left transition-colors duration-150 hover:bg-amber-50/60 ${
+        isActive ? "bg-amber-50 ring-1 ring-amber-300" : ""
+      }`}
+    >
+      <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
+        <Pencil className="h-3.5 w-3.5 text-amber-500" />
+      </span>
+      {children}
+    </button>
   );
 }
 
