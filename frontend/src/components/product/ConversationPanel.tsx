@@ -111,8 +111,16 @@ export function ConversationPanel({
       >
         <div className="flex min-h-full flex-col justify-end px-4 py-3 sm:px-5">
           {isLoading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+            <div className="space-y-3 py-6">
+              <div className="flex justify-start">
+                <div className="h-12 w-48 animate-pulse rounded-2xl bg-stone-100" />
+              </div>
+              <div className="flex justify-start">
+                <div className="h-20 w-64 animate-pulse rounded-2xl bg-stone-100" />
+              </div>
+              <div className="flex justify-end">
+                <div className="h-10 w-36 animate-pulse rounded-2xl bg-stone-200" />
+              </div>
             </div>
           ) : isEmpty ? (
             <div className="px-1 pb-6 pt-8">
@@ -183,7 +191,7 @@ export function ConversationPanel({
             setShowScrollButton(false);
           }}
           aria-label={t("scrollToBottom")}
-          className="absolute bottom-16 left-1/2 z-10 inline-flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-full bg-stone-900 text-white shadow-lg transition-opacity hover:bg-stone-800"
+          className="absolute bottom-16 left-1/2 z-10 -translate-x-1/2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-stone-900 text-white shadow-lg transition-opacity hover:bg-stone-800"
         >
           <ChevronDown className="h-4 w-4" />
         </button>

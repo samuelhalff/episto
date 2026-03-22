@@ -38,7 +38,11 @@ export function FlowHeader({
 
           <div className="min-w-0 flex-1">
             <div className="sm:hidden">
-              <StepIndicator currentStep={currentStep} draftId={draftId} compact />
+              <StepIndicator
+                currentStep={currentStep}
+                draftId={draftId}
+                compact
+              />
             </div>
             <div className="hidden sm:block">
               <StepIndicator currentStep={currentStep} draftId={draftId} />

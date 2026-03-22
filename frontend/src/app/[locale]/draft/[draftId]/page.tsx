@@ -2,13 +2,9 @@
 
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  ChevronLeft,
-  ChevronRight,
-  LayoutPanelLeft,
-  ScrollText,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutPanelLeft, ScrollText } from "lucide-react";
 import { useDraft, useSession, useConversation } from "../../../../hooks/use-api.js";
+import { useVisualViewport } from "../../../../hooks/use-visual-viewport.js";
 import { ConversationPanel } from "../../../../components/product/ConversationPanel.js";
 import { LetterPreview } from "../../../../components/product/LetterPreview.js";
 import { FlowHeader } from "../../../../components/product/FlowHeader.js";
@@ -25,10 +21,11 @@ export default function DraftWorkspacePage({
   const session = useSession();
   const draft = useDraft(draftId);
   const conversation = useConversation(draftId);
+  const viewportHeight = useVisualViewport();
 
   const [mobileView, setMobileView] = useState<"conversation" | "preview">("conversation");
-  const [previewCollapsed, setPreviewCollapsed] = useState(false);
   const [hasUnseenPreviewChanges, setHasUnseenPreviewChanges] = useState(false);
+  const [previewCollapsed, setPreviewCollapsed] = useState(false);
   const previewSignatureRef = useRef<string | null>(null);
 
   if (!session.session && !session.isLoading) {
@@ -139,7 +136,10 @@ export default function DraftWorkspacePage({
   );
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-white">
+    <div
+      className="flex flex-col bg-white"
+      style={{ height: viewportHeight ? `${viewportHeight}px` : "100dvh" }}
+    >
       <FlowHeader
         currentStep={0}
         draftId={draftId}
@@ -148,6 +148,7 @@ export default function DraftWorkspacePage({
       />
       {mobileViewToggle}
 
+      {/* Desktop: side-by-side panels */}
       <div className="hidden min-h-0 flex-1 lg:flex">
         <div
           className={`flex ${previewCollapsed ? "flex-1" : "w-[58%]"} min-w-0 flex-col border-r border-stone-200/80`}
@@ -158,14 +159,14 @@ export default function DraftWorkspacePage({
             isLoading={conversation.isSending}
           />
         </div>
-        {!previewCollapsed ? (
+        {!previewCollapsed && (
           <div className="flex min-w-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-6">
             <LetterPreview draft={draft.data} />
           </div>
-        ) : null}
+        )}
         <button
           type="button"
-          onClick={() => setPreviewCollapsed((collapsed) => !collapsed)}
+          onClick={() => setPreviewCollapsed((c) => !c)}
           aria-label={previewCollapsed ? t("showPreview") : t("hidePreview")}
           className="flex w-8 shrink-0 items-center justify-center border-l border-stone-200/80 bg-stone-50 text-stone-400 transition hover:bg-stone-100 hover:text-stone-600"
         >
@@ -177,6 +178,7 @@ export default function DraftWorkspacePage({
         </button>
       </div>
 
+      {/* Mobile/Tablet: both panels mounted, CSS toggle */}
       <div className="flex min-h-0 flex-1 flex-col lg:hidden">
         <div
           className={`${mobileView === "conversation" ? "flex" : "hidden"} min-h-0 flex-1 flex-col`}
