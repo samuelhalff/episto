@@ -28,7 +28,7 @@ export function MarketingHero({
     <section className="relative overflow-hidden px-6 pb-8 pt-10 md:pb-12 md:pt-14 lg:pb-14 lg:pt-20">
       <div
         aria-hidden="true"
-        className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[88%] rounded-[2.5rem] opacity-40 md:inset-x-8 md:rounded-[3rem]"
+        className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[70%] rounded-[2.5rem] opacity-40 md:inset-x-8 md:rounded-[3rem]"
       />
       <div
         aria-hidden="true"

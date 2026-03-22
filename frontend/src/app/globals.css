@@ -26,6 +26,8 @@
       linear-gradient(90deg, rgba(120, 53, 15, 0.08) 1px, transparent 1px);
     background-position: center;
     background-size: 32px 32px;
+    -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 65%);
+    mask-image: linear-gradient(to bottom, black 30%, transparent 65%);
   }
 
   .paper-noise {
