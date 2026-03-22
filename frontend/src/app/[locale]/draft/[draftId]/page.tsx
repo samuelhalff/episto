@@ -137,7 +137,8 @@ export default function DraftWorkspacePage({
 
   return (
     <div
-      className="flex flex-col bg-white"
+      id="draft-workspace-root"
+      className="flex flex-col overflow-hidden bg-white"
       style={{ height: viewportHeight ? `${viewportHeight}px` : "100dvh" }}
     >
       <FlowHeader

@@ -105,7 +105,7 @@ export function InputBar({
 
   function handleSwitchToKeyboard() {
     onSwitchToKeyboard();
-    setTimeout(() => textareaRef.current?.focus(), 50);
+    setTimeout(() => textareaRef.current?.focus({ preventScroll: true }), 50);
   }
 
   const showTextarea = mode !== "voice" && !isRecording;
@@ -241,6 +241,12 @@ export function InputBar({
                   if (mode === "initial") {
                     handleSwitchToKeyboard();
                   }
+                  // Counteract browser native scroll-into-view behavior
+                  // that can push the layout up on mobile keyboards
+                  requestAnimationFrame(() => {
+                    const root = document.getElementById("draft-workspace-root");
+                    if (root) root.scrollTop = 0;
+                  });
                 }}
                 enterKeyHint="send"
               />
