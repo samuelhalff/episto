@@ -104,21 +104,21 @@ export function InputBar({
   return (
     <div className="border-t border-stone-200/80 bg-white px-3 pb-[env(safe-area-inset-bottom,8px)] pt-3 sm:px-4 sm:pt-4">
       {showInitialPicker && (
-        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="space-y-3">
           {dictationSupported && (
             <button
               type="button"
               onClick={onStartVoice}
-              className="group flex w-full flex-col items-center gap-3 rounded-2xl bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] px-3 py-5 text-center text-white shadow-[0_16px_40px_rgba(245,158,11,0.3)] transition hover:brightness-105 sm:gap-4 sm:px-5 sm:py-7"
+              className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-[linear-gradient(135deg,#f59e0b_0%,#d97706_100%)] px-5 py-4 text-white shadow-[0_16px_40px_rgba(245,158,11,0.3)] transition hover:brightness-105 sm:gap-4 sm:py-5"
             >
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/20 sm:h-16 sm:w-16">
+              <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white/20 sm:h-14 sm:w-14">
                 <MicIcon className="h-6 w-6 sm:h-7 sm:w-7" />
               </span>
-              <span>
+              <span className="text-left">
                 <span className="block text-base font-bold sm:text-lg">
                   {t("voicePrimary")}
                 </span>
-                <span className="mt-1 block text-[11px] leading-4 text-white/70 sm:text-sm">
+                <span className="block text-xs leading-4 text-white/70 sm:text-sm">
                   {t("voicePrimaryHint")}
                 </span>
               </span>
@@ -127,18 +127,11 @@ export function InputBar({
           <button
             type="button"
             onClick={handleSwitchToKeyboard}
-            className="flex w-full flex-col items-center gap-3 rounded-2xl border-2 border-stone-200 bg-white px-3 py-5 text-center text-stone-700 shadow-sm transition hover:border-stone-300 hover:shadow-md sm:gap-4 sm:px-5 sm:py-7"
+            className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-stone-200 bg-white px-4 py-3 text-stone-600 transition hover:border-stone-300 hover:bg-stone-50"
           >
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-stone-100 sm:h-16 sm:w-16">
-              <Keyboard className="h-6 w-6 text-stone-500 sm:h-7 sm:w-7" />
-            </span>
-            <span>
-              <span className="block text-base font-bold sm:text-lg">
-                {t("typePrimary")}
-              </span>
-              <span className="mt-1 block text-[11px] leading-4 text-stone-500 sm:text-sm">
-                {t("typePrimaryHint")}
-              </span>
+            <Keyboard className="h-4 w-4 text-stone-400" />
+            <span className="text-sm font-medium">
+              {t("typePrimary")}
             </span>
           </button>
         </div>

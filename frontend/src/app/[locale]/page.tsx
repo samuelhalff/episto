@@ -1,16 +1,14 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation.js";
-import { Header } from "../../components/marketing/Header.js";
-import { Footer } from "../../components/marketing/Footer.js";
 import {
   ArrowRight,
   Building2,
   CheckCircle2,
-  FileSearch,
   FileWarning,
   Home,
   PenLine,
+  FileSearch,
   Send,
   Shield,
   Sparkles,
@@ -18,11 +16,11 @@ import {
   UserCheck,
   XCircle,
 } from "lucide-react";
+import { Header } from "../../components/marketing/Header.js";
+import { Footer } from "../../components/marketing/Footer.js";
 
 export default function HomePage() {
   const t = useTranslations("marketing");
-  const tCheckout = useTranslations("checkout");
-  const tReview = useTranslations("review");
 
   const steps = [
     {
@@ -79,17 +77,14 @@ export default function HomePage() {
     {
       icon: <Truck className="h-8 w-8 text-amber-300" />,
       label: t("trustSwissPost"),
-      detail: t("step3Desc"),
     },
     {
       icon: <Shield className="h-8 w-8 text-amber-300" />,
       label: t("trustSecure"),
-      detail: tCheckout("paymentHelp"),
     },
     {
       icon: <UserCheck className="h-8 w-8 text-amber-300" />,
       label: t("trustNoAccount"),
-      detail: t("step1Desc"),
     },
   ];
 
@@ -97,6 +92,7 @@ export default function HomePage() {
     <>
       <Header />
       <main id="main-content">
+        {/* Hero — single-column centered */}
         <section className="relative overflow-hidden px-4 pb-8 pt-12 sm:px-6 sm:pb-12 sm:pt-16 md:pb-16 md:pt-20 lg:pb-20 lg:pt-28">
           <div
             aria-hidden="true"
@@ -106,40 +102,40 @@ export default function HomePage() {
             aria-hidden="true"
             className="animate-glow-pulse pointer-events-none absolute left-1/2 top-16 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-amber-200/40 blur-3xl md:top-24 md:h-72 md:w-72"
           />
-          <div className="mx-auto grid max-w-7xl items-center gap-8 sm:gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+          <div className="mx-auto max-w-3xl text-center">
             <div className="animate-rise-in">
               <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-white/80 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-[0_14px_35px_rgba(120,53,15,0.08)] sm:px-4 sm:py-2 sm:text-xs">
                 <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {t("trustSwissPost")}
+                {t("heroPanelBadge")}
               </div>
-              <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-stone-950 sm:mt-5 sm:text-5xl md:mt-7 md:text-6xl lg:text-7xl">
+              <h1 className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-stone-950 sm:mt-5 sm:text-5xl md:mt-7 md:text-6xl lg:text-7xl">
                 {t("heroTitle")}
               </h1>
-              <p className="mt-4 max-w-2xl text-sm leading-6 text-stone-600 sm:mt-5 sm:text-base sm:leading-7 md:mt-5 md:text-lg md:leading-8 lg:text-xl">
+              <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-stone-600 sm:mt-5 sm:text-base sm:leading-7 md:mt-5 md:text-lg md:leading-8 lg:text-xl">
                 {t("heroSubtitle")}
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:mt-8 sm:gap-4 md:flex-row md:items-center">
+              <div className="mt-6 flex flex-col items-center gap-3 sm:mt-8 sm:flex-row sm:justify-center sm:gap-4">
                 <Link
                   href="/draft/new"
-                  className="cta-sheen inline-flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:px-6 sm:py-4 sm:text-base md:w-auto md:px-7 md:py-4"
+                  className="cta-sheen inline-flex w-full items-center justify-center gap-2 rounded-full bg-stone-950 px-5 py-3.5 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:w-auto sm:px-7 sm:py-4 sm:text-base"
                 >
                   {t("heroCta")}
                   <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
                   href="/how-it-works"
-                  className="inline-flex w-full items-center justify-center rounded-full border border-stone-300/70 bg-white/80 px-5 py-3.5 text-sm font-medium text-stone-700 shadow-[0_12px_30px_rgba(120,53,15,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950 sm:px-6 sm:py-4 sm:text-base md:w-auto md:px-7 md:py-4"
+                  className="inline-flex w-full items-center justify-center rounded-full border border-stone-300/70 bg-white/80 px-5 py-3.5 text-sm font-medium text-stone-700 shadow-[0_12px_30px_rgba(120,53,15,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950 sm:w-auto sm:px-7 sm:py-4 sm:text-base"
                 >
                   {t("nav.howItWorks")}
                 </Link>
               </div>
-              <div className="mt-10 sm:mt-14">
+              <div className="mx-auto mt-10 max-w-xl sm:mt-14">
                 <div className="paper-noise rounded-2xl border border-stone-200/60 px-4 py-4 shadow-[0_18px_50px_rgba(120,53,15,0.06)] sm:rounded-[2rem] sm:px-6 sm:py-5">
                   <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
                     {trustItems.map((item, index) => (
                       <div
                         key={item.label}
-                        className="animate-rise-in flex items-center gap-2.5 rounded-xl px-1 py-1 sm:gap-3 sm:px-2 sm:py-1.5"
+                        className="animate-rise-in flex items-center gap-2.5 rounded-xl px-1 py-1 sm:justify-center sm:gap-3 sm:px-2 sm:py-1.5"
                         style={{ animationDelay: `${0.18 + index * 0.08}s` }}
                       >
                         <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-50/80 sm:h-9 sm:w-9 sm:rounded-xl">
@@ -148,59 +144,6 @@ export default function HomePage() {
                         <span className="text-xs font-medium text-stone-600 sm:text-sm">{item.label}</span>
                       </div>
                     ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="hidden sm:block sm:mx-auto sm:w-full sm:max-w-[34rem]">
-              <div className="paper-noise relative w-full rounded-[2rem] border border-white/80 p-5 shadow-[0_28px_70px_rgba(120,53,15,0.16)] md:rotate-[1deg] md:p-6 lg:shadow-[0_35px_90px_rgba(120,53,15,0.18)]">
-                <div className="flex items-center justify-between">
-                  <div className="rounded-full border border-amber-200/80 bg-amber-50/80 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-700">
-                    {t("step1Title")}
-                  </div>
-                  <div className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
-                    {t("heroPanelBadge")}
-                  </div>
-                </div>
-
-                <div className="mt-5 space-y-3 text-sm text-stone-500">
-                  <div className="space-y-2">
-                    <LetterLine width="34%" />
-                    <LetterLine width="28%" />
-                    <LetterLine width="41%" />
-                  </div>
-                  <div className="pt-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-stone-400">
-                      {t("step2Title")}
-                    </p>
-                    <h2 className="mt-3 max-w-sm text-2xl font-semibold tracking-[-0.04em] text-stone-950 md:text-3xl">
-                      {t("heroTitle")}
-                    </h2>
-                  </div>
-                </div>
-
-                <div className="mt-5 space-y-3 text-sm text-stone-500">
-                  <LetterLine width="22%" />
-                  <LetterLine width="78%" />
-                  <LetterLine width="93%" />
-                  <LetterLine width="88%" />
-                  <LetterLine width="70%" />
-                  <LetterLine width="82%" />
-                </div>
-
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-stone-200/80 pt-4">
-                  <div className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
-                    <span className="inline-flex h-2.5 w-2.5 rounded-full bg-amber-300" />
-                    {t("trustSwissPost")}
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-stone-400">
-                      {t("step3Title")}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-stone-900">
-                      {t("pricingFrom")}
-                    </p>
                   </div>
                 </div>
               </div>
@@ -247,7 +190,6 @@ export default function HomePage() {
                   label={useCase.label}
                   accent={useCase.accent}
                   delay={useCase.delay}
-                  description={t("step1Desc")}
                 />
               ))}
             </div>
@@ -267,11 +209,6 @@ export default function HomePage() {
             <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-stone-500 sm:mt-4 sm:text-base">
               {t("pricingNotes")}
             </p>
-            <div className="mx-auto mt-8 grid max-w-lg gap-3 sm:mt-10">
-              <PricingRow label={tReview("deliveryStandard")} value={t("pricingNotes")} />
-              <PricingRow label={tReview("deliveryRegistered")} value={t("step3Desc")} />
-              <PricingRow label={tCheckout("securedByStripe")} value={tCheckout("paymentHelp")} />
-            </div>
             <Link
               href="/draft/new"
               className="cta-sheen mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-stone-950 px-7 py-4 text-sm font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.20)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800 sm:mt-10 sm:text-base"
@@ -351,13 +288,11 @@ function UseCaseCard({
   label,
   accent,
   delay,
-  description,
 }: {
   icon: ReactNode;
   label: string;
   accent: string;
   delay: string;
-  description: string;
 }) {
   return (
     <article
@@ -367,28 +302,10 @@ function UseCaseCard({
       <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${accent} sm:h-12 sm:w-12 sm:rounded-2xl`}>
         {icon}
       </div>
-      <h3 className="mt-1.5 text-sm font-semibold tracking-[-0.03em] text-stone-950 sm:mt-6 sm:text-xl">
+      <h3 className="mt-3 text-sm font-semibold tracking-[-0.03em] text-stone-950 sm:mt-6 sm:text-xl">
         {label}
       </h3>
-      <p className="mt-1 hidden text-xs leading-5 text-stone-600 sm:block sm:mt-2 sm:text-sm sm:leading-7">{description}</p>
     </article>
-  );
-}
-
-function PricingRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-xl border border-stone-200/80 bg-stone-50/50 px-4 py-3 sm:rounded-2xl sm:px-5 sm:py-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-stone-400 sm:text-xs">
-        {label}
-      </p>
-      <p className="mt-1 text-xs leading-5 text-stone-700 sm:mt-2 sm:text-sm sm:leading-7">{value}</p>
-    </div>
   );
 }
 
