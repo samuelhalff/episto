@@ -135,7 +135,7 @@ export function ConversationPanel({
             </div>
           ) : isEmpty ? (
             <div className="px-1 pb-6 pt-8">
-              <div className="mx-auto max-w-sm rounded-[1.75rem] border border-stone-200/80 bg-white p-6 text-center shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
+              <div className="mx-auto max-w-sm rounded-[1.75rem] bg-stone-50 p-6 text-center shadow-[0_12px_30px_rgba(15,23,42,0.05)]">
                 <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 text-amber-600">
                   <FileText className="h-6 w-6" />
                 </div>
@@ -209,9 +209,9 @@ export function ConversationPanel({
       )}
 
       {zoneStatus && (
-        <div className="shrink-0 border-t border-stone-100 bg-stone-50/50 px-3 py-2">
+        <div className="shrink-0 bg-stone-50/80 px-3 py-2">
           <div className="flex items-center gap-1.5 overflow-x-auto">
-            {(["sender", "recipient", "subject", "body"] as const).map((zone) => {
+            {(["recipient", "sender", "body", "subject"] as const).map((zone) => {
               const filled = zoneStatus[zone];
               return (
                 <button

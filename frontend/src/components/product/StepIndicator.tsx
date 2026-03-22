@@ -119,7 +119,7 @@ export function StepIndicator({
       {isOpen && (
         <div
           role="menu"
-          className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-50 rounded-2xl border border-stone-200 bg-white p-1.5 shadow-[0_24px_60px_rgba(15,23,42,0.12)]"
+          className="fixed inset-x-0 top-[calc(3.5rem+0.5rem)] z-50 mx-auto max-w-lg rounded-2xl border border-stone-200 bg-white p-1.5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] sm:absolute sm:inset-x-auto sm:left-0 sm:right-0 sm:top-[calc(100%+0.5rem)] sm:mx-0 sm:max-w-none"
         >
           {STEPS.map((key, index) => {
             const isCurrent = index === currentStep;

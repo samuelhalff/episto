@@ -18,7 +18,7 @@ export type ZoneKind =
   | "body"
   | "closing";
 
-interface AddressFields {
+export interface AddressFields {
   firstName: string;
   lastName: string;
   company: string;
@@ -51,11 +51,13 @@ const labelClass = "block text-xs font-medium text-muted-foreground mb-1";
 // ---------------------------------------------------------------------------
 
 function AddressEditor({
+  zone,
   initial,
   onSave,
   onCancel,
   t,
 }: {
+  zone: ZoneKind;
   initial: AddressFields;
   onSave: (v: AddressFields) => Promise<void>;
   onCancel: () => void;
@@ -65,6 +67,7 @@ function AddressEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<keyof AddressFields, string>>>({});
   const firstInputRef = useRef<HTMLInputElement>(null);
+  const isSender = zone === "sender";
 
   useEffect(() => {
     firstInputRef.current?.focus();
@@ -72,8 +75,15 @@ function AddressEditor({
 
   const validate = (): boolean => {
     const e: Partial<Record<keyof AddressFields, string>> = {};
-    if (!fields.firstName.trim() && !fields.company.trim()) {
-      e.firstName = t("validation.nameOrCompanyRequired");
+    if (isSender) {
+      // Sender requires firstName and lastName per API contract
+      if (!fields.firstName.trim()) e.firstName = t("validation.required");
+      if (!fields.lastName.trim()) e.lastName = t("validation.required");
+    } else {
+      // Recipient needs at least a name or company
+      if (!fields.firstName.trim() && !fields.company.trim()) {
+        e.firstName = t("validation.nameOrCompanyRequired");
+      }
     }
     if (!fields.street.trim()) e.street = t("validation.required");
     if (!fields.postalCode.trim()) e.postalCode = t("validation.required");
@@ -305,6 +315,7 @@ export function ZoneEditor({
 
   const editorContent = isAddressZone(zone) ? (
     <AddressEditor
+      zone={zone}
       initial={
         (initialValue as AddressFields | null) ?? {
           firstName: "",

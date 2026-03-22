@@ -195,10 +195,10 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               onClick={handleProceedToPayment}
               disabled={!allComplete || reviewDraft.isPending}
               aria-disabled={!allComplete || reviewDraft.isPending}
-              className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition ${
+              className={`cta-sheen inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_rgba(120,53,15,0.18)] transition-all duration-300 ${
                 allComplete
-                  ? "bg-stone-950 hover:bg-stone-800 disabled:opacity-60"
-                  : "pointer-events-none bg-stone-300"
+                  ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:-translate-y-0.5 hover:from-amber-600 hover:to-amber-700 disabled:opacity-60"
+                  : "pointer-events-none bg-stone-300 shadow-none"
               }`}
             >
               {reviewDraft.isPending ? (

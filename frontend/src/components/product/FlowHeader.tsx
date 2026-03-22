@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation.js";
 import { StepIndicator } from "./StepIndicator.js";
+import { LanguageSwitcher } from "../marketing/LanguageSwitcher.js";
 
 interface FlowHeaderProps {
   currentStep: number;
@@ -23,7 +24,7 @@ export function FlowHeader({
   const tc = useTranslations("common");
 
   return (
-    <header className="sticky top-0 z-40 border-b border-stone-200 bg-white">
+    <header className="sticky top-0 z-40 bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
       <div className="mx-auto max-w-6xl px-3 sm:px-6">
         <div className="flex h-14 items-center gap-3">
           <Link
@@ -42,6 +43,9 @@ export function FlowHeader({
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
             {actions}
+            <div className="hidden sm:block">
+              <LanguageSwitcher />
+            </div>
             {statusLabel ? (
               <span className="hidden text-sm font-medium text-stone-500 lg:inline">
                 {statusLabel}

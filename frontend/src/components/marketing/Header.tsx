@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation.js";
 import { Menu, X } from "lucide-react";
+import { LanguageSwitcher } from "./LanguageSwitcher.js";
 
 export function Header() {
   const t = useTranslations("marketing");
@@ -45,6 +46,9 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <div className="hidden md:block">
+            <LanguageSwitcher />
+          </div>
           <Link
             href="/draft/new"
             className="cta-sheen hidden rounded-full bg-stone-950 px-5 py-2.5 text-sm font-semibold text-white shadow-[0_16px_40px_rgba(28,25,23,0.22)] transition-transform duration-300 hover:-translate-y-0.5 hover:bg-stone-800 md:inline-block"
@@ -71,6 +75,9 @@ export function Header() {
           className="border-t border-stone-200/70 bg-[rgba(255,255,255,0.98)] px-4 pb-5 pt-4 sm:px-6 md:hidden"
         >
           <div className="flex flex-col gap-3 rounded-[1.75rem] border border-stone-200/80 bg-white p-4 shadow-[0_18px_45px_rgba(15,23,42,0.07)]">
+            <div className="px-4 py-2">
+              <LanguageSwitcher />
+            </div>
             <Link
               href="/pricing"
               className="rounded-2xl px-4 py-3 text-sm text-stone-600 transition-colors hover:bg-amber-50 hover:text-stone-950"

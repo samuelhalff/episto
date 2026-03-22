@@ -2,20 +2,24 @@
 
 import { use, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronLeft, ChevronRight, LayoutPanelLeft, ScrollText } from "lucide-react";
+import { LayoutPanelLeft, ScrollText } from "lucide-react";
 import {
   useConversation,
   useDraft,
+  useLetterPreview,
   useSession,
   useUpdateDraft,
 } from "../../../../hooks/use-api.js";
 import { useVisualViewport } from "../../../../hooks/use-visual-viewport.js";
+import { useMediaQuery } from "../../../../hooks/use-media-query.js";
+import { useSetSender, useSetRecipient } from "../../../../hooks/use-profiles.js";
 import { ConversationPanel } from "../../../../components/product/ConversationPanel.js";
 import { LetterPreview } from "../../../../components/product/LetterPreview.js";
 import { FlowHeader } from "../../../../components/product/FlowHeader.js";
 import {
   ZoneEditor,
   type ZoneKind,
+  type AddressFields,
 } from "../../../../components/product/ZoneEditor.js";
 
 export default function DraftWorkspacePage({
@@ -31,13 +35,15 @@ export default function DraftWorkspacePage({
   const draft = useDraft(draftId);
   const conversation = useConversation(draftId);
   const updateDraft = useUpdateDraft(draftId);
+  const setSender = useSetSender(draftId);
+  const setRecipient = useSetRecipient(draftId);
+  const letterPreview = useLetterPreview(draftId);
   const viewportHeight = useVisualViewport();
+  const isDesktop = useMediaQuery("(min-width: 1024px)");
 
   const [mobileView, setMobileView] = useState<"conversation" | "preview">("conversation");
   const [hasUnseenPreviewChanges, setHasUnseenPreviewChanges] = useState(false);
-  const [previewCollapsed, setPreviewCollapsed] = useState(false);
-  const [activeZone, setActiveZone] = useState<ZoneKind | null>(null);
-  const [isMobileZoneEditor, setIsMobileZoneEditor] = useState(false);
+  const [editingZone, setEditingZone] = useState<ZoneKind | null>(null);
   const previewSignatureRef = useRef<string | null>(null);
 
   if (!session.session && !session.isLoading) {
@@ -55,26 +61,16 @@ export default function DraftWorkspacePage({
     );
   }
 
-  const hasPopulatedPreview = Boolean(
-    draft.data &&
-      [
-        draft.data.senderProfileId,
-        draft.data.recipientProfileId,
-        draft.data.subject?.trim(),
-        draft.data.body?.trim(),
-      ].some(Boolean),
-  );
   const zoneStatus = {
     sender: Boolean(draft.data?.senderProfileId),
     recipient: Boolean(draft.data?.recipientProfileId),
     subject: Boolean(draft.data?.subject?.trim()),
     body: Boolean(draft.data?.body?.trim()),
   };
-  const previewSignature = useMemo(() => {
-    if (!draft.data) {
-      return null;
-    }
+  const hasPopulatedPreview = Object.values(zoneStatus).some(Boolean);
 
+  const previewSignature = useMemo(() => {
+    if (!draft.data) return null;
     return JSON.stringify({
       senderProfileId: draft.data.senderProfileId,
       recipientProfileId: draft.data.recipientProfileId,
@@ -90,7 +86,6 @@ export default function DraftWorkspacePage({
       setHasUnseenPreviewChanges(false);
       return;
     }
-
     if (!previewSignatureRef.current) {
       previewSignatureRef.current = previewSignature;
       if (hasPopulatedPreview && mobileView !== "preview") {
@@ -98,87 +93,85 @@ export default function DraftWorkspacePage({
       }
       return;
     }
-
     if (previewSignatureRef.current !== previewSignature) {
       previewSignatureRef.current = previewSignature;
       if (mobileView === "preview") {
         setHasUnseenPreviewChanges(false);
         return;
       }
-
       setHasUnseenPreviewChanges(true);
     }
   }, [hasPopulatedPreview, mobileView, previewSignature]);
 
   useEffect(() => {
-    if (mobileView === "preview") {
-      setHasUnseenPreviewChanges(false);
-    }
+    if (mobileView === "preview") setHasUnseenPreviewChanges(false);
   }, [mobileView]);
 
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-
-    const mediaQuery = window.matchMedia("(max-width: 1023px)");
-    const updateEditorMode = () => setIsMobileZoneEditor(mediaQuery.matches);
-
-    updateEditorMode();
-    mediaQuery.addEventListener("change", updateEditorMode);
-    return () => mediaQuery.removeEventListener("change", updateEditorMode);
-  }, []);
-
   function handleZoneClick(zone: ZoneKind | string) {
-    setActiveZone(zone as ZoneKind);
-  }
-
-  async function handleZoneSave(value: string | object) {
-    if (activeZone === "subject" && typeof value === "string") {
-      await updateDraft.mutateAsync({ subject: value });
-    } else if (activeZone === "body" && typeof value === "string") {
-      await updateDraft.mutateAsync({ body: value });
+    const z = zone as ZoneKind;
+    setEditingZone(z);
+    // For text zones on mobile, switch to preview where inline editors live
+    if ((z === "subject" || z === "body") && !isDesktop) {
+      setMobileView("preview");
     }
-
-    setActiveZone(null);
   }
 
-  const mobileViewToggle = (
-    <div className="border-b border-stone-200/80 bg-white px-3 py-2 lg:hidden">
-      <div className="grid grid-cols-2 gap-2 rounded-[1.25rem] border border-stone-200 bg-stone-50 p-1">
-        <button
-          type="button"
-          onClick={() => setMobileView("conversation")}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-[1rem] px-3 py-2 text-sm font-semibold transition ${
-            mobileView === "conversation"
-              ? "bg-white text-stone-950 shadow-sm"
-              : "text-stone-500 hover:text-stone-700"
-          }`}
-        >
-          <LayoutPanelLeft className="h-4 w-4" />
-          {t("workspaceTab")}
-        </button>
-        <button
-          type="button"
-          onClick={() => setMobileView("preview")}
-          aria-label={t("preview")}
-          className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-[1rem] px-3 py-2 text-sm font-semibold transition ${
-            mobileView === "preview"
-              ? "bg-white text-stone-950 shadow-sm"
-              : "text-stone-500 hover:text-stone-700"
-          }`}
-        >
-          <span className="relative inline-flex h-5 w-5 items-center justify-center">
-            <ScrollText className="h-4 w-4" />
-            {hasUnseenPreviewChanges ? (
-              <span className="absolute right-0 top-0 h-2 w-2 rounded-full bg-amber-500" />
-            ) : null}
-          </span>
-          {t("preview")}
-        </button>
-      </div>
-    </div>
-  );
+  async function handleZoneSave(zone: ZoneKind, value: string | object) {
+    if (zone === "subject" && typeof value === "string") {
+      await updateDraft.mutateAsync({ subject: value });
+    } else if (zone === "body" && typeof value === "string") {
+      await updateDraft.mutateAsync({ body: value });
+    } else if (zone === "sender" && typeof value === "object") {
+      const addr = value as AddressFields;
+      await setSender.mutateAsync({
+        firstName: addr.firstName,
+        lastName: addr.lastName,
+        addressLine1: addr.street,
+        companyName: addr.company || undefined,
+        postalCode: addr.postalCode,
+        city: addr.city,
+      });
+    } else if (zone === "recipient" && typeof value === "object") {
+      const addr = value as AddressFields;
+      await setRecipient.mutateAsync({
+        firstName: addr.firstName || undefined,
+        lastName: addr.lastName || undefined,
+        addressLine1: addr.street,
+        companyName: addr.company || undefined,
+        postalCode: addr.postalCode,
+        city: addr.city,
+      });
+    } else {
+      return; // unhandled zone — don't close editor
+    }
+    setEditingZone(null);
+  }
+
+  function handleZoneCancel() {
+    setEditingZone(null);
+  }
+
+  const isAddressEditing = editingZone === "sender" || editingZone === "recipient";
+
+  // Derive initial address fields from preview data for re-editing
+  const addressInitialValue = useMemo((): AddressFields | null => {
+    if (!isAddressEditing || !letterPreview.previewData) return null;
+    const profile = editingZone === "sender"
+      ? letterPreview.previewData.sender
+      : letterPreview.previewData.recipient;
+    if (!profile) return null;
+    const nameParts = (profile.name ?? "").split(" ");
+    const firstName = nameParts[0] ?? "";
+    const lastName = nameParts.slice(1).join(" ");
+    return {
+      firstName,
+      lastName,
+      company: "",
+      street: profile.addressLine1 ?? "",
+      postalCode: profile.postalCode ?? "",
+      city: profile.city ?? "",
+    };
+  }, [isAddressEditing, editingZone, letterPreview.previewData]);
 
   return (
     <div
@@ -192,13 +185,43 @@ export default function DraftWorkspacePage({
         title={t("title")}
         statusLabel={t("saved")}
       />
-      {mobileViewToggle}
 
-      {/* Desktop: side-by-side panels */}
+      {/* Mobile: conversation / preview toggle bar */}
+      <div className="flex items-center justify-center bg-stone-50/80 py-1.5 lg:hidden">
+        <div className="inline-grid grid-cols-2 gap-0.5 rounded-lg bg-stone-200/50 p-0.5">
+          <button
+            type="button"
+            onClick={() => setMobileView("conversation")}
+            className={`inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-1.5 text-xs font-semibold transition ${
+              mobileView === "conversation"
+                ? "bg-white text-stone-900 shadow-sm"
+                : "text-stone-500"
+            }`}
+          >
+            <LayoutPanelLeft className="h-3.5 w-3.5" />
+            {t("workspaceTab")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setMobileView("preview")}
+            className={`relative inline-flex items-center justify-center gap-1.5 rounded-md px-4 py-1.5 text-xs font-semibold transition ${
+              mobileView === "preview"
+                ? "bg-white text-stone-900 shadow-sm"
+                : "text-stone-500"
+            }`}
+          >
+            <ScrollText className="h-3.5 w-3.5" />
+            {t("preview")}
+            {hasUnseenPreviewChanges && mobileView !== "preview" ? (
+              <span className="absolute right-1 top-0.5 h-1.5 w-1.5 rounded-full bg-amber-500" />
+            ) : null}
+          </button>
+        </div>
+      </div>
+
+      {/* Desktop: side-by-side — conversation 40%, preview 60% */}
       <div className="hidden min-h-0 flex-1 lg:flex">
-        <div
-          className={`flex ${previewCollapsed ? "flex-1" : "w-[58%]"} min-w-0 flex-col border-r border-stone-200/80`}
-        >
+        <div className="flex w-[40%] min-w-0 flex-col bg-white">
           <ConversationPanel
             messages={conversation.messages}
             draftId={draftId}
@@ -207,27 +230,15 @@ export default function DraftWorkspacePage({
             onZoneChipClick={handleZoneClick}
           />
         </div>
-        {!previewCollapsed && (
-          <div className="flex min-w-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-6">
-            <LetterPreview
-              draft={draft.data}
-              onZoneClick={handleZoneClick}
-              activeZone={activeZone}
-            />
-          </div>
-        )}
-        <button
-          type="button"
-          onClick={() => setPreviewCollapsed((c) => !c)}
-          aria-label={previewCollapsed ? t("showPreview") : t("hidePreview")}
-          className="flex w-8 shrink-0 items-center justify-center border-l border-stone-200/80 bg-stone-50 text-stone-400 transition hover:bg-stone-100 hover:text-stone-600"
-        >
-          {previewCollapsed ? (
-            <ChevronLeft className="h-4 w-4" />
-          ) : (
-            <ChevronRight className="h-4 w-4" />
-          )}
-        </button>
+        <div className="flex min-w-0 flex-1 flex-col overflow-y-auto bg-stone-50 p-6">
+          <LetterPreview
+            draft={draft.data}
+            editingZone={editingZone}
+            onZoneClick={handleZoneClick}
+            onZoneSave={handleZoneSave}
+            onZoneCancel={handleZoneCancel}
+          />
+        </div>
       </div>
 
       {/* Mobile/Tablet: both panels mounted, CSS toggle */}
@@ -249,35 +260,44 @@ export default function DraftWorkspacePage({
           <div className="pb-[calc(env(safe-area-inset-bottom)+1rem)]">
             <LetterPreview
               draft={draft.data}
+              editingZone={editingZone}
               onZoneClick={handleZoneClick}
-              activeZone={activeZone}
+              onZoneSave={handleZoneSave}
+              onZoneCancel={handleZoneCancel}
             />
           </div>
         </div>
       </div>
 
-      {activeZone && (
-        <>
-          <div
-            className="fixed inset-0 z-40 bg-black/20"
-            onClick={() => setActiveZone(null)}
-          />
-          <div className="fixed inset-x-0 bottom-0 z-50 lg:absolute lg:inset-auto lg:right-4 lg:top-20 lg:w-96">
+      {/* Address zone editor — backdrop + popover (desktop) or sheet (mobile) */}
+      {isAddressEditing && (
+        <div
+          className="fixed inset-0 z-50 bg-black/20 backdrop-blur-[2px]"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleZoneCancel();
+          }}
+          role="presentation"
+        >
+          {isDesktop ? (
+            <div className="flex h-full items-center justify-center p-8">
+              <ZoneEditor
+                zone={editingZone}
+                initialValue={addressInitialValue}
+                onSave={async (value) => { await handleZoneSave(editingZone, value); }}
+                onCancel={handleZoneCancel}
+                isMobile={false}
+              />
+            </div>
+          ) : (
             <ZoneEditor
-              zone={activeZone}
-              initialValue={
-                activeZone === "subject"
-                  ? (draft.data?.subject ?? null)
-                  : activeZone === "body"
-                    ? (draft.data?.body ?? null)
-                    : null
-              }
-              onSave={handleZoneSave}
-              onCancel={() => setActiveZone(null)}
-              isMobile={isMobileZoneEditor}
+              zone={editingZone}
+              initialValue={addressInitialValue}
+              onSave={async (value) => { await handleZoneSave(editingZone, value); }}
+              onCancel={handleZoneCancel}
+              isMobile
             />
-          </div>
-        </>
+          )}
+        </div>
       )}
     </div>
   );

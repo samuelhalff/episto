@@ -1,8 +1,15 @@
 "use client";
 
-import { Fragment, type CSSProperties, type ReactNode } from "react";
+import {
+  Fragment,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, Pencil } from "lucide-react";
+import { Check, Loader2, Pencil, X } from "lucide-react";
 import type {
   DraftLetter,
   DocumentBlock,
@@ -10,19 +17,26 @@ import type {
   InlineSpan,
   ListItem,
 } from "@swiss-mail/shared";
-import { extractAiDocumentMetadata } from "@swiss-mail/shared";
+import { DRAFT_CONTENT_LIMITS, extractAiDocumentMetadata } from "@swiss-mail/shared";
 import type { ZoneKind } from "./ZoneEditor.js";
 
 interface LetterPreviewProps {
   draft: DraftLetter | undefined;
+  editingZone?: ZoneKind | null | undefined;
   onZoneClick?: ((zone: ZoneKind) => void) | undefined;
+  onZoneSave?: ((zone: ZoneKind, value: string | object) => Promise<void>) | undefined;
+  onZoneCancel?: (() => void) | undefined;
+  /** @deprecated Use editingZone instead */
   activeZone?: ZoneKind | null | undefined;
 }
 
 export function LetterPreview({
   draft,
+  editingZone,
   onZoneClick,
-  activeZone,
+  onZoneSave,
+  onZoneCancel,
+  activeZone: _activeZone,
 }: LetterPreviewProps) {
   const t = useTranslations("draft");
 
@@ -40,7 +54,7 @@ export function LetterPreview({
 
   return (
     <div className="mx-auto w-full max-w-[720px]">
-      <div className="rounded-[2rem] border border-stone-200/80 bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.08)] sm:p-6 lg:p-8">
+      <div className="rounded-[2rem] bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.08)] sm:p-6 lg:p-8">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
           <div>
             <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">
@@ -52,13 +66,9 @@ export function LetterPreview({
             A4
           </span>
         </div>
-        <div className="rounded-[1.5rem] border border-stone-200 bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-inner sm:p-6">
+        <div className="rounded-[1.5rem] bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-[inset_0_1px_2px_rgba(120,53,15,0.06)] sm:p-6">
           <div className="min-h-[560px] space-y-8 text-sm text-stone-700">
-            <ZoneBlock
-              zone="sender"
-              onZoneClick={onZoneClick}
-              isActive={activeZone === "sender"}
-            >
+            <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
               <div className="text-xs text-stone-400">
                 {draft.senderProfileId ? (
                   <span className="text-stone-600">&#x2709; {t("senderLabel")}</span>
@@ -68,11 +78,7 @@ export function LetterPreview({
               </div>
             </ZoneBlock>
 
-            <ZoneBlock
-              zone="recipient"
-              onZoneClick={onZoneClick}
-              isActive={activeZone === "recipient"}
-            >
+            <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
               <div className="mt-6 text-stone-400">
                 {draft.recipientProfileId ? (
                   <span className="text-stone-600">{t("recipientLabel")}</span>
@@ -90,33 +96,52 @@ export function LetterPreview({
               })}
             </div>
 
-            <ZoneBlock
-              zone="subject"
-              onZoneClick={onZoneClick}
-              isActive={activeZone === "subject"}
-            >
-              <div className="font-semibold text-stone-900">
-                {draft.subject ?? (
-                  <span className="font-normal italic text-stone-400">
-                    {t("subjectPlaceholder")}
-                  </span>
-                )}
-              </div>
-            </ZoneBlock>
+            {editingZone === "subject" ? (
+              <InlineTextEditor
+                zone="subject"
+                initialValue={draft.subject ?? ""}
+                onSave={onZoneSave}
+                onCancel={onZoneCancel}
+              />
+            ) : (
+              <ZoneBlock
+                zone="subject"
+                isEditing={false}
+                onZoneClick={onZoneClick}
+              >
+                <div className="font-semibold text-stone-900">
+                  {draft.subject ?? (
+                    <span className="font-normal italic text-stone-400">
+                      {t("subjectPlaceholder")}
+                    </span>
+                  )}
+                </div>
+              </ZoneBlock>
+            )}
 
-            <ZoneBlock
-              zone="body"
-              onZoneClick={onZoneClick}
-              isActive={activeZone === "body"}
-            >
-              <div className="space-y-4 leading-relaxed">
-                {draft.body ? (
-                  <DocumentPreview document={document} />
-                ) : (
-                  <span className="italic text-stone-400">{t("bodyPlaceholder")}</span>
-                )}
-              </div>
-            </ZoneBlock>
+            {editingZone === "body" ? (
+              <InlineTextEditor
+                zone="body"
+                initialValue={draft.body ?? ""}
+                onSave={onZoneSave}
+                onCancel={onZoneCancel}
+                multiline
+              />
+            ) : (
+              <ZoneBlock
+                zone="body"
+                isEditing={false}
+                onZoneClick={onZoneClick}
+              >
+                <div className="space-y-4 leading-relaxed">
+                  {draft.body ? (
+                    <DocumentPreview document={document} />
+                  ) : (
+                    <span className="italic text-stone-400">{t("bodyPlaceholder")}</span>
+                  )}
+                </div>
+              </ZoneBlock>
+            )}
 
             {draft.enclosureNote && (
               <div className="border-t border-stone-100 pt-4 text-xs text-stone-500">
@@ -136,18 +161,133 @@ export function LetterPreview({
   );
 }
 
+// ---------------------------------------------------------------------------
+// Inline text editor — replaces zone content when editing
+// ---------------------------------------------------------------------------
+
+function InlineTextEditor({
+  zone,
+  initialValue,
+  onSave,
+  onCancel,
+  multiline = false,
+}: {
+  zone: ZoneKind;
+  initialValue: string;
+  onSave?: ((zone: ZoneKind, value: string | object) => Promise<void>) | undefined;
+  onCancel?: (() => void) | undefined;
+  multiline?: boolean;
+}) {
+  const t = useTranslations("zoneEditor");
+  const [value, setValue] = useState(initialValue);
+  const [isSaving, setIsSaving] = useState(false);
+  const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement | null>(null);
+
+  const maxLength =
+    zone === "body"
+      ? DRAFT_CONTENT_LIMITS.bodyChars
+      : zone === "subject"
+        ? DRAFT_CONTENT_LIMITS.subjectChars
+        : 300;
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "Escape") {
+      onCancel?.();
+    } else if (e.key === "Enter" && !e.shiftKey && !multiline) {
+      e.preventDefault();
+      void handleSave();
+    }
+  }
+
+  async function handleSave() {
+    if (!value.trim()) return;
+    setIsSaving(true);
+    try {
+      await onSave?.(zone, value);
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  const inputClass =
+    "w-full rounded-lg border border-amber-300 bg-amber-50/30 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200/60 transition";
+
+  return (
+    <div className="-mx-2 rounded-xl bg-amber-50/40 px-3 py-3 ring-1 ring-amber-200/80">
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-xs font-medium text-amber-700">
+          {t(`zone.${zone}`)}
+        </span>
+        {zone === "body" && (
+          <span className="text-xs text-stone-400">
+            {value.length}/{maxLength}
+          </span>
+        )}
+      </div>
+      {multiline ? (
+        <textarea
+          ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+          value={value}
+          maxLength={maxLength}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          rows={8}
+          className={`${inputClass} resize-none px-3 py-2`}
+        />
+      ) : (
+        <input
+          ref={inputRef as React.RefObject<HTMLInputElement>}
+          type="text"
+          value={value}
+          maxLength={maxLength}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={handleKeyDown}
+          className={`${inputClass} px-3 py-2`}
+        />
+      )}
+      <div className="mt-2 flex items-center justify-end gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-stone-500 transition hover:bg-stone-100"
+        >
+          <X className="h-3 w-3" />
+          {t("action.cancel")}
+        </button>
+        <button
+          type="button"
+          disabled={isSaving || !value.trim()}
+          onClick={() => void handleSave()}
+          className="inline-flex items-center gap-1 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-amber-600 disabled:opacity-50"
+        >
+          <Check className="h-3 w-3" />
+          {isSaving ? t("action.saving") : t("action.save")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Zone block — clickable wrapper with hover edit affordance
+// ---------------------------------------------------------------------------
+
 function ZoneBlock({
   zone,
+  isEditing,
   onZoneClick,
-  isActive,
   children,
 }: {
   zone: ZoneKind;
+  isEditing?: boolean;
   onZoneClick?: ((zone: ZoneKind) => void) | undefined;
-  isActive?: boolean | undefined;
   children: ReactNode;
 }) {
-  if (!onZoneClick) {
+  if (!onZoneClick || isEditing) {
     return <div className="-mx-2 w-[calc(100%+1rem)] px-2 py-1">{children}</div>;
   }
 
@@ -155,9 +295,7 @@ function ZoneBlock({
     <button
       type="button"
       onClick={() => onZoneClick(zone)}
-      className={`group relative -mx-2 w-[calc(100%+1rem)] cursor-pointer rounded-lg px-2 py-1 text-left transition-colors duration-150 hover:bg-amber-50/60 ${
-        isActive ? "bg-amber-50 ring-1 ring-amber-300" : ""
-      }`}
+      className="group relative -mx-2 w-[calc(100%+1rem)] cursor-pointer rounded-lg px-2 py-1 text-left transition-colors duration-150 hover:bg-amber-50/60"
     >
       <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
         <Pencil className="h-3.5 w-3.5 text-amber-500" />
@@ -166,6 +304,10 @@ function ZoneBlock({
     </button>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Document rendering (unchanged)
+// ---------------------------------------------------------------------------
 
 function DocumentPreview({ document }: { document: DocumentModel }) {
   return (
