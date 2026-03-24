@@ -6,3 +6,4 @@ export * from "./contracts/index.js";
 export * from "./state-machines.js";
 export * from "./limits.js";
 export * from "./document-response.js";
+export * from "./workspace-draft.js";

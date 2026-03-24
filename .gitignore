@@ -14,7 +14,9 @@ shared/coverage/
 *.tsbuildinfo
 
 *.log
+.local/
 .env
 .env.*
 !.env.example
 .fuse_hidden*
+test-results/

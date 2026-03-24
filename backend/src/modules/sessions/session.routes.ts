@@ -109,28 +109,27 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
     async (request: FastifyRequest, reply: FastifyReply) => {
       const session = request.session!;
       const db = getDb();
-      const body = request.body as Record<string, unknown> | null;
+      const UpdateSessionBody = z.object({
+        locale: LocaleSchema.optional(),
+        email: z.string().email().max(254).optional(),
+      }).strict();
+      const parsed = UpdateSessionBody.safeParse(request.body ?? {});
+
+      if (!parsed.success) {
+        throw validationError("Invalid session update", parsed.error.errors.map((e) => ({
+          field: e.path.join("."),
+          message: e.message,
+        })));
+      }
 
       const updates: { locale?: string; email?: string } = {};
 
-      if (body?.locale !== undefined) {
-        const parsed = LocaleSchema.safeParse(body.locale);
-        if (!parsed.success) {
-          throw validationError("Invalid locale", [
-            { field: "locale", message: "Must be one of: de-CH, fr-CH, it-CH, en-CH" },
-          ]);
-        }
-        updates.locale = parsed.data;
+      if (parsed.data.locale !== undefined) {
+        updates.locale = parsed.data.locale;
       }
 
-      if (body?.email !== undefined) {
-        const emailResult = z.string().email().max(254).safeParse(body.email);
-        if (!emailResult.success) {
-          throw validationError("Invalid email", [
-            { field: "email", message: "Must be a valid email address" },
-          ]);
-        }
-        updates.email = emailResult.data;
+      if (parsed.data.email !== undefined) {
+        updates.email = parsed.data.email;
       }
 
       const updated = await updateSession(db, session.id, updates);

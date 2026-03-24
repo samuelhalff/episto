@@ -1,24 +1,18 @@
 "use client";
 
 import {
-  Fragment,
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { useTranslations } from "next-intl";
 import { Check, Loader2, Pencil, X } from "lucide-react";
-import type {
-  DraftLetter,
-  DocumentBlock,
-  DocumentModel,
-  InlineSpan,
-  ListItem,
-} from "@swiss-mail/shared";
+import type { DraftLetter } from "@swiss-mail/shared";
 import { DRAFT_CONTENT_LIMITS, extractAiDocumentMetadata } from "@swiss-mail/shared";
-import type { ZoneKind } from "./ZoneEditor.js";
+import { DocumentPreview, fallbackDocument } from "./DocumentPreview.js";
+
+export type ZoneKind = "sender" | "recipient" | "date" | "subject" | "salutation" | "body" | "closing";
 
 interface LetterPreviewProps {
   draft: DraftLetter | undefined;
@@ -26,8 +20,6 @@ interface LetterPreviewProps {
   onZoneClick?: ((zone: ZoneKind) => void) | undefined;
   onZoneSave?: ((zone: ZoneKind, value: string | object) => Promise<void>) | undefined;
   onZoneCancel?: (() => void) | undefined;
-  /** @deprecated Use editingZone instead */
-  activeZone?: ZoneKind | null | undefined;
 }
 
 export function LetterPreview({
@@ -36,7 +28,6 @@ export function LetterPreview({
   onZoneClick,
   onZoneSave,
   onZoneCancel,
-  activeZone: _activeZone,
 }: LetterPreviewProps) {
   const t = useTranslations("draft");
 
@@ -53,25 +44,28 @@ export function LetterPreview({
     fallbackDocument(draft.body ?? "");
 
   return (
-    <div className="mx-auto w-full max-w-[720px]">
-      <div className="rounded-[2rem] bg-white p-5 shadow-[0_22px_60px_rgba(15,23,42,0.08)] sm:p-6 lg:p-8">
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-stone-100 pb-4">
+    <div className="letter-preview-container mx-auto w-full max-w-[720px]" data-theme="light">
+      <div
+        className="rounded-[24px] bg-white p-5 shadow-sm sm:p-6 lg:p-8"
+        style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
+      >
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-4">
           <div>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-stone-400">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
               {t("preview")}
             </p>
-            <p className="mt-1 text-sm text-stone-500">{t("previewSheetHint")}</p>
+            <p className="mt-1 text-sm text-zinc-500">{t("previewSheetHint")}</p>
           </div>
-          <span className="rounded-full bg-stone-100 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.18em] text-stone-500">
+          <span className="rounded-lg bg-zinc-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">
             A4
           </span>
         </div>
-        <div className="rounded-[1.5rem] bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-[inset_0_1px_2px_rgba(120,53,15,0.06)] sm:p-6">
-          <div className="min-h-[560px] space-y-8 text-sm text-stone-700">
+        <div className="rounded-[18px] bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] sm:p-6">
+          <div className="min-h-[560px] space-y-8 text-sm text-zinc-700">
             <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
-              <div className="text-xs text-stone-400">
+              <div className="text-xs text-zinc-400">
                 {draft.senderProfileId ? (
-                  <span className="text-stone-600">&#x2709; {t("senderLabel")}</span>
+                  <span className="text-zinc-600">&#x2709; {t("senderLabel")}</span>
                 ) : (
                   <span className="italic">{t("senderPlaceholder")}</span>
                 )}
@@ -79,16 +73,16 @@ export function LetterPreview({
             </ZoneBlock>
 
             <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
-              <div className="mt-6 text-stone-400">
+              <div className="mt-6 text-zinc-400">
                 {draft.recipientProfileId ? (
-                  <span className="text-stone-600">{t("recipientLabel")}</span>
+                  <span className="text-zinc-600">{t("recipientLabel")}</span>
                 ) : (
                   <span className="italic">{t("recipientPlaceholder")}</span>
                 )}
               </div>
             </ZoneBlock>
 
-            <div className="text-right text-xs text-stone-400">
+            <div className="text-right text-xs text-zinc-400">
               {new Date().toLocaleDateString(draft.locale, {
                 year: "numeric",
                 month: "long",
@@ -104,14 +98,10 @@ export function LetterPreview({
                 onCancel={onZoneCancel}
               />
             ) : (
-              <ZoneBlock
-                zone="subject"
-                isEditing={false}
-                onZoneClick={onZoneClick}
-              >
-                <div className="font-semibold text-stone-900">
+              <ZoneBlock zone="subject" isEditing={false} onZoneClick={onZoneClick}>
+                <div className="font-semibold text-zinc-900">
                   {draft.subject ?? (
-                    <span className="font-normal italic text-stone-400">
+                    <span className="font-normal italic text-zinc-400">
                       {t("subjectPlaceholder")}
                     </span>
                   )}
@@ -128,29 +118,25 @@ export function LetterPreview({
                 multiline
               />
             ) : (
-              <ZoneBlock
-                zone="body"
-                isEditing={false}
-                onZoneClick={onZoneClick}
-              >
+              <ZoneBlock zone="body" isEditing={false} onZoneClick={onZoneClick}>
                 <div className="space-y-4 leading-relaxed">
                   {draft.body ? (
                     <DocumentPreview document={document} />
                   ) : (
-                    <span className="italic text-stone-400">{t("bodyPlaceholder")}</span>
+                    <span className="italic text-zinc-400">{t("bodyPlaceholder")}</span>
                   )}
                 </div>
               </ZoneBlock>
             )}
 
             {draft.enclosureNote && (
-              <div className="border-t border-stone-100 pt-4 text-xs text-stone-500">
+              <div className="border-t border-zinc-100 pt-4 text-xs text-zinc-500">
                 {draft.enclosureNote}
               </div>
             )}
 
             {draft.signatureMode && (
-              <div className="pt-6 text-stone-500">
+              <div className="pt-6 text-zinc-500">
                 <span className="italic">{t("signatureLabel")}</span>
               </div>
             )}
@@ -219,9 +205,7 @@ function InlineTextEditor({
   return (
     <div className="-mx-2 rounded-xl bg-amber-50/40 px-3 py-3 ring-1 ring-amber-200/80">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-medium text-amber-700">
-          {t(`zone.${zone}`)}
-        </span>
+        <span className="text-xs font-medium text-amber-700">{t(`zone.${zone}`)}</span>
         {zone === "body" && (
           <span className="text-xs text-stone-400">
             {value.length}/{maxLength}
@@ -295,187 +279,13 @@ function ZoneBlock({
     <button
       type="button"
       onClick={() => onZoneClick(zone)}
-      className="group relative -mx-2 w-[calc(100%+1rem)] cursor-pointer rounded-lg px-2 py-1 text-left transition-colors duration-150 hover:bg-amber-50/60"
+      className="group relative -mx-2 w-[calc(100%+1rem)] cursor-pointer rounded-[12px] px-2 py-1 text-left transition-all duration-150 hover:bg-zinc-50"
     >
       <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
-        <Pencil className="h-3.5 w-3.5 text-amber-500" />
+        <Pencil className="h-3.5 w-3.5 text-zinc-400" />
       </span>
       {children}
     </button>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Document rendering (unchanged)
-// ---------------------------------------------------------------------------
-
-function DocumentPreview({ document }: { document: DocumentModel }) {
-  return (
-    <div className="space-y-4">
-      {document.blocks.map((block, index) => (
-        <Fragment key={`${block.type}-${index}`}>{renderBlock(block)}</Fragment>
-      ))}
-    </div>
-  );
-}
-
-function renderBlock(block: DocumentBlock) {
-  if (block.type === "paragraph") {
-    const className = paragraphClassName(block.style, block.alignment);
-    const style: CSSProperties = {
-      marginTop: block.spacingBefore ? `${block.spacingBefore}pt` : undefined,
-      marginBottom: block.spacingAfter ? `${block.spacingAfter}pt` : undefined,
-      paddingLeft: block.indentation ? `${block.indentation}pt` : undefined,
-    };
-
-    if (block.style === "Heading 1") {
-      return (
-        <h1 className={className} style={style}>
-          {renderInlineText(block.text, block.spans ?? [])}
-        </h1>
-      );
-    }
-
-    if (block.style === "Heading 2") {
-      return (
-        <h2 className={className} style={style}>
-          {renderInlineText(block.text, block.spans ?? [])}
-        </h2>
-      );
-    }
-
-    if (block.style === "Heading 3") {
-      return (
-        <h3 className={className} style={style}>
-          {renderInlineText(block.text, block.spans ?? [])}
-        </h3>
-      );
-    }
-
-    return (
-      <p className={className} style={style}>
-        {renderInlineText(block.text, block.spans ?? [])}
-      </p>
-    );
-  }
-
-  if (block.type === "list") {
-    const ListTag = block.listType === "numbered" ? "ol" : "ul";
-    return (
-      <ListTag className="ml-6 space-y-2">
-        {block.items.map((item, index) => (
-          <ListItemPreview key={`${item.text}-${index}`} item={item} />
-        ))}
-      </ListTag>
-    );
-  }
-
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm">
-        <thead>
-          <tr className="bg-stone-100">
-            {block.headers.map((header) => (
-              <th
-                key={header}
-                className="border border-stone-300 px-3 py-2 font-semibold text-stone-800"
-              >
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {block.rows.map((row, rowIndex) => (
-            <tr key={`row-${rowIndex}`}>
-              {row.map((cell, cellIndex) => (
-                <td
-                  key={`cell-${rowIndex}-${cellIndex}`}
-                  className="border border-stone-300 px-3 py-2 align-top"
-                >
-                  {cell}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function ListItemPreview({ item }: { item: ListItem }) {
-  return (
-    <li className="leading-relaxed">
-      <span>{renderInlineText(item.text, item.spans ?? [])}</span>
-      {item.children && item.children.length > 0 ? (
-        <ul className="ml-6 mt-2 space-y-2">
-          {item.children.map((child, index) => (
-            <ListItemPreview key={`${child.text}-${index}`} item={child} />
-          ))}
-        </ul>
-      ) : null}
-    </li>
-  );
-}
-
-function paragraphClassName(style: string, alignment?: string): string {
-  const classes = ["whitespace-pre-wrap", "text-stone-700"];
-  if (style === "Heading 1") classes.push("text-2xl", "font-bold", "text-stone-900");
-  else if (style === "Heading 2") classes.push("text-xl", "font-bold", "text-stone-900");
-  else if (style === "Heading 3")
-    classes.push("text-lg", "font-semibold", "text-stone-900");
-  else classes.push("text-sm", "leading-7");
-
-  if (alignment === "center") classes.push("text-center");
-  else if (alignment === "right") classes.push("text-right");
-  else if (alignment === "justify") classes.push("text-justify");
-
-  return classes.join(" ");
-}
-
-function renderInlineText(text: string, spans: InlineSpan[]) {
-  if (spans.length === 0) {
-    return text;
-  }
-
-  const sorted = [...spans].sort((a, b) => a.start - b.start || a.end - b.end);
-  const nodes: ReactNode[] = [];
-  let cursor = 0;
-
-  sorted.forEach((span, index) => {
-    if (span.start > cursor) {
-      nodes.push(
-        <Fragment key={`plain-${index}-${cursor}`}>
-          {text.slice(cursor, span.start)}
-        </Fragment>,
-      );
-    }
-
-    let content: React.ReactNode = text.slice(span.start, span.end);
-    if (span.bold) content = <strong>{content}</strong>;
-    if (span.italic) content = <em>{content}</em>;
-    if (span.underline) content = <u>{content}</u>;
-    nodes.push(<Fragment key={`span-${index}`}>{content}</Fragment>);
-    cursor = span.end;
-  });
-
-  if (cursor < text.length) {
-    nodes.push(<Fragment key={`tail-${cursor}`}>{text.slice(cursor)}</Fragment>);
-  }
-
-  return nodes;
-}
-
-function fallbackDocument(body: string): DocumentModel {
-  return {
-    version: "1.0",
-    blocks: [
-      {
-        type: "paragraph",
-        text: body,
-        style: "Normal",
-      },
-    ],
-  };
-}

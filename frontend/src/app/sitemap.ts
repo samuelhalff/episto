@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE_URL = "https://swissmail.ch";
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://swissmail.ch";
 const LOCALES = ["de-CH", "fr-CH", "it-CH", "en-CH"] as const;
 
 const STATIC_ROUTES = [

@@ -8,6 +8,7 @@ import {
   listSupportEventsForDraft,
   listSupportEventsForSession,
 } from "./index.js";
+import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { adminActionRoutes } from "./admin-actions.routes.js";
 import { adminHealthRoutes } from "./admin-health.routes.js";
 import { adminOverviewRoutes } from "./admin-overview.routes.js";
@@ -33,8 +34,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!draft) {
-        reply.status(404).send({ error: "Draft not found" });
-        return;
+        throw notFoundError("draft");
       }
 
       // Collect all event sources into a unified timeline
@@ -132,8 +132,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!session) {
-        reply.status(404).send({ error: "Session not found" });
-        return;
+        throw notFoundError("session");
       }
 
       const drafts = await db
@@ -174,8 +173,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
       const body = request.body as { reason?: string } | null;
 
       if (!body?.reason || typeof body.reason !== "string" || body.reason.length < 5) {
-        reply.status(400).send({ error: "A reason is required for content access (min 5 chars)." });
-        return;
+        throw validationError("A reason is required for content access (min 5 chars).");
       }
 
       const [draft] = await db
@@ -185,8 +183,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!draft) {
-        reply.status(404).send({ error: "Draft not found" });
-        return;
+        throw notFoundError("draft");
       }
 
       // Emit auditable support event per docs requirement

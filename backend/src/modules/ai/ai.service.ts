@@ -16,12 +16,14 @@ import {
   extractFieldsPrompt,
   askFollowUpPrompt,
   draftLetterPrompt,
+  generateSubjectPrompt,
   reviseLetterPrompt,
   validateOutputPrompt,
   type ClassifyIntentInput,
   type ExtractFieldsInput,
   type AskFollowUpInput,
   type DraftLetterInput,
+  type GenerateSubjectInput,
   type ReviseLetterInput,
   type ValidateOutputInput,
 } from "./prompts/index.js";
@@ -36,6 +38,41 @@ import {
 import type { DocumentModel } from "@swiss-mail/shared";
 
 const logger = createLogger("ai-service");
+
+export function parseJsonResponse<T>(raw: string): T {
+  const trimmed = raw.trim();
+  const withoutCodeFence = trimmed
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/i, "")
+    .trim();
+
+  try {
+    return JSON.parse(withoutCodeFence) as T;
+  } catch {
+    const objectStart = withoutCodeFence.indexOf("{");
+    const objectEnd = withoutCodeFence.lastIndexOf("}");
+
+    if (objectStart !== -1 && objectEnd !== -1 && objectEnd > objectStart) {
+      return JSON.parse(withoutCodeFence.slice(objectStart, objectEnd + 1)) as T;
+    }
+
+    const arrayStart = withoutCodeFence.indexOf("[");
+    const arrayEnd = withoutCodeFence.lastIndexOf("]");
+
+    if (arrayStart !== -1 && arrayEnd !== -1 && arrayEnd > arrayStart) {
+      return JSON.parse(withoutCodeFence.slice(arrayStart, arrayEnd + 1)) as T;
+    }
+
+    throw new AppError({
+      family: "rendering_failure",
+      statusCode: 502,
+      code: "AI_RESPONSE_UNPARSEABLE",
+      message: `No JSON object or array found in model response: ${withoutCodeFence.slice(0, 100)}`,
+      userMessage: "The AI response could not be interpreted.",
+      userAction: "Please try again or continue editing manually.",
+    });
+  }
+}
 
 // ---------------------------------------------------------------------------
 // 1. Classify intent
@@ -54,7 +91,7 @@ export async function classifyIntent(
   const raw = await complete({ model: "classify", messages, temperature: 0.3 });
 
   try {
-    const result = JSON.parse(raw) as ClassificationResult;
+    const result = parseJsonResponse<ClassificationResult>(raw);
 
     if (result.intent === "blocked") {
       throw new AppError({
@@ -86,7 +123,7 @@ export async function extractFields(
   const raw = await complete({ model: "classify", messages, temperature: 0.2 });
 
   try {
-    return JSON.parse(raw) as Record<string, unknown>;
+    return parseJsonResponse<Record<string, unknown>>(raw);
   } catch {
     logger.error({ raw }, "Failed to parse field extraction result");
     return {};
@@ -110,7 +147,7 @@ export async function askFollowUp(
   const raw = await complete({ model: "classify", messages, temperature: 0.5 });
 
   try {
-    return JSON.parse(raw) as FollowUpResult;
+    return parseJsonResponse<FollowUpResult>(raw);
   } catch {
     logger.error({ raw }, "Failed to parse follow-up result");
     return { ready: false, question: "Could you provide more details about your letter?" };
@@ -127,6 +164,24 @@ export async function draftLetter(
 ): Promise<AppliedDocumentResult> {
   const messages = draftLetterPrompt(input);
   return generateStructuredDocument(messages, undefined, options);
+}
+
+export async function generateSubject(input: GenerateSubjectInput): Promise<string | null> {
+  const messages = generateSubjectPrompt(input);
+  const raw = await complete({ model: "classify", messages, temperature: 0.3, maxTokens: 120 });
+
+  try {
+    const result = parseJsonResponse<{ subject?: string }>(raw);
+    const subject = result.subject?.trim();
+    if (!subject) {
+      return null;
+    }
+
+    return subject.slice(0, 200);
+  } catch {
+    logger.error({ raw }, "Failed to parse generated subject");
+    return null;
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -146,7 +201,7 @@ export async function validateOutput(
   const raw = await complete({ model: "classify", messages, temperature: 0.1 });
 
   try {
-    return JSON.parse(raw) as ValidationResult;
+    return parseJsonResponse<ValidationResult>(raw);
   } catch {
     logger.error({ raw }, "Failed to parse validation result");
     return { valid: true, violations: [], severity: "none" };

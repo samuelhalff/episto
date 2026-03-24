@@ -93,7 +93,7 @@ export async function createDispatchAttempt(
     })
     .returning();
 
-  if (!row) throw new Error("Failed to create dispatch attempt");
+  if (!row) throw notFoundError("dispatch attempt (insert returned no rows)");
   return toDispatchRow(row);
 }
 
@@ -232,6 +232,6 @@ export async function recordDispatchEvent(
     })
     .returning();
 
-  if (!row) throw new Error("Failed to create dispatch status event");
+  if (!row) throw notFoundError("dispatch status event (insert returned no rows)");
   return toEventRow(row);
 }

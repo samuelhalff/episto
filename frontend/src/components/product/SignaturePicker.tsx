@@ -4,6 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { Upload, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { FileAsset } from "@swiss-mail/shared";
+import { getApiUrl } from "../../lib/api.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -119,7 +120,7 @@ export function SignaturePicker({
           {signatureAsset ? (
             <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2">
               <img
-                src={`/api/v1/drafts/files/${signatureAsset.id}`}
+                src={getApiUrl(`/v1/drafts/files/${signatureAsset.id}`)}
                 alt={t("imageAlt")}
                 className="h-12 max-w-[200px] object-contain"
               />

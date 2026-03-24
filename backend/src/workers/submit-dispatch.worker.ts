@@ -8,8 +8,8 @@ import {
   getQueue,
 } from "../queue/index.js";
 import { createLogger } from "../shared/logging/index.js";
-import { getDb } from "../db/index.js";
-import { schema } from "../db/index.js";
+import { getDb, schema } from "../db/index.js";
+import { notFoundError, validationError } from "../shared/errors/index.js";
 import {
   createDispatchAttempt,
   transitionDispatchState,
@@ -56,7 +56,7 @@ export function startSubmitDispatchWorker(): Worker<SubmitDispatchJob> {
         .limit(1);
 
       if (!snapshot) {
-        throw new Error(`Snapshot not found: ${snapshotId}`);
+        throw notFoundError(`snapshot ${snapshotId}`);
       }
 
       const snapshotData = snapshot.snapshotData as {
@@ -73,7 +73,7 @@ export function startSubmitDispatchWorker(): Worker<SubmitDispatchJob> {
       };
 
       if (!snapshotData.recipient) {
-        throw new Error(`Snapshot ${snapshotId} missing recipient data`);
+        throw validationError(`Snapshot ${snapshotId} missing recipient data`);
       }
 
       // Get the rendered PDF storage key
@@ -87,7 +87,7 @@ export function startSubmitDispatchWorker(): Worker<SubmitDispatchJob> {
         : null;
 
       if (!pdfAsset) {
-        throw new Error(`No rendered PDF found for snapshot ${snapshotId}`);
+        throw notFoundError(`rendered PDF for snapshot ${snapshotId}`);
       }
 
       // 3. Submit to provider

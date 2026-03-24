@@ -23,18 +23,7 @@ export default tseslint.config(
       },
     },
   },
-  {
-    files: ["screenshot.mjs"],
-    languageOptions: {
-      globals: {
-        console: "readonly",
-        document: "readonly",
-        HTMLElement: "readonly",
-        setTimeout: "readonly",
-        window: "readonly",
-      },
-    },
-  },
+
   {
     ignores: [
       "**/node_modules/",
