@@ -2,11 +2,11 @@
  * Barrel re-export for draft-flow UI primitives.
  *
  * Components are split into focused modules:
- *   - cards.tsx         — Card, ActionCard, DashedCard, PrimaryButton, ThreadActionCard
+ *   - cards.tsx         — Card, ActionCard, DashedCard, PrimaryButton, SegmentedControl, ThreadActionCard
  *   - draft-composer.tsx — DraftComposer, StepTriggerButton, ComposerBadge, ComposerIconButton
  *   - draft-shell.tsx   — DraftShell (main workspace layout)
  */
-export { Card, ActionCard, DashedCard, PrimaryButton, ThreadActionCard } from "./cards.js";
+export { Card, ActionCard, DashedCard, PrimaryButton, SegmentedControl, ThreadActionCard } from "./cards.js";
 export {
   DraftComposer,
   StepTriggerButton,

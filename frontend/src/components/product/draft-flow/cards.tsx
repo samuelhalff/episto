@@ -121,6 +121,46 @@ export function PrimaryButton({
   );
 }
 
+// ---------------------------------------------------------------------------
+// SegmentedControl — reusable pill toggle used across all steps
+// ---------------------------------------------------------------------------
+
+interface SegmentedOption<V extends string = string> {
+  value: V;
+  label: string;
+  icon?: ReactNode;
+}
+
+export function SegmentedControl<V extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: readonly SegmentedOption<V>[];
+  value: V;
+  onChange: (value: V) => void;
+}) {
+  return (
+    <div className="inline-flex rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
+      {options.map((option) => (
+        <button
+          key={option.value}
+          type="button"
+          onClick={() => onChange(option.value)}
+          className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-widest transition-all ${
+            value === option.value
+              ? "bg-amber-100 text-amber-900 shadow-sm ring-1 ring-amber-200 dark:bg-amber-400/20 dark:text-amber-200 dark:ring-amber-300/30"
+              : "text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+          }`}
+        >
+          {option.icon}
+          {option.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 interface ThreadActionCardProps {
   title?: string;
   description?: string;

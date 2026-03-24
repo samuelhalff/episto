@@ -13,7 +13,7 @@ import {
 import { usePricing } from "../../../hooks/use-pricing.js";
 import { useRouter } from "../../../i18n/navigation.js";
 import { getApiUrl } from "../../../lib/api.js";
-import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton } from "./ui.js";
+import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton, SegmentedControl } from "./ui.js";
 
 function getPreviewSenderName(sender: {
   firstName: string;
@@ -218,30 +218,14 @@ export function LogisticsStep({ draftId, onStepClick, isStepMenuOpen, isCompactV
             <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
               {t("signatureLabel")}
             </h3>
-            <div className="flex items-center gap-1 rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
-              <button
-                type="button"
-                onClick={() => setSignatureMode("typed")}
-                className={`rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-widest transition-all ${
-                  signatureMode === "typed"
-                    ? "bg-amber-100 text-amber-900 shadow-sm ring-1 ring-amber-200 dark:bg-amber-400/20 dark:text-amber-200 dark:ring-amber-300/30"
-                    : "text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
-                }`}
-              >
-                {t("signatureTyped")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setSignatureMode("image")}
-                className={`rounded-full px-3 py-1 text-[9px] font-bold uppercase tracking-widest transition-all ${
-                  signatureMode === "image"
-                    ? "bg-amber-100 text-amber-900 shadow-sm ring-1 ring-amber-200 dark:bg-amber-400/20 dark:text-amber-200 dark:ring-amber-300/30"
-                    : "text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
-                }`}
-              >
-                {t("signatureImage")}
-              </button>
-            </div>
+            <SegmentedControl
+              options={[
+                { value: "typed" as const, label: t("signatureTyped") },
+                { value: "image" as const, label: t("signatureImage") },
+              ]}
+              value={signatureMode}
+              onChange={(v) => setSignatureMode(v)}
+            />
           </div>
 
           {signatureMode === "typed" ? (

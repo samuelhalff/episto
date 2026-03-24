@@ -16,7 +16,7 @@ import {
 import { useQueuedAutosave } from "../../../hooks/use-queued-autosave.js";
 import { ApiError } from "../../../lib/api.js";
 import { captureError } from "../../../lib/error-tracking.js";
-import { DraftShell, Card, PrimaryButton } from "./ui.js";
+import { DraftShell, Card, PrimaryButton, SegmentedControl } from "./ui.js";
 import { CompanySearchResults } from "./company-search-results.js";
 import {
   getDraftWorkspaceState,
@@ -306,32 +306,22 @@ export function RecipientStep({
       <div className={`space-y-8 pb-4 ${isCompactViewport ? "pt-4" : ""}`}>
         <section className="space-y-6">
           <div className="flex justify-end px-1">
-            <div className="flex items-center gap-1 rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
-              <button
-                onClick={() => {
+            <SegmentedControl
+              options={[
+                { value: "person" as const, label: t("personLabel") },
+                { value: "company" as const, label: t("companyLabel") },
+              ]}
+              value={isCompany ? "company" : "person"}
+              onChange={(v) => {
+                if (v === "person") {
                   setIsCompany(false);
                   setShowManual(false);
                   setSelectedCompany(null);
-                }}
-                className={`min-w-[88px] rounded-full px-3.5 py-1 text-center text-[9px] font-bold uppercase tracking-widest transition-all ${
-                  !isCompany
-                    ? "bg-amber-100 text-amber-900 shadow-sm ring-1 ring-amber-200 dark:bg-amber-400/20 dark:text-amber-200 dark:ring-amber-300/30"
-                    : "text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
-                }`}
-              >
-                {t("personLabel")}
-              </button>
-              <button
-                onClick={() => setIsCompany(true)}
-                className={`min-w-[88px] rounded-full px-3.5 py-1 text-center text-[9px] font-bold uppercase tracking-widest transition-all ${
-                  isCompany
-                    ? "bg-amber-100 text-amber-900 shadow-sm ring-1 ring-amber-200 dark:bg-amber-400/20 dark:text-amber-200 dark:ring-amber-300/30"
-                    : "text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
-                }`}
-              >
-                {t("companyLabel")}
-              </button>
-            </div>
+                } else {
+                  setIsCompany(true);
+                }
+              }}
+            />
           </div>
 
           <div className="space-y-4">

@@ -13,6 +13,7 @@ import {
   DraftComposer,
   DraftShell,
   PrimaryButton,
+  SegmentedControl,
   StepTriggerButton,
 } from "./ui.js";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state.js";
@@ -31,48 +32,6 @@ interface StepProps {
 }
 
 type EditMode = "ai" | "manual";
-
-// ---------------------------------------------------------------------------
-// Mode toggle — segmented control (AI assistant ↔ Manual edit)
-// ---------------------------------------------------------------------------
-
-function ModeToggle({
-  mode,
-  onChange,
-}: {
-  mode: EditMode;
-  onChange: (mode: EditMode) => void;
-}) {
-  const t = useTranslations("draft");
-  return (
-    <div className="inline-flex rounded-full bg-zinc-100 p-1 dark:bg-zinc-800/80">
-      <button
-        type="button"
-        onClick={() => onChange("ai")}
-        className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-all ${
-          mode === "ai"
-            ? "bg-white text-zinc-900 shadow-sm ring-1 ring-black/5 dark:bg-zinc-700 dark:text-white dark:ring-white/10"
-            : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        }`}
-      >
-        <Sparkles className="h-3 w-3" />
-        {t("modeAi")}
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange("manual")}
-        className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[12px] font-semibold transition-all ${
-          mode === "manual"
-            ? "bg-white text-zinc-900 shadow-sm ring-1 ring-black/5 dark:bg-zinc-700 dark:text-white dark:ring-white/10"
-            : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-        }`}
-      >
-        <Pencil className="h-3 w-3" />
-        {t("modeManual")}
-      </button>
-    </div>
-  );
-}
 
 // ---------------------------------------------------------------------------
 // BodyStep
@@ -243,16 +202,6 @@ export function BodyStep({
     setEditMode(mode);
   }
 
-  function handleDoneEditing() {
-    setIsManualFieldFocused(false);
-    onInputFocusChange?.(false);
-    if (bodyText.trim() && bodyText !== draft.data?.body) {
-      void updateDraft.mutateAsync({ body: bodyText.trim() }).then(() => {
-        lastSavedBodyRef.current = bodyText.trim();
-      });
-    }
-    setEditMode("ai");
-  }
 
   const helperText =
     files.validationError ??
@@ -278,11 +227,7 @@ export function BodyStep({
     </button>
   ) : null;
 
-  const primaryCta = isManualMode ? (
-    <PrimaryButton onClick={handleDoneEditing}>
-      {t("doneEditing")}
-    </PrimaryButton>
-  ) : canProceed ? (
+  const primaryCta = canProceed ? (
     <PrimaryButton
       onClick={() => { void handleConfirm(); }}
       disabled={updateDraft.isPending}
@@ -303,7 +248,7 @@ export function BodyStep({
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
-      hideDockStepTrigger={isManualMode}
+      hideDockStepTrigger={isAiMode}
       primaryAction={
         (previewButton || primaryCta) ? (
           <div className="flex items-center gap-2">
@@ -315,6 +260,20 @@ export function BodyStep({
       composer={
         isAiMode ? (
           <>
+            {canProceed && !isAiBusy ? (
+              <div className="mb-2 flex gap-1.5 overflow-x-auto px-1" style={{ scrollbarWidth: "none" }}>
+                {quickRefineActions.map((action) => (
+                  <button
+                    key={action.id}
+                    type="button"
+                    onClick={() => { void sendRefinementInstruction(action.prompt); }}
+                    className="shrink-0 rounded-full border border-zinc-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-zinc-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-amber-300/40 dark:hover:bg-amber-400/10 dark:hover:text-white"
+                  >
+                    {action.label}
+                  </button>
+                ))}
+              </div>
+            ) : null}
             <DraftComposer
               placeholder={t("refineComposerPlaceholder")}
               value={refineText}
@@ -383,7 +342,14 @@ export function BodyStep({
       <div className="space-y-5 pb-4">
         {/* ── Mode toggle ─────────────────────────────────────────────── */}
         <div className="px-1">
-          <ModeToggle mode={editMode} onChange={handleModeChange} />
+          <SegmentedControl
+            options={[
+              { value: "ai" as const, label: t("modeAi"), icon: <Sparkles className="h-3 w-3" /> },
+              { value: "manual" as const, label: t("modeManual"), icon: <Pencil className="h-3 w-3" /> },
+            ]}
+            value={editMode}
+            onChange={handleModeChange}
+          />
         </div>
 
         {/* ── AI mode ─────────────────────────────────────────────────── */}
@@ -430,24 +396,6 @@ export function BodyStep({
                 </div>
               </Card>
             )}
-
-            {/* Quick refine chips — near thumb zone */}
-            {canProceed && !isAiBusy ? (
-              <div className="flex flex-wrap gap-1.5 px-1">
-                {quickRefineActions.map((action) => (
-                  <button
-                    key={action.id}
-                    type="button"
-                    onClick={() => {
-                      void sendRefinementInstruction(action.prompt);
-                    }}
-                    className="rounded-full border border-zinc-200 bg-white px-2.5 py-1.5 text-[11px] font-medium text-zinc-600 transition hover:border-amber-300 hover:bg-amber-50 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:border-amber-300/40 dark:hover:bg-amber-400/10 dark:hover:text-white"
-                  >
-                    {action.label}
-                  </button>
-                ))}
-              </div>
-            ) : null}
 
             {/* Refinement thread — collapsed by default */}
             {hasRefinements ? (
