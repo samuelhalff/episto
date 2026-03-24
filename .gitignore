@@ -20,3 +20,4 @@ shared/coverage/
 !.env.example
 .fuse_hidden*
 test-results/
+screenshots/

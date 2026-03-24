@@ -3,11 +3,12 @@
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowLeft, Check, Pencil } from "lucide-react";
-import type { DraftLetter } from "@swiss-mail/shared";
+import { useLetterPreview } from "../../hooks/use-letter-preview.js";
+import { useDraft } from "../../hooks/use-api.js";
 import { LetterPreview } from "./LetterPreview.js";
 
 interface LetterPreviewModalProps {
-  draft: DraftLetter | undefined;
+  draftId: string;
   onClose: () => void;
   onEditManually: () => void;
   onConfirm: () => void;
@@ -20,7 +21,7 @@ interface LetterPreviewModalProps {
  * Includes focus trap, Escape key, and aria attributes.
  */
 export function LetterPreviewModal({
-  draft,
+  draftId,
   onClose,
   onEditManually,
   onConfirm,
@@ -28,6 +29,8 @@ export function LetterPreviewModal({
 }: LetterPreviewModalProps) {
   const t = useTranslations("draft");
   const panelRef = useRef<HTMLDivElement>(null);
+  const draft = useDraft(draftId);
+  const { previewData } = useLetterPreview(draftId);
 
   useEffect(() => {
     const panel = panelRef.current;
@@ -134,7 +137,11 @@ export function LetterPreviewModal({
       {/* ── Document viewport ── */}
       <div className="min-h-0 flex-1 overflow-auto">
         <div className="mx-auto px-4 py-6 sm:px-6 sm:py-8 lg:py-10">
-          <LetterPreview draft={draft} />
+          <LetterPreview
+            draft={draft.data}
+            senderProfile={previewData?.sender}
+            recipientProfile={previewData?.recipient}
+          />
         </div>
       </div>
     </div>

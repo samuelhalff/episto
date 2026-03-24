@@ -14,8 +14,22 @@ import { DocumentPreview, fallbackDocument } from "./DocumentPreview.js";
 
 export type ZoneKind = "sender" | "recipient" | "date" | "subject" | "salutation" | "body" | "closing";
 
+export interface ProfileBlock {
+  firstName?: string | null;
+  lastName?: string | null;
+  company?: string | null;
+  department?: string | null;
+  addressLine1: string;
+  addressLine2?: string | null;
+  postalCode: string;
+  city: string;
+  country: string;
+}
+
 interface LetterPreviewProps {
   draft: DraftLetter | undefined;
+  senderProfile?: ProfileBlock | null | undefined;
+  recipientProfile?: ProfileBlock | null | undefined;
   editingZone?: ZoneKind | null | undefined;
   onZoneClick?: ((zone: ZoneKind) => void) | undefined;
   onZoneSave?: ((zone: ZoneKind, value: string | object) => Promise<void>) | undefined;
@@ -24,6 +38,8 @@ interface LetterPreviewProps {
 
 export function LetterPreview({
   draft,
+  senderProfile,
+  recipientProfile,
   editingZone,
   onZoneClick,
   onZoneSave,
@@ -63,21 +79,48 @@ export function LetterPreview({
         <div className="rounded-[18px] bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] sm:p-6">
           <div className="min-h-[560px] space-y-8 text-sm text-zinc-700">
             <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
-              <div className="text-xs text-zinc-400">
-                {draft.senderProfileId ? (
+              <div className="text-xs">
+                {senderProfile ? (
+                  <div className="space-y-0.5 text-zinc-700">
+                    {(senderProfile.firstName || senderProfile.lastName) && (
+                      <div className="font-medium">
+                        {[senderProfile.firstName, senderProfile.lastName].filter(Boolean).join(" ")}
+                      </div>
+                    )}
+                    {senderProfile.company && <div>{senderProfile.company}</div>}
+                    <div>{senderProfile.addressLine1}</div>
+                    {senderProfile.addressLine2 && <div>{senderProfile.addressLine2}</div>}
+                    <div>{senderProfile.postalCode} {senderProfile.city}</div>
+                  </div>
+                ) : draft.senderProfileId ? (
                   <span className="text-zinc-600">&#x2709; {t("senderLabel")}</span>
                 ) : (
-                  <span className="italic">{t("senderPlaceholder")}</span>
+                  <span className="italic text-zinc-400">{t("senderPlaceholder")}</span>
                 )}
               </div>
             </ZoneBlock>
 
             <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
-              <div className="mt-6 text-zinc-400">
-                {draft.recipientProfileId ? (
+              <div className="mt-6">
+                {recipientProfile ? (
+                  <div className="space-y-0.5 text-sm text-zinc-700">
+                    {recipientProfile.company && (
+                      <div className="font-medium">{recipientProfile.company}</div>
+                    )}
+                    {recipientProfile.department && <div>{recipientProfile.department}</div>}
+                    {(recipientProfile.firstName || recipientProfile.lastName) && (
+                      <div>
+                        {[recipientProfile.firstName, recipientProfile.lastName].filter(Boolean).join(" ")}
+                      </div>
+                    )}
+                    <div>{recipientProfile.addressLine1}</div>
+                    {recipientProfile.addressLine2 && <div>{recipientProfile.addressLine2}</div>}
+                    <div>{recipientProfile.postalCode} {recipientProfile.city}</div>
+                  </div>
+                ) : draft.recipientProfileId ? (
                   <span className="text-zinc-600">{t("recipientLabel")}</span>
                 ) : (
-                  <span className="italic">{t("recipientPlaceholder")}</span>
+                  <span className="italic text-zinc-400">{t("recipientPlaceholder")}</span>
                 )}
               </div>
             </ZoneBlock>

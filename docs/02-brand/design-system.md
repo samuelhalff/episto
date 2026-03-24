@@ -1,7 +1,7 @@
 # Swiss Mail Design System
 
 > **Status:** Canonical — implement from this document.  
-> **Scope:** Light mode, MVP. Dark mode is noted but deferred.  
+> **Scope:** Light and dark mode, MVP. Dark mode uses `class` strategy (Tailwind `darkMode: "class"`), toggled via ThemeProvider.  
 > **Stack:** Next.js · TypeScript · Tailwind CSS · shadcn/ui primitives  
 > **Last updated:** 2026-03
 
@@ -796,21 +796,21 @@ Checkbox / Radio:
 
 ## 10. Dark Mode Notes
 
-### Status: Deferred — Not in MVP Scope
+### Status: Included in MVP
 
-Dark mode is deliberately excluded from MVP. The visual complexity of a white paper preview on a dark background, combined with the formal/official tone of the product, makes dark mode a careful design decision that warrants dedicated work.
+Dark mode is part of MVP. The visual complexity of a white paper preview on a dark background is real, so the implementation must be deliberate rather than cosmetic: chrome and surrounding surfaces may go dark, but the letter itself remains light paper.
 
-### Preparation Requirements (implement now)
+### Implementation Requirements
 
-Even though dark mode is not shipped in MVP, two rules apply from day one to prevent painful retrofit work:
+Dark mode ships now, so these rules are mandatory:
 
 **Rule 1: All color tokens MUST be CSS custom properties** (already specified in §2). Never hardcode hex values inline in components. Always reference a variable.
 
 **Rule 2: Use semantic token names, not descriptive names.** Use `--color-surface` not `--color-white`. Use `--color-text-primary` not `--color-dark-gray`. When dark mode is added, the CSS variable values change — not the token names.
 
-### Future Dark Mode Implementation Plan
+### Dark Mode Implementation Plan
 
-When dark mode is added, it must be implemented via:
+Dark mode is implemented via:
 
 1. **Tailwind `dark:` prefix** — Tailwind will be configured with `darkMode: 'class'` (not `media`), allowing explicit user toggle rather than OS preference-only.
 
@@ -819,7 +819,7 @@ When dark mode is added, it must be implemented via:
 3. **Letter preview exception** — the `<LetterPreview>` component always uses light-mode colors regardless of theme. A physical letter is always white paper. This must be enforced with a `data-theme="light"` attribute or a Tailwind `light` override wrapper.
 
 ```css
-/* Future dark mode structure */
+/* Dark mode structure */
 :root {
   /* Light tokens — already defined */
 }
@@ -846,7 +846,7 @@ When dark mode is added, it must be implemented via:
 ```
 
 ```js
-// tailwind.config.ts — add when implementing dark mode
+// tailwind.config.ts
 darkMode: 'class',
 ```
 
