@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api.js";
 import type { ConversationMessage } from "@swiss-mail/shared";
@@ -16,8 +16,9 @@ export interface UseConversationReturn {
   isStreaming: boolean;
   /** Partial AI text accumulated during an active SSE stream */
   streamingText: string;
+  isAwaitingResponse: boolean;
   sendMessage: (content: string) => Promise<void>;
-  retryLast: () => Promise<void>;
+  retryLast: (failedAssistantMessageId?: string) => Promise<void>;
   /** 10 regenerations max per draft; counted by assistant messages */
   regenerationsRemaining: number;
   isSending: boolean;
@@ -26,6 +27,13 @@ export interface UseConversationReturn {
 
 const MAX_REGENERATIONS = 10;
 
+function normalizeMessage(message: ConversationMessage): ConversationMessage {
+  return {
+    ...message,
+    createdAt: message.createdAt instanceof Date ? message.createdAt : new Date(message.createdAt),
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
@@ -33,6 +41,9 @@ const MAX_REGENERATIONS = 10;
 export function useConversation(draftId: string): UseConversationReturn {
   const queryClient = useQueryClient();
   const { subscribe } = useDraftStream(draftId);
+  const [optimisticMessages, setOptimisticMessages] = useState<ConversationMessage[]>([]);
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
+  const assistantCountAtRequestRef = useRef(0);
 
   // Accumulated streaming state
   const [isStreaming, setIsStreaming] = useState(false);
@@ -46,7 +57,7 @@ export function useConversation(draftId: string): UseConversationReturn {
     queryFn: () =>
       apiFetch<{ data: ConversationMessage[]; cursor: string | null; hasMore: boolean }>(
         `/v1/drafts/${draftId}/messages`,
-      ).then((r) => r.data),
+      ).then((r) => r.data.map(normalizeMessage)),
     staleTime: 10_000,
   });
 
@@ -54,10 +65,12 @@ export function useConversation(draftId: string): UseConversationReturn {
   useEffect(() => {
     return subscribe((event) => {
       if (event.type === "ai_token") {
+        setIsAwaitingResponse(true);
         setIsStreaming(true);
         streamingMessageIdRef.current = event.data.messageId;
         setStreamingText((prev) => prev + event.data.token);
       } else if (event.type === "ai_message_complete") {
+        setIsAwaitingResponse(false);
         setIsStreaming(false);
         setStreamingText("");
         streamingMessageIdRef.current = null;
@@ -73,9 +86,49 @@ export function useConversation(draftId: string): UseConversationReturn {
         });
       } else if (event.type === "error") {
         setIsStreaming(false);
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.draftMessages(draftId),
+        });
+        void queryClient.invalidateQueries({
+          queryKey: ["drafts", draftId],
+        });
+
+        if (event.data.code !== "SSE_FALLBACK") {
+          setIsAwaitingResponse(false);
+        }
       }
     });
   }, [subscribe, queryClient, draftId]);
+
+  useEffect(() => {
+    const persistedIds = new Set((messagesQuery.data ?? []).map((message) => message.id));
+    if (persistedIds.size === 0) return;
+
+    setOptimisticMessages((current) => current.filter((message) => !persistedIds.has(message.id)));
+  }, [messagesQuery.data]);
+
+  useEffect(() => {
+    if (!isAwaitingResponse) return;
+
+    const assistantCount = (messagesQuery.data ?? []).filter((message) => message.role === "assistant").length;
+    if (assistantCount > assistantCountAtRequestRef.current) {
+      setIsAwaitingResponse(false);
+      setIsStreaming(false);
+      setStreamingText("");
+    }
+  }, [isAwaitingResponse, messagesQuery.data]);
+
+  useEffect(() => {
+    if (!isAwaitingResponse) return;
+
+    const intervalId = window.setInterval(() => {
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.draftMessages(draftId),
+      });
+    }, 1500);
+
+    return () => window.clearInterval(intervalId);
+  }, [draftId, isAwaitingResponse, queryClient]);
 
   const sendMutation = useMutation({
     mutationFn: (content: string) =>
@@ -93,29 +146,93 @@ export function useConversation(draftId: string): UseConversationReturn {
 
   const sendMessage = useCallback(
     async (content: string) => {
+      const optimisticId = crypto.randomUUID();
+      const optimisticMessage: ConversationMessage = {
+        id: optimisticId,
+        draftId,
+        role: "user",
+        content,
+        toolCalls: null,
+        createdAt: new Date(),
+      };
+
+      setOptimisticMessages((current) => [...current, optimisticMessage]);
+      assistantCountAtRequestRef.current = (messagesQuery.data ?? []).filter(
+        (message) => message.role === "assistant",
+      ).length;
+      setIsAwaitingResponse(true);
       setStreamingText("");
-      await sendMutation.mutateAsync(content);
+      try {
+        const response = await sendMutation.mutateAsync(content);
+        const persistedMessage = normalizeMessage(response.message);
+        setOptimisticMessages((current) =>
+          current.map((message) => (message.id === optimisticId ? persistedMessage : message)),
+        );
+      } catch (error) {
+        setIsAwaitingResponse(false);
+        setOptimisticMessages((current) => current.filter((message) => message.id !== optimisticId));
+        throw error;
+      }
     },
-    [sendMutation],
+    [draftId, messagesQuery.data, sendMutation],
   );
 
-  const retryLast = useCallback(async () => {
-    const messages = messagesQuery.data ?? [];
-    // Find the last user message to re-send
-    const lastUser = [...messages].reverse().find((m) => m.role === "user");
-    if (!lastUser) return;
-    setStreamingText("");
-    await sendMutation.mutateAsync(lastUser.content);
-  }, [messagesQuery.data, sendMutation]);
+  const messages = useMemo(() => {
+    const merged = new Map<string, ConversationMessage>();
 
-  const messages = messagesQuery.data ?? [];
-  const assistantCount = messages.filter((m) => m.role === "assistant").length;
-  const regenerationsRemaining = Math.max(0, MAX_REGENERATIONS - assistantCount);
+    for (const message of messagesQuery.data ?? []) {
+      merged.set(message.id, message);
+    }
+
+    for (const message of optimisticMessages) {
+      merged.set(message.id, message);
+    }
+
+    return [...merged.values()].sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime());
+  }, [messagesQuery.data, optimisticMessages]);
+
+  const retryLast = useCallback(async (failedAssistantMessageId?: string) => {
+    let retryTarget: ConversationMessage | undefined;
+
+    if (failedAssistantMessageId) {
+      const failedIndex = messages.findIndex((message) => message.id === failedAssistantMessageId);
+      if (failedIndex > 0) {
+        for (let index = failedIndex - 1; index >= 0; index -= 1) {
+          const candidate = messages[index];
+          if (candidate?.role === "user") {
+            retryTarget = candidate;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!retryTarget) {
+      retryTarget = [...messages].reverse().find((message) => message.role === "user");
+    }
+
+    if (!retryTarget) return;
+
+    assistantCountAtRequestRef.current = messages.filter((message) => message.role === "assistant").length;
+    setIsAwaitingResponse(true);
+    setStreamingText("");
+    try {
+      await sendMutation.mutateAsync(retryTarget.content);
+    } catch (error) {
+      setIsAwaitingResponse(false);
+      throw error;
+    }
+  }, [messages, sendMutation]);
+  const regenerationsRemaining = useMemo(
+    () => Math.max(0, MAX_REGENERATIONS - messages.filter((m) => m.role === "assistant").length),
+    [messages],
+  );
 
   return {
     messages,
     isStreaming,
     streamingText,
+    isAwaitingResponse,
     sendMessage,
     retryLast,
     regenerationsRemaining,

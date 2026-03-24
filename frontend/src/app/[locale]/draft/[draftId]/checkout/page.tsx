@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect } from "react";
+import { use, useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -63,6 +63,40 @@ export default function CheckoutPage({
     mode: "onTouched",
   });
 
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
+
+  const isSubmitting = checkout.isProcessing;
+
+  const stripeOptions = useMemo(
+    () =>
+      checkout.clientSecret
+        ? {
+            clientSecret: checkout.clientSecret,
+            locale: toStripeLocale(locale),
+            appearance: {
+              theme: "stripe" as const,
+              variables: {
+                colorPrimary: "#18181b",
+                borderRadius: "12px",
+                fontFamily: "inherit",
+              },
+            },
+          }
+        : null,
+    [checkout.clientSecret, locale],
+  );
+
+  useEffect(() => {
+    if (!draft.data) {
+      return;
+    }
+
+    if (["authorized", "captured"].includes(checkout.paymentState?.state ?? "")) {
+      router.replace(`/draft/${draftId}/confirmation`);
+    }
+  }, [checkout.paymentState?.state, draft.data, draftId, router]);
+
   if (draft.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -80,17 +114,6 @@ export default function CheckoutPage({
   }
 
   const d = draft.data;
-
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
-
-  const isSubmitting = checkout.isProcessing;
-
-  useEffect(() => {
-    if (["authorized", "captured"].includes(checkout.paymentState?.state ?? "")) {
-      router.replace(`/draft/${draftId}/confirmation`);
-    }
-  }, [checkout.paymentState?.state, draftId, router]);
 
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
@@ -110,7 +133,7 @@ export default function CheckoutPage({
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf4_0%,#ffffff_28%)]">
+    <div className="min-h-screen bg-[#f6f4ef] transition-colors dark:bg-zinc-950">
       <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
 
       <main
@@ -123,27 +146,30 @@ export default function CheckoutPage({
 
         <div className="space-y-6">
           <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
               {t("orderSummary")}
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
               {t("title")}
             </h1>
-            <p className="mt-3 text-sm leading-6 text-stone-500 md:text-base">
+            <p className="mt-3 text-sm leading-6 text-zinc-500 dark:text-zinc-400 md:text-base">
               {t("checkoutIntro")}
             </p>
           </div>
 
           {!checkout.clientSecret && (
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
-              <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+              <div
+                className="rounded-[24px] bg-white p-6 shadow-sm dark:bg-zinc-900"
+                style={{ outline: "1px solid var(--app-border)" }}
+              >
                 <label
                   htmlFor="email"
-                  className="block text-sm font-semibold text-stone-900"
+                  className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50"
                 >
                   {t("email")}
                 </label>
-                <p className="mt-1 text-xs text-stone-500">{t("emailHelp")}</p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("emailHelp")}</p>
                 <input
                   id="email"
                   type="email"
@@ -154,10 +180,10 @@ export default function CheckoutPage({
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={errors.email ? "true" : undefined}
                   className={[
-                    "mt-3 w-full rounded-[1rem] border px-4 py-3 text-sm placeholder:text-stone-400 focus:outline-none focus:ring-1",
+                    "mt-3 w-full rounded-[12px] border px-4 py-3 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
                     errors.email
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
-                      : "border-stone-200 focus:border-primary focus:ring-primary",
+                      : "border-zinc-200 focus:border-zinc-400 focus:ring-zinc-200 dark:border-zinc-700 dark:focus:border-zinc-500 dark:focus:ring-zinc-700",
                   ].join(" ")}
                 />
                 {errors.email && (
@@ -173,9 +199,15 @@ export default function CheckoutPage({
 
               <div
                 className={[
-                  "rounded-[2rem] border bg-white/92 p-5 shadow-[0_20px_60px_rgba(15,23,42,0.08)]",
-                  errors.legalConsent ? "border-destructive" : "border-stone-200/80",
+                  "rounded-[24px] bg-white p-5 shadow-sm",
+                  "dark:bg-zinc-900",
+                  errors.legalConsent ? "ring-1 ring-destructive" : "",
                 ].join(" ")}
+                style={
+                  !errors.legalConsent
+                    ? { outline: "1px solid var(--app-border)" }
+                    : undefined
+                }
               >
                 <label className="flex cursor-pointer items-start gap-3 text-sm">
                   <input
@@ -183,9 +215,9 @@ export default function CheckoutPage({
                     {...register("legalConsent")}
                     aria-describedby={errors.legalConsent ? "consent-error" : undefined}
                     aria-invalid={errors.legalConsent ? "true" : undefined}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-stone-300 text-primary focus:ring-primary"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 text-zinc-950 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-amber-400 dark:focus:ring-zinc-600"
                   />
-                  <span className="text-stone-600">
+                  <span className="text-zinc-600 dark:text-zinc-300">
                     {t.rich("legalConsent", {
                       terms: (chunks) => (
                         <Link
@@ -216,11 +248,14 @@ export default function CheckoutPage({
                 </p>
               )}
 
-              <div className="sticky bottom-4 z-10 rounded-[1.5rem] border border-stone-200/80 bg-white/95 p-2 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur lg:static lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
+              <div
+                className="sticky bottom-4 z-10 rounded-[20px] bg-white/95 p-2 shadow-lg backdrop-blur-md lg:static lg:bg-transparent lg:p-0 lg:shadow-none"
+                style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
+              >
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
-                  className="w-full rounded-full bg-stone-950 py-3.5 text-sm font-semibold text-white transition hover:bg-stone-800 disabled:opacity-40"
+                  className="w-full rounded-[16px] bg-zinc-950 py-3.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-40 active:scale-[0.98]"
                 >
                   {isSubmitting ? (
                     <Loader2 className="mx-auto h-5 w-5 animate-spin" />
@@ -232,26 +267,18 @@ export default function CheckoutPage({
             </form>
           )}
 
-          {checkout.clientSecret && stripePromise && (
-            <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-[0.16em] text-stone-500">
+          {stripeOptions && stripePromise && (
+            <div
+              className="rounded-[24px] bg-white p-6 shadow-sm"
+              style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
+            >
+              <h2 className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
                 {t("enterPaymentDetails")}
               </h2>
-              <p className="mb-5 text-sm text-stone-500">{t("paymentHelp")}</p>
+              <p className="mb-5 text-sm text-zinc-500">{t("paymentHelp")}</p>
               <Elements
                 stripe={stripePromise}
-                options={{
-                  clientSecret: checkout.clientSecret,
-                  locale: toStripeLocale(locale),
-                  appearance: {
-                    theme: "stripe",
-                    variables: {
-                      colorPrimary: "#F59E0B",
-                      borderRadius: "8px",
-                      fontFamily: "inherit",
-                    },
-                  },
-                }}
+                options={stripeOptions}
               >
                 <StripePaymentForm
                   priceCents={checkout.pricing?.priceCents ?? 0}
@@ -263,12 +290,12 @@ export default function CheckoutPage({
           )}
 
           {checkout.clientSecret && !stripePromise && (
-            <div className="rounded-[2rem] border border-destructive/20 bg-destructive/5 p-6">
+            <div className="rounded-[24px] border border-destructive/20 bg-destructive/5 p-6">
               <p className="text-sm text-destructive">{t("paymentConfigError")}</p>
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-6 pt-2 text-xs text-stone-500">
+          <div className="flex flex-wrap items-center gap-6 pt-2 text-xs text-zinc-500">
             <span className="flex items-center gap-1.5">
               <Lock className="h-3.5 w-3.5" />
               {t("securedByStripe")}

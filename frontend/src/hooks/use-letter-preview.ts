@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
 import { apiFetch } from "../lib/api.js";
@@ -12,7 +12,9 @@ import { useDraftStream } from "./use-draft-stream.js";
 
 export interface LetterPreviewData {
   sender: {
-    name: string;
+    firstName: string;
+    lastName: string;
+    company: string | null;
     addressLine1: string;
     addressLine2: string | null;
     postalCode: string;
@@ -20,7 +22,10 @@ export interface LetterPreviewData {
     country: string;
   } | null;
   recipient: {
-    name: string;
+    firstName: string | null;
+    lastName: string | null;
+    company: string | null;
+    department: string | null;
     addressLine1: string;
     addressLine2: string | null;
     postalCode: string;
@@ -48,6 +53,7 @@ export interface UseLetterPreviewReturn {
   isStale: boolean;
   refreshPreview: () => void;
   isLoading: boolean;
+  error: Error | null;
 }
 
 // ---------------------------------------------------------------------------
@@ -95,10 +101,10 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
     }
   }, [previewQuery.isFetching]);
 
-  const refreshPreview = () => {
+  const refreshPreview = useCallback(() => {
     setIsStale(false);
     void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
-  };
+  }, [queryClient, draftId]);
 
   return {
     previewData: previewQuery.data ?? null,
@@ -106,5 +112,6 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
     isStale,
     refreshPreview,
     isLoading: previewQuery.isLoading,
+    error: previewQuery.error instanceof Error ? previewQuery.error : null,
   };
 }

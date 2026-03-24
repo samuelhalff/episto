@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api.js";
@@ -102,12 +102,22 @@ export function useSession(): UseSessionReturn {
     },
   });
 
+  const handleCreateSession = useCallback(
+    (locale: (typeof Locale)[keyof typeof Locale]) => createSession.mutateAsync(locale),
+    [createSession],
+  );
+
+  const handleResumeSession = useCallback(
+    (token: string) => resumeSession.mutateAsync(token),
+    [resumeSession],
+  );
+
   return {
     session: query.data ?? null,
     isLoading: query.isLoading,
     isExpired,
     expiryWarningLevel,
-    createSession: (locale) => createSession.mutateAsync(locale),
-    resumeSession: (token) => resumeSession.mutateAsync(token),
+    createSession: handleCreateSession,
+    resumeSession: handleResumeSession,
   };
 }
