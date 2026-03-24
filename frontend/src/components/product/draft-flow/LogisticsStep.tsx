@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Mail, Send, Plus, FileText, X } from "lucide-react";
+import { Mail, Send, Plus, FileText, X, Type, Image as ImageIcon } from "lucide-react";
 import {
   useDraft,
   useUpdateDraft,
@@ -214,14 +214,14 @@ export function LogisticsStep({ draftId, onStepClick, isStepMenuOpen, isCompactV
 
         {/* Signature */}
         <section className="space-y-5">
-          <div className="flex items-center justify-between px-2">
+          <div className="flex items-center gap-4 px-2">
             <h3 className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">
               {t("signatureLabel")}
             </h3>
             <SegmentedControl
               options={[
-                { value: "typed" as const, label: t("signatureTyped") },
-                { value: "image" as const, label: t("signatureImage") },
+                { value: "typed" as const, label: t("signatureTyped"), icon: <Type className="h-3 w-3" /> },
+                { value: "image" as const, label: t("signatureImage"), icon: <ImageIcon className="h-3 w-3" /> },
               ]}
               value={signatureMode}
               onChange={(v) => setSignatureMode(v)}

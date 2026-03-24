@@ -128,7 +128,7 @@ export function PrimaryButton({
 interface SegmentedOption<V extends string = string> {
   value: V;
   label: string;
-  icon?: ReactNode;
+  icon: ReactNode;
 }
 
 export function SegmentedControl<V extends string>({

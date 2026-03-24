@@ -305,11 +305,11 @@ export function RecipientStep({
     >
       <div className={`space-y-8 pb-4 ${isCompactViewport ? "pt-4" : ""}`}>
         <section className="space-y-6">
-          <div className="flex justify-end px-1">
+          <div className="px-1">
             <SegmentedControl
               options={[
-                { value: "person" as const, label: t("personLabel") },
-                { value: "company" as const, label: t("companyLabel") },
+                { value: "person" as const, label: t("personLabel"), icon: <User className="h-3 w-3" /> },
+                { value: "company" as const, label: t("companyLabel"), icon: <Building2 className="h-3 w-3" /> },
               ]}
               value={isCompany ? "company" : "person"}
               onChange={(v) => {

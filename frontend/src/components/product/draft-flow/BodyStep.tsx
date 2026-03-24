@@ -14,7 +14,6 @@ import {
   DraftShell,
   PrimaryButton,
   SegmentedControl,
-  StepTriggerButton,
 } from "./ui.js";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state.js";
 
@@ -248,7 +247,7 @@ export function BodyStep({
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
-      hideDockStepTrigger={isAiMode}
+      hideDockStepTrigger={false}
       primaryAction={
         (previewButton || primaryCta) ? (
           <div className="flex items-center gap-2">
@@ -290,20 +289,12 @@ export function BodyStep({
               helperText={helperText}
               isCompactViewport={isCompactViewport}
               leadingActions={
-                <>
-                  <StepTriggerButton
-                    size="composer"
-                    isOpen={isStepMenuOpen}
-                    aria-label={t("stepMenuLabel")}
-                    onClick={onStepClick}
-                  />
-                  <ComposerIconButton
-                    icon="attach"
-                    aria-label={t("attachmentsLabel")}
-                    disabled={files.isUploading}
-                    onClick={() => attachmentInputRef.current?.click()}
-                  />
-                </>
+                <ComposerIconButton
+                  icon="attach"
+                  aria-label={t("attachmentsLabel")}
+                  disabled={files.isUploading}
+                  onClick={() => attachmentInputRef.current?.click()}
+                />
               }
               trailingActions={
                 <ComposerIconButton
