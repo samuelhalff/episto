@@ -7,6 +7,17 @@ export class ApiError extends Error {
   ) {
     super(`API error ${status}`);
   }
+
+  /** Extract the user-facing message from the canonical error envelope, if present. */
+  getUserMessage(): string | null {
+    if (typeof this.body === "object" && this.body !== null && "error" in this.body) {
+      const envelope = this.body as { error?: { userMessage?: string } };
+      if (typeof envelope.error?.userMessage === "string") {
+        return envelope.error.userMessage;
+      }
+    }
+    return null;
+  }
 }
 
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
