@@ -1,7 +1,7 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode } from "react";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
 
 function getCardClasses(isCompactViewport: boolean, density: "default" | "thin") {
   const roundedClass = isCompactViewport ? "rounded-[20px]" : "rounded-[24px]";
@@ -89,6 +89,7 @@ interface PrimaryButtonProps {
   icon?: ReactNode;
   onClick?: (() => void) | undefined;
   disabled?: boolean;
+  loading?: boolean;
 }
 
 export function PrimaryButton({
@@ -96,20 +97,25 @@ export function PrimaryButton({
   icon,
   onClick,
   disabled = false,
+  loading = false,
 }: PrimaryButtonProps) {
-  const defaultIcon = <Check className="h-4 w-4" />;
+  const isDisabled = disabled || loading;
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
+      disabled={isDisabled}
       className={`inline-flex w-full items-center justify-center gap-2 rounded-[14px] px-4 py-3.5 text-sm font-bold transition-all ${
-        disabled
+        isDisabled
           ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
           : "bg-zinc-950 text-white active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950"
       }`}
     >
-      {!disabled && (icon ?? defaultIcon)}
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : (
+        !isDisabled && (icon ?? <Check className="h-4 w-4" />)
+      )}
       <span>{children}</span>
     </button>
   );

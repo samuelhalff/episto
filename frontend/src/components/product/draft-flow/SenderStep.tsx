@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
+import { toast } from "sonner";
 import { User, MapPin } from "lucide-react";
 import { useDraft, useLetterPreview, useSetSender, useUpdateDraft } from "../../../hooks/use-api.js";
 import { useQueuedAutosave } from "../../../hooks/use-queued-autosave.js";
@@ -139,6 +140,7 @@ export function SenderStep({
         city: city.trim(),
       });
       senderAutosave.persistInBackground(senderForm);
+      toast.success(t("senderSaved"));
       onNext();
     } catch (error) {
       const userMessage = error instanceof ApiError ? error.getUserMessage() : null;
@@ -164,7 +166,7 @@ export function SenderStep({
       primaryAction={
         <>
           {submitError ? <div className="mb-2 px-2 text-[11px] text-amber-600">{submitError}</div> : null}
-          <PrimaryButton onClick={handleNext} disabled={!canProceed || setSender.isPending}>
+          <PrimaryButton onClick={handleNext} disabled={!canProceed} loading={setSender.isPending}>
             {t("nextRecipient")}
           </PrimaryButton>
         </>

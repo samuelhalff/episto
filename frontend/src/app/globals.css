@@ -5,6 +5,38 @@
 @layer base {
   :root {
     color-scheme: light;
+    --app-bg: #fffaf2;
+    --app-bg-start: rgba(245, 158, 11, 0.12);
+    --app-bg-mid: #fff7ec;
+    --app-bg-end: #ffffff;
+    --app-fg: #18181b;
+    --app-surface: rgba(255, 255, 255, 0.92);
+    --app-surface-strong: #ffffff;
+    --app-surface-muted: #f6f4ef;
+    --app-surface-soft: #faf7f1;
+    --app-border: rgba(24, 24, 27, 0.08);
+    --app-border-strong: rgba(24, 24, 27, 0.14);
+    --app-muted: #71717a;
+    --app-muted-strong: #3f3f46;
+    --app-elevated-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+  }
+
+  .dark {
+    color-scheme: dark;
+    --app-bg: #0c0f14;
+    --app-bg-start: rgba(245, 158, 11, 0.12);
+    --app-bg-mid: #111827;
+    --app-bg-end: #09090b;
+    --app-fg: #f5f5f5;
+    --app-surface: rgba(17, 24, 39, 0.88);
+    --app-surface-strong: #111827;
+    --app-surface-muted: #0f172a;
+    --app-surface-soft: #18181b;
+    --app-border: rgba(255, 255, 255, 0.08);
+    --app-border-strong: rgba(255, 255, 255, 0.14);
+    --app-muted: #a1a1aa;
+    --app-muted-strong: #d4d4d8;
+    --app-elevated-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
   }
 
   html {
@@ -12,10 +44,65 @@
   }
 
   body {
-    @apply bg-white text-gray-900 antialiased;
+    @apply antialiased;
+    background-color: var(--app-bg);
+    color: var(--app-fg);
     background-image:
-      radial-gradient(circle at top, rgba(245, 158, 11, 0.12), transparent 32%),
-      linear-gradient(180deg, #fffdf9 0%, #fff8ef 38%, #ffffff 100%);
+      radial-gradient(circle at top, var(--app-bg-start), transparent 32%),
+      linear-gradient(180deg, var(--app-bg-end) 0%, var(--app-bg-mid) 38%, var(--app-bg-end) 100%);
+    transition:
+      background-color 220ms ease,
+      color 220ms ease,
+      border-color 220ms ease;
+  }
+}
+
+@layer components {
+  /* Warm beige workspace background used by draft flow */
+  .draft-workspace-bg {
+    background-color: var(--app-surface-muted);
+  }
+
+  /* Card primitive – rounded, subtle ring, shadow */
+  .card-surface {
+    @apply rounded-3xl shadow-sm;
+    background-color: var(--app-surface-strong);
+    box-shadow: var(--app-elevated-shadow);
+    outline: 1px solid var(--app-border);
+  }
+
+  /* Dark card variant for selected/active states */
+  .card-surface-dark {
+    @apply rounded-3xl bg-zinc-950 text-white shadow-lg;
+    outline: 1px solid rgba(0, 0, 0, 0.2);
+  }
+
+  /* Section label – uppercase tracking */
+  .section-label {
+    @apply text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-400;
+  }
+
+  /* Chat-first composer pill */
+  .composer-pill {
+    @apply rounded-[28px] p-2;
+    background-color: var(--app-surface-strong);
+    box-shadow: var(--app-elevated-shadow);
+    outline: 1px solid var(--app-border);
+  }
+
+  /* Primary action button (mockup-inspired) */
+  .btn-primary {
+    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-950 px-4 py-3.5 text-sm font-bold text-white transition-all active:scale-[0.98];
+  }
+
+  .btn-primary:disabled {
+    @apply cursor-not-allowed bg-zinc-100 text-zinc-400;
+  }
+
+  /* Secondary / outlined button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-white text-zinc-800 transition-all active:scale-[0.98];
+    outline: 1px solid rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -83,6 +170,31 @@
     width: 38%;
     z-index: 1;
   }
+
+  .letter-preview-container {
+    color-scheme: light;
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.04) 25%,
+      rgba(0, 0, 0, 0.08) 50%,
+      rgba(0, 0, 0, 0.04) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 1.8s ease-in-out infinite;
+  }
+
+  .dark .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.04) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.04) 75%
+    );
+    background-size: 200% 100%;
+  }
 }
 
 @keyframes rise-in {
@@ -139,6 +251,15 @@
   }
 }
 
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
 @media (max-width: 767px) {
   .animate-float-slow,
   .animate-float-reverse,
@@ -157,6 +278,7 @@
   .animate-float-slow,
   .animate-float-reverse,
   .animate-glow-pulse,
+  .animate-shimmer,
   .cta-sheen::after {
     animation: none !important;
   }

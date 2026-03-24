@@ -69,27 +69,23 @@ export function StepIndicator({
                   disabled={!isAvailable}
                   onClick={() => navigateTo(index)}
                   aria-label={t(key)}
-                  className={`relative inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[10px] font-bold transition-all duration-300 ${
+                  className={`relative -m-1.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[10px] font-bold transition-all duration-300 ${
                     isCurrent
-                      ? "bg-stone-950 text-white shadow-sm"
+                      ? "bg-zinc-950 text-white shadow-sm"
                       : isComplete
                         ? "bg-emerald-500 text-white"
-                        : "bg-stone-200 text-stone-400"
+                        : "bg-zinc-200 text-zinc-400"
                   } ${isAvailable ? "cursor-pointer" : "cursor-default"}`}
                 >
                   {isCurrent && (
-                    <span className="absolute inset-0 rounded-full border border-stone-950/15 animate-[step-pulse_2s_ease-in-out_infinite]" />
+                    <span className="absolute inset-0 rounded-lg border border-zinc-950/15 animate-[step-pulse_2s_ease-in-out_infinite]" />
                   )}
-                  {isComplete ? (
-                    <Check className="h-3 w-3" strokeWidth={3} />
-                  ) : (
-                    index + 1
-                  )}
+                  {isComplete ? <Check className="h-3 w-3" strokeWidth={3} /> : index + 1}
                 </button>
                 {!isLast && (
                   <div
                     className={`h-[2px] w-4 transition-colors duration-500 ${
-                      index < currentStep ? "bg-emerald-500" : "bg-stone-200"
+                      index < currentStep ? "bg-emerald-500" : "bg-zinc-200"
                     }`}
                   />
                 )}
@@ -98,7 +94,7 @@ export function StepIndicator({
           })}
         </div>
 
-        <span className="flex-1 text-xs font-semibold uppercase tracking-[0.14em] text-stone-500">
+        <span className="flex-1 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
           {t(STEPS[currentStep] ?? STEPS[0])}
         </span>
 
@@ -108,7 +104,8 @@ export function StepIndicator({
           aria-expanded={isOpen}
           aria-label={t("stepMenuLabel")}
           onClick={() => setIsOpen((open) => !open)}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-stone-200 bg-stone-50 text-stone-500 transition hover:border-stone-300 hover:bg-stone-100"
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-zinc-400 shadow-sm transition hover:bg-zinc-50"
+          style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
         >
           <ChevronDown
             className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
@@ -119,7 +116,8 @@ export function StepIndicator({
       {isOpen && (
         <div
           role="menu"
-          className="fixed inset-x-0 top-[calc(3.5rem+0.5rem)] z-50 mx-auto max-w-lg rounded-2xl border border-stone-200 bg-white p-1.5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] sm:absolute sm:inset-x-auto sm:left-0 sm:right-0 sm:top-[calc(100%+0.5rem)] sm:mx-0 sm:max-w-none"
+          className="fixed inset-x-0 top-[calc(3.5rem+0.5rem)] z-50 mx-auto max-w-lg rounded-[24px] bg-white p-2 shadow-[0_24px_60px_rgba(0,0,0,0.12)] sm:absolute sm:inset-x-auto sm:left-0 sm:right-0 sm:top-[calc(100%+0.5rem)] sm:mx-0 sm:max-w-none"
+          style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
         >
           {STEPS.map((key, index) => {
             const isCurrent = index === currentStep;
@@ -133,17 +131,18 @@ export function StepIndicator({
                 role="menuitem"
                 disabled={!isAvailable}
                 onClick={() => navigateTo(index)}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-                  isAvailable ? "hover:bg-stone-50" : "cursor-not-allowed opacity-50"
-                } ${isCurrent ? "bg-amber-50/80" : ""}`}
+                className={`flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
+                  isAvailable ? "hover:bg-zinc-50" : "cursor-not-allowed opacity-50"
+                } ${isCurrent ? "bg-zinc-50" : ""}`}
+                style={isCurrent ? { outline: "1px solid rgba(0,0,0,0.03)" } : undefined}
               >
                 <span
                   className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                     isCurrent
-                      ? "bg-stone-950 text-white"
+                      ? "bg-zinc-950 text-white"
                       : isComplete
                         ? "bg-emerald-500 text-white"
-                        : "bg-stone-100 text-stone-400"
+                        : "bg-zinc-100 text-zinc-400"
                   }`}
                 >
                   {isComplete ? (
@@ -153,10 +152,17 @@ export function StepIndicator({
                   )}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-stone-950">{t(key)}</p>
+                  <p
+                    className={`text-[13px] font-bold leading-tight ${isCurrent ? "text-zinc-950" : "text-zinc-500"}`}
+                  >
+                    {t(key)}
+                  </p>
                 </div>
+                {isCurrent && (
+                  <div className="h-1.5 w-1.5 rounded-full bg-zinc-950 mr-1" />
+                )}
                 {!isAvailable && (
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-stone-400">
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
                     {t("stepLocked")}
                   </span>
                 )}
@@ -170,9 +176,9 @@ export function StepIndicator({
 
   const desktopIndicator = (
     <div className="relative hidden sm:block">
-      <div className="absolute left-10 right-10 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-stone-200/80" />
+      <div className="absolute left-10 right-10 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-zinc-200/80" />
       <div
-        className="absolute left-10 top-1/2 h-[6px] -translate-y-1/2 rounded-full bg-gradient-to-r from-amber-400 via-emerald-500 to-emerald-400 shadow-[0_0_24px_rgba(16,185,129,0.35)] transition-[width] duration-700 ease-out"
+        className="absolute left-10 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-zinc-950 transition-[width] duration-700 ease-out"
         style={{
           width: currentStep === 0 ? "0%" : `calc(${progressWidth} - 20px)`,
         }}
@@ -190,13 +196,14 @@ export function StepIndicator({
                 type="button"
                 disabled={!isAvailable}
                 onClick={() => navigateTo(index)}
-                className={`group inline-flex min-w-[9rem] items-center justify-center gap-2 rounded-full border px-4 py-2.5 text-sm font-semibold transition-all duration-300 ${
+                className={`group inline-flex min-w-[9rem] items-center justify-center gap-2 rounded-[16px] px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] ${
                   isCurrent
-                    ? "border-stone-950 bg-stone-950 text-white shadow-[0_16px_34px_rgba(28,25,23,0.18)]"
+                    ? "bg-zinc-950 text-white shadow-sm"
                     : isComplete
-                      ? "border-emerald-200 bg-white text-stone-900 shadow-sm hover:border-emerald-300 hover:bg-emerald-50"
-                      : "border-stone-200 bg-white/90 text-stone-400"
+                      ? "bg-white text-zinc-900 shadow-sm"
+                      : "bg-white/80 text-zinc-400"
                 } ${isAvailable ? "cursor-pointer" : "cursor-default"}`}
+                style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
               >
                 <span
                   className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors duration-300 ${
@@ -204,14 +211,10 @@ export function StepIndicator({
                       ? "bg-white/15 text-white"
                       : isComplete
                         ? "bg-emerald-500 text-white"
-                        : "bg-stone-100 text-stone-400"
+                        : "bg-zinc-100 text-zinc-400"
                   }`}
                 >
-                  {isComplete ? (
-                    <Check className="h-4 w-4" strokeWidth={3} />
-                  ) : (
-                    index + 1
-                  )}
+                  {isComplete ? <Check className="h-4 w-4" strokeWidth={3} /> : index + 1}
                 </span>
                 <span>{t(key)}</span>
               </button>
