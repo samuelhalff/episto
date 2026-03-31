@@ -31,9 +31,9 @@ export function CompanySearchResults({
     <div className="pl-0 sm:pl-16">
       <div
         aria-busy={isLoading || isFetching}
-        className="rounded-2xl border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/70"
+        className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3"
       >
-        <div className="mb-2 text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+        <div className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
           {t("officialCompanySearch")}
         </div>
 
@@ -46,7 +46,7 @@ export function CompanySearchResults({
             {[0, 1, 2].map((index) => (
               <div
                 key={index}
-                className="rounded-2xl border border-zinc-200/80 bg-white/80 px-3 py-3 dark:border-zinc-700/80 dark:bg-zinc-900/80"
+                className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-3 py-3"
               >
                 <div className="animate-shimmer space-y-2">
                   <div className="h-4 w-2/3 rounded-full bg-zinc-200 dark:bg-zinc-700" />
@@ -76,7 +76,7 @@ export function CompanySearchResults({
                 key={result.id}
                 type="button"
                 onClick={() => onSelect(result)}
-                className={`flex w-full min-w-0 flex-col items-start gap-2 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-left transition-[opacity,transform,border-color,background-color,box-shadow] duration-300 ease-out hover:border-amber-300 hover:bg-amber-50/60 hover:shadow-sm dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-amber-300/40 dark:hover:bg-amber-400/10 ${
+                className={`flex w-full min-w-0 flex-col items-start gap-2 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-3 py-2 text-left transition-[opacity,transform,border-color,background-color,box-shadow] duration-300 ease-out hover:border-amber-300 hover:bg-amber-50/60 hover:shadow-sm dark:hover:bg-amber-400/10 ${
                   areResultsVisible
                     ? "translate-y-0 opacity-100"
                     : "translate-y-2 opacity-0"

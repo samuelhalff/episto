@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
-import { toast } from "sonner";
 import { User, Building2, MapPin, Plus, Search, Loader2, PencilLine } from "lucide-react";
 import {
   useDraft,
@@ -12,17 +11,18 @@ import {
   useRecipientCompanySearch,
   useSetRecipient,
   useUpdateDraft,
-} from "../../../hooks/use-api.js";
-import { useQueuedAutosave } from "../../../hooks/use-queued-autosave.js";
-import { ApiError } from "../../../lib/api.js";
-import { captureError } from "../../../lib/error-tracking.js";
-import { DraftShell, Card, PrimaryButton, SegmentedControl } from "./ui.js";
-import { CompanySearchResults } from "./company-search-results.js";
+} from "../../../hooks/use-api";
+import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
+import { ApiError } from "../../../lib/api";
+import { captureError } from "../../../lib/error-tracking";
+import { DraftShell, Card, FieldIconBadge, PrimaryButton, SegmentedControl } from "./ui";
+import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import { CompanySearchResults } from "./company-search-results";
 import {
   getDraftWorkspaceState,
   mergeDraftWorkspaceState,
   type RecipientDraftFormState,
-} from "./workspace-state.js";
+} from "./workspace-state";
 
 function getRecipientPreviewName(recipient: {
   firstName: string | null;
@@ -46,6 +46,8 @@ interface StepProps {
   isStepMenuOpen?: boolean;
   isCompactViewport?: boolean;
   onInputFocusChange?: (focused: boolean) => void;
+  isNavigating?: boolean;
+  furthestUnlockedStepIndex?: number;
 }
 
 export function RecipientStep({
@@ -55,6 +57,8 @@ export function RecipientStep({
   isStepMenuOpen,
   isCompactViewport,
   onInputFocusChange,
+  isNavigating,
+  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);
@@ -72,7 +76,6 @@ export function RecipientStep({
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [areCompanyResultsVisible, setAreCompanyResultsVisible] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
   const hasHydratedRef = useRef(false);
   const lastAutofilledCompanyIdRef = useRef<string | null>(null);
 
@@ -118,7 +121,6 @@ export function RecipientStep({
     selectedCompany?.registryUid ?? selectedCompany?.registryId ?? selectedCompany?.registryChid ?? null;
 
   function handleCompanySearchChange(value: string) {
-    setSubmitError(null);
     setCompanyName(value);
     if (selectedCompany && value.trim() !== selectedCompany.name) {
       setSelectedCompany(null);
@@ -248,15 +250,16 @@ export function RecipientStep({
     companyName,
   ]);
 
-  const canProceed = Boolean(
-    isCompany
-      ? companyName.trim() && addressLine1.trim() && postalCode.trim() && city.trim()
-      : fullName.trim() && addressLine1.trim() && postalCode.trim() && city.trim(),
-  );
+  const missingItems = [
+    isCompany ? (!companyName.trim() ? t("companyNameLabel") : null) : (!fullName.trim() ? t("fullName") : null),
+    !addressLine1.trim() ? t("streetAddress") : null,
+    !postalCode.trim() ? t("zipCode") : null,
+    !city.trim() ? t("city") : null,
+  ].filter((value): value is string => Boolean(value));
+  const canProceed = missingItems.length === 0;
 
   async function handleNext() {
     if (!canProceed || setRecipient.isPending) return;
-    setSubmitError(null);
 
     recipientAutosave.cancelPending();
 
@@ -270,12 +273,20 @@ export function RecipientStep({
         postalCode: postalCode.trim(),
         city: city.trim(),
       });
-      recipientAutosave.persistInBackground(recipientForm);
-      toast.success(t("recipientSaved"));
+      await updateDraft.mutateAsync({
+        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+          recipientForm,
+          furthestUnlockedStepIndex: 3,
+        }),
+      });
+      recipientAutosave.markPersisted(recipientForm);
       onNext();
     } catch (error) {
       const userMessage = error instanceof ApiError ? error.getUserMessage() : null;
-      setSubmitError(userMessage ?? t("stepSaveFailed"));
+      showStepErrorToast({
+        id: "recipient-step-save-error",
+        title: userMessage ?? t("stepSaveFailed"),
+      });
       captureError(error instanceof Error ? error : new Error(String(error)), {
         component: "RecipientStep",
         errorFamily: "validation_error",
@@ -283,10 +294,18 @@ export function RecipientStep({
     }
   }
 
+  function handleBlockedNext() {
+    showStepWarningToast({
+      id: "recipient-step-missing",
+      title: t("stepNeedsAttentionTitle"),
+      items: missingItems,
+    });
+  }
+
   return (
     <DraftShell
       step={3}
-      totalSteps={6}
+      totalSteps={7}
       title={t("recipientDetailsTitle")}
       subtitle={t("recipientDetailsSubtitle")}
       onStepClick={onStepClick}
@@ -294,13 +313,18 @@ export function RecipientStep({
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isFormFocused}
       isCompactViewport={isCompactViewport}
+      isNavigating={isNavigating}
+      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
-        <>
-          {submitError ? <div className="mb-2 px-2 text-[11px] text-amber-600">{submitError}</div> : null}
-          <PrimaryButton onClick={handleNext} disabled={!canProceed} loading={setRecipient.isPending}>
-            {t("confirmRecipient")}
-          </PrimaryButton>
-        </>
+        <PrimaryButton
+          onClick={canProceed ? handleNext : handleBlockedNext}
+          disabled={setRecipient.isPending}
+          loading={setRecipient.isPending || Boolean(isNavigating)}
+          tone={canProceed ? "primary" : "warning"}
+          hideIcon={!canProceed}
+        >
+          {t("confirmRecipient")}
+        </PrimaryButton>
       }
     >
       <div className={`space-y-8 pb-4 ${isCompactViewport ? "pt-4" : ""}`}>
@@ -325,24 +349,24 @@ export function RecipientStep({
           </div>
 
           <div className="space-y-4">
-            <Card isCompactViewport={isCompactViewport} density="thin" className="bg-white dark:bg-zinc-900">
+            <Card isCompactViewport={isCompactViewport} density="thin">
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-lg shadow-zinc-950/20">
+                  <FieldIconBadge>
                     {isCompany ? <Building2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
-                  </div>
+                  </FieldIconBadge>
                   <div className={`flex-1 ${isCompany ? "space-y-2" : "space-y-1"}`}>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                    <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                       {isCompany ? t("companyNameLabel") : t("fullName")}
                     </div>
                     {isCompany && showManual && selectedCompany ? (
                       <div className="space-y-2 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-400/20 dark:bg-emerald-500/10">
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0 space-y-1">
-                            <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                            <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                               {t("selectedCompanyLabel")}
                             </div>
-                            <div className="break-words text-[16px] font-bold text-zinc-900 dark:text-zinc-100">
+                            <div className="break-words text-base font-semibold text-zinc-900 dark:text-zinc-100">
                               {selectedCompany.name}
                             </div>
                             {selectedCompany.legalSeat ? (
@@ -360,7 +384,7 @@ export function RecipientStep({
                           <button
                             type="button"
                             onClick={handleEditCompanySelection}
-                            className="flex shrink-0 items-center gap-1 rounded-full border border-zinc-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-zinc-700 transition hover:border-emerald-300 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-emerald-400/40 dark:hover:text-white"
+                            className="flex shrink-0 items-center gap-1 rounded-full border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-3 py-1.5 text-[11px] font-semibold text-[var(--app-fg)] transition hover:border-emerald-300 hover:bg-[var(--app-surface-soft)]"
                           >
                             <PencilLine className="h-3.5 w-3.5" />
                             {t("editCompanySelection")}
@@ -389,7 +413,7 @@ export function RecipientStep({
                           }}
                            placeholder={t("searchCompanyPlaceholder")}
                            rows={1}
-                          className="w-full resize-none overflow-hidden bg-transparent pr-8 text-[16px] font-bold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                          className="w-full resize-none overflow-hidden bg-transparent pr-8 text-base font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
                           />
                           {companySearch.isFetching ? (
                             <Loader2 className="absolute right-0 top-1 h-5 w-5 animate-spin text-zinc-300 dark:text-zinc-500" />
@@ -418,7 +442,7 @@ export function RecipientStep({
                         }}
                         placeholder={t("companyNameLabel")}
                         rows={1}
-                          className="w-full resize-none overflow-hidden bg-transparent text-[16px] font-bold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                          className="w-full resize-none overflow-hidden bg-transparent text-base font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
                        />
                     ) : (
                       <textarea
@@ -441,7 +465,7 @@ export function RecipientStep({
                         }}
                         placeholder={t("fullName")}
                         rows={1}
-                        className="w-full resize-none overflow-hidden bg-transparent text-[16px] font-bold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                        className="w-full resize-none overflow-hidden bg-transparent text-base font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
                       />
                     )}
                   </div>
@@ -460,15 +484,15 @@ export function RecipientStep({
 
                 {(showManual || !isCompany) && (
                   <div className="flex items-start gap-4">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-lg shadow-zinc-950/20">
+                    <FieldIconBadge>
                       <MapPin className="h-6 w-6" />
-                    </div>
+                    </FieldIconBadge>
                      <div className="flex-1 space-y-3">
                        {companySelectionHint ? (
                          <p className="text-sm text-zinc-500 dark:text-zinc-300">{companySelectionHint}</p>
                        ) : null}
                        <div className="space-y-1">
-                         <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                         <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                            {t("streetAddress")}
                         </div>
                         <input
@@ -485,12 +509,12 @@ export function RecipientStep({
                             onInputFocusChange?.(false);
                           }}
                           placeholder={t("streetPlaceholder")}
-                           className="w-full border-b border-zinc-100 bg-transparent pb-1 text-[16px] font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                           className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                         />
                       </div>
                       <div className="flex gap-4">
                         <div className="w-24 space-y-1">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                             {t("zipCode")}
                           </div>
                           <input
@@ -508,11 +532,11 @@ export function RecipientStep({
                               onInputFocusChange?.(false);
                             }}
                             placeholder={t("zipPlaceholder")}
-                             className="w-full border-b border-zinc-100 bg-transparent pb-1 text-[16px] font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                             className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                           />
                         </div>
                         <div className="flex-1 space-y-1">
-                          <div className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                             {t("cityLabel")}
                           </div>
                           <input
@@ -529,7 +553,7 @@ export function RecipientStep({
                               onInputFocusChange?.(false);
                             }}
                             placeholder={t("cityPlaceholder")}
-                            className="w-full border-b border-zinc-100 bg-transparent pb-1 text-[16px] font-medium text-zinc-600 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                            className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-600 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                           />
                         </div>
                       </div>
@@ -541,7 +565,7 @@ export function RecipientStep({
                   <div className="pl-16">
                     <button
                       onClick={() => setShowManual(true)}
-                      className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 hover:text-emerald-700"
+                      className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:text-emerald-700"
                     >
                       <Plus className="h-3 w-3" />
                       {t("enterAddressManually")}
@@ -553,7 +577,7 @@ export function RecipientStep({
                    <div className="pl-16">
                      <button
                        onClick={handleEditCompanySelection}
-                       className="flex items-center gap-1 text-[11px] font-bold text-zinc-400 hover:text-zinc-600"
+                       className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-600"
                      >
                        <Search className="h-3 w-3" />
                       {t("backToSearch")}

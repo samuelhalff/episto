@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   PROMPT_VERSION,
+  analyzeIntakePrompt,
   classifyIntentPrompt,
   extractFieldsPrompt,
   askFollowUpPrompt,
@@ -12,6 +13,29 @@ import {
 describe("PROMPT_VERSION", () => {
   it("is a semver string", () => {
     expect(PROMPT_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
+  });
+});
+
+describe("analyzeIntakePrompt", () => {
+  it("collapses classification, extraction, and follow-up guidance into one JSON contract", () => {
+    const messages = analyzeIntakePrompt({
+      userMessage: "I want to cancel my Swisscom contract.",
+      existingFields: { tone: "formal" },
+      locale: "de-CH",
+      conversationHistory: [{ role: "assistant", content: "Which company is this for?" }],
+    });
+
+    expect(messages).toHaveLength(2);
+    expect(messages[0]!.role).toBe("system");
+    expect(messages[1]!.role).toBe("user");
+
+    const system = messages[0]!.content as string;
+    expect(system).toContain('"fields"');
+    expect(system).toContain('"ready"');
+    expect(system).toContain("recipientCompany");
+    expect(system).toContain("do NOT ask for its full address in chat");
+    expect(system).toContain("Recent conversation:");
+    expect(system).toContain("Swiss German");
   });
 });
 
@@ -59,6 +83,35 @@ describe("extractFieldsPrompt", () => {
     const system = messages[0]!.content as string;
     expect(system).toContain("JSON");
   });
+
+  it("treats named organizations as recipientCompany when they are the target", () => {
+    const messages = extractFieldsPrompt({
+      userMessage: "I want to terminate my Swisscom contract.",
+      existingFields: {},
+      locale: "en-CH",
+    });
+    const system = messages[0]!.content as string;
+    expect(system).toContain("extract it as recipientCompany");
+    expect(system).toContain("Prefer recipientCompany over recipientFirstName/recipientLastName");
+    expect(system).toContain("Swisscom");
+  });
+
+  it("includes recent conversation history for extraction context", () => {
+    const messages = extractFieldsPrompt({
+      userMessage: "Please continue.",
+      existingFields: {},
+      locale: "de-CH",
+      conversationHistory: [
+        { role: "user", content: "My name is Sam Example and I live at Bahnhofstrasse 1, 8001 Zurich." },
+        { role: "assistant", content: "Understood." },
+      ],
+    });
+
+    const user = messages[1]!.content as string;
+    expect(user).toContain("Recent conversation:");
+    expect(user).toContain("Sam Example");
+    expect(user).toContain("Latest user message:");
+  });
 });
 
 describe("askFollowUpPrompt", () => {
@@ -93,6 +146,83 @@ describe("askFollowUpPrompt", () => {
     const system = messages[0]!.content as string;
     expect(system).toContain("Swiss French");
   });
+
+  it("does not require company postal address in chat when company is known", () => {
+    const messages = askFollowUpPrompt({
+      intent: "cancellation",
+      existingFields: { recipientCompany: "Swisscom AG" },
+      locale: "en-CH",
+    });
+    const system = messages[0]!.content as string;
+    expect(system).toContain("do NOT ask for its full address in chat");
+    expect(system).toContain("Do NOT treat sender or recipient postal addresses as required");
+  });
+
+  it("treats ready as enough context to move on, not a command to draft immediately", () => {
+    const messages = askFollowUpPrompt({
+      intent: "cancellation",
+      existingFields: { recipientCompany: "Swisscom AG" },
+      locale: "en-CH",
+    });
+    const system = messages[0]!.content as string;
+    expect(system).toContain('Treat "ready" as "the user has given enough context to move on without getting stuck"');
+    expect(system).toContain("Never draft the letter body or preview in this step");
+  });
+
+  it("treats generic contract or customer numbers as optional for a first draft", () => {
+    const messages = askFollowUpPrompt({
+      intent: "cancellation",
+      existingFields: { recipientCompany: "Swisscom AG" },
+      locale: "en-CH",
+    });
+    const system = messages[0]!.content as string;
+    expect(system).toContain("Do NOT block a first draft on optional identifiers");
+    expect(system).toContain("contract numbers");
+    expect(system).toContain("customer numbers");
+  });
+
+  it("allows ready intake replies to keep asking one useful follow-up question", () => {
+    const messages = askFollowUpPrompt({
+      intent: "cancellation",
+      existingFields: { recipientCompany: "Swisscom AG" },
+      locale: "en-CH",
+    });
+    const system = messages[0]!.content as string;
+    expect(system).toContain('If the minimum ready bar is already met but one more useful detail would improve the later draft');
+    expect(system).toContain('{"ready": true, "question": "your question here"}');
+  });
+
+  it("does not repeat an earlier assistant question once current fields resolve it", () => {
+    const messages = askFollowUpPrompt({
+      intent: "cancellation",
+      existingFields: { recipientCompany: "Swisscom AG" },
+      locale: "en-CH",
+      conversationHistory: [
+        {
+          role: "assistant",
+          content: "Which company or provider should this cancellation letter be addressed to?",
+        },
+      ],
+    });
+    const system = messages[0]!.content as string;
+    expect(system).toContain("treat that question as resolved");
+    expect(system).toContain("do NOT ask it again");
+  });
+
+  it("includes recent conversation context in follow-up prompt", () => {
+    const messages = askFollowUpPrompt({
+      intent: "cancellation",
+      existingFields: { recipientCompany: "Swisscom AG" },
+      locale: "en-CH",
+      conversationHistory: [
+        { role: "user", content: "I already told you the contract number is 12345." },
+        { role: "assistant", content: "Understood." },
+      ],
+    });
+    const system = messages[0]!.content as string;
+    expect(system).toContain("Recent conversation:");
+    expect(system).toContain("contract number is 12345");
+  });
 });
 
 describe("draftLetterPrompt", () => {
@@ -125,6 +255,8 @@ describe("draftLetterPrompt", () => {
     expect(system).toContain("NEVER invent facts");
     expect(system).toContain("JSON contract");
     expect(system).toContain("NEVER invent or cite specific legal articles");
+    expect(system).toContain('"subject"');
+    expect(system).toContain('"document"');
   });
 
   it("includes locale instruction", () => {
@@ -143,7 +275,9 @@ describe("draftLetterPrompt", () => {
   it("instructs to generate body only (not address blocks)", () => {
     const messages = draftLetterPrompt(input);
     const system = messages[0]!.content as string;
-    expect(system).toContain("BODY ONLY");
+    expect(system).toContain("subject and the body");
+    expect(system).toContain("Do NOT include a salutation");
+    expect(system).toContain("Thank you for your attention");
     expect(system).toContain("structured_edit");
     expect(system).toContain("Do not use markdown headings");
   });
@@ -183,6 +317,7 @@ describe("reviseLetterPrompt", () => {
     const system = messages[0]!.content as string;
     expect(system).toContain("NEVER invent facts");
     expect(system).toContain("JSON contract");
+    expect(system).toContain("updated subject");
   });
 });
 

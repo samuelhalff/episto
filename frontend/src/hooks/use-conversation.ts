@@ -2,10 +2,10 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "../lib/api.js";
+import { apiFetch } from "../lib/api";
 import type { ConversationMessage } from "@swiss-mail/shared";
 import { queryKeys } from "@swiss-mail/shared";
-import { useDraftStream } from "./use-draft-stream.js";
+import { useDraftStream } from "./use-draft-stream";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -23,13 +23,43 @@ export interface UseConversationReturn {
   regenerationsRemaining: number;
   isSending: boolean;
   error: Error | null;
+  completionCount: number;
 }
 
 const MAX_REGENERATIONS = 10;
 
+function stripCodeFences(value: string): string {
+  const trimmed = value.trim();
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)```$/i);
+  return fenced?.[1]?.trim() ?? trimmed;
+}
+
+function normalizeAssistantContent(content: string): string {
+  const trimmed = content.trim();
+  if (!trimmed.startsWith("{") && !trimmed.startsWith("```")) {
+    return content;
+  }
+
+  try {
+    const parsed = JSON.parse(stripCodeFences(trimmed)) as {
+      mode?: unknown;
+      plainText?: { text?: unknown } | undefined;
+    };
+
+    if (parsed.mode === "plain_text" && typeof parsed.plainText?.text === "string") {
+      return parsed.plainText.text;
+    }
+  } catch {
+    return content;
+  }
+
+  return content;
+}
+
 function normalizeMessage(message: ConversationMessage): ConversationMessage {
   return {
     ...message,
+    content: message.role === "assistant" ? normalizeAssistantContent(message.content) : message.content,
     createdAt: message.createdAt instanceof Date ? message.createdAt : new Date(message.createdAt),
   };
 }
@@ -43,6 +73,7 @@ export function useConversation(draftId: string): UseConversationReturn {
   const { subscribe } = useDraftStream(draftId);
   const [optimisticMessages, setOptimisticMessages] = useState<ConversationMessage[]>([]);
   const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
+  const [completionCount, setCompletionCount] = useState(0);
   const assistantCountAtRequestRef = useRef(0);
 
   // Accumulated streaming state
@@ -74,6 +105,7 @@ export function useConversation(draftId: string): UseConversationReturn {
         setIsStreaming(false);
         setStreamingText("");
         streamingMessageIdRef.current = null;
+        setCompletionCount((current) => current + 1);
         void queryClient.invalidateQueries({
           queryKey: queryKeys.draftMessages(draftId),
         });
@@ -95,6 +127,7 @@ export function useConversation(draftId: string): UseConversationReturn {
 
         if (event.data.code !== "SSE_FALLBACK") {
           setIsAwaitingResponse(false);
+          setCompletionCount((current) => current + 1);
         }
       }
     });
@@ -238,5 +271,6 @@ export function useConversation(draftId: string): UseConversationReturn {
     regenerationsRemaining,
     isSending: sendMutation.isPending,
     error: sendMutation.error ?? messagesQuery.error ?? null,
+    completionCount,
   };
 }

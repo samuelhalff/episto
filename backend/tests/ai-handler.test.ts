@@ -1,10 +1,8 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import type { DraftEventHandler } from "../src/modules/drafting/draft-events.js";
 import { subscribeDraft, unsubscribeDraft } from "../src/modules/drafting/draft-events.js";
-
-// ---------------------------------------------------------------------------
-// Mock all external dependencies before importing the handler
-// ---------------------------------------------------------------------------
+import { AppError } from "../src/shared/errors/index.js";
 
 vi.mock("../src/db/index.js", () => ({
   getDb: vi.fn(() => mockDb),
@@ -20,9 +18,7 @@ vi.mock("../src/db/index.js", () => ({
 }));
 
 vi.mock("../src/modules/ai/ai.service.js", () => ({
-  classifyIntent: vi.fn(),
-  extractFields: vi.fn(),
-  askFollowUp: vi.fn(),
+  analyzeIntake: vi.fn(),
   draftLetter: vi.fn(),
   reviseLetter: vi.fn(),
   validateOutput: vi.fn(),
@@ -40,23 +36,14 @@ vi.mock("../src/shared/logging/index.js", () => ({
   }),
 }));
 
-// ---------------------------------------------------------------------------
-// Import mocked modules
-// ---------------------------------------------------------------------------
-
-import { handleAiMessage } from "../src/modules/ai/ai.handler.js";
+import { handleAiMessage, handleComposeFromContext } from "../src/modules/ai/ai.handler.js";
 import {
-  classifyIntent,
-  extractFields,
-  askFollowUp,
+  analyzeIntake,
   draftLetter,
+  reviseLetter,
   validateOutput,
 } from "../src/modules/ai/ai.service.js";
 import { createMessage } from "../src/modules/messages/message.service.js";
-
-// ---------------------------------------------------------------------------
-// Shared mock DB — helper to set up chaining
-// ---------------------------------------------------------------------------
 
 const mockDb = {
   select: vi.fn(),
@@ -69,12 +56,11 @@ const mockDb = {
 };
 
 function resetDbChain() {
-  // mockReset clears both implementations and once-value queues
   mockDb.select.mockReset().mockReturnValue(mockDb);
   mockDb.from.mockReset().mockReturnValue(mockDb);
   mockDb.where.mockReset().mockReturnValue(mockDb);
   mockDb.orderBy.mockReset().mockReturnValue(mockDb);
-  mockDb.limit.mockReset().mockResolvedValue([]);
+  mockDb.limit.mockReset().mockResolvedValue([{ metadata: null }]);
   mockDb.update.mockReset().mockReturnValue(mockDb);
   mockDb.set.mockReset().mockReturnValue(mockDb);
 }
@@ -102,9 +88,20 @@ const DRAFT = {
   updatedAt: new Date(),
 };
 
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+function primeDraftReads(options?: {
+  draft?: typeof DRAFT;
+  conversation?: Array<{ id: string; role: string; content: string }>;
+  metadata?: unknown;
+}) {
+  const draft = options?.draft ?? DRAFT;
+  const conversation = options?.conversation ?? [];
+  const metadata = options?.metadata ?? draft.metadata;
+
+  mockDb.limit
+    .mockResolvedValueOnce([draft])
+    .mockResolvedValueOnce(conversation)
+    .mockResolvedValue([{ metadata }]);
+}
 
 describe("handleAiMessage", () => {
   let events: Array<[string, unknown]>;
@@ -116,33 +113,27 @@ describe("handleAiMessage", () => {
     events = [];
     handler = (event, payload) => events.push([event, payload]);
     subscribeDraft("draft-1", handler);
-
-    // Default: loadDraft returns DRAFT, conversation returns empty
-    mockDb.limit
-      .mockResolvedValueOnce([DRAFT])  // loadDraft
-      .mockResolvedValueOnce([]);       // loadConversationHistory
   });
 
   afterEach(() => {
     unsubscribeDraft("draft-1", handler);
   });
 
-  it("emits ai_message_complete for follow-up question when not ready", async () => {
-    vi.mocked(classifyIntent).mockResolvedValue({
+  it("emits the one-pass intake follow-up question when context is still missing", async () => {
+    primeDraftReads();
+    vi.mocked(analyzeIntake).mockResolvedValue({
       intent: "cancellation",
       risk: "low",
       summary: "Cancel insurance",
-    });
-    vi.mocked(extractFields).mockResolvedValue({});
-    vi.mocked(askFollowUp).mockResolvedValue({
+      fields: {},
       ready: false,
-      question: "What is the contract number?",
+      question: "What should the recipient do next?",
     });
     vi.mocked(createMessage).mockResolvedValue({
       id: "assistant-msg-1",
       draftId: "draft-1",
       role: "assistant",
-      content: "What is the contract number?",
+      content: "What should the recipient do next?",
       toolCalls: null,
       createdAt: new Date(),
     });
@@ -154,42 +145,182 @@ describe("handleAiMessage", () => {
       userContent: "I want to cancel my insurance",
     });
 
-    expect(classifyIntent).toHaveBeenCalled();
-    expect(extractFields).toHaveBeenCalled();
-    expect(askFollowUp).toHaveBeenCalled();
+    expect(analyzeIntake).toHaveBeenCalledOnce();
     expect(createMessage).toHaveBeenCalledWith(expect.anything(), {
       draftId: "draft-1",
       role: "assistant",
-      content: "What is the contract number?",
+      content: "What should the recipient do next?",
     });
-
-    const completeEvents = events.filter(([e]) => e === "ai_message_complete");
-    expect(completeEvents).toHaveLength(1);
-    const payload = completeEvents[0]![1] as { fullContent: string };
-    expect(payload.fullContent).toBe("What is the contract number?");
+    expect(events).toContainEqual([
+      "ai_message_complete",
+      expect.objectContaining({ fullContent: "What should the recipient do next?" }),
+    ]);
   });
 
-  it("streams draft and emits events when ready", async () => {
-    vi.mocked(classifyIntent).mockResolvedValue({
+  it("preserves existing sender workspace data when intake analysis only adds recipient fields", async () => {
+    const metadata = {
+      workspaceDraft: {
+        senderForm: {
+          fullName: "Sam Example",
+          addressLine1: "Bahnhofstrasse 1",
+          postalCode: "8001",
+          city: "Zurich",
+        },
+      },
+    };
+
+    primeDraftReads({
+      draft: { ...DRAFT, metadata, intent: "cancellation" },
+      metadata,
+    });
+    vi.mocked(analyzeIntake).mockResolvedValue({
+      intent: "cancellation",
+      risk: "low",
+      summary: "Cancel contract",
+      fields: { recipientCompany: "Swisscom" },
+      ready: false,
+      question: "What should Swisscom do next?",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-preserve",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "What should Swisscom do next?",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
+
+    await handleAiMessage({
+      draftId: "draft-1",
+      sessionId: "session-1",
+      userMessageId: "user-msg-keep-sender",
+      userContent: "Please send this to Swisscom.",
+    });
+
+    expect(mockDb.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        metadata: {
+          workspaceDraft: {
+            senderForm: {
+              fullName: "Sam Example",
+              addressLine1: "Bahnhofstrasse 1",
+              postalCode: "8001",
+              city: "Zurich",
+            },
+            recipientForm: {
+              isCompany: true,
+              showManual: false,
+              fullName: "",
+              companyName: "Swisscom",
+              selectedCompany: null,
+              addressLine1: "",
+              postalCode: "",
+              city: "",
+            },
+          },
+        },
+      }),
+    );
+  });
+
+  it("keeps intake question-led even when the minimum context threshold is already met", async () => {
+    const metadata = {
+      workspaceDraft: {
+        recipientForm: {
+          isCompany: true,
+          showManual: false,
+          fullName: "",
+          companyName: "Swisscom AG",
+          selectedCompany: null,
+          addressLine1: "",
+          postalCode: "",
+          city: "",
+        },
+      },
+    };
+
+    primeDraftReads({
+      draft: { ...DRAFT, metadata },
+      metadata,
+    });
+    vi.mocked(analyzeIntake).mockResolvedValue({
       intent: "cancellation",
       risk: "low",
       summary: "Cancel insurance",
-    });
-    vi.mocked(extractFields).mockResolvedValue({ subject: "Kündigung" });
-    vi.mocked(askFollowUp).mockResolvedValue({
+      fields: { recipientCompany: "Swisscom AG" },
       ready: true,
-      message: "Ready to draft.",
+      message: "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-2",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
+      toolCalls: null,
+      createdAt: new Date(),
     });
 
+    await handleAiMessage({
+      draftId: "draft-1",
+      sessionId: "session-1",
+      userMessageId: "user-msg-2",
+      userContent:
+        "I want to cancel my Swisscom insurance contract because the premium is too high and the service no longer fits my needs.",
+    });
+
+    expect(draftLetter).not.toHaveBeenCalled();
+    expect(events).toContainEqual([
+      "ai_message_complete",
+      expect.objectContaining({
+        fullContent:
+          "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
+      }),
+    ]);
+  });
+
+  it("composes from saved context and uses the co-generated subject from the draft response", async () => {
+    const metadata = {
+      workspaceDraft: {
+        recipientForm: {
+          isCompany: true,
+          showManual: false,
+          fullName: "",
+          companyName: "Swisscom AG",
+          selectedCompany: null,
+          addressLine1: "Alte Tiefenaustrasse 6",
+          postalCode: "3050",
+          city: "Ittigen",
+        },
+      },
+    };
+
+    primeDraftReads({
+      draft: { ...DRAFT, metadata, intent: "complaint" },
+      conversation: [
+        {
+          id: "assistant-msg-1",
+          role: "assistant",
+          content: "What exactly should the company correct?",
+        },
+        {
+          id: "user-msg-1",
+          role: "user",
+          content:
+            "I want to complain about the last invoice because I was billed twice for the same service and need a correction.",
+        },
+      ],
+      metadata,
+    });
     vi.mocked(draftLetter).mockResolvedValue({
       mode: "structured_edit",
-      body: "Sehr geehrte Damen",
+      subject: "Beanstandung Ihrer Rechnung",
+      body: "Sehr geehrte Damen und Herren\n\nBitte korrigieren Sie die doppelte Belastung auf meiner letzten Rechnung.",
       document: {
         version: "1.0",
         blocks: [
           {
             type: "paragraph",
-            text: "Sehr geehrte Damen",
+            text: "Sehr geehrte Damen und Herren\n\nBitte korrigieren Sie die doppelte Belastung auf meiner letzten Rechnung.",
             style: "Normal",
           },
         ],
@@ -204,7 +335,7 @@ describe("handleAiMessage", () => {
           blocks: [
             {
               type: "paragraph",
-              text: "Sehr geehrte Damen",
+              text: "Sehr geehrte Damen und Herren\n\nBitte korrigieren Sie die doppelte Belastung auf meiner letzten Rechnung.",
               style: "Normal",
             },
           ],
@@ -213,18 +344,272 @@ describe("handleAiMessage", () => {
         warnings: [],
       },
     });
-
     vi.mocked(validateOutput).mockResolvedValue({
       valid: true,
       violations: [],
       severity: "none",
     });
-
     vi.mocked(createMessage).mockResolvedValue({
-      id: "assistant-msg-2",
+      id: "assistant-msg-compose",
       draftId: "draft-1",
       role: "assistant",
-      content: "Sehr geehrte Damen",
+      content: "Sehr geehrte Damen und Herren\n\nBitte korrigieren Sie die doppelte Belastung auf meiner letzten Rechnung.",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
+
+    await handleComposeFromContext({
+      draftId: "draft-1",
+      sessionId: "session-1",
+    });
+
+    expect(analyzeIntake).not.toHaveBeenCalled();
+    expect(draftLetter).toHaveBeenCalledOnce();
+    expect(mockDb.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: "Sehr geehrte Damen und Herren\n\nBitte korrigieren Sie die doppelte Belastung auf meiner letzten Rechnung.",
+        subject: "Beanstandung Ihrer Rechnung",
+      }),
+    );
+  });
+
+  it("composes the first body after intake analysis fills missing context from the saved thread", async () => {
+    const metadata = {
+      workspaceDraft: {
+        senderForm: {
+          fullName: "Sam Example",
+          addressLine1: "Bahnhofstrasse 1",
+          postalCode: "8001",
+          city: "Zurich",
+        },
+      },
+    };
+
+    primeDraftReads({
+      draft: { ...DRAFT, metadata },
+      conversation: [
+        {
+          id: "user-msg-1",
+          role: "user",
+          content: "I want to cancel my internet contract with Swisscom.",
+        },
+        {
+          id: "assistant-msg-1",
+          role: "assistant",
+          content: "What should the company do, and when should the cancellation take effect?",
+        },
+        {
+          id: "user-msg-2",
+          role: "user",
+          content: "Cancel it at the next possible date. The recipient is Swisscom AG in Ittigen.",
+        },
+      ],
+      metadata,
+    });
+    vi.mocked(analyzeIntake).mockResolvedValue({
+      intent: "cancellation",
+      risk: "low",
+      summary: "Cancel internet contract",
+      fields: {
+        recipientCompany: "Swisscom AG",
+        recipientAddressLine1: "Alte Tiefenaustrasse 6",
+        recipientPostalCode: "3050",
+        recipientCity: "Ittigen",
+      },
+      ready: true,
+      message: "Ready to draft.",
+    });
+    vi.mocked(draftLetter).mockResolvedValue({
+      mode: "structured_edit",
+      subject: "Kuendigung Internetvertrag",
+      body: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+      document: {
+        version: "1.0",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+            style: "Normal",
+          },
+        ],
+      },
+      operationsApplied: ["replace_with_blocks"],
+      warnings: [],
+      metadata: {
+        schemaVersion: "1.0",
+        mode: "structured_edit",
+        document: {
+          version: "1.0",
+          blocks: [
+            {
+              type: "paragraph",
+              text: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+              style: "Normal",
+            },
+          ],
+        },
+        operationsApplied: ["replace_with_blocks"],
+        warnings: [],
+      },
+    });
+    vi.mocked(validateOutput).mockResolvedValue({
+      valid: true,
+      violations: [],
+      severity: "none",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-compose",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
+
+    await handleComposeFromContext({
+      draftId: "draft-1",
+      sessionId: "session-1",
+    });
+
+    expect(analyzeIntake).toHaveBeenCalledOnce();
+    expect(mockDb.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        body: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+        subject: "Kuendigung Internetvertrag",
+      }),
+    );
+  });
+
+  it("skips extra intake analysis when canonical state already proves the draft is ready", async () => {
+    const metadata = {
+      workspaceDraft: {
+        recipientForm: {
+          isCompany: true,
+          showManual: false,
+          fullName: "",
+          companyName: "Swisscom AG",
+          selectedCompany: null,
+          addressLine1: "Alte Tiefenaustrasse 6",
+          postalCode: "3050",
+          city: "Ittigen",
+        },
+      },
+    };
+
+    primeDraftReads({
+      draft: { ...DRAFT, metadata, intent: "cancellation" },
+      conversation: [
+        {
+          id: "user-msg-1",
+          role: "user",
+          content:
+            "I want to cancel my Swisscom internet contract because the monthly price is too high and I want the cancellation to take effect at the earliest possible date.",
+        },
+      ],
+      metadata,
+    });
+    vi.mocked(draftLetter).mockResolvedValue({
+      mode: "structured_edit",
+      subject: "Kuendigung Internetvertrag",
+      body: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+      document: {
+        version: "1.0",
+        blocks: [
+          {
+            type: "paragraph",
+            text: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+            style: "Normal",
+          },
+        ],
+      },
+      operationsApplied: ["replace_with_blocks"],
+      warnings: [],
+      metadata: {
+        schemaVersion: "1.0",
+        mode: "structured_edit",
+        document: {
+          version: "1.0",
+          blocks: [
+            {
+              type: "paragraph",
+              text: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+              style: "Normal",
+            },
+          ],
+        },
+        operationsApplied: ["replace_with_blocks"],
+        warnings: [],
+      },
+    });
+    vi.mocked(validateOutput).mockResolvedValue({
+      valid: true,
+      violations: [],
+      severity: "none",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-compose-ready",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
+
+    await handleComposeFromContext({
+      draftId: "draft-1",
+      sessionId: "session-1",
+    });
+
+    expect(analyzeIntake).not.toHaveBeenCalled();
+    expect(draftLetter).toHaveBeenCalledOnce();
+  });
+
+  it("skips intake analysis for revision turns", async () => {
+    const draftWithBody = {
+      ...DRAFT,
+      body: "Existing drafted body",
+      intent: "complaint",
+    };
+
+    primeDraftReads({
+      draft: draftWithBody,
+      conversation: [
+        { id: "msg-1", role: "user", content: "Original request" },
+        { id: "msg-2", role: "assistant", content: "Existing drafted body" },
+        { id: "msg-3", role: "user", content: "Make it firmer" },
+      ],
+    });
+    vi.mocked(reviseLetter).mockResolvedValue({
+      mode: "structured_edit",
+      subject: "Beschwerde",
+      body: "Revised body",
+      document: {
+        version: "1.0",
+        blocks: [{ type: "paragraph", text: "Revised body", style: "Normal" }],
+      },
+      operationsApplied: ["replace_with_blocks"],
+      warnings: [],
+      metadata: {
+        schemaVersion: "1.0",
+        mode: "structured_edit",
+        document: {
+          version: "1.0",
+          blocks: [{ type: "paragraph", text: "Revised body", style: "Normal" }],
+        },
+        operationsApplied: ["replace_with_blocks"],
+        warnings: [],
+      },
+    });
+    vi.mocked(validateOutput).mockResolvedValue({
+      valid: true,
+      violations: [],
+      severity: "none",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-revision",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "Revised body",
       toolCalls: null,
       createdAt: new Date(),
     });
@@ -232,49 +617,62 @@ describe("handleAiMessage", () => {
     await handleAiMessage({
       draftId: "draft-1",
       sessionId: "session-1",
-      userMessageId: "user-msg-1",
-      userContent: "Write the letter now",
+      userMessageId: "user-msg-revision",
+      userContent: "Make it firmer",
     });
 
-    const fieldEvents = events.filter(([e]) => e === "field_update");
-    expect(fieldEvents.length).toBeGreaterThanOrEqual(1);
-
-    const completeEvents = events.filter(([e]) => e === "ai_message_complete");
-    expect(completeEvents).toHaveLength(1);
+    expect(analyzeIntake).not.toHaveBeenCalled();
+    expect(reviseLetter).toHaveBeenCalledOnce();
   });
 
-  it("emits error event when AI processing fails", async () => {
-    vi.mocked(classifyIntent).mockRejectedValue(
-      new Error("Azure OpenAI unreachable"),
+  it("emits an error event when AI processing fails", async () => {
+    primeDraftReads();
+    vi.mocked(analyzeIntake).mockRejectedValue(
+      new AppError({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "AI_RATE_LIMITED",
+        message: "Rate limited",
+        userMessage: "The AI service is temporarily busy. Please try again in a moment.",
+        userAction: "Retry shortly.",
+      }),
     );
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-error",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "The AI service is temporarily busy. Please try again in a moment.",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
 
     await handleAiMessage({
       draftId: "draft-1",
       sessionId: "session-1",
-      userMessageId: "user-msg-1",
-      userContent: "Test message",
+      userMessageId: "user-msg-error",
+      userContent: "Please help",
     });
 
-    const errorEvents = events.filter(([e]) => e === "error");
-    expect(errorEvents).toHaveLength(1);
-    const payload = errorEvents[0]![1] as { code: string; message: string };
-    expect(payload.code).toBe("AI_PROCESSING_FAILED");
+    expect(events).toContainEqual([
+      "error",
+      {
+        code: "AI_RATE_LIMITED",
+        message: "The AI service is temporarily busy. Please try again in a moment.",
+      },
+    ]);
   });
 
-  it("skips processing when draft not found", async () => {
-    // Clear previously queued once-values and set limit to always return []
-    vi.clearAllMocks();
-    resetDbChain();
-    // No once-values queued — limit always returns [], so loadDraft gets no draft
+  it("skips processing when the draft no longer exists", async () => {
+    mockDb.limit.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
 
     await handleAiMessage({
       draftId: "draft-1",
       sessionId: "session-1",
-      userMessageId: "user-msg-1",
-      userContent: "Test",
+      userMessageId: "user-msg-missing",
+      userContent: "Hello",
     });
 
-    expect(classifyIntent).not.toHaveBeenCalled();
+    expect(analyzeIntake).not.toHaveBeenCalled();
     expect(events).toHaveLength(0);
   });
 });

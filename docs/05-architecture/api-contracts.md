@@ -658,6 +658,99 @@ const SetRecipientResponse = z.object({
 
 ---
 
+#### `GET /api/v1/drafts/:id/recipient/company-search`
+Search the official company registry for a business recipient while the user is filling the
+recipient step. This is a synchronous request/response endpoint, not a queue job.
+
+**Query params:**
+```ts
+const RecipientCompanySearchQuery = z.object({
+  query: z.string().trim().min(2).max(120),
+});
+```
+
+**Response `200 OK`:**
+```ts
+const RecipientCompanySearchResponse = z.object({
+  results: z.array(
+    z.object({
+      id: z.string(),
+      name: z.string(),
+      registryUid: z.string().nullable(),
+      registryChid: z.string().nullable(),
+      registryId: z.string().nullable(),
+      registryStatus: z.string().nullable(),
+      legalSeat: z.string().nullable(),
+      source: z.literal("zefix"),
+    }),
+  ),
+});
+```
+
+**Behavior notes:**
+- only for company / organization recipient lookup
+- current staging provider is Zefix via an internal Swiss Mail proxy
+- results help the user select the company identity
+- once a company is selected, the frontend may fetch company details from the same provider to prefill the
+  structured recipient address fields
+- future Swiss Post address validation remains a separate adapter concern and must not be faked until
+  provider access is available
+
+**Error responses:**
+
+| Code | HTTP | When |
+|------|------|------|
+| `VALIDATION_ERROR` | 400 | Query shorter than 2 characters |
+| `NOT_FOUND` | 404 | Draft not found or not owned by the session |
+| `PROVIDER_OUTAGE` | 503 | Official company registry is temporarily unavailable |
+
+**Rate limit:** 60 req/session/min
+
+---
+
+#### `GET /api/v1/drafts/:id/recipient/company-details`
+Fetch canonical company address details for a previously selected recipient-company result. This remains
+adapter-backed so Zefix can be replaced or complemented later.
+
+**Query params:**
+```ts
+const RecipientCompanyDetailsQuery = z.object({
+  id: z.string().trim().min(1).max(160),
+});
+```
+
+**Response `200 OK`:**
+```ts
+const RecipientCompanyDetailsResponse = z.object({
+  company: z.object({
+    id: z.string(),
+    name: z.string(),
+    addressLine1: z.string().nullable(),
+    postalCode: z.string().nullable(),
+    city: z.string().nullable(),
+    source: z.literal("zefix"),
+  }),
+});
+```
+
+**Behavior notes:**
+- current staging provider is Zefix detail lookup by UID / EHRAID / CHID
+- response is normalized into canonical recipient-address fields for the structured form
+- this improves company prefill without coupling the UI to raw provider payloads
+- future Swiss Post integration can replace or augment this adapter path without changing the UI contract
+
+**Error responses:**
+
+| Code | HTTP | When |
+|------|------|------|
+| `VALIDATION_ERROR` | 400 | Missing/invalid company identifier |
+| `NOT_FOUND` | 404 | Draft not found or not owned by the session |
+| `PROVIDER_OUTAGE` | 503 | Official company registry details are temporarily unavailable |
+
+**Rate limit:** 60 req/session/min
+
+---
+
 ### 3.5 Files
 
 #### `POST /api/v1/drafts/:id/files`

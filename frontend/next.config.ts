@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
+const distDir = process.env.NEXT_DIST_DIR || ".next";
+const watchPollInterval = Number.parseInt(
+  process.env.WATCHPACK_POLLING_INTERVAL ?? "1000",
+  10,
+);
 
 // Security headers — values locked in docs/07-operations/security-and-privacy.md §Security headers
 // CSP includes Stripe domains as required by docs (script-src, frame-src, connect-src).
@@ -41,14 +46,26 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   output: "standalone",
-  webpack(config) {
-    // Resolve .js extension imports to .ts/.tsx files (TypeScript ESM convention).
-    // Required because tsconfig uses moduleResolution "Bundler" with verbatimModuleSyntax,
-    // which emits .js extensions in imports that webpack must resolve to source files.
+  distDir,
+  allowedDevOrigins: ["ark-fid.ddns.net"],
+  experimental: {
+    serverComponentsHmrCache: false,
+  },
+  webpack(config, { dev }) {
+    // Resolve .js extension imports to .ts/.tsx files in the stable webpack toolchain.
     config.resolve.extensionAlias = {
       ".js": [".js", ".ts", ".tsx"],
       ".jsx": [".jsx", ".tsx"],
     };
+
+    if (dev) {
+      config.watchOptions = {
+        ...config.watchOptions,
+        poll: Number.isFinite(watchPollInterval) ? watchPollInterval : 1000,
+        aggregateTimeout: 300,
+      };
+    }
+
     return config;
   },
   async headers() {

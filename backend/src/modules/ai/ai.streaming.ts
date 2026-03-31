@@ -92,9 +92,17 @@ export async function streamDraftGeneration(
     content: applied.body,
   });
 
-  const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata);
+  const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata, assistantMsg.id);
+  const nextSubject =
+    typeof fields.subject === "string" && fields.subject.trim().length > 0
+      ? fields.subject.trim()
+      : applied.subject ||
+        (draft.subject?.trim() ?? "") ||
+        null;
+
   await updateFields(draftId, sessionId, {
     body: applied.body,
+    subject: nextSubject,
     metadata: nextMetadata,
   });
 
@@ -150,8 +158,14 @@ export async function streamRevision(
   });
 
   const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata);
+  const nextSubject =
+    applied.subject ||
+    draft.subject?.trim() ||
+    null;
+
   await updateFields(draftId, sessionId, {
     body: applied.body,
+    subject: nextSubject,
     metadata: nextMetadata,
   });
 
@@ -166,6 +180,7 @@ export async function streamRevision(
 function mergeAiDocumentMetadata(
   existingMetadata: unknown,
   aiDocument: Record<string, unknown>,
+  firstDraftMessageId?: string,
 ): Record<string, unknown> {
   const base = existingMetadata && typeof existingMetadata === "object"
     ? (existingMetadata as Record<string, unknown>)
@@ -173,6 +188,8 @@ function mergeAiDocumentMetadata(
   return {
     ...base,
     aiDocument,
+    firstDraftMessageId:
+      typeof base.firstDraftMessageId === "string" ? base.firstDraftMessageId : firstDraftMessageId,
   };
 }
 

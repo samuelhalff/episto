@@ -1,13 +1,13 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { ArrowRight, Loader2 } from "lucide-react";
 
 function getCardClasses(isCompactViewport: boolean, density: "default" | "thin") {
-  const roundedClass = isCompactViewport ? "rounded-[20px]" : "rounded-[24px]";
+  const roundedClass = isCompactViewport ? "rounded-2.5xl" : "rounded-3xl";
   const paddingClass = density === "thin" && isCompactViewport ? "p-4" : "p-5";
 
-  return `${roundedClass} bg-white shadow-sm ring-1 ring-black/5 dark:bg-zinc-900 dark:ring-white/10 ${paddingClass}`;
+  return `${roundedClass} app-panel ${paddingClass}`;
 }
 
 export function Card({
@@ -34,6 +34,20 @@ interface ActionCardProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   selected?: boolean | undefined;
   selectedClassName?: string | undefined;
   unselectedClassName?: string | undefined;
+}
+
+export function FieldIconBadge({
+  children,
+  className = "",
+}: {
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-muted-strong)] shadow-sm ${className}`}>
+      {children}
+    </div>
+  );
 }
 
 export function ActionCard({
@@ -74,8 +88,8 @@ export function DashedCard({
   return (
     <button
       type={type}
-      className={`flex w-full items-center justify-center border-2 border-dashed border-zinc-200 bg-white transition-colors hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-500 ${
-        isCompactViewport ? "rounded-[20px] p-4" : "rounded-[24px] p-6"
+      className={`app-panel flex w-full items-center justify-center border-2 border-dashed border-[var(--app-border)] transition-colors hover:border-[var(--app-border-strong)] ${
+        isCompactViewport ? "rounded-2.5xl p-4" : "rounded-3xl p-6"
       } ${className}`}
       {...props}
     >
@@ -90,6 +104,37 @@ interface PrimaryButtonProps {
   onClick?: (() => void) | undefined;
   disabled?: boolean;
   loading?: boolean;
+  hideIcon?: boolean;
+  tone?: "primary" | "warning";
+}
+
+interface SecondaryButtonProps {
+  children: ReactNode;
+  icon?: ReactNode;
+  onClick?: (() => void) | undefined;
+  disabled?: boolean;
+  loading?: boolean;
+  hideIcon?: boolean;
+}
+
+function getActionButtonClasses(
+  variant: "primary" | "secondary",
+  isDisabled: boolean,
+  tone: "primary" | "warning" = "primary",
+) {
+  if (variant === "secondary") {
+    return isDisabled
+      ? "cursor-not-allowed border border-[var(--app-border)] bg-zinc-100 text-zinc-600 dark:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)]"
+      : "border border-[var(--app-border)] bg-[var(--app-surface-strong)] text-[var(--app-fg)] hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface-soft)] active:scale-[0.98]";
+  }
+
+  if (tone === "warning" && !isDisabled) {
+    return "bg-amber-100 text-amber-950 ring-amber-200 hover:bg-amber-100/90 active:scale-[0.98] dark:bg-amber-400/16 dark:text-amber-100 dark:ring-amber-300/25 dark:hover:bg-amber-400/20";
+  }
+
+  return isDisabled
+    ? "cursor-not-allowed bg-zinc-200 text-zinc-700 ring-zinc-300/80 dark:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)] dark:ring-[var(--app-border-strong)]"
+    : "bg-zinc-950 text-white ring-zinc-950/5 hover:bg-zinc-900 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:ring-amber-300/30 dark:hover:bg-amber-300";
 }
 
 export function PrimaryButton({
@@ -98,6 +143,8 @@ export function PrimaryButton({
   onClick,
   disabled = false,
   loading = false,
+  hideIcon = false,
+  tone = "primary",
 }: PrimaryButtonProps) {
   const isDisabled = disabled || loading;
   return (
@@ -105,18 +152,32 @@ export function PrimaryButton({
       type="button"
       onClick={onClick}
       disabled={isDisabled}
-      className={`inline-flex w-full items-center justify-center gap-2 rounded-[14px] px-4 py-3.5 text-sm font-bold transition-all ${
-        isDisabled
-          ? "cursor-not-allowed bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500"
-          : "bg-zinc-950 text-white active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950"
-      }`}
+      className={`inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold tracking-tight shadow-sm ring-1 transition-all duration-200 ${getActionButtonClasses("primary", isDisabled, tone)}`}
     >
-      {loading ? (
-        <Loader2 className="h-4 w-4 animate-spin" />
-      ) : (
-        !isDisabled && (icon ?? <Check className="h-4 w-4" />)
-      )}
       <span>{children}</span>
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : !isDisabled && !hideIcon ? (icon ?? <ArrowRight className="h-4 w-4" />) : null}
+    </button>
+  );
+}
+
+export function SecondaryButton({
+  children,
+  icon,
+  onClick,
+  disabled = false,
+  loading = false,
+  hideIcon = true,
+}: SecondaryButtonProps) {
+  const isDisabled = disabled || loading;
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={isDisabled}
+      className={`inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold tracking-tight shadow-sm transition-all duration-200 ${getActionButtonClasses("secondary", isDisabled)}`}
+    >
+      <span>{children}</span>
+      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : !isDisabled && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
     </button>
   );
 }
@@ -141,7 +202,7 @@ export function SegmentedControl<V extends string>({
   onChange: (value: V) => void;
 }) {
   return (
-    <div className="inline-flex rounded-full bg-zinc-100 p-1 dark:bg-zinc-800">
+    <div className="inline-flex rounded-full bg-zinc-200/90 p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] dark:bg-[var(--app-surface-soft)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
       {options.map((option) => (
         <button
           key={option.value}
@@ -149,8 +210,8 @@ export function SegmentedControl<V extends string>({
           onClick={() => onChange(option.value)}
           className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-widest transition-all ${
             value === option.value
-              ? "bg-amber-100 text-amber-900 shadow-sm ring-1 ring-amber-200 dark:bg-amber-400/20 dark:text-amber-200 dark:ring-amber-300/30"
-              : "text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+              ? "bg-amber-100 text-amber-950 shadow-sm shadow-amber-200/60 dark:bg-amber-400/20 dark:text-amber-200"
+              : "text-zinc-500 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-300"
           }`}
         >
           {option.icon}
@@ -182,7 +243,7 @@ export function ThreadActionCard({
     <Card
       isCompactViewport={isCompactViewport}
       density="thin"
-      className="space-y-3 bg-zinc-50/80 dark:bg-zinc-900/80"
+      className="space-y-3 bg-[var(--app-surface)]"
     >
       {title ? <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</p> : null}
       {description ? (

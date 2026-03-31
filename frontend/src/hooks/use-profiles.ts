@@ -1,8 +1,8 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiFetch } from "../lib/api.js";
-import { draftOptions } from "./use-draft.js";
+import { apiFetch } from "../lib/api";
+import { draftOptions } from "./use-draft";
 
 export function useSetSender(draftId: string) {
   const queryClient = useQueryClient();
@@ -21,7 +21,10 @@ export function useSetSender(draftId: string) {
     }) =>
       apiFetch(`/v1/drafts/${draftId}/sender`, {
         method: "PUT",
-        body: JSON.stringify(input),
+        body: JSON.stringify({
+          ...input,
+          company: input.companyName,
+        }),
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({
@@ -47,7 +50,10 @@ export function useSetRecipient(draftId: string) {
     }) =>
       apiFetch(`/v1/drafts/${draftId}/recipient`, {
         method: "PUT",
-        body: JSON.stringify(input),
+        body: JSON.stringify({
+          ...input,
+          company: input.companyName,
+        }),
       }),
     onSuccess: () => {
       void queryClient.invalidateQueries({

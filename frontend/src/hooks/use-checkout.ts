@@ -3,7 +3,7 @@
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
-import { apiFetch } from "../lib/api.js";
+import { apiFetch } from "../lib/api";
 
 // ---------------------------------------------------------------------------
 // Types

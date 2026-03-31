@@ -86,6 +86,10 @@ Managed with BullMQ + Redis (locked — see
 | `send-transactional-email` | Confirmation, receipt, or support events |
 | `cleanup-expired-assets` | Scheduled; driven by configurable retention policy |
 
+Interactive recipient company search is **not** a queue job. It is a normal synchronous backend
+request because the user is waiting on a debounced typeahead response. Protect it with per-session
+rate limits and stateless horizontal scaling, not BullMQ.
+
 ## Webhook handling
 
 - Payment webhooks: normalize via Stripe adapter into canonical `PaymentEvent`
@@ -111,3 +115,4 @@ Managed with BullMQ + Redis (locked — see
 | Payment | `payments/adapters/stripe.ts` |
 | Tracking | `tracking/adapters/{providerName}.ts` |
 | Email | `notifications/adapters/{providerName}.ts` |
+| Recipient company lookup / address validation | `drafting/adapters/{providerName}.ts` |

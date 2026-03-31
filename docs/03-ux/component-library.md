@@ -90,6 +90,17 @@ components/
     └── section.tsx
 ```
 
+### Implementation guardrails
+
+- `components/ui/` is the only place for shared overlay primitives. Do not hand-roll new modal, sheet, popover, or dropdown foundations inside feature folders.
+- `components/product/` may compose primitives into Swiss Mail-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
+- Repeated CTA treatments belong in shared button wrappers, not per-step utility classes.
+- When a component needs presence or transition choreography beyond simple CSS hover/focus feedback, use `framer-motion` on top of the shared primitive rather than bespoke animation logic.
+- Bottom dock actions in the draft workspace must remain visible even while a prompt input is focused. If the next action is not yet available, keep the CTA visible and disabled or warning-styled; never hide the dock because focus changed.
+- Prompt shortcuts must be categorized by capability. When no body content exists yet, only content-generating shortcuts may be shown; refinement/formatting shortcuts belong only after a draft body exists.
+- Prompt shortcut chips and sheet rows should read as soft buttons, not passive labels: keep a visible border, elevation/press feedback, and a restrained warm accent so the controls feel tappable without becoming loud.
+- First-draft body generation uses a blocking dialog built from the shared overlay primitives, not an inline “AI is working” strip. Failure states in that dialog use a recovery-hero layout with retry first and any future support path as a secondary action.
+
 ---
 
 ## Part 1 — Foundation Components (ui/)
@@ -317,6 +328,20 @@ Slide-in panel. **The primary secondary surface on mobile.**
 - Signature creation
 - Address editing
 - Delivery details
+
+**Canonical sheet archetypes:**
+- **Navigation sheet** — full-height side sheet for menu/navigation content. Header holds title + close control; content scrolls independently.
+- **Action/list sheet** — bottom sheet for compact option lists and step menus. Use a drag handle, compact list rows, and a safe-area footer action.
+- **Preview sheet** — immersive bottom sheet for large preview surfaces. Keep a sticky safe-area footer for the main actions.
+
+**Consistency rules:**
+- Footer actions must stay fully inside the viewport and above `env(safe-area-inset-bottom)`.
+- Bottom-sheet bodies scroll independently; headers and footers do not.
+- Every vertically scrollable workspace or sheet surface should use the shared scroll-shadow treatment so users can tell when more content exists above or below the viewport.
+- In dark mode, workspace and sheet shells should use layered neutral/slate surfaces rather than pure black fills. The letter preview itself stays visually light, but the surrounding preview rail and other scrollable app surfaces should use the same muted dark surface tokens so scrolling never drops into a black void.
+- Action/list sheets use denser rows than full-page cards. Do not reuse oversized marketing or form cards inside compact sheets.
+- Step menus in the draft workspace are sequential. Future steps stay disabled until the previous step is confirmed; show a lock icon + "Locked" label instead of allowing dead-end navigation.
+- Draft-workspace dock controls use one shared 56x56 rounded-2xl surface button pattern, and field-leading icons use one shared 48x48 rounded-2xl muted badge pattern.
 
 **Drag behavior:**
 - Drag handle: 32×4px rounded pill, centered, `bg-muted-foreground/30`
@@ -712,6 +737,7 @@ The main application screen. Brings together ConversationPanel, LetterPreview, a
 - Typing in conversation → AI responds → preview updates
 - Editing a zone on preview → updates the draft state → conversation acknowledges
 - Status strip shows real-time price estimate based on current content
+- Mobile preview sheets should use the full viewport height so the letter canvas gets the maximum possible reading area. Keep preview actions together in one sticky footer stack, with the primary "Confirm content" action first and the secondary "Hide preview" action below it, so preview mode stays clear without duplicating the AI/manual mode toggle that already exists in the composer.
 
 ---
 

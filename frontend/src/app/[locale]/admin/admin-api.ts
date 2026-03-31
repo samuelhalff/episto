@@ -17,6 +17,16 @@ export interface HealthResponse {
   database: ServiceStatus;
   redis: ServiceStatus;
   objectStorage: ServiceStatus;
+  ai: ServiceStatus & {
+    providerMode: string;
+    agentId: string | null;
+    projectEndpoint: string | null;
+    environmentName: string | null;
+    location: string | null;
+    subscriptionId: string | null;
+    projectResourceId: string | null;
+    resourceId: string | null;
+  };
   queues: Record<string, QueueStatus>;
   lastPaymentAt: string | null;
   lastDispatchAt: string | null;

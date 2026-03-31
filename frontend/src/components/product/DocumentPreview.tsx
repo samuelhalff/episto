@@ -77,11 +77,11 @@ function renderBlock(block: DocumentBlock) {
     <div className="overflow-x-auto">
       <table className="w-full border-collapse text-left text-sm">
         <thead>
-          <tr className="bg-stone-100">
+          <tr className="bg-zinc-100">
             {block.headers.map((header) => (
               <th
                 key={header}
-                className="border border-stone-300 px-3 py-2 font-semibold text-stone-800"
+                className="border border-zinc-300 px-3 py-2 font-semibold text-zinc-800"
               >
                 {header}
               </th>
@@ -94,7 +94,7 @@ function renderBlock(block: DocumentBlock) {
               {row.map((cell, cellIndex) => (
                 <td
                   key={`cell-${rowIndex}-${cellIndex}`}
-                  className="border border-stone-300 px-3 py-2 align-top"
+                  className="border border-zinc-300 px-3 py-2 align-top"
                 >
                   {cell}
                 </td>
@@ -123,11 +123,11 @@ function ListItemPreview({ item }: { item: ListItem }) {
 }
 
 function paragraphClassName(style: string, alignment?: string): string {
-  const classes = ["whitespace-pre-wrap", "text-stone-700"];
-  if (style === "Heading 1") classes.push("text-2xl", "font-bold", "text-stone-900");
-  else if (style === "Heading 2") classes.push("text-xl", "font-bold", "text-stone-900");
+  const classes = ["whitespace-pre-wrap", "text-zinc-700"];
+  if (style === "Heading 1") classes.push("text-2xl", "font-bold", "text-zinc-900");
+  else if (style === "Heading 2") classes.push("text-xl", "font-bold", "text-zinc-900");
   else if (style === "Heading 3")
-    classes.push("text-lg", "font-semibold", "text-stone-900");
+    classes.push("text-lg", "font-semibold", "text-zinc-900");
   else classes.push("text-sm", "leading-7");
 
   if (alignment === "center") classes.push("text-center");

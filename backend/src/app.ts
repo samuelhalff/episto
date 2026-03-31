@@ -12,7 +12,7 @@ import { env } from "./shared/config/index.js";
 import { AppError } from "./shared/errors/index.js";
 import { healthRoutes } from "./routes/health.js";
 import { sessionRoutes } from "./modules/sessions/index.js";
-import { draftRoutes, streamRoutes } from "./modules/drafting/index.js";
+import { addressSearchRoutes, draftRoutes, streamRoutes } from "./modules/drafting/index.js";
 import { paymentRoutes } from "./modules/payments/index.js";
 import { dispatchRoutes } from "./modules/dispatch/index.js";
 import { messageRoutes } from "./modules/messages/index.js";
@@ -204,6 +204,7 @@ export async function buildApp(logger: pino.Logger) {
   await app.register(healthRoutes, { prefix: "/api" });
   await app.register(sessionRoutes, { prefix: "/api/v1" });
   await app.register(draftRoutes, { prefix: "/api/v1" });
+  await app.register(addressSearchRoutes, { prefix: "/api/v1" });
   await app.register(streamRoutes, { prefix: "/api/v1" });
   await app.register(paymentRoutes, { prefix: "/api/v1" });
   await app.register(fileRoutes, { prefix: "/api/v1" });

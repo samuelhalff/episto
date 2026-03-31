@@ -172,6 +172,14 @@ All secrets and environment-specific values are injected as environment variable
 | `AZURE_OPENAI_API_VERSION` | Azure API version | `2024-10-21` |
 | `AI_DRAFT_MODEL` | Draft/revision deployment name | `gpt-4.1` |
 | `AI_CLASSIFY_MODEL` | Classification/extraction deployment name | `gpt-4.1-mini` |
+| `AI_PROVIDER_MODE` | Azure execution mode | `azure_openai` or `azure_ai_project_agent` |
+| `AZURE_AI_PROJECT_ENDPOINT` | Azure AI Project endpoint for agent-backed execution | `https://example.services.ai.azure.com/api/projects/my-project` |
+| `AZURE_EXISTING_AGENT_ID` | Existing Azure AI Project agent reference in `<agent-name>:<version>` format | `swiss-mail:2` |
+| `AZURE_AI_AGENT_NAME` | Azure AI Project agent name | `web-deep-search` |
+| `AZURE_AI_AGENT_VERSION` | Azure AI Project agent version | `5` |
+| `AZURE_TENANT_ID` | Optional Entra tenant for service-principal auth | *(secret / env-specific)* |
+| `AZURE_CLIENT_ID` | Optional Entra client/application ID for service-principal auth | *(secret / env-specific)* |
+| `AZURE_CLIENT_SECRET` | Optional Entra client secret for service-principal auth | *(secret)* |
 | `SWISS_POST_API_BASE_URL` | Swiss Post API base URL | `https://api.post.ch/...` |
 | `SWISS_POST_CLIENT_ID` | Swiss Post OAuth client ID | *(secret)* |
 | `SWISS_POST_CLIENT_SECRET` | Swiss Post OAuth client secret | *(secret)* |

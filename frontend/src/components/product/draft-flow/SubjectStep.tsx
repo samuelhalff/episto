@@ -2,8 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useDraft, useUpdateDraft } from "../../../hooks/use-api.js";
-import { DraftShell, Card, PrimaryButton } from "./ui.js";
+import { useDraft, useUpdateDraft } from "../../../hooks/use-api";
+import { DraftShell, Card, PrimaryButton } from "./ui";
+import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import { mergeDraftWorkspaceState } from "./workspace-state";
 
 interface StepProps {
   draftId: string;
@@ -12,6 +14,8 @@ interface StepProps {
   isStepMenuOpen?: boolean;
   isCompactViewport?: boolean;
   onInputFocusChange?: (focused: boolean) => void;
+  isNavigating?: boolean;
+  furthestUnlockedStepIndex?: number;
 }
 
 export function SubjectStep({
@@ -21,6 +25,8 @@ export function SubjectStep({
   isStepMenuOpen,
   isCompactViewport,
   onInputFocusChange,
+  isNavigating,
+  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);
@@ -57,15 +63,35 @@ export function SubjectStep({
 
   async function handleConfirm() {
     if (!canProceed || updateDraft.isPending) return;
-    await updateDraft.mutateAsync({ subject: subject.trim() });
-    lastSavedSubjectRef.current = subject.trim();
-    onNext();
+    try {
+      await updateDraft.mutateAsync({
+        subject: subject.trim(),
+        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+          furthestUnlockedStepIndex: 6,
+        }),
+      });
+      lastSavedSubjectRef.current = subject.trim();
+      onNext();
+    } catch {
+      showStepErrorToast({
+        id: "subject-step-save-error",
+        title: t("stepSaveFailed"),
+      });
+    }
+  }
+
+  function handleBlockedConfirm() {
+    showStepWarningToast({
+      id: "subject-step-missing",
+      title: t("stepNeedsAttentionTitle"),
+      items: [t("reviewMissingSubject")],
+    });
   }
 
   return (
     <DraftShell
-      step={5}
-      totalSteps={6}
+      step={6}
+      totalSteps={7}
       title={t("subjectLineTitle")}
       subtitle={t("subjectLineSubtitle")}
       onStepClick={onStepClick}
@@ -73,8 +99,16 @@ export function SubjectStep({
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isFieldFocused}
       isCompactViewport={isCompactViewport}
+      isNavigating={isNavigating}
+      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
-        <PrimaryButton onClick={handleConfirm} disabled={!canProceed} loading={updateDraft.isPending}>
+        <PrimaryButton
+          onClick={canProceed ? handleConfirm : handleBlockedConfirm}
+          disabled={updateDraft.isPending}
+          loading={updateDraft.isPending || Boolean(isNavigating)}
+          tone={canProceed ? "primary" : "warning"}
+          hideIcon={!canProceed}
+        >
           {t("confirmSubject")}
         </PrimaryButton>
       }
@@ -82,14 +116,14 @@ export function SubjectStep({
       <div className="space-y-8 pb-4">
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
               {t("subjectLineLabel")}
             </h3>
           </div>
           {draft.data?.subject?.trim() ? (
             <p className="px-2 text-sm text-zinc-500 dark:text-zinc-300">{t("subjectSuggestedHint")}</p>
           ) : null}
-          <Card isCompactViewport={isCompactViewport} density="thin" className="bg-white dark:bg-zinc-900">
+          <Card isCompactViewport={isCompactViewport} density="thin">
             <input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
@@ -103,7 +137,7 @@ export function SubjectStep({
               }}
               maxLength={200}
               placeholder={t("subjectInputPlaceholder")}
-              className="w-full bg-transparent text-[16px] font-bold text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              className="w-full bg-transparent text-base font-semibold text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
             />
           </Card>
           <div className="px-2 text-right text-[10px] text-zinc-400">{subject.length}/200</div>

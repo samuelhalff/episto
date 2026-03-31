@@ -23,6 +23,7 @@ import {
   getUploadByteLimit,
   isAllowedUploadMimeType,
 } from "@swiss-mail/shared";
+import { parseUploadMultipartParts } from "./multipart-upload.js";
 
 // ---------------------------------------------------------------------------
 // Plugin
@@ -59,23 +60,22 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      // Parse multipart form data
-      const data = await request.file();
-      if (!data) {
+      const data = await parseUploadMultipartParts(request.parts());
+      if (!data.buffer) {
         throw validationError("Multipart file is required", [
           { field: "file", message: "A file must be provided" },
         ]);
       }
 
-      const kind = (data.fields.kind as { value?: string } | undefined)?.value;
+      const kind = data.kind;
       if (kind !== "attachment" && kind !== "signature") {
         throw validationError('Field "kind" must be "attachment" or "signature"', [
           { field: "kind", message: 'Must be "attachment" or "signature"' },
         ]);
       }
 
-      const fileName = data.filename ?? "untitled";
-      const mimeType = data.mimetype ?? "application/octet-stream";
+      const fileName = data.fileName;
+      const mimeType = data.mimeType;
 
       if (!isAllowedUploadMimeType(kind, mimeType)) {
         throw validationError(
@@ -92,7 +92,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       }
 
       // Read file into buffer and validate size
-      const buffer = await data.toBuffer();
+      const buffer = data.buffer;
       const sizeBytes = buffer.byteLength;
       const maxBytes = getUploadByteLimit(kind);
 

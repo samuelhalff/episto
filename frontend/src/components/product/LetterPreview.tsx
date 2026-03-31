@@ -9,8 +9,17 @@ import {
 import { useTranslations } from "next-intl";
 import { Check, Loader2, Pencil, X } from "lucide-react";
 import type { DraftLetter } from "@swiss-mail/shared";
-import { DRAFT_CONTENT_LIMITS, extractAiDocumentMetadata } from "@swiss-mail/shared";
-import { DocumentPreview, fallbackDocument } from "./DocumentPreview.js";
+import {
+  DRAFT_CONTENT_LIMITS,
+  extractAiDocumentMetadata,
+  flattenDocumentModel,
+  getLetterFraming,
+} from "@swiss-mail/shared";
+import {
+  stripLetterFramingDocument,
+  stripLetterFramingText,
+} from "@swiss-mail/shared/letter-framing";
+import { DocumentPreview, fallbackDocument } from "./DocumentPreview";
 
 export type ZoneKind = "sender" | "recipient" | "date" | "subject" | "salutation" | "body" | "closing";
 
@@ -34,6 +43,7 @@ interface LetterPreviewProps {
   onZoneClick?: ((zone: ZoneKind) => void) | undefined;
   onZoneSave?: ((zone: ZoneKind, value: string | object) => Promise<void>) | undefined;
   onZoneCancel?: (() => void) | undefined;
+  variant?: "default" | "immersive" | undefined;
 }
 
 export function LetterPreview({
@@ -44,42 +54,82 @@ export function LetterPreview({
   onZoneClick,
   onZoneSave,
   onZoneCancel,
+  variant = "default",
 }: LetterPreviewProps) {
   const t = useTranslations("draft");
+  const isImmersive = variant === "immersive";
 
   if (!draft) {
     return (
-      <div className="flex flex-1 items-center justify-center text-gray-400">
+      <div className="flex flex-1 items-center justify-center text-zinc-400">
         <Loader2 className="h-6 w-6 animate-spin" />
       </div>
     );
   }
 
-  const document =
+  const document = stripLetterFramingDocument(
     extractAiDocumentMetadata(draft.metadata)?.document ??
-    fallbackDocument(draft.body ?? "");
+      fallbackDocument(draft.body ?? ""),
+    draft.locale,
+  );
+  const hasLetterContent = flattenDocumentModel(document).trim().length > 0;
+  const { salutation, closing } = getLetterFraming(draft.locale);
+  const sanitizedBody = stripLetterFramingText(draft.body ?? "", draft.locale);
+  const formattedDate = new Date().toLocaleDateString(draft.locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const placeAndDate = senderProfile?.city?.trim()
+    ? `${senderProfile.city.trim()}, ${formattedDate}`
+    : formattedDate;
 
   return (
-    <div className="letter-preview-container mx-auto w-full max-w-[720px]" data-theme="light">
+    <div
+      className={`letter-preview-container mx-auto w-full ${
+        isImmersive
+          ? "flex h-full max-w-[980px] flex-col"
+          : "max-w-[720px]"
+      }`}
+      data-theme="light"
+    >
       <div
-        className="rounded-[24px] bg-white p-5 shadow-sm sm:p-6 lg:p-8"
+        className={`rounded-3xl bg-white shadow-sm ${
+          isImmersive
+            ? "flex h-full flex-col rounded-none p-0 sm:rounded-3xl sm:p-4 lg:p-6"
+            : "p-5 sm:p-6 lg:p-8"
+        }`}
         style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
       >
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-4">
-          <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
-              {t("preview")}
-            </p>
-            <p className="mt-1 text-sm text-zinc-500">{t("previewSheetHint")}</p>
+        {!isImmersive ? (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-4">
+            <div>
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                {t("preview")}
+              </p>
+              <p className="mt-1 text-sm text-zinc-500">{t("previewSheetHint")}</p>
+            </div>
+            <span className="rounded-lg bg-zinc-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-zinc-500">
+              A4
+            </span>
           </div>
-          <span className="rounded-lg bg-zinc-100 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">
-            A4
-          </span>
-        </div>
-        <div className="rounded-[18px] bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] p-5 shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] sm:p-6">
-          <div className="min-h-[560px] space-y-8 text-sm text-zinc-700">
+        ) : null}
+        <div
+          className={`rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] ${
+            isImmersive
+              ? "flex min-h-0 flex-1 rounded-none p-4 sm:rounded-2xl sm:p-6 lg:p-8"
+              : "p-5 sm:p-6"
+          }`}
+        >
+          <div
+            className={`space-y-8 text-sm text-zinc-700 ${
+              isImmersive
+                ? "flex min-h-[640px] flex-1 flex-col"
+                : "min-h-[560px]"
+            }`}
+          >
             <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
-              <div className="text-xs">
+              <div className="max-w-[220px] text-xs">
                 {senderProfile ? (
                   <div className="space-y-0.5 text-zinc-700">
                     {(senderProfile.firstName || senderProfile.lastName) && (
@@ -101,7 +151,7 @@ export function LetterPreview({
             </ZoneBlock>
 
             <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
-              <div className="mt-6">
+              <div className="mt-6 ml-auto max-w-[260px] text-right">
                 {recipientProfile ? (
                   <div className="space-y-0.5 text-sm text-zinc-700">
                     {recipientProfile.company && (
@@ -126,11 +176,7 @@ export function LetterPreview({
             </ZoneBlock>
 
             <div className="text-right text-xs text-zinc-400">
-              {new Date().toLocaleDateString(draft.locale, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
+              {placeAndDate}
             </div>
 
             {editingZone === "subject" ? (
@@ -152,10 +198,14 @@ export function LetterPreview({
               </ZoneBlock>
             )}
 
+            {hasLetterContent ? (
+              <div className="text-sm leading-relaxed text-zinc-700">{salutation}</div>
+            ) : null}
+
             {editingZone === "body" ? (
               <InlineTextEditor
                 zone="body"
-                initialValue={draft.body ?? ""}
+                initialValue={sanitizedBody}
                 onSave={onZoneSave}
                 onCancel={onZoneCancel}
                 multiline
@@ -163,7 +213,7 @@ export function LetterPreview({
             ) : (
               <ZoneBlock zone="body" isEditing={false} onZoneClick={onZoneClick}>
                 <div className="space-y-4 leading-relaxed">
-                  {draft.body ? (
+                  {hasLetterContent ? (
                     <DocumentPreview document={document} />
                   ) : (
                     <span className="italic text-zinc-400">{t("bodyPlaceholder")}</span>
@@ -171,6 +221,10 @@ export function LetterPreview({
                 </div>
               </ZoneBlock>
             )}
+
+            {hasLetterContent ? (
+              <div className="pt-2 text-sm leading-relaxed text-zinc-700">{closing}</div>
+            ) : null}
 
             {draft.enclosureNote && (
               <div className="border-t border-zinc-100 pt-4 text-xs text-zinc-500">
@@ -243,14 +297,14 @@ function InlineTextEditor({
   }
 
   const inputClass =
-    "w-full rounded-lg border border-amber-300 bg-amber-50/30 text-sm text-stone-900 placeholder:text-stone-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200/60 transition";
+    "w-full rounded-lg border border-amber-300 bg-amber-50/30 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-200/60 transition";
 
   return (
     <div className="-mx-2 rounded-xl bg-amber-50/40 px-3 py-3 ring-1 ring-amber-200/80">
       <div className="mb-2 flex items-center justify-between">
         <span className="text-xs font-medium text-amber-700">{t(`zone.${zone}`)}</span>
         {zone === "body" && (
-          <span className="text-xs text-stone-400">
+          <span className="text-xs text-zinc-400">
             {value.length}/{maxLength}
           </span>
         )}
@@ -280,7 +334,7 @@ function InlineTextEditor({
         <button
           type="button"
           onClick={onCancel}
-          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-stone-500 transition hover:bg-stone-100"
+          className="inline-flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-100"
         >
           <X className="h-3 w-3" />
           {t("action.cancel")}
@@ -322,7 +376,7 @@ function ZoneBlock({
     <button
       type="button"
       onClick={() => onZoneClick(zone)}
-      className="group relative -mx-2 w-[calc(100%+1rem)] cursor-pointer rounded-[12px] px-2 py-1 text-left transition-all duration-150 hover:bg-zinc-50"
+      className="group relative -mx-2 w-[calc(100%+1rem)] cursor-pointer rounded-xl px-2 py-1 text-left transition-all duration-150 hover:bg-zinc-50"
     >
       <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 opacity-0 transition-opacity group-hover:opacity-100">
         <Pencil className="h-3.5 w-3.5 text-zinc-400" />
@@ -331,4 +385,3 @@ function ZoneBlock({
     </button>
   );
 }
-

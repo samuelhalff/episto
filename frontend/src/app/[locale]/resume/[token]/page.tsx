@@ -2,9 +2,10 @@
 
 import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "../../../../lib/api.js";
-import { useRouter, Link } from "../../../../i18n/navigation.js";
-import { Loader2, AlertCircle, PenLine } from "lucide-react";
+import { apiFetch } from "../../../../lib/api";
+import { useRouter } from "../../../../i18n/navigation";
+import { Loader2 } from "lucide-react";
+import { RecoveryScreen } from "../../../../components/product/RecoveryScreen";
 
 // ---------------------------------------------------------------------------
 // Resume Page
@@ -17,6 +18,7 @@ export default function ResumePage({
 }) {
   const { token } = use(params);
   const t = useTranslations("resume");
+  const tc = useTranslations("common");
   const router = useRouter();
 
   const [error, setError] = useState(false);
@@ -48,24 +50,22 @@ export default function ResumePage({
 
   if (error) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
-        <AlertCircle className="h-12 w-12 text-accent" />
-        <p className="text-sm text-gray-600">{t("error")}</p>
-        <Link
-          href="/"
-          className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-dark"
-        >
-          <PenLine className="h-4 w-4" />
-          {t("startNew")}
-        </Link>
-      </div>
+      <RecoveryScreen
+        eyebrow={tc("appName")}
+        title={t("error")}
+        description={tc("draftUnavailableBody")}
+        primaryHref="/draft/new"
+        primaryLabel={t("startNew")}
+        secondaryHref="/"
+        secondaryLabel={tc("backToHome")}
+      />
     );
   }
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-3 p-8">
       <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <p className="text-sm text-gray-500">{t("loading")}</p>
+      <p className="text-sm text-zinc-500">{t("loading")}</p>
     </div>
   );
 }

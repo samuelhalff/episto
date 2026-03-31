@@ -14,6 +14,7 @@ import {
   type ParagraphBlock,
   type StructuredEditOperation,
 } from "@swiss-mail/shared";
+import { stripLetterFramingDocument } from "@swiss-mail/shared/letter-framing";
 import { z } from "zod";
 
 export interface ParseModelResponseOptions {
@@ -33,6 +34,7 @@ export interface ParsedModelResponse {
 export interface AppliedDocumentResult {
   mode: "plain_text" | "structured_edit" | "rich_content";
   summary?: string | undefined;
+  subject?: string | null | undefined;
   body: string;
   document: DocumentModel;
   operationsApplied: string[];
@@ -41,6 +43,42 @@ export interface AppliedDocumentResult {
 }
 
 const codeFencePattern = /^```(?:json)?\s*([\s\S]*?)```$/i;
+
+function sanitizeParsedResponseByMode(parsed: unknown): unknown {
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    return parsed;
+  }
+
+  const candidate = parsed as Record<string, unknown>;
+  const base: Record<string, unknown> = {
+    mode: candidate.mode,
+    version: candidate.version,
+  };
+
+  if (typeof candidate.summary === "string") {
+    base.summary = candidate.summary;
+  }
+
+  switch (candidate.mode) {
+    case "plain_text":
+      if (candidate.plainText !== undefined) {
+        base.plainText = candidate.plainText;
+      }
+      return base;
+    case "structured_edit":
+      if (candidate.structuredEdit !== undefined) {
+        base.structuredEdit = candidate.structuredEdit;
+      }
+      return base;
+    case "rich_content":
+      if (candidate.richContent !== undefined) {
+        base.richContent = candidate.richContent;
+      }
+      return base;
+    default:
+      return parsed;
+  }
+}
 
 export function parseModelResponse(
   raw: string,
@@ -53,7 +91,7 @@ export function parseModelResponse(
 
   try {
     const parsedJson = JSON.parse(sanitized) as unknown;
-    const parsedResponse = ModelResponseSchema.safeParse(parsedJson);
+    const parsedResponse = ModelResponseSchema.safeParse(sanitizeParsedResponseByMode(parsedJson));
     if (parsedResponse.success) {
       return {
         ok: true,
@@ -124,6 +162,7 @@ export function determineResponseMode(response: ModelResponse): ModelResponse["m
 export function applyStructuredEdit(
   response: ModelResponse,
   currentDocument?: DocumentModel,
+  locale?: string | null,
 ): AppliedDocumentResult {
   const mode = determineResponseMode(response);
   const warnings: string[] = [];
@@ -144,7 +183,7 @@ export function applyStructuredEdit(
       document,
       operationsApplied: ["plain_text"],
       warnings,
-    });
+    }, locale);
   }
 
   const baseDocument = cloneDocument(currentDocument ?? emptyDocument());
@@ -162,7 +201,7 @@ export function applyStructuredEdit(
     document: workingDocument,
     operationsApplied,
     warnings,
-  });
+  }, locale);
 }
 
 export function dispatchDocumentOperation(
@@ -272,8 +311,8 @@ function buildAppliedResult(args: {
   document: DocumentModel;
   operationsApplied: string[];
   warnings: string[];
-}): AppliedDocumentResult {
-  const document = sanitizeDocument(args.document);
+}, locale?: string | null): AppliedDocumentResult {
+  const document = sanitizeDocument(args.document, locale);
   const metadata = AiDocumentMetadataSchema.parse({
     schemaVersion: DOCUMENT_RESPONSE_VERSION,
     mode: args.mode,
@@ -383,8 +422,8 @@ function normalizeListItem(item: ListItem): ListItem {
   };
 }
 
-function sanitizeDocument(document: DocumentModel): DocumentModel {
-  return {
+function sanitizeDocument(document: DocumentModel, locale?: string | null): DocumentModel {
+  const sanitizedDocument = {
     version: DOCUMENT_RESPONSE_VERSION,
     blocks: document.blocks.map((block) => {
       if (block.type === "paragraph") {
@@ -405,6 +444,8 @@ function sanitizeDocument(document: DocumentModel): DocumentModel {
       };
     }),
   };
+
+  return stripLetterFramingDocument(sanitizedDocument, locale);
 }
 
 function validateInlineSpans(text: string, spans: InlineSpan[]): InlineSpan[] {

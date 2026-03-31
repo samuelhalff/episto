@@ -53,12 +53,12 @@ export function DraftComposer({
 
   return (
     <div
-      className={`bg-white shadow-[0_12px_40px_rgba(0,0,0,0.08)] ring-1 ring-black/5 dark:bg-zinc-900 dark:ring-white/10 ${
-        isCompactViewport ? "rounded-[24px] p-2" : "rounded-[28px] p-2"
+      className={`app-panel-muted relative z-10 w-full max-w-full overflow-visible ${
+        isCompactViewport ? "rounded-3xl p-2" : "rounded-4xl p-2"
       }`}
     >
-      <div className="flex flex-col">
-        {topBadges ? <div className="mb-2 flex flex-wrap gap-2 px-1 pt-1">{topBadges}</div> : null}
+      <div className="flex min-w-0 flex-col">
+        {topBadges ? <div className="mb-2 min-w-0 overflow-visible pt-1">{topBadges}</div> : null}
 
         <textarea
           ref={textareaRef}
@@ -74,7 +74,7 @@ export function DraftComposer({
           onBlur={onBlur}
           placeholder={placeholder}
           rows={1}
-          className={`w-full rounded-[22px] bg-zinc-50 px-5 pb-5 pt-4 text-[16px] leading-relaxed text-zinc-800 placeholder:text-zinc-400 resize-none focus:outline-none dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 ${
+          className={`app-field-surface w-full max-w-full resize-none rounded-3xl px-5 pb-5 pt-4 text-base leading-relaxed placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-[var(--app-muted)] ${
             isCompactViewport ? "min-h-[92px]" : "min-h-[100px]"
           }`}
         />
@@ -85,10 +85,10 @@ export function DraftComposer({
           </div>
         ) : null}
 
-        <div className="mt-3 flex items-center justify-between px-2 pb-1">
-          <div className="flex items-center gap-1">{leadingActions}</div>
+        <div className="mt-3 flex min-w-0 items-center justify-between gap-3 px-2 pb-1">
+          <div className="flex min-w-0 items-center gap-1">{leadingActions}</div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             {trailingActions}
             <button
               type="button"
@@ -100,8 +100,8 @@ export function DraftComposer({
               className={`flex h-10 w-10 items-center justify-center rounded-full transition-all ${
                 canSend
                   ? "scale-105 bg-zinc-950 text-white shadow-lg dark:bg-amber-400 dark:text-zinc-950"
-                  : "bg-zinc-100 text-zinc-300 dark:bg-zinc-800 dark:text-zinc-600"
-              }`}
+                  : "bg-zinc-100 text-zinc-300 dark:bg-[var(--app-surface-soft)] dark:text-[var(--app-muted)]"
+               }`}
             >
               <ArrowUp className="h-5 w-5" />
             </button>
@@ -117,6 +117,38 @@ interface StepTriggerButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
   size?: "dock" | "composer";
 }
 
+interface SurfaceIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children: ReactNode;
+  isActive?: boolean;
+  size?: "dock" | "composer";
+}
+
+export function SurfaceIconButton({
+  children,
+  isActive = false,
+  size = "dock",
+  className = "",
+  type = "button",
+  ...props
+}: SurfaceIconButtonProps) {
+  const sizeClass = size === "composer" ? "h-10 w-10 rounded-full" : "h-14 w-14 rounded-2xl";
+  const stateClass = isActive
+    ? "border-transparent bg-zinc-950 text-white shadow-sm dark:bg-amber-400 dark:text-zinc-950"
+    : size === "composer"
+      ? "border border-transparent bg-[var(--app-surface-soft)] text-[var(--app-muted)] hover:bg-[var(--app-surface)]"
+      : "border border-[var(--app-border)] bg-[var(--app-surface-strong)] text-[var(--app-muted)] hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface-soft)] hover:text-[var(--app-fg)]";
+
+  return (
+    <button
+      type={type}
+      className={`relative z-10 flex shrink-0 items-center justify-center shadow-sm transition-all active:scale-95 ${sizeClass} ${stateClass} ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function StepTriggerButton({
   isOpen = false,
   size = "dock",
@@ -124,24 +156,16 @@ export function StepTriggerButton({
   type = "button",
   ...props
 }: StepTriggerButtonProps) {
-  const sizeClass =
-    size === "composer"
-      ? "h-10 w-10 rounded-full"
-      : "h-[58px] w-[58px] rounded-[20px]";
-  const stateClass = isOpen
-    ? "bg-zinc-950 text-white ring-zinc-950 dark:bg-amber-400 dark:text-zinc-950 dark:ring-amber-400"
-    : size === "composer"
-      ? "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-      : "bg-white text-zinc-400 hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-500 dark:ring-white/10 dark:hover:bg-zinc-800";
-
   return (
-    <button
+    <SurfaceIconButton
       type={type}
-      className={`flex shrink-0 items-center justify-center shadow-sm ring-1 ring-black/5 transition-all active:scale-95 ${sizeClass} ${stateClass} ${className}`}
+      isActive={isOpen}
+      size={size}
+      className={className}
       {...props}
     >
-      <Layers className={`transition-transform ${size === "composer" ? "h-[18px] w-[18px]" : "h-6 w-6"} ${isOpen ? "rotate-90" : ""}`} />
-    </button>
+      <Layers className={`transition-transform ${size === "composer" ? "h-[18px] w-[18px]" : "h-5 w-5"} ${isOpen ? "rotate-90" : ""}`} />
+    </SurfaceIconButton>
   );
 }
 
@@ -158,7 +182,7 @@ export function ComposerBadge({
   return (
     <button
       type={type}
-      className={`inline-flex min-h-8 items-center rounded-full bg-zinc-100 px-3 py-1.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:bg-zinc-700 ${className}`}
+      className={`inline-flex min-h-8 items-center rounded-full bg-[var(--app-surface-soft)] px-3 py-1.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)] ${className}`}
       {...props}
     >
       {children}
@@ -170,12 +194,14 @@ interface ComposerIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement
   icon: "attach" | "dictate" | "stop";
   tone?: "neutral" | "accent";
   isActive?: boolean;
+  badgeCount?: number;
 }
 
 export function ComposerIconButton({
   icon,
   tone = "neutral",
   isActive = false,
+  badgeCount = 0,
   className = "",
   type = "button",
   ...props
@@ -186,15 +212,20 @@ export function ComposerIconButton({
       ? isActive
         ? "bg-amber-500 text-white shadow-lg shadow-amber-200"
         : "bg-amber-100 text-amber-600 hover:bg-amber-200"
-      : "bg-zinc-100 text-zinc-500 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700";
+      : "bg-[var(--app-surface-soft)] text-[var(--app-muted)] hover:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)]";
 
   return (
     <button
       type={type}
-      className={`flex h-10 w-10 items-center justify-center rounded-full transition-all disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-300 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-600 ${toneClass} ${className}`}
+      className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-all disabled:cursor-not-allowed disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] ${toneClass} ${className}`}
       {...props}
     >
       <Icon className="h-4.5 w-4.5" />
+      {badgeCount > 0 ? (
+        <span className="absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold leading-none text-white shadow-sm">
+          {badgeCount > 9 ? "9+" : badgeCount}
+        </span>
+      ) : null}
     </button>
   );
 }

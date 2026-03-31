@@ -6,7 +6,7 @@ import {
   resetFrontendErrorTrackingSink,
   type FrontendErrorTrackingSink,
   type FrontendErrorContext,
-} from "../src/lib/error-tracking.js";
+} from "../src/lib/error-tracking";
 
 describe("frontend error-tracking module", () => {
   let mockSink: FrontendErrorTrackingSink;

@@ -56,6 +56,7 @@ These values must stay in sync with [`api-contracts.md`](api-contracts.md).
 | `GET /api/v1/drafts/:id/preview` | 120 | 1 min | Session |
 | `POST /api/v1/drafts/:id/messages` | 30 | 1 hour | Session |
 | `GET /api/v1/drafts/:id/messages` | 60 | 1 min | Session |
+| `GET /api/v1/drafts/:id/recipient/company-search` | 60 | 1 min | Session |
 | `GET /api/v1/drafts/:id/stream` | 1 shared steady-state connection per active draft per tab; short reconnect overlap tolerated | — | Session + Draft |
 | `PUT /api/v1/drafts/:id/sender` | 60 | 1 min | Session |
 | `PUT /api/v1/drafts/:id/recipient` | 60 | 1 min | Session |

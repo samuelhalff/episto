@@ -102,6 +102,7 @@ The user can:
 - Add attachments (PDF/PNG/JPG) after the first draft exists
 - Add a signature image or type their signature
 - Undo AI revisions with `Cmd/Ctrl + Z` (desktop) or the "↩ Undo" button (mobile) — reverts to previous draft version
+- Move back and forth only among already-unlocked draft steps; future steps stay visibly locked until the previous step is confirmed
 
 **Transition to review:** The "Continue to Review" button in the `<StatusStrip>` enables when the
 letter has a body, a recipient name, and a sender name. See `page-specifications.md` §6.4
@@ -177,10 +178,10 @@ Flow:
 1. User closes browser mid-draft
 2. Returns to the Swiss Mail homepage (`/`) within the session TTL (configurable — see `docs/08-guardrails/open-decisions.md`)
 3. Frontend checks `GET /api/sessions/current` using the HttpOnly session cookie
-4. If active draft found: banner appears on `/draft/new`: "You have an unfinished letter.
-   [Continue →] [Start fresh]"
+4. If active draft found: a prominent recovery card appears on `/draft/new`: "You have an unfinished letter.
+   [Continue draft] [Start fresh]"
 5. "Continue" → navigates to `/draft/:id` with full state restored
-6. "Start fresh" → creates new session; old draft remains accessible via direct URL
+6. "Start fresh" → creates a new session and draft; old draft remains accessible via direct URL
 7. If session TTL expired: no banner, clean start
 8. Alternative: user clicks resume link from email → `/resume/:token` → validates → redirects to
    `/draft/:id`

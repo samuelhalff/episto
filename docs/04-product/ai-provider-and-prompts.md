@@ -42,8 +42,15 @@ Locked default deployment pair:
 Adapter/module convention:
 
 - `ai/adapters/azure-openai.ts`
-- env keys: `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_API_VERSION`,
-  `AI_DRAFT_MODEL`, `AI_CLASSIFY_MODEL`
+- default env keys: `AI_PROVIDER_MODE=azure_openai`, `AZURE_OPENAI_ENDPOINT`,
+  `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_API_VERSION`, `AI_DRAFT_MODEL`, `AI_CLASSIFY_MODEL`
+- optional agent env keys for Azure AI Project agent execution:
+  `AI_PROVIDER_MODE=azure_ai_project_agent`, `AZURE_AI_PROJECT_ENDPOINT`,
+  and either `AZURE_EXISTING_AGENT_ID=<agent-name>:<version>` or
+  `AZURE_AI_AGENT_NAME` + `AZURE_AI_AGENT_VERSION`
+- auth for Azure AI Project agent execution must still remain inside approved Azure identity flows
+  (for example Entra ID via `DefaultAzureCredential`, Azure CLI, managed identity, or service principal
+  env vars). Do not move AI auth to the frontend.
 
 ---
 
@@ -60,6 +67,16 @@ Every AI-assisted drafting request follows the same stages:
 7. User review and manual editing before any payment or dispatch step
 
 No stage may silently skip required data or promote a partial draft into a dispatchable state.
+
+Implementation note:
+
+- stages 1-4 may be satisfied by one backend-owned structured intake-analysis call as long as the
+  returned payload still contains separate classification, extraction, readiness, and follow-up
+  outputs
+- this is the preferred production path because it reduces provider round-trips and repeated context
+  transmission without changing the logical pipeline
+- draft and revision generation may co-generate a proposed subject in the same response envelope;
+  post-generation validation remains a separate stage
 
 ---
 
@@ -84,6 +101,27 @@ Rules:
 - no raw provider payload leaves the adapter
 - provider errors map to canonical app errors
 - streaming surfaces token chunks only after backend validation of request state
+- agent-backed execution must still preserve backend-owned prompts, normalization, and error mapping;
+  the agent is an Azure execution path, not a frontend-owned behavior change
+
+---
+
+## Provider conversation persistence
+
+When the Azure execution path uses provider-side threads or conversations, Swiss Mail still owns the
+canonical drafting state.
+
+Rules:
+
+- draft fields and persisted conversation messages remain the primary source of truth
+- provider conversation/thread IDs may be stored with the draft/session as resumable execution state
+- provider retention metadata must be tracked alongside that ID
+- if the provider thread has expired, rebuild remote context from canonical app state instead of
+  pretending the remote thread still exists
+- do not ask redundant questions if the answer is already present in canonical draft fields or prior
+  persisted messages
+- do not wipe a valid draft only because a provider-side thread expired; start a fresh provider
+  thread and continue from app-owned context
 
 ---
 
@@ -93,6 +131,7 @@ Prompts are backend-owned assets, versioned in source control.
 
 Required prompt families:
 
+- `analyze-intake` (preferred production prompt; combines classification, extraction, missing-field detection, and follow-up generation)
 - `classify-intent`
 - `extract-fields`
 - `ask-follow-up`
@@ -147,6 +186,9 @@ Draft generation and revision may stream to the frontend over the backend SSE ch
 - a dropped stream must not create a false-success state
 
 If streaming fails, manual editing remains available.
+
+Provider-thread loss is treated the same way: preserve app-owned state, recreate remote execution
+context if needed, and keep manual editing available.
 
 ---
 

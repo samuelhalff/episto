@@ -116,6 +116,46 @@ See [`../04-product/postal-dispatch.md`](../04-product/postal-dispatch.md).
 
 ---
 
+### Recipient search scope — LOCKED: official company search only + manual person entry
+
+**Locked choice:** Assisted recipient lookup is limited to **companies and registered organizations**
+using an official Swiss business registry source. Person lookup is manual-only.
+
+Operational direction:
+- use official company search for business recipients
+- keep registry credentials server-side only; browser access goes through Swiss Mail backend-owned
+  infrastructure instead of direct third-party calls
+- do **not** use consumer people directories or broad web-search agents to guess private-person
+  addresses
+- when the user names a company but no postal address is confirmed yet, allow manual entry and then
+  run the locked soft address validation flow
+
+**Option A (broad people + company search) rejected** — weak reliability, privacy concerns, and poor
+production trust posture.  
+**Option C (no assisted company search at all) rejected** — too much avoidable typing for common
+B2B recipients.
+
+---
+
+### AI context persistence — LOCKED: app-owned canonical state, provider thread as cache
+
+**Locked choice:** Swiss Mail owns canonical AI context in application data (draft fields +
+conversation history). Provider-side thread or conversation IDs may be stored for resume efficiency,
+but they are **not** the source of truth.
+
+Operational direction:
+- store provider conversation/thread identifiers and retention metadata with the draft/session
+- when the provider thread is still valid, reuse it
+- when the provider thread has expired, recreate provider context from canonical app state instead of
+  silently continuing with stale remote memory
+- do not clear a valid user draft just because the provider-side thread expired
+
+**Option A (provider thread is the only source of truth) rejected** — too fragile and vendor-bound.  
+**Option C (discard the entire app draft when provider retention expires) rejected** — bad recovery UX
+and unnecessary data loss.
+
+---
+
 ### Standard-mail confirmation wording — LOCKED: Option B (separate reference from tracking)
 
 **Locked choice:** Strictly separate "provider reference" from "tracking." Never label a reference
@@ -293,9 +333,13 @@ procurement path.
 **Option C (self-hosted or open-weight inference stack) rejected** — operational burden and quality
 risk are not acceptable for MVP.
 
-Adapter module: `ai/adapters/azure-openai.ts`. Keep Azure endpoint, API key, API version, and
-model/deployment identifiers in `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`,
-`AZURE_OPENAI_API_VERSION`, `AI_DRAFT_MODEL`, and `AI_CLASSIFY_MODEL`.
+Adapter module: `ai/adapters/azure-openai.ts`. Keep Azure execution config environment-driven.
+Default Azure OpenAI execution uses `AI_PROVIDER_MODE=azure_openai` with
+`AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_API_VERSION`,
+`AI_DRAFT_MODEL`, and `AI_CLASSIFY_MODEL`. Optional Azure AI Project agent execution may use
+`AI_PROVIDER_MODE=azure_ai_project_agent` with `AZURE_AI_PROJECT_ENDPOINT`,
+`AZURE_AI_AGENT_NAME`, and `AZURE_AI_AGENT_VERSION`, while still remaining inside Azure identity
+and backend-owned adapter boundaries.
 
 ---
 

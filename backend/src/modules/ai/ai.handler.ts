@@ -1,34 +1,34 @@
 /**
- * AI message handler — orchestrates the full AI pipeline for a user message.
+ * AI message handler — orchestrates intake, composition, and revision.
  *
- * Flow:
- * 1. Classify intent (block harmful content)
- * 2. Extract structured fields from the message
- * 3. Update draft fields in the database
- * 4. Check if all required fields are present
- * 5a. If not ready: generate a follow-up question → save as assistant message
- * 5b. If ready: stream a letter draft → validate → save as assistant message + update body
- * 6. Emit events at each stage for SSE relay
- *
- * This handler runs asynchronously after the message POST route returns 202.
- * Errors are caught and emitted as stream error events.
+ * Best-in-class call management rules:
+ * - intake analysis is collapsed into one structured provider call
+ * - first composition skips intake analysis when canonical state already proves readiness
+ * - revisions bypass intake entirely once a real draft body exists
  */
 
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
-import { eq, and, desc } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
+import { hasMinimalIntakeContext } from "@swiss-mail/shared";
+
 import { createLogger } from "../../shared/logging/index.js";
 import { AppError } from "../../shared/errors/index.js";
-import { classifyIntent, extractFields, askFollowUp } from "./ai.service.js";
+import { analyzeIntake } from "./ai.service.js";
 import { streamDraftGeneration, streamRevision } from "./ai.streaming.js";
 import { createMessage } from "../messages/message.service.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
+import {
+  buildComposeInstructions,
+  buildExistingFieldsContext,
+  emitAssistantCompletion,
+  loadConversationHistory,
+  mergeRecipientName,
+  updateDraftFields,
+} from "./draft-context.js";
 
 const logger = createLogger("ai-handler");
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+const activeComposeDrafts = new Set<string>();
 
 export interface HandleMessageInput {
   draftId: string;
@@ -37,21 +37,10 @@ export interface HandleMessageInput {
   userContent: string;
 }
 
-// Draft fields that can be extracted by AI
-const DRAFT_FIELD_COLUMNS = new Set([
-  "subject",
-  "body",
-  "tone",
-  "intent",
-  "enclosureNote",
-  "deliveryType",
-  "signatureMode",
-  "metadata",
-]);
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
+export interface HandleComposeFromContextInput {
+  draftId: string;
+  sessionId: string;
+}
 
 async function loadDraft(draftId: string, sessionId: string) {
   const db = getDb();
@@ -68,54 +57,85 @@ async function loadDraft(draftId: string, sessionId: string) {
   return draft ?? null;
 }
 
-async function loadConversationHistory(draftId: string, limit = 20) {
-  const db = getDb();
-  const rows = await db
-    .select({ role: schema.conversationMessages.role, content: schema.conversationMessages.content })
-    .from(schema.conversationMessages)
-    .where(eq(schema.conversationMessages.draftId, draftId))
-    .orderBy(desc(schema.conversationMessages.createdAt))
-    .limit(limit);
-  return rows.reverse();
+function hasEnoughIntakeContext(
+  intent: string,
+  mergedFields: Record<string, unknown>,
+  userContextText: string,
+): boolean {
+  return hasMinimalIntakeContext({
+    intent,
+    recipientCompany:
+      typeof mergedFields.recipientCompany === "string" ? mergedFields.recipientCompany : undefined,
+    recipientName: mergeRecipientName(mergedFields),
+    userContextText,
+  });
 }
 
-async function updateDraftFields(
-  draftId: string,
-  sessionId: string,
-  fields: Record<string, unknown>,
-): Promise<void> {
-  const db = getDb();
-  const updates: Record<string, unknown> = { updatedAt: new Date() };
-  const emitFields: Array<{ field: string; value: unknown }> = [];
-
-  for (const [key, value] of Object.entries(fields)) {
-    if (DRAFT_FIELD_COLUMNS.has(key) && value !== undefined && value !== null) {
-      updates[key] = value;
-      emitFields.push({ field: key, value });
-    }
+function getIntakeReplyContent(input: {
+  ready: boolean;
+  question?: string | undefined;
+  message?: string | undefined;
+  hasEnoughContext: boolean;
+}): string {
+  const question = input.question?.trim();
+  if (question) {
+    return question;
   }
 
-  if (Object.keys(updates).length <= 1) return;
-
-  await db
-    .update(schema.draftLetters)
-    .set(updates)
-    .where(
-      and(
-        eq(schema.draftLetters.id, draftId),
-        eq(schema.draftLetters.sessionId, sessionId),
-      ),
-    );
-
-  const now = new Date().toISOString();
-  for (const { field, value } of emitFields) {
-    emitDraftEvent(draftId, "field_update", { field, value, updatedAt: now });
+  const message = input.message?.trim();
+  if (message) {
+    return message;
   }
+
+  if (input.ready || input.hasEnoughContext) {
+    return "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.";
+  }
+
+  return "Could you provide more details about your letter?";
 }
 
-// ---------------------------------------------------------------------------
-// Main handler
-// ---------------------------------------------------------------------------
+async function applyIntakeAnalysis(input: {
+  draftId: string;
+  sessionId: string;
+  draft: NonNullable<Awaited<ReturnType<typeof loadDraft>>>;
+  userMessage: string;
+  conversationHistory: Array<{ role: string; content: string }>;
+}): Promise<{
+  intent: string;
+  mergedFields: Record<string, unknown>;
+  ready: boolean;
+  question?: string | undefined;
+  message?: string | undefined;
+  hasEnoughContext: boolean;
+}> {
+  const existingFields = buildExistingFieldsContext(input.draft);
+  const analysis = await analyzeIntake({
+    userMessage: input.userMessage,
+    existingFields,
+    locale: input.draft.locale,
+    conversationHistory: input.conversationHistory,
+  });
+
+  if (Object.keys(analysis.fields).length > 0) {
+    await updateDraftFields(input.draftId, input.sessionId, analysis.fields);
+  }
+
+  const mergedFields = { ...existingFields, ...analysis.fields };
+
+  if (analysis.intent !== existingFields.intent) {
+    await updateDraftFields(input.draftId, input.sessionId, { intent: analysis.intent });
+    mergedFields.intent = analysis.intent;
+  }
+
+  return {
+    intent: analysis.intent,
+    mergedFields,
+    ready: analysis.ready,
+    question: analysis.question,
+    message: analysis.message,
+    hasEnoughContext: hasEnoughIntakeContext(analysis.intent, mergedFields, input.userMessage),
+  };
+}
 
 export async function handleAiMessage(input: HandleMessageInput): Promise<void> {
   const { draftId, sessionId, userContent } = input;
@@ -128,89 +148,163 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
     }
 
     const conversationHistory = await loadConversationHistory(draftId);
-    const existingFields: Record<string, unknown> = {
-      subject: draft.subject,
-      body: draft.body,
-      tone: draft.tone,
-      intent: draft.intent,
-      enclosureNote: draft.enclosureNote,
-      deliveryType: draft.deliveryType,
-      metadata: draft.metadata,
-    };
 
-    // Stage 1: Classify intent
-    const classification = await classifyIntent({
-      userMessage: userContent,
-      locale: draft.locale,
-    });
-
-    logger.info(
-      { draftId, intent: classification.intent, risk: classification.risk },
-      "Intent classified",
-    );
-
-    // Stage 2: Extract fields
-    const extracted = await extractFields({
-      userMessage: userContent,
-      existingFields,
-      locale: draft.locale,
-    });
-
-    // Stage 3: Update draft with extracted fields
-    if (Object.keys(extracted).length > 0) {
-      await updateDraftFields(draftId, sessionId, extracted);
-    }
-
-    const mergedFields = { ...existingFields, ...extracted };
-
-    if (classification.intent !== existingFields.intent) {
-      await updateDraftFields(draftId, sessionId, { intent: classification.intent });
-      mergedFields.intent = classification.intent;
-    }
-
-    // Revision flow: body already exists and conversation is established
-    const isRevision = !!draft.body && conversationHistory.length > 2;
-
-    if (isRevision) {
+    if (draft.body?.trim() && conversationHistory.length > 2) {
       await streamRevision(draftId, sessionId, draft, userContent, updateDraftFields);
       return;
     }
 
-    // Stage 4: Check readiness
-    const followUp = await askFollowUp({
-      intent: classification.intent,
-      existingFields: mergedFields,
-      locale: draft.locale,
+    const analysis = await applyIntakeAnalysis({
+      draftId,
+      sessionId,
+      draft,
+      userMessage: userContent,
+      conversationHistory,
     });
 
-    if (!followUp.ready) {
-      const content = followUp.question ?? followUp.message ?? "Could you provide more details?";
-      const assistantMsg = await createMessage(getDb(), {
-        draftId,
-        role: "assistant",
-        content,
-      });
-
-      emitDraftEvent(draftId, "ai_message_complete", {
-        messageId: assistantMsg.id,
-        fullContent: content,
-      });
-      return;
-    }
-
-    // Stage 5: Stream letter generation
-    await streamDraftGeneration(
-      draftId, sessionId, draft, mergedFields,
-      classification.intent, conversationHistory,
-      userContent, updateDraftFields,
+    await emitAssistantCompletion(
+      draftId,
+      conversationHistory,
+      getIntakeReplyContent(analysis),
     );
   } catch (err) {
     logger.error({ err, draftId }, "AI processing failed");
 
     const errorPayload = err instanceof AppError
       ? { code: err.code, message: err.userMessage }
-      : { code: "AI_PROCESSING_FAILED", message: "AI processing encountered an error. You can continue editing manually." };
+      : {
+          code: "AI_PROCESSING_FAILED",
+          message: "AI processing encountered an error. You can continue editing manually.",
+        };
+
+    try {
+      const assistantMsg = await createMessage(getDb(), {
+        draftId,
+        role: "assistant",
+        content: errorPayload.message,
+      });
+
+      emitDraftEvent(draftId, "ai_message_complete", {
+        messageId: assistantMsg.id,
+        fullContent: errorPayload.message,
+      });
+    } catch (messageErr) {
+      logger.error({ err: messageErr, draftId }, "Failed to persist AI error message");
+    }
 
     emitDraftEvent(draftId, "error", errorPayload);
+  }
+}
+
+export async function handleComposeFromContext(
+  input: HandleComposeFromContextInput,
+): Promise<void> {
+  const { draftId, sessionId } = input;
+
+  if (activeComposeDrafts.has(draftId)) {
+    logger.info({ draftId }, "Skipping duplicate context composition while one is already running");
+    return;
+  }
+
+  activeComposeDrafts.add(draftId);
+
+  try {
+    const draft = await loadDraft(draftId, sessionId);
+    if (!draft) {
+      logger.warn({ draftId }, "Draft not found during context composition");
+      return;
+    }
+
+    if (draft.body?.trim()) {
+      logger.info({ draftId }, "Skipping context composition because body already exists");
+      return;
+    }
+
+    const conversationHistory = await loadConversationHistory(draftId);
+    const userInstructions = buildComposeInstructions(conversationHistory);
+
+    if (!userInstructions) {
+      emitDraftEvent(draftId, "error", {
+        code: "AI_CONTEXT_MISSING",
+        message: "Add a short description first so the draft can be composed.",
+      });
+      return;
+    }
+
+    const existingFields = buildExistingFieldsContext(draft);
+    const existingIntent =
+      typeof existingFields.intent === "string" && existingFields.intent.trim().length > 0
+        ? existingFields.intent
+        : null;
+
+    if (existingIntent && hasEnoughIntakeContext(existingIntent, existingFields, userInstructions)) {
+      await streamDraftGeneration(
+        draftId,
+        sessionId,
+        draft,
+        { ...existingFields, intent: existingIntent },
+        existingIntent,
+        conversationHistory,
+        userInstructions,
+        updateDraftFields,
+      );
+      return;
+    }
+
+    const analysis = await applyIntakeAnalysis({
+      draftId,
+      sessionId,
+      draft,
+      userMessage: userInstructions,
+      conversationHistory,
+    });
+
+    if (!analysis.ready && !analysis.hasEnoughContext) {
+      await emitAssistantCompletion(
+        draftId,
+        conversationHistory,
+        getIntakeReplyContent(analysis),
+      );
+      return;
+    }
+
+    await streamDraftGeneration(
+      draftId,
+      sessionId,
+      draft,
+      analysis.mergedFields,
+      analysis.intent,
+      conversationHistory,
+      userInstructions,
+      updateDraftFields,
+    );
+  } catch (err) {
+    logger.error({ err, draftId }, "Context-based AI composition failed");
+
+    const errorPayload = err instanceof AppError
+      ? { code: err.code, message: err.userMessage }
+      : {
+          code: "AI_PROCESSING_FAILED",
+          message: "AI processing encountered an error. You can continue editing manually.",
+        };
+
+    try {
+      const assistantMsg = await createMessage(getDb(), {
+        draftId,
+        role: "assistant",
+        content: errorPayload.message,
+      });
+
+      emitDraftEvent(draftId, "ai_message_complete", {
+        messageId: assistantMsg.id,
+        fullContent: errorPayload.message,
+      });
+    } catch (messageErr) {
+      logger.error({ err: messageErr, draftId }, "Failed to persist compose error message");
+    }
+
+    emitDraftEvent(draftId, "error", errorPayload);
+  } finally {
+    activeComposeDrafts.delete(draftId);
   }
 }

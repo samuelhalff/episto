@@ -7,15 +7,15 @@ import {
   useUpdateDraft,
   useDraftFiles,
   useReviewDraft,
-} from "../../../../../hooks/use-api.js";
-import { Link, useRouter } from "../../../../../i18n/navigation.js";
+} from "../../../../../hooks/use-api";
+import { Link, useRouter } from "../../../../../i18n/navigation";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
-import { ChecklistItem } from "../../../../../components/product/ChecklistItem.js";
-import { DeliverySelector } from "../../../../../components/product/DeliverySelector.js";
-import { FlowHeader } from "../../../../../components/product/FlowHeader.js";
-import { LetterPreview } from "../../../../../components/product/LetterPreview.js";
-import { PriceSummary } from "../../../../../components/product/PriceSummary.js";
-import { captureError } from "../../../../../lib/error-tracking.js";
+import { ChecklistItem } from "../../../../../components/product/ChecklistItem";
+import { DeliverySelector } from "../../../../../components/product/DeliverySelector";
+import { FlowHeader } from "../../../../../components/product/FlowHeader";
+import { LetterPreview } from "../../../../../components/product/LetterPreview";
+import { PriceSummary } from "../../../../../components/product/PriceSummary";
+import { captureError } from "../../../../../lib/error-tracking";
 
 export default function ReviewPage({ params }: { params: Promise<{ draftId: string }> }) {
   const { draftId } = use(params);
@@ -38,7 +38,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   if (draft.error || !draft.data) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-gray-500">{tc("error")}</p>
+        <p className="text-zinc-500">{tc("error")}</p>
       </div>
     );
   }
@@ -86,7 +86,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf4_0%,#ffffff_28%)]">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
       <FlowHeader currentStep={1} draftId={draftId} title={t("title")} />
 
       <main
@@ -94,13 +94,13 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
         className="mx-auto max-w-7xl space-y-8 px-4 pb-24 pt-8 sm:px-6 lg:pb-12"
       >
         <div className="max-w-2xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("checklist")}
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-stone-950 md:text-4xl">
+          <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
             {t("title")}
           </h1>
-          <p className="mt-3 text-sm leading-6 text-stone-500 md:text-base">
+          <p className="mt-3 text-sm leading-6 text-zinc-500 dark:text-zinc-400 md:text-base">
             {t("subtitle")}
           </p>
         </div>
@@ -111,58 +111,64 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-28">
-            <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-              <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
+            <div
+              className="rounded-3xl bg-white p-6 shadow-sm dark:bg-zinc-900"
+              style={{ outline: "1px solid var(--app-border)" }}
+            >
+              <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                 {t("checklist")}
               </h2>
-              <ul role="list" className="divide-y divide-stone-100">
+              <ul role="list" className="divide-y divide-zinc-100 dark:divide-zinc-800">
                 <ChecklistItem
                   label={t("senderDetails")}
                   tone={hasSender ? "complete" : "missing"}
                   helperText={!hasSender ? t("requiredBeforeSending") : undefined}
-                  href={`/draft/${draftId}`}
+                  href={`/draft/${draftId}/sender`}
                   actionLabel={hasSender ? t("edit") : t("add")}
                 />
                 <ChecklistItem
                   label={t("recipientDetails")}
                   tone={hasRecipient ? "complete" : "missing"}
                   helperText={!hasRecipient ? t("requiredBeforeSending") : undefined}
-                  href={`/draft/${draftId}`}
+                  href={`/draft/${draftId}/recipient`}
                   actionLabel={hasRecipient ? t("edit") : t("add")}
                 />
                 <ChecklistItem
                   label={t("letterBody")}
                   tone={hasBody ? "complete" : "missing"}
                   helperText={!hasBody ? t("requiredBeforeSending") : undefined}
-                  href={`/draft/${draftId}`}
+                  href={`/draft/${draftId}/body`}
                   actionLabel={hasBody ? t("edit") : t("add")}
                 />
                 <ChecklistItem
                   label={t("subjectLine")}
                   tone={hasSubject ? "complete" : "missing"}
                   helperText={!hasSubject ? t("requiredBeforeSending") : undefined}
-                  href={`/draft/${draftId}`}
+                  href={`/draft/${draftId}/subject`}
                   actionLabel={hasSubject ? t("edit") : t("add")}
                 />
                 <ChecklistItem
                   label={t("signature")}
                   tone={hasSignature ? "complete" : "warning"}
                   helperText={hasSignature ? undefined : t("signatureMissingHelp")}
-                  href={`/draft/${draftId}`}
+                  href={`/draft/${draftId}/logistics`}
                   actionLabel={hasSignature ? t("edit") : t("add")}
                 />
                 <ChecklistItem
                   label={t("attachments")}
                   tone={hasAttachments ? "complete" : "optional"}
                   helperText={hasAttachments ? undefined : t("attachmentsOptionalHelp")}
-                  href={`/draft/${draftId}`}
+                  href={`/draft/${draftId}/attachments`}
                   actionLabel={hasAttachments ? t("edit") : t("add")}
                 />
               </ul>
             </div>
 
-            <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-              <h2 className="mb-4 text-sm font-semibold uppercase tracking-[0.18em] text-stone-500">
+            <div
+              className="rounded-3xl bg-white p-6 shadow-sm dark:bg-zinc-900"
+              style={{ outline: "1px solid var(--app-border)" }}
+            >
+              <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                 {t("deliveryTypeLabel")}
               </h2>
               <DeliverySelector value={d.deliveryType} onChange={handleDeliveryChange} />
@@ -173,19 +179,20 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
         </div>
       </main>
 
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-stone-200/80 bg-white/95 p-4 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-30 bg-[var(--app-surface-muted)]/95 p-4 shadow-[0_-1px_0_rgba(0,0,0,0.05)] backdrop-blur-md dark:bg-zinc-950/95 dark:shadow-[0_-1px_0_rgba(255,255,255,0.06)]">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             {!allComplete ? (
               <p className="text-sm text-red-700">{t("requiredBeforeSending")}</p>
             ) : (
-              <p className="text-sm text-stone-500">{t("subtitle")}</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("subtitle")}</p>
             )}
           </div>
           <div className="flex items-center gap-3">
             <Link
               href={`/draft/${draftId}`}
-              className="inline-flex h-12 items-center justify-center rounded-full border border-stone-200 px-4 text-sm font-medium text-stone-700 transition hover:border-stone-300 hover:bg-stone-50"
+              className="inline-flex h-12 items-center justify-center rounded-2xl bg-white px-4 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+              style={{ outline: "1px solid var(--app-border)" }}
             >
               <ArrowLeft className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">{t("backToEditing")}</span>
@@ -195,10 +202,10 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               onClick={handleProceedToPayment}
               disabled={!allComplete || reviewDraft.isPending}
               aria-disabled={!allComplete || reviewDraft.isPending}
-              className={`cta-sheen inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white shadow-[0_16px_40px_rgba(120,53,15,0.18)] transition-all duration-300 ${
+              className={`inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all active:scale-[0.98] ${
                 allComplete
-                  ? "bg-gradient-to-r from-amber-500 to-amber-600 hover:-translate-y-0.5 hover:from-amber-600 hover:to-amber-700 disabled:opacity-60"
-                  : "pointer-events-none bg-stone-300 shadow-none"
+                  ? "bg-zinc-950 hover:bg-zinc-800 disabled:opacity-60 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+                  : "pointer-events-none bg-zinc-300 shadow-none dark:bg-zinc-700 dark:text-zinc-400"
               }`}
             >
               {reviewDraft.isPending ? (

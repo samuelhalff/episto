@@ -4,7 +4,7 @@ import { useState, useRef, useCallback } from "react";
 import { Upload, Check } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { FileAsset } from "@swiss-mail/shared";
-import { getApiUrl } from "../../lib/api.js";
+import { getApiUrl } from "../../lib/api";
 
 // ---------------------------------------------------------------------------
 // Types

@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { DraftLetter } from "@swiss-mail/shared";
-import { useRouter } from "../../../../i18n/navigation.js";
-import { routing } from "../../../../i18n/routing.js";
-import { ApiError, apiFetch } from "../../../../lib/api.js";
-import { ConfirmDialog } from "../../../../components/product/ConfirmDialog.js";
+import { useRouter } from "../../../../i18n/navigation";
+import { routing } from "../../../../i18n/routing";
+import { ApiError, apiFetch } from "../../../../lib/api";
+import { ConfirmDialog } from "../../../../components/product/ConfirmDialog";
 
 type BootstrapState =
   | { kind: "loading" }
@@ -159,22 +159,22 @@ export default function NewDraftPage() {
 
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="w-full max-w-lg rounded-[2rem] border border-stone-200/80 bg-white/90 p-8 text-center shadow-[0_30px_90px_rgba(120,53,15,0.12)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
+        <div className="w-full max-w-lg rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("appName")}
           </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-stone-950">
+          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
             {tr("unfinishedTitle")}
           </h1>
-          <p className="mt-4 text-sm leading-6 text-stone-600">{tr("unfinishedBody")}</p>
-          <p className="mt-3 text-xs font-medium uppercase tracking-[0.18em] text-stone-400">
+          <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{tr("unfinishedBody")}</p>
+          <p className="mt-3 text-xs font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {tr("lastUpdated", { value: updatedAt })}
           </p>
 
           <div className="mt-8 flex flex-col gap-3">
             <button
               type="button"
-              className="cta-sheen inline-flex w-full items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 hover:bg-stone-800"
+              className="cta-sheen inline-flex w-full items-center justify-center rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
               onClick={() => {
                 router.replace(`/draft/${state.draft.id}`);
               }}
@@ -183,7 +183,7 @@ export default function NewDraftPage() {
             </button>
             <button
               type="button"
-              className="inline-flex w-full items-center justify-center rounded-full border border-stone-300/80 bg-white px-5 py-3 text-sm font-semibold text-stone-700 transition-transform duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950"
+              className="inline-flex w-full items-center justify-center rounded-full border border-zinc-300/80 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-zinc-950 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-amber-400/60 dark:hover:text-white"
               onClick={() => setShowConfirmFresh(true)}
             >
               {tr("startFresh")}
@@ -194,7 +194,7 @@ export default function NewDraftPage() {
             open={showConfirmFresh}
             title={tr("startFreshConfirmTitle")}
             description={tr("startFreshConfirmBody")}
-            confirmLabel={tr("startFresh")}
+            confirmLabel={t("startNewLetter")}
             cancelLabel={t("cancel")}
             onConfirm={() => {
               setShowConfirmFresh(false);
@@ -216,18 +216,18 @@ export default function NewDraftPage() {
   if (state.kind === "error") {
     return (
       <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="w-full max-w-md rounded-[2rem] border border-stone-200/80 bg-white/90 p-8 text-center shadow-[0_30px_90px_rgba(120,53,15,0.12)]">
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-stone-400">
+        <div className="w-full max-w-md rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("appName")}
           </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-stone-950">
+          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
             {t("error")}
           </h1>
-          <p className="mt-4 text-sm leading-6 text-stone-600">{state.message}</p>
+          <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{state.message}</p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <button
               type="button"
-              className="cta-sheen inline-flex flex-1 items-center justify-center rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition-transform duration-300 hover:-translate-y-0.5 hover:bg-stone-800"
+              className="cta-sheen inline-flex flex-1 items-center justify-center rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
               onClick={() => {
                 setState({ kind: "loading" });
                 setRetryCount((count) => count + 1);
@@ -237,7 +237,7 @@ export default function NewDraftPage() {
             </button>
             <button
               type="button"
-              className="inline-flex flex-1 items-center justify-center rounded-full border border-stone-300/80 bg-white px-5 py-3 text-sm font-semibold text-stone-700 transition-transform duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950"
+              className="inline-flex flex-1 items-center justify-center rounded-full border border-zinc-300/80 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-zinc-950 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-amber-400/60 dark:hover:text-white"
               onClick={() => {
                 router.replace("/");
               }}
@@ -254,7 +254,7 @@ export default function NewDraftPage() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="mt-4 text-sm text-gray-500">{t("loading")}</p>
+        <p className="mt-4 text-sm text-zinc-500">{t("loading")}</p>
       </div>
     </div>
   );

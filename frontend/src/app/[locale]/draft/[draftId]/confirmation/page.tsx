@@ -8,8 +8,8 @@ import {
   useDispatchInfo,
   PAYMENT_SUCCESS_STATES,
   PAYMENT_FAILURE_STATES,
-} from "../../../../../hooks/use-payment-status.js";
-import { Link } from "../../../../../i18n/navigation.js";
+} from "../../../../../hooks/use-payment-status";
+import { Link } from "../../../../../i18n/navigation";
 import {
   CheckCircle2,
   AlertCircle,
@@ -24,9 +24,9 @@ import {
   Loader2,
   HelpCircle as HelpCircleIcon,
 } from "lucide-react";
-import { DispatchConfirmation } from "../../../../../components/product/DispatchConfirmation.js";
-import { FlowHeader } from "../../../../../components/product/FlowHeader.js";
-import { getApiUrl } from "../../../../../lib/api.js";
+import { DispatchConfirmation } from "../../../../../components/product/DispatchConfirmation";
+import { FlowHeader } from "../../../../../components/product/FlowHeader";
+import { getApiUrl } from "../../../../../lib/api";
 
 // ---------------------------------------------------------------------------
 // Timeline Step
@@ -146,13 +146,13 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         className="mx-auto max-w-2xl space-y-6 px-4 py-12 text-center"
       >
         <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
-        <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("paymentFailed")}</h1>
+        <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">{t("paymentFailed")}</h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           {payment.data?.failureReason ?? t("paymentFailedSubtitle")}
         </p>
         <Link
           href={`/draft/${draftId}/checkout`}
-          className="inline-flex items-center gap-2 rounded-[16px] bg-zinc-950 px-6 py-3 text-sm font-semibold text-white transition hover:bg-zinc-800 active:scale-[0.98]"
+          className="inline-flex items-center gap-2 rounded-2xl bg-zinc-950 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
         >
           {t("backToCheckout")}
         </Link>
@@ -215,7 +215,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         <div className="flex justify-center">{activeStateCopy.icon}</div>
 
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">{t("title")}</h1>
+          <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">{t("title")}</h1>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{activeStateCopy.subtitle}</p>
         </div>
 
@@ -223,7 +223,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         <button
           type="button"
           onClick={copyRef}
-          className="inline-flex items-center gap-2 rounded-[16px] bg-white px-5 py-2 text-sm text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+          className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-2 text-sm text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
           style={{ outline: "1px solid var(--app-border)" }}
           aria-label={t("copyReference")}
         >
@@ -235,15 +235,15 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
             <Copy className="h-3.5 w-3.5 text-zinc-400" />
           )}
           {copied && <span className="text-xs text-emerald-600">{t("copied")}</span>}
-          {copyFailed && <span className="text-xs text-gray-500">{t("copyFailed")}</span>}
+          {copyFailed && <span className="text-xs text-zinc-500">{t("copyFailed")}</span>}
         </button>
 
         <div
-          className="mx-auto max-w-sm rounded-[24px] bg-white p-6 text-left shadow-sm dark:bg-zinc-900"
+          className="mx-auto max-w-sm rounded-3xl bg-white p-6 text-left shadow-sm dark:bg-zinc-900"
           style={{ outline: "1px solid var(--app-border)" }}
           aria-live="polite"
         >
-          <h2 className="mb-4 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
             {t("dispatchTitle")}
           </h2>
           <DispatchConfirmation
@@ -259,10 +259,10 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
         {/* What happens next — 4-step timeline */}
         <div
-          className="mx-auto max-w-sm rounded-[24px] bg-white p-6 text-left shadow-sm dark:bg-zinc-900"
+          className="mx-auto max-w-sm rounded-3xl bg-white p-6 text-left shadow-sm dark:bg-zinc-900"
           style={{ outline: "1px solid var(--app-border)" }}
         >
-          <h2 className="mb-5 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+          <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("whatHappensNext")}
           </h2>
           <ol role="list" className="space-y-1">
@@ -281,7 +281,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
         {/* Email notice */}
         <div
-          className="mx-auto flex max-w-sm items-center gap-3 rounded-[20px] bg-blue-50 px-5 py-3 text-left text-sm text-blue-800"
+          className="mx-auto flex max-w-sm items-center gap-3 rounded-2.5xl bg-blue-50 px-5 py-3 text-left text-sm text-blue-800"
           style={{ outline: "1px solid rgba(59,130,246,0.1)" }}
         >
           <Mail className="h-5 w-5 shrink-0" />
@@ -297,7 +297,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
             href={pdfUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-[16px] bg-white px-5 py-2.5 text-sm text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-2.5 text-sm text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
             style={{ outline: "1px solid var(--app-border)" }}
           >
             <ExternalLink className="h-4 w-4" />
@@ -305,7 +305,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           </a>
           <Link
             href="/draft/new"
-            className="inline-flex items-center gap-2 rounded-[16px] bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-zinc-800 active:scale-[0.98]"
+            className="inline-flex items-center gap-2 rounded-2xl bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
           >
             <PenLine className="h-4 w-4" />
             {t("sendAnother")}
@@ -314,10 +314,10 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
       </main>
 
       {/* Mobile sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#f6f4ef]/95 p-4 shadow-[0_-1px_0_rgba(0,0,0,0.05)] backdrop-blur-md dark:bg-zinc-950/95 dark:shadow-[0_-1px_0_rgba(255,255,255,0.06)] md:hidden">
+      <div className="fixed bottom-0 left-0 right-0 bg-[var(--app-surface-muted)]/95 p-4 shadow-[0_-1px_0_rgba(0,0,0,0.05)] backdrop-blur-md dark:bg-zinc-950/95 dark:shadow-[0_-1px_0_rgba(255,255,255,0.06)] md:hidden">
         <Link
           href="/draft/new"
-          className="block rounded-[16px] bg-zinc-950 py-3 text-center text-sm font-semibold text-white transition hover:bg-zinc-800 active:scale-[0.98]"
+          className="block rounded-2xl bg-zinc-950 py-3 text-center text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
         >
           {t("stickyCtaLabel")}
         </Link>
@@ -339,7 +339,7 @@ export default function ConfirmationPage({
   const t = useTranslations("confirmation");
 
   return (
-    <div className="min-h-screen bg-[#f6f4ef] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
       <FlowHeader currentStep={3} draftId={draftId} title={t("title")} />
 
       <Suspense

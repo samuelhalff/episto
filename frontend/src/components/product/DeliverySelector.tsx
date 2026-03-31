@@ -3,7 +3,7 @@
 import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DeliveryType } from "@swiss-mail/shared";
-import { usePricing, formatCentsAsCHF } from "../../hooks/use-pricing.js";
+import { usePricing, formatCentsAsCHF } from "../../hooks/use-pricing";
 
 export function DeliverySelector({
   value,
@@ -52,45 +52,46 @@ export function DeliverySelector({
             aria-checked={selected}
             aria-label={`${opt.label} — ${opt.price}`}
             onClick={() => onChange(opt.key)}
-            className={`w-full rounded-[1.5rem] border px-4 py-4 text-left text-sm transition ${
+            className={`w-full rounded-2.5xl px-4 py-4 text-left text-sm transition active:scale-[0.99] ${
               selected
-                ? "border-stone-900 bg-stone-950 text-white shadow-[0_18px_40px_rgba(28,25,23,0.16)]"
-                : "border-stone-200 bg-stone-50/60 text-stone-600 hover:border-stone-300 hover:bg-white"
+                ? "bg-zinc-950 text-white shadow-lg dark:bg-amber-400 dark:text-zinc-950"
+                : "bg-white text-zinc-600 shadow-sm hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
             }`}
+            style={!selected ? { outline: "1px solid var(--app-border)" } : undefined}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <span
-                  className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full border ${
-                    selected
-                      ? "border-white/40 bg-white/15 text-white"
-                      : "border-stone-300 bg-white text-transparent"
-                  }`}
+                    className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-lg border ${
+                      selected
+                        ? "border-white/40 bg-white/15 text-white dark:border-zinc-950/20 dark:bg-zinc-950/10 dark:text-zinc-950"
+                        : "border-zinc-300 bg-white text-transparent dark:border-zinc-700 dark:bg-zinc-950"
+                    }`}
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
                 </span>
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
                     <span
-                      className={`font-semibold ${selected ? "text-white" : "text-stone-900"}`}
+                      className={`font-semibold ${selected ? "text-white dark:text-zinc-950" : "text-zinc-900 dark:text-zinc-50"}`}
                     >
                       {opt.label}
                     </span>
                     <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${selected ? "bg-white/12 text-white/80" : "bg-stone-100 text-stone-600"}`}
+                      className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest ${selected ? "bg-white/12 text-white/80 dark:bg-zinc-950/10 dark:text-zinc-900/80" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"}`}
                     >
                       {opt.badge}
                     </span>
                   </div>
                   <p
-                    className={`mt-1 text-sm ${selected ? "text-white/75" : "text-stone-500"}`}
+                      className={`mt-1 text-sm ${selected ? "text-white/75 dark:text-zinc-900/80" : "text-zinc-500 dark:text-zinc-400"}`}
                   >
                     {opt.description}
                   </p>
                 </div>
               </div>
               <span
-                className={`shrink-0 text-base font-semibold ${selected ? "text-white" : "text-stone-900"}`}
+                className={`shrink-0 text-base font-semibold ${selected ? "text-white dark:text-zinc-950" : "text-zinc-900 dark:text-zinc-50"}`}
               >
                 {opt.price}
               </span>

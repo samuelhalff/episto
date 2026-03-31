@@ -12,12 +12,16 @@ import type {
 } from "openai/resources/chat/completions";
 import { env } from "../../../shared/config/index.js";
 import { AppError, providerOutageError } from "../../../shared/errors/index.js";
+import { createLogger } from "../../../shared/logging/index.js";
+import { completeWithProjectAgent } from "./azure-project-agent.js";
+import { withProviderRetries } from "./provider-retry.js";
 
 // ---------------------------------------------------------------------------
 // Client singleton
 // ---------------------------------------------------------------------------
 
 let _client: AzureOpenAI | undefined;
+const logger = createLogger("azure-openai-adapter");
 
 function getClient(): AzureOpenAI {
   if (_client) return _client;
@@ -57,22 +61,30 @@ export async function complete(opts: CompletionOptions): Promise<string> {
   const model =
     opts.model === "draft" ? config.AI_DRAFT_MODEL : config.AI_CLASSIFY_MODEL;
 
-  try {
-    const response = await getClient().chat.completions.create({
-      model,
-      messages: opts.messages,
-      temperature: opts.temperature ?? 0.7,
-      max_tokens: opts.maxTokens ?? 2048,
-    });
-
-    const content = response.choices[0]?.message?.content;
-    if (!content) {
-      throw new Error("Empty response from Azure OpenAI");
-    }
-    return content;
-  } catch (err) {
-    throw mapAzureError(err);
+  if (config.AI_PROVIDER_MODE === "azure_ai_project_agent") {
+    return completeWithProjectAgent(opts.messages);
   }
+
+  return withProviderRetries({
+    provider: "Azure OpenAI",
+    operation: `chat completion (${opts.model})`,
+    logger,
+    mapError: mapAzureError,
+    run: async () => {
+      const response = await getClient().chat.completions.create({
+        model,
+        messages: opts.messages,
+        temperature: opts.temperature ?? 0.7,
+        max_tokens: opts.maxTokens ?? 2048,
+      });
+
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("Empty response from Azure OpenAI");
+      }
+      return content;
+    },
+  });
 }
 
 // ---------------------------------------------------------------------------

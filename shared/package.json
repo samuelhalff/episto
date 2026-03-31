@@ -23,6 +23,10 @@
     "./errors": {
       "types": "./src/errors.ts",
       "import": "./dist/errors.js"
+    },
+    "./letter-framing": {
+      "types": "./src/letter-framing.ts",
+      "import": "./dist/letter-framing.js"
     }
   },
   "scripts": {

@@ -147,6 +147,21 @@ Slack embeds workflow steps as structured blocks inside the message stream. Chat
 
 On mobile, the software keyboard causes the visual viewport to shrink. The input bar rides up with the keyboard. The thread scroll container shrinks proportionally. There is never a state where the input bar is hidden behind the keyboard.
 
+When the keyboard is open, non-essential bottom actions may temporarily hide to protect message and input space. They must return through the platform's normal dismissal gestures — tapping outside the composer or scrolling the thread — not through a custom "Done" or "Hide keyboard" pill inside the conversation chrome.
+
+Keyboard dismissal must feel native:
+- Tapping the thread/background outside interactive controls dismisses the keyboard
+- Scrolling the thread while the composer is focused dismisses the keyboard
+- Composer shortcuts follow standard chat behavior: `Ctrl+Enter` / `Cmd+Enter` sends, plain `Enter` inserts a newline
+- Typing and dismissal controls never masquerade as message bubbles
+- On prompt-driven drafting views, the step trigger moves into the composer action row as an icon button, immediately left of attachments, instead of occupying a separate bottom-dock slot
+- Prompt-driven drafting views expose one compact shortcut row above the composer: one manual-entry badge plus a very small set of visible prompt shortcuts and a `More` action
+- That shortcut row must never widen the app shell. On compact/mobile viewports, prefer wrapping and moving excess shortcuts into the `More` sheet instead of leaving chips off-screen in a horizontal scroller
+- If the composer already contains unsent text, tapping a prompt shortcut must add the shortcut text into the input instead of discarding the user's draft
+- Focus changes should not animate the composer into a different vertical position; keep the input anchored and rely on native keyboard/show-hide behavior
+- Prompt-driven drafting views should not keep a competing sticky primary CTA in the bottom dock; once the assistant has responded with actionable progress, show the next CTA inline at the bottom of the thread instead
+- Follow the voice-and-tone rule for sentence case in drafting UI copy. Avoid title case and all-caps buttons or helper labels unless there is a strong semantic reason
+
 ### Rule 10: View switching preserves scroll position
 
 When toggling between views (conversations in Slack, chats in WhatsApp), scroll position is preserved per-view. Switching away and back does not reset to top.

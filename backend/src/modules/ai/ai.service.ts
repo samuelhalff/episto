@@ -12,6 +12,7 @@
 
 import { complete } from "./adapters/azure-openai.js";
 import {
+  analyzeIntakePrompt,
   classifyIntentPrompt,
   extractFieldsPrompt,
   askFollowUpPrompt,
@@ -19,6 +20,7 @@ import {
   generateSubjectPrompt,
   reviseLetterPrompt,
   validateOutputPrompt,
+  type AnalyzeIntakeInput,
   type ClassifyIntentInput,
   type ExtractFieldsInput,
   type AskFollowUpInput,
@@ -71,6 +73,97 @@ export function parseJsonResponse<T>(raw: string): T {
       userMessage: "The AI response could not be interpreted.",
       userAction: "Please try again or continue editing manually.",
     });
+  }
+}
+
+function normalizeSubject(subject: unknown): string | null {
+  if (typeof subject !== "string") {
+    return null;
+  }
+
+  const trimmed = subject.trim();
+  return trimmed ? trimmed.slice(0, 200) : null;
+}
+
+function extractStructuredDocumentEnvelope(raw: string): {
+  subject: string | null;
+  documentPayload: string;
+} {
+  const parsed = parseJsonResponse<unknown>(raw);
+
+  if (
+    parsed &&
+    typeof parsed === "object" &&
+    !Array.isArray(parsed) &&
+    "document" in parsed
+  ) {
+    const envelope = parsed as { subject?: unknown; document: unknown };
+    return {
+      subject: normalizeSubject(envelope.subject),
+      documentPayload: JSON.stringify(envelope.document),
+    };
+  }
+
+  return {
+    subject: null,
+    documentPayload: raw,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Combined intake analysis
+// ---------------------------------------------------------------------------
+
+export interface IntakeAnalysisResult {
+  intent: string;
+  risk: "low" | "medium" | "high";
+  summary: string;
+  fields: Record<string, unknown>;
+  ready: boolean;
+  question?: string | undefined;
+  message?: string | undefined;
+}
+
+export async function analyzeIntake(
+  input: AnalyzeIntakeInput,
+): Promise<IntakeAnalysisResult> {
+  const messages = analyzeIntakePrompt(input);
+  const raw = await complete({ model: "classify", messages, temperature: 0.2, maxTokens: 1200 });
+
+  try {
+    const result = parseJsonResponse<IntakeAnalysisResult>(raw);
+
+    if (result.intent === "blocked") {
+      throw new AppError({
+        family: "policy_refusal",
+        statusCode: 422,
+        code: "CONTENT_BLOCKED",
+        message: `Content blocked by intake analysis: ${result.summary}`,
+        userMessage: "This type of content cannot be processed.",
+        userAction: "Please describe a legitimate formal correspondence need.",
+      });
+    }
+
+    return {
+      intent: result.intent || "general",
+      risk: result.risk || "low",
+      summary: result.summary || "Unable to classify",
+      fields: result.fields && typeof result.fields === "object" ? result.fields : {},
+      ready: Boolean(result.ready),
+      question: result.question,
+      message: result.message,
+    };
+  } catch (err) {
+    if (err instanceof AppError) throw err;
+    logger.error({ raw }, "Failed to parse intake analysis result");
+    return {
+      intent: "general",
+      risk: "low",
+      summary: "Unable to classify",
+      fields: {},
+      ready: false,
+      question: "Could you provide more details about your letter?",
+    };
   }
 }
 
@@ -163,7 +256,7 @@ export async function draftLetter(
   options: ParseModelResponseOptions = {},
 ): Promise<AppliedDocumentResult> {
   const messages = draftLetterPrompt(input);
-  return generateStructuredDocument(messages, undefined, options);
+  return generateStructuredDocument(messages, undefined, options, input.locale);
 }
 
 export async function generateSubject(input: GenerateSubjectInput): Promise<string | null> {
@@ -218,13 +311,14 @@ export async function reviseLetter(
   options: ParseModelResponseOptions = {},
 ): Promise<AppliedDocumentResult> {
   const messages = reviseLetterPrompt(input);
-  return generateStructuredDocument(messages, currentDocument, options);
+  return generateStructuredDocument(messages, currentDocument, options, input.locale);
 }
 
 async function generateStructuredDocument(
   messages: ReturnType<typeof draftLetterPrompt>,
   currentDocument?: DocumentModel,
   options: ParseModelResponseOptions = {},
+  locale?: string | null,
 ): Promise<AppliedDocumentResult> {
   const raw = await complete({
     model: "draft",
@@ -233,7 +327,9 @@ async function generateStructuredDocument(
     maxTokens: 4096,
   });
 
-  const parsed = parseModelResponse(raw, {
+  const envelope = extractStructuredDocumentEnvelope(raw);
+
+  const parsed = parseModelResponse(envelope.documentPayload, {
     expectedMode: "structured_edit",
     allowPlainTextFallback: options.allowPlainTextFallback ?? true,
     compatibilityMode: options.compatibilityMode ?? "plain_text_only",
@@ -260,8 +356,9 @@ async function generateStructuredDocument(
     "Model response parsed",
   );
 
-  const applied = applyStructuredEdit(parsed.response, currentDocument);
+  const applied = applyStructuredEdit(parsed.response, currentDocument, locale);
   applied.warnings.push(...parsed.warnings, ...parsed.errors);
+  applied.subject = envelope.subject;
 
   logger.info(
     {
@@ -296,29 +393,29 @@ export interface ProcessMessageResult {
 export async function processUserMessage(
   input: ProcessMessageInput,
 ): Promise<ProcessMessageResult> {
-  const classification = await classifyIntent({
-    userMessage: input.userMessage,
-    locale: input.locale,
-  });
-
-  logger.info(
-    { draftId: input.draftId, intent: classification.intent, risk: classification.risk },
-    "Message classified",
-  );
-
-  const extractedFields = await extractFields({
+  const analysis = await analyzeIntake({
     userMessage: input.userMessage,
     existingFields: input.existingFields,
     locale: input.locale,
+    conversationHistory: input.conversationHistory,
   });
 
-  const mergedFields = { ...input.existingFields, ...extractedFields };
+  logger.info(
+    { draftId: input.draftId, intent: analysis.intent, risk: analysis.risk },
+    "Message analyzed",
+  );
 
-  const followUp = await askFollowUp({
-    intent: classification.intent,
-    existingFields: mergedFields,
-    locale: input.locale,
-  });
-
-  return { classification, extractedFields, followUp };
+  return {
+    classification: {
+      intent: analysis.intent,
+      risk: analysis.risk,
+      summary: analysis.summary,
+    },
+    extractedFields: analysis.fields,
+    followUp: {
+      ready: analysis.ready,
+      ...(analysis.question ? { question: analysis.question } : {}),
+      ...(analysis.message ? { message: analysis.message } : {}),
+    },
+  };
 }

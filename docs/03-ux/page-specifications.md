@@ -54,7 +54,7 @@ Global requirements for every core route:
 - Reduce legal and formatting burden. The product should absorb Swiss formal-letter structure, not push that cognitive work back onto the user.
 - Preserve momentum. No avoidable dead ends, reset traps, or hidden state loss between draft, review, checkout, and confirmation.
 - Respect stress. Error and warning states must be calm, specific, and solvable in one pass.
-- **Light mode only for MVP.** There is no dark mode. All colour tokens, elevation values, and contrast ratios in this document assume a light background. Do not add a theme toggle, `prefers-color-scheme` handling, or dark-mode CSS variables. Dark mode is a potential future addition, not an MVP requirement. See `docs/08-guardrails/non-goals.md`.
+- **Dark mode is in MVP scope.** The product ships with an explicit user theme toggle and class-based dark mode. The toggle appears in the primary site chrome and in the draft workspace menu, persists per user on the current device, and respects system preference only as the first-load default. The letter preview remains visually light even when the rest of the UI is dark.
 
 ### Layout components
 | Key | Description |
@@ -535,6 +535,15 @@ On mobile: same, compact.
 
 #### 5.2 Entry Screen (full-screen, centred content)
 
+If an unfinished guest draft exists within the current session TTL, this section switches to a recovery card before any new draft is created:
+- Heading: "You have an unfinished letter"
+- Supporting copy explains the user can continue where they left off or begin again without losing the older draft
+- Primary CTA: "Continue draft" → `/draft/:id`
+- Secondary CTA: "Start fresh" → creates a new guest session and new draft
+- Optional metadata line: last updated timestamp in the current locale
+
+The product must not silently redirect returning users into an old draft from `/draft/new`. Recovery is explicit and reversible.
+
 **Primary path — text input:**
 - Heading: `text-2xl font-semibold` "What kind of letter do you need?"
 - Large `<Textarea>` or styled `<Input>` — placeholder: "e.g. I need to cancel my gym membership at Migros Sport from next month"
@@ -581,6 +590,7 @@ The textarea starts empty and focused. Placeholder text provides guidance. No sk
 - Dictation button: `aria-label="Start voice input"`, `aria-pressed` for active state
 - Quick-start cards: keyboard navigable, `role="button"` or `<button>`, descriptive labels
 - Focus is set to the textarea on page load (`autoFocus`)
+- Recovery card buttons are reachable by keyboard and announced distinctly as "Continue draft" and "Start fresh"
 
 ---
 
@@ -725,6 +735,8 @@ The workspace toggle swaps between `<ConversationPanel>` and `<LetterPreview>` i
 - `<StepIndicator>` — centre: step dots with labels ("Draft · Review · Pay · Done")
 - Price estimate — right: `text-sm` `{formattedEstimatedTotal}` (muted, updates as content changes)
 - No explicit save button. Draft state auto-saves continuously; only warn if the user is about to leave with unsent local input.
+- Workspace menu includes an obvious `Start new letter` action that routes to `/draft/new`; if another unfinished draft exists, the recovery card lets the user continue or truly start fresh. The confirmation CTA should read `Start new letter`, not repeat `Start fresh`.
+- Workspace menu also includes the theme toggle so the user can switch appearance without leaving the flow.
 
 #### Auto-Save Indicator
 
@@ -766,8 +778,16 @@ Scrollable, fills available height.
 
 **Input area** (pinned at bottom):
 - `<Textarea>` auto-resize, `min-h-[48px] max-h-[120px]`
-- Send button `<Button variant="ghost" size="icon">` with `Send` icon, or Enter key
+- Send button `<Button variant="ghost" size="icon">` with `Send` icon, or `Ctrl+Enter` / `Cmd+Enter`
 - Microphone button `<Button variant="ghost" size="icon">` with `Mic` icon
+- On prompt-first drafting screens, the step trigger sits inline with the composer controls as an icon button immediately left of attachments; on non-prompt screens it remains in the bottom dock
+- Prompt-first drafting screens expose a single compact shortcut row above the composer: one manual-entry badge, a few prompt shortcuts, and a `More` action that opens a compact bottom sheet of additional shortcuts
+- The shortcut row must stay inside the composer width. If chips exceed the available width, the row scrolls horizontally inside the composer instead of pushing the app wider
+- If the user already typed text, selecting a prompt shortcut appends the shortcut into the input instead of sending it immediately and discarding the typed text
+- Prompt-first drafting screens keep the bottom dock visible at all times, including while the composer is focused. The dock CTA may be disabled or warning-styled when the next step is not yet available, but it must not disappear on focus.
+- Prompt shortcuts must be capability-aware: empty-body states show only substance/content prompts, while wording/formatting/refinement prompts appear only after body content exists.
+- When the content step is auto-generating the first body draft from already confirmed context, the step opens behind a blocking loading dialog. The dialog closes only once body content exists; if generation fails, it switches to a recovery hero with a refresh action and a disabled support placeholder.
+- Drafting headings, labels, helper text, and buttons follow sentence case per `docs/02-brand/voice-and-tone.md`; avoid title case and all-caps UI copy
 
 **Composer rules:**
 - The composer is a single surface. Voice encouragement, textarea, mic affordance, and send action belong to one visual object.
@@ -887,6 +907,20 @@ The product should feel like it already knows you. Every default should feel lik
 - For first-time users or brand-new guest sessions: no prefilling. The AI asks for sender details normally.
 - **Implementation note:** Prefilling from prior sessions requires a server-side lookup. Do not store sender details in `localStorage` or cookies — this is PII.
 
+**Recipient search assistance:**
+- Assisted search is for **companies / registered organizations only**.
+- For company recipients, the UI may prefill the organization name from the AI step and offer an
+  official registry-backed lookup before the user falls back to manual address entry.
+- Current staging implementation uses the official company registry to find the organization and
+  legal seat only; the user must still confirm the mailing address manually before continuing.
+- Official company lookup must run through Swiss Mail server-side infrastructure (adapter + internal
+  proxy where needed). Do not expose registry credentials or make the browser call the registry
+  directly.
+- For private-person recipients, do not query consumer directories or general web search. Capture
+  the address manually and then run the normal soft validation flow.
+- Manual entry remains available even for companies because official registry data and real mailing
+  destinations do not always match perfectly.
+
 **Use-case context pre-loading:**
 - When a user arrives via a use-case landing page (e.g., `/use-cases/lease-cancellation`), the conversation starts with that context pre-loaded.
 - The AI's first message references the use case: "Let's draft your lease cancellation letter…" (not a generic "How can I help?").
@@ -972,8 +1006,8 @@ After the first draft, users often want to refine. This is where the "effortless
 `paper` background (`#FAFAF7`), `shadow-paper` elevation, A4 proportions (desktop: actual width constrained to ~680px; mobile: full-width in sheet).
 
 **Layout within preview:**
-- Sender block (top-right, as per Swiss letter convention)
-- Recipient block (top-left)
+- Sender block (top-left, above the recipient block, matching Swiss window-envelope conventions)
+- Recipient block (right-aligned in the preview)
 - Date
 - Subject line (`font-semibold`)
 - Body paragraphs (serif, `text-sm`, line-height generous)
@@ -1011,6 +1045,8 @@ Address validation is critical for dispatch — an invalid Swiss address means a
 **When validation triggers:**
 - Postal code (PLZ) validation fires on `blur` of the postal code field, NOT on every keystroke.
 - Full address validation fires when the user finishes editing an address zone (closes the ZoneEditor popover/sheet), NOT during typing.
+- For company search results, the same validation still runs after selection or confirmation. Search
+  is an assistive shortcut, not a guarantee that the final mailing address is correct.
 - The AI conversation collects addresses organically. When the AI parses a complete address from conversation, it validates in the background before confirming to the user.
 
 **PLZ soft validation:**

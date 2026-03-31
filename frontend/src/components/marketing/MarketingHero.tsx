@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { Link } from "../../i18n/navigation.js";
+import { Link } from "../../i18n/navigation";
 
 interface HeroAction {
   href: string;
@@ -36,20 +36,20 @@ export function MarketingHero({
       />
       <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
         <div className="animate-rise-in">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-amber-700 shadow-[0_14px_35px_rgba(120,53,15,0.08)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-amber-700 shadow-elevated dark:border-amber-500/30 dark:bg-zinc-900/85 dark:text-amber-300">
             <Sparkles className="h-4 w-4" />
             {eyebrow}
           </div>
-          <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.05em] text-stone-950 sm:text-5xl md:text-6xl">
+          <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.05em] text-zinc-950 dark:text-zinc-50 sm:text-5xl md:text-6xl">
             {title}
           </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-stone-600 md:text-lg md:leading-8">
+          <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg md:leading-8">
             {subtitle}
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <Link
               href={primaryAction.href}
-              className="cta-sheen inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-stone-950 px-6 py-3.5 text-base font-semibold text-white shadow-[0_20px_50px_rgba(28,25,23,0.24)] transition-all duration-300 hover:-translate-y-0.5 hover:bg-stone-800"
+              className="cta-sheen inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-3.5 text-base font-semibold text-white shadow-prominent transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
             >
               {primaryAction.label}
               <ArrowRight className="h-4 w-4" />
@@ -57,7 +57,7 @@ export function MarketingHero({
             {secondaryAction ? (
               <Link
                 href={secondaryAction.href}
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-stone-300/70 bg-white/85 px-6 py-3.5 text-base font-medium text-stone-700 shadow-[0_12px_30px_rgba(120,53,15,0.08)] transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-stone-950"
+                className="inline-flex min-h-12 items-center justify-center rounded-full border border-zinc-300/70 bg-white/85 px-6 py-3.5 text-base font-medium text-zinc-700 shadow-elevated transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900/85 dark:text-zinc-200 dark:hover:border-amber-400/60 dark:hover:text-white"
               >
                 {secondaryAction.label}
               </Link>
@@ -65,7 +65,7 @@ export function MarketingHero({
           </div>
         </div>
 
-        <div className="paper-noise rounded-[2rem] border border-white/80 p-5 shadow-[0_28px_70px_rgba(120,53,15,0.16)] md:p-6">
+        <div className="paper-noise rounded-4xl border border-white/80 p-5 shadow-prominent-warm md:p-6">
           {panel}
         </div>
       </div>

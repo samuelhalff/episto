@@ -1,16 +1,16 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { Link } from "../../../i18n/navigation.js";
+import { Link } from "../../../i18n/navigation";
 import { ShieldCheck, RefreshCw, Loader2 } from "lucide-react";
 import {
   adminFetch,
   makeAuthHeader,
   type HealthResponse,
   type OverviewResponse,
-} from "./admin-api.js";
-import { HealthPanel, OverviewPanel, QueuesPanel } from "./admin-panels.js";
-import { getMsalInstance, loginRequest, isMsalConfigured } from "../../../lib/msal-config.js";
+} from "./admin-api";
+import { HealthPanel, OverviewPanel, QueuesPanel } from "./admin-panels";
+import { getMsalInstance, loginRequest, isMsalConfigured } from "../../../lib/msal-config";
 
 // ---------------------------------------------------------------------------
 // Microsoft SSO icon
@@ -129,11 +129,11 @@ export default function AdminPage() {
       <div className="flex min-h-screen items-center justify-center bg-white px-6">
         <div className="w-full max-w-sm">
           <div className="mb-10 text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gray-900">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-zinc-900">
               <ShieldCheck className="h-7 w-7 text-white" />
             </div>
-            <h1 className="text-2xl font-bold tracking-tight text-gray-900">Admin Access</h1>
-            <p className="mt-2 text-sm text-gray-500">
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-950">Admin Access</h1>
+            <p className="mt-2 text-sm text-zinc-500">
               Sign in to access the admin dashboard.
             </p>
           </div>
@@ -145,7 +145,7 @@ export default function AdminPage() {
                 type="button"
                 disabled={loading || !msalReady}
                 onClick={() => void handleMsalLogin()}
-                className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-3 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 disabled:opacity-40"
+                className="flex w-full items-center justify-center gap-3 rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-700 shadow-sm transition hover:bg-zinc-50 disabled:opacity-40"
               >
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
@@ -163,17 +163,17 @@ export default function AdminPage() {
 
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-200" />
+                  <div className="w-full border-t border-zinc-200" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-white px-3 text-gray-400">or</span>
+                  <span className="bg-white px-3 text-zinc-400">or</span>
                 </div>
               </div>
 
               <button
                 type="button"
                 onClick={() => setAuthMode("credentials")}
-                className="w-full text-center text-sm text-gray-500 transition hover:text-gray-900"
+                className="w-full text-center text-sm text-zinc-500 transition hover:text-zinc-950"
               >
                 Sign in with credentials
               </button>
@@ -190,7 +190,7 @@ export default function AdminPage() {
               className="space-y-4"
             >
               <div>
-                <label htmlFor="admin-user" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="admin-user" className="block text-sm font-medium text-zinc-700">
                   Username
                 </label>
                 <input
@@ -199,11 +199,11 @@ export default function AdminPage() {
                   autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
               <div>
-                <label htmlFor="admin-pass" className="block text-sm font-medium text-gray-700">
+                <label htmlFor="admin-pass" className="block text-sm font-medium text-zinc-700">
                   Password
                 </label>
                 <input
@@ -212,7 +212,7 @@ export default function AdminPage() {
                   autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="mt-1 w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
 
@@ -225,7 +225,7 @@ export default function AdminPage() {
               <button
                 type="submit"
                 disabled={loading || !username || !password}
-                className="w-full rounded-lg bg-gray-900 py-2.5 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-40"
+                className="w-full rounded-lg bg-zinc-900 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:opacity-40"
               >
                 {loading ? (
                   <Loader2 className="mx-auto h-4 w-4 animate-spin" />
@@ -238,7 +238,7 @@ export default function AdminPage() {
                 <button
                   type="button"
                   onClick={() => setAuthMode("sso")}
-                  className="w-full text-center text-sm text-gray-500 transition hover:text-gray-900"
+                  className="w-full text-center text-sm text-zinc-500 transition hover:text-zinc-950"
                 >
                   ← Back to Microsoft SSO
                 </button>
@@ -251,26 +251,26 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-zinc-50">
       <header className="border-b bg-white px-6 py-4">
         <div className="mx-auto flex max-w-6xl items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gray-900">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900">
               <ShieldCheck className="h-4 w-4 text-white" />
             </div>
-            <h1 className="text-lg font-bold text-gray-900">Admin Dashboard</h1>
+            <h1 className="text-lg font-semibold text-zinc-950">Admin Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={() => void refresh()}
               disabled={loading}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-50 disabled:opacity-40"
+              className="flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-1.5 text-sm text-zinc-600 transition hover:bg-zinc-50 disabled:opacity-40"
             >
               <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
               Refresh
             </button>
-            <Link href="/" className="text-sm text-gray-500 transition hover:text-gray-900">
+            <Link href="/" className="text-sm text-zinc-500 transition hover:text-zinc-950">
               ← Back to site
             </Link>
           </div>

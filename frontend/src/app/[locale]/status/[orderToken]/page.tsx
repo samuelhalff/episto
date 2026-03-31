@@ -4,11 +4,11 @@ import { use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Loader2, Package, PenLine, AlertCircle } from "lucide-react";
-import { Link } from "../../../../i18n/navigation.js";
-import { apiFetch } from "../../../../lib/api.js";
+import { Link } from "../../../../i18n/navigation";
+import { apiFetch } from "../../../../lib/api";
 import { queryKeys } from "@swiss-mail/shared";
 import type { OrderStatusResponse } from "@swiss-mail/shared";
-import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation.js";
+import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation";
 
 function useOrderStatus(orderToken: string) {
   return useQuery({
@@ -63,21 +63,21 @@ export default function StatusPage({
   const priceCHF = (payment.priceCents / 100).toFixed(2);
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf4_0%,#ffffff_28%)]">
-      <header className="border-b border-stone-200/80 bg-white/95 px-4 py-4 backdrop-blur sm:px-6">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf4_0%,#ffffff_28%)] dark:bg-zinc-950">
+      <header className="border-b border-zinc-200/80 bg-white/95 px-4 py-4 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95 sm:px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-3 font-semibold tracking-tight text-stone-950"
+            className="inline-flex items-center gap-3 font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
           >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-amber-200/80 bg-white text-xs shadow-sm">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-amber-200/80 bg-white text-xs shadow-sm dark:border-amber-500/30 dark:bg-zinc-900">
               SM
             </span>
             {tc("appName")}
           </Link>
           <Link
             href="/draft/new"
-            className="hidden rounded-full bg-stone-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-stone-800 sm:inline-flex"
+            className="hidden rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300 sm:inline-flex"
           >
             {t("sendAnother")}
           </Link>
@@ -85,37 +85,37 @@ export default function StatusPage({
       </header>
 
       <main id="main-content" className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
-        <div className="rounded-[2.5rem] border border-stone-200/80 bg-white/92 p-5 text-center shadow-[0_24px_70px_rgba(15,23,42,0.08)] sm:p-8">
+        <div className="rounded-[2.5rem] border border-zinc-200/80 bg-white/92 p-5 text-center shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92 sm:p-8">
           <Package className="mx-auto mb-4 h-12 w-12 text-primary" />
-          <h1 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950">
+          <h1 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
             {t("title")}
           </h1>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
-            <dl className="divide-y divide-stone-100">
+          <div className="rounded-4xl border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92">
+            <dl className="divide-y divide-zinc-100 dark:divide-zinc-800">
               <div className="flex items-center justify-between py-3 text-sm">
-                <dt className="text-stone-500">{t("orderReference")}</dt>
-                <dd className="font-mono font-medium text-stone-900">{order.orderRef}</dd>
+                <dt className="text-zinc-500">{t("orderReference")}</dt>
+                <dd className="font-mono font-medium text-zinc-900 dark:text-zinc-100">{order.orderRef}</dd>
               </div>
               {order.recipientName && (
                 <div className="flex items-center justify-between py-3 text-sm">
-                  <dt className="text-stone-500">{t("recipient")}</dt>
-                  <dd className="font-medium text-stone-900">{order.recipientName}</dd>
+                  <dt className="text-zinc-500">{t("recipient")}</dt>
+                  <dd className="font-medium text-zinc-900 dark:text-zinc-100">{order.recipientName}</dd>
                 </div>
               )}
               <div className="flex items-center justify-between py-3 text-sm">
-                <dt className="text-stone-500">{t("paymentAmount")}</dt>
-                <dd className="font-medium text-stone-900">
+                <dt className="text-zinc-500">{t("paymentAmount")}</dt>
+                <dd className="font-medium text-zinc-900 dark:text-zinc-100">
                   CHF {priceCHF}
-                  <span className="ml-2 text-xs text-stone-500">({payment.state})</span>
+                  <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">({payment.state})</span>
                 </dd>
               </div>
               {payment.capturedAt && (
                 <div className="flex items-center justify-between py-3 text-sm">
-                  <dt className="text-stone-500">{t("paidAt")}</dt>
-                  <dd className="text-stone-900">
+                  <dt className="text-zinc-500">{t("paidAt")}</dt>
+                  <dd className="text-zinc-900 dark:text-zinc-100">
                     {new Date(payment.capturedAt).toLocaleDateString()}
                   </dd>
                 </div>
@@ -123,7 +123,7 @@ export default function StatusPage({
             </dl>
           </div>
 
-          <div className="rounded-[2rem] border border-stone-200/80 bg-white/92 p-6 shadow-[0_20px_60px_rgba(15,23,42,0.08)]">
+          <div className="rounded-4xl border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92">
             <DispatchConfirmation
               dispatchState={
                 dispatchData.state as Parameters<
@@ -141,7 +141,7 @@ export default function StatusPage({
         <div className="text-center sm:hidden">
           <Link
             href="/draft/new"
-            className="inline-flex items-center gap-2 rounded-full bg-stone-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-stone-800"
+            className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
           >
             <PenLine className="h-4 w-4" />
             {t("sendAnother")}

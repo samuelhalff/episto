@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Check, ChevronDown } from "lucide-react";
-import { useRouter } from "../../i18n/navigation.js";
+import { useRouter } from "../../i18n/navigation";
 
 const STEPS = ["stepDraft", "stepReview", "stepPay", "stepDone"] as const;
 const STEP_SUFFIXES = ["", "/review", "/checkout", "/confirmation"] as const;
@@ -94,7 +94,7 @@ export function StepIndicator({
           })}
         </div>
 
-        <span className="flex-1 text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500">
+        <span className="flex-1 text-xs font-semibold uppercase tracking-widest text-zinc-500">
           {t(STEPS[currentStep] ?? STEPS[0])}
         </span>
 
@@ -116,7 +116,7 @@ export function StepIndicator({
       {isOpen && (
         <div
           role="menu"
-          className="fixed inset-x-0 top-[calc(3.5rem+0.5rem)] z-50 mx-auto max-w-lg rounded-[24px] bg-white p-2 shadow-[0_24px_60px_rgba(0,0,0,0.12)] sm:absolute sm:inset-x-auto sm:left-0 sm:right-0 sm:top-[calc(100%+0.5rem)] sm:mx-0 sm:max-w-none"
+          className="fixed inset-x-0 top-[calc(3.5rem+0.5rem)] z-50 mx-auto max-w-lg rounded-3xl bg-white p-2 shadow-prominent sm:absolute sm:inset-x-auto sm:left-0 sm:right-0 sm:top-[calc(100%+0.5rem)] sm:mx-0 sm:max-w-none"
           style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
         >
           {STEPS.map((key, index) => {
@@ -131,7 +131,7 @@ export function StepIndicator({
                 role="menuitem"
                 disabled={!isAvailable}
                 onClick={() => navigateTo(index)}
-                className={`flex w-full items-center gap-3 rounded-[16px] px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
+                className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
                   isAvailable ? "hover:bg-zinc-50" : "cursor-not-allowed opacity-50"
                 } ${isCurrent ? "bg-zinc-50" : ""}`}
                 style={isCurrent ? { outline: "1px solid rgba(0,0,0,0.03)" } : undefined}
@@ -153,7 +153,7 @@ export function StepIndicator({
                 </span>
                 <div className="min-w-0 flex-1">
                   <p
-                    className={`text-[13px] font-bold leading-tight ${isCurrent ? "text-zinc-950" : "text-zinc-500"}`}
+                    className={`text-xs font-semibold leading-tight ${isCurrent ? "text-zinc-950" : "text-zinc-500"}`}
                   >
                     {t(key)}
                   </p>
@@ -162,7 +162,7 @@ export function StepIndicator({
                   <div className="h-1.5 w-1.5 rounded-full bg-zinc-950 mr-1" />
                 )}
                 {!isAvailable && (
-                  <span className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-400">
+                  <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
                     {t("stepLocked")}
                   </span>
                 )}
@@ -196,7 +196,7 @@ export function StepIndicator({
                 type="button"
                 disabled={!isAvailable}
                 onClick={() => navigateTo(index)}
-                className={`group inline-flex min-w-[9rem] items-center justify-center gap-2 rounded-[16px] px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] ${
+                className={`group inline-flex min-w-[9rem] items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] ${
                   isCurrent
                     ? "bg-zinc-950 text-white shadow-sm"
                     : isComplete

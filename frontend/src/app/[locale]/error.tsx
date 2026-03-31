@@ -2,7 +2,8 @@
 
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { captureError } from "../../lib/error-tracking.js";
+import { RecoveryScreen } from "../../components/product/RecoveryScreen";
+import { captureError } from "../../lib/error-tracking";
 
 export default function Error({
   error,
@@ -21,21 +22,17 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">
-      <div className="mx-auto max-w-md">
-        <h1 className="mb-4 text-2xl font-bold text-gray-900">
-          {t("error")}
-        </h1>
-        <p className="mb-6 text-gray-600">
-          {error.message || "Something went wrong. Please try again."}
-        </p>
-        <button
-          onClick={reset}
-          className="rounded-lg bg-primary px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-primary-dark"
-        >
-          {t("tryAgain")}
-        </button>
-      </div>
-    </div>
+    <RecoveryScreen
+      eyebrow={t("appName")}
+      title={t("errorRecoveryTitle")}
+      description={t("errorRecoveryBody")}
+      primaryHref="/draft/new"
+      primaryLabel={t("startNewLetter")}
+      secondaryHref="/"
+      secondaryLabel={t("backToHome")}
+      tertiaryLabel={t("tryAgain")}
+      onTertiaryAction={reset}
+      className="min-h-[60vh]"
+    />
   );
 }

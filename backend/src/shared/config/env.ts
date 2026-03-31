@@ -48,11 +48,33 @@ const EnvSchema = z.object({
   METADATA_RETENTION_YEARS: z.coerce.number().int().positive().default(7),
 
   // AI
-  AZURE_OPENAI_ENDPOINT: z.string().url(),
-  AZURE_OPENAI_API_KEY: z.string().min(1),
+  AI_PROVIDER_MODE: z.enum(["azure_openai", "azure_ai_project_agent"]).default("azure_openai"),
+  AZURE_OPENAI_ENDPOINT: z.string().url().optional(),
+  AZURE_OPENAI_API_KEY: z.string().min(1).optional(),
   AZURE_OPENAI_API_VERSION: z.string().default("2024-06-01"),
   AI_DRAFT_MODEL: z.string().default("gpt-4.1"),
   AI_CLASSIFY_MODEL: z.string().default("gpt-4.1-mini"),
+  AZURE_AI_PROJECT_ENDPOINT: z.string().url().optional(),
+  AZURE_EXISTING_AIPROJECT_ENDPOINT: z.string().url().optional(),
+  AZURE_ENV_NAME: z.string().min(1).optional(),
+  AZURE_LOCATION: z.string().min(1).optional(),
+  AZURE_SUBSCRIPTION_ID: z.string().min(1).optional(),
+  AZURE_EXISTING_AIPROJECT_RESOURCE_ID: z.string().min(1).optional(),
+  AZURE_EXISTING_RESOURCE_ID: z.string().min(1).optional(),
+  AZURE_EXISTING_AGENT_ID: z.string().min(1).optional(),
+  AZURE_AI_AGENT_NAME: z.string().min(1).optional(),
+  AZURE_AI_AGENT_VERSION: z.string().min(1).optional(),
+  AZURE_TENANT_ID: z.string().min(1).optional(),
+  AZURE_CLIENT_ID: z.string().min(1).optional(),
+  AZURE_CLIENT_SECRET: z.string().min(1).optional(),
+
+  // Address search
+  COMPANY_SEARCH_PROVIDER: z.enum(["zefix"]).default("zefix"),
+  COMPANY_SEARCH_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
+  ZEFIX_PROXY_BASE_URL: z.string().url().default("http://zefix-proxy:8081"),
+  ADDRESS_VALIDATION_PROVIDER: z.enum(["none", "swiss_post"]).default("none"),
+  SWISS_POST_ADDRESS_API_BASE_URL: z.string().url().optional(),
+  SWISS_POST_ADDRESS_API_SCOPE: z.string().min(1).optional(),
 
   // Email
   RESEND_API_KEY: z.string().startsWith("re_"),
@@ -76,6 +98,54 @@ const EnvSchema = z.object({
     return true;
   },
   { message: "ADMIN_PASSWORD must be changed from default in production" },
+).refine(
+  (data) => {
+    if (data.AI_PROVIDER_MODE === "azure_openai") {
+      return Boolean(data.AZURE_OPENAI_ENDPOINT && data.AZURE_OPENAI_API_KEY);
+    }
+
+    return Boolean(
+      data.AZURE_AI_PROJECT_ENDPOINT &&
+        (data.AZURE_EXISTING_AGENT_ID ||
+          (data.AZURE_AI_AGENT_NAME && data.AZURE_AI_AGENT_VERSION)),
+    );
+  },
+  {
+    message:
+      "AI provider configuration is incomplete for the selected AI_PROVIDER_MODE",
+  },
+).refine(
+  (data) => {
+    if (
+      data.AZURE_AI_PROJECT_ENDPOINT &&
+      data.AZURE_EXISTING_AIPROJECT_ENDPOINT &&
+      data.AZURE_AI_PROJECT_ENDPOINT !== data.AZURE_EXISTING_AIPROJECT_ENDPOINT
+    ) {
+      return false;
+    }
+
+    return true;
+  },
+  {
+    message:
+      "AZURE_AI_PROJECT_ENDPOINT and AZURE_EXISTING_AIPROJECT_ENDPOINT must match when both are set",
+  },
+).refine(
+  (data) => {
+    if (
+      data.AZURE_EXISTING_AGENT_ID &&
+      data.AZURE_AI_AGENT_NAME &&
+      data.AZURE_AI_AGENT_VERSION
+    ) {
+      return data.AZURE_EXISTING_AGENT_ID === `${data.AZURE_AI_AGENT_NAME}:${data.AZURE_AI_AGENT_VERSION}`;
+    }
+
+    return true;
+  },
+  {
+    message:
+      "AZURE_EXISTING_AGENT_ID must match AZURE_AI_AGENT_NAME:AZURE_AI_AGENT_VERSION when both are set",
+  },
 ).refine(
   (data) => {
     if (data.NODE_ENV === "production") {

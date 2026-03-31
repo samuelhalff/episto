@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
-import { apiFetch } from "../lib/api.js";
+import { apiFetch } from "../lib/api";
 
 /**
  * Pricing data returned by the backend pricing endpoint.

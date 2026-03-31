@@ -5,7 +5,7 @@ import {
   resetFrontendAnalyticsSink,
   type FrontendAnalyticsEvent,
   type FrontendAnalyticsSink,
-} from "../src/lib/analytics.js";
+} from "../src/lib/analytics";
 
 describe("frontend analytics", () => {
   let mockSink: FrontendAnalyticsSink;

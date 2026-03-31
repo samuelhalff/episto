@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatCentsAsCHF } from "../src/hooks/use-pricing.js";
+import { formatCentsAsCHF } from "../src/hooks/use-pricing";
 
 describe("formatCentsAsCHF", () => {
   it("formats 490 cents as CHF 4.90", () => {

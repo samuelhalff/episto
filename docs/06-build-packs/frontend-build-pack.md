@@ -20,6 +20,20 @@ Non-negotiable product qualities:
 - The preview/edit loop must feel direct: one interaction from intent to visible result on desktop, and at most two simple interactions on mobile.
 - Repeated logic is not only a maintenance risk; it creates inconsistent UX. Centralize it.
 
+## UI consistency guardrails
+
+These implementation rules are mandatory. They exist to stop visual drift when multiple engineers or AI agents touch the frontend.
+
+- Product overlays must use the shared shadcn/Radix primitive layer in `components/ui/` (`Dialog`, `Sheet`, `Popover`, `DropdownMenu`) rather than one-off fixed-position or portal implementations.
+- Product enter/exit and presence animation must use `framer-motion` when the interaction is more than a simple hover, focus, or pressed state. Tailwind/CSS transitions remain appropriate for small visual state changes.
+- Mobile menus, step pickers, preview surfaces, and other temporary panels must reuse the same overlay families and spacing rules instead of inventing per-route wrappers.
+- Primary workflow actions should come from shared button primitives and keep the same height, radius, typography, icon treatment, and loading behavior across steps.
+- Product body copy, helper copy, and descriptive list text must not fall below 14 px on compact/mobile layouts. Avoid 10–11 px microcopy in feature UI.
+- Tappable controls must respect accessibility sizing: never below WCAG's 24 × 24 px minimum, and primary isolated controls (menu triggers, CTA buttons, menu rows, icon actions) should target 44–48 px hit areas in practice.
+- User-visible assistant content must always be normalized before rendering. Raw provider JSON or structured response contracts must never be shown directly in the UI.
+
+If an interaction already exists elsewhere in the product, extend the shared component or primitive before creating a new visual pattern.
+
 ## Frontend architecture rule
 
 Frontend implementation must be planned from the application level first, not page-by-page.

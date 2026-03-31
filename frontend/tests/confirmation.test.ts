@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   PAYMENT_SUCCESS_STATES,
   PAYMENT_FAILURE_STATES,
-} from "../src/hooks/use-payment-status.js";
+} from "../src/hooks/use-payment-status";
 
 // ---------------------------------------------------------------------------
 // Payment status constants

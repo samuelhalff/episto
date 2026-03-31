@@ -130,22 +130,52 @@ services:
       backend:
         condition: service_healthy
 
-  frontend:
+  zefix-proxy:
     image: node:20-alpine
     working_dir: /app
     volumes:
       - .:/app
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      ZEFIX_PROXY_BIND: "0.0.0.0"
+      ZEFIX_PROXY_PORT: "8081"
+      ZEFIX_PROXY_TIMEOUT_MS: "10000"
+      ZEFIX_BASE_URL: https://www.zefix.admin.ch
+      ZEFIX_COMPANY_SEARCH_PATH: /ZefixPublicREST/api/v1/company/search
+      ZEFIX_COMPANY_SEARCH_METHOD: POST
+    command: node services/zefix-proxy/server.mjs
+    expose:
+      - "8081"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8081/health || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+  frontend:
+    image: node:20
+    working_dir: /app/frontend
+    volumes:
+      - .:/app
+      - frontend_node_modules:/app/node_modules
+      - frontend_next_cache:/app/frontend/.next
     ports:
       - "3000:3000"
     environment:
       NODE_ENV: development
       HOSTNAME: "0.0.0.0"
+      WATCHPACK_POLLING: "true"
+      WATCHPACK_POLLING_INTERVAL: "1000"
+      CHOKIDAR_USEPOLLING: "true"
       API_URL: http://backend:4000
       NEXT_PUBLIC_API_URL: /api
       NEXT_PUBLIC_SITE_URL: https://ark-fid.ddns.net
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
       NEXT_PUBLIC_APP_ENV: development
-    command: npm run dev -w frontend
+    command: sh -c "[ -d /app/node_modules/next ] || (cd /app && npm ci --include=dev --no-fund --no-audit); find .next -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true; npm run dev"
     depends_on:
       backend:
         condition: service_healthy
@@ -170,3 +200,5 @@ volumes:
   pgdata:
   redisdata:
   miniodata:
+  frontend_node_modules:
+  frontend_next_cache:

@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
-import { apiFetch } from "../lib/api.js";
-import { useDraftStream } from "./use-draft-stream.js";
+import { apiFetch } from "../lib/api";
+import { useDraftStream } from "./use-draft-stream";
 import type { DispatchState } from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------

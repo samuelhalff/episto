@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { formatCentsAsCHF } from "../../hooks/use-pricing.js";
+import { formatCentsAsCHF } from "../../hooks/use-pricing";
 
 // ---------------------------------------------------------------------------
 // StripePaymentForm

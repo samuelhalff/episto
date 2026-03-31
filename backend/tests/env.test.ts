@@ -30,15 +30,77 @@ const EnvSchema = z.object({
   CONTENT_RETENTION_DAYS: z.coerce.number().int().positive().default(7),
   PDF_RETENTION_HOURS_POST_DISPATCH: z.coerce.number().int().positive().default(24),
   METADATA_RETENTION_YEARS: z.coerce.number().int().positive().default(7),
-  AZURE_OPENAI_ENDPOINT: z.string().url(),
-  AZURE_OPENAI_API_KEY: z.string().min(1),
+  AI_PROVIDER_MODE: z.enum(["azure_openai", "azure_ai_project_agent"]).default("azure_openai"),
+  AZURE_OPENAI_ENDPOINT: z.string().url().optional(),
+  AZURE_OPENAI_API_KEY: z.string().min(1).optional(),
   AZURE_OPENAI_API_VERSION: z.string().default("2024-06-01"),
   AI_DRAFT_MODEL: z.string().default("gpt-4.1"),
   AI_CLASSIFY_MODEL: z.string().default("gpt-4.1-mini"),
+  AZURE_AI_PROJECT_ENDPOINT: z.string().url().optional(),
+  AZURE_EXISTING_AIPROJECT_ENDPOINT: z.string().url().optional(),
+  AZURE_ENV_NAME: z.string().min(1).optional(),
+  AZURE_LOCATION: z.string().min(1).optional(),
+  AZURE_SUBSCRIPTION_ID: z.string().min(1).optional(),
+  AZURE_EXISTING_AIPROJECT_RESOURCE_ID: z.string().min(1).optional(),
+  AZURE_EXISTING_RESOURCE_ID: z.string().min(1).optional(),
+  AZURE_EXISTING_AGENT_ID: z.string().min(1).optional(),
+  AZURE_AI_AGENT_NAME: z.string().min(1).optional(),
+  AZURE_AI_AGENT_VERSION: z.string().min(1).optional(),
+  AZURE_TENANT_ID: z.string().min(1).optional(),
+  AZURE_CLIENT_ID: z.string().min(1).optional(),
+  AZURE_CLIENT_SECRET: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().startsWith("re_"),
   EMAIL_FROM: z.string().email().default("noreply@swissmail.ch"),
   CORS_ORIGIN: z.string().default("http://localhost:3000"),
-});
+}).refine(
+  (data) => {
+    if (data.AI_PROVIDER_MODE === "azure_openai") {
+      return Boolean(data.AZURE_OPENAI_ENDPOINT && data.AZURE_OPENAI_API_KEY);
+    }
+
+    return Boolean(
+      data.AZURE_AI_PROJECT_ENDPOINT &&
+        (data.AZURE_EXISTING_AGENT_ID ||
+          (data.AZURE_AI_AGENT_NAME && data.AZURE_AI_AGENT_VERSION)),
+    );
+  },
+  {
+    message:
+      "AI provider configuration is incomplete for the selected AI_PROVIDER_MODE",
+  },
+).refine(
+  (data) => {
+    if (
+      data.AZURE_AI_PROJECT_ENDPOINT &&
+      data.AZURE_EXISTING_AIPROJECT_ENDPOINT &&
+      data.AZURE_AI_PROJECT_ENDPOINT !== data.AZURE_EXISTING_AIPROJECT_ENDPOINT
+    ) {
+      return false;
+    }
+
+    return true;
+  },
+  {
+    message:
+      "AZURE_AI_PROJECT_ENDPOINT and AZURE_EXISTING_AIPROJECT_ENDPOINT must match when both are set",
+  },
+).refine(
+  (data) => {
+    if (
+      data.AZURE_EXISTING_AGENT_ID &&
+      data.AZURE_AI_AGENT_NAME &&
+      data.AZURE_AI_AGENT_VERSION
+    ) {
+      return data.AZURE_EXISTING_AGENT_ID === `${data.AZURE_AI_AGENT_NAME}:${data.AZURE_AI_AGENT_VERSION}`;
+    }
+
+    return true;
+  },
+  {
+    message:
+      "AZURE_EXISTING_AGENT_ID must match AZURE_AI_AGENT_NAME:AZURE_AI_AGENT_VERSION when both are set",
+  },
+);
 
 // Minimal valid env for tests
 const validEnv = () => ({
@@ -104,6 +166,11 @@ describe("EnvSchema — valid minimal env", () => {
     const result = EnvSchema.parse(validEnv());
     expect(result.S3_REGION).toBe("us-east-1");
   });
+
+  it("applies default AI_PROVIDER_MODE", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.AI_PROVIDER_MODE).toBe("azure_openai");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -150,6 +217,16 @@ describe("EnvSchema — missing required fields", () => {
     const e = { ...validEnv() };
     delete (e as Record<string, unknown>).RESEND_API_KEY;
     const result = EnvSchema.safeParse(e);
+    expect(result.success).toBe(false);
+  });
+
+  it("fails in azure_ai_project_agent mode without project settings", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      AI_PROVIDER_MODE: "azure_ai_project_agent",
+      AZURE_OPENAI_ENDPOINT: undefined,
+      AZURE_OPENAI_API_KEY: undefined,
+    });
     expect(result.success).toBe(false);
   });
 });
@@ -218,6 +295,56 @@ describe("EnvSchema — validation constraints", () => {
 
   it("rejects empty AZURE_OPENAI_API_KEY", () => {
     const result = EnvSchema.safeParse({ ...validEnv(), AZURE_OPENAI_API_KEY: "" });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts azure_ai_project_agent mode with required project settings", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      AI_PROVIDER_MODE: "azure_ai_project_agent",
+      AZURE_OPENAI_ENDPOINT: undefined,
+      AZURE_OPENAI_API_KEY: undefined,
+      AZURE_AI_PROJECT_ENDPOINT: "https://example.services.ai.azure.com/api/projects/example",
+      AZURE_AI_AGENT_NAME: "web-deep-search",
+      AZURE_AI_AGENT_VERSION: "5",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts azure_ai_project_agent mode with AZURE_EXISTING_AGENT_ID", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      AI_PROVIDER_MODE: "azure_ai_project_agent",
+      AZURE_OPENAI_ENDPOINT: undefined,
+      AZURE_OPENAI_API_KEY: undefined,
+      AZURE_AI_PROJECT_ENDPOINT: "https://example.services.ai.azure.com/api/projects/example",
+      AZURE_EXISTING_AGENT_ID: "swiss-mail:2",
+      AZURE_AI_AGENT_NAME: undefined,
+      AZURE_AI_AGENT_VERSION: undefined,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects mismatched Azure project endpoints when both are set", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      AZURE_AI_PROJECT_ENDPOINT: "https://example.services.ai.azure.com/api/projects/example-a",
+      AZURE_EXISTING_AIPROJECT_ENDPOINT: "https://example.services.ai.azure.com/api/projects/example-b",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects mismatched agent metadata when both forms are set", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      AI_PROVIDER_MODE: "azure_ai_project_agent",
+      AZURE_OPENAI_ENDPOINT: undefined,
+      AZURE_OPENAI_API_KEY: undefined,
+      AZURE_AI_PROJECT_ENDPOINT: "https://example.services.ai.azure.com/api/projects/example",
+      AZURE_EXISTING_AGENT_ID: "swiss-mail:2",
+      AZURE_AI_AGENT_NAME: "swiss-mail",
+      AZURE_AI_AGENT_VERSION: "3",
+    });
     expect(result.success).toBe(false);
   });
 });

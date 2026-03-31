@@ -24,9 +24,49 @@ interface HealthResponse {
   database: ServiceStatus;
   redis: ServiceStatus;
   objectStorage: ServiceStatus;
+  ai: ServiceStatus & {
+    providerMode: string;
+    agentId: string | null;
+    projectEndpoint: string | null;
+    environmentName: string | null;
+    location: string | null;
+    subscriptionId: string | null;
+    projectResourceId: string | null;
+    resourceId: string | null;
+  };
   queues: Record<string, { waiting: number; active: number; failed: number }>;
   lastPaymentAt: string | null;
   lastDispatchAt: string | null;
+}
+
+function checkAiConfiguration(): HealthResponse["ai"] {
+  const config = env();
+
+  const projectEndpoint =
+    config.AZURE_EXISTING_AIPROJECT_ENDPOINT ?? config.AZURE_AI_PROJECT_ENDPOINT ?? null;
+  const agentId =
+    config.AZURE_EXISTING_AGENT_ID ??
+    (config.AZURE_AI_AGENT_NAME && config.AZURE_AI_AGENT_VERSION
+      ? `${config.AZURE_AI_AGENT_NAME}:${config.AZURE_AI_AGENT_VERSION}`
+      : null);
+
+  const isConfigured =
+    config.AI_PROVIDER_MODE === "azure_openai"
+      ? Boolean(config.AZURE_OPENAI_ENDPOINT)
+      : Boolean(projectEndpoint && agentId);
+
+  return {
+    ok: isConfigured,
+    ...(isConfigured ? {} : { detail: "AI provider configuration is incomplete" }),
+    providerMode: config.AI_PROVIDER_MODE,
+    agentId,
+    projectEndpoint,
+    environmentName: config.AZURE_ENV_NAME ?? null,
+    location: config.AZURE_LOCATION ?? null,
+    subscriptionId: config.AZURE_SUBSCRIPTION_ID ?? null,
+    projectResourceId: config.AZURE_EXISTING_AIPROJECT_RESOURCE_ID ?? null,
+    resourceId: config.AZURE_EXISTING_RESOURCE_ID ?? null,
+  };
 }
 
 async function checkDatabase(): Promise<ServiceStatus> {
@@ -132,6 +172,7 @@ export async function adminHealthRoutes(app: FastifyInstance): Promise<void> {
       database,
       redis: queueResult.redis,
       objectStorage,
+      ai: checkAiConfiguration(),
       queues: queueResult.queues,
       lastPaymentAt,
       lastDispatchAt,

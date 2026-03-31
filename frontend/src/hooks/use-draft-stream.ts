@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import type { DocumentModel } from "@swiss-mail/shared";
-import { captureMessage } from "../lib/error-tracking.js";
+import { captureMessage } from "../lib/error-tracking";
 
 // ---------------------------------------------------------------------------
 // SSE event types per realtime-strategy.md

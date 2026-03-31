@@ -66,6 +66,27 @@ describe("parseModelResponse", () => {
     expect(parsed.response?.plainText?.text).toBe("This is just prose, not JSON.");
   });
 
+  it("ignores invalid optional sections that do not match the selected mode", () => {
+    const parsed = parseModelResponse(
+      JSON.stringify({
+        mode: "plain_text",
+        version: DOCUMENT_RESPONSE_VERSION,
+        summary: "Formal cancellation request for a Swisscom contract.",
+        plainText: {
+          text: "I hereby request the cancellation of my contract with Swisscom at the earliest possible date.",
+        },
+        structuredEdit: {
+          target: { scope: "selection" },
+          operations: [],
+        },
+      }),
+    );
+
+    expect(parsed.ok).toBe(true);
+    expect(parsed.mode).toBe("plain_text");
+    expect(parsed.response?.plainText?.text).toContain("cancellation of my contract");
+  });
+
   it("keeps pseudo-list text as plain text unless compatibility mode is enabled", () => {
     const parsed = parseModelResponse("- one\n- two", {
       expectedMode: "structured_edit",
@@ -160,6 +181,23 @@ describe("applyStructuredEdit", () => {
     expect(result.document.blocks).toHaveLength(2);
     expect(result.body).toContain("First paragraph");
     expect(result.body).toContain("Second paragraph");
+  });
+
+  it("strips locale-managed salutation and closing from plain text output", () => {
+    const result = applyStructuredEdit(
+      {
+        mode: "plain_text",
+        version: DOCUMENT_RESPONSE_VERSION,
+        plainText: {
+          text: "Dear Sir or Madam,\n\nPlease cancel the contract.\n\nYours faithfully",
+        },
+      },
+      undefined,
+      "en-CH",
+    );
+
+    expect(result.body).toBe("Please cancel the contract.");
+    expect(result.document.blocks).toHaveLength(1);
   });
 
   it("supports heading plus paragraph combinations", () => {

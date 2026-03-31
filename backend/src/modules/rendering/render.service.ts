@@ -21,7 +21,16 @@ import { createFileAsset, renderStorageKey } from "../files/file.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
 import { createLogger } from "../../shared/logging/index.js";
-import { extractAiDocumentMetadata, type DocumentModel, type DocumentBlock, type InlineSpan, type ListItem } from "@swiss-mail/shared";
+import {
+  extractAiDocumentMetadata,
+  flattenDocumentModel,
+  getLetterFraming,
+  type DocumentModel,
+  type DocumentBlock,
+  type InlineSpan,
+  type ListItem,
+} from "@swiss-mail/shared";
+import { stripLetterFramingDocument } from "@swiss-mail/shared/letter-framing";
 
 const logger = createLogger("render-service");
 
@@ -116,12 +125,20 @@ interface SnapshotData {
 function renderLetterHtml(data: SnapshotData): string {
   const sender = data.sender;
   const recipient = data.recipient;
-  const today = new Date().toLocaleDateString(data.locale, {
+  const formattedDate = new Date().toLocaleDateString(data.locale, {
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-  const document = extractAiDocumentMetadata(data.metadata)?.document ?? fallbackDocument(data.body ?? "");
+  const placeAndDate = sender?.city?.trim()
+    ? `${sender.city.trim()}, ${formattedDate}`
+    : formattedDate;
+  const document = stripLetterFramingDocument(
+    extractAiDocumentMetadata(data.metadata)?.document ?? fallbackDocument(data.body ?? ""),
+    data.locale,
+  );
+  const hasLetterContent = flattenDocumentModel(document).trim().length > 0;
+  const { salutation, closing } = getLetterFraming(data.locale);
 
   const senderBlock = sender
     ? [
@@ -169,9 +186,13 @@ function renderLetterHtml(data: SnapshotData): string {
     .sender-block {
       font-size: 9pt;
       color: #666;
+      width: 80mm;
+      margin-left: auto;
       margin-bottom: 20mm;
+      text-align: right;
     }
     .recipient-block {
+      width: 85mm;
       min-height: 30mm;
       margin-bottom: 10mm;
     }
@@ -183,8 +204,14 @@ function renderLetterHtml(data: SnapshotData): string {
       font-weight: bold;
       margin-bottom: 8mm;
     }
+    .salutation-line {
+      margin-bottom: 6mm;
+    }
     .letter-body {
       margin-bottom: 10mm;
+    }
+    .closing-line {
+      margin-top: 10mm;
     }
     .letter-paragraph {
       margin: 0 0 6mm 0;
@@ -239,9 +266,11 @@ function renderLetterHtml(data: SnapshotData): string {
 <body>
   <div class="sender-block">${senderBlock}</div>
   <div class="recipient-block">${recipientBlock}</div>
-  <div class="date-line">${escapeHtml(today)}</div>
+  <div class="date-line">${escapeHtml(placeAndDate)}</div>
   ${data.subject ? `<div class="subject-line">${escapeHtml(data.subject)}</div>` : ""}
+  ${hasLetterContent ? `<div class="salutation-line">${escapeHtml(salutation)}</div>` : ""}
   <div class="letter-body">${renderDocumentHtml(document)}</div>
+  ${hasLetterContent ? `<div class="closing-line">${escapeHtml(closing)}</div>` : ""}
   ${data.enclosureNote ? `<div class="enclosure-note">${escapeHtml(data.enclosureNote)}</div>` : ""}
 </body>
 </html>`;

@@ -7,13 +7,13 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { useDraft, useCheckout } from "../../../../../hooks/use-api.js";
-import { Link, useRouter } from "../../../../../i18n/navigation.js";
+import { useDraft, useCheckout } from "../../../../../hooks/use-api";
+import { Link, useRouter } from "../../../../../i18n/navigation";
 import { Lock, Truck, ShieldCheck, Loader2 } from "lucide-react";
-import { FlowHeader } from "../../../../../components/product/FlowHeader.js";
-import { PriceSummary } from "../../../../../components/product/PriceSummary.js";
-import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm.js";
-import { captureError } from "../../../../../lib/error-tracking.js";
+import { FlowHeader } from "../../../../../components/product/FlowHeader";
+import { PriceSummary } from "../../../../../components/product/PriceSummary";
+import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm";
+import { captureError } from "../../../../../lib/error-tracking";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
@@ -108,7 +108,7 @@ export default function CheckoutPage({
   if (draft.error || !draft.data) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <p className="text-gray-500">{tc("error")}</p>
+        <p className="text-zinc-500">{tc("error")}</p>
       </div>
     );
   }
@@ -133,7 +133,7 @@ export default function CheckoutPage({
   }
 
   return (
-    <div className="min-h-screen bg-[#f6f4ef] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
       <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
 
       <main
@@ -146,7 +146,7 @@ export default function CheckoutPage({
 
         <div className="space-y-6">
           <div className="max-w-2xl">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 dark:text-zinc-500">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
               {t("orderSummary")}
             </p>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
@@ -160,7 +160,7 @@ export default function CheckoutPage({
           {!checkout.clientSecret && (
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
               <div
-                className="rounded-[24px] bg-white p-6 shadow-sm dark:bg-zinc-900"
+                className="rounded-3xl bg-white p-6 shadow-sm dark:bg-zinc-900"
                 style={{ outline: "1px solid var(--app-border)" }}
               >
                 <label
@@ -180,7 +180,7 @@ export default function CheckoutPage({
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={errors.email ? "true" : undefined}
                   className={[
-                    "mt-3 w-full rounded-[12px] border px-4 py-3 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
+                    "mt-3 w-full rounded-xl border px-4 py-3 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
                     errors.email
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
                       : "border-zinc-200 focus:border-zinc-400 focus:ring-zinc-200 dark:border-zinc-700 dark:focus:border-zinc-500 dark:focus:ring-zinc-700",
@@ -199,7 +199,7 @@ export default function CheckoutPage({
 
               <div
                 className={[
-                  "rounded-[24px] bg-white p-5 shadow-sm",
+                  "rounded-3xl bg-white p-5 shadow-sm",
                   "dark:bg-zinc-900",
                   errors.legalConsent ? "ring-1 ring-destructive" : "",
                 ].join(" ")}
@@ -249,13 +249,13 @@ export default function CheckoutPage({
               )}
 
               <div
-                className="sticky bottom-4 z-10 rounded-[20px] bg-white/95 p-2 shadow-lg backdrop-blur-md lg:static lg:bg-transparent lg:p-0 lg:shadow-none"
+                className="sticky bottom-4 z-10 rounded-2.5xl bg-white/95 p-2 shadow-lg backdrop-blur-md lg:static lg:bg-transparent lg:p-0 lg:shadow-none"
                 style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
               >
                 <button
                   type="submit"
                   disabled={!isValid || isSubmitting}
-                  className="w-full rounded-[16px] bg-zinc-950 py-3.5 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-40 active:scale-[0.98]"
+                  className="w-full rounded-2xl bg-zinc-950 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 disabled:opacity-40 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
                 >
                   {isSubmitting ? (
                     <Loader2 className="mx-auto h-5 w-5 animate-spin" />
@@ -269,10 +269,10 @@ export default function CheckoutPage({
 
           {stripeOptions && stripePromise && (
             <div
-              className="rounded-[24px] bg-white p-6 shadow-sm"
+              className="rounded-3xl bg-white p-6 shadow-sm"
               style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
             >
-              <h2 className="mb-2 text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400">
+              <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                 {t("enterPaymentDetails")}
               </h2>
               <p className="mb-5 text-sm text-zinc-500">{t("paymentHelp")}</p>
@@ -290,7 +290,7 @@ export default function CheckoutPage({
           )}
 
           {checkout.clientSecret && !stripePromise && (
-            <div className="rounded-[24px] border border-destructive/20 bg-destructive/5 p-6">
+            <div className="rounded-3xl border border-destructive/20 bg-destructive/5 p-6">
               <p className="text-sm text-destructive">{t("paymentConfigError")}</p>
             </div>
           )}

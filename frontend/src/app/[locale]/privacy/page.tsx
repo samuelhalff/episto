@@ -1,6 +1,6 @@
 import { useTranslations } from "next-intl";
-import { Header } from "../../../components/marketing/Header.js";
-import { Footer } from "../../../components/marketing/Footer.js";
+import { Header } from "../../../components/marketing/Header";
+import { Footer } from "../../../components/marketing/Footer";
 
 export default function PrivacyPage() {
   const t = useTranslations("legal");
@@ -8,24 +8,28 @@ export default function PrivacyPage() {
   return (
     <>
       <Header />
-      <main id="main-content" className="px-6 pb-16 pt-16 md:pt-24">
+      <main id="main-content" className="px-4 pb-16 pt-16 sm:px-6 md:pt-24">
         <article className="mx-auto max-w-3xl">
-          <h1 className="text-3xl font-bold text-gray-900 md:text-4xl">
-            {t("privacyTitle")}
-          </h1>
-          <p className="mt-2 text-sm text-gray-400">
-            {t("privacyLastUpdated")}
-          </p>
-          <p className="mt-6 leading-relaxed text-gray-600">
-            {t("privacyIntro")}
-          </p>
+          <header className="mb-10">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {t("privacyLastUpdated")}
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
+              {t("privacyTitle")}
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-zinc-600 dark:text-zinc-400">
+              {t("privacyIntro")}
+            </p>
+          </header>
 
-          <LegalSection title={t("dataCollectionTitle")} note={t("legalReviewNote")} />
-          <LegalSection title={t("dataUsageTitle")} note={t("legalReviewNote")} />
-          <LegalSection title={t("dataStorageTitle")} note={t("legalReviewNote")} />
-          <LegalSection title={t("dataRetentionTitle")} note={t("legalReviewNote")} />
-          <LegalSection title={t("yourRightsTitle")} note={t("legalReviewNote")} />
-          <LegalSection title={t("contactTitle")} note={t("legalReviewNote")} />
+          <div className="space-y-6">
+            <LegalSection title={t("dataCollectionTitle")} note={t("legalReviewNote")} />
+            <LegalSection title={t("dataUsageTitle")} note={t("legalReviewNote")} />
+            <LegalSection title={t("dataStorageTitle")} note={t("legalReviewNote")} />
+            <LegalSection title={t("dataRetentionTitle")} note={t("legalReviewNote")} />
+            <LegalSection title={t("yourRightsTitle")} note={t("legalReviewNote")} />
+            <LegalSection title={t("contactTitle")} note={t("legalReviewNote")} />
+          </div>
         </article>
       </main>
       <Footer />
@@ -35,9 +39,9 @@ export default function PrivacyPage() {
 
 function LegalSection({ title, note }: { title: string; note: string }) {
   return (
-    <section className="mt-8">
-      <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      <p className="mt-2 text-sm italic text-gray-400">{note}</p>
+    <section className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6">
+      <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">{title}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-zinc-500 italic dark:text-zinc-400">{note}</p>
     </section>
   );
 }

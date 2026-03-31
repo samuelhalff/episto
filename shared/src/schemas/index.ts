@@ -11,8 +11,8 @@ import {
   FileAssetKind,
   FileStatus,
   MessageRole,
-} from "../enums.js";
-import { DRAFT_CONTENT_LIMITS } from "../limits.js";
+} from "../enums.ts";
+import { DRAFT_CONTENT_LIMITS } from "../limits.ts";
 
 // ---------------------------------------------------------------------------
 // Enum Zod schemas

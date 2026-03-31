@@ -13,7 +13,7 @@ import { createSenderProfile, createRecipientProfile } from "./profile.service.j
 import { createSnapshot } from "../rendering/snapshot.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { calculatePrice } from "../pricing/index.js";
-import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   UpdateDraftInput,
   CreateSenderProfileInput,
@@ -22,8 +22,14 @@ import {
 } from "@swiss-mail/shared";
 import { recordEvent } from "../analytics/index.js";
 import { getQueue, QUEUE_NAMES, type RenderPdfJob } from "../../queue/index.js";
+import { handleComposeFromContext } from "../ai/index.js";
+import { createLogger } from "../../shared/logging/index.js";
+import { getReviewMissingFields } from "./review-validation.js";
 
 import { z } from "zod";
+
+const logger = createLogger("draft-routes");
+const TERMINAL_DRAFT_STATES = new Set(["submitted", "dispatched", "closed"]);
 
 const TransitionBody = z.object({
   status: DraftStatusSchema,
@@ -140,6 +146,44 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  app.post(
+    "/drafts/:draftId/compose",
+    async (
+      request: FastifyRequest<{ Params: { draftId: string } }>,
+      reply: FastifyReply,
+    ) => {
+      const session = request.session!;
+      const db = getDb();
+      const { draftId } = request.params;
+
+      const draft = await getDraftById(db, draftId, session.id);
+      if (!draft) throw notFoundError("draft");
+
+      if (TERMINAL_DRAFT_STATES.has(draft.status)) {
+        throw new AppError({
+          family: "policy_refusal",
+          statusCode: 409,
+          code: "DRAFT_TERMINAL",
+          message: `Draft is in terminal state: ${draft.status}`,
+          userMessage: "This letter can no longer be edited.",
+          userAction: null,
+        });
+      }
+
+      handleComposeFromContext({
+        draftId,
+        sessionId: session.id,
+      }).catch((err) => {
+        logger.error({ err, draftId }, "Context composition handler failed");
+      });
+
+      reply.status(202).send({
+        status: "queued",
+        streamUrl: `/api/v1/drafts/${draftId}/stream`,
+      });
+    },
+  );
+
   // POST /drafts/:draftId/transition — transition draft status
   app.post(
     "/drafts/:draftId/transition",
@@ -245,23 +289,8 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
 
-      // Validate required fields for review
-      const missingFields: { field: string; message: string }[] = [];
-      if (!draft.subject)
-        missingFields.push({ field: "subject", message: "Subject is required" });
-      if (!draft.body) missingFields.push({ field: "body", message: "Body is required" });
-      if (!draft.signatureMode)
-        missingFields.push({
-          field: "signatureMode",
-          message: "Signature mode is required",
-        });
-      if (!draft.senderProfileId)
-        missingFields.push({ field: "sender", message: "Sender profile is required" });
-      if (!draft.recipientProfileId)
-        missingFields.push({
-          field: "recipient",
-          message: "Recipient profile is required",
-        });
+      // Signature is a soft warning at review; keep only the documented required fields blocking.
+      const missingFields = getReviewMissingFields(draft);
       if (missingFields.length > 0) {
         throw validationError("Required fields missing for review", missingFields);
       }

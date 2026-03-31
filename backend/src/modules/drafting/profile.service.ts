@@ -2,6 +2,15 @@ import { eq, and } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 
+function normalizeRequiredText(value: string): string {
+  return value.trim();
+}
+
+function normalizeOptionalText(value: string | null | undefined): string | null {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
 // ---------------------------------------------------------------------------
 // Sender profiles
 // ---------------------------------------------------------------------------
@@ -43,16 +52,16 @@ export async function createSenderProfile(
     .insert(schema.senderProfiles)
     .values({
       sessionId,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      company: data.company ?? null,
-      addressLine1: data.addressLine1,
-      addressLine2: data.addressLine2 ?? null,
-      postalCode: data.postalCode,
-      city: data.city,
+      firstName: normalizeRequiredText(data.firstName),
+      lastName: normalizeRequiredText(data.lastName),
+      company: normalizeOptionalText(data.company),
+      addressLine1: normalizeRequiredText(data.addressLine1),
+      addressLine2: normalizeOptionalText(data.addressLine2),
+      postalCode: normalizeRequiredText(data.postalCode),
+      city: normalizeRequiredText(data.city),
       country: data.country ?? "CH",
-      email: data.email ?? null,
-      phone: data.phone ?? null,
+      email: normalizeOptionalText(data.email),
+      phone: normalizeOptionalText(data.phone),
     })
     .returning();
 
@@ -130,14 +139,14 @@ export async function createRecipientProfile(
     .insert(schema.recipientProfiles)
     .values({
       sessionId,
-      firstName: data.firstName ?? null,
-      lastName: data.lastName ?? null,
-      company: data.company ?? null,
-      department: data.department ?? null,
-      addressLine1: data.addressLine1,
-      addressLine2: data.addressLine2 ?? null,
-      postalCode: data.postalCode,
-      city: data.city,
+      firstName: normalizeOptionalText(data.firstName),
+      lastName: normalizeOptionalText(data.lastName),
+      company: normalizeOptionalText(data.company),
+      department: normalizeOptionalText(data.department),
+      addressLine1: normalizeRequiredText(data.addressLine1),
+      addressLine2: normalizeOptionalText(data.addressLine2),
+      postalCode: normalizeRequiredText(data.postalCode),
+      city: normalizeRequiredText(data.city),
       country: data.country ?? "CH",
     })
     .returning();

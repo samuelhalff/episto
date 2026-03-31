@@ -10,7 +10,7 @@ import {
   getUploadByteLimit,
   isAllowedUploadMimeType,
 } from "@swiss-mail/shared";
-import { apiFetch } from "../lib/api.js";
+import { apiFetch } from "../lib/api";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -112,8 +112,8 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
       kind: "attachment" | "signature";
     }): Promise<FileAsset> => {
       const formData = new FormData();
-      formData.append("file", file);
       formData.append("kind", kind);
+      formData.append("file", file);
 
       // Simulate progress (actual streaming progress is not available via fetch)
       setUploadProgress(10);
