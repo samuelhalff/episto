@@ -61,3 +61,66 @@ export async function adminFetch<T>(path: string, authHeader: string): Promise<T
   }
   return res.json() as Promise<T>;
 }
+
+// ---------------------------------------------------------------------------
+// Typed admin fetchers for dashboard endpoints
+// ---------------------------------------------------------------------------
+
+import type {
+  AdminSummaryResponse,
+  AdminActiveResponse,
+  AdminFunnelResponse,
+  AdminErrorsResponse,
+  AdminLocaleResponse,
+  AdminAiResponse,
+  AdminSessionListResponse,
+  AdminRetentionInfo,
+} from "@swiss-mail/shared";
+
+export async function fetchAdminSummary(authHeader: string, period = "7d") {
+  return adminFetch<AdminSummaryResponse>(
+    `/admin/metrics/summary?period=${period}`, authHeader,
+  );
+}
+
+export async function fetchAdminActive(authHeader: string) {
+  return adminFetch<AdminActiveResponse>(
+    "/admin/metrics/active", authHeader,
+  );
+}
+
+export async function fetchAdminFunnel(authHeader: string, period = "7d") {
+  return adminFetch<AdminFunnelResponse>(
+    `/admin/metrics/funnel?period=${period}`, authHeader,
+  );
+}
+
+export async function fetchAdminErrors(authHeader: string, period = "7d") {
+  return adminFetch<AdminErrorsResponse>(
+    `/admin/metrics/errors?period=${period}`, authHeader,
+  );
+}
+
+export async function fetchAdminLocale(authHeader: string) {
+  return adminFetch<AdminLocaleResponse>(
+    "/admin/metrics/locale", authHeader,
+  );
+}
+
+export async function fetchAdminAi(authHeader: string, period = "7d") {
+  return adminFetch<AdminAiResponse>(
+    `/admin/metrics/ai?period=${period}`, authHeader,
+  );
+}
+
+export async function fetchAdminSessions(authHeader: string, params: string) {
+  return adminFetch<AdminSessionListResponse>(
+    `/admin/sessions?${params}`, authHeader,
+  );
+}
+
+export async function fetchAdminRetention(authHeader: string) {
+  return adminFetch<AdminRetentionInfo>(
+    "/admin/retention", authHeader,
+  );
+}
