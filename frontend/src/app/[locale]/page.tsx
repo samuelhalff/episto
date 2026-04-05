@@ -29,21 +29,21 @@ export default function HomePage() {
 
   const steps = [
     {
-      icon: <PenLine className="h-8 w-8 text-zinc-600" />,
+      icon: <PenLine className="h-8 w-8 text-zinc-600 dark:text-zinc-300" />,
       number: "01",
       title: t("step1Title"),
       description: t("step1Desc"),
       delay: "0.08s",
     },
     {
-      icon: <FileSearch className="h-8 w-8 text-zinc-600" />,
+      icon: <FileSearch className="h-8 w-8 text-zinc-600 dark:text-zinc-300" />,
       number: "02",
       title: t("step2Title"),
       description: t("step2Desc"),
       delay: "0.16s",
     },
     {
-      icon: <Send className="h-8 w-8 text-zinc-600" />,
+      icon: <Send className="h-8 w-8 text-zinc-600 dark:text-zinc-300" />,
       number: "03",
       title: t("step3Title"),
       description: t("step3Desc"),
@@ -53,42 +53,42 @@ export default function HomePage() {
 
   const useCases = [
     {
-      icon: <XCircle className="h-8 w-8 text-rose-500" />,
+      icon: <XCircle className="h-8 w-8 text-rose-500 dark:text-rose-400" />,
       label: t("useCaseCancel"),
-      accent: "from-rose-50 to-white",
+      accent: "from-rose-50 to-white dark:from-rose-950/40 dark:to-transparent",
       delay: "0.08s",
     },
     {
-      icon: <Home className="h-8 w-8 text-sky-600" />,
+      icon: <Home className="h-8 w-8 text-sky-600 dark:text-sky-400" />,
       label: t("useCaseLease"),
-      accent: "from-sky-50 to-white",
+      accent: "from-sky-50 to-white dark:from-sky-950/40 dark:to-transparent",
       delay: "0.14s",
     },
     {
-      icon: <FileWarning className="h-8 w-8 text-amber-600" />,
+      icon: <FileWarning className="h-8 w-8 text-amber-600 dark:text-amber-400" />,
       label: t("useCaseComplaint"),
-      accent: "from-amber-50 to-white",
+      accent: "from-amber-50 to-white dark:from-amber-950/40 dark:to-transparent",
       delay: "0.2s",
     },
     {
-      icon: <Building2 className="h-8 w-8 text-zinc-700" />,
+      icon: <Building2 className="h-8 w-8 text-zinc-700 dark:text-zinc-300" />,
       label: t("useCaseAuthority"),
-      accent: "from-zinc-100 to-white",
+      accent: "from-zinc-100 to-white dark:from-zinc-800/60 dark:to-transparent",
       delay: "0.26s",
     },
   ];
 
   const trustItems = [
     {
-      icon: <Truck className="h-8 w-8 text-zinc-500" />,
+      icon: <Truck className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />,
       label: t("trustSwissPost"),
     },
     {
-      icon: <Shield className="h-8 w-8 text-zinc-500" />,
+      icon: <Shield className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />,
       label: t("trustSecure"),
     },
     {
-      icon: <UserCheck className="h-8 w-8 text-zinc-500" />,
+      icon: <UserCheck className="h-8 w-8 text-zinc-500 dark:text-zinc-400" />,
       label: t("trustNoAccount"),
     },
   ];
@@ -103,7 +103,7 @@ export default function HomePage() {
         />
         <div
           aria-hidden="true"
-          className="animate-glow-pulse pointer-events-none absolute left-1/2 top-16 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-zinc-300/30 blur-3xl md:top-24 md:h-72 md:w-72"
+          className="animate-glow-pulse pointer-events-none absolute left-1/2 top-16 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-zinc-300/30 blur-3xl dark:bg-amber-500/10 md:top-24 md:h-72 md:w-72"
         />
         <div className="mx-auto max-w-3xl text-center">
           <div className="animate-rise-in">
@@ -142,7 +142,7 @@ export default function HomePage() {
                       className="animate-rise-in flex items-center gap-2.5 rounded-xl px-1 py-1 sm:justify-center sm:gap-3 sm:px-2 sm:py-1.5"
                       style={{ animationDelay: `${0.18 + index * 0.08}s` }}
                     >
-                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:h-9 sm:w-9">
+                      <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:h-10 sm:w-10">
                         {item.icon}
                       </span>
                       <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300 sm:text-sm">
@@ -279,7 +279,7 @@ function UseCaseCard({
       }
     >
       <div
-        className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br ${accent} sm:h-12 sm:w-12`}
+        className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${accent} sm:h-14 sm:w-14`}
       >
         {icon}
       </div>

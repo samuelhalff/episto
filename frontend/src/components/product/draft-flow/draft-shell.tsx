@@ -94,7 +94,7 @@ export function DraftShell({
           isCompressed ? "px-6 pb-1 pt-5 sm:px-8" : "px-6 pb-4 pt-7 sm:px-8 lg:px-10 lg:pb-6 lg:pt-9"
         }`}
       >
-        <div className="mx-auto w-full max-w-[680px]">
+        <div className="mx-auto w-full max-w-3xl xl:max-w-4xl">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               {!isCompactViewport ? (
@@ -128,7 +128,7 @@ export function DraftShell({
         </div>
       </div>
 
-      <div className={`mx-auto flex min-h-0 min-w-0 w-full flex-1 overflow-x-hidden ${isCompactViewport ? "" : "max-w-[680px] px-4 lg:px-10"}`}>
+      <div className={`mx-auto flex min-h-0 min-w-0 w-full flex-1 overflow-x-hidden ${isCompactViewport ? "" : "max-w-3xl px-4 lg:px-6 xl:max-w-4xl"}`}>
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">
           <ScrollShadowViewport
             onPointerDownCapture={(event) => handleSurfacePointerDown(event.target)}

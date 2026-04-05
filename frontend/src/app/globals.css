@@ -299,6 +299,14 @@
     box-shadow: 0 28px 90px rgba(160, 78, 46, 0.28);
     color: #fffaf5;
   }
+
+  .dark .marketing-cta-band {
+    background:
+      radial-gradient(circle at top, rgba(251, 191, 36, 0.12), transparent 36%),
+      linear-gradient(135deg, #7c3a1a 0%, #5c2d12 100%);
+    box-shadow: 0 28px 90px rgba(60, 20, 5, 0.5);
+    color: #fef3e2;
+  }
 }
 
 @layer utilities {
@@ -310,6 +318,12 @@
     background-size: 32px 32px;
     -webkit-mask-image: linear-gradient(to bottom, black 10%, transparent 45%);
     mask-image: linear-gradient(to bottom, black 10%, transparent 45%);
+  }
+
+  .dark .hero-grid {
+    background-image:
+      linear-gradient(rgba(251, 191, 36, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(251, 191, 36, 0.06) 1px, transparent 1px);
   }
 
   .paper-noise {

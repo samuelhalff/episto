@@ -115,9 +115,9 @@ export function MarketingActionLink({
     variant === "secondary"
       ? "btn-secondary"
       : variant === "ghostInverse"
-        ? "inline-flex items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/15 active:scale-[0.98]"
+        ? "inline-flex items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/15 active:scale-[0.98] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
         : variant === "inverse"
-          ? "inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-100 active:scale-[0.98]"
+          ? "inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-100 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
           : "btn-primary";
 
   return (
