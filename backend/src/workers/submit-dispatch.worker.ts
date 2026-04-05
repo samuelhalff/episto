@@ -9,167 +9,227 @@ import {
 } from "../queue/index.js";
 import { createLogger } from "../shared/logging/index.js";
 import { getDb, schema } from "../db/index.js";
-import { notFoundError, validationError } from "../shared/errors/index.js";
 import {
   createDispatchAttempt,
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
+import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { recordEvent } from "../modules/analytics/index.js";
+import { buildDispatchPackage } from "../modules/dispatch/dispatch-package.service.js";
+import { enqueuePaymentReceiptEmail } from "../modules/payments/payment-notifications.js";
+import {
+  canFinalizeDispatchResolution,
+  settlePaymentForDispatchResolution,
+  updateDraftStatusForDispatchResolution,
+  updateDraftStatusForDispatchSubmission,
+} from "./dispatch-settlement.js";
 
 const logger = createLogger("submit-dispatch-worker");
 
 /**
  * Submit-dispatch worker — submits a rendered letter to the postal provider.
  *
- * Trigger: Payment confirmed (captured).
+ * Trigger: Payment authorized.
  * Steps:
  *   1. Create dispatch_attempt record (state: queued)
  *   2. Load snapshot + rendered PDF + recipient details
  *   3. Submit to postal provider via adapter
- *   4. Transition dispatch state to "submitted" or "rejected"
- *   5. Transition draft status to "submitted"
- *   6. Enqueue dispatch-submitted notification email
+ *   4. Transition dispatch state to "submitted"
+ *   5. Settle payment if the provider returned a terminal result
+ *   6. Finalize dispatch/draft state or defer terminalization to reconciliation
+ *   7. Enqueue dispatch-submitted notification email
  */
+export async function processSubmitDispatchJob(
+  job: Job<SubmitDispatchJob>,
+): Promise<void> {
+  const { draftId, snapshotId, paymentId } = job.data;
+  const db = getDb();
+  const adapter = getDispatchAdapter();
+  const capabilities = adapter.getCapabilities();
+
+  logger.info({ draftId, snapshotId, paymentId }, "Starting dispatch submission");
+
+  // 1. Create dispatch attempt
+  const attempt = await createDispatchAttempt(db, {
+    draftId,
+    snapshotId,
+    paymentAttemptId: paymentId,
+    providerName: capabilities.providerName,
+  });
+
+  const dispatchPackage = await buildDispatchPackage(db, draftId, snapshotId);
+
+  let result;
+  try {
+    result = await adapter.submit(dispatchPackage);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Unknown error";
+    await transitionDispatchState(db, attempt.id, "rejected", {
+      failureReason: message,
+    });
+
+    logger.error({ draftId, dispatchId: attempt.id, err: message }, "Dispatch rejected");
+    throw err; // Re-throw for BullMQ retry logic
+  }
+
+  await transitionDispatchState(db, attempt.id, "submitted", {
+    providerReference: result.providerReference ?? undefined,
+    trackingNumber: result.trackingNumber ?? undefined,
+    providerPayload: result.providerPayload,
+  });
+
+  recordEvent({
+    event: "dispatch_submitted",
+    draftId,
+    dispatchAttemptId: attempt.id,
+    deliveryType: dispatchPackage.deliveryType,
+  });
+
+  if (result.state === "accepted" || result.state === "rejected") {
+    try {
+      const settlement = await settlePaymentForDispatchResolution(
+        db,
+        draftId,
+        paymentId,
+        result.state,
+      );
+
+      if (!canFinalizeDispatchResolution(result.state, settlement.payment)) {
+        throw new Error(
+          `Cannot finalize dispatch ${attempt.id} as ${result.state} while payment is ${settlement.payment?.state ?? "missing"}`,
+        );
+      }
+
+      await updateDraftStatusForDispatchResolution(
+        db,
+        draftId,
+        result.state,
+        settlement.payment,
+      );
+
+      await transitionDispatchState(db, attempt.id, result.state, {
+        providerReference: result.providerReference ?? undefined,
+        trackingNumber: result.trackingNumber ?? undefined,
+        providerPayload: result.providerPayload,
+        failureReason: result.failureReason ?? undefined,
+      });
+
+      if (settlement.payment && settlement.rawOrderAccessToken) {
+        try {
+          await enqueuePaymentReceiptEmail(
+            db,
+            settlement.payment,
+            settlement.rawOrderAccessToken,
+          );
+        } catch (receiptErr) {
+          logger.error(
+            {
+              draftId,
+              dispatchId: attempt.id,
+              err: receiptErr instanceof Error ? receiptErr.message : "Unknown error",
+            },
+            "Failed to enqueue payment receipt email after dispatch settlement",
+          );
+        }
+      }
+    } catch (err) {
+      logger.error(
+        {
+          draftId,
+          dispatchId: attempt.id,
+          err: err instanceof Error ? err.message : "Unknown error",
+        },
+        "Dispatch settlement failed after provider submission; deferring to reconciliation",
+      );
+
+      try {
+        await updateDraftStatusForDispatchSubmission(db, draftId, "submitted");
+      } catch (statusErr) {
+        logger.error(
+          {
+            draftId,
+            dispatchId: attempt.id,
+            err: statusErr instanceof Error ? statusErr.message : "Unknown error",
+          },
+          "Failed to keep draft in submitted state while deferring reconciliation",
+        );
+      }
+
+      try {
+        await enqueueDispatchReconciliation({ dispatchAttemptId: attempt.id });
+      } catch (reconcileErr) {
+        logger.error(
+          {
+            draftId,
+            dispatchId: attempt.id,
+            err: reconcileErr instanceof Error ? reconcileErr.message : "Unknown error",
+          },
+          "Failed to enqueue dispatch reconciliation after settlement failure",
+        );
+      }
+
+      job.log(`Dispatch settlement deferred for reconciliation: ${attempt.id}`);
+      return;
+    }
+  } else {
+    await updateDraftStatusForDispatchSubmission(db, draftId, "submitted");
+  }
+
+  try {
+    const [draft] = await db
+      .select({ sessionId: schema.draftLetters.sessionId })
+      .from(schema.draftLetters)
+      .where(eq(schema.draftLetters.id, draftId))
+      .limit(1);
+
+    const [session] = draft
+      ? await db
+          .select()
+          .from(schema.sessions)
+          .where(eq(schema.sessions.id, draft.sessionId))
+          .limit(1)
+      : [];
+
+    if (session?.email && result.state !== "rejected") {
+      const emailQueue = getQueue(QUEUE_NAMES.SEND_EMAIL);
+      await emailQueue.add("dispatch-submitted", {
+        to: session.email,
+        template: "dispatch-submitted",
+        locale: session.locale,
+        data: { orderRef: draftId },
+      } satisfies SendEmailJob);
+    }
+
+    logger.info(
+      {
+        draftId,
+        dispatchId: attempt.id,
+        ref: result.providerReference,
+        state: result.state,
+      },
+      "Dispatch submission processed",
+    );
+
+    job.log(
+      `Dispatch processed: ref=${result.providerReference ?? "n/a"} state=${result.state}`,
+    );
+  } catch (err) {
+    logger.error(
+      {
+        draftId,
+        dispatchId: attempt.id,
+        err: err instanceof Error ? err.message : "Unknown error",
+      },
+      "Post-submit follow-up failed",
+    );
+  }
+}
+
 export function startSubmitDispatchWorker(): Worker<SubmitDispatchJob> {
   return createWorker<SubmitDispatchJob>(
     QUEUE_NAMES.SUBMIT_DISPATCH,
-    async (job: Job<SubmitDispatchJob>) => {
-      const { draftId, snapshotId, paymentId } = job.data;
-      const db = getDb();
-      const adapter = getDispatchAdapter();
-
-      logger.info({ draftId, snapshotId, paymentId }, "Starting dispatch submission");
-
-      // 1. Create dispatch attempt
-      const attempt = await createDispatchAttempt(db, {
-        draftId,
-        snapshotId,
-        providerName: "swiss-post-direct",
-      });
-
-      // 2. Load snapshot data to get recipient and PDF info
-      const [snapshot] = await db
-        .select()
-        .from(schema.draftSnapshots)
-        .where(eq(schema.draftSnapshots.id, snapshotId))
-        .limit(1);
-
-      if (!snapshot) {
-        throw notFoundError(`snapshot ${snapshotId}`);
-      }
-
-      const snapshotData = snapshot.snapshotData as {
-        deliveryType?: string;
-        recipient?: {
-          firstName?: string;
-          lastName?: string;
-          company?: string;
-          addressLine1: string;
-          postalCode: string;
-          city: string;
-          country: string;
-        };
-      };
-
-      if (!snapshotData.recipient) {
-        throw validationError(`Snapshot ${snapshotId} missing recipient data`);
-      }
-
-      // Get the rendered PDF storage key
-      const pdfAsset = snapshot.renderedPdfAssetId
-        ? await db
-            .select()
-            .from(schema.fileAssets)
-            .where(eq(schema.fileAssets.id, snapshot.renderedPdfAssetId))
-            .limit(1)
-            .then((rows) => rows[0])
-        : null;
-
-      if (!pdfAsset) {
-        throw notFoundError(`rendered PDF for snapshot ${snapshotId}`);
-      }
-
-      // 3. Submit to provider
-      const recipient = snapshotData.recipient;
-      const recipientName = [recipient.firstName, recipient.lastName, recipient.company]
-        .filter(Boolean)
-        .join(" ");
-
-      try {
-        const result = await adapter.submitJob(
-          pdfAsset.storageKey,
-          {
-            name: recipientName,
-            addressLine1: recipient.addressLine1,
-            postalCode: recipient.postalCode,
-            city: recipient.city,
-            country: recipient.country,
-          },
-          snapshotData.deliveryType ?? "standard",
-        );
-
-        // 4. Transition to submitted
-        await transitionDispatchState(db, attempt.id, "submitted", {
-          providerReference: result.providerReference,
-          providerPayload: result.providerPayload,
-        });
-
-        recordEvent({
-          event: "dispatch_submitted",
-          draftId,
-          dispatchAttemptId: attempt.id,
-          deliveryType: snapshotData.deliveryType ?? "standard",
-        });
-
-        // 5. Transition draft to submitted
-        await db
-          .update(schema.draftLetters)
-          .set({ status: "submitted", updatedAt: new Date() })
-          .where(eq(schema.draftLetters.id, draftId));
-
-        // 6. Enqueue notification email
-        const [draft] = await db
-          .select({ sessionId: schema.draftLetters.sessionId })
-          .from(schema.draftLetters)
-          .where(eq(schema.draftLetters.id, draftId))
-          .limit(1);
-
-        const [session] = draft
-          ? await db
-              .select()
-              .from(schema.sessions)
-              .where(eq(schema.sessions.id, draft.sessionId))
-              .limit(1)
-          : [];
-
-        if (session?.email) {
-          const emailQueue = getQueue(QUEUE_NAMES.SEND_EMAIL);
-          await emailQueue.add("dispatch-submitted", {
-            to: session.email,
-            template: "dispatch-submitted",
-            locale: session.locale,
-            data: { orderRef: draftId },
-          } satisfies SendEmailJob);
-        }
-
-        logger.info(
-          { draftId, dispatchId: attempt.id, ref: result.providerReference },
-          "Dispatch submitted successfully",
-        );
-
-        job.log(`Dispatch submitted: ref=${result.providerReference}`);
-      } catch (err) {
-        // If provider rejects, record the failure
-        const message = err instanceof Error ? err.message : "Unknown error";
-        await transitionDispatchState(db, attempt.id, "rejected", {
-          failureReason: message,
-        });
-
-        logger.error({ draftId, dispatchId: attempt.id, err: message }, "Dispatch rejected");
-        throw err; // Re-throw for BullMQ retry logic
-      }
-    },
+    processSubmitDispatchJob,
     { concurrency: 3 },
   );
 }

@@ -175,7 +175,7 @@ export const SnapshotDataSchema = z.object({
   recipient: SnapshotRecipientSchema,
   attachmentAssetIds: z.array(z.string().uuid()),
   signatureAssetId: z.string().uuid().nullable(),
-  estimatedPages: z.number().int().nullable(),
+  estimatedPages: z.number().int().nullable().optional().default(null),
   metadata: z.record(z.unknown()).nullable(),
 });
 
@@ -230,10 +230,19 @@ export const ConversationMessageSchema = z.object({
 // ---------------------------------------------------------------------------
 
 export const PaymentBreakdownSchema = z.object({
-  base: z.number().int().nonnegative(),
-  pages: z.number().int().nonnegative(),
-  delivery: z.number().int().nonnegative(),
-  attachments: z.number().int().nonnegative(),
+  deliveryType: DeliveryTypeSchema,
+  providerQuotedCents: z.number().int().nonnegative(),
+  swissMailMarkupCents: z.number().int().nonnegative(),
+  totalCents: z.number().int().nonnegative(),
+  providerQuoteReference: z.string().nullable(),
+  attachmentHandling: z.enum(["excluded", "single_hint", "unverified"]),
+  lineItems: z.array(
+    z.object({
+      label: z.string().min(1),
+      amountCents: z.number().int(),
+      source: z.enum(["provider", "swiss_mail"]),
+    }),
+  ),
 });
 
 export const PaymentAttemptSchema = z.object({
@@ -260,9 +269,11 @@ export const DispatchAttemptSchema = z.object({
   id: z.string().uuid(),
   draftId: z.string().uuid(),
   snapshotId: z.string().uuid(),
+  paymentAttemptId: z.string().uuid().nullable(),
   state: DispatchStateSchema,
   providerName: z.string(),
   providerReference: z.string().nullable(),
+  trackingNumber: z.string().nullable(),
   submittedAt: z.coerce.date().nullable(),
   lastCheckedAt: z.coerce.date().nullable(),
   failureReason: z.string().nullable(),

@@ -24,9 +24,9 @@ export function FlowHeader({
   const tc = useTranslations("common");
 
   return (
-    <header className="sticky top-0 z-40 bg-[var(--app-surface-muted)]/95 shadow-[0_1px_0_rgba(0,0,0,0.04)] backdrop-blur-md transition-colors dark:bg-zinc-950/92 dark:shadow-[0_1px_0_rgba(255,255,255,0.06)]">
+    <header className="border-b border-[var(--app-border)] bg-[var(--app-surface-strong)] transition-colors">
       <div className="mx-auto max-w-6xl px-3 sm:px-6">
-        <div className="flex h-14 items-center gap-3">
+        <div className="flex min-h-14 items-center gap-3 py-3">
           <Link
             href="/"
             className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold tracking-[-0.02em] text-zinc-950 dark:text-zinc-50"

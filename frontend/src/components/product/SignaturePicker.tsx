@@ -88,12 +88,8 @@ export function SignaturePicker({
                 : "border-border bg-card hover:border-primary/50",
             ].join(" ")}
           >
-            {mode === m && (
-              <Check className="mb-1 h-4 w-4 text-primary" aria-hidden />
-            )}
-            <span className="block text-sm font-medium">
-              {t(`mode.${m}.label`)}
-            </span>
+            {mode === m && <Check className="mb-1 h-4 w-4 text-primary" aria-hidden />}
+            <span className="block text-sm font-medium">{t(`mode.${m}.label`)}</span>
             <span className="block text-xs text-muted-foreground">
               {t(`mode.${m}.description`)}
             </span>
@@ -120,7 +116,7 @@ export function SignaturePicker({
           {signatureAsset ? (
             <div className="flex items-center gap-3 rounded-lg border border-border bg-card px-3 py-2">
               <img
-                src={getApiUrl(`/v1/drafts/files/${signatureAsset.id}`)}
+                src={getApiUrl(`/v1/files/${signatureAsset.id}/download`)}
                 alt={t("imageAlt")}
                 className="h-12 max-w-[200px] object-contain"
               />
@@ -144,9 +140,7 @@ export function SignaturePicker({
               <span className="text-sm text-muted-foreground">
                 {isUploading ? t("uploading") : t("uploadPrompt")}
               </span>
-              <span className="text-xs text-muted-foreground/60">
-                {t("uploadHint")}
-              </span>
+              <span className="text-xs text-muted-foreground/60">{t("uploadHint")}</span>
             </button>
           )}
 

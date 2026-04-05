@@ -1,4 +1,5 @@
 import { eq, sql } from "drizzle-orm";
+import { SnapshotDataSchema } from "@swiss-mail/shared";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
@@ -26,6 +27,8 @@ export async function createSnapshot(
   draftId: string,
   snapshotData: unknown,
 ): Promise<SnapshotRow> {
+  const normalizedSnapshotData = SnapshotDataSchema.parse(snapshotData);
+
   // Get the next version number
   const [latest] = await db
     .select({ version: schema.draftSnapshots.version })
@@ -42,7 +45,7 @@ export async function createSnapshot(
       draftId,
       version: nextVersion,
       schemaVersion: 1,
-      snapshotData,
+      snapshotData: normalizedSnapshotData,
     })
     .returning();
 
@@ -74,10 +77,29 @@ export async function setSnapshotPdfAsset(
   db: Db,
   snapshotId: string,
   pdfAssetId: string,
+  estimatedPages: number,
 ): Promise<void> {
+  const [snapshot] = await db
+    .select({
+      id: schema.draftSnapshots.id,
+      snapshotData: schema.draftSnapshots.snapshotData,
+    })
+    .from(schema.draftSnapshots)
+    .where(eq(schema.draftSnapshots.id, snapshotId))
+    .limit(1);
+
+  if (!snapshot) throw notFoundError("snapshot");
+
+  const snapshotData = SnapshotDataSchema.parse(snapshot.snapshotData);
   const result = await db
     .update(schema.draftSnapshots)
-    .set({ renderedPdfAssetId: pdfAssetId })
+    .set({
+      renderedPdfAssetId: pdfAssetId,
+      snapshotData: {
+        ...snapshotData,
+        estimatedPages,
+      },
+    })
     .where(eq(schema.draftSnapshots.id, snapshotId))
     .returning({ id: schema.draftSnapshots.id });
 

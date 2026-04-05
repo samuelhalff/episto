@@ -1,6 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "../../i18n/navigation";
 import {
   ArrowRight,
   Building2,
@@ -15,8 +14,15 @@ import {
   UserCheck,
   XCircle,
 } from "lucide-react";
-import { Header } from "../../components/marketing/Header";
-import { Footer } from "../../components/marketing/Footer";
+import { FinalCTABand } from "../../components/marketing/FinalCTABand";
+import { MarketingLayout } from "../../components/marketing/MarketingLayout";
+import { PricingFromText } from "../../components/marketing/PricingFromText";
+import {
+  MarketingActionLink,
+  MarketingBadge,
+  MarketingCard,
+  MarketingSection,
+} from "../../components/marketing/primitives";
 
 export default function HomePage() {
   const t = useTranslations("marketing");
@@ -88,148 +94,124 @@ export default function HomePage() {
   ];
 
   return (
-    <>
-      <Header />
-      <main id="main-content" className="transition-colors dark:text-zinc-50">
-        {/* Hero — single-column centered */}
-        <section className="relative overflow-hidden px-4 pb-8 pt-12 sm:px-6 sm:pb-12 sm:pt-16 md:pb-16 md:pt-20 lg:pb-20 lg:pt-28">
-          <div
-            aria-hidden="true"
-            className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[70%] rounded-[2.5rem] opacity-30 md:inset-x-8 md:rounded-[3rem]"
-          />
-          <div
-            aria-hidden="true"
-            className="animate-glow-pulse pointer-events-none absolute left-1/2 top-16 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-zinc-300/30 blur-3xl md:top-24 md:h-72 md:w-72"
-          />
-          <div className="mx-auto max-w-3xl text-center">
-            <div className="animate-rise-in">
-              <div
-                className="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-1.5 text-[11px] font-semibold uppercase tracking-widest text-zinc-600 shadow-sm dark:bg-zinc-900 dark:text-zinc-200 sm:px-4 sm:py-2 sm:text-xs"
-                style={{ outline: "1px solid var(--app-border)" }}
-              >
-                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {t("heroPanelBadge")}
-              </div>
-              <h1 className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:mt-5 sm:text-5xl md:mt-7 md:text-6xl lg:text-7xl">
-                {t("heroTitle")}
-              </h1>
-              <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300 sm:mt-5 sm:text-base sm:leading-7 md:mt-5 md:text-lg md:leading-8 lg:text-xl">
-                {t("heroSubtitle")}
-              </p>
-              <div className="mt-6 flex flex-col items-center gap-3 sm:mt-8 sm:flex-row sm:justify-center sm:gap-4">
-                <Link
-                  href="/draft/new"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-950 px-5 py-3.5 text-sm font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300 sm:w-auto sm:px-7 sm:py-4 sm:text-base"
-                >
-                  {t("heroCta")}
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link
-                  href="/help"
-                  className="inline-flex w-full items-center justify-center rounded-2xl bg-white px-5 py-3.5 text-sm font-medium text-zinc-700 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-100 dark:hover:bg-zinc-800 sm:w-auto sm:px-7 sm:py-4 sm:text-base"
-                  style={{ outline: "1px solid var(--app-border)" }}
-                >
-                  {t("faqCta")}
-                </Link>
-              </div>
-              <div className="mx-auto mt-10 max-w-xl sm:mt-14">
-                <div
-                  className="rounded-3xl bg-white px-4 py-4 shadow-sm dark:bg-zinc-900 sm:px-6 sm:py-5"
-                  style={{ outline: "1px solid var(--app-border)" }}
-                >
-                  <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
-                    {trustItems.map((item, index) => (
-                      <div
-                        key={item.label}
-                        className="animate-rise-in flex items-center gap-2.5 rounded-xl px-1 py-1 sm:justify-center sm:gap-3 sm:px-2 sm:py-1.5"
-                        style={{ animationDelay: `${0.18 + index * 0.08}s` }}
-                      >
-                          <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:h-9 sm:w-9">
-                          {item.icon}
-                        </span>
-                          <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300 sm:text-sm">
-                          {item.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works */}
-        <section className="bg-[var(--app-surface-muted)]/50 px-4 py-12 transition-colors dark:bg-zinc-900/40 sm:px-6 sm:py-16 md:py-24 lg:py-28">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-10 text-center sm:mb-12 md:mb-16">
-                <h2 className="text-2xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-3xl md:text-4xl lg:text-5xl">
-                {t("howItWorksTitle")}
-              </h2>
-            </div>
-            <div className="grid gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
-              {steps.map((step) => (
-                <StepCard
-                  key={step.number}
-                  icon={step.icon}
-                  number={step.number}
-                  title={step.title}
-                  description={step.description}
-                  delay={step.delay}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Use Cases */}
-        <section className="px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
-          <div className="mx-auto max-w-7xl">
-            <div className="mb-10 text-center sm:mb-12 md:mb-16">
-                <h2 className="text-2xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-3xl md:text-4xl lg:text-5xl">
-                {t("useCasesTitle")}
-              </h2>
-            </div>
-            <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
-              {useCases.map((useCase) => (
-                <UseCaseCard
-                  key={useCase.label}
-                  icon={useCase.icon}
-                  label={useCase.label}
-                  accent={useCase.accent}
-                  delay={useCase.delay}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Final CTA */}
-        <section className="px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28">
-          <div className="mx-auto max-w-7xl overflow-hidden rounded-3xl bg-zinc-950 px-6 py-10 text-center text-white dark:bg-zinc-900 sm:rounded-4xl sm:px-10 md:px-16 md:py-16">
-            <p className="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-6xl">
-              {t("pricingFrom")}
+    <MarketingLayout mainClassName="transition-colors dark:text-zinc-50">
+      {/* Hero — single-column centered */}
+      <section className="relative overflow-hidden px-4 pb-8 pt-12 sm:px-6 sm:pb-12 sm:pt-16 md:pb-16 md:pt-20 lg:pb-20 lg:pt-28">
+        <div
+          aria-hidden="true"
+          className="hero-grid pointer-events-none absolute inset-x-4 top-0 -z-10 h-[70%] rounded-[2.5rem] opacity-30 md:inset-x-8 md:rounded-[3rem]"
+        />
+        <div
+          aria-hidden="true"
+          className="animate-glow-pulse pointer-events-none absolute left-1/2 top-16 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-zinc-300/30 blur-3xl md:top-24 md:h-72 md:w-72"
+        />
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="animate-rise-in">
+            <MarketingBadge className="text-zinc-600 dark:text-zinc-200">
+              <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+              {t("heroPanelBadge")}
+            </MarketingBadge>
+            <h1 className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:mt-5 sm:text-5xl md:mt-7 md:text-6xl lg:text-7xl">
+              {t("heroTitle")}
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-sm leading-6 text-zinc-600 dark:text-zinc-300 sm:mt-5 sm:text-base sm:leading-7 md:mt-5 md:text-lg md:leading-8 lg:text-xl">
+              {t("heroSubtitle")}
             </p>
-            <p className="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/60 sm:mt-4 sm:text-base">
-              {t("pricingNotes")}
-            </p>
-            <h2 className="mx-auto mt-8 max-w-3xl text-2xl font-semibold tracking-[-0.05em] sm:mt-10 sm:text-4xl md:text-5xl">
-              {t("ctaTitle")}
-            </h2>
-            <div className="mt-8 sm:mt-10">
-              <Link
+            <div className="mt-6 flex flex-col items-center gap-3 sm:mt-8 sm:flex-row sm:justify-center sm:gap-4">
+              <MarketingActionLink
                 href="/draft/new"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-7 py-3.5 text-sm font-semibold text-zinc-950 transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-100 active:scale-[0.98] dark:bg-amber-400 dark:hover:bg-amber-300 sm:px-8 sm:py-4 sm:text-base"
+                className="w-full sm:w-auto sm:px-7 sm:py-4 sm:text-base"
               >
-                {t("ctaButton")}
+                {t("heroCta")}
                 <ArrowRight className="h-4 w-4" />
-              </Link>
+              </MarketingActionLink>
+              <MarketingActionLink
+                href="/help"
+                variant="secondary"
+                className="w-full sm:w-auto sm:px-7 sm:py-4 sm:text-base"
+              >
+                {t("faqCta")}
+              </MarketingActionLink>
+            </div>
+            <div className="mx-auto mt-10 max-w-xl sm:mt-14">
+              <MarketingCard className="rounded-3xl px-4 py-4 sm:px-6 sm:py-5">
+                <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3 sm:gap-3">
+                  {trustItems.map((item, index) => (
+                    <div
+                      key={item.label}
+                      className="animate-rise-in flex items-center gap-2.5 rounded-xl px-1 py-1 sm:justify-center sm:gap-3 sm:px-2 sm:py-1.5"
+                      style={{ animationDelay: `${0.18 + index * 0.08}s` }}
+                    >
+                      <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 dark:bg-zinc-800 sm:h-9 sm:w-9">
+                        {item.icon}
+                      </span>
+                      <span className="text-xs font-medium text-zinc-600 dark:text-zinc-300 sm:text-sm">
+                        {item.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </MarketingCard>
             </div>
           </div>
-        </section>
-      </main>
-      <Footer />
-    </>
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <MarketingSection muted>
+        <div className="mb-10 text-center sm:mb-12 md:mb-16">
+          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-3xl md:text-4xl lg:text-5xl">
+            {t("howItWorksTitle")}
+          </h2>
+        </div>
+        <div className="grid gap-4 sm:gap-5 lg:grid-cols-3 lg:gap-6">
+          {steps.map((step) => (
+            <StepCard
+              key={step.number}
+              icon={step.icon}
+              number={step.number}
+              title={step.title}
+              description={step.description}
+              delay={step.delay}
+            />
+          ))}
+        </div>
+      </MarketingSection>
+
+      {/* Use Cases */}
+      <MarketingSection>
+        <div className="mb-10 text-center sm:mb-12 md:mb-16">
+          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-3xl md:text-4xl lg:text-5xl">
+            {t("useCasesTitle")}
+          </h2>
+        </div>
+        <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+          {useCases.map((useCase) => (
+            <UseCaseCard
+              key={useCase.label}
+              icon={useCase.icon}
+              label={useCase.label}
+              accent={useCase.accent}
+              delay={useCase.delay}
+            />
+          ))}
+        </div>
+      </MarketingSection>
+
+      {/* Final CTA */}
+      <MarketingSection>
+        <FinalCTABand
+          title={t("ctaTitle")}
+          body={
+            <PricingFromText
+              titleClassName="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-6xl"
+              noteClassName="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/70 sm:mt-4 sm:text-base"
+            />
+          }
+          primaryAction={{ href: "/draft/new", label: t("ctaButton") }}
+        />
+      </MarketingSection>
+    </MarketingLayout>
   );
 }
 
@@ -247,8 +229,8 @@ function StepCard({
   delay: string;
 }) {
   return (
-    <article
-      className="animate-rise-in rounded-2.5xl bg-white p-5 shadow-sm transition-colors dark:bg-zinc-900 sm:rounded-3xl sm:p-7"
+    <MarketingCard
+      className="animate-rise-in rounded-2.5xl p-5 sm:rounded-3xl sm:p-7"
       style={
         { animationDelay: delay, outline: "1px solid var(--app-border)" } as CSSProperties
       }
@@ -274,7 +256,7 @@ function StepCard({
       <span className="mt-2 hidden text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500 sm:block">
         {number}
       </span>
-    </article>
+    </MarketingCard>
   );
 }
 
@@ -290,8 +272,8 @@ function UseCaseCard({
   delay: string;
 }) {
   return (
-    <article
-      className="animate-rise-in group rounded-2.5xl bg-white p-4 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:bg-zinc-900 sm:rounded-3xl sm:p-6"
+    <MarketingCard
+      className="animate-rise-in group rounded-2.5xl p-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-md sm:rounded-3xl sm:p-6"
       style={
         { animationDelay: delay, outline: "1px solid var(--app-border)" } as CSSProperties
       }
@@ -304,6 +286,6 @@ function UseCaseCard({
       <h3 className="mt-3 text-sm font-semibold tracking-[-0.03em] text-zinc-950 dark:text-zinc-50 sm:mt-6 sm:text-xl">
         {label}
       </h3>
-    </article>
+    </MarketingCard>
   );
 }

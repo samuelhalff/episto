@@ -3,53 +3,49 @@ import { describe, it, expect, vi } from "vitest";
 // Mock the env module before importing the routes
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
-    PRICE_STANDARD_CENTS: 490,
-    PRICE_REGISTERED_CENTS: 890,
+    PRICE_STANDARD_MARKUP_CENTS: 340,
+    PRICE_REGISTERED_MARKUP_CENTS: 340,
+    EPOST_STANDARD_POSTAGE: "A_POST",
+    EPOST_REGISTERED_POSTAGE: "REGISTERED",
   }),
 }));
 
-import { calculatePrice, formatCHF } from "../src/modules/pricing/index.js";
+import { getPublicPricing } from "../src/modules/pricing/index.js";
 
 describe("pricing routes — response shape", () => {
   it("returns correct standard pricing tier", () => {
-    const standard = calculatePrice("standard");
-    expect(standard.totalCents).toBe(490);
-    const display = formatCHF(standard.totalCents);
-    expect(display).toBe("CHF 4.90");
-    // Verify the shape the route handler would produce
-    const tier = {
-      totalCents: standard.totalCents,
-      displayPrice: display,
-      currency: "CHF" as const,
-    };
-    expect(tier).toEqual({
-      totalCents: 490,
-      displayPrice: "CHF 4.90",
+    const pricing = getPublicPricing();
+
+    expect(pricing.standard).toEqual({
+      totalCents: 495,
+      displayPrice: "CHF 4.95",
       currency: "CHF",
+      providerQuotedCents: 155,
+      providerQuotedDisplayPrice: "CHF 1.55",
+      swissMailMarkupCents: 340,
+      swissMailMarkupDisplayPrice: "CHF 3.40",
     });
   });
 
   it("returns correct registered pricing tier", () => {
-    const registered = calculatePrice("registered");
-    expect(registered.totalCents).toBe(890);
-    const display = formatCHF(registered.totalCents);
-    expect(display).toBe("CHF 8.90");
-    const tier = {
-      totalCents: registered.totalCents,
-      displayPrice: display,
-      currency: "CHF" as const,
-    };
-    expect(tier).toEqual({
-      totalCents: 890,
-      displayPrice: "CHF 8.90",
+    const pricing = getPublicPricing();
+
+    expect(pricing.registered).toEqual({
+      totalCents: 918,
+      displayPrice: "CHF 9.18",
       currency: "CHF",
+      providerQuotedCents: 578,
+      providerQuotedDisplayPrice: "CHF 5.78",
+      swissMailMarkupCents: 340,
+      swissMailMarkupDisplayPrice: "CHF 3.40",
     });
   });
 
   it("standard and registered prices differ", () => {
-    const standard = calculatePrice("standard");
-    const registered = calculatePrice("registered");
-    expect(standard.totalCents).not.toBe(registered.totalCents);
-    expect(registered.totalCents).toBeGreaterThan(standard.totalCents);
+    const pricing = getPublicPricing();
+
+    expect(pricing.standard.totalCents).not.toBe(pricing.registered.totalCents);
+    expect(pricing.registered.totalCents).toBeGreaterThan(pricing.standard.totalCents);
+    expect(pricing.registeredSurchargeCents).toBe(423);
   });
 });

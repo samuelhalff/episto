@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { Paperclip, Trash2, FileText, Image, Loader2, CheckCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { FileAsset } from "@swiss-mail/shared";
+import type { DraftAttachmentConstraints, FileAsset } from "@swiss-mail/shared";
 import { toast } from "sonner";
 
 // ---------------------------------------------------------------------------
@@ -12,23 +12,15 @@ import { toast } from "sonner";
 
 interface AttachmentUploaderProps {
   attachments: FileAsset[];
+  attachmentConstraints: DraftAttachmentConstraints;
   isUploading: boolean;
+  removingFileId?: string | null;
   uploadProgress: number;
   validationError: string | null;
   onUpload: (file: File) => Promise<void>;
   onRemove: (fileId: string) => Promise<void>;
   isCompactViewport?: boolean | undefined;
 }
-
-// ---------------------------------------------------------------------------
-// Constants — must match docs/04-product/file-handling.md
-// ---------------------------------------------------------------------------
-
-const MAX_ATTACHMENTS = 5;
-const MAX_TOTAL_MB = 20;
-const MAX_FILE_MB = 5;
-const ALLOWED_EXTENSIONS = "PDF, PNG, JPG";
-const ALLOWED_MIME = new Set(["application/pdf", "image/png", "image/jpeg"]);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -66,6 +58,23 @@ function getDuplicateSignature(name: string, sizeBytes: number): string {
   return `${name.trim().toLowerCase()}::${sizeBytes}`;
 }
 
+function formatAllowedAttachmentFormats(allowedMimeTypes: readonly string[]): string {
+  return allowedMimeTypes
+    .map((mimeType) => {
+      switch (mimeType) {
+        case "application/pdf":
+          return "PDF";
+        case "image/png":
+          return "PNG";
+        case "image/jpeg":
+          return "JPG";
+        default:
+          return mimeType.toUpperCase();
+      }
+    })
+    .join(", ");
+}
+
 async function hashFile(file: File): Promise<string> {
   if (typeof crypto === "undefined" || !crypto.subtle) {
     return getDuplicateSignature(file.name, file.size);
@@ -84,7 +93,9 @@ async function hashFile(file: File): Promise<string> {
 
 export function AttachmentUploader({
   attachments,
+  attachmentConstraints,
   isUploading,
+  removingFileId = null,
   uploadProgress,
   validationError,
   onUpload,
@@ -105,7 +116,9 @@ export function AttachmentUploader({
 
   useEffect(() => {
     const activeSignatures = new Set(
-      attachments.map((file) => getDuplicateSignature(getFilenameLabel(file), file.sizeBytes ?? 0)),
+      attachments.map((file) =>
+        getDuplicateSignature(getFilenameLabel(file), file.sizeBytes ?? 0),
+      ),
     );
 
     for (const [hash, signature] of uploadedHashMapRef.current.entries()) {
@@ -128,10 +141,22 @@ export function AttachmentUploader({
 
   const totalBytes = attachments.reduce((sum, f) => sum + (f.sizeBytes ?? 0), 0);
   const totalMB = totalBytes / (1024 * 1024);
-  const atLimit = attachments.length >= MAX_ATTACHMENTS;
-  const atTotalLimit = totalMB >= MAX_TOTAL_MB;
+  const maxAttachments = attachmentConstraints.maxAttachmentsPerDraft;
+  const maxTotalMB = Math.round(attachmentConstraints.maxTotalBytes / 1024 / 1024);
+  const maxFileMB = Math.round(attachmentConstraints.maxFileBytes / 1024 / 1024);
+  const allowedExtensions = useMemo(
+    () => formatAllowedAttachmentFormats(attachmentConstraints.allowedMimeTypes),
+    [attachmentConstraints.allowedMimeTypes],
+  );
+  const allowedMimeTypes = useMemo(
+    () => new Set(attachmentConstraints.allowedMimeTypes),
+    [attachmentConstraints.allowedMimeTypes],
+  );
+  const atLimit = attachments.length >= maxAttachments;
+  const atTotalLimit = totalBytes >= attachmentConstraints.maxTotalBytes;
   const dropDisabled = atLimit || atTotalLimit || isUploading;
-  const useCompactUploadControl = isCompactViewport && attachments.length > 0 && !atLimit && !atTotalLimit;
+  const useCompactUploadControl =
+    isCompactViewport && attachments.length > 0 && !atLimit && !atTotalLimit;
   const clampedUploadProgress = Math.max(0, Math.min(uploadProgress, 100));
   const listSpacingClass = isCompactViewport ? "space-y-1.5" : "space-y-2.5";
   const summaryClass = isCompactViewport
@@ -170,26 +195,28 @@ export function AttachmentUploader({
       let firstError: string | null = null;
       let duplicateCount = 0;
       const knownDuplicateSignatures = new Set(
-        attachments.map((file) => getDuplicateSignature(getFilenameLabel(file), file.sizeBytes ?? 0)),
+        attachments.map((file) =>
+          getDuplicateSignature(getFilenameLabel(file), file.sizeBytes ?? 0),
+        ),
       );
       const batchHashes = new Set<string>();
 
       for (const file of Array.from(files)) {
-        if (nextCount >= MAX_ATTACHMENTS) {
-          firstError ??= t("limit.maxFiles", { max: MAX_ATTACHMENTS });
+        if (nextCount >= maxAttachments) {
+          firstError ??= t("limit.maxFiles", { max: maxAttachments });
           break;
         }
 
-        if (!ALLOWED_MIME.has(file.type)) {
-          firstError ??= t("toast.unsupportedType", { formats: ALLOWED_EXTENSIONS });
+        if (!allowedMimeTypes.has(file.type)) {
+          firstError ??= t("toast.unsupportedType", { formats: allowedExtensions });
           continue;
         }
-        if (file.size > MAX_FILE_MB * 1024 * 1024) {
-          firstError ??= t("toast.fileTooLarge", { mb: MAX_FILE_MB });
+        if (file.size > attachmentConstraints.maxFileBytes) {
+          firstError ??= t("toast.fileTooLarge", { mb: maxFileMB });
           continue;
         }
-        if (nextBytes + file.size > MAX_TOTAL_MB * 1024 * 1024) {
-          firstError ??= t("limit.totalSize", { mb: MAX_TOTAL_MB });
+        if (nextBytes + file.size > attachmentConstraints.maxTotalBytes) {
+          firstError ??= t("limit.totalSize", { mb: maxTotalMB });
           continue;
         }
 
@@ -217,7 +244,9 @@ export function AttachmentUploader({
       }
 
       const feedbackMessages = [
-        duplicateCount > 0 ? t("toast.duplicateSkipped", { count: duplicateCount }) : null,
+        duplicateCount > 0
+          ? t("toast.duplicateSkipped", { count: duplicateCount })
+          : null,
         firstError,
       ].filter((message): message is string => Boolean(message));
 
@@ -229,7 +258,19 @@ export function AttachmentUploader({
         });
       }
     },
-    [attachments, onUpload, t, totalBytes],
+    [
+      allowedExtensions,
+      allowedMimeTypes,
+      attachmentConstraints.maxFileBytes,
+      attachmentConstraints.maxTotalBytes,
+      attachments,
+      maxAttachments,
+      maxFileMB,
+      maxTotalMB,
+      onUpload,
+      t,
+      totalBytes,
+    ],
   );
 
   const onDrop = useCallback(
@@ -254,8 +295,8 @@ export function AttachmentUploader({
       <input
         ref={inputRef}
         type="file"
-        accept=".pdf,.png,.jpg,.jpeg"
-        multiple
+        accept={attachmentConstraints.allowedMimeTypes.join(",")}
+        multiple={maxAttachments > 1}
         className="sr-only"
         onChange={(e) => {
           void handleFiles(e.target.files);
@@ -266,12 +307,18 @@ export function AttachmentUploader({
       {/* Usage summary */}
       {attachments.length > 0 && (
         <div className={summaryClass}>
-          <p className={isCompactViewport ? "min-w-0 text-[11px] text-zinc-500 dark:text-zinc-400" : "min-w-0 text-xs text-zinc-500 dark:text-zinc-400"}>
+          <p
+            className={
+              isCompactViewport
+                ? "min-w-0 text-[11px] text-zinc-500 dark:text-zinc-400"
+                : "min-w-0 text-xs text-zinc-500 dark:text-zinc-400"
+            }
+          >
             {t("summary", {
               count: attachments.length,
-              max: MAX_ATTACHMENTS,
+              max: maxAttachments,
               used: totalMB.toFixed(1),
-              limit: MAX_TOTAL_MB,
+              limit: maxTotalMB,
             })}
           </p>
           {useCompactUploadControl ? (
@@ -305,20 +352,24 @@ export function AttachmentUploader({
                 ].join(" ")}
               >
                 <div className={iconClass}>
-                  <Icon className={isCompactViewport ? "h-3.5 w-3.5 shrink-0" : "h-4 w-4 shrink-0"} />
+                  <Icon
+                    className={
+                      isCompactViewport ? "h-3.5 w-3.5 shrink-0" : "h-4 w-4 shrink-0"
+                    }
+                  />
                 </div>
                 <button
                   type="button"
                   className={filenameButtonClass}
                   aria-expanded={isExpanded}
                   onClick={() => {
-                    setExpandedFileId((current) => (current === file.id ? null : file.id));
+                    setExpandedFileId((current) =>
+                      current === file.id ? null : file.id,
+                    );
                   }}
                 >
                   {isExpanded ? (
-                    <span className={expandedFilenameClass}>
-                      {filename}
-                    </span>
+                    <span className={expandedFilenameClass}>{filename}</span>
                   ) : (
                     <span className={collapsedFilenameClass}>
                       <span className="min-w-0 truncate" title={filename}>
@@ -334,16 +385,32 @@ export function AttachmentUploader({
                     isExpanded ? "self-start pt-0.5" : "self-center",
                   ].join(" ")}
                 >
-                  <span className={isCompactViewport ? "text-[11px] text-zinc-500 dark:text-zinc-400" : "text-xs text-zinc-500 dark:text-zinc-400"}>
+                  <span
+                    className={
+                      isCompactViewport
+                        ? "text-[11px] text-zinc-500 dark:text-zinc-400"
+                        : "text-xs text-zinc-500 dark:text-zinc-400"
+                    }
+                  >
                     {formatBytes(file.sizeBytes ?? 0)}
                   </span>
                   <button
                     type="button"
                     aria-label={t("remove.ariaLabel", { name: filename })}
                     className={removeButtonClass}
+                    aria-busy={removingFileId === file.id || undefined}
+                    disabled={removingFileId === file.id}
                     onClick={() => void onRemove(file.id)}
                   >
-                    <Trash2 className={isCompactViewport ? "h-3.5 w-3.5" : "h-3.5 w-3.5"} />
+                    {removingFileId === file.id ? (
+                      <Loader2
+                        className={isCompactViewport ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5 animate-spin"}
+                      />
+                    ) : (
+                      <Trash2
+                        className={isCompactViewport ? "h-3.5 w-3.5" : "h-3.5 w-3.5"}
+                      />
+                    )}
                   </button>
                 </div>
               </li>
@@ -385,22 +452,48 @@ export function AttachmentUploader({
             onDragOver={onDragOver}
             onDragLeave={onDragLeave}
           >
-            <Paperclip className={isCompactViewport ? "mx-auto mb-2 h-5 w-5 text-zinc-400 dark:text-zinc-500" : "mx-auto mb-3 h-6 w-6 text-zinc-400 dark:text-zinc-500"} />
-            <p className={isCompactViewport ? "text-xs font-semibold text-zinc-700 dark:text-zinc-200" : "text-sm font-semibold text-zinc-700 dark:text-zinc-200"}>
+            <Paperclip
+              className={
+                isCompactViewport
+                  ? "mx-auto mb-2 h-5 w-5 text-zinc-400 dark:text-zinc-500"
+                  : "mx-auto mb-3 h-6 w-6 text-zinc-400 dark:text-zinc-500"
+              }
+            />
+            <p
+              className={
+                isCompactViewport
+                  ? "text-xs font-semibold text-zinc-700 dark:text-zinc-200"
+                  : "text-sm font-semibold text-zinc-700 dark:text-zinc-200"
+              }
+            >
               {isCompactViewport ? t("addMore") : t("dropZone.prompt")}
             </p>
-            <p className={isCompactViewport ? "mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400" : "mt-2 text-xs text-zinc-500 dark:text-zinc-400"}>
-              {ALLOWED_EXTENSIONS} · {t("dropZone.maxSize", { mb: MAX_FILE_MB })}
+            <p
+              className={
+                isCompactViewport
+                  ? "mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400"
+                  : "mt-2 text-xs text-zinc-500 dark:text-zinc-400"
+              }
+            >
+              {allowedExtensions} · {t("dropZone.maxSize", { mb: maxFileMB })}
             </p>
-            <p className={isCompactViewport ? "mt-1 text-[11px] text-zinc-400 dark:text-zinc-500" : "mt-1 text-xs text-zinc-400 dark:text-zinc-500"}>
-              {t("multiSelectHint")}
-            </p>
+            {maxAttachments > 1 ? (
+              <p
+                className={
+                  isCompactViewport
+                    ? "mt-1 text-[11px] text-zinc-400 dark:text-zinc-500"
+                    : "mt-1 text-xs text-zinc-400 dark:text-zinc-500"
+                }
+              >
+                {t("multiSelectHint")}
+              </p>
+            ) : null}
           </div>
         ) : (
           <p className="rounded-lg border border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
             {atLimit
-              ? t("limit.maxFiles", { max: MAX_ATTACHMENTS })
-              : t("limit.totalSize", { mb: MAX_TOTAL_MB })}
+              ? t("limit.maxFiles", { max: maxAttachments })
+              : t("limit.totalSize", { mb: maxTotalMB })}
           </p>
         )
       ) : null}
@@ -417,12 +510,9 @@ export function AttachmentUploader({
               />
             </div>
           </div>
-          {uploadProgress >= 100 && (
-            <CheckCircle className="h-4 w-4 text-emerald-600" />
-          )}
+          {uploadProgress >= 100 && <CheckCircle className="h-4 w-4 text-emerald-600" />}
         </div>
       )}
-
     </div>
   );
 }

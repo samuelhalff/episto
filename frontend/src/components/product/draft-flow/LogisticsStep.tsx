@@ -2,7 +2,16 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, CheckCircle2, Image as ImageIcon, Mail, Plus, Send, Type } from "lucide-react";
+import {
+  Check,
+  CheckCircle2,
+  Image as ImageIcon,
+  Loader2,
+  Mail,
+  Plus,
+  Send,
+  Type,
+} from "lucide-react";
 import {
   useDraft,
   useUpdateDraft,
@@ -12,59 +21,45 @@ import {
 } from "../../../hooks/use-api";
 import { usePricing } from "../../../hooks/use-pricing";
 import { useRouter } from "../../../i18n/navigation";
-import { getApiUrl } from "../../../lib/api";
+import {
+  normalizeLetterSubject,
+  getRecipientDisplayName,
+  getSenderDisplayName,
+  getSignatureFileUrl,
+} from "../../../lib/letter-content";
 import { useTheme } from "../../../lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
-import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton, SegmentedControl } from "./ui";
+import {
+  ActionCard,
+  Card,
+  DashedCard,
+  DraftShell,
+  PrimaryButton,
+  SegmentedControl,
+} from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
-
-function getPreviewSenderName(sender: {
-  firstName: string;
-  lastName: string;
-} | null | undefined): string {
-  if (!sender) {
-    return "";
-  }
-
-  return [sender.firstName, sender.lastName].map((part) => part.trim()).filter(Boolean).join(" ");
-}
-
-function getPreviewRecipientName(recipient: {
-  firstName: string | null;
-  lastName: string | null;
-  company: string | null;
-} | null | undefined): string {
-  if (!recipient) {
-    return "";
-  }
-
-  if (recipient.company?.trim()) {
-    return recipient.company.trim();
-  }
-
-  return [recipient.firstName ?? "", recipient.lastName ?? ""]
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .join(" ");
-}
 
 interface StepProps {
   draftId: string;
+  onPrevious?: (() => void) | undefined;
   onStepClick: () => void;
   isStepMenuOpen?: boolean;
   isCompactViewport?: boolean;
   isNavigating?: boolean;
   beginNavigation?: () => void;
+  previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
 }
 
 export function LogisticsStep({
   draftId,
+  onPrevious,
   onStepClick,
   isStepMenuOpen,
   isCompactViewport,
   isNavigating,
   beginNavigation,
+  previousStepLabel,
   furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
@@ -77,12 +72,23 @@ export function LogisticsStep({
   const preview = useLetterPreview(draftId);
   const pricing = usePricing();
   const sigInputRef = useRef<HTMLInputElement>(null);
+  const signatureBootstrapRef = useRef(false);
   const [signatureMode, setSignatureMode] = useState<"typed" | "image">("typed");
   const [showAttachmentManager, setShowAttachmentManager] = useState(false);
+  const [pendingDeliveryType, setPendingDeliveryType] = useState<"standard" | "registered" | null>(null);
+  const [pendingSignatureMode, setPendingSignatureMode] = useState<"typed" | "image" | null>(null);
+  const [pendingSignatureRemoval, setPendingSignatureRemoval] = useState(false);
 
   const deliveryType = draft.data?.deliveryType ?? "standard";
-  const senderName = getPreviewSenderName(preview.previewData?.sender);
-  const recipientName = getPreviewRecipientName(preview.previewData?.recipient);
+  const senderName = getSenderDisplayName(preview.previewData?.sender);
+  const recipientName = getRecipientDisplayName(preview.previewData?.recipient);
+  const normalizedSubject = normalizeLetterSubject(
+    draft.data?.subject,
+    draft.data?.locale ?? preview.previewData?.locale ?? "de-CH",
+  );
+  const signatureUrl = getSignatureFileUrl(
+    files.signature?.id ?? draft.data?.signatureAssetId ?? null,
+  );
   const hasSubject = Boolean(draft.data?.subject?.trim());
   const hasBody = Boolean(draft.data?.body?.trim());
   const hasSender = Boolean(senderName.trim());
@@ -97,6 +103,8 @@ export function LogisticsStep({
   const attachmentCount = files.attachments.length;
   const registeredPrice = pricing.data?.registered?.displayPrice ?? t("priceUnavailable");
   const standardPrice = pricing.data?.standard?.displayPrice ?? t("priceUnavailable");
+  const isDeliverySelectionPending = pendingDeliveryType !== null;
+  const isSignatureSelectionPending = pendingSignatureMode !== null || pendingSignatureRemoval;
 
   useEffect(() => {
     if (attachmentCount > 0) {
@@ -104,13 +112,62 @@ export function LogisticsStep({
     }
   }, [attachmentCount]);
 
+  useEffect(() => {
+    const persistedMode = draft.data?.signatureMode;
+    const nextMode = persistedMode ?? (files.signature ? "image" : "typed");
+    setSignatureMode(nextMode);
+
+    if (signatureBootstrapRef.current || !draft.data || persistedMode) {
+      return;
+    }
+
+    signatureBootstrapRef.current = true;
+    void updateDraft.mutateAsync({
+      signatureMode: nextMode,
+      signatureAssetId: nextMode === "image" ? (files.signature?.id ?? null) : null,
+    });
+  }, [draft.data, files.signature, updateDraft]);
+
   async function handleSelectDelivery(type: "standard" | "registered") {
-    await updateDraft.mutateAsync({ deliveryType: type });
+    if (type === deliveryType || isDeliverySelectionPending || isSignatureSelectionPending) {
+      return;
+    }
+
+    setPendingDeliveryType(type);
+    try {
+      await updateDraft.mutateAsync({ deliveryType: type });
+    } finally {
+      setPendingDeliveryType(null);
+    }
   }
 
   async function handleReview() {
     if (reviewDraft.isPending || isNavigating) return;
     try {
+      const reviewUpdates: {
+        subject?: string;
+        signatureMode?: "typed" | "image";
+        signatureAssetId?: string | null;
+      } = {};
+
+      if (normalizedSubject && normalizedSubject !== draft.data?.subject) {
+        reviewUpdates.subject = normalizedSubject;
+      }
+
+      if (draft.data?.signatureMode !== signatureMode) {
+        reviewUpdates.signatureMode = signatureMode;
+      }
+
+      const nextSignatureAssetId =
+        signatureMode === "image" ? (files.signature?.id ?? null) : null;
+      if ((draft.data?.signatureAssetId ?? null) !== nextSignatureAssetId) {
+        reviewUpdates.signatureAssetId = nextSignatureAssetId;
+      }
+
+      if (Object.keys(reviewUpdates).length > 0) {
+        await updateDraft.mutateAsync(reviewUpdates);
+      }
+
       await reviewDraft.mutateAsync();
       beginNavigation?.();
       router.push(`/draft/${draftId}/review`);
@@ -128,6 +185,69 @@ export function LogisticsStep({
       title: t("stepNeedsAttentionTitle"),
       items: missingItems,
     });
+  }
+
+  async function handleSignatureModeChange(nextMode: "typed" | "image") {
+    if (nextMode === signatureMode || isSignatureSelectionPending || isDeliverySelectionPending) {
+      return;
+    }
+
+    setSignatureMode(nextMode);
+    setPendingSignatureMode(nextMode);
+
+    try {
+      await updateDraft.mutateAsync({
+        signatureMode: nextMode,
+        signatureAssetId: nextMode === "image" ? (files.signature?.id ?? null) : null,
+      });
+    } catch {
+      setSignatureMode(draft.data?.signatureMode === "image" ? "image" : "typed");
+      showStepErrorToast({
+        id: "signature-mode-save-error",
+        title: t("stepSaveFailed"),
+      });
+    } finally {
+      setPendingSignatureMode(null);
+    }
+  }
+
+  async function handleRemoveSignature() {
+    if (!files.signature || isSignatureSelectionPending || isDeliverySelectionPending) {
+      return;
+    }
+
+    setPendingSignatureRemoval(true);
+    try {
+      await files.removeFile(files.signature.id);
+      setSignatureMode("typed");
+      await updateDraft.mutateAsync({
+        signatureMode: "typed",
+        signatureAssetId: null,
+      });
+    } catch {
+      showStepErrorToast({
+        id: "signature-remove-error",
+        title: t("stepSaveFailed"),
+      });
+    } finally {
+      setPendingSignatureRemoval(false);
+    }
+  }
+
+  async function handleUploadSignature(file: File) {
+    try {
+      const uploaded = await files.uploadFile(file, "signature");
+      setSignatureMode("image");
+      await updateDraft.mutateAsync({
+        signatureMode: "image",
+        signatureAssetId: uploaded.id,
+      });
+    } catch {
+      showStepErrorToast({
+        id: "signature-upload-error",
+        title: t("stepSaveFailed"),
+      });
+    }
   }
 
   const selectedDeliveryCardClass =
@@ -153,6 +273,8 @@ export function LogisticsStep({
       subtitle={t("logisticsSubtitle")}
       onStepClick={onStepClick}
       stepTriggerLabel={t("stepMenuLabel")}
+      secondaryActionLabel={previousStepLabel}
+      onSecondaryAction={onPrevious}
       isStepMenuOpen={isStepMenuOpen}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
@@ -165,7 +287,7 @@ export function LogisticsStep({
           tone={canReview ? "primary" : "warning"}
           hideIcon={!canReview}
         >
-          {t("reviewAndPay")}
+          {t("continueToReview")}
         </PrimaryButton>
       }
     >
@@ -178,11 +300,14 @@ export function LogisticsStep({
             <ActionCard
               onClick={() => void handleSelectDelivery("registered")}
               isCompactViewport={isCompactViewport}
+              disabled={isDeliverySelectionPending || isSignatureSelectionPending}
               selected={deliveryType === "registered"}
               selectedClassName={selectedDeliveryCardClass}
               unselectedClassName={unselectedDeliveryCardClass}
               className="flex items-center justify-between"
-              style={deliveryType === "registered" ? selectedDeliveryCardStyle : undefined}
+              style={
+                deliveryType === "registered" ? selectedDeliveryCardStyle : undefined
+              }
             >
               <div className="flex items-center gap-3">
                 <div
@@ -198,7 +323,9 @@ export function LogisticsStep({
                   <div className="text-sm font-semibold">{t("registeredMail")}</div>
                   <div
                     className={`mt-0.5 text-[10px] ${
-                      deliveryType === "registered" ? "text-amber-900/70 dark:text-amber-100/80" : "text-zinc-400"
+                      deliveryType === "registered"
+                        ? "text-amber-900/70 dark:text-amber-100/80"
+                        : "text-zinc-400"
                     }`}
                   >
                     {t("registeredMailDesc")}
@@ -213,13 +340,19 @@ export function LogisticsStep({
                       : "border-zinc-300 bg-transparent dark:border-zinc-600"
                   }`}
                 >
-                  {deliveryType === "registered" ? <Check className="h-3 w-3 text-white" /> : null}
+                  {pendingDeliveryType === "registered" ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-white" />
+                  ) : deliveryType === "registered" ? (
+                    <Check className="h-3 w-3 text-white" />
+                  ) : null}
                 </div>
-                  <div
-                    className={`text-sm font-semibold ${
-                      deliveryType === "registered" ? "text-emerald-700 dark:text-amber-50" : "text-zinc-900 dark:text-zinc-100"
-                    }`}
-                  >
+                <div
+                  className={`text-sm font-semibold ${
+                    deliveryType === "registered"
+                      ? "text-emerald-700 dark:text-amber-50"
+                      : "text-zinc-900 dark:text-zinc-100"
+                  }`}
+                >
                   {registeredPrice}
                 </div>
               </div>
@@ -228,6 +361,7 @@ export function LogisticsStep({
             <ActionCard
               onClick={() => void handleSelectDelivery("standard")}
               isCompactViewport={isCompactViewport}
+              disabled={isDeliverySelectionPending || isSignatureSelectionPending}
               selected={deliveryType === "standard"}
               selectedClassName={selectedDeliveryCardClass}
               unselectedClassName={unselectedDeliveryCardClass}
@@ -248,7 +382,9 @@ export function LogisticsStep({
                   <div className="text-sm font-semibold">{t("standardMail")}</div>
                   <div
                     className={`mt-0.5 text-[10px] ${
-                      deliveryType === "standard" ? "text-amber-900/70 dark:text-amber-100/80" : "text-zinc-400"
+                      deliveryType === "standard"
+                        ? "text-amber-900/70 dark:text-amber-100/80"
+                        : "text-zinc-400"
                     }`}
                   >
                     {t("standardMailDesc")}
@@ -263,13 +399,19 @@ export function LogisticsStep({
                       : "border-zinc-300 bg-transparent dark:border-zinc-600"
                   }`}
                 >
-                  {deliveryType === "standard" ? <Check className="h-3 w-3 text-white" /> : null}
+                  {pendingDeliveryType === "standard" ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-white" />
+                  ) : deliveryType === "standard" ? (
+                    <Check className="h-3 w-3 text-white" />
+                  ) : null}
                 </div>
-                  <div
-                    className={`text-sm font-semibold ${
-                      deliveryType === "standard" ? "text-emerald-700 dark:text-amber-50" : "text-zinc-900 dark:text-zinc-100"
-                    }`}
-                  >
+                <div
+                  className={`text-sm font-semibold ${
+                    deliveryType === "standard"
+                      ? "text-emerald-700 dark:text-amber-50"
+                      : "text-zinc-900 dark:text-zinc-100"
+                  }`}
+                >
                   {standardPrice}
                 </div>
               </div>
@@ -284,11 +426,29 @@ export function LogisticsStep({
             </h3>
             <SegmentedControl
               options={[
-                { value: "typed" as const, label: t("signatureTyped"), icon: <Type className="h-3 w-3" /> },
-                { value: "image" as const, label: t("signatureImage"), icon: <ImageIcon className="h-3 w-3" /> },
+                {
+                  value: "typed" as const,
+                  label: t("signatureTyped"),
+                  icon:
+                    pendingSignatureMode === "typed" ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <Type className="h-3 w-3" />
+                    ),
+                },
+                {
+                  value: "image" as const,
+                  label: t("signatureImage"),
+                  icon:
+                    pendingSignatureMode === "image" ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : (
+                      <ImageIcon className="h-3 w-3" />
+                    ),
+                },
               ]}
               value={signatureMode}
-              onChange={(v) => setSignatureMode(v)}
+              onChange={(v) => void handleSignatureModeChange(v)}
             />
           </div>
 
@@ -313,16 +473,20 @@ export function LogisticsStep({
                   className="flex items-center gap-3"
                 >
                   <img
-                    src={getApiUrl(`/v1/drafts/files/${files.signature.id}`)}
+                    src={signatureUrl ?? ""}
                     alt={t("signatureImageAlt")}
                     className="h-12 max-w-[200px] object-contain"
                   />
                   <div className="flex-1" />
                   <button
                     type="button"
-                    onClick={() => void files.removeFile(files.signature!.id)}
-                    className="text-[11px] font-semibold text-zinc-400 hover:text-red-500"
+                    onClick={() => void handleRemoveSignature()}
+                    disabled={pendingSignatureRemoval}
+                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-400 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-70"
                   >
+                    {pendingSignatureRemoval ? (
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                    ) : null}
                     {t("remove")}
                   </button>
                 </Card>
@@ -337,7 +501,9 @@ export function LogisticsStep({
                   <span className="text-xs font-semibold text-zinc-500">
                     {t("signatureUploadPrompt")}
                   </span>
-                  <span className="text-[10px] text-zinc-400">{t("signatureUploadHint")}</span>
+                  <span className="text-[10px] text-zinc-400">
+                    {t("signatureUploadHint")}
+                  </span>
                 </DashedCard>
               )}
               <input
@@ -347,7 +513,7 @@ export function LogisticsStep({
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) void files.uploadFile(file, "signature");
+                  if (file) void handleUploadSignature(file);
                   e.target.value = "";
                 }}
               />
@@ -368,7 +534,7 @@ export function LogisticsStep({
             <button
               type="button"
               onClick={() => setShowAttachmentManager((value) => !value)}
-               className="shrink-0 rounded-full bg-[var(--app-surface-soft)] px-3 py-1.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)]"
+              className="shrink-0 rounded-full bg-[var(--app-surface-soft)] px-3 py-1.5 text-[11px] font-semibold text-zinc-600 transition-colors hover:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)]"
             >
               {showAttachmentManager
                 ? t("hideAttachmentsManager")
@@ -382,10 +548,14 @@ export function LogisticsStep({
             <Card isCompactViewport={isCompactViewport}>
               <AttachmentUploader
                 attachments={files.attachments}
+                attachmentConstraints={files.attachmentConstraints}
                 isUploading={files.isUploading}
+                removingFileId={files.removingFileId}
                 uploadProgress={files.uploadProgress}
                 validationError={files.validationError}
-                onUpload={(file) => files.uploadFile(file, "attachment").then(() => undefined)}
+                onUpload={(file) =>
+                  files.uploadFile(file, "attachment").then(() => undefined)
+                }
                 onRemove={files.removeFile}
                 isCompactViewport={isCompactViewport}
               />
@@ -399,10 +569,14 @@ export function LogisticsStep({
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-                    {attachmentCount > 0 ? t("manageAttachments") : t("attachmentsEmptyState")}
+                    {attachmentCount > 0
+                      ? t("manageAttachments")
+                      : t("attachmentsEmptyState")}
                   </p>
                   <p className="mt-1 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">
-                    {attachmentCount > 0 ? t("attachmentsHint") : t("attachmentsLogisticsHint")}
+                    {attachmentCount > 0
+                      ? t("attachmentsHint")
+                      : t("attachmentsLogisticsHint")}
                   </p>
                 </div>
                 {attachmentCount > 0 ? (

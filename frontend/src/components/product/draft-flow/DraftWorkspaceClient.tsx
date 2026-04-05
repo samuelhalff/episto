@@ -22,6 +22,7 @@ import {
   getDraftWorkspaceStepIndex,
   getDraftWorkspaceUnlockedStepIndex,
   getNextDraftWorkspaceStep,
+  getPreviousDraftWorkspaceStep,
   isDraftWorkspaceStepLocked,
   resolveDraftWorkspaceStepSlug,
 } from "./steps";
@@ -32,6 +33,9 @@ interface DraftWorkspaceClientProps {
   draftId: string;
   stepSlug?: DraftWorkspaceStepSlug;
 }
+
+const PREPARED_REVIEW_STATUSES = new Set(["reviewed", "rendering", "ready"]);
+const POST_SUBMISSION_STATUSES = new Set(["submitted", "dispatched", "closed"]);
 
 export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClientProps) {
   const t = useTranslations("draft");
@@ -83,17 +87,48 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     (!session.session && !session.isLoading) ||
     draftApiError?.status === 401 ||
     draftApiError?.status === 403;
+  const isBootstrappingWorkspace =
+    (!draft.data && draft.isLoading) || (!draft.data && session.isLoading);
   const furthestUnlockedStepIndex = getDraftWorkspaceUnlockedStepIndex(draft.data);
   const currentStep = Math.min(requestedStepIndex, furthestUnlockedStepIndex);
   const currentStepSlug = getDraftWorkspaceStepSlugByIndex(currentStep);
   const nextStepSlug = getNextDraftWorkspaceStep(currentStep);
+  const previousStepSlug = getPreviousDraftWorkspaceStep(currentStep);
+  const previousStepLabel =
+    previousStepSlug === "intake"
+      ? t("backToIntake")
+      : previousStepSlug === "sender"
+        ? t("backToSender")
+        : previousStepSlug === "recipient"
+          ? t("backToRecipient")
+          : previousStepSlug === "body"
+            ? t("backToContent")
+            : previousStepSlug === "attachments"
+              ? t("backToAttachments")
+              : previousStepSlug === "subject"
+                ? t("backToSubject")
+                : undefined;
 
   useEffect(() => {
     setIsNavigating(false);
   }, [resolvedStepSlug]);
 
   useEffect(() => {
-    if (!draft.data || draft.isLoading) {
+    if (!draft.data) {
+      return;
+    }
+
+    if (PREPARED_REVIEW_STATUSES.has(draft.data.status)) {
+      setShowSteps(false);
+      setIsNavigating(false);
+      router.replace(`/draft/${draftId}/review`);
+      return;
+    }
+
+    if (POST_SUBMISSION_STATUSES.has(draft.data.status)) {
+      setShowSteps(false);
+      setIsNavigating(false);
+      router.replace(`/draft/${draftId}/confirmation`);
       return;
     }
 
@@ -114,20 +149,23 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     router,
   ]);
 
-  const navigateToStep = useCallback((targetStepSlug: DraftWorkspaceStepSlug) => {
-    if (isDraftWorkspaceStepLocked(targetStepSlug, furthestUnlockedStepIndex)) {
-      setShowSteps(false);
-      return;
-    }
+  const navigateToStep = useCallback(
+    (targetStepSlug: DraftWorkspaceStepSlug) => {
+      if (isDraftWorkspaceStepLocked(targetStepSlug, furthestUnlockedStepIndex)) {
+        setShowSteps(false);
+        return;
+      }
 
-    if (targetStepSlug === currentStepSlug) {
-      setShowSteps(false);
-      return;
-    }
+      if (targetStepSlug === currentStepSlug) {
+        setShowSteps(false);
+        return;
+      }
 
-    setIsNavigating(true);
-    router.push(getDraftWorkspacePath(draftId, targetStepSlug));
-  }, [currentStepSlug, draftId, furthestUnlockedStepIndex, router]);
+      setIsNavigating(true);
+      router.push(getDraftWorkspacePath(draftId, targetStepSlug));
+    },
+    [currentStepSlug, draftId, furthestUnlockedStepIndex, router],
+  );
 
   const beginNavigation = useCallback(() => {
     setIsNavigating(true);
@@ -138,14 +176,24 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     navigateToStep(nextStepSlug);
   }, [nextStepSlug, navigateToStep]);
 
+  const handlePrevious = useCallback(() => {
+    if (!previousStepSlug) return;
+    navigateToStep(previousStepSlug);
+  }, [navigateToStep, previousStepSlug]);
+
   const handleStepClick = useCallback(() => setShowSteps(true), []);
 
-  const handleInputFocusChange = useCallback((focused: boolean) => setIsInputFocused(focused), []);
+  const handleInputFocusChange = useCallback(
+    (focused: boolean) => setIsInputFocused(focused),
+    [],
+  );
 
   const commonProps = {
     draftId,
     onNext: handleNext,
+    onPrevious: previousStepSlug ? handlePrevious : undefined,
     onStepClick: handleStepClick,
+    previousStepLabel,
     isStepMenuOpen: showSteps,
     isCompactViewport,
     onInputFocusChange: handleInputFocusChange,
@@ -165,12 +213,12 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     <LogisticsStep key="logistics" {...commonProps} />,
   ];
 
-  if (session.isLoading || draft.isLoading) {
+  if (isBootstrappingWorkspace) {
     return (
-        <div
-          className="flex min-h-screen items-center justify-center bg-[var(--app-surface-muted)]"
-          style={{ height: workspaceHeight }}
-        >
+      <div
+        className="flex min-h-screen items-center justify-center bg-[var(--app-surface-muted)]"
+        style={{ height: workspaceHeight }}
+      >
         <div className="text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
           <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">{tc("loading")}</p>

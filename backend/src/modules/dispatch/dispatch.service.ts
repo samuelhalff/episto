@@ -17,9 +17,11 @@ export interface DispatchAttemptRow {
   id: string;
   draftId: string;
   snapshotId: string;
+  paymentAttemptId: string | null;
   state: string;
   providerName: string;
   providerReference: string | null;
+  trackingNumber: string | null;
   providerPayload: unknown;
   submittedAt: Date | null;
   lastCheckedAt: Date | null;
@@ -45,9 +47,11 @@ function toDispatchRow(
     id: row.id,
     draftId: row.draftId,
     snapshotId: row.snapshotId,
+    paymentAttemptId: row.paymentAttemptId ?? null,
     state: row.state,
     providerName: row.providerName,
     providerReference: row.providerReference,
+    trackingNumber: row.trackingNumber ?? null,
     providerPayload: row.providerPayload,
     submittedAt: row.submittedAt,
     lastCheckedAt: row.lastCheckedAt,
@@ -80,6 +84,7 @@ export async function createDispatchAttempt(
   data: {
     draftId: string;
     snapshotId: string;
+    paymentAttemptId?: string | null;
     providerName: string;
   },
 ): Promise<DispatchAttemptRow> {
@@ -88,6 +93,7 @@ export async function createDispatchAttempt(
     .values({
       draftId: data.draftId,
       snapshotId: data.snapshotId,
+      paymentAttemptId: data.paymentAttemptId ?? null,
       state: "queued",
       providerName: data.providerName,
     })
@@ -142,6 +148,7 @@ export async function transitionDispatchState(
   newState: string,
   extra?: {
     providerReference?: string | undefined;
+    trackingNumber?: string | undefined | null;
     providerPayload?: unknown | undefined;
     failureReason?: string | undefined;
   } | undefined,
@@ -177,6 +184,9 @@ export async function transitionDispatchState(
 
   if (extra?.providerReference !== undefined) {
     values.providerReference = extra.providerReference;
+  }
+  if (extra?.trackingNumber !== undefined) {
+    values.trackingNumber = extra.trackingNumber;
   }
   if (extra?.providerPayload !== undefined) {
     values.providerPayload = extra.providerPayload;

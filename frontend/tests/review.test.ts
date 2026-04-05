@@ -28,7 +28,7 @@ const REQUIRED_REVIEW_KEYS = [
   "edit",
   "add",
   "proceedToPayment",
-  "backToEditing",
+  "backToDraft",
   "total",
 ] as const;
 

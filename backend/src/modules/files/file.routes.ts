@@ -1,5 +1,11 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { eq, and } from "drizzle-orm";
+import {
+  DraftFilesResponseSchema,
+  FILE_LIMITS,
+  getUploadByteLimit,
+  isAllowedUploadMimeType,
+} from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
@@ -8,21 +14,21 @@ import {
   attachmentStorageKey,
   createFileAsset,
   deleteFileAsset,
+  getDraftAttachmentConstraints,
   getDraftUploadTotalBytes,
   getFileAsset,
   listFileAssets,
   signatureStorageKey,
 } from "./file.service.js";
 import {
+  createAttachmentLimitError,
+  createAttachmentMimeTypeError,
+} from "../dispatch/adapters/provider-capabilities.js";
+import {
   uploadObject,
   getPresignedDownloadUrl,
   deleteObject,
 } from "./adapters/s3.adapter.js";
-import {
-  FILE_LIMITS,
-  getUploadByteLimit,
-  isAllowedUploadMimeType,
-} from "@swiss-mail/shared";
 import { parseUploadMultipartParts } from "./multipart-upload.js";
 
 // ---------------------------------------------------------------------------
@@ -76,19 +82,22 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       const fileName = data.fileName;
       const mimeType = data.mimeType;
+      const attachmentConstraints = getDraftAttachmentConstraints();
 
-      if (!isAllowedUploadMimeType(kind, mimeType)) {
-        throw validationError(
-          kind === "attachment"
-            ? "Unsupported file type for attachment. Allowed: PDF, PNG, JPEG"
-            : "Unsupported file type for signature. Allowed: PNG, JPEG",
-          [
-            {
-              field: "file",
-              message: `Allowed types: ${FILE_LIMITS[kind].allowedMimeTypes.join(", ")}`,
-            },
-          ],
-        );
+      if (
+        kind === "attachment" &&
+        !attachmentConstraints.allowedMimeTypes.includes(mimeType)
+      ) {
+        throw createAttachmentMimeTypeError(attachmentConstraints);
+      }
+
+      if (kind === "signature" && !isAllowedUploadMimeType(kind, mimeType)) {
+        throw validationError("Unsupported file type for signature. Allowed: PNG, JPEG", [
+          {
+            field: "file",
+            message: `Allowed types: ${FILE_LIMITS[kind].allowedMimeTypes.join(", ")}`,
+          },
+        ]);
       }
 
       // Read file into buffer and validate size
@@ -126,15 +135,8 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         const attachmentCount = existingFiles.filter(
           (f) => f.kind === "attachment",
         ).length;
-        if (attachmentCount >= FILE_LIMITS.maxAttachmentsPerDraft) {
-          throw new AppError({
-            family: "policy_refusal",
-            statusCode: 422,
-            code: "ATTACHMENT_LIMIT_REACHED",
-            message: `Maximum ${FILE_LIMITS.maxAttachmentsPerDraft} attachments per draft`,
-            userMessage: `You can attach up to ${FILE_LIMITS.maxAttachmentsPerDraft} files per letter.`,
-            userAction: "Remove an existing attachment before adding a new one.",
-          });
+        if (attachmentCount >= attachmentConstraints.maxAttachmentsPerDraft) {
+          throw createAttachmentLimitError(attachmentConstraints);
         }
       }
 
@@ -180,6 +182,21 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         sizeBytes,
       });
 
+      if (kind === "signature") {
+        await db
+          .update(schema.draftLetters)
+          .set({
+            signatureAssetId: row.id,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(schema.draftLetters.id, draftId),
+              eq(schema.draftLetters.sessionId, session.id),
+            ),
+          );
+      }
+
       reply.status(201).send({
         file: {
           id: row.id,
@@ -204,7 +221,12 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const { id: draftId } = request.params;
 
       const files = await listFileAssets(db, draftId, session.id);
-      reply.send({ files });
+      reply.send(
+        DraftFilesResponseSchema.parse({
+          files,
+          attachmentConstraints: getDraftAttachmentConstraints(),
+        }),
+      );
     },
   );
 
@@ -235,6 +257,21 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
           { fileId, storageKey: asset.storageKey },
           "Failed to delete object from storage",
         );
+      }
+
+      if (asset.kind === "signature") {
+        await db
+          .update(schema.draftLetters)
+          .set({
+            signatureAssetId: null,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(schema.draftLetters.id, draftId),
+              eq(schema.draftLetters.sessionId, session.id),
+            ),
+          );
       }
 
       reply.send({

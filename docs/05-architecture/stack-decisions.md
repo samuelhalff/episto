@@ -29,7 +29,7 @@ Every row marked **Locked** is a hard constraint for implementation. Do not open
 | Object storage | **Locked** | S3-compatible on Infomaniak (see hosting topology below) |
 | Payments | **Locked** | Stripe |
 | AI provider | **Locked** | Azure OpenAI / Azure AI Foundry Models API |
-| Dispatch provider path | **Locked** | Direct Swiss Post Digital Commerce API |
+| Dispatch provider path | **Locked** | ePost / KLARA oneAPI (`api.epost.ch`) |
 | PDF generation | **Locked** | Puppeteer (HTML/CSS → PDF) |
 | Async job queue | **Locked** | BullMQ + Redis |
 | Validation library | **Locked** | Zod (used in `shared/`; bridged to DB via `drizzle-zod`) |

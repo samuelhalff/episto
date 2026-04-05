@@ -1,17 +1,56 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
-import type { DraftLetter } from "@swiss-mail/shared";
-import { useRouter } from "../../../../i18n/navigation";
+import { useSearchParams } from "next/navigation";
+import type { ConversationMessage, DraftLetter, Session } from "@swiss-mail/shared";
+import { queryKeys } from "@swiss-mail/shared";
+import {
+  Building2,
+  FileWarning,
+  Home,
+  Loader2,
+  Mic,
+  Send,
+  Square,
+  XCircle,
+  type LucideIcon,
+} from "lucide-react";
+
+import { Link, useRouter } from "../../../../i18n/navigation";
 import { routing } from "../../../../i18n/routing";
-import { ApiError, apiFetch } from "../../../../lib/api";
 import { ConfirmDialog } from "../../../../components/product/ConfirmDialog";
+import { LanguageSwitcher } from "../../../../components/marketing/LanguageSwitcher";
+import { useDictation } from "../../../../hooks/use-dictation";
+import { ApiError, apiFetch } from "../../../../lib/api";
+import { ActionButton, ActionLink } from "../../../../components/product/ActionButton";
+import { primePendingDraftTurn } from "../../../../lib/pending-draft-turn";
 
 type BootstrapState =
   | { kind: "loading" }
+  | { kind: "ready"; hasActiveSession: boolean }
   | { kind: "resume"; draft: DraftLetter }
   | { kind: "error"; message: string };
+
+type QuickStartConfig = {
+  slug: string;
+  aliases: string[];
+  label: string;
+  prompt: string;
+  icon: LucideIcon;
+};
+
+type ConversationMessagePayload = Omit<ConversationMessage, "createdAt"> & {
+  createdAt: string | Date;
+};
+
+type PendingStartAction =
+  | "resume"
+  | "fresh"
+  | "composer"
+  | `quick-start:${string}`
+  | null;
 
 function sortDraftsByActivity(drafts: DraftLetter[]): DraftLetter[] {
   return [...drafts].sort((left, right) => {
@@ -23,15 +62,13 @@ function sortDraftsByActivity(drafts: DraftLetter[]): DraftLetter[] {
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
-    const body = error.body as
-      | {
-          error?: {
-            userMessage?: string;
-            userAction?: string | null;
-            message?: string;
-          };
-        }
-      | null;
+    const body = error.body as {
+      error?: {
+        userMessage?: string;
+        userAction?: string | null;
+        message?: string;
+      };
+    } | null;
 
     const detail =
       body?.error?.userMessage ??
@@ -56,45 +93,126 @@ function getErrorMessage(error: unknown): string {
   return "We could not open your letter workspace. Please try again.";
 }
 
-/**
- * /draft/new — entry point that creates a session + draft, then redirects
- * to the draft workspace. This is the primary CTA destination.
- */
+function normalizeDraft(draft: DraftLetter): DraftLetter {
+  return {
+    ...draft,
+    createdAt: draft.createdAt instanceof Date ? draft.createdAt : new Date(draft.createdAt),
+    updatedAt: draft.updatedAt instanceof Date ? draft.updatedAt : new Date(draft.updatedAt),
+  };
+}
+
+function getQuickStartAction(slug: string): `quick-start:${string}` {
+  return `quick-start:${slug}`;
+}
+
 export default function NewDraftPage() {
-  const t = useTranslations("common");
+  const tc = useTranslations("common");
   const tr = useTranslations("resume");
+  const td = useTranslations("draft");
   const locale = useLocale();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const dictation = useDictation();
   const sessionLocale = routing.locales.includes(
     locale as (typeof routing.locales)[number],
   )
     ? (locale as (typeof routing.locales)[number])
     : routing.defaultLocale;
-  const router = useRouter();
+
   const [state, setState] = useState<BootstrapState>({ kind: "loading" });
-  const runIdRef = useRef(0);
   const [retryCount, setRetryCount] = useState(0);
+  const [composerValue, setComposerValue] = useState("");
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [pendingStartAction, setPendingStartAction] = useState<PendingStartAction>(null);
   const [showConfirmFresh, setShowConfirmFresh] = useState(false);
+  const runIdRef = useRef(0);
+  const useCasePrefillAppliedRef = useRef(false);
+  const isStartingDraft = pendingStartAction !== null;
 
-  async function createFreshDraft() {
-    await apiFetch("/v1/sessions", {
-      method: "POST",
-      body: JSON.stringify({ locale: sessionLocale }),
-    });
+  const quickStarts = useMemo<QuickStartConfig[]>(
+    () => [
+      {
+        slug: "contract-termination",
+        aliases: ["insurance-cancellation", "subscription-cancellation"],
+        label: td("intakeQuickActionCancel"),
+        prompt: td("intakeQuickActionCancelPrompt"),
+        icon: XCircle,
+      },
+      {
+        slug: "lease-cancellation",
+        aliases: [],
+        label: td("intakeQuickActionLease"),
+        prompt: td("intakeQuickActionLeasePrompt"),
+        icon: Home,
+      },
+      {
+        slug: "formal-complaint",
+        aliases: [],
+        label: td("intakeQuickActionComplaint"),
+        prompt: td("intakeQuickActionComplaintPrompt"),
+        icon: FileWarning,
+      },
+      {
+        slug: "official-correspondence",
+        aliases: ["authority-letter"],
+        label: td("intakeQuickActionAuthority"),
+        prompt: td("intakeQuickActionAuthorityPrompt"),
+        icon: Building2,
+      },
+    ],
+    [td],
+  );
 
-    const { draft } = await apiFetch<{ draft: DraftLetter }>("/v1/drafts", {
-      method: "POST",
-      body: JSON.stringify({}),
-    });
+  const requestedUseCase = searchParams.get("useCase");
+  const suggestedPrompt = useMemo(() => {
+    if (!requestedUseCase) {
+      return null;
+    }
 
-    router.replace(`/draft/${draft.id}`);
-  }
+    const normalizedUseCase = requestedUseCase.trim().toLowerCase();
+    const quickStart = quickStarts.find(
+      (item) =>
+        item.slug === normalizedUseCase || item.aliases.includes(normalizedUseCase),
+    );
+
+    return quickStart?.prompt ?? td("intakeQuickActionOtherPrompt");
+  }, [quickStarts, requestedUseCase, td]);
+
+  useEffect(() => {
+    if (!suggestedPrompt || useCasePrefillAppliedRef.current) {
+      return;
+    }
+
+    setComposerValue((current) => current || suggestedPrompt);
+    useCasePrefillAppliedRef.current = true;
+  }, [suggestedPrompt]);
+
+  useEffect(() => {
+    const spokenText = dictation.finalText.trim();
+    if (!spokenText) {
+      return;
+    }
+
+    setComposerValue(
+      (current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`,
+    );
+    dictation.resetText();
+  }, [dictation.finalText, dictation.resetText]);
 
   useEffect(() => {
     const runId = ++runIdRef.current;
 
     async function getLatestDraft(): Promise<DraftLetter | null> {
-      const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
-      return sortDraftsByActivity(drafts)[0] ?? null;
+      try {
+        const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
+        return sortDraftsByActivity(drafts)[0] ?? null;
+      } catch (error) {
+        if (error instanceof ApiError && error.status === 401) {
+          return null;
+        }
+        throw error;
+      }
     }
 
     async function bootstrap() {
@@ -102,33 +220,26 @@ export default function NewDraftPage() {
         setState({ kind: "loading" });
 
         try {
-          await apiFetch("/v1/sessions/current");
+          const { session } = await apiFetch<{ session: Session }>("/v1/sessions/current");
+          queryClient.setQueryData(queryKeys.session("current"), session);
           const existingDraft = await getLatestDraft();
           if (existingDraft) {
             setState({ kind: "resume", draft: existingDraft });
             return;
           }
+
+          if (runId === runIdRef.current) {
+            setState({ kind: "ready", hasActiveSession: true });
+          }
+          return;
         } catch (error) {
           if (!(error instanceof ApiError) || error.status !== 401) {
             throw error;
           }
         }
 
-        try {
-          await createFreshDraft();
-          return;
-        } catch (error) {
-          if (!(error instanceof ApiError) || error.status !== 429) {
-            throw error;
-          }
-
-          const existingDraft = await getLatestDraft().catch(() => null);
-          if (existingDraft) {
-            setState({ kind: "resume", draft: existingDraft });
-            return;
-          }
-
-          throw error;
+        if (runId === runIdRef.current) {
+          setState({ kind: "ready", hasActiveSession: false });
         }
       } catch (error) {
         const existingDraft = await getLatestDraft().catch(() => null);
@@ -149,7 +260,100 @@ export default function NewDraftPage() {
     }
 
     void bootstrap();
-  }, [retryCount, router, sessionLocale]);
+  }, [queryClient, retryCount]);
+
+  async function startDraft(options?: {
+    forceNewSession?: boolean;
+    initialMessage?: string;
+    pendingAction?: Exclude<PendingStartAction, null>;
+  }) {
+    if (isStartingDraft) {
+      return;
+    }
+
+    const initialMessage = options?.initialMessage?.trim() ?? "";
+    const forceNewSession = options?.forceNewSession ?? false;
+    const nextPendingAction = options?.pendingAction ?? (initialMessage ? "composer" : "fresh");
+
+    setSubmissionError(null);
+    setPendingStartAction(nextPendingAction);
+
+    try {
+      const mustCreateSession =
+        forceNewSession || (state.kind === "ready" && !state.hasActiveSession);
+
+      if (mustCreateSession) {
+        const { session } = await apiFetch<{ session: Session }>("/v1/sessions", {
+          method: "POST",
+          body: JSON.stringify({ locale: sessionLocale }),
+        });
+        queryClient.setQueryData(queryKeys.session("current"), session);
+
+        if (state.kind === "ready") {
+          setState({ kind: "ready", hasActiveSession: true });
+        }
+      }
+
+      const { draft } = await apiFetch<{ draft: DraftLetter }>("/v1/drafts", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      const seededDraft = normalizeDraft(draft);
+      queryClient.setQueryData(queryKeys.draft(draft.id), seededDraft);
+
+      if (initialMessage) {
+        const response = await apiFetch<{ message: ConversationMessagePayload }>(
+          `/v1/drafts/${draft.id}/messages`,
+          {
+            method: "POST",
+            body: JSON.stringify({ content: initialMessage }),
+          },
+        );
+
+        const seededMessage: ConversationMessage = {
+          ...response.message,
+          createdAt:
+            response.message.createdAt instanceof Date
+              ? response.message.createdAt
+              : new Date(response.message.createdAt),
+        };
+
+        queryClient.setQueryData<ConversationMessage[]>(
+          queryKeys.draftMessages(draft.id),
+          [seededMessage],
+        );
+        primePendingDraftTurn({ draftId: draft.id, messageId: seededMessage.id });
+      }
+
+      startTransition(() => {
+        router.replace(`/draft/${draft.id}`);
+      });
+    } catch (error) {
+      try {
+        const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
+        const existingDraft = sortDraftsByActivity(drafts)[0] ?? null;
+        if (existingDraft) {
+          setPendingStartAction(null);
+          setState({ kind: "resume", draft: existingDraft });
+          return;
+        }
+      } catch {
+        // Ignore fallback lookup failures and show the original error.
+      }
+
+      setSubmissionError(getErrorMessage(error));
+      setPendingStartAction(null);
+    }
+  }
+
+  function handleEntrySubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!composerValue.trim()) {
+      return;
+    }
+
+    void startDraft({ initialMessage: composerValue });
+  }
 
   if (state.kind === "resume") {
     const updatedAt = new Intl.DateTimeFormat(locale, {
@@ -158,104 +362,310 @@ export default function NewDraftPage() {
     }).format(new Date(state.draft.updatedAt ?? state.draft.createdAt));
 
     return (
-      <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="w-full max-w-lg rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
-          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-            {t("appName")}
-          </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
-            {tr("unfinishedTitle")}
-          </h1>
-          <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{tr("unfinishedBody")}</p>
-          <p className="mt-3 text-xs font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-            {tr("lastUpdated", { value: updatedAt })}
-          </p>
+      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+        <EntryHeader />
 
-          <div className="mt-8 flex flex-col gap-3">
-            <button
-              type="button"
-              className="cta-sheen inline-flex w-full items-center justify-center rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
-              onClick={() => {
-                router.replace(`/draft/${state.draft.id}`);
+        <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
+          <div className="w-full max-w-lg rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {tc("appName")}
+            </p>
+            <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
+              {tr("unfinishedTitle")}
+            </h1>
+            <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+              {tr("unfinishedBody")}
+            </p>
+            <p className="mt-3 text-xs font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {tr("lastUpdated", { value: updatedAt })}
+            </p>
+
+            <div className="mt-8 flex flex-col gap-3">
+              <ActionButton
+                fullWidth
+                loading={pendingStartAction === "resume"}
+                disabled={isStartingDraft}
+                onClick={() => {
+                  setPendingStartAction("resume");
+                  startTransition(() => {
+                    router.replace(`/draft/${state.draft.id}`);
+                  });
+                }}
+              >
+                {tr("continueDraft")}
+              </ActionButton>
+              <ActionButton
+                variant="secondary"
+                fullWidth
+                loading={pendingStartAction === "fresh"}
+                disabled={isStartingDraft}
+                onClick={() => setShowConfirmFresh(true)}
+              >
+                {tr("startFresh")}
+              </ActionButton>
+            </div>
+
+            {submissionError ? (
+              <p role="alert" className="mt-4 text-sm text-destructive">
+                {submissionError}
+              </p>
+            ) : null}
+
+            <ConfirmDialog
+              open={showConfirmFresh}
+              title={tr("startFreshConfirmTitle")}
+              description={tr("startFreshConfirmBody")}
+              confirmLabel={tc("startNewLetter")}
+              cancelLabel={tc("cancel")}
+              onConfirm={() => {
+                setShowConfirmFresh(false);
+                void startDraft({ forceNewSession: true, pendingAction: "fresh" });
               }}
-            >
-              {tr("continueDraft")}
-            </button>
-            <button
-              type="button"
-              className="inline-flex w-full items-center justify-center rounded-full border border-zinc-300/80 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-zinc-950 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-amber-400/60 dark:hover:text-white"
-              onClick={() => setShowConfirmFresh(true)}
-            >
-              {tr("startFresh")}
-            </button>
+              onCancel={() => {
+                if (isStartingDraft) {
+                  return;
+                }
+                setShowConfirmFresh(false);
+              }}
+              cancelDisabled={isStartingDraft}
+            />
           </div>
-
-          <ConfirmDialog
-            open={showConfirmFresh}
-            title={tr("startFreshConfirmTitle")}
-            description={tr("startFreshConfirmBody")}
-            confirmLabel={t("startNewLetter")}
-            cancelLabel={t("cancel")}
-            onConfirm={() => {
-              setShowConfirmFresh(false);
-              setState({ kind: "loading" });
-              void createFreshDraft().catch((error) => {
-                setState({
-                  kind: "error",
-                  message: getErrorMessage(error),
-                });
-              });
-            }}
-            onCancel={() => setShowConfirmFresh(false)}
-          />
-        </div>
+        </main>
       </div>
     );
   }
 
   if (state.kind === "error") {
     return (
-      <div className="flex min-h-screen items-center justify-center px-6">
-        <div className="w-full max-w-md rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
-          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-            {t("appName")}
-          </p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
-            {t("error")}
-          </h1>
-          <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{state.message}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="button"
-              className="cta-sheen inline-flex flex-1 items-center justify-center rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
-              onClick={() => {
-                setState({ kind: "loading" });
-                setRetryCount((count) => count + 1);
-              }}
-            >
-              {t("tryAgain")}
-            </button>
-            <button
-              type="button"
-              className="inline-flex flex-1 items-center justify-center rounded-full border border-zinc-300/80 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-zinc-950 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-amber-400/60 dark:hover:text-white"
-              onClick={() => {
-                router.replace("/");
-              }}
-            >
-              {t("backToHome")}
-            </button>
+      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+        <EntryHeader />
+
+        <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
+          <div className="w-full max-w-md rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
+            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {tc("appName")}
+            </p>
+            <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
+              {tc("error")}
+            </h1>
+            <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+              {state.message}
+            </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+              <ActionButton
+                className="sm:flex-1"
+                onClick={() => {
+                  setState({ kind: "loading" });
+                  setRetryCount((count) => count + 1);
+                }}
+              >
+                {tc("tryAgain")}
+              </ActionButton>
+              <ActionLink
+                href="/"
+                variant="secondary"
+                fullWidth
+                className="sm:flex-1"
+              >
+                {tc("backToHome")}
+              </ActionLink>
+            </div>
           </div>
-        </div>
+        </main>
       </div>
     );
   }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="text-center">
-        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-        <p className="mt-4 text-sm text-zinc-500">{t("loading")}</p>
+  if (state.kind === "loading") {
+    return (
+      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+        <EntryHeader />
+
+        <main className="flex min-h-[calc(100vh-73px)] items-center justify-center">
+          <div className="text-center">
+            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+              {tc("loading")}
+            </p>
+          </div>
+        </main>
       </div>
+    );
+  }
+
+  const helperText = dictation.error
+    ? td("dictationError")
+    : dictation.isRecording
+      ? dictation.interimText || td("voicePrimaryHint")
+      : null;
+
+  return (
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+      <EntryHeader />
+
+      <main
+        id="main-content"
+        className="mx-auto flex min-h-[calc(100vh-73px)] max-w-4xl items-center px-4 py-10 sm:px-6"
+      >
+        <div className="w-full rounded-[2rem] border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92 sm:p-8">
+          <div className="max-w-2xl">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {tc("appName")}
+            </p>
+            <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-4xl">
+              {td("entryTitle")}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-zinc-500 dark:text-zinc-400 sm:text-base">
+              {td("entrySubtitle")}
+            </p>
+          </div>
+
+          <form onSubmit={handleEntrySubmit} className="mt-8 space-y-4">
+            <label className="block">
+              <span className="sr-only">{td("entryTitle")}</span>
+              <textarea
+                autoFocus
+                rows={6}
+                value={composerValue}
+                onChange={(event) => {
+                  setComposerValue(event.target.value);
+                  setSubmissionError(null);
+                }}
+                placeholder={td("messagePlaceholder")}
+                className="app-form-control w-full resize-none rounded-[1.75rem] border border-zinc-200 px-5 py-4 text-base leading-7 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-700"
+              />
+            </label>
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  className={[
+                    "inline-flex min-h-12 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors",
+                    dictation.isRecording
+                      ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100"
+                      : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:text-white",
+                  ].join(" ")}
+                  onClick={() => {
+                    if (dictation.isRecording) {
+                      dictation.stopRecording();
+                      return;
+                    }
+
+                    dictation.startRecording(locale);
+                  }}
+                >
+                  {dictation.isRecording ? (
+                    <Square className="h-4 w-4" />
+                  ) : (
+                    <Mic className="h-4 w-4" />
+                  )}
+                  {dictation.isRecording ? td("stopDictation") : td("startDictation")}
+                </button>
+                {helperText ? (
+                  <p className="text-sm text-zinc-500 dark:text-zinc-400">{helperText}</p>
+                ) : null}
+              </div>
+
+              <ActionButton
+                type="submit"
+                loading={pendingStartAction === "composer"}
+                disabled={!composerValue.trim() || isStartingDraft}
+                leadingIcon={
+                  pendingStartAction === "composer" ? null : <Send className="h-4 w-4" />
+                }
+              >
+                {td("entryStart")}
+              </ActionButton>
+            </div>
+
+            {submissionError ? (
+              <p role="alert" className="text-sm text-destructive">
+                {submissionError}
+              </p>
+            ) : null}
+          </form>
+
+          <div className="mt-8 border-t border-zinc-200/80 pt-8 dark:border-zinc-800">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                {td("entryCommonTypes")}
+              </span>
+              <div className="h-px flex-1 bg-zinc-200/80 dark:bg-zinc-800" />
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {quickStarts.map((quickStart) => {
+                const Icon = quickStart.icon;
+                return (
+                  <button
+                    key={quickStart.slug}
+                    type="button"
+                    disabled={isStartingDraft}
+                    onClick={() => {
+                      setComposerValue(quickStart.prompt);
+                      void startDraft({
+                        initialMessage: quickStart.prompt,
+                        pendingAction: getQuickStartAction(quickStart.slug),
+                      });
+                    }}
+                    className="group rounded-[1.5rem] border border-zinc-200/80 bg-white px-5 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-70 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                        {pendingStartAction === getQuickStartAction(quickStart.slug) ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Icon className="h-5 w-5" />
+                        )}
+                      </span>
+                      <div>
+                        <p className="text-sm font-semibold text-zinc-950 transition-colors group-hover:text-zinc-700 dark:text-zinc-50 dark:group-hover:text-zinc-200">
+                          {quickStart.label}
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+                          {quickStart.prompt}
+                        </p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="mt-8 space-y-3">
+            <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+              {td("entryAttachmentsHint")}
+            </p>
+            <p className="text-xs leading-5 text-zinc-400 dark:text-zinc-500">
+              {td("entrySessionNotice")}
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
+  );
+}
+
+function EntryHeader() {
+  const tc = useTranslations("common");
+
+  return (
+    <header className="border-b border-[var(--app-border)] bg-[var(--app-surface-strong)] transition-colors">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+        <Link
+          href="/"
+          className="inline-flex min-w-0 items-center gap-3 text-sm font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+        >
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-950 text-xs font-semibold uppercase tracking-widest text-white shadow-sm dark:bg-amber-400 dark:text-zinc-950">
+            SM
+          </span>
+          <span className="truncate">{tc("appName")}</span>
+        </Link>
+
+        <LanguageSwitcher />
+      </div>
+    </header>
   );
 }

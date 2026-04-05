@@ -1,9 +1,31 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import { describe, expect, it } from "vitest";
 
 import deCH from "../src/messages/de-CH.json";
 import enCH from "../src/messages/en-CH.json";
 import frCH from "../src/messages/fr-CH.json";
 import itCH from "../src/messages/it-CH.json";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const stripePaymentFormSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/StripePaymentForm.tsx"),
+  "utf8",
+);
+const checkoutPageSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx"),
+  "utf8",
+);
+const useCheckoutSource = readFileSync(
+  path.join(repoRoot, "frontend/src/hooks/use-checkout.ts"),
+  "utf8",
+);
+const globalsCssSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/globals.css"),
+  "utf8",
+);
 
 const REQUIRED_CHECKOUT_KEYS = [
   "title",
@@ -22,13 +44,23 @@ const REQUIRED_CHECKOUT_KEYS = [
   "delivery",
   "deliveryStandardLabel",
   "deliveryRegisteredLabel",
+  "providerQuoteLabel",
+  "swissMailServiceLabel",
   "secureCheckout",
   "paymentHelp",
   "total",
+  "livePricingTitle",
+  "priceUnavailable",
+  "pricingPending",
+  "pricingLoading",
+  "pricingBlockedBody",
+  "pricingBlockedEnvironmentBody",
+  "paymentBlockedEnvironmentBody",
   "paymentConfirming",
   "paymentError",
   "enterPaymentDetails",
   "continueToPayment",
+  "backToReview",
 ] as const;
 
 const locales = [
@@ -58,4 +90,57 @@ describe("checkout i18n keys", () => {
       }
     });
   }
+});
+
+describe("checkout footer actions", () => {
+  it("keeps checkout focused on payment instead of exposing draft step navigation", () => {
+    expect(checkoutPageSource).not.toContain("<DraftStepMenu");
+  });
+
+  it("uses the shared action button in the checkout form", () => {
+    expect(checkoutPageSource).toContain("<ActionButton");
+  });
+
+  it("keeps an always-visible route back to review in the checkout header", () => {
+    expect(checkoutPageSource).toContain("actions={");
+    expect(checkoutPageSource).toContain("<ActionLink");
+    expect(checkoutPageSource).toContain('t("backToReview")');
+    expect(checkoutPageSource).toContain("<ArrowLeft");
+  });
+
+  it("uses the shared action button in the Stripe payment footer", () => {
+    expect(stripePaymentFormSource).toContain("<ActionButton");
+  });
+
+  it("uses the shared form-control utility and Stripe 16px base sizing", () => {
+    expect(globalsCssSource).toContain(".app-form-control");
+    expect(checkoutPageSource).toContain("app-form-control");
+    expect(checkoutPageSource).toContain('fontSizeBase: "16px"');
+  });
+
+  it("does not treat the missing pre-checkout payment lookup as a blocking error", () => {
+    expect(useCheckoutSource).toContain("isApiErrorWithStatus(error, 404)");
+  });
+
+  it("surfaces backend user messages instead of a generic pay-page failure label", () => {
+    expect(checkoutPageSource).toContain("getApiErrorUserMessage(checkout.error)");
+  });
+
+  it("renders a blocked checkout state when live postal pricing is unavailable", () => {
+    expect(checkoutPageSource).toContain("showCheckoutBlockedState");
+    expect(checkoutPageSource).toContain('t("pricingBlockedEnvironmentBody")');
+    expect(checkoutPageSource).toContain("router.push(`/draft/${draftId}/review`)");
+  });
+
+  it("renders a blocked checkout state when Stripe is not configured with real keys", () => {
+    expect(checkoutPageSource).toContain("hasConfiguredStripePublishableKey");
+    expect(checkoutPageSource).toContain('checkoutErrorCode === "STRIPE_NOT_CONFIGURED"');
+    expect(checkoutPageSource).toContain('t("paymentBlockedEnvironmentBody")');
+  });
+
+  it("waits for rendering to finish before requesting a live quote", () => {
+    expect(checkoutPageSource).toContain('!["reviewed", "rendering"].includes');
+    expect(checkoutPageSource).toContain("quoteEnabled={canRequestQuote}");
+    expect(checkoutPageSource).toContain('t("pricingPending")');
+  });
 });

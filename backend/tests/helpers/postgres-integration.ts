@@ -1,0 +1,75 @@
+import { randomUUID } from "node:crypto";
+import { readdir, readFile } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+import { drizzle } from "drizzle-orm/node-postgres";
+import pg from "pg";
+
+import * as appSchema from "../../src/db/schema.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const migrationsDir = path.resolve(__dirname, "../../drizzle");
+
+export const integrationDatabaseUrl =
+  process.env.SWISS_MAIL_TEST_DATABASE_URL ?? process.env.DATABASE_URL ?? null;
+
+function getTempSchemaName(): string {
+  return `itest_${randomUUID().replace(/-/g, "_")}`;
+}
+
+function rewriteMigrationSql(sql: string, schemaName: string): string {
+  return sql.replaceAll('"public".', `"${schemaName}".`);
+}
+
+async function applyMigrations(client: pg.Client, schemaName: string): Promise<void> {
+  await client.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto`);
+
+  const migrationFiles = (await readdir(migrationsDir))
+    .filter((entry) => entry.endsWith(".sql"))
+    .sort();
+
+  for (const migrationFile of migrationFiles) {
+    const rawSql = await readFile(path.join(migrationsDir, migrationFile), "utf8");
+    const statements = rewriteMigrationSql(rawSql, schemaName)
+      .split("--> statement-breakpoint")
+      .map((statement) => statement.trim())
+      .filter(Boolean);
+
+    for (const statement of statements) {
+      await client.query(statement);
+    }
+  }
+}
+
+export async function createIntegrationDb() {
+  if (!integrationDatabaseUrl) {
+    throw new Error("No integration database URL configured");
+  }
+
+  const client = new pg.Client({ connectionString: integrationDatabaseUrl });
+  const schemaName = getTempSchemaName();
+
+  await client.connect();
+
+  try {
+    await client.query(`CREATE SCHEMA "${schemaName}"`);
+    await client.query(`SET search_path TO "${schemaName}"`);
+    await applyMigrations(client, schemaName);
+
+    const db = drizzle(client, { schema: appSchema });
+
+    return {
+      db,
+      schemaName,
+      async cleanup() {
+        await client.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`);
+        await client.end();
+      },
+    };
+  } catch (error) {
+    await client.query(`DROP SCHEMA IF EXISTS "${schemaName}" CASCADE`).catch(() => {});
+    await client.end().catch(() => {});
+    throw error;
+  }
+}

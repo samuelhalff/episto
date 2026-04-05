@@ -35,11 +35,16 @@ export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
           dispatchAttemptId: dispatch.id,
           state: dispatch.state,
           providerRef: dispatch.providerReference ?? null,
+          trackingNumber: dispatch.trackingNumber ?? null,
           submittedAt: dispatch.submittedAt?.toISOString() ?? null,
-          acceptedAt: null,
-          rejectedAt: null,
+          acceptedAt:
+            ["accepted", "reconciled"].includes(dispatch.state)
+              ? dispatch.updatedAt.toISOString()
+              : null,
+          rejectedAt:
+            dispatch.state === "rejected" ? dispatch.updatedAt.toISOString() : null,
           rejectionReason: dispatch.failureReason ?? null,
-          trackingAvailable: false,
+          trackingAvailable: Boolean(dispatch.trackingNumber),
           lastCheckedAt: dispatch.lastCheckedAt?.toISOString() ?? null,
         },
       });

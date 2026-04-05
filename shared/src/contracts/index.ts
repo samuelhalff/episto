@@ -4,7 +4,12 @@ import {
   LocaleSchema,
   DeliveryTypeSchema,
   SwissPostalCodeSchema,
+  FileAssetSchema,
 } from "../schemas/index.ts";
+import {
+  DispatchAttachmentPolicySchema,
+  PostalPostageSchema,
+} from "../dispatch-provider.ts";
 import { DRAFT_CONTENT_LIMITS } from "../limits.ts";
 
 // ---------------------------------------------------------------------------
@@ -109,12 +114,100 @@ export interface OrderStatusPayment {
 export interface OrderStatusDispatch {
   state: string;
   providerRef: string | null;
+  trackingNumber: string | null;
   submittedAt: string | null;
   acceptedAt: string | null;
   rejectedAt: string | null;
   trackingAvailable: boolean;
   lastCheckedAt: string | null;
 }
+
+export interface DraftDispatchQuoteLineItem {
+  label: string;
+  amountCents: number;
+  source: "provider" | "swiss_mail";
+}
+
+export interface DraftDispatchQuote {
+  draftId: string;
+  snapshotId: string;
+  deliveryType: string;
+  providerQuotedCents: number;
+  swissMailMarkupCents: number;
+  totalCents: number;
+  currency: "CHF";
+  providerQuoteReference: string | null;
+  attachmentHandling: "excluded" | "single_hint" | "unverified";
+  lineItems: DraftDispatchQuoteLineItem[];
+}
+
+export interface DraftDispatchQuoteResponse {
+  quote: DraftDispatchQuote;
+}
+
+export const DraftAttachmentConstraintsSchema = DispatchAttachmentPolicySchema.extend({
+  maxFileBytes: z.number().int().positive(),
+  maxTotalBytes: z.number().int().positive(),
+});
+
+export const DraftFilesResponseSchema = z.object({
+  files: z.array(FileAssetSchema),
+  attachmentConstraints: DraftAttachmentConstraintsSchema,
+});
+
+export const PublicPricingTierSchema = z.object({
+  totalCents: z.number().int().nonnegative(),
+  displayPrice: z.string().min(1),
+  currency: z.literal("CHF"),
+  providerQuotedCents: z.number().int().nonnegative(),
+  providerQuotedDisplayPrice: z.string().min(1),
+  swissMailMarkupCents: z.number().int().nonnegative(),
+  swissMailMarkupDisplayPrice: z.string().min(1),
+});
+
+export const ProviderPrintRateSchema = z.object({
+  simplexCents: z.number().int().nonnegative(),
+  duplexCents: z.number().int().nonnegative(),
+});
+
+export const ProviderPostageRateSchema = z.object({
+  A_POST: z.number().int().nonnegative(),
+  B_POST: z.number().int().nonnegative(),
+  B_POST_LARGEVOLUME: z.number().int().nonnegative(),
+  A_PLUS: z.number().int().nonnegative(),
+  REGISTERED: z.number().int().nonnegative(),
+});
+
+export const PublicPricingReferenceScenarioSchema = z.object({
+  printedPages: z.number().int().positive(),
+  physicalSheets: z.number().int().positive(),
+  envelopeFormat: z.enum(["C5", "C4"]),
+  standardPostage: PostalPostageSchema,
+  registeredPostage: PostalPostageSchema,
+});
+
+export const PublicPricingResponseSchema = z.object({
+  standard: PublicPricingTierSchema,
+  registered: PublicPricingTierSchema,
+  registeredSurchargeCents: z.number().int().nonnegative(),
+  registeredSurchargeDisplayPrice: z.string().min(1),
+  providerBreakdown: z.object({
+    providerName: z.literal("ePost"),
+    note: z.string().min(1),
+    sourceUrl: z.string().url(),
+    verifiedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    perPrintedPageCents: z.number().int().nonnegative(),
+    perA4SheetCents: z.number().int().nonnegative(),
+    envelopeC5Cents: z.number().int().nonnegative(),
+    envelopeC4Cents: z.number().int().nonnegative(),
+    postageCents: ProviderPostageRateSchema,
+    firstSheetC5Cents: ProviderPrintRateSchema,
+    additionalA4SheetCents: ProviderPrintRateSchema,
+    referenceScenario: PublicPricingReferenceScenarioSchema,
+    pricesExcludeVat: z.boolean(),
+    currency: z.literal("CHF"),
+  }),
+});
 
 /** Response shape for GET /api/v1/orders/:orderToken */
 export interface OrderStatusResponse {
@@ -139,9 +232,28 @@ export type UpdateDraftInputType = z.infer<typeof UpdateDraftInput>;
 export type CreateSenderProfileInputType = z.infer<typeof CreateSenderProfileInput>;
 export type CreateRecipientProfileInputType = z.infer<typeof CreateRecipientProfileInput>;
 export type SendMessageInputType = z.infer<typeof SendMessageInput>;
-export type RecipientCompanySearchQueryInputType = z.infer<typeof RecipientCompanySearchQueryInput>;
-export type RecipientCompanyDetailsQueryInputType = z.infer<typeof RecipientCompanyDetailsQueryInput>;
-export type RecipientCompanySearchResultType = z.infer<typeof RecipientCompanySearchResult>;
-export type RecipientCompanySearchResponseType = z.infer<typeof RecipientCompanySearchResponse>;
+export type RecipientCompanySearchQueryInputType = z.infer<
+  typeof RecipientCompanySearchQueryInput
+>;
+export type RecipientCompanyDetailsQueryInputType = z.infer<
+  typeof RecipientCompanyDetailsQueryInput
+>;
+export type RecipientCompanySearchResultType = z.infer<
+  typeof RecipientCompanySearchResult
+>;
+export type RecipientCompanySearchResponseType = z.infer<
+  typeof RecipientCompanySearchResponse
+>;
 export type RecipientCompanyDetailsType = z.infer<typeof RecipientCompanyDetails>;
-export type RecipientCompanyDetailsResponseType = z.infer<typeof RecipientCompanyDetailsResponse>;
+export type RecipientCompanyDetailsResponseType = z.infer<
+  typeof RecipientCompanyDetailsResponse
+>;
+export type DraftAttachmentConstraints = z.infer<typeof DraftAttachmentConstraintsSchema>;
+export type DraftFilesResponse = z.infer<typeof DraftFilesResponseSchema>;
+export type PublicPricingTier = z.infer<typeof PublicPricingTierSchema>;
+export type ProviderPrintRate = z.infer<typeof ProviderPrintRateSchema>;
+export type ProviderPostageRate = z.infer<typeof ProviderPostageRateSchema>;
+export type PublicPricingReferenceScenario = z.infer<
+  typeof PublicPricingReferenceScenarioSchema
+>;
+export type PublicPricingResponse = z.infer<typeof PublicPricingResponseSchema>;

@@ -1,13 +1,19 @@
 import { eq, and, sql } from "drizzle-orm";
-import type { Db } from "../../db/index.js";
-import { schema } from "../../db/index.js";
-import { notFoundError, validationError } from "../../shared/errors/index.js";
-import { AppError } from "../../shared/errors/index.js";
 import {
   FILE_LIMITS,
   getUploadByteLimit,
   isAllowedUploadMimeType,
+  type DraftAttachmentConstraints,
 } from "@swiss-mail/shared";
+
+import type { Db } from "../../db/index.js";
+import { schema } from "../../db/index.js";
+import { notFoundError, validationError } from "../../shared/errors/index.js";
+import {
+  createAttachmentLimitError,
+  createAttachmentMimeTypeError,
+} from "../dispatch/adapters/provider-capabilities.js";
+import { getDispatchAdapter } from "../dispatch/adapters/postal.adapter.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,6 +48,16 @@ export function signatureStorageKey(sessionId: string, fileId: string): string {
 
 export function renderStorageKey(draftId: string, version: number): string {
   return `renders/${draftId}/${version}.pdf`;
+}
+
+export function getDraftAttachmentConstraints(): DraftAttachmentConstraints {
+  const attachmentPolicy = getDispatchAdapter().getCapabilities().attachmentPolicy;
+
+  return {
+    ...attachmentPolicy,
+    maxFileBytes: getUploadByteLimit("attachment"),
+    maxTotalBytes: FILE_LIMITS.totalDraftUploadBytes,
+  };
 }
 
 export async function getDraftUploadTotalBytes(
@@ -81,6 +97,15 @@ export async function createFileAsset(
   },
 ): Promise<FileAssetRow> {
   if (data.kind !== "rendered_pdf") {
+    if (data.kind === "attachment") {
+      const attachmentConstraints = getDraftAttachmentConstraints();
+      if (!attachmentConstraints.allowedMimeTypes.includes(data.mimeType)) {
+        throw createAttachmentMimeTypeError(attachmentConstraints);
+      }
+    } else if (!isAllowedUploadMimeType(data.kind, data.mimeType)) {
+      throw validationError("Unsupported file type for signature. Allowed: PNG, JPEG");
+    }
+
     if (data.sizeBytes > getUploadByteLimit(data.kind)) {
       throw validationError(
         data.kind === "attachment"
@@ -88,17 +113,10 @@ export async function createFileAsset(
           : "Signature exceeds maximum size of 2 MB",
       );
     }
-
-    if (!isAllowedUploadMimeType(data.kind, data.mimeType)) {
-      throw validationError(
-        data.kind === "attachment"
-          ? "Unsupported file type for attachment. Allowed: PDF, PNG, JPEG"
-          : "Unsupported file type for signature. Allowed: PNG, JPEG",
-      );
-    }
   }
 
   if (data.kind === "attachment" && data.draftId) {
+    const attachmentConstraints = getDraftAttachmentConstraints();
     const existing = await db
       .select({ id: schema.fileAssets.id })
       .from(schema.fileAssets)
@@ -110,15 +128,8 @@ export async function createFileAsset(
         ),
       );
 
-    if (existing.length >= FILE_LIMITS.maxAttachmentsPerDraft) {
-      throw new AppError({
-        family: "policy_refusal",
-        statusCode: 422,
-        code: "ATTACHMENT_LIMIT_REACHED",
-        message: `Maximum ${FILE_LIMITS.maxAttachmentsPerDraft} attachments per draft`,
-        userMessage: `You can attach up to ${FILE_LIMITS.maxAttachmentsPerDraft} files per letter.`,
-        userAction: "Remove an existing attachment before adding a new one.",
-      });
+    if (existing.length >= attachmentConstraints.maxAttachmentsPerDraft) {
+      throw createAttachmentLimitError(attachmentConstraints);
     }
   }
 

@@ -42,22 +42,26 @@ function getRecipientPreviewName(recipient: {
 interface StepProps {
   draftId: string;
   onNext: () => void;
+  onPrevious?: (() => void) | undefined;
   onStepClick: () => void;
   isStepMenuOpen?: boolean;
   isCompactViewport?: boolean;
   onInputFocusChange?: (focused: boolean) => void;
   isNavigating?: boolean;
+  previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
 }
 
 export function RecipientStep({
   draftId,
   onNext,
+  onPrevious,
   onStepClick,
   isStepMenuOpen,
   isCompactViewport,
   onInputFocusChange,
   isNavigating,
+  previousStepLabel,
   furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
@@ -71,7 +75,8 @@ export function RecipientStep({
   const [showManual, setShowManual] = useState(false);
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
-  const [selectedCompany, setSelectedCompany] = useState<RecipientCompanySearchResultType | null>(null);
+  const [selectedCompany, setSelectedCompany] =
+    useState<RecipientCompanySearchResultType | null>(null);
   const [addressLine1, setAddressLine1] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
@@ -91,7 +96,16 @@ export function RecipientStep({
         postalCode,
         city,
       }) satisfies RecipientDraftFormState,
-    [addressLine1, city, companyName, fullName, isCompany, postalCode, selectedCompany, showManual],
+    [
+      addressLine1,
+      city,
+      companyName,
+      fullName,
+      isCompany,
+      postalCode,
+      selectedCompany,
+      showManual,
+    ],
   );
   const recipientAutosave = useQueuedAutosave({
     value: recipientForm,
@@ -105,7 +119,11 @@ export function RecipientStep({
       });
     },
   });
-  const companySearch = useRecipientCompanySearch(draftId, companyName, isCompany && !showManual);
+  const companySearch = useRecipientCompanySearch(
+    draftId,
+    companyName,
+    isCompany && !showManual,
+  );
   const companyDetails = useRecipientCompanyDetails(
     draftId,
     selectedCompany?.id ?? "",
@@ -116,9 +134,14 @@ export function RecipientStep({
   const shouldShowCompanySearchResults =
     isCompany && !showManual && companyName.trim().length >= 2;
   const companySelectionHint =
-    isCompany && showManual && companyName.trim().length > 0 ? t("companySelectedHint") : null;
+    isCompany && showManual && companyName.trim().length > 0
+      ? t("companySelectedHint")
+      : null;
   const selectedCompanyRegistryRef =
-    selectedCompany?.registryUid ?? selectedCompany?.registryId ?? selectedCompany?.registryChid ?? null;
+    selectedCompany?.registryUid ??
+    selectedCompany?.registryId ??
+    selectedCompany?.registryChid ??
+    null;
 
   function handleCompanySearchChange(value: string) {
     setCompanyName(value);
@@ -167,10 +190,16 @@ export function RecipientStep({
       const recipientName = getRecipientPreviewName(preview.previewData.recipient);
       const parts = recipientName.split(" ");
       const recipientPreview = {
-        isCompany: Boolean(preview.previewData.recipient.company?.trim()) || parts.length < 2,
-        showManual: Boolean(preview.previewData.recipient.company?.trim()) || parts.length >= 2,
+        isCompany:
+          Boolean(preview.previewData.recipient.company?.trim()) || parts.length < 2,
+        showManual:
+          Boolean(preview.previewData.recipient.company?.trim()) || parts.length >= 2,
         fullName: preview.previewData.recipient.company?.trim() ? "" : recipientName,
-        companyName: preview.previewData.recipient.company?.trim() ? recipientName : parts.length >= 2 ? "" : recipientName,
+        companyName: preview.previewData.recipient.company?.trim()
+          ? recipientName
+          : parts.length >= 2
+            ? ""
+            : recipientName,
         selectedCompany: null,
         addressLine1: preview.previewData.recipient.addressLine1 ?? "",
         postalCode: preview.previewData.recipient.postalCode ?? "",
@@ -251,7 +280,13 @@ export function RecipientStep({
   ]);
 
   const missingItems = [
-    isCompany ? (!companyName.trim() ? t("companyNameLabel") : null) : (!fullName.trim() ? t("fullName") : null),
+    isCompany
+      ? !companyName.trim()
+        ? t("companyNameLabel")
+        : null
+      : !fullName.trim()
+        ? t("fullName")
+        : null,
     !addressLine1.trim() ? t("streetAddress") : null,
     !postalCode.trim() ? t("zipCode") : null,
     !city.trim() ? t("city") : null,
@@ -310,6 +345,8 @@ export function RecipientStep({
       subtitle={t("recipientDetailsSubtitle")}
       onStepClick={onStepClick}
       stepTriggerLabel={t("stepMenuLabel")}
+      secondaryActionLabel={previousStepLabel}
+      onSecondaryAction={onPrevious}
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isFormFocused}
       isCompactViewport={isCompactViewport}
@@ -323,7 +360,7 @@ export function RecipientStep({
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}
         >
-          {t("confirmRecipient")}
+          {t("continueToContent")}
         </PrimaryButton>
       }
     >
@@ -332,8 +369,16 @@ export function RecipientStep({
           <div className="px-1">
             <SegmentedControl
               options={[
-                { value: "person" as const, label: t("personLabel"), icon: <User className="h-3 w-3" /> },
-                { value: "company" as const, label: t("companyLabel"), icon: <Building2 className="h-3 w-3" /> },
+                {
+                  value: "person" as const,
+                  label: t("personLabel"),
+                  icon: <User className="h-3 w-3" />,
+                },
+                {
+                  value: "company" as const,
+                  label: t("companyLabel"),
+                  icon: <Building2 className="h-3 w-3" />,
+                },
               ]}
               value={isCompany ? "company" : "person"}
               onChange={(v) => {
@@ -353,7 +398,11 @@ export function RecipientStep({
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <FieldIconBadge>
-                    {isCompany ? <Building2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
+                    {isCompany ? (
+                      <Building2 className="h-6 w-6" />
+                    ) : (
+                      <User className="h-6 w-6" />
+                    )}
                   </FieldIconBadge>
                   <div className={`flex-1 ${isCompany ? "space-y-2" : "space-y-1"}`}>
                     <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
@@ -371,7 +420,9 @@ export function RecipientStep({
                             </div>
                             {selectedCompany.legalSeat ? (
                               <div className="break-words text-xs leading-5 text-zinc-500 dark:text-zinc-300">
-                                {t("companySearchSeat", { seat: selectedCompany.legalSeat })}
+                                {t("companySearchSeat", {
+                                  seat: selectedCompany.legalSeat,
+                                })}
                               </div>
                             ) : null}
                             {selectedCompanyRegistryRef ? (
@@ -411,16 +462,16 @@ export function RecipientStep({
                             target.style.height = "auto";
                             target.style.height = `${target.scrollHeight}px`;
                           }}
-                           placeholder={t("searchCompanyPlaceholder")}
-                           rows={1}
-                          className="w-full resize-none overflow-hidden bg-transparent pr-8 text-base font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                          />
-                          {companySearch.isFetching ? (
-                            <Loader2 className="absolute right-0 top-1 h-5 w-5 animate-spin text-zinc-300 dark:text-zinc-500" />
-                          ) : (
-                            <Search className="absolute right-0 top-1 h-5 w-5 text-zinc-300 dark:text-zinc-600" />
-                          )}
-                       </div>
+                          placeholder={t("searchCompanyPlaceholder")}
+                          rows={1}
+                          className="app-form-control w-full resize-none overflow-hidden bg-transparent pr-8 font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                        />
+                        {companySearch.isFetching ? (
+                          <Loader2 className="absolute right-0 top-1 h-5 w-5 animate-spin text-zinc-300 dark:text-zinc-500" />
+                        ) : (
+                          <Search className="absolute right-0 top-1 h-5 w-5 text-zinc-300 dark:text-zinc-600" />
+                        )}
+                      </div>
                     ) : isCompany ? (
                       <textarea
                         name="recipientCompanyName"
@@ -442,8 +493,8 @@ export function RecipientStep({
                         }}
                         placeholder={t("companyNameLabel")}
                         rows={1}
-                          className="w-full resize-none overflow-hidden bg-transparent text-base font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                       />
+                        className="app-form-control w-full resize-none overflow-hidden bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                      />
                     ) : (
                       <textarea
                         name="recipientFullName"
@@ -465,7 +516,7 @@ export function RecipientStep({
                         }}
                         placeholder={t("fullName")}
                         rows={1}
-                        className="w-full resize-none overflow-hidden bg-transparent text-base font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                        className="app-form-control w-full resize-none overflow-hidden bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
                       />
                     )}
                   </div>
@@ -487,13 +538,15 @@ export function RecipientStep({
                     <FieldIconBadge>
                       <MapPin className="h-6 w-6" />
                     </FieldIconBadge>
-                     <div className="flex-1 space-y-3">
-                       {companySelectionHint ? (
-                         <p className="text-sm text-zinc-500 dark:text-zinc-300">{companySelectionHint}</p>
-                       ) : null}
-                       <div className="space-y-1">
-                         <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                           {t("streetAddress")}
+                    <div className="flex-1 space-y-3">
+                      {companySelectionHint ? (
+                        <p className="text-sm text-zinc-500 dark:text-zinc-300">
+                          {companySelectionHint}
+                        </p>
+                      ) : null}
+                      <div className="space-y-1">
+                        <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                          {t("streetAddress")}
                         </div>
                         <input
                           name="recipientAddressLine1"
@@ -509,7 +562,7 @@ export function RecipientStep({
                             onInputFocusChange?.(false);
                           }}
                           placeholder={t("streetPlaceholder")}
-                           className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                          className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                         />
                       </div>
                       <div className="flex gap-4">
@@ -532,7 +585,7 @@ export function RecipientStep({
                               onInputFocusChange?.(false);
                             }}
                             placeholder={t("zipPlaceholder")}
-                             className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                            className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                           />
                         </div>
                         <div className="flex-1 space-y-1">
@@ -553,7 +606,7 @@ export function RecipientStep({
                               onInputFocusChange?.(false);
                             }}
                             placeholder={t("cityPlaceholder")}
-                            className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-600 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                            className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-600 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                           />
                         </div>
                       </div>
@@ -573,13 +626,13 @@ export function RecipientStep({
                   </div>
                 )}
 
-                 {isCompany && showManual && !selectedCompany && (
-                   <div className="pl-16">
-                     <button
-                       onClick={handleEditCompanySelection}
-                       className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-600"
-                     >
-                       <Search className="h-3 w-3" />
+                {isCompany && showManual && !selectedCompany && (
+                  <div className="pl-16">
+                    <button
+                      onClick={handleEditCompanySelection}
+                      className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-600"
+                    >
+                      <Search className="h-3 w-3" />
                       {t("backToSearch")}
                     </button>
                   </div>

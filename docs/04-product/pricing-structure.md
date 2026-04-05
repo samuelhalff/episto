@@ -1,13 +1,13 @@
 # Pricing Structure
 
-**Status:** Pricing structure and MVP launch amounts are locked.
+**Status:** Pricing structure is locked; exact public launch amounts remain config-backed.
 **See also:** [`auth-billing-accounts.md`](auth-billing-accounts.md), [`email-flows.md`](email-flows.md), [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md), [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
 
 ---
 
 ## Objective
 
-Define what checkout must be truthful about with the MVP launch prices locked.
+Define what checkout must be truthful about with provider-quoted pricing plus Swiss Mail markup.
 
 ---
 
@@ -18,25 +18,23 @@ Define what checkout must be truthful about with the MVP launch prices locked.
 - Checkout must show an **itemized breakdown** before redirecting to Stripe.
 - The charged amount must be persisted on the `PaymentAttempt`; never recompute historical orders from current config.
 - Exact price amounts are **configuration**, not code constants.
-- Locked launch prices must still be re-validated against real provider commercial terms before
-  public launch.
+- Provider economics must still be re-validated against real commercial terms before public launch.
 
-### Locked MVP launch prices
+### Locked MVP price model
 
-**Status:** Provisional for MVP Build.
-**Commercial Gate:** These values must be re-validated against `commercial_ready` criteria defined in [`../01-vision/business-model.md`](../01-vision/business-model.md) prior to public launch. Do not treat them as final until the gate is passed.
+**Status:** Locked for implementation.
 
-| Item | Locked amount |
-|---|---|
-| Standard letter | **CHF 4.90** |
-| Registered letter | **CHF 8.90** |
+The exact charged amount is:
 
-**Note on surcharges:** Page count and attachment surcharges are explicitly disabled for the MVP launch.
-The base fee covers up to 5 pages and any allowed attachments.
+1. provider quote for the actual draft via ePost preview
+2. plus a configurable Swiss Mail markup
 
 Config keys:
-- `PRICE_STANDARD_CENTS=490`
-- `PRICE_REGISTERED_CENTS=890`
+- `PRICE_STANDARD_MARKUP_CENTS`
+- `PRICE_REGISTERED_MARKUP_CENTS`
+
+Public generic pricing surfaces may show indicative starting prices, but checkout must use the
+draft-specific provider quote.
 
 ---
 
@@ -44,10 +42,9 @@ Config keys:
 
 The canonical structure is:
 
-1. Base service fee
-2. Delivery-type surcharge, if applicable
-3. Page-based surcharges, if approved for launch
-4. Attachment-related surcharge, only if the chosen dispatch path and pricing policy both support it
+1. Provider quote
+2. Swiss Mail markup
+3. Any future approved provider-dependent surcharges
 
 The UI may show only the components that are actually enabled. Do not surface optional pricing rows with `CHF 0.00` unless product explicitly wants them shown as "included."
 
@@ -55,19 +52,19 @@ The UI may show only the components that are actually enabled. Do not surface op
 
 For MVP, the enabled rows are:
 
-1. `Base service fee`
-2. `Registered delivery surcharge` only when the user selects registered mail
+1. `Provider quote`
+2. `Swiss Mail service`
 
 Locked MVP exclusions:
 
-- no page-count surcharge at launch
-- no attachment surcharge at launch
+- no extra page-count surcharge layered on top of the provider quote at launch
+- no independent attachment surcharge layered on top of the provider quote at launch
 - no coupon/promotion system at launch
 - no color-printing pricing tier at launch
 
 ## What the launch price covers
 
-The locked launch price is for the full Swiss Mail flow, not only "mailing a PDF."
+The charged amount is for the full Swiss Mail flow, not only "mailing a PDF."
 
 It may cover:
 
@@ -160,8 +157,7 @@ Only call a refund complete once Stripe confirms it. Support and UI copy must di
 - Format all customer-facing amounts through a shared CHF formatter
 - Never embed launch prices directly in component logic or backend business logic
 - Keep pricing config versioned and auditable
-- Do not model price as independent from provider economics just because the launch values are
-  currently locked
+- Do not model price as independent from provider economics
 
 Allowed:
 - documentation examples that explicitly state the locked MVP amounts
@@ -173,7 +169,7 @@ Allowed:
 
 | Decision | Status |
 |---|---|
-| Exact launch amounts | Locked — CHF 4.90 standard / CHF 8.90 registered |
+| Exact launch amounts | Locked as config-backed provider quote plus Swiss Mail markup |
 | Whether page-based surcharges are enabled at launch | Locked — no |
 | Whether attachment-related surcharges are enabled at launch | Locked — no |
 | Whether promotions/coupons exist at launch | Locked — no |

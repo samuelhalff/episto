@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Fragment,
-  type CSSProperties,
-  type ReactNode,
-} from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
 import type {
   DocumentBlock,
   DocumentModel,
@@ -14,7 +10,7 @@ import type {
 
 export function DocumentPreview({ document }: { document: DocumentModel }) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 text-zinc-700 dark:text-zinc-200">
       {document.blocks.map((block, index) => (
         <Fragment key={`${block.type}-${index}`}>{renderBlock(block)}</Fragment>
       ))}
@@ -65,7 +61,7 @@ function renderBlock(block: DocumentBlock) {
   if (block.type === "list") {
     const ListTag = block.listType === "numbered" ? "ol" : "ul";
     return (
-      <ListTag className="ml-6 space-y-2">
+      <ListTag className="ml-6 space-y-2 text-zinc-700 dark:text-zinc-200">
         {block.items.map((item, index) => (
           <ListItemPreview key={`${item.text}-${index}`} item={item} />
         ))}
@@ -75,13 +71,13 @@ function renderBlock(block: DocumentBlock) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm">
+      <table className="w-full border-collapse text-left text-sm text-zinc-700 dark:text-zinc-200">
         <thead>
-          <tr className="bg-zinc-100">
+          <tr className="bg-zinc-100 dark:bg-zinc-800">
             {block.headers.map((header) => (
               <th
                 key={header}
-                className="border border-zinc-300 px-3 py-2 font-semibold text-zinc-800"
+                className="border border-zinc-300 px-3 py-2 font-semibold text-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
               >
                 {header}
               </th>
@@ -94,7 +90,7 @@ function renderBlock(block: DocumentBlock) {
               {row.map((cell, cellIndex) => (
                 <td
                   key={`cell-${rowIndex}-${cellIndex}`}
-                  className="border border-zinc-300 px-3 py-2 align-top"
+                  className="border border-zinc-300 px-3 py-2 align-top dark:border-zinc-700"
                 >
                   {cell}
                 </td>
@@ -109,7 +105,7 @@ function renderBlock(block: DocumentBlock) {
 
 function ListItemPreview({ item }: { item: ListItem }) {
   return (
-    <li className="leading-relaxed">
+    <li className="leading-relaxed text-zinc-700 dark:text-zinc-200">
       <span>{renderInlineText(item.text, item.spans ?? [])}</span>
       {item.children && item.children.length > 0 ? (
         <ul className="ml-6 mt-2 space-y-2">
@@ -123,11 +119,13 @@ function ListItemPreview({ item }: { item: ListItem }) {
 }
 
 function paragraphClassName(style: string, alignment?: string): string {
-  const classes = ["whitespace-pre-wrap", "text-zinc-700"];
-  if (style === "Heading 1") classes.push("text-2xl", "font-bold", "text-zinc-900");
-  else if (style === "Heading 2") classes.push("text-xl", "font-bold", "text-zinc-900");
+  const classes = ["whitespace-pre-wrap", "text-zinc-700", "dark:text-zinc-200"];
+  if (style === "Heading 1")
+    classes.push("text-2xl", "font-bold", "text-zinc-900", "dark:text-zinc-50");
+  else if (style === "Heading 2")
+    classes.push("text-xl", "font-bold", "text-zinc-900", "dark:text-zinc-50");
   else if (style === "Heading 3")
-    classes.push("text-lg", "font-semibold", "text-zinc-900");
+    classes.push("text-lg", "font-semibold", "text-zinc-900", "dark:text-zinc-100");
   else classes.push("text-sm", "leading-7");
 
   if (alignment === "center") classes.push("text-center");

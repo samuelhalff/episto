@@ -62,6 +62,25 @@ Decision for production: Option A (separate renderer). Decision for MVP: Option 
 | `redis` | `redis:7-alpine` | 6379 | BullMQ queue + rate limiting + session cache |
 | `minio` | `minio/minio` | 9000 / 9001 | S3-compatible object storage (dev only) |
 
+### Port ownership
+
+To avoid port drift, treat these assignments as canonical:
+
+| Port | Owner | Meaning |
+|---|---|---|
+| `80` / `443` | Public domain edge | Normal public HTTP/HTTPS for `ark-fid.ddns.net` and production domains |
+| `5000` | Local Swiss Mail proxy handoff | Plain HTTP listener on the host for the upstream edge proxy to forward into |
+| `3000` | Internal frontend service | Next.js app behind the local proxy only |
+| `4000` | Internal backend service | Fastify API behind the local proxy only |
+
+Rules:
+
+- Public URLs must use the bare domain, not `:5000`.
+- Local reverse-proxy handoff happens on `http://localhost:5000`.
+- The local `5000` listener is plain HTTP because the upstream edge proxy already owns public HTTP/HTTPS.
+- `frontend:3000` and `backend:4000` are implementation details and must not leak into public URLs, email links, sitemap URLs, or metadata.
+- The upstream edge proxy that forwards into local `5000` must preserve `Host` and send `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Port` for correct absolute URL generation.
+
 ### Local `docker-compose.yml` outline
 
 ```yaml

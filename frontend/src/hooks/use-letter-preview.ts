@@ -11,6 +11,8 @@ import { useDraftStream } from "./use-draft-stream";
 // ---------------------------------------------------------------------------
 
 export interface LetterPreviewData {
+  draftId: string;
+  snapshotId: string | null;
   sender: {
     firstName: string;
     lastName: string;
@@ -34,8 +36,13 @@ export interface LetterPreviewData {
   } | null;
   subject: string | null;
   body: string | null;
+  enclosureNote: string | null;
   locale: string;
   deliveryType: string;
+  signatureMode: "typed" | "image" | null;
+  signatureFileId: string | null;
+  attachmentCount: number;
+  priceCents: number | null;
   updatedAt: string;
 }
 
@@ -53,6 +60,7 @@ export interface UseLetterPreviewReturn {
   isStale: boolean;
   refreshPreview: () => void;
   isLoading: boolean;
+  isRefreshing: boolean;
   error: Error | null;
 }
 
@@ -105,13 +113,15 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
     setIsStale(false);
     void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
   }, [queryClient, draftId]);
+  const isRefreshing = previewQuery.isFetching && Boolean(previewQuery.data);
 
   return {
     previewData: previewQuery.data ?? null,
     estimatedPageCount: estimatePageCount(previewQuery.data?.body),
     isStale,
     refreshPreview,
-    isLoading: previewQuery.isLoading,
+    isLoading: previewQuery.isLoading && !previewQuery.data,
+    isRefreshing,
     error: previewQuery.error instanceof Error ? previewQuery.error : null,
   };
 }

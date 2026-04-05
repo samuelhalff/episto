@@ -11,11 +11,7 @@ import { RecoveryScreen } from "../../../../components/product/RecoveryScreen";
 // Resume Page
 // ---------------------------------------------------------------------------
 
-export default function ResumePage({
-  params,
-}: {
-  params: Promise<{ token: string }>;
-}) {
+export default function ResumePage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
   const t = useTranslations("resume");
   const tc = useTranslations("common");
@@ -28,11 +24,9 @@ export default function ResumePage({
 
     async function resume() {
       try {
-        const result = await apiFetch<{ draftId: string }>(
-          `/v1/resume/${token}`,
-        );
+        const result = await apiFetch<{ redirectUrl: string }>(`/v1/resume/${token}`);
         if (!cancelled) {
-          router.replace(`/draft/${result.draftId}`);
+          router.replace(result.redirectUrl);
         }
       } catch {
         if (!cancelled) {

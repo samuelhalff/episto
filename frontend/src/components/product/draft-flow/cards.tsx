@@ -1,7 +1,8 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode } from "react";
-import { ArrowRight, Loader2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { AppButton } from "../../ui/app-button";
 
 function getCardClasses(isCompactViewport: boolean, density: "default" | "thin") {
   const roundedClass = isCompactViewport ? "rounded-2.5xl" : "rounded-3xl";
@@ -63,7 +64,7 @@ export function ActionCard({
   return (
     <button
       type={type}
-      className={`${getCardClasses(isCompactViewport, "thin")} w-full transition-all active:scale-[0.98] ${
+      className={`${getCardClasses(isCompactViewport, "thin")} w-full transition-all active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 ${
         selected ? selectedClassName : unselectedClassName
       } ${className}`}
       {...props}
@@ -88,7 +89,7 @@ export function DashedCard({
   return (
     <button
       type={type}
-      className={`app-panel flex w-full items-center justify-center border-2 border-dashed border-[var(--app-border)] transition-colors hover:border-[var(--app-border-strong)] ${
+      className={`app-panel flex w-full items-center justify-center border-2 border-dashed border-[var(--app-border)] transition-colors hover:border-[var(--app-border-strong)] disabled:cursor-not-allowed disabled:opacity-70 ${
         isCompactViewport ? "rounded-2.5xl p-4" : "rounded-3xl p-6"
       } ${className}`}
       {...props}
@@ -115,26 +116,7 @@ interface SecondaryButtonProps {
   disabled?: boolean;
   loading?: boolean;
   hideIcon?: boolean;
-}
-
-function getActionButtonClasses(
-  variant: "primary" | "secondary",
-  isDisabled: boolean,
-  tone: "primary" | "warning" = "primary",
-) {
-  if (variant === "secondary") {
-    return isDisabled
-      ? "cursor-not-allowed border border-[var(--app-border)] bg-zinc-100 text-zinc-600 dark:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)]"
-      : "border border-[var(--app-border)] bg-[var(--app-surface-strong)] text-[var(--app-fg)] hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface-soft)] active:scale-[0.98]";
-  }
-
-  if (tone === "warning" && !isDisabled) {
-    return "bg-amber-100 text-amber-950 ring-amber-200 hover:bg-amber-100/90 active:scale-[0.98] dark:bg-amber-400/16 dark:text-amber-100 dark:ring-amber-300/25 dark:hover:bg-amber-400/20";
-  }
-
-  return isDisabled
-    ? "cursor-not-allowed bg-zinc-200 text-zinc-700 ring-zinc-300/80 dark:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)] dark:ring-[var(--app-border-strong)]"
-    : "bg-zinc-950 text-white ring-zinc-950/5 hover:bg-zinc-900 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:ring-amber-300/30 dark:hover:bg-amber-300";
+  fullWidth?: boolean;
 }
 
 export function PrimaryButton({
@@ -146,17 +128,18 @@ export function PrimaryButton({
   hideIcon = false,
   tone = "primary",
 }: PrimaryButtonProps) {
-  const isDisabled = disabled || loading;
   return (
-    <button
-      type="button"
+    <AppButton
+      size="lg"
+      fullWidth
       onClick={onClick}
-      disabled={isDisabled}
-      className={`inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold tracking-tight shadow-sm ring-1 transition-all duration-200 ${getActionButtonClasses("primary", isDisabled, tone)}`}
+      disabled={disabled}
+      loading={loading}
+      variant={tone === "warning" ? "warning" : "primary"}
+      trailingIcon={!disabled && !loading && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
     >
       <span>{children}</span>
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : !isDisabled && !hideIcon ? (icon ?? <ArrowRight className="h-4 w-4" />) : null}
-    </button>
+    </AppButton>
   );
 }
 
@@ -167,18 +150,20 @@ export function SecondaryButton({
   disabled = false,
   loading = false,
   hideIcon = true,
+  fullWidth = true,
 }: SecondaryButtonProps) {
-  const isDisabled = disabled || loading;
   return (
-    <button
-      type="button"
+    <AppButton
+      variant="secondary"
+      size="lg"
+      fullWidth={fullWidth}
       onClick={onClick}
-      disabled={isDisabled}
-      className={`inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl px-5 text-sm font-semibold tracking-tight shadow-sm transition-all duration-200 ${getActionButtonClasses("secondary", isDisabled)}`}
+      disabled={disabled}
+      loading={loading}
+      trailingIcon={!disabled && !loading && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
     >
       <span>{children}</span>
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : !isDisabled && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
-    </button>
+    </AppButton>
   );
 }
 

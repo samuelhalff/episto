@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
-import { Link } from "../../i18n/navigation";
+import { MarketingActionLink, MarketingBadge } from "./primitives";
 
 interface HeroAction {
   href: string;
@@ -36,10 +36,10 @@ export function MarketingHero({
       />
       <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
         <div className="animate-rise-in">
-          <div className="inline-flex items-center gap-2 rounded-full border border-amber-200/80 bg-white/85 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-amber-700 shadow-elevated dark:border-amber-500/30 dark:bg-zinc-900/85 dark:text-amber-300">
+          <MarketingBadge className="text-amber-700 dark:text-amber-300">
             <Sparkles className="h-4 w-4" />
             {eyebrow}
-          </div>
+          </MarketingBadge>
           <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.05em] text-zinc-950 dark:text-zinc-50 sm:text-5xl md:text-6xl">
             {title}
           </h1>
@@ -47,27 +47,26 @@ export function MarketingHero({
             {subtitle}
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
-            <Link
+            <MarketingActionLink
               href={primaryAction.href}
-              className="cta-sheen inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-zinc-950 px-6 py-3.5 text-base font-semibold text-white shadow-prominent transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+              className="cta-sheen rounded-full text-base"
             >
               {primaryAction.label}
               <ArrowRight className="h-4 w-4" />
-            </Link>
+            </MarketingActionLink>
             {secondaryAction ? (
-              <Link
+              <MarketingActionLink
                 href={secondaryAction.href}
-                className="inline-flex min-h-12 items-center justify-center rounded-full border border-zinc-300/70 bg-white/85 px-6 py-3.5 text-base font-medium text-zinc-700 shadow-elevated transition-all duration-300 hover:-translate-y-0.5 hover:border-amber-300 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-900/85 dark:text-zinc-200 dark:hover:border-amber-400/60 dark:hover:text-white"
+                variant="secondary"
+                className="rounded-full text-base"
               >
                 {secondaryAction.label}
-              </Link>
+              </MarketingActionLink>
             ) : null}
           </div>
         </div>
 
-        <div className="paper-noise rounded-4xl border border-white/80 p-5 shadow-prominent-warm md:p-6">
-          {panel}
-        </div>
+        <div className="marketing-surface-soft rounded-4xl p-5 md:p-6">{panel}</div>
       </div>
     </section>
   );

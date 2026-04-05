@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useDraft, useUpdateDraft } from "../../../hooks/use-api";
+import { normalizeLetterSubject } from "../../../lib/letter-content";
 import { DraftShell, Card, PrimaryButton } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { mergeDraftWorkspaceState } from "./workspace-state";
@@ -10,22 +11,26 @@ import { mergeDraftWorkspaceState } from "./workspace-state";
 interface StepProps {
   draftId: string;
   onNext: () => void;
+  onPrevious?: (() => void) | undefined;
   onStepClick: () => void;
   isStepMenuOpen?: boolean;
   isCompactViewport?: boolean;
   onInputFocusChange?: (focused: boolean) => void;
   isNavigating?: boolean;
+  previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
 }
 
 export function SubjectStep({
   draftId,
   onNext,
+  onPrevious,
   onStepClick,
   isStepMenuOpen,
   isCompactViewport,
   onInputFocusChange,
   isNavigating,
+  previousStepLabel,
   furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
@@ -36,41 +41,48 @@ export function SubjectStep({
   const [subject, setSubject] = useState("");
   const hasHydratedRef = useRef(false);
   const lastSavedSubjectRef = useRef("");
+  const normalizedSubject =
+    normalizeLetterSubject(subject, draft.data?.locale ?? "de-CH") ?? "";
 
   useEffect(() => {
     if (hasHydratedRef.current) return;
 
-    const initialSubject = draft.data?.subject ?? "";
+    const initialSubject =
+      normalizeLetterSubject(draft.data?.subject, draft.data?.locale ?? "de-CH") ?? "";
     setSubject(initialSubject);
     lastSavedSubjectRef.current = initialSubject;
     hasHydratedRef.current = true;
-  }, [draft.data?.subject]);
+  }, [draft.data?.locale, draft.data?.subject]);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
-    if (subject === lastSavedSubjectRef.current) return;
+    if (normalizedSubject === lastSavedSubjectRef.current) return;
 
     const timeoutId = window.setTimeout(() => {
-      void updateDraft.mutateAsync({ subject }).then(() => {
-        lastSavedSubjectRef.current = subject;
+      void updateDraft.mutateAsync({ subject: normalizedSubject }).then(() => {
+        lastSavedSubjectRef.current = normalizedSubject;
+        if (normalizedSubject && normalizedSubject !== subject) {
+          setSubject(normalizedSubject);
+        }
       });
     }, 1200);
 
     return () => window.clearTimeout(timeoutId);
-  }, [subject, updateDraft]);
+  }, [normalizedSubject, subject, updateDraft]);
 
-  const canProceed = subject.trim().length > 0;
+  const canProceed = normalizedSubject.length > 0;
 
   async function handleConfirm() {
     if (!canProceed || updateDraft.isPending) return;
     try {
       await updateDraft.mutateAsync({
-        subject: subject.trim(),
+        subject: normalizedSubject,
         metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
           furthestUnlockedStepIndex: 6,
         }),
       });
-      lastSavedSubjectRef.current = subject.trim();
+      lastSavedSubjectRef.current = normalizedSubject;
+      setSubject(normalizedSubject);
       onNext();
     } catch {
       showStepErrorToast({
@@ -96,6 +108,8 @@ export function SubjectStep({
       subtitle={t("subjectLineSubtitle")}
       onStepClick={onStepClick}
       stepTriggerLabel={t("stepMenuLabel")}
+      secondaryActionLabel={previousStepLabel}
+      onSecondaryAction={onPrevious}
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isFieldFocused}
       isCompactViewport={isCompactViewport}
@@ -109,7 +123,7 @@ export function SubjectStep({
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}
         >
-          {t("confirmSubject")}
+          {t("continueToLogistics")}
         </PrimaryButton>
       }
     >
@@ -121,7 +135,9 @@ export function SubjectStep({
             </h3>
           </div>
           {draft.data?.subject?.trim() ? (
-            <p className="px-2 text-sm text-zinc-500 dark:text-zinc-300">{t("subjectSuggestedHint")}</p>
+            <p className="px-2 text-sm text-zinc-500 dark:text-zinc-300">
+              {t("subjectSuggestedHint")}
+            </p>
           ) : null}
           <Card isCompactViewport={isCompactViewport} density="thin">
             <input
@@ -137,10 +153,12 @@ export function SubjectStep({
               }}
               maxLength={200}
               placeholder={t("subjectInputPlaceholder")}
-              className="w-full bg-transparent text-base font-semibold text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              className="app-form-control w-full bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
             />
           </Card>
-          <div className="px-2 text-right text-[10px] text-zinc-400">{subject.length}/200</div>
+          <div className="px-2 text-right text-[10px] text-zinc-400">
+            {subject.length}/200
+          </div>
         </section>
       </div>
     </DraftShell>

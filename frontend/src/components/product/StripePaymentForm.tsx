@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { formatCentsAsCHF } from "../../hooks/use-pricing";
+import { ActionButton } from "./ActionButton";
 
 // ---------------------------------------------------------------------------
 // StripePaymentForm
@@ -22,12 +22,14 @@ interface StripePaymentFormProps {
   returnUrl: string;
   /** Button label prefix (e.g. "Send my letter"). */
   buttonLabel: string;
+  secondaryAction?: ReactNode;
 }
 
 export function StripePaymentForm({
   priceCents,
   returnUrl,
   buttonLabel,
+  secondaryAction,
 }: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -102,26 +104,30 @@ export function StripePaymentForm({
       />
 
       {errorMessage && (
-        <p role="alert" className="text-sm text-red-600">
+        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
           {errorMessage}
         </p>
       )}
 
-      <div className="sticky bottom-4 z-10 rounded-2xl bg-white/95 p-2 backdrop-blur sm:static sm:bg-transparent sm:p-0">
-        <button
-          type="submit"
-          disabled={!stripe || !elements || isSubmitting}
-          className="w-full rounded-lg bg-primary py-3.5 text-sm font-semibold text-white transition hover:bg-primary-dark disabled:opacity-40"
-        >
-          {isSubmitting ? (
-            <span className="flex items-center justify-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              {t("paymentConfirming")}
-            </span>
-          ) : (
-            `${buttonLabel} — ${formatCentsAsCHF(priceCents)}`
-          )}
-        </button>
+      <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2xl p-2 sm:static sm:bg-transparent sm:p-0 sm:shadow-none sm:outline-none sm:backdrop-blur-none">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          {secondaryAction}
+          <ActionButton
+            type="submit"
+            fullWidth
+            className="sm:flex-1"
+            disabled={!stripe || !elements}
+            loading={isSubmitting}
+            trailingMeta={
+              <span className="hidden rounded-full bg-white/12 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 dark:bg-zinc-950/10 dark:text-zinc-950/80 sm:inline-flex">
+                {formatCentsAsCHF(priceCents)}
+              </span>
+            }
+            contentClassName="w-full"
+          >
+            {isSubmitting ? t("paymentConfirming") : buttonLabel}
+          </ActionButton>
+        </div>
       </div>
     </form>
   );

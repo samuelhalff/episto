@@ -6,6 +6,10 @@ import { apiFetch } from "../lib/api";
 import type { ConversationMessage } from "@swiss-mail/shared";
 import { queryKeys } from "@swiss-mail/shared";
 import { useDraftStream } from "./use-draft-stream";
+import {
+  clearPendingDraftTurn,
+  readPendingDraftTurn,
+} from "../lib/pending-draft-turn";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -24,6 +28,7 @@ export interface UseConversationReturn {
   isSending: boolean;
   error: Error | null;
   completionCount: number;
+  pendingAssistantPlaceholder: boolean;
 }
 
 const MAX_REGENERATIONS = 10;
@@ -64,6 +69,20 @@ function normalizeMessage(message: ConversationMessage): ConversationMessage {
   };
 }
 
+function hasAssistantReplyAfterMessage(
+  messages: ConversationMessage[],
+  userMessageId: string,
+) {
+  const pendingUserIndex = messages.findIndex((message) => message.id === userMessageId);
+  if (pendingUserIndex < 0) {
+    return false;
+  }
+
+  return messages
+    .slice(pendingUserIndex + 1)
+    .some((message) => message.role === "assistant");
+}
+
 // ---------------------------------------------------------------------------
 // Hook
 // ---------------------------------------------------------------------------
@@ -75,6 +94,8 @@ export function useConversation(draftId: string): UseConversationReturn {
   const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
   const [completionCount, setCompletionCount] = useState(0);
   const assistantCountAtRequestRef = useRef(0);
+  const pendingAssistantMessageIdRef = useRef<string | null>(null);
+  const [pendingAssistantPlaceholder, setPendingAssistantPlaceholder] = useState(false);
 
   // Accumulated streaming state
   const [isStreaming, setIsStreaming] = useState(false);
@@ -92,15 +113,36 @@ export function useConversation(draftId: string): UseConversationReturn {
     staleTime: 10_000,
   });
 
+  const clearPendingAssistantState = useCallback(() => {
+    pendingAssistantMessageIdRef.current = null;
+    setPendingAssistantPlaceholder(false);
+    clearPendingDraftTurn(draftId);
+  }, [draftId]);
+
+  useEffect(() => {
+    const pendingTurn = readPendingDraftTurn(draftId);
+    if (!pendingTurn) {
+      return;
+    }
+
+    pendingAssistantMessageIdRef.current = pendingTurn.messageId;
+    setPendingAssistantPlaceholder(true);
+    setIsAwaitingResponse(true);
+    setIsStreaming(false);
+    setStreamingText("");
+  }, [draftId]);
+
   // Subscribe to SSE events for real-time streaming
   useEffect(() => {
     return subscribe((event) => {
       if (event.type === "ai_token") {
+        clearPendingAssistantState();
         setIsAwaitingResponse(true);
         setIsStreaming(true);
         streamingMessageIdRef.current = event.data.messageId;
         setStreamingText((prev) => prev + event.data.token);
       } else if (event.type === "ai_message_complete") {
+        clearPendingAssistantState();
         setIsAwaitingResponse(false);
         setIsStreaming(false);
         setStreamingText("");
@@ -117,6 +159,7 @@ export function useConversation(draftId: string): UseConversationReturn {
           queryKey: ["drafts", draftId],
         });
       } else if (event.type === "error") {
+        clearPendingAssistantState();
         setIsStreaming(false);
         void queryClient.invalidateQueries({
           queryKey: queryKeys.draftMessages(draftId),
@@ -131,7 +174,7 @@ export function useConversation(draftId: string): UseConversationReturn {
         }
       }
     });
-  }, [subscribe, queryClient, draftId]);
+  }, [subscribe, queryClient, draftId, clearPendingAssistantState]);
 
   useEffect(() => {
     const persistedIds = new Set((messagesQuery.data ?? []).map((message) => message.id));
@@ -139,6 +182,15 @@ export function useConversation(draftId: string): UseConversationReturn {
 
     setOptimisticMessages((current) => current.filter((message) => !persistedIds.has(message.id)));
   }, [messagesQuery.data]);
+
+  useEffect(() => {
+    if (
+      pendingAssistantMessageIdRef.current &&
+      hasAssistantReplyAfterMessage(messagesQuery.data ?? [], pendingAssistantMessageIdRef.current)
+    ) {
+      clearPendingAssistantState();
+    }
+  }, [messagesQuery.data, clearPendingAssistantState]);
 
   useEffect(() => {
     if (!isAwaitingResponse) return;
@@ -272,5 +324,6 @@ export function useConversation(draftId: string): UseConversationReturn {
     isSending: sendMutation.isPending,
     error: sendMutation.error ?? messagesQuery.error ?? null,
     completionCount,
+    pendingAssistantPlaceholder,
   };
 }

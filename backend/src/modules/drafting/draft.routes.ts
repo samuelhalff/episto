@@ -19,6 +19,7 @@ import {
   CreateSenderProfileInput,
   CreateRecipientProfileInput,
   DraftStatusSchema,
+  SnapshotDataSchema,
 } from "@swiss-mail/shared";
 import { recordEvent } from "../analytics/index.js";
 import { getQueue, QUEUE_NAMES, type RenderPdfJob } from "../../queue/index.js";
@@ -30,6 +31,14 @@ import { z } from "zod";
 
 const logger = createLogger("draft-routes");
 const TERMINAL_DRAFT_STATES = new Set(["submitted", "dispatched", "closed"]);
+const SNAPSHOT_PREVIEW_DRAFT_STATES = new Set([
+  "reviewed",
+  "rendering",
+  "ready",
+  "submitted",
+  "dispatched",
+  "closed",
+]);
 
 const TransitionBody = z.object({
   status: DraftStatusSchema,
@@ -371,6 +380,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         },
         attachmentAssetIds: attachmentFileIds,
         signatureAssetId: signatureFile?.id ?? null,
+        estimatedPages: draft.estimatedPages ?? null,
         metadata: draft.metadata as Record<string, unknown> | null,
       };
 
@@ -438,68 +448,104 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
 
-      // Fetch sender profile if set
-      let sender = null;
-      if (draft.senderProfileId) {
-        const [s] = await db
-          .select()
-          .from(schema.senderProfiles)
-          .where(eq(schema.senderProfiles.id, draft.senderProfileId))
-          .limit(1);
-        if (s) sender = s;
-      }
-
-      // Fetch recipient profile if set
-      let recipient = null;
-      if (draft.recipientProfileId) {
-        const [r] = await db
-          .select()
-          .from(schema.recipientProfiles)
-          .where(eq(schema.recipientProfiles.id, draft.recipientProfileId))
-          .limit(1);
-        if (r) recipient = r;
-      }
-
-      // Fetch latest snapshot ID
+      // Fetch latest snapshot data when present so already-prepared drafts render
+      // the immutable version that will actually be sent.
       const [latestSnapshot] = await db
-        .select({ id: schema.draftSnapshots.id })
+        .select({
+          id: schema.draftSnapshots.id,
+          snapshotData: schema.draftSnapshots.snapshotData,
+          createdAt: schema.draftSnapshots.createdAt,
+        })
         .from(schema.draftSnapshots)
         .where(eq(schema.draftSnapshots.draftId, draftId))
         .orderBy(desc(schema.draftSnapshots.createdAt))
         .limit(1);
 
-      // Count attachments
-      const [attachmentCountResult] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(schema.fileAssets)
-        .where(
-          and(
-            eq(schema.fileAssets.draftId, draftId),
-            eq(schema.fileAssets.kind, "attachment"),
-            eq(schema.fileAssets.status, "active"),
-          ),
+      const snapshotParse =
+        latestSnapshot && SNAPSHOT_PREVIEW_DRAFT_STATES.has(draft.status)
+          ? SnapshotDataSchema.safeParse(latestSnapshot.snapshotData)
+          : null;
+      if (snapshotParse && !snapshotParse.success) {
+        logger.warn(
+          {
+            draftId,
+            snapshotId: latestSnapshot?.id,
+            issues: snapshotParse.error.issues,
+          },
+          "Latest snapshot data was invalid for preview; falling back to live draft data",
         );
+      }
+      const snapshotData = snapshotParse?.success ? snapshotParse.data : null;
+
+      let sender = null;
+      let recipient = null;
+      let attachmentCount = snapshotData?.attachmentAssetIds.length ?? 0;
+      let signatureFileId = snapshotData?.signatureAssetId ?? null;
+
+      if (!snapshotData) {
+        if (draft.senderProfileId) {
+          const [s] = await db
+            .select()
+            .from(schema.senderProfiles)
+            .where(eq(schema.senderProfiles.id, draft.senderProfileId))
+            .limit(1);
+          if (s) sender = s;
+        }
+
+        if (draft.recipientProfileId) {
+          const [r] = await db
+            .select()
+            .from(schema.recipientProfiles)
+            .where(eq(schema.recipientProfiles.id, draft.recipientProfileId))
+            .limit(1);
+          if (r) recipient = r;
+        }
+
+        const activeFiles = await db
+          .select({
+            id: schema.fileAssets.id,
+            kind: schema.fileAssets.kind,
+          })
+          .from(schema.fileAssets)
+          .where(
+            and(
+              eq(schema.fileAssets.draftId, draftId),
+              eq(schema.fileAssets.sessionId, session.id),
+              eq(schema.fileAssets.status, "active"),
+            ),
+          );
+
+        attachmentCount = activeFiles.filter((file) => file.kind === "attachment").length;
+        signatureFileId =
+          draft.signatureAssetId ??
+          activeFiles.find((file) => file.kind === "signature")?.id ??
+          null;
+      }
 
       // Calculate price if delivery type is known
-      const deliveryType = draft.deliveryType as "standard" | "registered";
+      const deliveryType = (snapshotData?.deliveryType ?? draft.deliveryType) as
+        | "standard"
+        | "registered";
       const price = calculatePrice(deliveryType);
 
       reply.send({
         preview: {
           draftId: draft.id,
           snapshotId: latestSnapshot?.id ?? null,
-          locale: draft.locale,
-          deliveryType: draft.deliveryType,
-          subject: draft.subject,
-          body: draft.body,
-          enclosureNote: draft.enclosureNote,
-          sender,
-          recipient,
-          signatureMode: draft.signatureMode,
-          signatureFileId: draft.signatureAssetId ?? null,
-          attachmentCount: attachmentCountResult?.count ?? 0,
+          locale: snapshotData?.locale ?? draft.locale,
+          deliveryType,
+          subject: snapshotData?.subject ?? draft.subject,
+          body: snapshotData?.body ?? draft.body,
+          enclosureNote: snapshotData?.enclosureNote ?? draft.enclosureNote,
+          sender: snapshotData?.sender ?? sender,
+          recipient: snapshotData?.recipient ?? recipient,
+          signatureMode: snapshotData?.signatureMode ?? draft.signatureMode,
+          signatureFileId,
+          attachmentCount,
           priceCents: price.totalCents,
-          updatedAt: draft.updatedAt.toISOString(),
+          updatedAt: snapshotData
+            ? latestSnapshot!.createdAt.toISOString()
+            : draft.updatedAt.toISOString(),
         },
       });
     },

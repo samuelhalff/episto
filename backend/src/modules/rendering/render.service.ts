@@ -57,8 +57,7 @@ async function getBrowser(): Promise<Browser> {
   // In production, use the system Chromium.
   // PUPPETEER_EXECUTABLE_PATH env var controls the binary location.
   const executablePath =
-    process.env.PUPPETEER_EXECUTABLE_PATH ??
-    "/usr/bin/chromium-browser";
+    process.env.PUPPETEER_EXECUTABLE_PATH ?? "/usr/bin/chromium-browser";
 
   _browser = await puppeteer.launch({
     executablePath,
@@ -134,7 +133,8 @@ function renderLetterHtml(data: SnapshotData): string {
     ? `${sender.city.trim()}, ${formattedDate}`
     : formattedDate;
   const document = stripLetterFramingDocument(
-    extractAiDocumentMetadata(data.metadata)?.document ?? fallbackDocument(data.body ?? ""),
+    extractAiDocumentMetadata(data.metadata)?.document ??
+      fallbackDocument(data.body ?? ""),
     data.locale,
   );
   const hasLetterContent = flattenDocumentModel(document).trim().length > 0;
@@ -284,7 +284,12 @@ function renderBlockHtml(block: DocumentBlock): string {
   if (block.type === "paragraph") {
     const tag = paragraphTag(block.style);
     const className = paragraphClassName(block.style);
-    const style = renderParagraphStyle(block.alignment, block.spacingBefore, block.spacingAfter, block.indentation);
+    const style = renderParagraphStyle(
+      block.alignment,
+      block.spacingBefore,
+      block.spacingAfter,
+      block.indentation,
+    );
     return `<${tag} class="${className}"${style ? ` style="${style}"` : ""}>${renderInlineText(block.text, block.spans ?? [])}</${tag}>`;
   }
 
@@ -293,9 +298,13 @@ function renderBlockHtml(block: DocumentBlock): string {
     return `<${tag} class="letter-list">${renderListItemsHtml(block.items)}</${tag}>`;
   }
 
-  const headerHtml = block.headers.map((header) => `<th>${escapeHtml(header)}</th>`).join("");
+  const headerHtml = block.headers
+    .map((header) => `<th>${escapeHtml(header)}</th>`)
+    .join("");
   const rowsHtml = block.rows
-    .map((row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`)
+    .map(
+      (row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`,
+    )
     .join("");
   return `<table class="letter-table"><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
 }
@@ -399,9 +408,7 @@ function escapeHtml(str: string): string {
 // Main render function
 // ---------------------------------------------------------------------------
 
-export async function renderSnapshotToPdf(
-  snapshotId: string,
-): Promise<RenderResult> {
+export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderResult> {
   const db = getDb();
 
   // 1. Load snapshot
@@ -441,10 +448,7 @@ export async function renderSnapshotToPdf(
     // Estimate page count from PDF byte boundaries
     // A rough heuristic: count /Type /Page occurrences in the PDF
     const pdfStr = Buffer.from(pdfBuffer).toString("latin1");
-    const pageCount = Math.max(
-      1,
-      (pdfStr.match(/\/Type\s*\/Page[^s]/g) || []).length,
-    );
+    const pageCount = Math.max(1, (pdfStr.match(/\/Type\s*\/Page[^s]/g) || []).length);
 
     // 4. Upload to storage
     const storageKey = renderStorageKey(snapshot.draftId, snapshot.version);
@@ -472,7 +476,7 @@ export async function renderSnapshotToPdf(
     });
 
     // 6. Link PDF to snapshot
-    await setSnapshotPdfAsset(db, snapshotId, fileAsset.id);
+    await setSnapshotPdfAsset(db, snapshotId, fileAsset.id, pageCount);
 
     logger.info(
       {

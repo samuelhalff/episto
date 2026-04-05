@@ -49,7 +49,12 @@
     color: var(--app-fg);
     background-image:
       radial-gradient(circle at top, var(--app-bg-start), transparent 32%),
-      linear-gradient(180deg, var(--app-bg-end) 0%, var(--app-bg-mid) 38%, var(--app-bg-end) 100%);
+      linear-gradient(
+        180deg,
+        var(--app-bg-end) 0%,
+        var(--app-bg-mid) 38%,
+        var(--app-bg-end) 100%
+      );
     transition:
       background-color 220ms ease,
       color 220ms ease,
@@ -75,9 +80,24 @@
     outline: 1px solid var(--app-border);
   }
 
+  .app-sticky-bar {
+    background-color: color-mix(in srgb, var(--app-surface-strong) 94%, transparent);
+    box-shadow: var(--app-elevated-shadow);
+    outline: 1px solid var(--app-border);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+  }
+
   .app-field-surface {
     background-color: var(--app-surface-soft);
     color: var(--app-fg);
+  }
+
+  .app-form-control {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px;
+    line-height: 1.5rem;
   }
 
   .app-list-item {
@@ -133,7 +153,7 @@
 
   /* Primary action button */
   .btn-primary {
-    @apply inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-zinc-950 px-5 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300;
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl bg-zinc-950 px-5 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300;
   }
 
   .btn-primary:disabled {
@@ -151,6 +171,133 @@
   .btn-secondary:hover {
     background-color: var(--app-surface-soft);
     outline-color: var(--app-border-strong);
+  }
+
+  .btn-secondary:disabled {
+    @apply cursor-not-allowed opacity-60;
+    background-color: color-mix(in srgb, var(--app-surface-soft) 92%, transparent);
+    color: var(--app-muted);
+  }
+
+  .btn-warning {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold transition-all duration-200;
+    background-color: #fef3c7;
+    color: #78350f;
+  }
+
+  .btn-warning:hover {
+    background-color: #fde68a;
+  }
+
+  .dark .btn-warning {
+    background-color: rgba(245, 158, 11, 0.16);
+    color: #fef3c7;
+  }
+
+  .dark .btn-warning:hover {
+    background-color: rgba(245, 158, 11, 0.22);
+  }
+
+  .btn-warning:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  .btn-destructive {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold text-white transition-all duration-200;
+    background-color: #dc2626;
+  }
+
+  .btn-destructive:hover {
+    background-color: #b91c1c;
+  }
+
+  .dark .btn-destructive {
+    background-color: #ef4444;
+    color: #fff7f7;
+  }
+
+  .dark .btn-destructive:hover {
+    background-color: #dc2626;
+  }
+
+  .btn-destructive:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold transition-all duration-200;
+    background-color: transparent;
+    color: var(--app-muted-strong);
+  }
+
+  .btn-ghost:hover {
+    background-color: color-mix(in srgb, var(--app-surface-soft) 72%, transparent);
+    color: var(--app-fg);
+  }
+
+  .btn-ghost:disabled {
+    @apply cursor-not-allowed opacity-60;
+  }
+
+  .marketing-surface {
+    background-color: var(--app-surface-strong);
+    box-shadow: var(--app-elevated-shadow);
+    outline: 1px solid var(--app-border);
+  }
+
+  .marketing-surface-muted {
+    background-color: var(--app-surface);
+    box-shadow: var(--app-elevated-shadow);
+    outline: 1px solid var(--app-border);
+  }
+
+  .marketing-surface-soft {
+    background: linear-gradient(
+      180deg,
+      var(--app-surface-soft) 0%,
+      var(--app-surface-strong) 100%
+    );
+    box-shadow: var(--app-elevated-shadow);
+    outline: 1px solid var(--app-border);
+  }
+
+  .marketing-surface-contrast {
+    background:
+      radial-gradient(circle at top, rgba(251, 191, 36, 0.18), transparent 38%),
+      linear-gradient(135deg, #151515 0%, #262626 100%);
+    box-shadow: 0 28px 90px rgba(15, 23, 42, 0.22);
+    color: #f8fafc;
+    outline: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .marketing-surface-contrast {
+    background:
+      radial-gradient(circle at top, rgba(245, 158, 11, 0.16), transparent 36%),
+      linear-gradient(135deg, #11161d 0%, #1b2430 100%);
+    box-shadow: 0 28px 90px rgba(1, 4, 9, 0.42);
+    color: var(--app-fg);
+    outline: 1px solid var(--app-border-strong);
+  }
+
+  .marketing-pill {
+    background-color: color-mix(in srgb, var(--app-surface-strong) 88%, transparent);
+    box-shadow: var(--app-elevated-shadow);
+    color: var(--app-muted-strong);
+    outline: 1px solid var(--app-border);
+  }
+
+  .marketing-notice {
+    background-color: color-mix(in srgb, var(--app-surface) 92%, transparent);
+    box-shadow: var(--app-elevated-shadow);
+    outline: 1px solid var(--app-border);
+  }
+
+  .marketing-cta-band {
+    background:
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 34%),
+      linear-gradient(135deg, #b85c38 0%, #a04e2e 100%);
+    box-shadow: 0 28px 90px rgba(160, 78, 46, 0.28);
+    color: #fffaf5;
   }
 }
 
@@ -176,6 +323,19 @@
         rgba(215, 190, 150, 0.18) 32px
       ),
       radial-gradient(circle at 10% 0%, rgba(251, 191, 36, 0.15), transparent 50%);
+  }
+
+  .dark .paper-noise {
+    background-color: #161b22;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 31px,
+        rgba(110, 118, 129, 0.12) 31px,
+        rgba(110, 118, 129, 0.12) 32px
+      ),
+      radial-gradient(circle at 10% 0%, rgba(245, 158, 11, 0.14), transparent 50%);
   }
 
   .animate-rise-in {

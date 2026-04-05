@@ -10,17 +10,17 @@ import {
   setPaymentIntentId,
   transitionPaymentState,
 } from "./payment.service.js";
+import { enqueuePaymentReceiptEmail } from "./payment-notifications.js";
 import {
   createPaymentIntent,
   constructWebhookEvent,
   getPaymentIntentClientSecret,
 } from "./adapters/stripe.adapter.js";
-import { calculatePrice, type DeliveryType } from "../pricing/index.js";
 import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
-import { env } from "../../shared/config/index.js";
 import { recordEvent } from "../analytics/index.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
 import { enqueueDispatchSubmission } from "../dispatch/dispatch.jobs.js";
+import { getDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
 
 // ---------------------------------------------------------------------------
 // Input schemas
@@ -127,41 +127,7 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
           // Fire-and-forget: a queue failure must not cause Stripe to retry the webhook.
           void (async () => {
             try {
-              const [[sessionRow], [draft]] = await Promise.all([
-                db
-                  .select({
-                    email: schema.sessions.email,
-                    locale: schema.sessions.locale,
-                  })
-                  .from(schema.sessions)
-                  .where(eq(schema.sessions.id, payment.sessionId))
-                  .limit(1),
-                db
-                  .select({ deliveryType: schema.draftLetters.deliveryType })
-                  .from(schema.draftLetters)
-                  .where(eq(schema.draftLetters.id, payment.draftId))
-                  .limit(1),
-              ]);
-
-              if (sessionRow?.email) {
-                const locale = sessionRow.locale ?? "en-CH";
-                const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
-                const siteUrl = env().CORS_ORIGIN.split(",")[0]?.trim() ?? env().CORS_ORIGIN;
-                const statusUrl = `${siteUrl}/${locale}/status/${rawOrderAccessToken}`;
-
-                const job: SendEmailJob = {
-                  to: sessionRow.email,
-                  template: "payment-receipt",
-                  locale,
-                  data: {
-                    orderRef,
-                    amount: (payment.amountCents / 100).toFixed(2),
-                    deliveryType: draft?.deliveryType ?? "standard",
-                    statusUrl,
-                  },
-                };
-                await getQueue(QUEUE_NAMES.SEND_EMAIL).add("payment-receipt", job);
-              }
+              await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
             } catch (err) {
               request.log.error({ err }, "Failed to enqueue payment receipt email");
             }
@@ -223,6 +189,32 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export async function paymentRoutes(app: FastifyInstance): Promise<void> {
+  app.get<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/quote",
+    { preHandler: [requireSession] },
+    async (request, reply) => {
+      const session = request.session!;
+      const db = getDb();
+      const { draftId } = request.params;
+
+      const [draft] = await db
+        .select({ id: schema.draftLetters.id })
+        .from(schema.draftLetters)
+        .where(
+          and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, session.id),
+          ),
+        )
+        .limit(1);
+
+      if (!draft) throw notFoundError("draft");
+
+      const quote = await getDispatchQuoteForDraft(db, draftId);
+      reply.send({ quote });
+    },
+  );
+
   // ---- POST /drafts/:draftId/checkout (session required) ----
   app.post<{ Params: { draftId: string } }>(
     "/drafts/:draftId/checkout",
@@ -243,7 +235,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       const body = CheckoutBody.parse(request.body);
 
-      // Verify draft belongs to this session and get delivery type for pricing
+      // Verify draft belongs to this session
       const [draft] = await db
         .select({
           id: schema.draftLetters.id,
@@ -260,15 +252,8 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      // Calculate price from delivery type (config-driven, not hardcoded)
-      const pricing = calculatePrice(draft.deliveryType as DeliveryType);
-      const breakdown = {
-        base: pricing.baseCents,
-        pages: pricing.pageSurchargeCents,
-        delivery: pricing.deliverySurchargeCents,
-        attachments: pricing.attachmentSurchargeCents,
-      };
-      const amountCents = pricing.totalCents;
+      const quote = await getDispatchQuoteForDraft(db, draftId);
+      const amountCents = quote.totalCents;
 
       // Use a transaction to prevent concurrent checkout race conditions.
       // Re-check for existing non-terminal payment inside the transaction.
@@ -283,6 +268,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
             stripePaymentIntentId: existing.stripePaymentIntentId,
             clientSecret: null as string | null,
             priceCents: existing.amountCents,
+            quote: existing.breakdown,
           };
         }
 
@@ -290,7 +276,15 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           draftId,
           sessionId: session.id,
           amountCents,
-          breakdown,
+          breakdown: {
+            deliveryType: quote.deliveryType,
+            providerQuotedCents: quote.providerQuotedCents,
+            swissMailMarkupCents: quote.swissMailMarkupCents,
+            totalCents: quote.totalCents,
+            providerQuoteReference: quote.providerQuoteReference,
+            attachmentHandling: quote.attachmentHandling,
+            lineItems: quote.lineItems,
+          },
         });
 
         const stripeResult = await createPaymentIntent(amountCents, {
@@ -308,6 +302,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           stripePaymentIntentId: stripeResult.paymentIntentId,
           clientSecret: stripeResult.clientSecret,
           priceCents: amountCents,
+          quote,
         };
       });
 
@@ -330,6 +325,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           clientSecret,
           priceCents: result.priceCents,
           currency: "CHF" as const,
+          quote: result.quote,
         });
       }
 
@@ -350,6 +346,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         clientSecret: result.clientSecret,
         priceCents: result.priceCents,
         currency: "CHF" as const,
+        quote: result.quote,
       });
     },
   );
@@ -390,6 +387,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           state: payment.state,
           priceCents: payment.amountCents,
           currency: "CHF" as const,
+          breakdown: payment.breakdown,
           authorizedAt: null,
           capturedAt:
             payment.state === "captured" ? payment.updatedAt.toISOString() : null,

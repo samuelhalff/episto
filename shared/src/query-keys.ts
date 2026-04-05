@@ -5,6 +5,7 @@ export const queryKeys = {
   draftMessages: (draftId: string) => ["drafts", draftId, "messages"] as const,
   draftFiles: (draftId: string) => ["drafts", draftId, "files"] as const,
   draftPreview: (draftId: string) => ["drafts", draftId, "preview"] as const,
+  draftQuote: (draftId: string) => ["drafts", draftId, "quote"] as const,
   payment: (draftId: string) => ["payments", draftId] as const,
   dispatch: (draftId: string) => ["dispatch", draftId] as const,
   order: (orderToken: string) => ["orders", orderToken] as const,

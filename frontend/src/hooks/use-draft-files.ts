@@ -4,13 +4,16 @@ import { useState, useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   queryKeys,
+  DraftFilesResponseSchema,
   FileAssetKind,
   type FileAsset,
+  type DraftAttachmentConstraints,
+  type DraftFilesResponse,
   FILE_LIMITS,
   getUploadByteLimit,
   isAllowedUploadMimeType,
 } from "@swiss-mail/shared";
-import { apiFetch } from "../lib/api";
+import { ApiError, apiFetch } from "../lib/api";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -19,7 +22,10 @@ import { apiFetch } from "../lib/api";
 export interface UseDraftFilesReturn {
   attachments: FileAsset[];
   signature: FileAsset | null;
+  attachmentConstraints: DraftAttachmentConstraints;
   isUploading: boolean;
+  isRemoving: boolean;
+  removingFileId: string | null;
   /** 0–100 upload progress (simulated; actual progress not available via fetch) */
   uploadProgress: number;
   uploadFile: (file: File, kind: "attachment" | "signature") => Promise<FileAsset>;
@@ -33,38 +39,70 @@ export interface UseDraftFilesReturn {
 // Validation
 // ---------------------------------------------------------------------------
 
+const DEFAULT_ATTACHMENT_CONSTRAINTS: DraftAttachmentConstraints = {
+  maxAttachmentsPerDraft: FILE_LIMITS.maxAttachmentsPerDraft,
+  maxFileBytes: getUploadByteLimit("attachment"),
+  maxTotalBytes: FILE_LIMITS.totalDraftUploadBytes,
+  allowedMimeTypes: [...FILE_LIMITS.attachment.allowedMimeTypes],
+};
+
+function formatAllowedAttachmentFormats(allowedMimeTypes: readonly string[]): string {
+  return allowedMimeTypes
+    .map((mimeType) => {
+      switch (mimeType) {
+        case "application/pdf":
+          return "PDF";
+        case "image/png":
+          return "PNG";
+        case "image/jpeg":
+          return "JPG";
+        default:
+          return mimeType.toUpperCase();
+      }
+    })
+    .join(", ");
+}
+
 function validateFile(
   file: File,
   kind: "attachment" | "signature",
   existingAttachments: FileAsset[],
   hasSignature: boolean,
   existingTotalBytes: number,
+  attachmentConstraints: DraftAttachmentConstraints,
 ): string | null {
-  if (!isAllowedUploadMimeType(kind, file.type)) {
-    return kind === "attachment"
-      ? "Unsupported file type. Allowed: PDF, PNG, JPEG."
-      : "Unsupported signature format. Allowed: PNG, JPEG.";
+  if (
+    kind === "attachment" &&
+    !attachmentConstraints.allowedMimeTypes.includes(file.type)
+  ) {
+    return `Unsupported file type. Allowed: ${formatAllowedAttachmentFormats(attachmentConstraints.allowedMimeTypes)}.`;
   }
 
-  if (file.size > getUploadByteLimit(kind)) {
-    return kind === "attachment"
-      ? "Attachment exceeds 5 MB limit."
-      : "Signature image exceeds 2 MB limit.";
+  if (kind === "signature" && !isAllowedUploadMimeType(kind, file.type)) {
+    return "Unsupported signature format. Allowed: PNG, JPEG.";
+  }
+
+  if (kind === "attachment" && file.size > attachmentConstraints.maxFileBytes) {
+    return `Attachment exceeds ${Math.round(attachmentConstraints.maxFileBytes / 1024 / 1024)} MB limit.`;
+  }
+
+  if (kind === "signature" && file.size > getUploadByteLimit(kind)) {
+    return "Signature image exceeds 2 MB limit.";
   }
 
   if (
     kind === "attachment" &&
-    existingAttachments.length >= FILE_LIMITS.maxAttachmentsPerDraft
+    existingAttachments.length >= attachmentConstraints.maxAttachmentsPerDraft
   ) {
-    return `Maximum ${FILE_LIMITS.maxAttachmentsPerDraft} attachments per draft.`;
+    return `Maximum ${attachmentConstraints.maxAttachmentsPerDraft} attachments per draft.`;
   }
 
   if (kind === "signature" && hasSignature) {
     return "Only one signature image is allowed per draft.";
   }
 
-  if (existingTotalBytes + file.size > FILE_LIMITS.totalDraftUploadBytes) {
-    return "Total upload would exceed 20 MB limit.";
+  if (existingTotalBytes + file.size > attachmentConstraints.maxTotalBytes) {
+    return `Total upload would exceed ${Math.round(attachmentConstraints.maxTotalBytes / 1024 / 1024)} MB limit.`;
   }
 
   return null;
@@ -78,17 +116,20 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
   const queryClient = useQueryClient();
   const [validationError, setValidationError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [removingFileId, setRemovingFileId] = useState<string | null>(null);
 
   const filesQuery = useQuery({
     queryKey: queryKeys.draftFiles(draftId),
-    queryFn: () =>
-      apiFetch<{ files: FileAsset[] }>(`/v1/drafts/${draftId}/files`).then(
-        (r) => r.files,
+    queryFn: async () =>
+      DraftFilesResponseSchema.parse(
+        await apiFetch<DraftFilesResponse>(`/v1/drafts/${draftId}/files`),
       ),
     staleTime: 30_000,
   });
 
-  const files = filesQuery.data ?? [];
+  const files = filesQuery.data?.files ?? [];
+  const attachmentConstraints =
+    filesQuery.data?.attachmentConstraints ?? DEFAULT_ATTACHMENT_CONSTRAINTS;
   const attachments = useMemo(
     () => files.filter((f) => f.kind === FileAssetKind.attachment),
     [files],
@@ -126,18 +167,32 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
     },
     onSuccess: () => {
       setUploadProgress(0);
+      setValidationError(null);
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
     },
-    onError: () => {
+    onError: (error) => {
       setUploadProgress(0);
+      const message =
+        error instanceof ApiError
+          ? (error.getUserMessage() ?? error.message)
+          : error instanceof Error
+            ? error.message
+            : "Upload failed.";
+      setValidationError(message);
     },
   });
 
   const removeMutation = useMutation({
     mutationFn: (fileId: string) =>
       apiFetch<void>(`/v1/drafts/${draftId}/files/${fileId}`, { method: "DELETE" }),
+    onMutate: (fileId) => {
+      setRemovingFileId(fileId);
+    },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
+    },
+    onSettled: () => {
+      setRemovingFileId(null);
     },
   });
 
@@ -149,6 +204,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
         attachments,
         Boolean(signature),
         existingTotalBytes,
+        attachmentConstraints,
       );
       if (error) {
         setValidationError(error);
@@ -157,7 +213,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
       setValidationError(null);
       return uploadMutation.mutateAsync({ file, kind });
     },
-    [uploadMutation, attachments, signature, existingTotalBytes],
+    [uploadMutation, attachments, signature, existingTotalBytes, attachmentConstraints],
   );
 
   const removeFile = useCallback(
@@ -170,7 +226,10 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
   return {
     attachments,
     signature,
+    attachmentConstraints,
     isUploading: uploadMutation.isPending,
+    isRemoving: removeMutation.isPending,
+    removingFileId,
     uploadProgress,
     uploadFile,
     removeFile,

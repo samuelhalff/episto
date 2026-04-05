@@ -572,7 +572,7 @@ The following items are not yet resolved and must not be papered over with defau
 
 | ID | Item | Blocking |
 |---|---|---|
-| GAP-1 | Dispatch provider sandbox credentials not yet obtained | Yes — adapter direction is locked (Swiss Post Digital Commerce API) but sandbox access is needed |
+| GAP-1 | Remaining provider confirmation for ePost oneAPI path | Yes — the adapter direction is locked, but sender return-routing, attachment packaging, and deeper status semantics still need confirmation |
 | GAP-2 | Exact Stripe webhook/capture mechanics for the locked authorize-then-capture flow | Yes |
 | GAP-3 | Retention duration legal sign-off | No — recommended defaults are locked; final approval is operational |
 | GAP-4 | ~~Hosted topology approval~~ | Resolved — Infomaniak-centered topology is locked |

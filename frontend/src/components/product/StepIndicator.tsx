@@ -1,240 +1,43 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, ChevronDown } from "lucide-react";
-import { useRouter } from "../../i18n/navigation";
 
 const STEPS = ["stepDraft", "stepReview", "stepPay", "stepDone"] as const;
-const STEP_SUFFIXES = ["", "/review", "/checkout", "/confirmation"] as const;
 
 export function StepIndicator({
   currentStep,
-  draftId,
+  draftId: _draftId,
 }: {
   currentStep: number;
   draftId: string;
 }) {
   const t = useTranslations("draft");
-  const router = useRouter();
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const progressWidth =
-    currentStep === 0 ? "0%" : `${(currentStep / (STEPS.length - 1)) * 100}%`;
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    function handleOutsideClick(event: MouseEvent) {
-      if (!menuRef.current?.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-
-    function handleEscape(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        setIsOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleOutsideClick);
-    document.addEventListener("keydown", handleEscape);
-    return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
-      document.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen]);
-
-  function navigateTo(index: number) {
-    if (index <= currentStep) {
-      setIsOpen(false);
-      router.push(`/draft/${draftId}${STEP_SUFFIXES[index]}`);
-    }
-  }
-
-  const mobileIndicator = (
-    <div className="relative sm:hidden" ref={menuRef}>
-      <div className="flex items-center gap-2">
-        <div className="flex items-center">
-          {STEPS.map((key, index) => {
-            const isComplete = index < currentStep;
-            const isCurrent = index === currentStep;
-            const isAvailable = index <= currentStep;
-            const isLast = index === STEPS.length - 1;
-
-            return (
-              <div key={key} className="flex items-center">
-                <button
-                  type="button"
-                  disabled={!isAvailable}
-                  onClick={() => navigateTo(index)}
-                  aria-label={t(key)}
-                  className={`relative -m-1.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[10px] font-bold transition-all duration-300 ${
-                    isCurrent
-                      ? "bg-zinc-950 text-white shadow-sm"
-                      : isComplete
-                        ? "bg-emerald-500 text-white"
-                        : "bg-zinc-200 text-zinc-400"
-                  } ${isAvailable ? "cursor-pointer" : "cursor-default"}`}
-                >
-                  {isCurrent && (
-                    <span className="absolute inset-0 rounded-lg border border-zinc-950/15 animate-[step-pulse_2s_ease-in-out_infinite]" />
-                  )}
-                  {isComplete ? <Check className="h-3 w-3" strokeWidth={3} /> : index + 1}
-                </button>
-                {!isLast && (
-                  <div
-                    className={`h-[2px] w-4 transition-colors duration-500 ${
-                      index < currentStep ? "bg-emerald-500" : "bg-zinc-200"
-                    }`}
-                  />
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        <span className="flex-1 text-xs font-semibold uppercase tracking-widest text-zinc-500">
-          {t(STEPS[currentStep] ?? STEPS[0])}
-        </span>
-
-        <button
-          type="button"
-          aria-haspopup="menu"
-          aria-expanded={isOpen}
-          aria-label={t("stepMenuLabel")}
-          onClick={() => setIsOpen((open) => !open)}
-          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-white text-zinc-400 shadow-sm transition hover:bg-zinc-50"
-          style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
-        >
-          <ChevronDown
-            className={`h-3.5 w-3.5 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
-          />
-        </button>
-      </div>
-
-      {isOpen && (
-        <div
-          role="menu"
-          className="fixed inset-x-0 top-[calc(3.5rem+0.5rem)] z-50 mx-auto max-w-lg rounded-3xl bg-white p-2 shadow-prominent sm:absolute sm:inset-x-auto sm:left-0 sm:right-0 sm:top-[calc(100%+0.5rem)] sm:mx-0 sm:max-w-none"
-          style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
-        >
-          {STEPS.map((key, index) => {
-            const isCurrent = index === currentStep;
-            const isComplete = index < currentStep;
-            const isAvailable = index <= currentStep;
-
-            return (
-              <button
-                key={key}
-                type="button"
-                role="menuitem"
-                disabled={!isAvailable}
-                onClick={() => navigateTo(index)}
-                className={`flex w-full items-center gap-3 rounded-2xl px-3 py-2.5 text-left transition-all active:scale-[0.98] ${
-                  isAvailable ? "hover:bg-zinc-50" : "cursor-not-allowed opacity-50"
-                } ${isCurrent ? "bg-zinc-50" : ""}`}
-                style={isCurrent ? { outline: "1px solid rgba(0,0,0,0.03)" } : undefined}
-              >
-                <span
-                  className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                    isCurrent
-                      ? "bg-zinc-950 text-white"
-                      : isComplete
-                        ? "bg-emerald-500 text-white"
-                        : "bg-zinc-100 text-zinc-400"
-                  }`}
-                >
-                  {isComplete ? (
-                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                  ) : (
-                    index + 1
-                  )}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <p
-                    className={`text-xs font-semibold leading-tight ${isCurrent ? "text-zinc-950" : "text-zinc-500"}`}
-                  >
-                    {t(key)}
-                  </p>
-                </div>
-                {isCurrent && (
-                  <div className="h-1.5 w-1.5 rounded-full bg-zinc-950 mr-1" />
-                )}
-                {!isAvailable && (
-                  <span className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400">
-                    {t("stepLocked")}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-
-  const desktopIndicator = (
-    <div className="relative hidden sm:block">
-      <div className="absolute left-10 right-10 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-zinc-200/80" />
-      <div
-        className="absolute left-10 top-1/2 h-[3px] -translate-y-1/2 rounded-full bg-zinc-950 transition-[width] duration-700 ease-out"
-        style={{
-          width: currentStep === 0 ? "0%" : `calc(${progressWidth} - 20px)`,
-        }}
-      />
-
-      <div className="relative z-10 grid grid-cols-4 gap-4">
-        {STEPS.map((key, index) => {
-          const isComplete = index < currentStep;
-          const isCurrent = index === currentStep;
-          const isAvailable = index <= currentStep;
-
-          return (
-            <div key={key} className="flex justify-center">
-              <button
-                type="button"
-                disabled={!isAvailable}
-                onClick={() => navigateTo(index)}
-                className={`group inline-flex min-w-[9rem] items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all duration-300 active:scale-[0.98] ${
-                  isCurrent
-                    ? "bg-zinc-950 text-white shadow-sm"
-                    : isComplete
-                      ? "bg-white text-zinc-900 shadow-sm"
-                      : "bg-white/80 text-zinc-400"
-                } ${isAvailable ? "cursor-pointer" : "cursor-default"}`}
-                style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
-              >
-                <span
-                  className={`inline-flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-colors duration-300 ${
-                    isCurrent
-                      ? "bg-white/15 text-white"
-                      : isComplete
-                        ? "bg-emerald-500 text-white"
-                        : "bg-zinc-100 text-zinc-400"
-                  }`}
-                >
-                  {isComplete ? <Check className="h-4 w-4" strokeWidth={3} /> : index + 1}
-                </span>
-                <span>{t(key)}</span>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-    </div>
-  );
+  const clampedStep = Math.min(Math.max(currentStep, 0), STEPS.length - 1);
+  const currentStepKey = STEPS[clampedStep] ?? STEPS[0];
+  const progressPercent = (clampedStep / (STEPS.length - 1)) * 100;
 
   return (
-    <div className="w-full">
-      {mobileIndicator}
-      {desktopIndicator}
-      <style>{`
-        @keyframes step-pulse {
-          0%, 100% { opacity: 0.35; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.08); }
-        }
-      `}</style>
+    <div className="min-w-0">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
+            {t("phaseProgress", { current: clampedStep + 1, total: STEPS.length })}
+          </p>
+          <p className="mt-1 truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            {t(currentStepKey)}
+          </p>
+        </div>
+        <div className="app-panel-muted rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-300">
+          {clampedStep + 1}/{STEPS.length}
+        </div>
+      </div>
+
+      <div className="mt-3 h-1.5 rounded-full bg-zinc-200 dark:bg-zinc-800">
+        <div
+          className="h-full rounded-full bg-zinc-950 transition-[width] duration-300 dark:bg-amber-400"
+          style={{ width: `${progressPercent}%` }}
+        />
+      </div>
     </div>
   );
 }

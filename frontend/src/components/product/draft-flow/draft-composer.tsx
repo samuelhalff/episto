@@ -2,12 +2,14 @@
 
 import { type ButtonHTMLAttributes, type ReactNode, useEffect, useRef } from "react";
 import { ArrowUp, Layers, Mic, Paperclip, Square } from "lucide-react";
+import { AppButton } from "../../ui/app-button";
 
 interface DraftComposerProps {
   placeholder: string;
   value?: string;
   onChange?: (val: string) => void;
   onSend?: () => void;
+  isSending?: boolean;
   topBadges?: ReactNode;
   leadingActions?: ReactNode;
   trailingActions?: ReactNode;
@@ -22,6 +24,7 @@ export function DraftComposer({
   value = "",
   onChange,
   onSend,
+  isSending = false,
   topBadges,
   leadingActions,
   trailingActions,
@@ -30,7 +33,7 @@ export function DraftComposer({
   onBlur,
   isCompactViewport = false,
 }: DraftComposerProps) {
-  const canSend = Boolean(value?.trim());
+  const canSend = Boolean(value?.trim()) && !isSending;
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const maxComposerHeight = isCompactViewport ? 180 : 220;
 
@@ -43,7 +46,8 @@ export function DraftComposer({
     textarea.style.height = "0px";
     const nextHeight = Math.min(textarea.scrollHeight, maxComposerHeight);
     textarea.style.height = `${nextHeight}px`;
-    textarea.style.overflowY = textarea.scrollHeight > maxComposerHeight ? "auto" : "hidden";
+    textarea.style.overflowY =
+      textarea.scrollHeight > maxComposerHeight ? "auto" : "hidden";
   }, [maxComposerHeight, value]);
 
   function handleSend() {
@@ -58,7 +62,9 @@ export function DraftComposer({
       }`}
     >
       <div className="flex min-w-0 flex-col">
-        {topBadges ? <div className="mb-2 min-w-0 overflow-visible pt-1">{topBadges}</div> : null}
+        {topBadges ? (
+          <div className="mb-2 min-w-0 overflow-visible pt-1">{topBadges}</div>
+        ) : null}
 
         <textarea
           ref={textareaRef}
@@ -74,7 +80,7 @@ export function DraftComposer({
           onBlur={onBlur}
           placeholder={placeholder}
           rows={1}
-          className={`app-field-surface w-full max-w-full resize-none rounded-3xl px-5 pb-5 pt-4 text-base leading-relaxed placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-[var(--app-muted)] ${
+          className={`app-field-surface app-form-control w-full max-w-full resize-none rounded-3xl px-5 pb-5 pt-4 leading-relaxed placeholder:text-zinc-400 focus:outline-none dark:placeholder:text-[var(--app-muted)] ${
             isCompactViewport ? "min-h-[92px]" : "min-h-[100px]"
           }`}
         />
@@ -90,21 +96,19 @@ export function DraftComposer({
 
           <div className="flex shrink-0 items-center gap-2">
             {trailingActions}
-            <button
-              type="button"
+            <AppButton
               onMouseDown={(event) => {
                 event.preventDefault();
               }}
               onClick={handleSend}
-              disabled={!canSend}
-              className={`flex h-10 w-10 items-center justify-center rounded-full transition-all ${
-                canSend
-                  ? "scale-105 bg-zinc-950 text-white shadow-lg dark:bg-amber-400 dark:text-zinc-950"
-                  : "bg-zinc-100 text-zinc-300 dark:bg-[var(--app-surface-soft)] dark:text-[var(--app-muted)]"
-               }`}
+              loading={isSending}
+              disabled={!canSend && !isSending}
+              variant={canSend || isSending ? "primary" : "secondary"}
+              size="icon"
+              className={canSend ? "scale-105" : "shadow-none"}
             >
               <ArrowUp className="h-5 w-5" />
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>
@@ -131,7 +135,8 @@ export function SurfaceIconButton({
   type = "button",
   ...props
 }: SurfaceIconButtonProps) {
-  const sizeClass = size === "composer" ? "h-10 w-10 rounded-full" : "h-14 w-14 rounded-2xl";
+  const sizeClass =
+    size === "composer" ? "h-10 w-10 rounded-full" : "h-14 w-14 rounded-2xl";
   const stateClass = isActive
     ? "border-transparent bg-zinc-950 text-white shadow-sm dark:bg-amber-400 dark:text-zinc-950"
     : size === "composer"
@@ -164,7 +169,9 @@ export function StepTriggerButton({
       className={className}
       {...props}
     >
-      <Layers className={`transition-transform ${size === "composer" ? "h-[18px] w-[18px]" : "h-5 w-5"} ${isOpen ? "rotate-90" : ""}`} />
+      <Layers
+        className={`transition-transform ${size === "composer" ? "h-[18px] w-[18px]" : "h-5 w-5"} ${isOpen ? "rotate-90" : ""}`}
+      />
     </SurfaceIconButton>
   );
 }

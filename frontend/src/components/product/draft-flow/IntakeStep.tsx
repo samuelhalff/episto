@@ -15,6 +15,7 @@ import {
   ThreadActionCard,
   StepTriggerButton,
 } from "./ui";
+import { LoadingDots } from "../../ui/loading-dots";
 import {
   getIntakeThreadActionMode,
   isTemporaryAiFailureMessage,
@@ -268,6 +269,11 @@ export function IntakeStep({
           onInputFocusChange?.(false);
         }}
         helperText={helperText}
+        isSending={
+          conversation.isSending ||
+          conversation.isStreaming ||
+          conversation.isAwaitingResponse
+        }
         isCompactViewport={isCompactViewport}
         topBadges={
           <PromptShortcutBar
@@ -401,16 +407,17 @@ export function IntakeStep({
 
             {conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse ? (
               <div className="flex justify-start">
-                <div className="px-3 py-2">
+                <div className="max-w-[85%] rounded-3xl rounded-bl-[10px] bg-[var(--app-surface-soft)] px-4 py-3 text-sm leading-relaxed text-zinc-700 shadow-sm ring-1 ring-black/5 dark:text-zinc-100 dark:ring-white/5">
                   {conversation.streamingText ? (
-                    <div className="max-w-[85%] rounded-3xl rounded-bl-[10px] bg-transparent px-0 py-3 text-sm leading-relaxed text-zinc-700 shadow-none ring-0 dark:text-zinc-100">
+                    <div className="whitespace-pre-wrap">
                       {conversation.streamingText}
                     </div>
                   ) : (
-                    <div className="flex items-center gap-1.5">
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-300/80 [animation-delay:-0.2s]" />
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-300/80 [animation-delay:-0.1s]" />
-                      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-zinc-300/80" />
+                    <div className="flex items-center gap-3">
+                      <LoadingDots />
+                      <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                        {conversation.pendingAssistantPlaceholder ? tc("loading") : tc("loading")}
+                      </span>
                     </div>
                   )}
                 </div>

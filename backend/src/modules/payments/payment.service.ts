@@ -114,6 +114,19 @@ export async function getPaymentAttempt(
   return row ? toPaymentRow(row) : null;
 }
 
+export async function getPaymentAttemptById(
+  db: Db,
+  paymentId: string,
+): Promise<PaymentAttemptRow | null> {
+  const [row] = await db
+    .select()
+    .from(schema.paymentAttempts)
+    .where(eq(schema.paymentAttempts.id, paymentId))
+    .limit(1);
+
+  return row ? toPaymentRow(row) : null;
+}
+
 // ---------------------------------------------------------------------------
 // Get latest payment for a draft
 // ---------------------------------------------------------------------------
@@ -168,12 +181,14 @@ export async function transitionPaymentState(
   db: Db,
   paymentId: string,
   newState: string,
-  extra?: {
-    stripePaymentIntentId?: string | undefined;
-    stripeChargeId?: string | undefined;
-    failureReason?: string | undefined;
-    refundReason?: string | undefined;
-  } | undefined,
+  extra?:
+    | {
+        stripePaymentIntentId?: string | undefined;
+        stripeChargeId?: string | undefined;
+        failureReason?: string | undefined;
+        refundReason?: string | undefined;
+      }
+    | undefined,
 ): Promise<TransitionPaymentResult> {
   const [existing] = await db
     .select()

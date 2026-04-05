@@ -6,6 +6,7 @@ export * from "./contracts/index.ts";
 export * from "./state-machines.ts";
 export * from "./limits.ts";
 export * from "./document-response.ts";
+export * from "./dispatch-provider.ts";
 export * from "./intake-progress.ts";
 export * from "./letter-framing.ts";
 export * from "./workspace-draft.ts";

@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
@@ -65,6 +65,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
         .select()
         .from(schema.dispatchAttempts)
         .where(eq(schema.dispatchAttempts.draftId, draft.id))
+        .orderBy(desc(schema.dispatchAttempts.createdAt))
         .limit(1);
 
       // Fetch recipient name for display
@@ -104,10 +105,15 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
           dispatch: {
             state: dispatch?.state ?? "queued",
             providerRef: dispatch?.providerReference ?? null,
+            trackingNumber: dispatch?.trackingNumber ?? null,
             submittedAt: dispatch?.submittedAt?.toISOString() ?? null,
-            acceptedAt: null,
-            rejectedAt: null,
-            trackingAvailable: false,
+            acceptedAt:
+              dispatch && ["accepted", "reconciled"].includes(dispatch.state)
+                ? dispatch.updatedAt.toISOString()
+                : null,
+            rejectedAt:
+              dispatch?.state === "rejected" ? dispatch.updatedAt.toISOString() : null,
+            trackingAvailable: Boolean(dispatch?.trackingNumber),
             lastCheckedAt: dispatch?.lastCheckedAt?.toISOString() ?? null,
           },
           deliveryType: draft.deliveryType,

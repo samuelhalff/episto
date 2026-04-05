@@ -1,6 +1,7 @@
 "use client";
 
 import { type ReactNode, useCallback, useEffect, useRef } from "react";
+import { AppButton } from "../ui/app-button";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -14,6 +15,9 @@ interface ConfirmDialogProps {
   icon?: ReactNode;
   /** Use destructive styling for the confirm button */
   destructive?: boolean;
+  confirmDisabled?: boolean;
+  cancelDisabled?: boolean;
+  confirmLoading?: boolean;
 }
 
 /**
@@ -30,6 +34,9 @@ export function ConfirmDialog({
   onCancel,
   icon,
   destructive = false,
+  confirmDisabled = false,
+  cancelDisabled = false,
+  confirmLoading = false,
 }: ConfirmDialogProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
@@ -115,24 +122,25 @@ export function ConfirmDialog({
           ) : null}
 
           <div className="mt-6 flex flex-col gap-2">
-            <button
-              type="button"
+            <AppButton
               onClick={onConfirm}
-              className={`inline-flex w-full items-center justify-center rounded-full px-5 py-3 text-sm font-semibold transition-all duration-200 hover:-translate-y-0.5 active:scale-[0.98] ${
-                destructive
-                  ? "bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
-                  : "bg-zinc-950 text-white hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
-              }`}
+              fullWidth
+              size="md"
+              variant={destructive ? "destructive" : "primary"}
+              disabled={confirmDisabled}
+              loading={confirmLoading}
             >
               {confirmLabel}
-            </button>
-            <button
-              type="button"
+            </AppButton>
+            <AppButton
               onClick={onCancel}
-              className="inline-flex w-full items-center justify-center rounded-full border border-zinc-300/80 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-200 dark:hover:border-zinc-500"
+              fullWidth
+              size="md"
+              variant="secondary"
+              disabled={cancelDisabled || confirmLoading}
             >
               {cancelLabel}
-            </button>
+            </AppButton>
           </div>
         </div>
       </div>

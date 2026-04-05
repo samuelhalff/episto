@@ -13,6 +13,7 @@ import {
   SheetHandle,
   SheetTitle,
 } from "../ui/sheet";
+import { ActionButton } from "./ActionButton";
 import { LetterPreview } from "./LetterPreview";
 
 interface LetterPreviewModalProps {
@@ -64,24 +65,19 @@ export function LetterPreviewModal({
 
         <SheetFooter sticky surface="muted" className="sm:px-6">
           <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-3 sm:max-w-[320px]">
-            <button
-              type="button"
+            <ActionButton
               disabled={confirmDisabled}
               onClick={() => {
                 onClose();
                 onConfirm();
               }}
-              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-zinc-950 px-5 text-sm font-semibold tracking-tight text-white transition-colors hover:bg-zinc-900 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-400 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300 dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500"
+              fullWidth
             >
               {t("confirmContent")}
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-5 text-sm font-semibold tracking-tight text-[var(--app-fg)] transition-colors hover:border-[var(--app-border-strong)] hover:bg-[var(--app-surface-soft)]"
-            >
+            </ActionButton>
+            <ActionButton variant="secondary" onClick={onClose} fullWidth>
               {t("hidePreview")}
-            </button>
+            </ActionButton>
           </div>
         </SheetFooter>
       </SheetContent>

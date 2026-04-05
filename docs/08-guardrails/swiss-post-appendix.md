@@ -170,11 +170,13 @@ The following cannot be safely resolved from current public sources:
 
 ## Operational conclusion (as of 2026-03-31)
 
-- **LOCKED DIRECTION:** We are building against the **Digital Commerce API** (Barcode + Address + Delivery), NOT SmartSend. See [`open-decisions.md`](./open-decisions.md).
-- Swiss Post clearly offers related digital-commerce and tracking capabilities
+- **LOCKED IMPLEMENTATION PATH:** We are building against the current **ePost / KLARA oneAPI**
+  surface at `api.epost.ch`, NOT SmartSend. See [`open-decisions.md`](./open-decisions.md).
+- Swiss Post clearly offers related digital-commerce and tracking capabilities in parallel, but the
+  currently validated physical-letter API surface in this repository is the ePost oneAPI path
 - SmartSend is a real current sending product but is **rejected for MVP implementation**.
-- Public evidence is insufficient to hardcode any MVP dispatch integration without completing
-  onboarding and reviewing provider-provided technical documentation
+- Provider readiness is still not the same as launch readiness: sender return-routing, attachment
+  packaging, and some downstream semantics remain unproven
 
 ## Observed local preview probe (2026-03-31)
 
@@ -235,20 +237,29 @@ This is implementation evidence for exploration only. It is **not** a provider-c
   as distinct deliveries and retained distinct `senderName` values in monitoring metadata
 - However, the monitoring/status payloads observed so far do **not** echo the full
   `physicalAdditionalInfo.senderAddress` object back to the caller
-- A later vendor-UI check briefly appeared to show **West Bay** as the sender, despite the request
-  carrying **Ark Fiduciaire SA** sender data, but subsequent UI checks no longer showed sender data at
-  all
-- Therefore that frontend surface is currently too unstable to use as evidence for sender-override
-  semantics
+- A successful live registered delivery later appeared in the provider UI with:
+  - `Sender: Ark Fiduciaire SA`
+  - `Sender Case Id: return-live-1774945593700`
+  - `Sender End To End Id: return-live-1774945593700`
+  - `Delivery Channel Preference: [PHYSICAL]`
+  - `Status: DELIVERED`
+  - recipient status `SUCCESS`
+- This is stronger operational evidence that request-level sender identity survives into the real
+  provider sending record for at least one delivered physical letter
+- But it still does **not** prove the unresolved point that matters most for Swiss Mail: whether an
+  undeliverable physical letter will actually be returned using the supplied sender address rather
+  than a tenant default or another downstream rule
 - The remaining verified evidence is:
   - the public `senderAddress` schema text says the provided sender address is what gets printed on
     the letter
   - monitoring metadata preserved distinct request-level `senderName` values across probes
+  - a real delivered provider-UI record showed `Sender: Ark Fiduciaire SA` for
+    `return-live-1774945593700`
   - the API still does **not** echo the full physical sender-address object back, and we do **not**
     yet have a controlled real-world return proving which address governs physical return routing
 - Until provider-issued documentation or a stronger operational proof says otherwise, Swiss Mail must
-  treat per-letter sender/return-address control for physical returns as **unproven** rather than
-  guaranteed
+  treat actual physical **return-routing** as **unproven** rather than guaranteed, even though
+  sender identity now appears to carry through into the provider UI for live deliveries
 - Swiss Post's public registered-mail page confirms that return receipt exists as a postal product
   add-on, but the current public oneAPI request model still does **not** show a specific field to
   activate it

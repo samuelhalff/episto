@@ -198,7 +198,7 @@ export class DispatchService {
 }
 
 // Wiring in the application bootstrap:
-const dispatchAdapter = new EPostSmartSendAdapter(config.epost);
+const dispatchAdapter = new EPostOneApiAdapter(config.epost);
 const dispatchService = new DispatchService(db, dispatchAdapter, dispatchQueue);
 ```
 

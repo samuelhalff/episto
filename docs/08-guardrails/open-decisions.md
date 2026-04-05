@@ -343,27 +343,31 @@ and backend-owned adapter boundaries.
 
 ---
 
-### Dispatch provider path — LOCKED: Direct Swiss Post Digital Commerce API
+### Dispatch provider path — LOCKED: ePost / KLARA oneAPI (`api.epost.ch`)
 
-**Locked choice:** MVP dispatch integrates directly with Swiss Post's current Digital Commerce API
-path. Do not build the MVP around ePost SmartSend or partner-provider fallbacks unless a newer
-decision record explicitly supersedes this one.
+**Locked choice:** MVP dispatch implementation targets the current ePost / KLARA oneAPI surface at
+`api.epost.ch`, exercised behind a Swiss Mail-owned adapter boundary. Do not build the MVP around
+SmartSend or partner-provider fallbacks unless a newer decision record explicitly supersedes this
+one.
 
 **Rules:**
-- Build the adapter shell now, but only map real provider payloads from current Swiss Post-issued
-  documentation and sandbox credentials
+- Build and evolve the adapter only from current provider-issued docs plus live validated tenant
+  behavior captured in `swiss-post-appendix.md`
 - Keep tracking/reference behavior honest until Swiss Post confirms what each returned identifier
   actually means
 - Keep dispatch state normalization on the app side; never expose raw provider semantics to the UI
+- Keep sender/return-address semantics marked as **still unproven for actual physical returns**:
+  live provider UI evidence now shows request-level sender identity on delivered mail, but not yet
+  real undeliverable return routing
 
-**Option B (ePost SmartSend / group product path) rejected for MVP** — adds routing ambiguity when
-the chosen direction is direct Swiss Post API onboarding.
+**Option B (ePost SmartSend / routed product path) rejected for MVP** — SmartSend is a different
+product surface and not the one we have current public API docs plus live tenant validation for.
 **Option C (partner fallback provider) rejected for MVP** — weakens the direct provider story and
 adds another contract surface before launch.
 
-Adapter module: `dispatch/adapters/swiss-post.ts`. OAuth/token handling, payload mapping, and
-tracking lookup rules must come from current provider docs, not from guesswork or old legacy
-material.
+Adapter module: `dispatch/adapters/epost.ts`. Auth handling, payload mapping, pricing preview,
+submission normalization, and tracking lookup rules must come from current provider docs, not from
+guesswork or old legacy material.
 
 ---
 
@@ -406,18 +410,15 @@ when session email is collected, cancelled if payment completes first.
 
 ---
 
-### MVP launch pricing — LOCKED: CHF 4.90 standard / CHF 8.90 registered
+### MVP launch pricing — LOCKED: provider quote + Swiss Mail markup
 
-**Locked choice:** Launch with:
-
-- `CHF 4.90` for standard delivery
-- `CHF 8.90` for registered delivery
+**Locked choice:** Charge the live provider quote for the actual draft plus a configurable Swiss Mail
+markup.
 
 **Rationale:**
-- Positions the product above commodity competitors while staying below the friction of Swiss
-  Post's own consumer tools
-- Clean Swiss price points that are easy to communicate in marketing and checkout
-- Keeps MVP pricing simple enough that support, receipts, and Stripe configuration remain aligned
+- Keeps checkout truthful to real provider economics instead of faking static launch totals
+- Preserves a configurable Swiss Mail margin without inventing unsupported provider surcharges
+- Keeps payment capture, receipts, and support handling aligned with the actual charged amount
 
 **Locked exclusions at launch:**
 - no page-count surcharge
@@ -426,11 +427,11 @@ when session email is collected, cancelled if payment completes first.
 - no color-printing tier
 
 Config keys:
-- `PRICE_STANDARD_CENTS=490`
-- `PRICE_REGISTERED_CENTS=890`
+- `PRICE_STANDARD_MARKUP_CENTS`
+- `PRICE_REGISTERED_MARKUP_CENTS`
 
-Do not hardcode these values in business logic. Read them from config and persist the final charged
-amount on the payment record.
+Do not hardcode the markup values in business logic. Read them from config, compute the provider
+quote per draft, and persist the final charged amount on the payment record.
 
 ---
 

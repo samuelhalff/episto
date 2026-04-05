@@ -13,11 +13,15 @@ import type { UpdateDraftInputType } from "@swiss-mail/shared";
 import { useDraftStream } from "./use-draft-stream";
 import type { FieldUpdateEvent } from "./use-draft-stream";
 
+const TRANSITIONAL_DRAFT_STATUSES = new Set(["reviewed", "rendering"]);
+
 function normalizeDraft(draft: DraftLetter): DraftLetter {
   return {
     ...draft,
-    createdAt: draft.createdAt instanceof Date ? draft.createdAt : new Date(draft.createdAt),
-    updatedAt: draft.updatedAt instanceof Date ? draft.updatedAt : new Date(draft.updatedAt),
+    createdAt:
+      draft.createdAt instanceof Date ? draft.createdAt : new Date(draft.createdAt),
+    updatedAt:
+      draft.updatedAt instanceof Date ? draft.updatedAt : new Date(draft.updatedAt),
   };
 }
 
@@ -69,8 +73,18 @@ export function draftOptions(draftId: string) {
   return queryOptions({
     queryKey: queryKeys.draft(draftId),
     queryFn: () =>
-      apiFetch<{ draft: DraftLetter }>(`/v1/drafts/${draftId}`).then((r) => normalizeDraft(r.draft)),
+      apiFetch<{ draft: DraftLetter }>(`/v1/drafts/${draftId}`).then((r) =>
+        normalizeDraft(r.draft),
+      ),
     staleTime: 30_000,
+    refetchInterval: (query) => {
+      const draft = query.state.data as DraftLetter | undefined;
+      if (!draft) {
+        return false;
+      }
+
+      return TRANSITIONAL_DRAFT_STATUSES.has(draft.status) ? 1_000 : false;
+    },
   });
 }
 
@@ -86,6 +100,14 @@ export function useDraft(draftId: string) {
           draftOptions(draftId).queryKey,
           (currentDraft) => mergeFieldUpdate(currentDraft, event.data),
         );
+        return;
+      }
+
+      if (
+        event.type === "draft_status" ||
+        (event.type === "error" && event.data.code === "SSE_FALLBACK")
+      ) {
+        void queryClient.invalidateQueries({ queryKey: draftOptions(draftId).queryKey });
       }
     });
   }, [subscribe, queryClient, draftId]);

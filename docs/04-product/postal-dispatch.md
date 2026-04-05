@@ -28,19 +28,20 @@ Mail runs its own physical print-and-mail workflow.
 
 ## Locked provider path
 
-**Locked choice:** MVP dispatch integrates directly with the Swiss Post Digital Commerce API path.
+**Locked choice:** MVP dispatch integrates against the current ePost / KLARA oneAPI surface at
+`api.epost.ch`.
 
-This is a provider-choice decision, not proof that every payload, attachment rule, or tracking
-capability is already known. The adapter still depends on current Swiss Post onboarding docs and
-sandbox access before provider-specific mapping is implemented.
+This is an implementation-path decision, not proof that every payload, attachment rule, sender
+semantics, or tracking capability is already known. The adapter still depends on current provider
+docs plus validated tenant behavior before every provider-specific mapping is treated as launch-ready.
 
 Rules:
 
-- Adapter file: `dispatch/adapters/swiss-post.ts`
+- Adapter file: `dispatch/adapters/epost.ts`
 - Do not build MVP dispatch around ePost SmartSend or a fallback partner unless a newer decision
   record explicitly replaces this one
-- Keep the app-side adapter contract stable even while Swiss Post-specific request/response details
-  are being confirmed
+- Keep the app-side adapter contract stable even while ePost-specific request/response details are
+  still being confirmed
 
 ## Address validation — LOCKED (GAP-14)
 
@@ -106,25 +107,26 @@ Do not infer provider payload shape from these app-level fields. Mapping stays i
 The following are not open product decisions anymore, but they are still provider-specific facts
 that must not be guessed in code:
 
-- Exact accepted payload format for the chosen Swiss Post flow
+- Exact accepted payload format for the chosen ePost physical-mail flow
 - Attachment support details and limits
 - Exact difference in returned identifiers for standard vs registered mail
 - Whether dispatch confirmation is synchronous or asynchronous
 - Whether status webhooks are available
+- Whether request-level sender identity also governs physical return routing
 
 ## Swiss Post onboarding checklist
 
-Before implementing `dispatch/adapters/swiss-post.ts`, confirm all of the following from current
-Swiss Post-issued material:
+Before marking `dispatch/adapters/epost.ts` production-ready, confirm all of the following from
+current provider-issued material and validated tenant behavior:
 
-1. OAuth flow, token endpoint, scopes, and token lifetime
+1. Effective auth model for the chosen tenant (`X-API-KEY`, bearer token, or both)
 2. Exact dispatch endpoint for physical-letter submission
 3. Required request fields for standard and registered delivery
-4. Whether uploads/attachments are part of the same request or a separate flow
+4. Whether uploads/attachments are part of the same request and what attachment shapes are truly supported
 5. Which returned identifiers are references only vs true tracking identifiers
 6. Whether acceptance is synchronous, asynchronous, or mixed
 7. Whether status polling and/or webhooks are available
-8. Sandbox rate limits, test credentials, and sample payloads
+8. Sender/return-address behavior for returned physical mail
 
 Do not mark the dispatch adapter production-ready until each item above is captured in
 [`../08-guardrails/swiss-post-appendix.md`](../08-guardrails/swiss-post-appendix.md) or the

@@ -152,7 +152,9 @@ describe("SenderProfileSchema", () => {
   });
 
   it("rejects empty firstName", () => {
-    expect(() => SenderProfileSchema.parse({ ...validSender(), firstName: "" })).toThrow();
+    expect(() =>
+      SenderProfileSchema.parse({ ...validSender(), firstName: "" }),
+    ).toThrow();
   });
 
   it("rejects missing lastName", () => {
@@ -162,11 +164,15 @@ describe("SenderProfileSchema", () => {
   });
 
   it("rejects invalid postal code (3 digits)", () => {
-    expect(() => SenderProfileSchema.parse({ ...validSender(), postalCode: "800" })).toThrow();
+    expect(() =>
+      SenderProfileSchema.parse({ ...validSender(), postalCode: "800" }),
+    ).toThrow();
   });
 
   it("rejects postal code with letters", () => {
-    expect(() => SenderProfileSchema.parse({ ...validSender(), postalCode: "80AB" })).toThrow();
+    expect(() =>
+      SenderProfileSchema.parse({ ...validSender(), postalCode: "80AB" }),
+    ).toThrow();
   });
 
   it("defaults country to CH when omitted", () => {
@@ -177,7 +183,9 @@ describe("SenderProfileSchema", () => {
   });
 
   it("rejects country not exactly 2 chars", () => {
-    expect(() => SenderProfileSchema.parse({ ...validSender(), country: "CHE" })).toThrow();
+    expect(() =>
+      SenderProfileSchema.parse({ ...validSender(), country: "CHE" }),
+    ).toThrow();
   });
 });
 
@@ -232,6 +240,63 @@ describe("RecipientProfileSchema", () => {
 });
 
 // ---------------------------------------------------------------------------
+// SnapshotDataSchema
+// ---------------------------------------------------------------------------
+
+describe("SnapshotDataSchema", () => {
+  const validSnapshot = () => ({
+    schemaVersion: 1,
+    locale: "en-CH",
+    deliveryType: "registered",
+    subject: "Subject",
+    body: "Body",
+    enclosureNote: null,
+    signatureMode: "typed",
+    tone: "formal",
+    intent: "cancellation",
+    sender: {
+      firstName: "Sam",
+      lastName: "Example",
+      company: null,
+      addressLine1: "Rue Example 1",
+      addressLine2: null,
+      postalCode: "1205",
+      city: "Geneva",
+      country: "CH",
+    },
+    recipient: {
+      firstName: null,
+      lastName: null,
+      company: "Swisscom AG",
+      department: null,
+      addressLine1: "Alte Tiefenaustrasse 6",
+      addressLine2: null,
+      postalCode: "3050",
+      city: "Bern",
+      country: "CH",
+    },
+    attachmentAssetIds: [],
+    signatureAssetId: null,
+    estimatedPages: 2,
+    metadata: null,
+  });
+
+  it("parses a valid snapshot", () => {
+    const result = SnapshotDataSchema.parse(validSnapshot());
+    expect(result.estimatedPages).toBe(2);
+  });
+
+  it("defaults missing estimatedPages to null for legacy snapshots", () => {
+    const snapshot = validSnapshot();
+    delete (snapshot as Record<string, unknown>).estimatedPages;
+
+    const result = SnapshotDataSchema.parse(snapshot);
+
+    expect(result.estimatedPages).toBeNull();
+  });
+});
+
+// ---------------------------------------------------------------------------
 // PaymentAttemptSchema
 // ---------------------------------------------------------------------------
 
@@ -243,9 +308,20 @@ describe("PaymentAttemptSchema", () => {
     state: "pending",
     stripePaymentIntentId: null,
     stripeChargeId: null,
-    amountCents: 590,
+    amountCents: 245,
     currency: "CHF",
-    breakdown: { base: 300, pages: 100, delivery: 150, attachments: 40 },
+    breakdown: {
+      deliveryType: "standard",
+      providerQuotedCents: 165,
+      swissMailMarkupCents: 80,
+      totalCents: 245,
+      providerQuoteReference: "preview-123",
+      attachmentHandling: "excluded",
+      lineItems: [
+        { label: "ePost provider quote", amountCents: 165, source: "provider" },
+        { label: "Swiss Mail service", amountCents: 80, source: "swiss_mail" },
+      ],
+    },
     failureReason: null,
     refundReason: null,
     createdAt: now,
@@ -254,14 +330,17 @@ describe("PaymentAttemptSchema", () => {
 
   it("parses a valid payment attempt", () => {
     const result = PaymentAttemptSchema.parse(validPayment());
-    expect(result.amountCents).toBe(590);
+    expect(result.amountCents).toBe(245);
     expect(result.currency).toBe("CHF");
   });
 
   it("rejects negative amountCents", () => {
     // amountCents is z.number().int() — negative ints are technically valid at schema level.
     // The breakdown fields now enforce .nonnegative() but amountCents itself does not.
-    const result = PaymentAttemptSchema.safeParse({ ...validPayment(), amountCents: -100 });
+    const result = PaymentAttemptSchema.safeParse({
+      ...validPayment(),
+      amountCents: -100,
+    });
     if (result.success) {
       expect(result.data.amountCents).toBe(-100);
     } else {
@@ -281,12 +360,18 @@ describe("PaymentAttemptSchema", () => {
     ).toThrow();
   });
 
-  it.each(["pending", "authorized", "captured", "failed", "cancelled", "refund_pending", "refunded", "partially_refunded"])(
-    "accepts payment state %s",
-    (state) => {
-      expect(PaymentAttemptSchema.parse({ ...validPayment(), state }).state).toBe(state);
-    },
-  );
+  it.each([
+    "pending",
+    "authorized",
+    "captured",
+    "failed",
+    "cancelled",
+    "refund_pending",
+    "refunded",
+    "partially_refunded",
+  ])("accepts payment state %s", (state) => {
+    expect(PaymentAttemptSchema.parse({ ...validPayment(), state }).state).toBe(state);
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -405,7 +490,10 @@ describe("SnapshotDataSchema", () => {
 
   it("rejects non-UUID in attachmentAssetIds", () => {
     expect(() =>
-      SnapshotDataSchema.parse({ ...validSnapshot(), attachmentAssetIds: ["not-a-uuid"] }),
+      SnapshotDataSchema.parse({
+        ...validSnapshot(),
+        attachmentAssetIds: ["not-a-uuid"],
+      }),
     ).toThrow();
   });
 
@@ -480,7 +568,10 @@ describe("DraftSnapshotSchema", () => {
   });
 
   it("accepts explicit schemaVersion", () => {
-    const result = DraftSnapshotSchema.parse({ ...validDraftSnapshot(), schemaVersion: 2 });
+    const result = DraftSnapshotSchema.parse({
+      ...validDraftSnapshot(),
+      schemaVersion: 2,
+    });
     expect(result.schemaVersion).toBe(2);
   });
 });
@@ -492,42 +583,62 @@ describe("DraftSnapshotSchema", () => {
 describe("PaymentBreakdownSchema", () => {
   it("parses a valid breakdown", () => {
     const result = PaymentBreakdownSchema.parse({
-      base: 300,
-      pages: 100,
-      delivery: 150,
-      attachments: 40,
+      deliveryType: "standard",
+      providerQuotedCents: 165,
+      swissMailMarkupCents: 80,
+      totalCents: 245,
+      providerQuoteReference: "preview-123",
+      attachmentHandling: "excluded",
+      lineItems: [
+        { label: "ePost provider quote", amountCents: 165, source: "provider" },
+        { label: "Swiss Mail service", amountCents: 80, source: "swiss_mail" },
+      ],
     });
-    expect(result.base).toBe(300);
+    expect(result.providerQuotedCents).toBe(165);
   });
 
   it("accepts zero values", () => {
     const result = PaymentBreakdownSchema.parse({
-      base: 0,
-      pages: 0,
-      delivery: 0,
-      attachments: 0,
+      deliveryType: "standard",
+      providerQuotedCents: 0,
+      swissMailMarkupCents: 0,
+      totalCents: 0,
+      providerQuoteReference: null,
+      attachmentHandling: "excluded",
+      lineItems: [],
     });
-    expect(result.base).toBe(0);
+    expect(result.providerQuotedCents).toBe(0);
   });
 
   it("rejects negative values", () => {
     expect(() =>
       PaymentBreakdownSchema.parse({
-        base: -100,
-        pages: 0,
-        delivery: 0,
-        attachments: 0,
+        deliveryType: "standard",
+        providerQuotedCents: -100,
+        swissMailMarkupCents: 0,
+        totalCents: 0,
+        providerQuoteReference: null,
+        attachmentHandling: "excluded",
+        lineItems: [],
       }),
     ).toThrow();
   });
 
   it("rejects non-integer values", () => {
     expect(() =>
-      PaymentBreakdownSchema.parse({ base: 1.5, pages: 0, delivery: 0, attachments: 0 }),
+      PaymentBreakdownSchema.parse({
+        deliveryType: "standard",
+        providerQuotedCents: 1.5,
+        swissMailMarkupCents: 0,
+        totalCents: 0,
+        providerQuoteReference: null,
+        attachmentHandling: "excluded",
+        lineItems: [],
+      }),
     ).toThrow();
   });
 
   it("rejects missing fields", () => {
-    expect(() => PaymentBreakdownSchema.parse({ base: 100 })).toThrow();
+    expect(() => PaymentBreakdownSchema.parse({ providerQuotedCents: 100 })).toThrow();
   });
 });

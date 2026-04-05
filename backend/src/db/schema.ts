@@ -359,9 +359,11 @@ export const dispatchAttempts = pgTable(
     snapshotId: uuid("snapshot_id")
       .notNull()
       .references(() => draftSnapshots.id),
+    paymentAttemptId: uuid("payment_attempt_id").references(() => paymentAttempts.id),
     state: dispatchStateEnum("state").default("queued").notNull(),
     providerName: text("provider_name").notNull(),
     providerReference: text("provider_reference"),
+    trackingNumber: text("tracking_number"),
     providerPayload: jsonb("provider_payload"),
     submittedAt: ts("submitted_at"),
     lastCheckedAt: ts("last_checked_at"),
@@ -372,6 +374,7 @@ export const dispatchAttempts = pgTable(
   (t) => ({
     draftIdIdx: index("dispatch_attempts_draft_id_idx").on(t.draftId),
     snapshotIdIdx: index("dispatch_attempts_snapshot_id_idx").on(t.snapshotId),
+    paymentAttemptIdIdx: index("dispatch_attempts_payment_attempt_id_idx").on(t.paymentAttemptId),
     providerReferenceIdx: index(
       "dispatch_attempts_provider_reference_idx",
     ).on(t.providerReference),
@@ -548,6 +551,10 @@ export const dispatchAttemptsRelations = relations(
     snapshot: one(draftSnapshots, {
       fields: [dispatchAttempts.snapshotId],
       references: [draftSnapshots.id],
+    }),
+    paymentAttempt: one(paymentAttempts, {
+      fields: [dispatchAttempts.paymentAttemptId],
+      references: [paymentAttempts.id],
     }),
     statusEvents: many(dispatchStatusEvents),
   }),

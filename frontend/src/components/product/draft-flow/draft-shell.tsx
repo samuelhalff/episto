@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { Check, Lock } from "lucide-react";
 import { WorkspaceSiteMenu } from "./WorkspaceSiteMenu";
 import { DRAFT_WORKSPACE_STEPS } from "./steps";
-import { Card } from "./cards";
+import { Card, SecondaryButton } from "./cards";
 import { StepTriggerButton } from "./draft-composer";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 
@@ -16,6 +16,8 @@ interface DraftShellProps {
   subtitle?: string | undefined;
   children: ReactNode;
   primaryAction?: ReactNode;
+  secondaryActionLabel?: string | undefined;
+  onSecondaryAction?: (() => void) | undefined;
   composer?: ReactNode;
   onStepClick?: () => void;
   stepTriggerLabel?: string | undefined;
@@ -34,6 +36,8 @@ export function DraftShell({
   subtitle,
   children,
   primaryAction,
+  secondaryActionLabel,
+  onSecondaryAction,
   composer,
   onStepClick,
   stepTriggerLabel,
@@ -194,9 +198,24 @@ export function DraftShell({
                   onClick={onStepClick}
                 />
               ) : null}
-              {primaryAction ? (
-                <div className="flex-1">
-                  {primaryAction}
+              {secondaryActionLabel || primaryAction ? (
+                <div className="flex min-w-0 flex-1 items-center gap-3">
+                  {secondaryActionLabel && onSecondaryAction ? (
+                    <div className="min-w-0 max-w-[13rem] flex-1 sm:max-w-[15rem]">
+                      <SecondaryButton
+                        onClick={onSecondaryAction}
+                        disabled={isNavigating}
+                        fullWidth
+                      >
+                        {secondaryActionLabel}
+                      </SecondaryButton>
+                    </div>
+                  ) : null}
+                  {primaryAction ? (
+                    <div className="min-w-0 flex-1">
+                      {primaryAction}
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
             </div>

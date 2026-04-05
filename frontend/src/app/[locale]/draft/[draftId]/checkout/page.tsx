@@ -9,11 +9,14 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDraft, useCheckout } from "../../../../../hooks/use-api";
 import { Link, useRouter } from "../../../../../i18n/navigation";
-import { Lock, Truck, ShieldCheck, Loader2 } from "lucide-react";
+import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm";
+import { ActionButton, ActionLink } from "../../../../../components/product/ActionButton";
 import { captureError } from "../../../../../lib/error-tracking";
+import { normalizeLetterSubject } from "../../../../../lib/letter-content";
+import { getApiErrorCode, getApiErrorUserMessage } from "../../../../../lib/api";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
@@ -27,6 +30,10 @@ const STRIPE_LOCALE_MAP: Record<string, "de" | "fr" | "it" | "en"> = {
 
 function toStripeLocale(locale: string): "de" | "fr" | "it" | "en" {
   return STRIPE_LOCALE_MAP[locale] ?? "de";
+}
+
+function hasConfiguredStripePublishableKey(value: string): boolean {
+  return /^pk_(test|live)_/.test(value) && !/replace_me|placeholder/i.test(value);
 }
 
 function createCheckoutSchema(consentMessage: string) {
@@ -49,9 +56,12 @@ export default function CheckoutPage({
   const t = useTranslations("checkout");
   const tc = useTranslations("common");
   const router = useRouter();
+  const hasConfiguredStripeFrontend =
+    hasConfiguredStripePublishableKey(stripePublishableKey);
 
   const draft = useDraft(draftId);
-  const checkout = useCheckout(draftId);
+  const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
+  const checkout = useCheckout(draftId, { quoteEnabled: canRequestQuote });
 
   const checkoutSchema = createCheckoutSchema(t("consentRequired"));
   const {
@@ -79,6 +89,7 @@ export default function CheckoutPage({
               variables: {
                 colorPrimary: "#18181b",
                 borderRadius: "12px",
+                fontSizeBase: "16px",
                 fontFamily: "inherit",
               },
             },
@@ -114,6 +125,21 @@ export default function CheckoutPage({
   }
 
   const d = draft.data;
+  const normalizedSubject = normalizeLetterSubject(d.subject, d.locale);
+  const checkoutErrorCode = getApiErrorCode(checkout.error);
+  const checkoutErrorMessage =
+    getApiErrorUserMessage(checkout.error) ?? (checkout.error ? t("paymentError") : null);
+  const hasBlockingPricingError =
+    Boolean(checkoutErrorMessage) && !checkout.pricing && !checkout.clientSecret;
+  const hasBlockingStripeConfigurationError =
+    checkoutErrorCode === "STRIPE_NOT_CONFIGURED" || !hasConfiguredStripeFrontend;
+  const showCheckoutBlockedState =
+    !checkout.clientSecret &&
+    (hasBlockingPricingError || hasBlockingStripeConfigurationError);
+  const checkoutBlockedTitle =
+    checkoutErrorMessage ??
+    (!hasConfiguredStripeFrontend ? t("paymentConfigError") : null);
+  const pricingPendingMessage = canRequestQuote ? null : t("pricingPending");
 
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
@@ -134,14 +160,33 @@ export default function CheckoutPage({
 
   return (
     <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
-      <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
+      <FlowHeader
+        currentStep={2}
+        draftId={draftId}
+        title={t("title")}
+        actions={
+          <ActionLink
+            href={`/draft/${draftId}/review`}
+            leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
+          >
+            {t("backToReview")}
+          </ActionLink>
+        }
+      />
 
       <main
         id="main-content"
         className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 pt-8 sm:px-6 lg:grid-cols-[340px_minmax(0,1fr)]"
       >
         <aside className="space-y-4 lg:sticky lg:top-28">
-          <PriceSummary deliveryType={d.deliveryType} subject={d.subject} showTrustNote />
+          <PriceSummary
+            draftId={draftId}
+            deliveryType={d.deliveryType}
+            subject={normalizedSubject}
+            showTrustNote
+            quoteEnabled={canRequestQuote}
+            pendingLabel={pricingPendingMessage ?? undefined}
+          />
         </aside>
 
         <div className="space-y-6">
@@ -157,19 +202,18 @@ export default function CheckoutPage({
             </p>
           </div>
 
-          {!checkout.clientSecret && (
+          {!checkout.clientSecret && !showCheckoutBlockedState && (
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
-              <div
-                className="rounded-3xl bg-white p-6 shadow-sm dark:bg-zinc-900"
-                style={{ outline: "1px solid var(--app-border)" }}
-              >
+              <div className="app-panel rounded-3xl p-6">
                 <label
                   htmlFor="email"
                   className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50"
                 >
                   {t("email")}
                 </label>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{t("emailHelp")}</p>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  {t("emailHelp")}
+                </p>
                 <input
                   id="email"
                   type="email"
@@ -180,7 +224,7 @@ export default function CheckoutPage({
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={errors.email ? "true" : undefined}
                   className={[
-                    "mt-3 w-full rounded-xl border px-4 py-3 text-sm placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
+                    "app-form-control mt-3 rounded-xl border px-4 py-3 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
                     errors.email
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
                       : "border-zinc-200 focus:border-zinc-400 focus:ring-zinc-200 dark:border-zinc-700 dark:focus:border-zinc-500 dark:focus:ring-zinc-700",
@@ -199,15 +243,9 @@ export default function CheckoutPage({
 
               <div
                 className={[
-                  "rounded-3xl bg-white p-5 shadow-sm",
-                  "dark:bg-zinc-900",
+                  "app-panel rounded-3xl p-5",
                   errors.legalConsent ? "ring-1 ring-destructive" : "",
                 ].join(" ")}
-                style={
-                  !errors.legalConsent
-                    ? { outline: "1px solid var(--app-border)" }
-                    : undefined
-                }
               >
                 <label className="flex cursor-pointer items-start gap-3 text-sm">
                   <input
@@ -242,46 +280,80 @@ export default function CheckoutPage({
                 )}
               </div>
 
-              {checkout.error && (
+              {pricingPendingMessage ? (
+                <p role="status" className="text-sm text-zinc-500 dark:text-zinc-400">
+                  {pricingPendingMessage}
+                </p>
+              ) : null}
+
+              {checkoutErrorMessage && (
                 <p role="alert" className="text-sm text-destructive">
-                  {t("paymentError")}
+                  {checkoutErrorMessage}
                 </p>
               )}
 
-              <div
-                className="sticky bottom-4 z-10 rounded-2.5xl bg-white/95 p-2 shadow-lg backdrop-blur-md lg:static lg:bg-transparent lg:p-0 lg:shadow-none"
-                style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
-              >
-                <button
-                  type="submit"
-                  disabled={!isValid || isSubmitting}
-                  className="w-full rounded-2xl bg-zinc-950 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 disabled:opacity-40 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
-                >
-                  {isSubmitting ? (
-                    <Loader2 className="mx-auto h-5 w-5 animate-spin" />
-                  ) : (
-                    t("continueToPayment")
-                  )}
-                </button>
+              <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2.5xl p-2 lg:static lg:bg-transparent lg:p-0 lg:shadow-none lg:outline-none lg:backdrop-blur-none">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <ActionButton
+                    type="submit"
+                    fullWidth
+                    className="sm:flex-1"
+                    disabled={
+                      !isValid ||
+                      hasBlockingPricingError ||
+                      hasBlockingStripeConfigurationError ||
+                      !canRequestQuote
+                    }
+                    loading={isSubmitting}
+                    trailingIcon={<ArrowRight className="h-4 w-4 shrink-0" />}
+                    contentClassName="w-full"
+                  >
+                    {t("continueToPayment")}
+                  </ActionButton>
+                </div>
               </div>
             </form>
           )}
 
+          {!checkout.clientSecret && showCheckoutBlockedState && (
+            <div className="app-panel rounded-3xl p-6">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                {t("livePricingTitle")}
+              </p>
+              <h2 className="mt-3 text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+                {checkoutBlockedTitle}
+              </h2>
+              <p className="mt-3 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+                {checkoutErrorCode === "DISPATCH_ADAPTER_NOT_CONFIGURED" ||
+                checkoutErrorCode === "EPOST_API_KEY_MISSING"
+                  ? t("pricingBlockedEnvironmentBody")
+                  : hasBlockingStripeConfigurationError
+                    ? t("paymentBlockedEnvironmentBody")
+                    : t("pricingBlockedBody")}
+              </p>
+              <div className="mt-5">
+                <ActionButton
+                  fullWidth
+                  variant="secondary"
+                  onClick={() => router.push(`/draft/${draftId}/review`)}
+                >
+                  {t("backToReview")}
+                </ActionButton>
+              </div>
+            </div>
+          )}
+
           {stripeOptions && stripePromise && (
-            <div
-              className="rounded-3xl bg-white p-6 shadow-sm"
-              style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
-            >
-              <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+            <div className="app-panel rounded-3xl p-6">
+              <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                 {t("enterPaymentDetails")}
               </h2>
-              <p className="mb-5 text-sm text-zinc-500">{t("paymentHelp")}</p>
-              <Elements
-                stripe={stripePromise}
-                options={stripeOptions}
-              >
+              <p className="mb-5 text-sm text-zinc-500 dark:text-zinc-400">
+                {t("paymentHelp")}
+              </p>
+              <Elements stripe={stripePromise} options={stripeOptions}>
                 <StripePaymentForm
-                  priceCents={checkout.pricing?.priceCents ?? 0}
+                  priceCents={checkout.pricing?.totalCents ?? 0}
                   returnUrl={returnUrl}
                   buttonLabel={t("sendMyLetter")}
                 />
@@ -295,20 +367,22 @@ export default function CheckoutPage({
             </div>
           )}
 
-          <div className="flex flex-wrap items-center gap-6 pt-2 text-xs text-zinc-500">
-            <span className="flex items-center gap-1.5">
-              <Lock className="h-3.5 w-3.5" />
-              {t("securedByStripe")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Truck className="h-3.5 w-3.5" />
-              {t("swissDelivery")}
-            </span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5" />
-              {t("dataProtection")}
-            </span>
-          </div>
+          {!showCheckoutBlockedState ? (
+            <div className="flex flex-wrap items-center gap-6 pt-2 text-xs text-zinc-500">
+              <span className="flex items-center gap-1.5">
+                <Lock className="h-3.5 w-3.5" />
+                {t("securedByStripe")}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <Truck className="h-3.5 w-3.5" />
+                {t("swissDelivery")}
+              </span>
+              <span className="flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5" />
+                {t("dataProtection")}
+              </span>
+            </div>
+          ) : null}
         </div>
       </main>
     </div>

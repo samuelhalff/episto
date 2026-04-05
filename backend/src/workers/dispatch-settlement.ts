@@ -1,0 +1,141 @@
+import { eq } from "drizzle-orm";
+
+import type { Db } from "../db/index.js";
+import { schema } from "../db/index.js";
+import {
+  cancelPaymentIntent,
+  capturePaymentIntent,
+} from "../modules/payments/adapters/stripe.adapter.js";
+import {
+  getPaymentAttemptById,
+  getPaymentForDraft,
+  transitionPaymentState,
+  type PaymentAttemptRow,
+  type TransitionPaymentResult,
+} from "../modules/payments/payment.service.js";
+
+export type ResolvedDispatchState = "accepted" | "rejected";
+export interface DispatchPaymentSettlementResult {
+  payment: PaymentAttemptRow | null;
+  rawOrderAccessToken: string | null;
+}
+
+export async function getExactPaymentForDispatch(
+  db: Db,
+  draftId: string,
+  paymentAttemptId: string | null,
+): Promise<PaymentAttemptRow | null> {
+  if (!paymentAttemptId) {
+    // Legacy dispatch_attempts rows may predate payment_attempt_id.
+    return getPaymentForDraft(db, draftId);
+  }
+
+  const payment = await getPaymentAttemptById(db, paymentAttemptId);
+  if (!payment) {
+    throw new Error(
+      `Payment attempt ${paymentAttemptId} not found for dispatch ${draftId}`,
+    );
+  }
+
+  if (payment.draftId !== draftId) {
+    throw new Error(
+      `Payment attempt ${paymentAttemptId} does not belong to draft ${draftId}`,
+    );
+  }
+
+  return payment;
+}
+
+export async function settlePaymentForDispatchResolution(
+  db: Db,
+  draftId: string,
+  paymentAttemptId: string | null,
+  resolvedState: ResolvedDispatchState,
+): Promise<DispatchPaymentSettlementResult> {
+  const payment = await getExactPaymentForDispatch(db, draftId, paymentAttemptId);
+  if (!payment) {
+    return { payment: null, rawOrderAccessToken: null };
+  }
+
+  if (payment.state !== "authorized") {
+    return { payment, rawOrderAccessToken: null };
+  }
+
+  if (!payment.stripePaymentIntentId) {
+    throw new Error(
+      `Authorized payment ${payment.id} is missing a Stripe PaymentIntent id`,
+    );
+  }
+
+  if (resolvedState === "accepted") {
+    const capture = await capturePaymentIntent(payment.stripePaymentIntentId);
+    return transitionPaymentState(db, payment.id, "captured", {
+      stripeChargeId: capture.chargeId ?? undefined,
+    });
+  }
+
+  await cancelPaymentIntent(payment.stripePaymentIntentId);
+  const result: TransitionPaymentResult = await transitionPaymentState(
+    db,
+    payment.id,
+    "cancelled",
+  );
+  return result;
+}
+
+export function canFinalizeDispatchResolution(
+  resolvedState: ResolvedDispatchState,
+  payment: PaymentAttemptRow | null,
+): boolean {
+  if (!payment) {
+    return false;
+  }
+
+  if (resolvedState === "accepted") {
+    return payment.state === "captured";
+  }
+
+  return payment.state === "cancelled" || payment.state === "captured";
+}
+
+export async function updateDraftStatusForDispatchResolution(
+  db: Db,
+  draftId: string,
+  resolvedState: ResolvedDispatchState,
+  payment: PaymentAttemptRow | null,
+): Promise<void> {
+  if (resolvedState === "accepted" && payment?.state === "captured") {
+    await db
+      .update(schema.draftLetters)
+      .set({
+        status: "dispatched",
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.draftLetters.id, draftId));
+    return;
+  }
+
+  if (resolvedState === "rejected" && payment?.state === "cancelled") {
+    await db
+      .update(schema.draftLetters)
+      .set({
+        status: "ready",
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.draftLetters.id, draftId));
+  }
+}
+
+export async function updateDraftStatusForDispatchSubmission(
+  db: Db,
+  draftId: string,
+  status: "submitted" | "ready" | "dispatched",
+): Promise<void> {
+  await db
+    .update(schema.draftLetters)
+    .set({
+      status,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.draftLetters.id, draftId));
+}

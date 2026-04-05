@@ -66,11 +66,13 @@ This works because:
 - Swiss Mail can justify a modest premium on AI drafting value
 - Must not price above the "just do it yourself" threshold
 - Transparent pricing at the surface level (before checkout) reduces abandonment
-- Locked launch prices still require validation against real provider commercial terms before public launch
+- The configured markup and resulting customer totals still require validation against real provider
+  commercial terms before public launch
 
-> **Locked MVP launch pricing:** CHF 4.90 standard and CHF 8.90 registered.
+> **Locked MVP launch pricing:** provider quote plus a configurable Swiss Mail markup.
 >
-> These are locked product decisions for initial public release. They must be config-backed, not hardcoded.
+> This is the locked product decision for initial public release. Markup values must be config-backed,
+> and checkout totals must come from a real provider quote rather than hardcoded prices.
 > See [Pricing Structure](../04-product/pricing-structure.md).
 
 ### Commercial gating rules

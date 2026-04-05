@@ -1,27 +1,28 @@
+import type {
+  DispatchPackage,
+  DispatchProviderCapabilities,
+  DispatchQuote,
+  DispatchStatusLookup,
+  DispatchSubmitResult,
+} from "@swiss-mail/shared";
+
 import { AppError } from "../../../shared/errors/index.js";
+import { env } from "../../../shared/config/index.js";
+import { EpostDispatchAdapter } from "./epost.adapter.js";
+import {
+  getEpostDispatchCapabilities,
+  getStubDispatchCapabilities,
+} from "./provider-capabilities.js";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-export interface SubmitResult {
-  providerReference: string;
-  providerPayload: unknown;
-}
-
-export interface StatusResult {
-  state: string;
-  providerPayload: unknown;
-}
-
 export interface DispatchAdapter {
-  submitJob(
-    pdfStorageKey: string,
-    recipient: { name: string; addressLine1: string; postalCode: string; city: string; country: string },
-    deliveryType: string,
-  ): Promise<SubmitResult>;
-
-  checkStatus(providerReference: string): Promise<StatusResult>;
+  getCapabilities(): DispatchProviderCapabilities;
+  quotePrice(dispatchPackage: DispatchPackage): Promise<DispatchQuote>;
+  submit(dispatchPackage: DispatchPackage): Promise<DispatchSubmitResult>;
+  checkStatus(providerReference: string): Promise<DispatchStatusLookup>;
 }
 
 // ---------------------------------------------------------------------------
@@ -29,25 +30,40 @@ export interface DispatchAdapter {
 // ---------------------------------------------------------------------------
 
 class StubDispatchAdapter implements DispatchAdapter {
-  async submitJob(): Promise<SubmitResult> {
+  getCapabilities(): DispatchProviderCapabilities {
+    return getStubDispatchCapabilities();
+  }
+
+  async quotePrice(): Promise<DispatchQuote> {
     throw new AppError({
       family: "provider_outage",
       statusCode: 503,
       code: "DISPATCH_ADAPTER_NOT_CONFIGURED",
-      message: "Postal dispatch adapter not yet configured. Provider integration pending.",
-      userMessage: "Letter dispatch is not yet available. Provider integration is pending.",
-      userAction: "Please try again later.",
+      message: "Postal quote adapter is running in stub mode without a live provider.",
+      userMessage: "Live postal pricing is unavailable in this environment.",
+      userAction: "Use an environment with postal dispatch enabled.",
     });
   }
 
-  async checkStatus(): Promise<StatusResult> {
+  async submit(): Promise<DispatchSubmitResult> {
+    throw new AppError({
+      family: "provider_outage",
+      statusCode: 503,
+      code: "DISPATCH_ADAPTER_NOT_CONFIGURED",
+      message: "Postal dispatch adapter is running in stub mode without a live provider.",
+      userMessage: "Letter dispatch is unavailable in this environment.",
+      userAction: "Use an environment with postal dispatch enabled.",
+    });
+  }
+
+  async checkStatus(): Promise<DispatchStatusLookup> {
     throw new AppError({
       family: "tracking_unavailable",
       statusCode: 503,
       code: "DISPATCH_ADAPTER_NOT_CONFIGURED",
-      message: "Postal dispatch adapter not yet configured. Provider integration pending.",
-      userMessage: "Dispatch status checking is not yet available.",
-      userAction: "Please try again later.",
+      message: "Postal dispatch adapter is running in stub mode without a live provider.",
+      userMessage: "Dispatch status checking is unavailable in this environment.",
+      userAction: "Use an environment with postal dispatch enabled.",
     });
   }
 }
@@ -60,7 +76,10 @@ let _adapter: DispatchAdapter | undefined;
 
 export function getDispatchAdapter(): DispatchAdapter {
   if (_adapter) return _adapter;
-  _adapter = new StubDispatchAdapter();
+  _adapter =
+    env().POSTAL_DISPATCH_PROVIDER === "epost"
+      ? new EpostDispatchAdapter(getEpostDispatchCapabilities())
+      : new StubDispatchAdapter();
   return _adapter;
 }
 

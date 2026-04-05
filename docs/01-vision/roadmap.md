@@ -32,9 +32,9 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 
 | Category | Status |
 |---|---|
-| Dispatch provider path | ✅ Locked — Swiss Post Digital Commerce API |
+| Dispatch provider path | ✅ Locked — ePost / KLARA oneAPI (`api.epost.ch`) |
 | Hosting topology | ✅ Locked — Infomaniak-centered topology |
-| Exact pricing | ✅ Locked — CHF 4.90 standard / CHF 8.90 registered |
+| Exact pricing | ✅ Locked — provider quote + configurable Swiss Mail markup |
 | Payment capture strategy | ✅ Locked — authorize first, capture after provider acceptance |
 | Retention durations | ✅ Locked — recommended defaults with configurable env vars |
 | Signature scope | ✅ Locked — typed name plus optional uploaded image |
@@ -78,7 +78,7 @@ See [Open Decisions](../08-guardrails/open-decisions.md) for the current blocker
 
 | # | Item | Type | Blocks | Recommended resolution |
 |---|---|---|---|---|
-| 1 | Swiss Post onboarding docs + sandbox | Operational | Dispatch adapter internals, tracking | Contact Swiss Post for current Digital Commerce API docs and sandbox access |
+| 1 | ePost tenant confirmation + provider support answers | Operational | Launch confidence for dispatch adapter, tracking, sender semantics | Confirm sender return-routing, attachment packaging, and downstream status semantics with the current ePost/KLARA provider path |
 | 2 | Provider + operational economics approval | Commercial | Public pricing, margin confidence | Validate Swiss Post commercial terms and support/reconciliation overhead against locked launch pricing |
 | 3 | Beta / willingness-to-pay validation | Product-market fit | Public launch confidence, funnel assumptions | Run a small beta or structured user-validation cycle on the launch wedge before broad launch |
 | 4 | Launch locale readiness | Quality | Drafting quality, trust copy, support handling | Enable each locale only after native-speaker review of drafting, emails, help content, and operational support |

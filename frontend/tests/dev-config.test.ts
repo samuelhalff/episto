@@ -4,11 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-);
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const frontendPackageJson = JSON.parse(
   readFileSync(path.join(repoRoot, "frontend/package.json"), "utf8"),
@@ -28,7 +24,7 @@ const dockerComposeSource = readFileSync(
 
 describe("frontend dev hot reload configuration", () => {
   it("keeps the stable Next.js scripts instead of Turbopack overrides", () => {
-    expect(frontendPackageJson.scripts?.dev).toBe("next dev");
+    expect(frontendPackageJson.scripts?.dev).toContain("next dev");
     expect(frontendPackageJson.scripts?.build).toBe("next build");
     expect(frontendPackageJson.scripts?.start).toBe("next start");
   });
@@ -46,16 +42,20 @@ describe("frontend dev hot reload configuration", () => {
   it("keeps Docker polling, container-managed dependencies, and the isolated .next cache for bind-mounted edits", () => {
     expect(dockerComposeSource).toContain("working_dir: /app/frontend");
     expect(dockerComposeSource).toContain("- frontend_node_modules:/app/node_modules");
-    expect(dockerComposeSource).toContain(
-      "- frontend_next_cache:/app/frontend/.next",
-    );
+    expect(dockerComposeSource).toContain("- frontend_next_cache:/app/frontend/.next");
+    expect(dockerComposeSource).toContain("NEXT_DIST_DIR: .next");
     expect(dockerComposeSource).toContain('WATCHPACK_POLLING: "true"');
     expect(dockerComposeSource).toContain('WATCHPACK_POLLING_INTERVAL: "1000"');
     expect(dockerComposeSource).toContain('CHOKIDAR_USEPOLLING: "true"');
+    expect(dockerComposeSource).toContain("npm ci --include=dev --no-fund --no-audit");
     expect(dockerComposeSource).toContain(
-      "npm ci --include=dev --no-fund --no-audit",
+      "lock_hash=$$(sha256sum /app/package-lock.json",
     );
-    expect(dockerComposeSource).toContain("[ -d /app/node_modules/next ]");
+    expect(dockerComposeSource).toContain(
+      "cache_hash=$$(cat /app/node_modules/.package-lock.sha256",
+    );
+    expect(dockerComposeSource).toContain("[ ! -d /app/node_modules/next ]");
+    expect(dockerComposeSource).toContain("/app/node_modules/.package-lock.sha256");
     expect(dockerComposeSource).toContain("find .next");
     expect(dockerComposeSource).not.toContain("/app/frontend/.next-turbo");
   });

@@ -2,6 +2,7 @@ node_modules/
 .DS_Store
 
 frontend/.next/
+frontend/.next-dev/
 frontend/.next-turbo/
 frontend/out/
 frontend/coverage/

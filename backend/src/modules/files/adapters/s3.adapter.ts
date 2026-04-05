@@ -130,6 +130,29 @@ export async function downloadObject(key: string): Promise<ObjectDownload> {
   return object;
 }
 
+export async function downloadObjectBuffer(key: string): Promise<{
+  buffer: Buffer;
+  contentLength?: number;
+  contentType?: string;
+}> {
+  const object = await downloadObject(key);
+  const chunks: Buffer[] = [];
+
+  for await (const chunk of object.body) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  return {
+    buffer: Buffer.concat(chunks),
+    ...(object.contentLength !== undefined
+      ? { contentLength: object.contentLength }
+      : {}),
+    ...(object.contentType !== undefined
+      ? { contentType: object.contentType }
+      : {}),
+  };
+}
+
 /**
  * Delete an object from S3-compatible storage.
  */

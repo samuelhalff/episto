@@ -33,6 +33,7 @@ import {
 } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import { LoadingDots } from "../../ui/loading-dots";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,11 +42,13 @@ import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-st
 interface StepProps {
   draftId: string;
   onNext: () => void;
+  onPrevious?: (() => void) | undefined;
   onStepClick: () => void;
   isStepMenuOpen?: boolean;
   isCompactViewport?: boolean;
   onInputFocusChange?: (focused: boolean) => void;
   isNavigating?: boolean;
+  previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
 }
 
@@ -71,11 +74,13 @@ function getFirstDraftMessageId(metadata: unknown): string | null {
 export function BodyStep({
   draftId,
   onNext,
+  onPrevious,
   onStepClick,
   isStepMenuOpen,
   isCompactViewport,
   onInputFocusChange,
   isNavigating,
+  previousStepLabel,
   furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
@@ -98,7 +103,9 @@ export function BodyStep({
   const [isComposerFocused, setIsComposerFocused] = useState(false);
   const [isManualFieldFocused, setIsManualFieldFocused] = useState(false);
   const [isAutoComposing, setIsAutoComposing] = useState(false);
-  const [initialComposeStatus, setInitialComposeStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [initialComposeStatus, setInitialComposeStatus] = useState<
+    "idle" | "loading" | "error"
+  >("idle");
   const hasHydratedRef = useRef(false);
   const lastSavedBodyRef = useRef("");
   const hasRequestedInitialComposeRef = useRef(false);
@@ -120,16 +127,28 @@ export function BodyStep({
     if (hasHydratedRef.current) return;
 
     const workspaceState = getDraftWorkspaceState(draft.data?.metadata);
-    const initialBody = stripLetterFramingText(draft.data?.body ?? "", draft.data?.locale ?? locale);
+    const initialBody = stripLetterFramingText(
+      draft.data?.body ?? "",
+      draft.data?.locale ?? locale,
+    );
     setBodyText(initialBody);
     setRefineText(workspaceState.bodyRefineInput ?? "");
     lastSavedBodyRef.current = initialBody;
     refineAutosave.markPersisted(workspaceState.bodyRefineInput ?? "");
     hasHydratedRef.current = true;
-  }, [draft.data?.body, draft.data?.locale, draft.data?.metadata, locale, refineAutosave]);
+  }, [
+    draft.data?.body,
+    draft.data?.locale,
+    draft.data?.metadata,
+    locale,
+    refineAutosave,
+  ]);
 
   useEffect(() => {
-    const syncedBody = stripLetterFramingText(draft.data?.body ?? "", draft.data?.locale ?? locale);
+    const syncedBody = stripLetterFramingText(
+      draft.data?.body ?? "",
+      draft.data?.locale ?? locale,
+    );
     if (!userEdited) {
       setBodyText(syncedBody);
       lastSavedBodyRef.current = syncedBody;
@@ -140,7 +159,9 @@ export function BodyStep({
     const spokenText = dictation.finalText.trim();
     if (!spokenText) return;
 
-    setRefineText((current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`);
+    setRefineText(
+      (current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`,
+    );
     dictation.resetText();
   }, [dictation.finalText, dictation.resetText]);
 
@@ -181,7 +202,12 @@ export function BodyStep({
     if (hasRequestedInitialComposeRef.current) return;
     if (draft.data?.body?.trim() || bodyText.trim()) return;
     if (composeFromContext.isPending) return;
-    if (conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse) return;
+    if (
+      conversation.isSending ||
+      conversation.isStreaming ||
+      conversation.isAwaitingResponse
+    )
+      return;
 
     const hasConversationContext = conversation.messages.some(
       (message) => message.role === "user" && message.content.trim().length > 0,
@@ -272,7 +298,10 @@ export function BodyStep({
     return firstDraftMessageIndex >= 0 ? msgs.slice(firstDraftMessageIndex + 1) : [];
   }, [conversation.messages, draft.data?.metadata]);
   const hasRefinements = refinementMessages.length > 0;
-  const bodyPreviewText = stripLetterFramingText(bodyText.trim(), draft.data?.locale ?? locale);
+  const bodyPreviewText = stripLetterFramingText(
+    bodyText.trim(),
+    draft.data?.locale ?? locale,
+  );
   const { primary: primaryQuickRefineActions, overflow: overflowQuickRefineActions } =
     useMemo(() => {
       const definitions = getBodyShortcutDefinitions({
@@ -295,7 +324,12 @@ export function BodyStep({
     }, [canProceed, files.attachments.length, t]);
 
   async function sendRefinementInstruction(instruction: string) {
-    if (!instruction.trim() || conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse) {
+    if (
+      !instruction.trim() ||
+      conversation.isSending ||
+      conversation.isStreaming ||
+      conversation.isAwaitingResponse
+    ) {
       return;
     }
 
@@ -385,7 +419,8 @@ export function BodyStep({
     conversation.isStreaming ||
     conversation.isAwaitingResponse;
   const shouldShowBodyGenerationDialog =
-    !canProceed && (initialComposeStatus === "loading" || initialComposeStatus === "error");
+    !canProceed &&
+    (initialComposeStatus === "loading" || initialComposeStatus === "error");
   // ── Dock: [Step trigger] [👁 Preview] [Primary CTA] ──────────────────────
   const previewButton = canProceed ? (
     <SurfaceIconButton
@@ -400,19 +435,17 @@ export function BodyStep({
 
   const primaryCta = canProceed ? (
     <PrimaryButton
-      onClick={() => { void handleConfirm(); }}
+      onClick={() => {
+        void handleConfirm();
+      }}
       disabled={updateDraft.isPending}
       loading={updateDraft.isPending || Boolean(isNavigating)}
     >
-      {t("confirmContent")}
+      {t("continueToAttachments")}
     </PrimaryButton>
   ) : (
-    <PrimaryButton
-      onClick={handleBlockedConfirm}
-      tone="warning"
-      hideIcon
-    >
-      {t("confirmContent")}
+    <PrimaryButton onClick={handleBlockedConfirm} tone="warning" hideIcon>
+      {t("continueToAttachments")}
     </PrimaryButton>
   );
 
@@ -447,13 +480,15 @@ export function BodyStep({
       subtitle={undefined}
       onStepClick={onStepClick}
       stepTriggerLabel={t("stepMenuLabel")}
+      secondaryActionLabel={previousStepLabel}
+      onSecondaryAction={onPrevious}
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
       furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
-        (previewButton || primaryCta) ? (
+        previewButton || primaryCta ? (
           <div className="flex items-center gap-3">
             {previewButton}
             {primaryCta ? <div className="flex-1">{primaryCta}</div> : null}
@@ -477,13 +512,16 @@ export function BodyStep({
                 onInputFocusChange?.(false);
               }}
               helperText={helperText}
+              isSending={isAiBusy}
               isCompactViewport={isCompactViewport}
               topBadges={quickActionBadges}
               trailingActions={
                 <ComposerIconButton
                   icon={dictation.isRecording ? "stop" : "dictate"}
                   tone="accent"
-                  aria-label={dictation.isRecording ? t("stopDictation") : t("startDictation")}
+                  aria-label={
+                    dictation.isRecording ? t("stopDictation") : t("startDictation")
+                  }
                   disabled={!dictation.isSupported}
                   isActive={dictation.isRecording}
                   onClick={() => {
@@ -505,8 +543,16 @@ export function BodyStep({
         <div className="px-1">
           <SegmentedControl
             options={[
-              { value: "ai" as const, label: t("modeAi"), icon: <Sparkles className="h-3 w-3" /> },
-              { value: "manual" as const, label: t("modeManual"), icon: <Pencil className="h-3 w-3" /> },
+              {
+                value: "ai" as const,
+                label: t("modeAi"),
+                icon: <Sparkles className="h-3 w-3" />,
+              },
+              {
+                value: "manual" as const,
+                label: t("modeManual"),
+                icon: <Pencil className="h-3 w-3" />,
+              },
             ]}
             value={editMode}
             onChange={handleModeChange}
@@ -556,6 +602,14 @@ export function BodyStep({
                 </div>
               </Card>
             )}
+            {isAiBusy && canProceed && !shouldShowBodyGenerationDialog ? (
+              <Card isCompactViewport={isCompactViewport} density="thin" className="app-list-item-muted">
+                <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300">
+                  <LoadingDots />
+                  <span>{tc("loading")}</span>
+                </div>
+              </Card>
+            ) : null}
             {/* Refinement thread — collapsed by default */}
             {hasRefinements ? (
               <div className="px-1">
@@ -567,15 +621,23 @@ export function BodyStep({
                   <ChevronDown
                     className={`h-3.5 w-3.5 transition-transform duration-200 ${showRefinementThread ? "rotate-180" : ""}`}
                   />
-                  {t("refinementHistoryToggle", { count: refinementMessages.filter((m) => m.role === "user").length })}
+                  {t("refinementHistoryToggle", {
+                    count: refinementMessages.filter((m) => m.role === "user").length,
+                  })}
                 </button>
 
                 {showRefinementThread ? (
-                  <section className="mt-2 space-y-2 px-2" aria-label={t("refinementHistoryLabel")}>
+                  <section
+                    className="mt-2 space-y-2 px-2"
+                    aria-label={t("refinementHistoryLabel")}
+                  >
                     {refinementMessages.map((message) => {
                       const isUser = message.role === "user";
                       return (
-                        <div key={message.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                        <div
+                          key={message.id}
+                          className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+                        >
                           <div
                             className={`max-w-[85%] rounded-2.5xl px-3.5 py-2.5 text-sm leading-relaxed ${
                               isUser
@@ -598,10 +660,7 @@ export function BodyStep({
         {/* ── Manual mode ─────────────────────────────────────────────── */}
         {isManualMode ? (
           <>
-            <Card
-              isCompactViewport={isCompactViewport}
-              className="shadow-xl"
-            >
+            <Card isCompactViewport={isCompactViewport} className="shadow-xl">
               <div className="space-y-4">
                 <p className="text-sm italic leading-relaxed text-zinc-400 dark:text-zinc-500">
                   {salutation}
@@ -623,7 +682,7 @@ export function BodyStep({
                   autoFocus
                   maxLength={10000}
                   placeholder={t("bodyPlaceholder")}
-                  className="min-h-[300px] w-full resize-none bg-transparent text-base leading-relaxed text-zinc-800 placeholder:text-zinc-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                  className="app-form-control min-h-[300px] w-full resize-none bg-transparent leading-relaxed text-zinc-800 placeholder:text-zinc-400 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
                 />
                 <p className="text-sm italic leading-relaxed text-zinc-400 dark:text-zinc-500">
                   {closing}
@@ -677,7 +736,9 @@ export function BodyStep({
         <LetterPreviewModal
           draftId={draftId}
           onClose={() => setShowPreview(false)}
-          onConfirm={() => { void handleConfirm(); }}
+          onConfirm={() => {
+            void handleConfirm();
+          }}
           confirmDisabled={!canProceed || updateDraft.isPending}
         />
       ) : null}

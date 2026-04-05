@@ -2,7 +2,7 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { AlertCircle } from "lucide-react";
-import { Link } from "../../i18n/navigation";
+import { ActionLink } from "./ActionButton";
 
 interface RecoveryScreenProps {
   statusLabel?: string;
@@ -60,20 +60,23 @@ export function RecoveryScreen({
           <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{description}</p>
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
-            <Link
+            <ActionLink
               href={primaryHref}
-              className="cta-sheen inline-flex flex-1 items-center justify-center rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+              fullWidth
+              className="sm:flex-1"
             >
               {primaryLabel}
-            </Link>
+            </ActionLink>
 
             {secondaryHref && secondaryLabel ? (
-              <Link
+              <ActionLink
                 href={secondaryHref}
-                className="inline-flex flex-1 items-center justify-center rounded-full border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:bg-zinc-800"
+                variant="secondary"
+                fullWidth
+                className="sm:flex-1"
               >
                 {secondaryLabel}
-              </Link>
+              </ActionLink>
             ) : null}
           </div>
 

@@ -8,8 +8,43 @@ import { AppError, providerOutageError } from "../../../shared/errors/index.js";
 
 let _stripe: Stripe | undefined;
 
+function isPlaceholderStripeValue(value: string): boolean {
+  return /replace_me|placeholder/i.test(value);
+}
+
+function createStripeNotConfiguredError(message: string, cause?: unknown): AppError {
+  return new AppError({
+    family: "provider_outage",
+    statusCode: 503,
+    code: "STRIPE_NOT_CONFIGURED",
+    message,
+    userMessage: "Payment is unavailable in this environment.",
+    userAction: "Configure Stripe before using checkout here.",
+    cause,
+  });
+}
+
+function assertStripeSecretConfigured(): void {
+  const secretKey = env().STRIPE_SECRET_KEY;
+  if (isPlaceholderStripeValue(secretKey)) {
+    throw createStripeNotConfiguredError(
+      "Stripe secret key is still using a placeholder value.",
+    );
+  }
+}
+
+function assertStripeWebhookConfigured(): void {
+  const webhookSecret = env().STRIPE_WEBHOOK_SECRET;
+  if (isPlaceholderStripeValue(webhookSecret)) {
+    throw createStripeNotConfiguredError(
+      "Stripe webhook secret is still using a placeholder value.",
+    );
+  }
+}
+
 function getStripe(): Stripe {
   if (_stripe) return _stripe;
+  assertStripeSecretConfigured();
   _stripe = new Stripe(env().STRIPE_SECRET_KEY, {
     apiVersion: "2024-06-20",
     typescript: true,
@@ -46,13 +81,15 @@ export async function createPaymentIntent(
       clientSecret: intent.client_secret,
     };
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
     if (err instanceof Stripe.errors.StripeError) {
       throw mapStripeError(err);
     }
     throw providerOutageError("Stripe", err);
   }
 }
-
 
 export async function getPaymentIntentClientSecret(
   paymentIntentId: string,
@@ -61,6 +98,9 @@ export async function getPaymentIntentClientSecret(
     const intent = await getStripe().paymentIntents.retrieve(paymentIntentId);
     return intent.client_secret ?? null;
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
     if (err instanceof Stripe.errors.StripeError) {
       throw mapStripeError(err);
     }
@@ -82,6 +122,9 @@ export async function capturePaymentIntent(
       chargeId: typeof chargeId === "string" ? chargeId : null,
     };
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
     if (err instanceof Stripe.errors.StripeError) {
       throw mapStripeError(err);
     }
@@ -93,12 +136,13 @@ export async function capturePaymentIntent(
 // Cancel PaymentIntent
 // ---------------------------------------------------------------------------
 
-export async function cancelPaymentIntent(
-  paymentIntentId: string,
-): Promise<void> {
+export async function cancelPaymentIntent(paymentIntentId: string): Promise<void> {
   try {
     await getStripe().paymentIntents.cancel(paymentIntentId);
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
     if (err instanceof Stripe.errors.StripeError) {
       throw mapStripeError(err);
     }
@@ -122,6 +166,9 @@ export async function createRefund(
     });
     return { refundId: refund.id };
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
     if (err instanceof Stripe.errors.StripeError) {
       throw mapStripeError(err);
     }
@@ -138,12 +185,16 @@ export function constructWebhookEvent(
   signature: string,
 ): Stripe.Event {
   try {
+    assertStripeWebhookConfigured();
     return getStripe().webhooks.constructEvent(
       body,
       signature,
       env().STRIPE_WEBHOOK_SECRET,
     );
   } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
     throw new AppError({
       family: "validation_error",
       statusCode: 400,
@@ -161,6 +212,9 @@ export function constructWebhookEvent(
 
 function mapStripeError(err: Stripe.errors.StripeError): AppError {
   switch (err.type) {
+    case "StripeAuthenticationError":
+      return createStripeNotConfiguredError(err.message, err);
+
     case "StripeCardError":
       return new AppError({
         family: "payment_failure",

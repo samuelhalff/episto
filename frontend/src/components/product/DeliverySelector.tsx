@@ -3,7 +3,7 @@
 import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DeliveryType } from "@swiss-mail/shared";
-import { usePricing, formatCentsAsCHF } from "../../hooks/use-pricing";
+import { usePricing } from "../../hooks/use-pricing";
 
 export function DeliverySelector({
   value,
@@ -15,12 +15,8 @@ export function DeliverySelector({
   const t = useTranslations("review");
   const pricing = usePricing();
 
-  const standardPrice = pricing.data
-    ? pricing.data.standard.displayPrice
-    : formatCentsAsCHF(490);
-  const registeredPrice = pricing.data
-    ? pricing.data.registered.displayPrice
-    : formatCentsAsCHF(890);
+  const standardPrice = pricing.data?.standard.displayPrice ?? t("priceUnavailable");
+  const registeredPrice = pricing.data?.registered.displayPrice ?? t("priceUnavailable");
 
   const options = [
     {
@@ -55,18 +51,17 @@ export function DeliverySelector({
             className={`w-full rounded-2.5xl px-4 py-4 text-left text-sm transition active:scale-[0.99] ${
               selected
                 ? "bg-zinc-950 text-white shadow-lg dark:bg-amber-400 dark:text-zinc-950"
-                : "bg-white text-zinc-600 shadow-sm hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                : "app-panel text-zinc-600 hover:bg-[var(--app-surface-soft)] dark:text-zinc-300"
             }`}
-            style={!selected ? { outline: "1px solid var(--app-border)" } : undefined}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-3">
                 <span
-                    className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-lg border ${
-                      selected
-                        ? "border-white/40 bg-white/15 text-white dark:border-zinc-950/20 dark:bg-zinc-950/10 dark:text-zinc-950"
-                        : "border-zinc-300 bg-white text-transparent dark:border-zinc-700 dark:bg-zinc-950"
-                    }`}
+                  className={`mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-lg border ${
+                    selected
+                      ? "border-white/40 bg-white/15 text-white dark:border-zinc-950/20 dark:bg-zinc-950/10 dark:text-zinc-950"
+                      : "border-zinc-300 bg-white text-transparent dark:border-zinc-700 dark:bg-zinc-950"
+                  }`}
                 >
                   <CheckCircle2 className="h-3.5 w-3.5" />
                 </span>
@@ -84,7 +79,7 @@ export function DeliverySelector({
                     </span>
                   </div>
                   <p
-                      className={`mt-1 text-sm ${selected ? "text-white/75 dark:text-zinc-900/80" : "text-zinc-500 dark:text-zinc-400"}`}
+                    className={`mt-1 text-sm ${selected ? "text-white/75 dark:text-zinc-900/80" : "text-zinc-500 dark:text-zinc-400"}`}
                   >
                     {opt.description}
                   </p>

@@ -86,7 +86,7 @@ services:
       S3_BUCKET: swiss-mail
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
-      CORS_ORIGIN: https://ark-fid.ddns.net,http://localhost:3000
+      CORS_ORIGIN: https://ark-fid.ddns.net,http://localhost:5000
       NODE_ENV: development
       PORT: "4000"
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
@@ -167,15 +167,27 @@ services:
     environment:
       NODE_ENV: development
       HOSTNAME: "0.0.0.0"
+      NEXT_DIST_DIR: .next
       WATCHPACK_POLLING: "true"
       WATCHPACK_POLLING_INTERVAL: "1000"
       CHOKIDAR_USEPOLLING: "true"
       API_URL: http://backend:4000
       NEXT_PUBLIC_API_URL: /api
       NEXT_PUBLIC_SITE_URL: https://ark-fid.ddns.net
-      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-pk_test_placeholder}
       NEXT_PUBLIC_APP_ENV: development
-    command: sh -c "[ -d /app/node_modules/next ] || (cd /app && npm ci --include=dev --no-fund --no-audit); find .next -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true; npm run dev"
+    command: >
+      sh -c "
+      lock_hash=$$(sha256sum /app/package-lock.json | awk '{print $$1}');
+      cache_hash=$$(cat /app/node_modules/.package-lock.sha256 2>/dev/null || true);
+      if [ ! -d /app/node_modules/next ] || [ \"$$lock_hash\" != \"$$cache_hash\" ]; then
+        cd /app &&
+        npm ci --include=dev --no-fund --no-audit &&
+        printf '%s' \"$$lock_hash\" > /app/node_modules/.package-lock.sha256;
+      fi;
+      find .next -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true;
+      npm run dev
+      "
     depends_on:
       backend:
         condition: service_healthy
@@ -187,7 +199,6 @@ services:
       - "443:443"
       - "443:443/udp"
       - "5000:5000"
-      - "5000:5000/udp"
     volumes:
       - ./nginx/ark-fid-proxy.conf:/etc/nginx/conf.d/default.conf:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro

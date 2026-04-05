@@ -3,7 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { User, MapPin } from "lucide-react";
-import { useDraft, useLetterPreview, useSetSender, useUpdateDraft } from "../../../hooks/use-api";
+import {
+  useDraft,
+  useLetterPreview,
+  useSetSender,
+  useUpdateDraft,
+} from "../../../hooks/use-api";
 import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
 import { ApiError } from "../../../lib/api";
 import { captureError } from "../../../lib/error-tracking";
@@ -15,32 +20,36 @@ import {
   type SenderDraftFormState,
 } from "./workspace-state";
 
-function getSenderPreviewName(sender: {
-  firstName: string;
-  lastName: string;
-}): string {
-  return [sender.firstName, sender.lastName].map((part) => part.trim()).filter(Boolean).join(" ");
+function getSenderPreviewName(sender: { firstName: string; lastName: string }): string {
+  return [sender.firstName, sender.lastName]
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(" ");
 }
 
 interface StepProps {
   draftId: string;
   onNext: () => void;
+  onPrevious?: (() => void) | undefined;
   onStepClick: () => void;
   isStepMenuOpen?: boolean;
   isCompactViewport?: boolean;
   onInputFocusChange?: (focused: boolean) => void;
   isNavigating?: boolean;
+  previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
 }
 
 export function SenderStep({
   draftId,
   onNext,
+  onPrevious,
   onStepClick,
   isStepMenuOpen,
   isCompactViewport,
   onInputFocusChange,
   isNavigating,
+  previousStepLabel,
   furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
@@ -182,6 +191,8 @@ export function SenderStep({
       subtitle={t("senderDetailsSubtitle")}
       onStepClick={onStepClick}
       stepTriggerLabel={t("stepMenuLabel")}
+      secondaryActionLabel={previousStepLabel}
+      onSecondaryAction={onPrevious}
       isStepMenuOpen={isStepMenuOpen}
       isInputFocused={isFormFocused}
       isCompactViewport={isCompactViewport}
@@ -195,7 +206,7 @@ export function SenderStep({
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}
         >
-          {t("nextRecipient")}
+          {t("continueToRecipient")}
         </PrimaryButton>
       }
     >
@@ -238,14 +249,14 @@ export function SenderStep({
                       }}
                       placeholder={t("fullName")}
                       rows={1}
-                      className="w-full resize-none overflow-hidden bg-transparent text-base font-bold text-zinc-900 focus:outline-none placeholder:text-zinc-200 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                      className="app-form-control w-full resize-none overflow-hidden bg-transparent font-bold text-zinc-900 focus:outline-none placeholder:text-zinc-200 dark:text-zinc-100 dark:placeholder:text-zinc-500"
                     />
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <FieldIconBadge>
-                      <MapPin className="h-6 w-6" />
+                    <MapPin className="h-6 w-6" />
                   </FieldIconBadge>
                   <div className="flex-1 space-y-3">
                     <div className="space-y-1">
@@ -266,7 +277,7 @@ export function SenderStep({
                           onInputFocusChange?.(false);
                         }}
                         placeholder={t("streetPlaceholder")}
-                        className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                        className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                       />
                     </div>
                     <div className="flex gap-4">
@@ -289,7 +300,7 @@ export function SenderStep({
                             onInputFocusChange?.(false);
                           }}
                           placeholder={t("zipPlaceholder")}
-                          className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                          className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                         />
                       </div>
                       <div className="flex-1 space-y-1">
@@ -310,7 +321,7 @@ export function SenderStep({
                             onInputFocusChange?.(false);
                           }}
                           placeholder={t("cityPlaceholder")}
-                           className="w-full border-b border-zinc-100 bg-transparent pb-1 text-base font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+                          className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
                         />
                       </div>
                     </div>
