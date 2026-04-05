@@ -93,7 +93,7 @@ export function StripePaymentForm({
       <PaymentElement
         options={{
           layout: "tabs",
-          paymentMethodOrder: ["card", "twint"],
+          paymentMethodOrder: ["twint", "card"],
           fields: {
             billingDetails: {
               // Email is collected separately on the checkout page

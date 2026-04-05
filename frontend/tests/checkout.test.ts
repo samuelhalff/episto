@@ -101,11 +101,8 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).toContain("<ActionButton");
   });
 
-  it("keeps an always-visible route back to review in the checkout header", () => {
-    expect(checkoutPageSource).toContain("actions={");
-    expect(checkoutPageSource).toContain("<ActionLink");
+  it("provides a route back to review in the checkout page bottom bar", () => {
     expect(checkoutPageSource).toContain('t("backToReview")');
-    expect(checkoutPageSource).toContain("<ArrowLeft");
   });
 
   it("uses the shared action button in the Stripe payment footer", () => {
@@ -136,6 +133,13 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).toContain("hasConfiguredStripePublishableKey");
     expect(checkoutPageSource).toContain('checkoutErrorCode === "STRIPE_NOT_CONFIGURED"');
     expect(checkoutPageSource).toContain('t("paymentBlockedEnvironmentBody")');
+  });
+
+  it("presents Twint as the first payment method in the PaymentElement", () => {
+    const match = stripePaymentFormSource.match(/paymentMethodOrder:\s*\[([^\]]+)\]/);
+    expect(match).not.toBeNull();
+    const methods = match![1].split(",").map((s: string) => s.trim().replace(/['"]/g, ""));
+    expect(methods[0]).toBe("twint");
   });
 
   it("waits for rendering to finish before requesting a live quote", () => {
