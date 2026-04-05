@@ -69,7 +69,10 @@ export async function createPaymentIntent(
         sessionId: metadata.sessionId,
         paymentAttemptId: metadata.paymentAttemptId,
       },
-      capture_method: "manual",
+      // Automatic capture is required to support Twint and other immediate-capture
+      // methods. Stripe filters out Twint when capture_method is set to non-automatic.
+      // All methods now go pending → captured via payment_intent.succeeded.
+      automatic_payment_methods: { enabled: true },
     });
 
     if (!intent.client_secret) {

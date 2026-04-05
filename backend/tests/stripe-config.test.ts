@@ -31,3 +31,17 @@ describe("stripe configuration guards", () => {
     expect(stripeAdapterSource).toContain("throw err;");
   });
 });
+
+describe("createPaymentIntent configuration", () => {
+  it("uses automatic_payment_methods so Stripe surfaces Twint and wallets", () => {
+    expect(stripeAdapterSource).toContain("automatic_payment_methods");
+    expect(stripeAdapterSource).toContain("enabled: true");
+  });
+
+  it("does not use manual capture (incompatible with Twint)", () => {
+    // Stripe filters out Twint when capture_method is 'manual'.
+    const createBlock = stripeAdapterSource.split("paymentIntents.create")[1]?.split(");")[0] ?? "";
+    expect(createBlock).not.toContain('"manual"');
+    expect(createBlock).not.toContain("'manual'");
+  });
+});
