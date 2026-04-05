@@ -34,6 +34,7 @@ const PAYMENT_TRANSITIONS: Record<
 > = {
   [PaymentState.pending]: [
     PaymentState.authorized,
+    PaymentState.captured,
     PaymentState.failed,
     PaymentState.cancelled,
   ],

@@ -135,8 +135,14 @@ describe("PaymentState transitions", () => {
     expect(canTransitionPayment(PaymentState.failed, PaymentState.pending)).toBe(true);
   });
 
-  it("rejects pending → captured (skip)", () => {
-    expect(canTransitionPayment(PaymentState.pending, PaymentState.captured)).toBe(false);
+  it("allows pending → captured (automatic capture: Twint, Apple Pay, Google Pay)", () => {
+    expect(canTransitionPayment(PaymentState.pending, PaymentState.captured)).toBe(true);
+  });
+
+  it("allows the full automatic-capture flow: pending → captured → refund_pending → refunded", () => {
+    expect(canTransitionPayment(PaymentState.pending, PaymentState.captured)).toBe(true);
+    expect(canTransitionPayment(PaymentState.captured, PaymentState.refund_pending)).toBe(true);
+    expect(canTransitionPayment(PaymentState.refund_pending, PaymentState.refunded)).toBe(true);
   });
 
   it("rejects refunded → pending (terminal)", () => {
