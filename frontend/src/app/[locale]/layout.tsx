@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { routing } from "../../i18n/routing";
+import { PrivacyNoticeStrip } from "../../components/product/PrivacyNoticeStrip";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -33,6 +34,7 @@ export default async function LocaleLayout({
         {t("skipToContent")}
       </a>
       {children}
+      <PrivacyNoticeStrip />
     </NextIntlClientProvider>
   );
 }
