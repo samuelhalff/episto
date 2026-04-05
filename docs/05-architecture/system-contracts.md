@@ -152,7 +152,8 @@ One `PaymentAttempt` row per Stripe payment intent.
 
 ```
 pending
-  → authorized         (Stripe auth hold created)
+  → authorized         (Stripe auth hold — card with manual capture only)
+  → captured           (automatic capture — Twint, Apple Pay, Google Pay, or cards with automatic capture)
   → failed             (terminal: Stripe declined immediately)
   → cancelled          (user abandoned or intent expired)
 
@@ -162,7 +163,7 @@ authorized
   → failed             (terminal: capture failed after auth)
 
 captured
-  → refund_pending     (refund requested)
+  → refund_pending     (refund requested — e.g. dispatch rejected after capture)
 
 refund_pending
   → refunded           (terminal: full refund confirmed)
@@ -176,7 +177,9 @@ refund_pending
 - Payment truth comes from Stripe webhooks normalized by the payment adapter.
 - Frontend never decides payment state — it reads backend responses only.
 - `authorized` and `captured` are distinct states. Do not collapse them.
-- Dispatch submission is allowed from the authorized state. Capture does not gate dispatch submission in the locked launch model.
+- With `capture_method: 'automatic'`, all payment methods go `pending → captured` directly. The `authorized` state is only used if a future flow re-enables manual capture for cards.
+- Immediate-capture payments (Twint, wallets, and cards with automatic capture) trigger dispatch on `payment_intent.succeeded`. If dispatch is later rejected, the settlement worker initiates a refund.
+- Dispatch submission is triggered by payment capture — either via the `payment_intent.succeeded` webhook (automatic capture) or via the `payment_intent.amount_capturable_updated` webhook (manual capture, if enabled).
 
 ### 3.3 DispatchState — resolves INCON-1
 
