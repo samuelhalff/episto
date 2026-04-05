@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   transitionPaymentState: vi.fn(),
   capturePaymentIntent: vi.fn(),
   cancelPaymentIntent: vi.fn(),
+  createRefund: vi.fn(),
 }));
 
 vi.mock("../src/modules/payments/payment.service.js", () => ({
@@ -19,6 +20,7 @@ vi.mock("../src/modules/payments/payment.service.js", () => ({
 vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
   capturePaymentIntent: mocks.capturePaymentIntent,
   cancelPaymentIntent: mocks.cancelPaymentIntent,
+  createRefund: mocks.createRefund,
 }));
 
 function makePayment(overrides: Partial<PaymentAttemptRow> = {}): PaymentAttemptRow {
@@ -49,6 +51,7 @@ describe("dispatch settlement", () => {
     mocks.transitionPaymentState.mockReset();
     mocks.capturePaymentIntent.mockReset();
     mocks.cancelPaymentIntent.mockReset();
+    mocks.createRefund.mockReset();
   });
 
   it("returns the raw order token when the first capture happens in worker settlement", async () => {
@@ -133,5 +136,72 @@ describe("dispatch settlement", () => {
       }),
       rawOrderAccessToken: "legacy-order-token",
     });
+  });
+
+  it("initiates refund when dispatch is rejected and payment is already captured", async () => {
+    const db = {} as never;
+    const capturedPayment = makePayment({
+      state: "captured",
+      stripeChargeId: "ch_1",
+    });
+
+    mocks.getPaymentAttemptById.mockResolvedValue(capturedPayment);
+    mocks.createRefund.mockResolvedValue({ refundId: "re_1" });
+    mocks.transitionPaymentState.mockResolvedValue({
+      payment: makePayment({
+        state: "refund_pending",
+        refundReason: "Dispatch rejected for draft draft-1",
+      }),
+      rawOrderAccessToken: null,
+    });
+
+    const { settlePaymentForDispatchResolution } =
+      await import("../src/workers/dispatch-settlement.js");
+
+    const result = await settlePaymentForDispatchResolution(
+      db,
+      "draft-1",
+      "payment-1",
+      "rejected",
+    );
+
+    expect(mocks.createRefund).toHaveBeenCalledWith(
+      "pi_1",
+      "Dispatch rejected for draft draft-1",
+    );
+    expect(mocks.transitionPaymentState).toHaveBeenCalledWith(
+      db,
+      "payment-1",
+      "refund_pending",
+      { refundReason: "Dispatch rejected for draft draft-1" },
+    );
+    expect(result).toEqual({
+      payment: expect.objectContaining({ state: "refund_pending" }),
+      rawOrderAccessToken: null,
+    });
+  });
+
+  it("returns captured payment as-is when dispatch is accepted (automatic capture)", async () => {
+    const db = {} as never;
+    const capturedPayment = makePayment({
+      state: "captured",
+      stripeChargeId: "ch_1",
+    });
+
+    mocks.getPaymentAttemptById.mockResolvedValue(capturedPayment);
+
+    const { settlePaymentForDispatchResolution } =
+      await import("../src/workers/dispatch-settlement.js");
+
+    const result = await settlePaymentForDispatchResolution(
+      db,
+      "draft-1",
+      "payment-1",
+      "accepted",
+    );
+
+    expect(mocks.capturePaymentIntent).not.toHaveBeenCalled();
+    expect(mocks.createRefund).not.toHaveBeenCalled();
+    expect(result.payment?.state).toBe("captured");
   });
 });

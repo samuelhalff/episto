@@ -5,6 +5,7 @@ import { schema } from "../db/index.js";
 import {
   cancelPaymentIntent,
   capturePaymentIntent,
+  createRefund,
 } from "../modules/payments/adapters/stripe.adapter.js";
 import {
   getPaymentAttemptById,
@@ -57,30 +58,52 @@ export async function settlePaymentForDispatchResolution(
     return { payment: null, rawOrderAccessToken: null };
   }
 
-  if (payment.state !== "authorized") {
-    return { payment, rawOrderAccessToken: null };
-  }
-
   if (!payment.stripePaymentIntentId) {
     throw new Error(
-      `Authorized payment ${payment.id} is missing a Stripe PaymentIntent id`,
+      `Payment ${payment.id} is missing a Stripe PaymentIntent id`,
     );
   }
 
-  if (resolvedState === "accepted") {
-    const capture = await capturePaymentIntent(payment.stripePaymentIntentId);
-    return transitionPaymentState(db, payment.id, "captured", {
-      stripeChargeId: capture.chargeId ?? undefined,
-    });
+  // --- Authorized state (manual-capture card flow, if ever re-enabled) ---
+  if (payment.state === "authorized") {
+    if (resolvedState === "accepted") {
+      const capture = await capturePaymentIntent(payment.stripePaymentIntentId);
+      return transitionPaymentState(db, payment.id, "captured", {
+        stripeChargeId: capture.chargeId ?? undefined,
+      });
+    }
+
+    await cancelPaymentIntent(payment.stripePaymentIntentId);
+    const result: TransitionPaymentResult = await transitionPaymentState(
+      db,
+      payment.id,
+      "cancelled",
+    );
+    return result;
   }
 
-  await cancelPaymentIntent(payment.stripePaymentIntentId);
-  const result: TransitionPaymentResult = await transitionPaymentState(
-    db,
-    payment.id,
-    "cancelled",
-  );
-  return result;
+  // --- Captured state (automatic-capture: Twint, wallets, cards) ---
+  if (payment.state === "captured") {
+    if (resolvedState === "accepted") {
+      return { payment, rawOrderAccessToken: null };
+    }
+
+    // Dispatch rejected after capture → initiate refund.
+    await createRefund(
+      payment.stripePaymentIntentId,
+      `Dispatch rejected for draft ${draftId}`,
+    );
+    const result = await transitionPaymentState(
+      db,
+      payment.id,
+      "refund_pending",
+      { refundReason: `Dispatch rejected for draft ${draftId}` },
+    );
+    return result;
+  }
+
+  // Other states (pending, failed, cancelled, etc.) — no settlement action
+  return { payment, rawOrderAccessToken: null };
 }
 
 export function canFinalizeDispatchResolution(
@@ -95,7 +118,11 @@ export function canFinalizeDispatchResolution(
     return payment.state === "captured";
   }
 
-  return payment.state === "cancelled" || payment.state === "captured";
+  return (
+    payment.state === "cancelled" ||
+    payment.state === "captured" ||
+    payment.state === "refund_pending"
+  );
 }
 
 export async function updateDraftStatusForDispatchResolution(
@@ -115,7 +142,7 @@ export async function updateDraftStatusForDispatchResolution(
     return;
   }
 
-  if (resolvedState === "rejected" && payment?.state === "cancelled") {
+  if (resolvedState === "rejected" && (payment?.state === "cancelled" || payment?.state === "refund_pending")) {
     await db
       .update(schema.draftLetters)
       .set({
