@@ -130,7 +130,7 @@ export function PeriodSelector({
   value: string;
   onChange: (v: string) => void;
 }) {
-  const options = ["24h", "7d", "30d"];
+  const options = ["today", "7d", "30d"];
   return (
     <div
       className="inline-flex rounded-lg border p-0.5"

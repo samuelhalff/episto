@@ -15,12 +15,17 @@ export default function SessionDetailPage() {
   const [cleared, setCleared] = useState(false);
   const [error, setError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [reason, setReason] = useState("");
 
   const handleClear = useCallback(async () => {
+    if (reason.length < 5) {
+      setError("Reason must be at least 5 characters");
+      return;
+    }
     setClearing(true);
     setError("");
     try {
-      await adminPost(`/admin/sessions/${id}/clear`, authHeader);
+      await adminPost(`/admin/sessions/${id}/clear`, authHeader, { reason });
       setCleared(true);
       setConfirmOpen(false);
     } catch (err) {
@@ -28,7 +33,7 @@ export default function SessionDetailPage() {
     } finally {
       setClearing(false);
     }
-  }, [id, authHeader]);
+  }, [id, authHeader, reason]);
 
   return (
     <div className="space-y-6">
@@ -84,13 +89,25 @@ export default function SessionDetailPage() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm" style={{ color: "var(--app-fg)" }}>
-                This will permanently remove PII from this session (addresses, subject, content).
-                This action cannot be undone.
+                This will redact draft subject and body for this session.
+                Metadata (timestamps, states) is preserved. This action cannot be undone.
               </p>
+              <textarea
+                placeholder="Reason for clearing (required, min 5 chars)"
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                rows={2}
+                className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
+                style={{
+                  background: "var(--app-surface-muted)",
+                  borderColor: "var(--app-border)",
+                  color: "var(--app-fg)",
+                }}
+              />
               <div className="flex gap-3">
                 <button
                   onClick={() => void handleClear()}
-                  disabled={clearing}
+                  disabled={clearing || reason.length < 5}
                   className="flex items-center gap-2 rounded-lg bg-destructive px-4 py-2 text-xs font-medium text-white transition disabled:opacity-50"
                 >
                   {clearing && <Loader2 className="h-3 w-3 animate-spin" />}

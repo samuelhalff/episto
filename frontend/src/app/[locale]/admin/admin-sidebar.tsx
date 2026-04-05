@@ -60,7 +60,7 @@ export function AdminSidebar() {
             </div>
             {section.items.map((item) => {
               const href = `${basePath}/${item.href}`;
-              const active = pathname.endsWith(`/${item.href}`) || pathname === href;
+              const active = pathname === href || pathname.startsWith(`${href}/`);
               return (
                 <Link
                   key={item.href}

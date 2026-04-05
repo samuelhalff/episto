@@ -125,14 +125,16 @@ export async function fetchAdminRetention(authHeader: string) {
   );
 }
 
-export async function adminPost<T>(path: string, authHeader: string): Promise<T> {
+export async function adminPost<T>(path: string, authHeader: string, body?: unknown): Promise<T> {
   const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/api";
   const res = await fetch(`${apiBase}/v1${path}`, {
     method: "POST",
     headers: {
       Authorization: authHeader,
+      "Content-Type": "application/json",
       "X-Requested-With": "XMLHttpRequest",
     },
+    ...(body !== undefined && { body: JSON.stringify(body) }),
   });
   if (!res.ok) throw new Error(`API error ${res.status}`);
   return res.json() as Promise<T>;

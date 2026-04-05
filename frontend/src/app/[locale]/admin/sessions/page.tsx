@@ -56,8 +56,7 @@ export default function SessionsPage() {
           >
             <option value="all">All</option>
             <option value="active">Active</option>
-            <option value="completed">Completed</option>
-            <option value="cleared">Cleared</option>
+            <option value="expired">Expired</option>
           </select>
         </div>
       </div>

@@ -26,7 +26,7 @@ function formatCHF(cents: number): string {
 }
 
 function formatPercent(rate: number): string {
-  return `${Math.round(rate * 100)}%`;
+  return `${Math.round(rate)}%`;
 }
 
 export default function OverviewPage() {
@@ -83,8 +83,8 @@ export default function OverviewPage() {
           <MetricCard
             label="Error Rate"
             value={formatPercent(summary.data.errorRate)}
-            alert={summary.data.errorRate > 0.05}
-            sub={summary.data.errorRate > 0.05 ? "Above threshold" : undefined}
+            alert={summary.data.errorRate > 5}
+            sub={summary.data.errorRate > 5 ? "Above threshold" : undefined}
           />
         </div>
       ) : null}
@@ -163,14 +163,14 @@ export default function OverviewPage() {
               <MetricCard
                 label="Regen Rate"
                 value={formatPercent(ai.data.regenerationRate)}
-                alert={ai.data.regenerationRate > 0.3}
-                sub={ai.data.regenerationRate > 0.3 ? "High regen rate" : undefined}
+                alert={ai.data.regenerationRate > 30}
+                sub={ai.data.regenerationRate > 30 ? "High regen rate" : undefined}
               />
               <MetricCard
                 label="Refusal Rate"
                 value={formatPercent(ai.data.refusalRate)}
-                alert={ai.data.refusalRate > 0.1}
-                sub={ai.data.refusalRate > 0.1 ? "High refusal rate" : undefined}
+                alert={ai.data.refusalRate > 10}
+                sub={ai.data.refusalRate > 10 ? "High refusal rate" : undefined}
               />
             </div>
           ) : null}

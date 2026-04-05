@@ -50,7 +50,11 @@ export default function FunnelPage() {
           <PanelError message="Failed to load funnel data" />
         ) : funnel.data ? (
           <div className="space-y-1">
-            {funnel.data.steps.map((step, i) => {
+            {funnel.data.steps.length === 0 ? (
+              <p className="py-8 text-center text-xs" style={{ color: "var(--app-muted)" }}>
+                No funnel data for this period
+              </p>
+            ) : funnel.data.steps.map((step, i) => {
               const maxCount = funnel.data!.steps[0]?.count ?? 1;
               const pct = maxCount > 0 ? Math.round((step.count / maxCount) * 100) : 0;
               return (
@@ -117,17 +121,23 @@ export default function FunnelPage() {
         ) : errors.error ? (
           <PanelError message="Failed to load error data" />
         ) : errors.data ? (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {errors.data.entries.map((entry) => (
-              <MetricCard
-                key={entry.errorFamily}
-                label={entry.errorFamily}
-                value={entry.count}
-                alert={entry.count > 0}
-                sub={`${entry.affectedSessions} session${entry.affectedSessions === 1 ? "" : "s"} affected`}
-              />
-            ))}
-          </div>
+          errors.data.entries.length === 0 ? (
+            <p className="py-8 text-center text-xs" style={{ color: "var(--app-muted)" }}>
+              No errors in this period
+            </p>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {errors.data.entries.map((entry) => (
+                <MetricCard
+                  key={entry.errorFamily}
+                  label={entry.errorFamily}
+                  value={entry.count}
+                  alert={entry.count > 0}
+                  sub={`${entry.affectedSessions} session${entry.affectedSessions === 1 ? "" : "s"} affected`}
+                />
+              ))}
+            </div>
+          )
         ) : null}
       </SectionPanel>
     </div>
