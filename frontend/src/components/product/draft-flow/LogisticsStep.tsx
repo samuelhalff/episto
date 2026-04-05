@@ -278,7 +278,6 @@ export function LogisticsStep({
       isStepMenuOpen={isStepMenuOpen}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
         <PrimaryButton
           onClick={canReview ? handleReview : handleBlockedReview}

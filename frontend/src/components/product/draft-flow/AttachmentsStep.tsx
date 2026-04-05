@@ -77,7 +77,6 @@ export function AttachmentsStep({
       isStepMenuOpen={isStepMenuOpen}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
         <PrimaryButton
           onClick={

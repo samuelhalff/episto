@@ -114,7 +114,6 @@ export function SubjectStep({
       isInputFocused={isFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
         <PrimaryButton
           onClick={canProceed ? handleConfirm : handleBlockedConfirm}

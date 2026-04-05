@@ -55,7 +55,6 @@ describe("workspace layout regressions", () => {
     expect(draftShellSource).toContain("ScrollShadowViewport");
     expect(draftShellSource).toContain("overflow-x-hidden");
     expect(draftShellSource).toContain("min-w-0");
-    expect(draftShellSource).toContain("truncate text-sm");
     expect(draftShellSource).not.toContain("shouldHideDock");
   });
 

@@ -351,7 +351,6 @@ export function RecipientStep({
       isInputFocused={isFormFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
         <PrimaryButton
           onClick={canProceed ? handleNext : handleBlockedNext}

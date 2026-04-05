@@ -118,14 +118,11 @@ describe("draft workspace navigation", () => {
     ).toBe(6);
   });
 
-  it("shows lock affordances in both sheet and desktop step lists", () => {
+  it("shows lock affordances in the step overlay", () => {
     expect(stepOverlaySource).toContain("<Lock");
-    expect(draftShellSource).toContain("<Lock");
   });
 
-  it("uses phase copy in the post-draft header and step copy inside the draft workspace", () => {
-    expect(draftShellSource).toContain('t("stepProgress"');
-    expect(draftShellSource).not.toContain('t("phaseProgress"');
+  it("uses phase copy in the post-draft header step indicator", () => {
     expect(stepIndicatorSource).toContain('t("phaseProgress"');
     expect(stepIndicatorSource).not.toContain('t("stepProgress"');
   });

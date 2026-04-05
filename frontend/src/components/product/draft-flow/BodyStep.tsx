@@ -486,7 +486,6 @@ export function BodyStep({
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
       primaryAction={
         previewButton || primaryCta ? (
           <div className="flex items-center gap-3">
