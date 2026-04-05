@@ -9,7 +9,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDraft, useCheckout } from "../../../../../hooks/use-api";
 import { Link, useRouter } from "../../../../../i18n/navigation";
-import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, Truck, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm";
@@ -160,19 +160,7 @@ export default function CheckoutPage({
 
   return (
     <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
-      <FlowHeader
-        currentStep={2}
-        draftId={draftId}
-        title={t("title")}
-        actions={
-          <ActionLink
-            href={`/draft/${draftId}/review`}
-            leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
-          >
-            {t("backToReview")}
-          </ActionLink>
-        }
-      />
+      <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
 
       <main
         id="main-content"
@@ -294,6 +282,14 @@ export default function CheckoutPage({
 
               <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2.5xl p-2 lg:static lg:bg-transparent lg:p-0 lg:shadow-none lg:outline-none lg:backdrop-blur-none">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <ActionLink
+                    href={`/draft/${draftId}/review`}
+                    variant="secondary"
+                    fullWidth
+                    className="sm:flex-1"
+                  >
+                    {t("backToReview")}
+                  </ActionLink>
                   <ActionButton
                     type="submit"
                     fullWidth
@@ -356,6 +352,16 @@ export default function CheckoutPage({
                   priceCents={checkout.pricing?.totalCents ?? 0}
                   returnUrl={returnUrl}
                   buttonLabel={t("sendMyLetter")}
+                  secondaryAction={
+                    <ActionLink
+                      href={`/draft/${draftId}/review`}
+                      variant="secondary"
+                      fullWidth
+                      className="sm:flex-1"
+                    >
+                      {t("backToReview")}
+                    </ActionLink>
+                  }
                 />
               </Elements>
             </div>
