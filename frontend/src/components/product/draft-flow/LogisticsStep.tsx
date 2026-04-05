@@ -49,6 +49,8 @@ interface StepProps {
   beginNavigation?: () => void;
   previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
+  onTogglePreview?: (() => void) | undefined;
+  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function LogisticsStep({
@@ -61,6 +63,8 @@ export function LogisticsStep({
   beginNavigation,
   previousStepLabel,
   furthestUnlockedStepIndex,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: StepProps) {
   const t = useTranslations("draft");
   const router = useRouter();
@@ -278,6 +282,8 @@ export function LogisticsStep({
       isStepMenuOpen={isStepMenuOpen}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
+      onTogglePreview={onTogglePreview}
+      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={canReview ? handleReview : handleBlockedReview}

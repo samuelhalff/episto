@@ -27,7 +27,10 @@
     "sessionExpiredBody": "Per motivi di sicurezza, i link alle bozze funzionano solo nella sessione che li ha creati. Inizia una nuova lettera oppure torna alla home.",
     "errorRecoveryTitle": "Non siamo riusciti ad aprire questa pagina",
     "errorRecoveryBody": "Riprova, inizia una nuova lettera oppure torna alla home.",
-    "cancel": "Annulla"
+    "cancel": "Annulla",
+    "showPreview": "Mostra anteprima",
+    "hidePreview": "Nascondi anteprima",
+    "refresh": "Aggiorna"
   },
   "home": {
     "title": "Lettere formali, inviate con semplicità",

@@ -38,6 +38,8 @@ interface StepProps {
   isNavigating?: boolean;
   previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
+  onTogglePreview?: (() => void) | undefined;
+  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function SenderStep({
@@ -51,6 +53,8 @@ export function SenderStep({
   isNavigating,
   previousStepLabel,
   furthestUnlockedStepIndex,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);
@@ -197,6 +201,8 @@ export function SenderStep({
       isInputFocused={isFormFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
+      onTogglePreview={onTogglePreview}
+      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={canProceed ? handleNext : handleBlockedNext}

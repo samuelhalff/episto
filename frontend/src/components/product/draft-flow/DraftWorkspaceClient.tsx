@@ -14,6 +14,7 @@ import { LogisticsStep } from "./LogisticsStep";
 import { RecipientStep } from "./RecipientStep";
 import { SenderStep } from "./SenderStep";
 import { SubjectStep } from "./SubjectStep";
+import { WorkspacePreviewPane } from "./WorkspacePreviewPane";
 import {
   DRAFT_WORKSPACE_STEPS,
   getDraftWorkspaceStepSlugByIndex,
@@ -46,10 +47,12 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const draft = useDraft(draftId);
   const viewportHeight = useVisualViewport();
   const isCompactViewport = useMediaQuery("(max-width: 1023px)");
+  const isWideViewport = useMediaQuery("(min-width: 1280px)");
 
   const [showSteps, setShowSteps] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [, setIsInputFocused] = useState(false);
+  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(false);
 
   useEffect(() => {
     if (!isCompactViewport) {
@@ -111,7 +114,14 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
 
   useEffect(() => {
     setIsNavigating(false);
+    setIsPreviewPanelOpen(false);
   }, [resolvedStepSlug]);
+
+  useEffect(() => {
+    if (!isWideViewport) {
+      setIsPreviewPanelOpen(false);
+    }
+  }, [isWideViewport]);
 
   useEffect(() => {
     if (!draft.data) {
@@ -188,6 +198,13 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     [],
   );
 
+  const handleTogglePreview = useCallback(
+    () => setIsPreviewPanelOpen((prev) => !prev),
+    [],
+  );
+
+  const isPreviewPanelVisible = isWideViewport && isPreviewPanelOpen;
+
   const commonProps = {
     draftId,
     onNext: handleNext,
@@ -201,6 +218,8 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     beginNavigation,
     navigateToStep,
     furthestUnlockedStepIndex,
+    onTogglePreview: isWideViewport ? handleTogglePreview : undefined,
+    isPreviewPanelVisible,
   };
 
   const stepComponents = [
@@ -283,12 +302,21 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   return (
     <div
       id="draft-workspace-root"
-      className={`flex flex-col overflow-hidden bg-[var(--app-surface-muted)] transition-colors ${
-        isCompactViewport ? "fixed inset-0 overscroll-none" : "relative"
+      className={`flex overflow-hidden bg-[var(--app-surface-muted)] transition-colors ${
+        isCompactViewport ? "fixed inset-0 flex-col overscroll-none" : "relative flex-col"
       }`}
       style={{ height: workspaceHeight }}
     >
-      <div className="min-h-0 flex-1">{stepComponents[currentStep]}</div>
+      <div className="flex min-h-0 min-w-0 flex-1">
+        <div className="min-h-0 min-w-0 flex-1">{stepComponents[currentStep]}</div>
+
+        {isPreviewPanelVisible ? (
+          <WorkspacePreviewPane
+            draftId={draftId}
+            onClose={() => setIsPreviewPanelOpen(false)}
+          />
+        ) : null}
+      </div>
 
       {showSteps ? (
         <StepOverlay

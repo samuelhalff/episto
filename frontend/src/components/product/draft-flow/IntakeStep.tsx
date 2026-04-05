@@ -38,6 +38,8 @@ interface IntakeStepProps {
   isNavigating?: boolean;
   navigateToStep?: (step: "intake" | "sender" | "recipient" | "body" | "subject" | "logistics") => void;
   furthestUnlockedStepIndex?: number;
+  onTogglePreview?: (() => void) | undefined;
+  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function IntakeStep({
@@ -49,6 +51,8 @@ export function IntakeStep({
   onInputFocusChange,
   isNavigating,
   navigateToStep,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: IntakeStepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
@@ -361,6 +365,8 @@ export function IntakeStep({
       isInputFocused={isComposerFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
+      onTogglePreview={onTogglePreview}
+      isPreviewPanelVisible={isPreviewPanelVisible}
       hideDockStepTrigger
       composer={intakeComposer}
     >

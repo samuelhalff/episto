@@ -27,7 +27,10 @@
     "sessionExpiredBody": "Aus Sicherheitsgründen funktionieren Entwurfslinks nur in der Sitzung, in der sie erstellt wurden. Starten Sie einen neuen Brief oder kehren Sie zur Startseite zurück.",
     "errorRecoveryTitle": "Diese Seite konnte nicht geöffnet werden",
     "errorRecoveryBody": "Bitte versuchen Sie es erneut, starten Sie einen neuen Brief oder kehren Sie zur Startseite zurück.",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "showPreview": "Vorschau anzeigen",
+    "hidePreview": "Vorschau ausblenden",
+    "refresh": "Aktualisieren"
   },
   "home": {
     "title": "Formelle Briefe, einfach versendet",

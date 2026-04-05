@@ -18,6 +18,8 @@ interface StepProps {
   isNavigating?: boolean;
   previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
+  onTogglePreview?: (() => void) | undefined;
+  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function AttachmentsStep({
@@ -30,6 +32,8 @@ export function AttachmentsStep({
   isNavigating,
   previousStepLabel,
   furthestUnlockedStepIndex,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);
@@ -77,6 +81,8 @@ export function AttachmentsStep({
       isStepMenuOpen={isStepMenuOpen}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
+      onTogglePreview={onTogglePreview}
+      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={

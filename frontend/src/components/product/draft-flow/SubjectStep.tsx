@@ -19,6 +19,8 @@ interface StepProps {
   isNavigating?: boolean;
   previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
+  onTogglePreview?: (() => void) | undefined;
+  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function SubjectStep({
@@ -32,6 +34,8 @@ export function SubjectStep({
   isNavigating,
   previousStepLabel,
   furthestUnlockedStepIndex,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);
@@ -114,6 +118,8 @@ export function SubjectStep({
       isInputFocused={isFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
+      onTogglePreview={onTogglePreview}
+      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={canProceed ? handleConfirm : handleBlockedConfirm}

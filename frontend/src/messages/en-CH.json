@@ -27,7 +27,10 @@
     "sessionExpiredBody": "For security, draft links only work inside the session that created them. Start a new letter or return to the homepage.",
     "errorRecoveryTitle": "We couldn't open this page",
     "errorRecoveryBody": "Please try again, start a new letter, or return to the homepage.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "showPreview": "Show preview",
+    "hidePreview": "Hide preview",
+    "refresh": "Refresh"
   },
   "home": {
     "title": "Formal letters, sent with ease",

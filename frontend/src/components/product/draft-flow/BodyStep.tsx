@@ -50,6 +50,8 @@ interface StepProps {
   isNavigating?: boolean;
   previousStepLabel?: string | undefined;
   furthestUnlockedStepIndex?: number;
+  onTogglePreview?: (() => void) | undefined;
+  isPreviewPanelVisible?: boolean | undefined;
 }
 
 type EditMode = "ai" | "manual";
@@ -82,6 +84,8 @@ export function BodyStep({
   isNavigating,
   previousStepLabel,
   furthestUnlockedStepIndex,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: StepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
@@ -422,7 +426,7 @@ export function BodyStep({
     !canProceed &&
     (initialComposeStatus === "loading" || initialComposeStatus === "error");
   // ── Dock: [Step trigger] [👁 Preview] [Primary CTA] ──────────────────────
-  const previewButton = canProceed ? (
+  const previewButton = canProceed && !isPreviewPanelVisible ? (
     <SurfaceIconButton
       type="button"
       onClick={() => setShowPreview(true)}
@@ -486,6 +490,8 @@ export function BodyStep({
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
+      onTogglePreview={onTogglePreview}
+      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         previewButton || primaryCta ? (
           <div className="flex items-center gap-3">
