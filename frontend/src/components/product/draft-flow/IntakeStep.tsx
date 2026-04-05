@@ -388,7 +388,7 @@ export function IntakeStep({
 
               return (
                 <div key={message.id} className={`flex ${isUserMessage ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[88%] ${isUserMessage ? "" : "space-y-2"}`}>
+                  <div className={`max-w-[min(88%,40rem)] ${isUserMessage ? "" : "space-y-2"}`}>
                     <div
                       className={`rounded-3xl px-4 py-3 text-sm leading-relaxed shadow-sm ring-1 ring-black/5 ${
                         isUserMessage
@@ -417,7 +417,7 @@ export function IntakeStep({
 
             {conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse ? (
               <div className="flex justify-start">
-                <div className="max-w-[88%] rounded-3xl rounded-bl-[10px] bg-[var(--app-surface-soft)] px-4 py-3 text-sm leading-relaxed text-zinc-700 shadow-sm ring-1 ring-black/5 dark:text-zinc-100 dark:ring-white/5">
+                <div className="max-w-[min(88%,40rem)] rounded-3xl rounded-bl-[10px] bg-[var(--app-surface-soft)] px-4 py-3 text-sm leading-relaxed text-zinc-700 shadow-sm ring-1 ring-black/5 dark:text-zinc-100 dark:ring-white/5">
                   {conversation.streamingText ? (
                     <div className="whitespace-pre-wrap">
                       {conversation.streamingText}

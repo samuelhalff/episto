@@ -644,7 +644,7 @@ export function BodyStep({
                           className={`flex ${isUser ? "justify-end" : "justify-start"}`}
                         >
                           <div
-                            className={`max-w-[88%] rounded-2.5xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                            className={`max-w-[min(88%,40rem)] rounded-2.5xl px-3.5 py-2.5 text-sm leading-relaxed ${
                               isUser
                                 ? "rounded-br-[8px] bg-zinc-900 text-white dark:bg-zinc-800"
                                 : "rounded-bl-[8px] text-zinc-500 dark:text-zinc-400"
