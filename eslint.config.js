@@ -29,7 +29,7 @@ export default tseslint.config(
       "**/node_modules/",
       "**/dist/",
       "**/.next/",
-      "**/.next-turbo/",
+      "**/.next-turbo/",  // legacy; harmless
       "**/drizzle/",
       "**/coverage/",
       "backend/dist/",
