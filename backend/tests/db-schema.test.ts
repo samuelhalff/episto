@@ -15,7 +15,7 @@ import {
 } from "../src/db/zod-schemas.js";
 
 // ---------------------------------------------------------------------------
-// Table presence — all 11 tables from database-schema.md must exist
+// Table presence — all 12 tables from database-schema.md must exist
 // ---------------------------------------------------------------------------
 
 describe("schema tables", () => {
@@ -31,6 +31,7 @@ describe("schema tables", () => {
     "dispatchAttempts",
     "dispatchStatusEvents",
     "supportEvents",
+    "productEvents",
   ] as const;
 
   for (const tableName of expectedTables) {
@@ -39,11 +40,11 @@ describe("schema tables", () => {
     });
   }
 
-  it("has exactly 11 tables defined", () => {
+  it("has exactly 12 tables defined", () => {
     // Drizzle pgTable objects are instances of PgTable which have a Symbol-keyed
     // internal structure. The simplest check is counting the named table exports.
     const tableNames = expectedTables;
-    expect(tableNames.length).toBe(11);
+    expect(tableNames.length).toBe(12);
     // Verify each is a Drizzle table (has columns accessible)
     for (const name of tableNames) {
       const table = schema[name] as Record<string, unknown>;
