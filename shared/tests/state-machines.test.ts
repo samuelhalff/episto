@@ -37,6 +37,18 @@ describe("DraftStatus transitions", () => {
     expect(canTransitionDraft(DraftStatus.reviewed, DraftStatus.rendering)).toBe(true);
   });
 
+  it("allows reviewed → fields_complete (back to editing)", () => {
+    expect(canTransitionDraft(DraftStatus.reviewed, DraftStatus.fields_complete)).toBe(true);
+  });
+
+  it("allows rendering → fields_complete (back to editing)", () => {
+    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(true);
+  });
+
+  it("allows ready → fields_complete (back to editing)", () => {
+    expect(canTransitionDraft(DraftStatus.ready, DraftStatus.fields_complete)).toBe(true);
+  });
+
   it("allows rendering → ready", () => {
     expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.ready)).toBe(true);
   });

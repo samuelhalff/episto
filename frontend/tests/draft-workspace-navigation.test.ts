@@ -158,7 +158,7 @@ describe("draft workspace navigation", () => {
   it("tracks entry loading intent so resume and start-fresh actions do not share one spinner", () => {
     expect(newDraftPageSource).toContain("pendingStartAction");
     expect(newDraftPageSource).toContain('pendingStartAction === "resume"');
-    expect(newDraftPageSource).toContain('pendingStartAction === "fresh"');
+    expect(newDraftPageSource).toContain('pendingAction: "fresh"');
   });
 
   it("redirects prepared drafts away from the old editable workspace routes", () => {

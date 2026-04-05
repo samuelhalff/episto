@@ -627,8 +627,9 @@
     "unfinishedTitle": "You have an unfinished letter",
     "unfinishedBody": "Pick up where you left off or start a fresh letter without losing the older draft.",
     "lastUpdated": "Last updated {value}",
-    "continueDraft": "Continue draft",
+    "continueDraft": "Continue my letter",
     "startFresh": "Start fresh",
+    "startFreshLink": "or start a new letter",
     "startFreshConfirmTitle": "Start a fresh letter?",
     "startFreshConfirmBody": "Your current draft won't be deleted, but it will no longer be offered when you return."
   },

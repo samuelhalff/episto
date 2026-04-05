@@ -627,8 +627,9 @@
     "unfinishedTitle": "Hai una lettera non finita",
     "unfinishedBody": "Riprendi da dove avevi lasciato oppure inizia una nuova lettera senza perdere la bozza precedente.",
     "lastUpdated": "Ultimo aggiornamento {value}",
-    "continueDraft": "Continua la bozza",
+    "continueDraft": "Continua la mia lettera",
     "startFresh": "Ricomincia",
+    "startFreshLink": "oppure inizia una nuova lettera",
     "startFreshConfirmTitle": "Iniziare una nuova lettera?",
     "startFreshConfirmBody": "La bozza attuale non verrà eliminata, ma non verrà più proposta al prossimo accesso."
   },

@@ -627,8 +627,9 @@
     "unfinishedTitle": "Sie haben einen unvollendeten Brief",
     "unfinishedBody": "Fahren Sie dort fort, wo Sie aufgehört haben, oder beginnen Sie einen neuen Brief, ohne den alten Entwurf zu verlieren.",
     "lastUpdated": "Zuletzt aktualisiert {value}",
-    "continueDraft": "Entwurf fortsetzen",
+    "continueDraft": "Meinen Brief fortsetzen",
     "startFresh": "Neu beginnen",
+    "startFreshLink": "oder einen neuen Brief beginnen",
     "startFreshConfirmTitle": "Neuen Brief beginnen?",
     "startFreshConfirmBody": "Ihr aktueller Entwurf wird nicht gelöscht, wird Ihnen aber beim nächsten Besuch nicht mehr angeboten."
   },

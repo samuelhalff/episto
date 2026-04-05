@@ -8,13 +8,14 @@ import {
   useDraftFiles,
   useReviewDraft,
   useLetterPreview,
+  useTransitionDraft,
 } from "../../../../../hooks/use-api";
 import { useRouter } from "../../../../../i18n/navigation";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
 import { LetterPreview } from "../../../../../components/product/LetterPreview";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
-import { ActionButton, ActionLink } from "../../../../../components/product/ActionButton";
+import { ActionButton } from "../../../../../components/product/ActionButton";
 import { DraftStepMenu } from "../../../../../components/product/DraftStepMenu";
 import { useDispatchQuote } from "../../../../../hooks/use-dispatch-quote";
 import { formatCentsAsCHF } from "../../../../../hooks/use-pricing";
@@ -34,6 +35,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   const draft = useDraft(draftId);
   const updateDraft = useUpdateDraft(draftId);
   const reviewDraft = useReviewDraft(draftId);
+  const transitionDraft = useTransitionDraft(draftId);
   const preview = useLetterPreview(draftId);
   const { attachments } = useDraftFiles(draftId);
   const router = useRouter();
@@ -141,6 +143,23 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
       .then(() => reviewDraft.mutateAsync())
       .then(() => {
         router.push(`/draft/${draftId}/checkout`);
+      })
+      .catch((err: unknown) => {
+        captureError(err instanceof Error ? err : new Error(String(err)), {
+          component: "ReviewPage",
+          route: `/draft/${draftId}/review`,
+        });
+      });
+  }
+
+  function handleBackToDraft() {
+    if (transitionDraft.isPending) return;
+
+    // Revert to fields_complete so workspace allows editing
+    void transitionDraft
+      .mutateAsync({ status: "fields_complete" })
+      .then(() => {
+        router.push(`/draft/${draftId}`);
       })
       .catch((err: unknown) => {
         captureError(err instanceof Error ? err : new Error(String(err)), {
@@ -330,14 +349,17 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                 buttonClassName="sm:w-auto"
               />
             ) : null}
-            <ActionLink
-              href={`/draft/${draftId}`}
+            <ActionButton
+              variant="secondary"
+              onClick={handleBackToDraft}
               fullWidth
               className="sm:w-auto"
+              loading={transitionDraft.isPending}
+              disabled={transitionDraft.isPending}
               leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
             >
               {t("backToDraft")}
-            </ActionLink>
+            </ActionButton>
             <ActionButton
               onClick={handleProceedToPayment}
               fullWidth

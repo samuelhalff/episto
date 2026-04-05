@@ -57,11 +57,16 @@ describe("review page regressions", () => {
 
   it("uses the shared action button primitives for review footer actions", () => {
     expect(reviewPageSource).toContain("ActionButton");
-    expect(reviewPageSource).toContain("ActionLink");
   });
 
   it("labels the footer back action by destination instead of generic editing copy", () => {
     expect(reviewPageSource).toContain('t("backToDraft")');
     expect(reviewPageSource).not.toContain('t("backToEditing")');
+  });
+
+  it("transitions draft back to fields_complete before navigating to workspace", () => {
+    expect(reviewPageSource).toContain("useTransitionDraft");
+    expect(reviewPageSource).toContain('{ status: "fields_complete" }');
+    expect(reviewPageSource).toContain("handleBackToDraft");
   });
 });

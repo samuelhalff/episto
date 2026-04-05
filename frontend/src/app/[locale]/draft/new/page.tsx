@@ -394,16 +394,16 @@ export default function NewDraftPage() {
               >
                 {tr("continueDraft")}
               </ActionButton>
-              <ActionButton
-                variant="secondary"
-                fullWidth
-                loading={pendingStartAction === "fresh"}
-                disabled={isStartingDraft}
-                onClick={() => setShowConfirmFresh(true)}
-              >
-                {tr("startFresh")}
-              </ActionButton>
             </div>
+
+            <button
+              type="button"
+              className="mt-4 text-sm text-zinc-500 underline decoration-zinc-300 underline-offset-2 transition-colors hover:text-zinc-700 disabled:opacity-50 dark:text-zinc-400 dark:decoration-zinc-600 dark:hover:text-zinc-200"
+              disabled={isStartingDraft}
+              onClick={() => setShowConfirmFresh(true)}
+            >
+              {tr("startFreshLink")}
+            </button>
 
             {submissionError ? (
               <p role="alert" className="mt-4 text-sm text-destructive">

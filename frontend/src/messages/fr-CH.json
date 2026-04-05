@@ -627,8 +627,9 @@
     "unfinishedTitle": "Vous avez une lettre inachevée",
     "unfinishedBody": "Reprenez là où vous vous êtes arrêté ou démarrez une nouvelle lettre sans perdre l'ancien brouillon.",
     "lastUpdated": "Dernière mise à jour {value}",
-    "continueDraft": "Reprendre le brouillon",
+    "continueDraft": "Reprendre ma lettre",
     "startFresh": "Repartir de zéro",
+    "startFreshLink": "ou commencer une nouvelle lettre",
     "startFreshConfirmTitle": "Commencer une nouvelle lettre ?",
     "startFreshConfirmBody": "Votre brouillon ne sera pas supprimé, mais il ne vous sera plus proposé à votre retour."
   },
