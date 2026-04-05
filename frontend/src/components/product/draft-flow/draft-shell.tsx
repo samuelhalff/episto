@@ -10,9 +10,6 @@ import { useStepNav } from "./step-nav-context";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 
-/** CSS variable name set on the scroll container for sticky offset below the header */
-const HEADER_HEIGHT_VAR = "--draft-header-h";
-
 interface DraftShellProps {
   step?: number;
   totalSteps?: number;
@@ -57,7 +54,6 @@ export function DraftShell({
   const [stepPopoverOpen, setStepPopoverOpen] = useState(false);
   const stepNav = useStepNav();
 
-  const headerRef = useRef<HTMLDivElement>(null);
   const dockRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -75,22 +71,6 @@ export function DraftShell({
     if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(sync);
     observer.observe(dock);
-    return () => observer.disconnect();
-  }, []);
-
-  // Sync header height → CSS variable so child sticky elements can offset correctly
-  useEffect(() => {
-    const header = headerRef.current;
-    if (!header) return;
-
-    const sync = () => {
-      header.parentElement?.style.setProperty(HEADER_HEIGHT_VAR, `${header.offsetHeight}px`);
-    };
-    sync();
-
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(sync);
-    observer.observe(header);
     return () => observer.disconnect();
   }, []);
 
@@ -123,101 +103,40 @@ export function DraftShell({
         <div className="h-full w-full animate-pulse bg-gradient-to-r from-transparent via-amber-400/90 to-transparent dark:via-amber-300" />
       </div>
 
-      {/* Single scroll container — flush removes default pt/pb so header sits at viewport edge */}
-      <ScrollShadowViewport
-        flush
+      {/* ── Header — OUTSIDE scroll so it shares the same coordinate space as the Sheet overlay ── */}
+      <div
         onPointerDownCapture={(event) => handleSurfacePointerDown(event.target)}
-        onScroll={() => {
-          if (isCompactViewport && isInputFocused) dismissKeyboard();
-        }}
-        surface="muted"
-        className={`min-h-0 flex-1 ${isCompactViewport ? "px-4" : ""}`}
+        className={`shrink-0 bg-[var(--app-surface-muted)] ${
+          isCompactViewport
+            ? "px-6 pb-1 pt-5 sm:px-8"
+            : "border-b border-zinc-200/60 px-6 py-3 sm:px-8 lg:px-10 dark:border-zinc-800/40"
+        }`}
       >
-        <div className="flex min-h-full flex-col">
-          {/* ── Sticky header ── */}
-          <div
-            ref={headerRef}
-            onPointerDownCapture={(event) => handleSurfacePointerDown(event.target)}
-            className={`sticky top-0 z-20 bg-[var(--app-surface-muted)] ${
-              isCompactViewport
-                ? "px-6 pb-1 pt-5 sm:px-8"
-                : "border-b border-zinc-200/60 px-6 py-3 sm:px-8 lg:px-10 dark:border-zinc-800/40"
-            }`}
-          >
-            {isCompactViewport ? (
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-[26px] font-bold leading-[1.1] tracking-tight text-zinc-950 dark:text-zinc-50">
-                    {title}
-                  </h2>
-                  {subtitle ? (
-                    <p className="mt-1 text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">
-                      {subtitle}
-                    </p>
-                  ) : null}
-                </div>
-                <WorkspaceSiteMenu isCompactViewport />
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                  {tc("appName")}
+        {isCompactViewport ? (
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <h2 className="text-[26px] font-bold leading-[1.1] tracking-tight text-zinc-950 dark:text-zinc-50">
+                {title}
+              </h2>
+              {subtitle ? (
+                <p className="mt-1 text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+                  {subtitle}
                 </p>
-                <div className="flex items-center gap-2">
-                  {step != null && totalSteps != null && stepNav ? (
-                    <Popover open={stepPopoverOpen} onOpenChange={setStepPopoverOpen}>
-                      <PopoverTrigger asChild>
-                        <button
-                          type="button"
-                          disabled={isNavigating}
-                          aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
-                          className="group inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
-                        >
-                          <div className="flex items-center gap-1">
-                            {Array.from({ length: totalSteps }, (_, i) => (
-                              <div
-                                key={i}
-                                className={`h-1.5 rounded-full transition-all ${
-                                  i === step
-                                    ? "w-4 bg-amber-500 dark:bg-amber-400"
-                                    : i < step
-                                      ? "w-2 bg-zinc-400 dark:bg-zinc-500"
-                                      : "w-1.5 bg-zinc-200 dark:bg-zinc-700"
-                                }`}
-                              />
-                            ))}
-                          </div>
-                          <span aria-hidden="true" className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300">
-                            {step + 1} / {totalSteps}
-                          </span>
-                        </button>
-                      </PopoverTrigger>
-                      <PopoverContent align="end" sideOffset={8} className="w-[320px] p-0">
-                        <div className="px-4 pb-2 pt-4">
-                          <h3 className="text-sm font-semibold text-zinc-950 dark:text-zinc-50">
-                            {td("stepsTitle")}
-                          </h3>
-                          <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
-                            {td("stepsProgressOverview")}
-                          </p>
-                        </div>
-                        <div className="px-2 pb-3">
-                          <StepList
-                            steps={stepNav.steps}
-                            currentStep={stepNav.currentStep}
-                            furthestUnlockedStepIndex={stepNav.furthestUnlockedStepIndex}
-                            onSelect={(idx) => {
-                              stepNav.onStepSelect(idx);
-                              setStepPopoverOpen(false);
-                            }}
-                          />
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  ) : step != null && totalSteps != null && onStepClick ? (
+              ) : null}
+            </div>
+            <WorkspaceSiteMenu isCompactViewport />
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {tc("appName")}
+            </p>
+            <div className="flex items-center gap-2">
+              {step != null && totalSteps != null && stepNav ? (
+                <Popover open={stepPopoverOpen} onOpenChange={setStepPopoverOpen}>
+                  <PopoverTrigger asChild>
                     <button
                       type="button"
-                      onClick={onStepClick}
                       disabled={isNavigating}
                       aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
                       className="group inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
@@ -240,13 +159,73 @@ export function DraftShell({
                         {step + 1} / {totalSteps}
                       </span>
                     </button>
-                  ) : null}
-                  <WorkspaceSiteMenu isCompactViewport={false} />
-                </div>
-              </div>
-            )}
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={8} className="w-[320px] p-0">
+                    <div className="px-4 pb-2 pt-4">
+                      <h3 className="text-sm font-semibold text-zinc-950 dark:text-zinc-50">
+                        {td("stepsTitle")}
+                      </h3>
+                      <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                        {td("stepsProgressOverview")}
+                      </p>
+                    </div>
+                    <div className="px-2 pb-3">
+                      <StepList
+                        steps={stepNav.steps}
+                        currentStep={stepNav.currentStep}
+                        furthestUnlockedStepIndex={stepNav.furthestUnlockedStepIndex}
+                        onSelect={(idx) => {
+                          stepNav.onStepSelect(idx);
+                          setStepPopoverOpen(false);
+                        }}
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              ) : step != null && totalSteps != null && onStepClick ? (
+                <button
+                  type="button"
+                  onClick={onStepClick}
+                  disabled={isNavigating}
+                  aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
+                  className="group inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
+                >
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalSteps }, (_, i) => (
+                      <div
+                        key={i}
+                        className={`h-1.5 rounded-full transition-all ${
+                          i === step
+                            ? "w-4 bg-amber-500 dark:bg-amber-400"
+                            : i < step
+                              ? "w-2 bg-zinc-400 dark:bg-zinc-500"
+                              : "w-1.5 bg-zinc-200 dark:bg-zinc-700"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <span aria-hidden="true" className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300">
+                    {step + 1} / {totalSteps}
+                  </span>
+                </button>
+              ) : null}
+              <WorkspaceSiteMenu isCompactViewport={false} />
+            </div>
           </div>
+        )}
+      </div>
 
+      {/* ── Scroll area — fills remaining height below the header ── */}
+      <ScrollShadowViewport
+        flush
+        onPointerDownCapture={(event) => handleSurfacePointerDown(event.target)}
+        onScroll={() => {
+          if (isCompactViewport && isInputFocused) dismissKeyboard();
+        }}
+        surface="muted"
+        className={`min-h-0 flex-1 ${isCompactViewport ? "px-4" : ""}`}
+      >
+        <div className="flex min-h-full flex-col">
           {/* ── Title block (desktop only — scrolls away) ── */}
           {!isCompactViewport ? (
             <div className="px-6 pb-4 pt-6 sm:px-8 lg:px-10 lg:pb-6 lg:pt-8">

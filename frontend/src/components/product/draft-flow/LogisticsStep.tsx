@@ -425,7 +425,7 @@ export function LogisticsStep({
         </section>
 
         <section className="space-y-5">
-          <div className={isCompactViewport ? "flex items-center gap-4 px-2" : "sticky z-10 -mx-4 flex items-center gap-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"} style={isCompactViewport ? undefined : { top: "var(--draft-header-h, 52px)" }}>
+          <div className={isCompactViewport ? "flex items-center gap-4 px-2" : "sticky top-0 z-10 -mx-4 flex items-center gap-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"}>
             <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
               {t("signatureLabel")}
             </h3>

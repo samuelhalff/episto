@@ -238,6 +238,20 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     <LogisticsStep key="logistics" {...commonProps} />,
   ];
 
+  const translatedSteps = DRAFT_WORKSPACE_STEPS.map((step) => ({
+    id: step.id,
+    title: t(step.titleKey),
+  }));
+
+  const handleStepSelect = useCallback(
+    (idx: number) => {
+      const selectedStep = DRAFT_WORKSPACE_STEPS[idx];
+      if (!selectedStep) return;
+      navigateToStep(selectedStep.slug);
+    },
+    [navigateToStep],
+  );
+
   if (isBootstrappingWorkspace) {
     return (
       <div
@@ -304,20 +318,6 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       />
     );
   }
-
-  const translatedSteps = DRAFT_WORKSPACE_STEPS.map((step) => ({
-    id: step.id,
-    title: t(step.titleKey),
-  }));
-
-  const handleStepSelect = useCallback(
-    (idx: number) => {
-      const selectedStep = DRAFT_WORKSPACE_STEPS[idx];
-      if (!selectedStep) return;
-      navigateToStep(selectedStep.slug);
-    },
-    [navigateToStep],
-  );
 
   return (
     <StepNavProvider
