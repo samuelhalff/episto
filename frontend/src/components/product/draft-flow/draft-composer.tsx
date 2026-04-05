@@ -1,7 +1,7 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode, useEffect, useRef } from "react";
-import { ArrowUp, Layers, Mic, Paperclip, Square } from "lucide-react";
+import { ArrowUp, Eye, EyeOff, Layers, Mic, Paperclip, Square } from "lucide-react";
 import { AppButton } from "../../ui/app-button";
 
 interface DraftComposerProps {
@@ -198,7 +198,7 @@ export function ComposerBadge({
 }
 
 interface ComposerIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: "attach" | "dictate" | "stop";
+  icon: "attach" | "dictate" | "stop" | "preview" | "preview-off";
   tone?: "neutral" | "accent";
   isActive?: boolean;
   badgeCount?: number;
@@ -213,7 +213,16 @@ export function ComposerIconButton({
   type = "button",
   ...props
 }: ComposerIconButtonProps) {
-  const Icon = icon === "attach" ? Paperclip : icon === "stop" ? Square : Mic;
+  const Icon =
+    icon === "attach"
+      ? Paperclip
+      : icon === "stop"
+        ? Square
+        : icon === "preview"
+          ? Eye
+          : icon === "preview-off"
+            ? EyeOff
+            : Mic;
   const toneClass =
     tone === "accent"
       ? isActive

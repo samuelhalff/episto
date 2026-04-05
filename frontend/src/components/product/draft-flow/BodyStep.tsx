@@ -520,6 +520,17 @@ export function BodyStep({
               isSending={isAiBusy}
               isCompactViewport={isCompactViewport}
               topBadges={quickActionBadges}
+              leadingActions={
+                onTogglePreview ? (
+                  <ComposerIconButton
+                    icon={isPreviewPanelVisible ? "preview-off" : "preview"}
+                    aria-label={
+                      isPreviewPanelVisible ? tc("hidePreview") : tc("showPreview")
+                    }
+                    onClick={onTogglePreview}
+                  />
+                ) : undefined
+              }
               trailingActions={
                 <ComposerIconButton
                   icon={dictation.isRecording ? "stop" : "dictate"}

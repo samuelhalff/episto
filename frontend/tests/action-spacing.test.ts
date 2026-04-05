@@ -40,6 +40,6 @@ describe("shared action spacing regressions", () => {
     expect(bodyStepSource).toContain('className="flex items-center gap-3"');
     expect(siteMenuPanelSource).toContain('className="space-y-4"');
     expect(siteMenuPanelSource).toContain('className="space-y-3.5"');
-    expect(workspaceSiteMenuSource).toContain('className="space-y-3.5"');
+    expect(workspaceSiteMenuSource).toContain('className="border-t border-zinc-200/80 pt-5 dark:border-zinc-800"');
   });
 });

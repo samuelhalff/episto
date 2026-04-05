@@ -2,7 +2,6 @@
 
 import { type ReactNode, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { Eye, EyeOff } from "lucide-react";
 import { WorkspaceSiteMenu } from "./WorkspaceSiteMenu";
 import { SecondaryButton } from "./cards";
 import { StepTriggerButton } from "./draft-composer";
@@ -232,17 +231,6 @@ export function DraftShell({
                   ) : null}
 
                   <div className="flex min-w-0 items-center gap-3">
-                    {onTogglePreview ? (
-                      <button
-                        type="button"
-                        onClick={onTogglePreview}
-                        disabled={isNavigating}
-                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-zinc-500 transition-colors hover:bg-zinc-100 hover:text-zinc-700 disabled:opacity-50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200"
-                        aria-label={isPreviewPanelVisible ? tc("hidePreview") : tc("showPreview")}
-                      >
-                        {isPreviewPanelVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    ) : null}
                     {!hideDockStepTrigger && isCompactViewport ? (
                       <StepTriggerButton
                         size="dock"

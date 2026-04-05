@@ -314,6 +314,13 @@ export function IntakeStep({
                 onClick={onStepClick}
               />
             ) : null}
+            {onTogglePreview ? (
+              <ComposerIconButton
+                icon={isPreviewPanelVisible ? "preview-off" : "preview"}
+                aria-label={isPreviewPanelVisible ? tc("hidePreview") : tc("showPreview")}
+                onClick={onTogglePreview}
+              />
+            ) : null}
             <ComposerIconButton
               icon="attach"
               aria-label={t("attachmentsLabel")}
