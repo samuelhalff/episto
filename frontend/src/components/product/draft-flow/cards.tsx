@@ -1,7 +1,7 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode } from "react";
-import { ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { AppButton } from "../../ui/app-button";
 
 function getCardClasses(isCompactViewport: boolean, density: "default" | "thin") {
@@ -160,6 +160,7 @@ export function SecondaryButton({
       onClick={onClick}
       disabled={disabled}
       loading={loading}
+      leadingIcon={!disabled && !loading ? <ArrowLeft className="h-4 w-4" /> : null}
       trailingIcon={!disabled && !loading && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
     >
       <span>{children}</span>

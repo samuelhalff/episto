@@ -327,12 +327,12 @@
     "editCompanySelection": "Bearbeiten",
     "enterAddressManually": "Adresse manuell eingeben",
     "backToSearch": "Zurück zur Suche",
-    "backToIntake": "Zurück zur Ausgangslage",
-    "backToSender": "Zurück zum Absender",
-    "backToRecipient": "Zurück zum Empfänger",
-    "backToContent": "Zurück zum Text",
-    "backToAttachments": "Zurück zu den Beilagen",
-    "backToSubject": "Zurück zum Betreff",
+    "backToIntake": "Ausgangslage",
+    "backToSender": "Absender",
+    "backToRecipient": "Empfänger",
+    "backToContent": "Text",
+    "backToAttachments": "Beilagen",
+    "backToSubject": "Betreff",
     "stepSaveFailed": "Dieser Schritt konnte nicht gespeichert werden. Bitte prüfe die Felder und versuche es erneut.",
     "senderSaved": "Absenderangaben gespeichert",
     "recipientSaved": "Empfängerangaben gespeichert",
@@ -446,7 +446,6 @@
     "hideAttachmentsManager": "Fertig",
     "remove": "Entfernen",
     "reviewAndPay": "Prüfen & bezahlen",
-    "continueToReview": "Weiter zur Prüfung",
     "stepNeedsAttentionTitle": "Bitte vervollständigen Sie zuerst diese Angaben",
     "reviewMissingSender": "Absender ergänzen, um fortzufahren",
     "reviewMissingRecipient": "Empfänger ergänzen, um fortzufahren",
@@ -504,7 +503,7 @@
     "edit": "Bearbeiten",
     "add": "Hinzufügen",
     "proceedToPayment": "Weiter zur Zahlung",
-    "backToDraft": "Zurück zum Entwurf",
+    "backToDraft": "Entwurf",
     "total": "Total"
   },
   "checkout": {
@@ -544,7 +543,7 @@
     "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "enterPaymentDetails": "Zahlungsdetails eingeben",
     "continueToPayment": "Weiter zur Zahlung",
-    "backToReview": "Zurück zur Prüfung"
+    "backToReview": "Prüfung"
   },
   "attachments": {
     "title": "Anhänge",
@@ -594,7 +593,7 @@
     "verifying": "Zahlung wird überprüft…",
     "paymentFailed": "Zahlung nicht abgeschlossen",
     "paymentFailedSubtitle": "Ihre Zahlung konnte nicht verarbeitet werden. Bitte kehren Sie zur Kasse zurück.",
-    "backToCheckout": "Zurück zur Kasse",
+    "backToCheckout": "Kasse",
     "orderReference": "Bestellnummer",
     "copied": "Kopiert",
     "copyFailed": "Bitte manuell markieren und kopieren",

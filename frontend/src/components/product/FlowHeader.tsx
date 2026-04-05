@@ -1,17 +1,77 @@
 "use client";
 
-import type { ReactNode } from "react";
-import { useTranslations } from "next-intl";
+import { useState, useRef, useEffect } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Globe } from "lucide-react";
 import { Link } from "../../i18n/navigation";
 import { StepIndicator } from "./StepIndicator";
 import { LanguageSwitcher } from "../marketing/LanguageSwitcher";
+import { routing } from "../../i18n/routing";
+import { usePathname } from "../../i18n/navigation";
+
+function CompactLanguageSwitcher() {
+  const locale = useLocale();
+  const pathname = usePathname();
+  const tc = useTranslations("common");
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("pointerdown", handleClick);
+    return () => document.removeEventListener("pointerdown", handleClick);
+  }, [open]);
+
+  const label = locale.split("-")[0]?.toUpperCase() ?? locale;
+
+  return (
+    <div ref={ref} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={tc("language")}
+        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-zinc-200 bg-white text-zinc-500 transition-colors hover:border-zinc-300 hover:text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-100"
+      >
+        <Globe className="h-4 w-4" />
+        <span className="sr-only">{label}</span>
+      </button>
+      {open ? (
+        <div className="absolute right-0 top-full z-50 mt-2 flex flex-col gap-1 rounded-xl border border-zinc-200 bg-white p-1.5 shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+          {routing.locales.map((l) => {
+            const lLabel = l.split("-")[0]?.toUpperCase() ?? l;
+            const isActive = l === locale;
+            return (
+              <Link
+                key={l}
+                href={pathname}
+                locale={l}
+                onClick={() => setOpen(false)}
+                aria-current={isActive ? "page" : undefined}
+                className={[
+                  "inline-flex min-h-9 min-w-[3.5rem] items-center justify-center rounded-lg px-3 text-sm font-semibold transition-colors",
+                  isActive
+                    ? "bg-primary/10 text-zinc-950 dark:bg-amber-400/15 dark:text-amber-100"
+                    : "text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100",
+                ].join(" ")}
+              >
+                {lLabel}
+              </Link>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 interface FlowHeaderProps {
   currentStep: number;
   draftId: string;
   title: string;
   statusLabel?: string;
-  actions?: ReactNode;
 }
 
 export function FlowHeader({
@@ -19,7 +79,6 @@ export function FlowHeader({
   draftId,
   title: _title,
   statusLabel,
-  actions,
 }: FlowHeaderProps) {
   const tc = useTranslations("common");
 
@@ -42,7 +101,9 @@ export function FlowHeader({
           </div>
 
           <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-            {actions}
+            <div className="sm:hidden">
+              <CompactLanguageSwitcher />
+            </div>
             <div className="hidden sm:block">
               <LanguageSwitcher />
             </div>

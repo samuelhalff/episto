@@ -13,6 +13,7 @@ import { Link } from "../../../../../i18n/navigation";
 import {
   CheckCircle2,
   AlertCircle,
+  ArrowLeft,
   Check,
   Clock,
   Send,
@@ -154,6 +155,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           href={`/draft/${draftId}/checkout`}
           className="inline-flex items-center gap-2 rounded-2xl bg-zinc-950 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
         >
+          <ArrowLeft className="h-4 w-4 shrink-0" />
           {t("backToCheckout")}
         </Link>
       </main>

@@ -327,12 +327,12 @@
     "editCompanySelection": "Edit",
     "enterAddressManually": "Enter address manually",
     "backToSearch": "Back to search",
-    "backToIntake": "Back to intake",
-    "backToSender": "Back to sender",
-    "backToRecipient": "Back to recipient",
-    "backToContent": "Back to content",
-    "backToAttachments": "Back to attachments",
-    "backToSubject": "Back to subject",
+    "backToIntake": "Intake",
+    "backToSender": "Sender",
+    "backToRecipient": "Recipient",
+    "backToContent": "Content",
+    "backToAttachments": "Attachments",
+    "backToSubject": "Subject",
     "stepSaveFailed": "We couldn't save this step. Please review the fields and try again.",
     "senderSaved": "Sender details saved",
     "recipientSaved": "Recipient details saved",
@@ -446,7 +446,6 @@
     "hideAttachmentsManager": "Done",
     "remove": "Remove",
     "reviewAndPay": "Review & Pay",
-    "continueToReview": "Continue to review",
     "stepNeedsAttentionTitle": "Complete these details first",
     "reviewMissingSender": "Add sender details to continue",
     "reviewMissingRecipient": "Add recipient details to continue",
@@ -504,7 +503,7 @@
     "edit": "Edit",
     "add": "Add",
     "proceedToPayment": "Proceed to payment",
-    "backToDraft": "Back to draft",
+    "backToDraft": "Draft",
     "total": "Total"
   },
   "checkout": {
@@ -544,7 +543,7 @@
     "paymentError": "Payment failed. Please try again.",
     "enterPaymentDetails": "Enter payment details",
     "continueToPayment": "Continue to payment",
-    "backToReview": "Back to review"
+    "backToReview": "Review"
   },
   "attachments": {
     "title": "Attachments",
@@ -594,7 +593,7 @@
     "verifying": "Verifying payment…",
     "paymentFailed": "Payment was not completed",
     "paymentFailedSubtitle": "Your payment could not be processed. Please return to checkout to try again.",
-    "backToCheckout": "Back to checkout",
+    "backToCheckout": "Checkout",
     "orderReference": "Order reference",
     "copied": "Copied",
     "copyFailed": "Select and copy manually",

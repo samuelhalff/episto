@@ -9,7 +9,7 @@ import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { useDraft, useCheckout } from "../../../../../hooks/use-api";
 import { Link, useRouter } from "../../../../../i18n/navigation";
-import { Lock, Truck, ShieldCheck, ArrowRight, Loader2 } from "lucide-react";
+import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm";
@@ -287,6 +287,7 @@ export default function CheckoutPage({
                     variant="secondary"
                     fullWidth
                     className="sm:flex-1"
+                    leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
                   >
                     {t("backToReview")}
                   </ActionLink>
@@ -332,6 +333,7 @@ export default function CheckoutPage({
                   fullWidth
                   variant="secondary"
                   onClick={() => router.push(`/draft/${draftId}/review`)}
+                  leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
                 >
                   {t("backToReview")}
                 </ActionButton>
@@ -358,6 +360,7 @@ export default function CheckoutPage({
                       variant="secondary"
                       fullWidth
                       className="sm:flex-1"
+                      leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
                     >
                       {t("backToReview")}
                     </ActionLink>
