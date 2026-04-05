@@ -23,46 +23,36 @@ export function WorkspaceSiteMenu({ isCompactViewport = false }: WorkspaceSiteMe
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <div className="relative">
+    <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+      {/* Single button for open AND close — sits above the overlay (z-200)
+          and sheet (z-201) so it stays clickable at the exact same position. */}
       <MenuTriggerButton
         aria-label={menuOpen ? tc("closeMenu") : tc("openMenu")}
         aria-expanded={menuOpen}
         isOpen={menuOpen}
         compact
+        className="relative z-[202]"
         onClick={() => setMenuOpen((open) => !open)}
       />
-      <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-        <SheetContent
-          side="right"
-          className={getSheetSurfaceClassName("navigation")}
-          aria-label="Navigation menu"
-        >
-          {/* Plain div instead of SheetHeader to avoid default px-4 conflict */}
-          <div className="flex flex-col gap-1 px-6 pb-5 pt-5 sm:px-8 lg:px-10">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <SheetTitle className="text-base font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-                  {tc("appName")}
-                </SheetTitle>
-                <SheetDescription className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {t("nav.writeLetter")}
-                </SheetDescription>
-              </div>
-              <MenuTriggerButton
-                aria-label={tc("closeMenu")}
-                isOpen
-                compact
-                onClick={() => setMenuOpen(false)}
-              />
-            </div>
+      <SheetContent
+        side="right"
+        className={getSheetSurfaceClassName("navigation")}
+        aria-label="Navigation menu"
+      >
+        <div className="flex flex-col gap-1 px-6 pb-5 pt-5 sm:px-8 lg:px-10">
+          <SheetTitle className="text-base font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+            {tc("appName")}
+          </SheetTitle>
+          <SheetDescription className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+            {t("nav.writeLetter")}
+          </SheetDescription>
+        </div>
+        <SheetBody className={`px-6 sm:px-8 lg:px-10 ${isCompactViewport ? "pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]" : "pb-5"}`}>
+          <div className="border-t border-zinc-200/80 pt-5 dark:border-zinc-800">
+            <SiteMenuPanel onNavigate={() => setMenuOpen(false)} />
           </div>
-          <SheetBody className={`px-6 sm:px-8 lg:px-10 ${isCompactViewport ? "pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]" : "pb-5"}`}>
-            <div className="border-t border-zinc-200/80 pt-5 dark:border-zinc-800">
-              <SiteMenuPanel onNavigate={() => setMenuOpen(false)} />
-            </div>
-          </SheetBody>
-        </SheetContent>
-      </Sheet>
-    </div>
+        </SheetBody>
+      </SheetContent>
+    </Sheet>
   );
 }
