@@ -9,18 +9,24 @@ import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 
 interface WorkspacePreviewPaneProps {
   draftId: string;
+  isOpen: boolean;
   onClose: () => void;
 }
 
-export function WorkspacePreviewPane({ draftId, onClose }: WorkspacePreviewPaneProps) {
+export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePreviewPaneProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
   const draft = useDraft(draftId);
-  const { previewData, isStale, isLoading, refreshPreview, isRefreshing } =
+  const { previewData, isStale, isLoading, error, refreshPreview, isRefreshing } =
     useLetterPreview(draftId);
 
   return (
-    <div className="flex h-full w-[520px] shrink-0 flex-col border-l border-[var(--app-border)] bg-[var(--app-surface-soft)]">
+    <div
+      className={`flex h-full w-[520px] shrink-0 flex-col border-l border-[var(--app-border)] bg-[var(--app-surface-soft)] transition-[transform,opacity] duration-300 ease-out ${
+        isOpen ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-full opacity-0"
+      }`}
+      aria-hidden={!isOpen}
+    >
       <div className="flex shrink-0 items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
@@ -56,6 +62,18 @@ export function WorkspacePreviewPane({ draftId, onClose }: WorkspacePreviewPaneP
         {isLoading ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+          </div>
+        ) : error || (!previewData && !draft.data) ? (
+          <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("previewUnavailableRetry")}</p>
+            <button
+              type="button"
+              onClick={refreshPreview}
+              className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-3 py-1.5 text-xs font-medium text-zinc-600 transition-colors hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            >
+              <RefreshCw className="h-3 w-3" />
+              {tc("refresh")}
+            </button>
           </div>
         ) : (
           <LetterPreview

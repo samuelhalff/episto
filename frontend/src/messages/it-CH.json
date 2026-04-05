@@ -238,7 +238,7 @@
     "stepReview": "Verifica",
     "stepPay": "Paga",
     "stepDone": "Fatto",
-    "stepProgress": "Passo {current} di {total}",
+
     "phaseProgress": "Fase {current} di {total}",
     "stepMenuLabel": "Apri i passi",
     "stepLocked": "Bloccato",
@@ -269,7 +269,6 @@
     "inputPrompt": "Diteci di cosa avete bisogno — parlate o digitate",
     "dictationError": "Inserimento vocale non disponibile. Riprovare o digitare.",
     "workspaceTab": "Scrivi",
-    "previewHint": "Qui vede l’anteprima finale della lettera mentre la bozza prende forma.",
     "previewSheetHint": "L’impaginazione si aggiorna insieme alla bozza.",
     "previewReadyToast": "La lettera è pronta per l’anteprima.",
     "closePreview": "Chiudi anteprima",

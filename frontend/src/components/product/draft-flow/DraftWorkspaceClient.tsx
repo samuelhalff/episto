@@ -203,6 +203,11 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     [],
   );
 
+  const handleClosePreview = useCallback(
+    () => setIsPreviewPanelOpen(false),
+    [],
+  );
+
   const isPreviewPanelVisible = isWideViewport && isPreviewPanelOpen;
 
   const commonProps = {
@@ -307,13 +312,14 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       }`}
       style={{ height: workspaceHeight }}
     >
-      <div className="flex min-h-0 min-w-0 flex-1">
-        <div className="min-h-0 min-w-0 flex-1">{stepComponents[currentStep]}</div>
+      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+        <div className="min-h-0 min-w-[480px] flex-1">{stepComponents[currentStep]}</div>
 
-        {isPreviewPanelVisible ? (
+        {isWideViewport ? (
           <WorkspacePreviewPane
             draftId={draftId}
-            onClose={() => setIsPreviewPanelOpen(false)}
+            isOpen={isPreviewPanelVisible}
+            onClose={handleClosePreview}
           />
         ) : null}
       </div>

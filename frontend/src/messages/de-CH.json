@@ -238,7 +238,7 @@
     "stepReview": "Prüfen",
     "stepPay": "Bezahlen",
     "stepDone": "Fertig",
-    "stepProgress": "Schritt {current} von {total}",
+
     "phaseProgress": "Phase {current} von {total}",
     "stepMenuLabel": "Schritte öffnen",
     "stepLocked": "Gesperrt",
@@ -269,7 +269,7 @@
     "inputPrompt": "Sagen Sie uns, was Sie brauchen — sprechen oder tippen",
     "dictationError": "Spracheingabe nicht verfügbar. Bitte erneut versuchen oder tippen.",
     "workspaceTab": "Schreiben",
-    "previewHint": "Hier sehen Sie die finale Briefansicht, während Ihr Entwurf Form annimmt.",
+
     "previewSheetHint": "Das Briefblatt aktualisiert sich mit Ihrem Entwurf.",
     "previewReadyToast": "Ihr Brief ist zur Vorschau bereit.",
     "closePreview": "Vorschau schliessen",

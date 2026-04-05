@@ -238,7 +238,7 @@
     "stepReview": "Review",
     "stepPay": "Pay",
     "stepDone": "Done",
-    "stepProgress": "Step {current} of {total}",
+
     "phaseProgress": "Phase {current} of {total}",
     "stepMenuLabel": "Open steps",
     "stepLocked": "Locked",
@@ -269,7 +269,7 @@
     "inputPrompt": "Tell us what you need — speak or type",
     "dictationError": "Voice input unavailable. Please try again or type instead.",
     "workspaceTab": "Write",
-    "previewHint": "Preview the final letter here as it takes shape.",
+
     "previewSheetHint": "Paper layout updates as your draft changes.",
     "previewReadyToast": "Your letter is ready to preview.",
     "closePreview": "Close preview",
