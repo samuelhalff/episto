@@ -12,6 +12,9 @@ import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { adminActionRoutes } from "./admin-actions.routes.js";
 import { adminHealthRoutes } from "./admin-health.routes.js";
 import { adminOverviewRoutes } from "./admin-overview.routes.js";
+import { adminMetricsRoutes } from "./admin-metrics.routes.js";
+import { adminSessionsRoutes } from "./admin-sessions.routes.js";
+import { adminRetentionRoutes } from "./admin-retention.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin read-only routes (timeline, session details, content access)
@@ -218,4 +221,9 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
   // Register admin overview/dashboard counters endpoint
   await app.register(adminOverviewRoutes);
+
+  // Register analytics dashboard endpoints
+  await app.register(adminMetricsRoutes);
+  await app.register(adminSessionsRoutes);
+  await app.register(adminRetentionRoutes);
 }
