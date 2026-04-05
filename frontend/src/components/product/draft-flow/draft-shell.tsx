@@ -130,7 +130,7 @@ export function DraftShell({
                     : "border-b border-zinc-200/60 px-6 py-3 sm:px-8 lg:px-10 dark:border-zinc-800/40"
                 }`}
               >
-                <div className="mx-auto w-full max-w-6xl">
+                <div className="mx-auto w-full max-w-[1400px]">
                   {isCompressed ? (
                     /* Mobile: compact title + subtitle + menu */
                     <div className="flex items-start justify-between gap-4">
@@ -190,7 +190,7 @@ export function DraftShell({
               {/* Title block — scrolls away on desktop; mobile title is in the sticky bar */}
               {!isCompressed ? (
                 <div className="px-6 pb-4 pt-6 sm:px-8 lg:px-10 lg:pb-6 lg:pt-8">
-                  <div className="mx-auto w-full max-w-6xl">
+                  <div className="mx-auto w-full max-w-[1400px]">
                     <h2 className="text-[32px] font-bold leading-[1.1] tracking-tight text-zinc-950 lg:text-[40px] dark:text-zinc-50">
                       {title}
                     </h2>
@@ -204,7 +204,7 @@ export function DraftShell({
               ) : null}
 
               {/* Step content — flex-1 fills remaining space; pb is CSS fallback, overridden by ResizeObserver */}
-              <div ref={contentRef} className={isCompactViewport ? "flex-1 pb-32 pt-5" : "mx-auto w-full max-w-6xl flex-1 px-4 pb-36 pt-2 lg:px-6"}>
+              <div ref={contentRef} className={isCompactViewport ? "flex-1 pb-32 pt-5" : "mx-auto w-full max-w-[1400px] flex-1 px-4 pb-36 pt-2 lg:px-6"}>
                 {children}
               </div>
 
@@ -221,7 +221,7 @@ export function DraftShell({
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-x-0 top-0 z-0 h-8 -translate-y-full bg-gradient-to-t from-[var(--app-surface-muted)] to-transparent"
                 />
-                <div className={isCompactViewport ? "" : "mx-auto w-full max-w-4xl px-4 lg:px-6"}>
+                <div className={isCompactViewport ? "" : "mx-auto w-full max-w-5xl px-4 lg:px-6"}>
                   {composer ? (
                     <div
                       data-draft-keep-focus

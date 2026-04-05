@@ -22,10 +22,13 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
 
   return (
     <div
-      className={`flex h-full w-[520px] shrink-0 flex-col border-l border-[var(--app-border)] bg-[var(--app-surface-soft)] transition-[transform,opacity] duration-300 ease-out ${
-        isOpen ? "translate-x-0 opacity-100" : "pointer-events-none translate-x-full opacity-0"
+      className={`flex h-full shrink-0 flex-col overflow-hidden bg-[var(--app-surface-soft)] transition-[width,opacity] duration-300 ease-out ${
+        isOpen
+          ? "w-[520px] border-l border-[var(--app-border)] opacity-100"
+          : "w-0 opacity-0"
       }`}
       aria-hidden={!isOpen}
+      {...(!isOpen ? { inert: true } : undefined)}
     >
       <div className="flex shrink-0 items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
