@@ -371,7 +371,7 @@ export function RecipientStep({
     >
       <div className={`space-y-8 pb-4 ${isCompactViewport ? "pt-4" : ""}`}>
         <section className="space-y-6">
-          <div className="px-1">
+          <div className={isCompactViewport ? "px-1" : "sticky top-[52px] z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"}>
             <SegmentedControl
               options={[
                 {

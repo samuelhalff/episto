@@ -545,7 +545,7 @@ export function BodyStep({
     >
       <div className="space-y-5 pb-4">
         {/* ── Mode toggle ─────────────────────────────────────────────── */}
-        <div className="px-1">
+        <div className={isCompactViewport ? "px-1" : "sticky top-[52px] z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"}>
           <SegmentedControl
             options={[
               {
