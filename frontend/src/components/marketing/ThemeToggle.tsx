@@ -24,16 +24,16 @@ export function ThemeToggle({ compact = false }: ThemeToggleProps) {
         compact ? "px-3 py-2" : "px-3.5 py-2.5",
       ].join(" ")}
     >
-      <span className="relative inline-flex h-7 w-[3.3rem] items-center rounded-full bg-zinc-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] transition-colors dark:bg-zinc-800 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
+      <span className="relative inline-flex h-8 w-14 items-center rounded-full bg-zinc-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)] transition-colors dark:bg-zinc-800 dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]">
         <span
           className={[
-            "absolute top-1 flex h-5 w-5 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm transition-transform duration-300 dark:bg-zinc-950 dark:text-sky-300",
-            isDark ? "translate-x-[1.45rem]" : "translate-x-0",
+            "absolute left-1 flex h-6 w-6 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm transition-transform duration-300 dark:bg-zinc-950 dark:text-sky-300",
+            isDark ? "translate-x-6" : "translate-x-0",
           ].join(" ")}
         >
           {isDark ? <Moon className="h-3.5 w-3.5" /> : <Sun className="h-3.5 w-3.5" />}
         </span>
-        <span className="flex w-full items-center justify-between px-1 text-zinc-400 dark:text-zinc-500">
+        <span className="flex w-full items-center justify-between px-1.5 text-zinc-400 dark:text-zinc-500">
           <Sun className="h-3.5 w-3.5" />
           <Moon className="h-3.5 w-3.5" />
         </span>

@@ -27,12 +27,14 @@ function ScrollShadowViewport({
   className,
   wrapperClassName,
   surface = "default",
+  flush = false,
   onScroll,
   children,
   ...props
 }: React.HTMLAttributes<HTMLDivElement> & {
   wrapperClassName?: string | undefined;
   surface?: ScrollShadowSurface | undefined;
+  flush?: boolean | undefined;
 }) {
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const [{ showTopShadow, showBottomShadow }, setShadowState] = React.useState({
@@ -112,7 +114,9 @@ function ScrollShadowViewport({
       <div
         ref={viewportRef}
         className={cx(
-          "min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain pt-2 pb-2 [scrollbar-gutter:stable] [webkit-overflow-scrolling:touch]",
+          flush
+            ? "min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain [scrollbar-gutter:stable] [webkit-overflow-scrolling:touch]"
+            : "min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain pt-2 pb-2 [scrollbar-gutter:stable] [webkit-overflow-scrolling:touch]",
           className,
         )}
         data-scroll-shadow-viewport="true"

@@ -6,6 +6,7 @@ import { useDraft, useSession } from "../../../hooks/use-api";
 import { useMediaQuery } from "../../../hooks/use-media-query";
 import { useVisualViewport } from "../../../hooks/use-visual-viewport";
 import { RecoveryScreen } from "../RecoveryScreen";
+import { StepNavProvider } from "./step-nav-context";
 import { StepOverlay } from "./StepOverlay";
 import { AttachmentsStep } from "./AttachmentsStep";
 import { BodyStep } from "./BodyStep";
@@ -304,43 +305,56 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     );
   }
 
-  return (
-    <div
-      id="draft-workspace-root"
-      className={`flex overflow-hidden bg-[var(--app-surface-muted)] transition-colors ${
-        isCompactViewport ? "fixed inset-0 flex-col overscroll-none" : "relative flex-col"
-      }`}
-      style={{ height: workspaceHeight }}
-    >
-      <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-        <div className="min-h-0 min-w-[480px] flex-1">{stepComponents[currentStep]}</div>
+  const translatedSteps = DRAFT_WORKSPACE_STEPS.map((step) => ({
+    id: step.id,
+    title: t(step.titleKey),
+  }));
 
-        {isWideViewport ? (
-          <WorkspacePreviewPane
-            draftId={draftId}
-            isOpen={isPreviewPanelVisible}
-            onClose={handleClosePreview}
+  const handleStepSelect = useCallback(
+    (idx: number) => {
+      const selectedStep = DRAFT_WORKSPACE_STEPS[idx];
+      if (!selectedStep) return;
+      navigateToStep(selectedStep.slug);
+    },
+    [navigateToStep],
+  );
+
+  return (
+    <StepNavProvider
+      steps={translatedSteps}
+      currentStep={currentStep}
+      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
+      onStepSelect={handleStepSelect}
+    >
+      <div
+        id="draft-workspace-root"
+        className={`flex overflow-hidden bg-[var(--app-surface-muted)] transition-colors ${
+          isCompactViewport ? "fixed inset-0 flex-col overscroll-none" : "relative flex-col"
+        }`}
+        style={{ height: workspaceHeight }}
+      >
+        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+          <div className="min-h-0 min-w-[480px] flex-1">{stepComponents[currentStep]}</div>
+
+          {isWideViewport ? (
+            <WorkspacePreviewPane
+              draftId={draftId}
+              isOpen={isPreviewPanelVisible}
+              onClose={handleClosePreview}
+            />
+          ) : null}
+        </div>
+
+        {showSteps && isCompactViewport ? (
+          <StepOverlay
+            currentStep={currentStep}
+            furthestUnlockedStepIndex={furthestUnlockedStepIndex}
+            steps={translatedSteps}
+            onClose={() => setShowSteps(false)}
+            onSelect={handleStepSelect}
           />
         ) : null}
       </div>
-
-      {showSteps ? (
-        <StepOverlay
-          currentStep={currentStep}
-          furthestUnlockedStepIndex={furthestUnlockedStepIndex}
-          isCompactViewport={isCompactViewport}
-          steps={DRAFT_WORKSPACE_STEPS.map((step) => ({
-            id: step.id,
-            title: t(step.titleKey),
-          }))}
-          onClose={() => setShowSteps(false)}
-          onSelect={(idx) => {
-            const selectedStep = DRAFT_WORKSPACE_STEPS[idx];
-            if (!selectedStep) return;
-            navigateToStep(selectedStep.slug);
-          }}
-        />
-      ) : null}
-    </div>
+    </StepNavProvider>
   );
 }

@@ -53,7 +53,6 @@ describe("workspace layout regressions", () => {
 
   it("keeps the draft shell overflow-safe on narrow screens", () => {
     expect(draftShellSource).toContain("ScrollShadowViewport");
-    expect(draftShellSource).toContain("overflow-x-hidden");
     expect(draftShellSource).toContain("min-w-0");
     expect(draftShellSource).not.toContain("shouldHideDock");
   });

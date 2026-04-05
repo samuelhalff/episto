@@ -14,7 +14,7 @@ describe("sheet design helpers", () => {
 
   it("keeps navigation sheets full-height on mobile", () => {
     expect(getSheetSurfaceClassName("navigation")).toContain("h-[100dvh]");
-    expect(getSheetSurfaceClassName("navigation")).toContain("rounded-none");
+    expect(getSheetSurfaceClassName("navigation")).toContain("w-full");
   });
 
   it("keeps sticky footers inside the safe area", () => {

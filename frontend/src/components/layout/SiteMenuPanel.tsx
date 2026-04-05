@@ -53,8 +53,8 @@ export function SiteMenuPanel({
       </nav>
 
       <div className="border-t border-zinc-200/80 pt-4 dark:border-zinc-800">
-        <div className="space-y-3.5">
-          <div className="space-y-2.5">
+        <div className="space-y-5">
+          <div className="space-y-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
               <Palette className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
               {tc("theme")}
@@ -62,7 +62,7 @@ export function SiteMenuPanel({
             <ThemeToggle />
           </div>
 
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             <div className="flex items-center gap-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
               <Languages className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
               {tc("language")}

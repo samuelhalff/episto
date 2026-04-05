@@ -14,7 +14,7 @@ const SHEET_SURFACE_CLASS_NAMES: Record<SheetSurfaceKind, string> = {
   action:
     "min-h-0 flex flex-col overflow-hidden border border-[var(--app-border)] bg-[var(--app-surface-strong)] shadow-[var(--app-elevated-shadow)]",
   navigation:
-    "flex h-[100dvh] w-full max-w-none flex-col overflow-hidden rounded-none bg-[var(--app-surface-strong)] sm:max-w-sm sm:rounded-l-[28px]",
+    "flex h-[100dvh] w-full max-w-none flex-col overflow-hidden bg-[var(--app-surface-strong)] sm:max-w-sm",
   preview:
     "min-h-0 flex flex-col overflow-hidden bg-[var(--app-surface-muted)] shadow-[var(--app-elevated-shadow)]",
 };
@@ -73,7 +73,7 @@ const SheetContent = React.forwardRef<
         ? "inset-x-0 top-0 rounded-b-[28px]"
         : side === "left"
           ? "inset-y-0 left-0 h-full w-3/4 max-w-md rounded-r-[28px]"
-          : "inset-y-0 right-0 h-full w-3/4 max-w-md rounded-l-[28px]";
+          : "inset-y-0 right-0 h-full w-3/4 max-w-md";
 
   return (
     <SheetPortal>

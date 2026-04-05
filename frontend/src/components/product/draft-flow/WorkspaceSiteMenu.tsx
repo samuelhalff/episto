@@ -10,7 +10,6 @@ import {
   SheetBody,
   SheetContent,
   SheetDescription,
-  SheetHeader,
   SheetTitle,
 } from "../../ui/sheet";
 
@@ -38,7 +37,8 @@ export function WorkspaceSiteMenu({ isCompactViewport = false }: WorkspaceSiteMe
           className={getSheetSurfaceClassName("navigation")}
           aria-label="Navigation menu"
         >
-          <SheetHeader className="px-5 pb-5 pt-5">
+          {/* Plain div instead of SheetHeader to avoid default px-4 conflict */}
+          <div className="flex flex-col gap-1 px-6 pb-5 pt-5 sm:px-8 lg:px-10">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <SheetTitle className="text-base font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
@@ -55,8 +55,8 @@ export function WorkspaceSiteMenu({ isCompactViewport = false }: WorkspaceSiteMe
                 onClick={() => setMenuOpen(false)}
               />
             </div>
-          </SheetHeader>
-          <SheetBody className={`px-5 ${isCompactViewport ? "pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]" : "pb-5"}`}>
+          </div>
+          <SheetBody className={`px-6 sm:px-8 lg:px-10 ${isCompactViewport ? "pb-[calc(env(safe-area-inset-bottom,0px)+1rem)]" : "pb-5"}`}>
             <div className="border-t border-zinc-200/80 pt-5 dark:border-zinc-800">
               <SiteMenuPanel onNavigate={() => setMenuOpen(false)} />
             </div>

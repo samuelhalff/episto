@@ -5,7 +5,6 @@ import { Layers } from "lucide-react";
 import type { DraftLetter } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
 
-import { useMediaQuery } from "../../hooks/use-media-query";
 import { useRouter } from "../../i18n/navigation";
 import { StepOverlay } from "./draft-flow/StepOverlay";
 import {
@@ -33,7 +32,6 @@ export function DraftStepMenu({
 }: DraftStepMenuProps) {
   const t = useTranslations("draft");
   const router = useRouter();
-  const isCompactViewport = useMediaQuery("(max-width: 1023px)");
   const [isOpen, setIsOpen] = useState(false);
   const furthestUnlockedStepIndex = getDraftWorkspaceUnlockedStepIndex(draft);
 
@@ -53,7 +51,6 @@ export function DraftStepMenu({
         <StepOverlay
           currentStep={furthestUnlockedStepIndex}
           furthestUnlockedStepIndex={furthestUnlockedStepIndex}
-          isCompactViewport={isCompactViewport}
           steps={DRAFT_WORKSPACE_STEPS.map((step) => ({
             id: step.id,
             title: t(step.titleKey),

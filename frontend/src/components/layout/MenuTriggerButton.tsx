@@ -42,7 +42,7 @@ export const MenuTriggerButton = forwardRef<HTMLButtonElement, MenuTriggerButton
       ref={ref}
       type={type}
       data-state={isOpen ? "open" : "closed"}
-      className={`menu-trigger-button inline-flex shrink-0 items-center justify-center gap-3 bg-white text-zinc-700 shadow-sm ring-1 ring-black/5 transition-colors hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100 dark:ring-white/10 dark:hover:bg-zinc-800 ${
+      className={`menu-trigger-button inline-flex shrink-0 items-center justify-center gap-3 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800 ${
         compact ? "h-11 w-11 rounded-full" : "h-12 rounded-2xl px-4"
       } ${className}`}
       {...props}
