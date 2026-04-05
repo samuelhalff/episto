@@ -31,44 +31,39 @@ This reflects reality: Stripe fires `payment_intent.succeeded` directly for Twin
 
 ### 2. Stripe Adapter (`backend/src/modules/payments/adapters/stripe.adapter.ts`)
 
-Add `automatic_payment_methods` to `createPaymentIntent`:
+Switch to `capture_method: 'automatic'` and add `automatic_payment_methods`:
 
 ```typescript
 const intent = await getStripe().paymentIntents.create({
   amount: amountCents,
   currency: "chf",
   metadata: { ... },
-  capture_method: "manual",
   automatic_payment_methods: { enabled: true },
 });
 ```
 
-With `automatic_payment_methods: { enabled: true }`:
-- Stripe shows all methods enabled in the Dashboard (cards, Twint, Apple Pay, Google Pay, etc.)
-- For methods that don't support manual capture (Twint, wallets), Stripe automatically captures immediately regardless of `capture_method: 'manual'`
-- Cards still honor manual capture
+**Critical:** `capture_method: 'manual'` must be REMOVED. Stripe filters out Twint (and other immediate-capture methods) from the PaymentElement when manual capture is set. With automatic capture (the default), all methods are available and `payment_intent.succeeded` is the only capture webhook.
 
 ### 3. Webhook Handler (`backend/src/modules/payments/payment.routes.ts`)
 
-The `payment_intent.succeeded` handler must detect when payment was captured directly from `pending` (immediate-capture method) and enqueue dispatch:
+With automatic capture, `payment_intent.succeeded` is now the PRIMARY webhook for ALL payment methods. The handler must always enqueue dispatch:
 
 ```
-Current flow (cards):
-  amount_capturable_updated → authorized → enqueue dispatch
-  succeeded (after manual capture) → captured → send receipt
-
-New flow (Twint/wallets):
-  succeeded (immediate capture from pending) → captured → enqueue dispatch + send receipt
+Flow (all methods with automatic capture):
+  succeeded → captured → enqueue dispatch + send receipt
 ```
 
-When `payment_intent.succeeded` fires and current state is `pending`:
-1. Transition `pending → captured`
-2. Enqueue dispatch submission (same as what `amount_capturable_updated` does for cards)
-3. Send receipt email
+Dispatch enqueue uses BullMQ's deterministic `jobId: dispatch:{paymentId}`, so webhook retries are safe (BullMQ silently deduplicates).
 
-When `payment_intent.succeeded` fires and current state is `authorized` (card manual capture):
-1. Transition `authorized → captured`
-2. Send receipt email (dispatch already enqueued at authorization)
+The `amount_capturable_updated` handler is left as a no-op safety net — it won't fire with automatic capture.
+
+### 3b. Dispatch Settlement (`backend/src/workers/dispatch-settlement.ts`)
+
+With automatic capture, payments are captured BEFORE dispatch. If dispatch is rejected:
+- `authorized` payment → cancel authorization (unchanged, but no longer the primary path)
+- `captured` payment → initiate Stripe refund → transition to `refund_pending`
+
+The settlement worker must be extended to handle `captured + rejected → refund`.
 
 ### 4. Frontend PaymentElement (`frontend/src/components/product/StripePaymentForm.tsx`)
 
