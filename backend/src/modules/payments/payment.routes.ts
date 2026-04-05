@@ -115,6 +115,18 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
           },
         );
 
+        // Enqueue dispatch — with automatic capture this is the primary trigger.
+        // BullMQ deduplicates by jobId (dispatch:{paymentId}), so webhook retries
+        // and race conditions with render-pdf worker are safe.
+        const snapshot = await getLatestSnapshot(db, draftId);
+        if (snapshot?.renderedPdfAssetId) {
+          await enqueueDispatchSubmission({
+            draftId,
+            snapshotId: snapshot.id,
+            paymentId: payment.id,
+          });
+        }
+
         recordEvent({
           event: "payment_captured",
           draftId,
@@ -123,8 +135,6 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
         });
 
         if (rawOrderAccessToken) {
-          // Enqueue payment receipt email with the order status link.
-          // Fire-and-forget: a queue failure must not cause Stripe to retry the webhook.
           void (async () => {
             try {
               await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
