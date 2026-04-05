@@ -343,7 +343,7 @@ export function RecipientStep({
 
   return (
     <DraftShell
-      step={3}
+      step={2}
       totalSteps={7}
       title={t("recipientDetailsTitle")}
       subtitle={t("recipientDetailsSubtitle")}

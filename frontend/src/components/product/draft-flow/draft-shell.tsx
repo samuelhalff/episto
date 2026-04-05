@@ -98,9 +98,38 @@ export function DraftShell({
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
               {!isCompactViewport ? (
-                <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                  {tc("appName")}
-                </p>
+                <div className="mb-4 flex items-center justify-between">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+                    {tc("appName")}
+                  </p>
+                  {step != null && totalSteps != null && onStepClick ? (
+                    <button
+                      type="button"
+                      onClick={onStepClick}
+                      disabled={isNavigating}
+                      aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
+                      className="group -mr-1 inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2.5 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
+                    >
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalSteps }, (_, i) => (
+                          <div
+                            key={i}
+                            className={`h-1.5 rounded-full transition-all ${
+                              i === step
+                                ? "w-4 bg-amber-500 dark:bg-amber-400"
+                                : i < step
+                                  ? "w-2 bg-zinc-400 dark:bg-zinc-500"
+                                  : "w-1.5 bg-zinc-200 dark:bg-zinc-700"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span aria-hidden="true" className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300">
+                        {step + 1} / {totalSteps}
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
@@ -194,7 +223,7 @@ export function DraftShell({
                   {isPreviewPanelVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               ) : null}
-              {!hideDockStepTrigger ? (
+              {!hideDockStepTrigger && isCompactViewport ? (
                 <StepTriggerButton
                   size="dock"
                   isOpen={isStepMenuOpen}

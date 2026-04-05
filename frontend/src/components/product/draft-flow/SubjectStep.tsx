@@ -106,7 +106,7 @@ export function SubjectStep({
 
   return (
     <DraftShell
-      step={6}
+      step={5}
       totalSteps={7}
       title={t("subjectLineTitle")}
       subtitle={t("subjectLineSubtitle")}

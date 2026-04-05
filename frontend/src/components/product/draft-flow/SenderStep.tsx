@@ -189,7 +189,7 @@ export function SenderStep({
 
   return (
     <DraftShell
-      step={2}
+      step={1}
       totalSteps={7}
       title={t("senderDetailsTitle")}
       subtitle={t("senderDetailsSubtitle")}

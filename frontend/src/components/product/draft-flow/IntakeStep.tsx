@@ -305,13 +305,15 @@ export function IntakeStep({
         }
         leadingActions={
           <>
-            <StepTriggerButton
-              size="composer"
-              isOpen={isStepMenuOpen}
-              aria-label={t("stepMenuLabel")}
-              disabled={isNavigating}
-              onClick={onStepClick}
-            />
+            {isCompactViewport ? (
+              <StepTriggerButton
+                size="composer"
+                isOpen={isStepMenuOpen}
+                aria-label={t("stepMenuLabel")}
+                disabled={isNavigating}
+                onClick={onStepClick}
+              />
+            ) : null}
             <ComposerIconButton
               icon="attach"
               aria-label={t("attachmentsLabel")}
@@ -357,6 +359,8 @@ export function IntakeStep({
 
   return (
     <DraftShell
+      step={0}
+      totalSteps={7}
       title={t("intakeTitle")}
       subtitle={t("intakeSubtitle")}
       onStepClick={onStepClick}

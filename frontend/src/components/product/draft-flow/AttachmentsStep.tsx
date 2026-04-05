@@ -70,7 +70,7 @@ export function AttachmentsStep({
 
   return (
     <DraftShell
-      step={5}
+      step={4}
       totalSteps={7}
       title={t("attachmentsStepTitle")}
       subtitle={t("attachmentsStepSubtitle")}

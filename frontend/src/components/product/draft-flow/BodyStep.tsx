@@ -478,7 +478,7 @@ export function BodyStep({
 
   return (
     <DraftShell
-      step={4}
+      step={3}
       totalSteps={7}
       title={t("bodyContentTitle")}
       subtitle={undefined}

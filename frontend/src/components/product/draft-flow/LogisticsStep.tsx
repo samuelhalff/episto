@@ -271,7 +271,7 @@ export function LogisticsStep({
 
   return (
     <DraftShell
-      step={7}
+      step={6}
       totalSteps={7}
       title={t("logisticsTitle")}
       subtitle={t("logisticsSubtitle")}
