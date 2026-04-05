@@ -13,6 +13,8 @@ import { createSenderProfile, createRecipientProfile } from "./profile.service.j
 import { createSnapshot } from "../rendering/snapshot.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { calculatePrice } from "../pricing/index.js";
+import { getPaymentForDraft, transitionPaymentState } from "../payments/payment.service.js";
+import { cancelPaymentIntent } from "../payments/adapters/stripe.adapter.js";
 import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   UpdateDraftInput,
@@ -208,6 +210,24 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const { status } = TransitionBody.parse(request.body);
 
       const draft = await transitionDraftStatus(db, draftId, session.id, status);
+
+      // When returning to editable state, cancel any pending payment so
+      // checkout will create a fresh PaymentIntent with the updated quote.
+      if (status === "fields_complete" || status === "collecting") {
+        const payment = await getPaymentForDraft(db, draftId);
+        if (payment && payment.state === "pending" && payment.stripePaymentIntentId) {
+          try {
+            await cancelPaymentIntent(payment.stripePaymentIntentId);
+            await transitionPaymentState(db, payment.id, "cancelled");
+          } catch (err) {
+            logger.warn(
+              { draftId, paymentId: payment.id, err },
+              "Failed to cancel stale payment intent on back-to-edit; checkout will create a new one",
+            );
+          }
+        }
+      }
+
       reply.send({ draft });
     },
   );

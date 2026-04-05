@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   useDraft,
@@ -39,6 +39,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   const preview = useLetterPreview(draftId);
   const { attachments } = useDraftFiles(draftId);
   const router = useRouter();
+  const [backError, setBackError] = useState<string | null>(null);
   const draftData = draft.data;
   const previewData = preview.previewData;
   const previewLocale = previewData?.locale ?? draftData?.locale ?? "de-CH";
@@ -154,14 +155,15 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
 
   function handleBackToDraft() {
     if (transitionDraft.isPending) return;
+    setBackError(null);
 
-    // Revert to fields_complete so workspace allows editing
     void transitionDraft
       .mutateAsync({ status: "fields_complete" })
       .then(() => {
         router.push(`/draft/${draftId}`);
       })
       .catch((err: unknown) => {
+        setBackError(getApiErrorUserMessage(err) ?? tc("error"));
         captureError(err instanceof Error ? err : new Error(String(err)), {
           component: "ReviewPage",
           route: `/draft/${draftId}/review`,
@@ -316,7 +318,11 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
       <div className="app-sticky-bar fixed inset-x-0 bottom-0 z-30 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            {!allComplete ? (
+            {backError ? (
+              <p className="text-sm text-red-700 dark:text-red-400">
+                {backError}
+              </p>
+            ) : !allComplete ? (
               <p className="text-sm text-red-700 dark:text-red-400">
                 {t("requiredBeforeSending")}
               </p>

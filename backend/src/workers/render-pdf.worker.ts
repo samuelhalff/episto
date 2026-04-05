@@ -42,8 +42,23 @@ export function startRenderPdfWorker(): Worker<RenderPdfJob> {
         "PDF render complete",
       );
 
-      // Transition draft to "ready" after successful render
+      // Only transition to "ready" if draft is still "rendering" — the user
+      // may have navigated back to editing, which transitions to fields_complete.
       const db = getDb();
+      const [current] = await db
+        .select({ status: schema.draftLetters.status })
+        .from(schema.draftLetters)
+        .where(eq(schema.draftLetters.id, draftId))
+        .limit(1);
+
+      if (current?.status !== "rendering") {
+        logger.info(
+          { draftId, currentStatus: current?.status },
+          "Draft is no longer rendering; skipping ready transition",
+        );
+        return;
+      }
+
       await db
         .update(schema.draftLetters)
         .set({

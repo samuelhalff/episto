@@ -417,8 +417,8 @@ export default function NewDraftPage() {
               description={tr("startFreshConfirmBody")}
               confirmLabel={tc("startNewLetter")}
               cancelLabel={tc("cancel")}
+              confirmLoading={pendingStartAction === "fresh"}
               onConfirm={() => {
-                setShowConfirmFresh(false);
                 void startDraft({ forceNewSession: true, pendingAction: "fresh" });
               }}
               onCancel={() => {
