@@ -16,6 +16,10 @@ import { RecipientStep } from "./RecipientStep";
 import { SenderStep } from "./SenderStep";
 import { SubjectStep } from "./SubjectStep";
 import { WorkspacePreviewPane } from "./WorkspacePreviewPane";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 import {
   DRAFT_WORKSPACE_STEPS,
   getDraftWorkspaceStepSlugByIndex,
@@ -35,6 +39,10 @@ interface DraftWorkspaceClientProps {
   draftId: string;
   stepSlug?: DraftWorkspaceStepSlug;
 }
+
+type DraftWorkspaceNextableStepProps = DraftWorkspaceStepShellProps & {
+  onNext: () => void;
+};
 
 const PREPARED_REVIEW_STATUSES = new Set(["reviewed", "rendering", "ready"]);
 const POST_SUBMISSION_STATUSES = new Set(["submitted", "dispatched", "closed"]);
@@ -216,7 +224,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const previewProps = {
     onTogglePreview: isWideViewport ? handleTogglePreview : undefined,
     isPreviewPanelVisible,
-  };
+  } satisfies DraftWorkspacePreviewToggleProps;
 
   const commonProps = {
     draftId,
@@ -230,7 +238,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     isNavigating,
     beginNavigation,
     navigateToStep,
-  };
+  } satisfies DraftWorkspaceNextableStepProps;
 
   const stepComponents = [
     <IntakeStep key="intake" {...commonProps} {...previewProps} />,
