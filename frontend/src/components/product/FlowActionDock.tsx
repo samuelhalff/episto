@@ -12,14 +12,12 @@ import type { ReactNode } from "react";
 interface FlowActionDockProps {
   primaryAction: ReactNode;
   secondaryAction?: ReactNode;
-  hint?: ReactNode;
   className?: string;
 }
 
 export function FlowActionDock({
   primaryAction,
   secondaryAction,
-  hint,
   className,
 }: FlowActionDockProps) {
   return (
@@ -32,8 +30,7 @@ export function FlowActionDock({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        {hint ? <div>{hint}</div> : null}
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
         <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
           {secondaryAction}
           {primaryAction}

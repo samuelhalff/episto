@@ -318,25 +318,6 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
       </main>
 
       <FlowActionDock
-        hint={
-          backError ? (
-            <p className="text-sm text-destructive">{backError}</p>
-          ) : !allComplete ? (
-            <p className="text-sm text-destructive">{t("requiredBeforeSending")}</p>
-          ) : !canRequestQuote ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("pricingPending")}</p>
-          ) : quote.isLoading ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("pricingLoading")}</p>
-          ) : quoteErrorMessage ? (
-            <p className="text-sm text-destructive">{quoteErrorMessage}</p>
-          ) : (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {quote.data
-                ? `${t("total")} ${formatCentsAsCHF(quote.data.totalCents)}`
-                : t("subtitle")}
-            </p>
-          )
-        }
         secondaryAction={
           <ActionButton
             variant="secondary"
