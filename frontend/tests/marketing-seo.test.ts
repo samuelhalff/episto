@@ -36,6 +36,40 @@ describe("marketing seo plumbing", () => {
       "en-CH": "https://example.test/en-CH/pricing",
       "x-default": "https://example.test/de-CH/pricing",
     });
+    expect(metadata.metadataBase).toEqual(new URL("https://example.test"));
+    expect(metadata.openGraph).toMatchObject({
+      title: "Tarifs",
+      description: "Comparez les tarifs Swiss Mail.",
+      url: "https://example.test/fr-CH/pricing",
+      locale: "fr-CH",
+      siteName: "Swiss Mail",
+      type: "website",
+    });
+    expect(metadata.twitter).toMatchObject({
+      title: "Tarifs",
+      description: "Comparez les tarifs Swiss Mail.",
+      card: "summary_large_image",
+    });
+  });
+
+  it("normalizes a trailing slash in the public site url", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://example.test/";
+
+    const { buildMarketingMetadata, getSiteUrl } = await import("../src/lib/marketing-seo");
+    const metadata = buildMarketingMetadata({
+      locale: "de-CH",
+      pathname: "/help",
+      title: "Hilfe",
+      description: "Antworten für Swiss Mail.",
+    });
+
+    expect(getSiteUrl()).toBe("https://example.test");
+    expect(metadata.alternates?.canonical).toBe("https://example.test/de-CH/help");
+    expect(metadata.alternates?.languages).not.toEqual(
+      expect.objectContaining({
+        "de-CH": "https://example.test//de-CH/help",
+      }),
+    );
   });
 
   it("reuses the shared noindex metadata in non-marketing layouts", () => {
@@ -69,5 +103,22 @@ describe("marketing seo plumbing", () => {
     expect(urls).not.toContain("https://example.test/de-CH/admin");
     expect(urls).not.toContain("https://example.test/de-CH/resume/token");
     expect(urls).not.toContain("https://example.test/de-CH/status/token");
+  });
+
+  it("escapes unsafe characters before embedding json-ld", async () => {
+    const { JsonLd } = await import("../src/components/marketing/JsonLd");
+    const element = JsonLd({
+      data: {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        name: "Swiss <Mail>",
+        description: "Line\u2028break\u2029test",
+      },
+    });
+
+    expect(element.props.dangerouslySetInnerHTML.__html).toContain("\\u003c");
+    expect(element.props.dangerouslySetInnerHTML.__html).not.toContain("<Mail>");
+    expect(element.props.dangerouslySetInnerHTML.__html).toContain("\\u2028");
+    expect(element.props.dangerouslySetInnerHTML.__html).toContain("\\u2029");
   });
 });

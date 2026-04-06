@@ -25,7 +25,7 @@ export const NO_INDEX_METADATA: Metadata = {
 };
 
 export function getSiteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL;
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL).replace(/\/+$/, "");
 }
 
 function normalizePathname(pathname: string) {
@@ -46,6 +46,8 @@ export function buildMarketingMetadata({
   title,
   description,
 }: MarketingMetadataInput): Metadata {
+  const siteUrl = getSiteUrl();
+  const canonicalUrl = buildLocaleUrl(locale, pathname);
   const languages = Object.fromEntries(
     routing.locales.map((candidateLocale) => [
       candidateLocale,
@@ -54,14 +56,28 @@ export function buildMarketingMetadata({
   );
 
   return {
+    metadataBase: new URL(siteUrl),
     title,
     description,
     alternates: {
-      canonical: buildLocaleUrl(locale, pathname),
+      canonical: canonicalUrl,
       languages: {
         ...languages,
         "x-default": buildLocaleUrl(routing.defaultLocale, pathname),
       },
+    },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      siteName: "Swiss Mail",
+      locale,
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
     },
   };
 }
