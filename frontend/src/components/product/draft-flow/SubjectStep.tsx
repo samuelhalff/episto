@@ -32,6 +32,7 @@ export function SubjectStep({
   const [subject, setSubject] = useState("");
   const hasHydratedRef = useRef(false);
   const lastSavedSubjectRef = useRef("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const normalizedSubject =
     normalizeLetterSubject(subject, draft.data?.locale ?? "de-CH") ?? "";
 
@@ -44,6 +45,15 @@ export function SubjectStep({
     lastSavedSubjectRef.current = initialSubject;
     hasHydratedRef.current = true;
   }, [draft.data?.locale, draft.data?.subject]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "0px";
+    const next = Math.min(textarea.scrollHeight, 176);
+    textarea.style.height = `${next}px`;
+    textarea.style.overflowY = textarea.scrollHeight > 176 ? "auto" : "hidden";
+  }, [subject]);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
@@ -130,7 +140,8 @@ export function SubjectStep({
             </p>
           ) : null}
           <Card isCompactViewport={isCompactViewport} density="thin">
-            <input
+            <textarea
+              ref={textareaRef}
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               onFocus={() => {
@@ -141,9 +152,10 @@ export function SubjectStep({
                 setIsFieldFocused(false);
                 onInputFocusChange?.(false);
               }}
+              rows={3}
               maxLength={200}
               placeholder={t("subjectInputPlaceholder")}
-              className="app-form-control w-full bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              className="app-form-control min-h-[88px] w-full resize-none bg-transparent font-semibold leading-6 text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
             />
           </Card>
           <div className="px-2 text-right text-[10px] text-zinc-400">
