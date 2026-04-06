@@ -221,8 +221,9 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   }, [draftId, isPreviewPanelOpen]);
 
   const handleClosePreview = useCallback(() => {
-    writePreviewPanelPreference(draftId, false);
-    setIsPreviewPanelOpen(false);
+    const next = false;
+    writePreviewPanelPreference(draftId, next);
+    setIsPreviewPanelOpen(next);
   }, [draftId]);
 
   const isPreviewPanelVisible = isWideViewport && isPreviewPanelOpen;

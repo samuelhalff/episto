@@ -26,6 +26,7 @@ describe("preview panel preference", () => {
     expect(workspaceSource).toContain('readPreviewPanelPreference(draftId) ?? true');
     expect(workspaceSource).toContain("writePreviewPanelPreference(draftId, next)");
     expect(workspaceSource).not.toContain("setIsPreviewPanelOpen(true);");
+    expect(workspaceSource).not.toContain("setIsPreviewPanelOpen(false);");
     expect(previewPaneSource).toContain("transition-none");
   });
 });
