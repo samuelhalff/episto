@@ -381,9 +381,9 @@ export function IntakeStep({
       hideDockStepTrigger
       composer={intakeComposer}
     >
-      <div className="space-y-8 pb-4">
+      <div className="flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-4">
         {hasConversationActivity ? (
-          <section ref={threadContainerRef} className="space-y-3 px-2" aria-live="polite">
+          <section ref={threadContainerRef} className="mt-auto space-y-3 px-2" aria-live="polite">
             {conversation.messages.map((message) => {
               const isUserMessage = message.role === "user";
               const showRetryAction =

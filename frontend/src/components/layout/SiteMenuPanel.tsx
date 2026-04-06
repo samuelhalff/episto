@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
 import { LanguageSwitcher } from "../marketing/LanguageSwitcher";
 import { ThemeToggle } from "../marketing/ThemeToggle";
+import { getAppButtonClassName } from "../ui/app-button";
 
 interface SiteMenuPanelProps {
   onNavigate?: (() => void) | undefined;
@@ -28,7 +29,11 @@ export function SiteMenuPanel({
     <div className="space-y-4">
       <Link
         href="/draft/new"
-        className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-2xl bg-zinc-950 px-5 text-sm font-semibold tracking-tight text-white transition-colors hover:bg-zinc-900 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+        className={getAppButtonClassName({
+          variant: "primary",
+          fullWidth: true,
+          className: "min-h-14 tracking-tight",
+        })}
         onClick={onNavigate}
       >
         <PenSquare className="h-4 w-4" />
@@ -40,31 +45,31 @@ export function SiteMenuPanel({
           <Link
             key={href}
             href={href}
-            className="group flex min-h-12 items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 hover:text-zinc-950 dark:text-zinc-200 dark:hover:bg-zinc-800 dark:hover:text-white"
+            className="group app-list-item flex min-h-12 items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium text-[var(--app-muted-strong)] hover:text-[var(--app-fg)]"
             onClick={onNavigate}
           >
-            <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-zinc-100 text-zinc-500 transition-colors group-hover:bg-zinc-200 group-hover:text-zinc-700 dark:bg-zinc-800 dark:text-zinc-400 dark:group-hover:bg-zinc-700 dark:group-hover:text-zinc-100">
+            <span className="app-list-item-muted inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--app-muted)] transition-colors group-hover:text-[var(--app-muted-strong)]">
               <Icon className="h-4 w-4" />
             </span>
             <span className="min-w-0 flex-1">{label}</span>
-            <ChevronRight className="h-4 w-4 shrink-0 text-zinc-300 transition-transform group-hover:translate-x-0.5 group-hover:text-zinc-500 dark:text-zinc-600 dark:group-hover:text-zinc-400" />
+            <ChevronRight className="h-4 w-4 shrink-0 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--app-muted-strong)]" />
           </Link>
         ))}
       </nav>
 
-      <div className="border-t border-zinc-200/80 pt-4 dark:border-zinc-800">
+      <div className="border-t border-[var(--app-border)] pt-4">
         <div className="space-y-5">
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-              <Palette className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--app-muted-strong)]">
+              <Palette className="h-4 w-4 text-[var(--app-muted)]" />
               {tc("theme")}
             </div>
             <ThemeToggle />
           </div>
 
           <div className="space-y-3">
-            <div className="flex items-center gap-2 text-xs font-semibold text-zinc-700 dark:text-zinc-200">
-              <Languages className="h-4 w-4 text-zinc-400 dark:text-zinc-500" />
+            <div className="flex items-center gap-2 text-xs font-semibold text-[var(--app-muted-strong)]">
+              <Languages className="h-4 w-4 text-[var(--app-muted)]" />
               {tc("language")}
             </div>
             <LanguageSwitcher />

@@ -105,6 +105,14 @@ const EnvSchema = z
     // Admin (HTTP Basic Auth)
     ADMIN_USERNAME: z.string().min(1).default("admin"),
     ADMIN_PASSWORD: z.string().min(8).default("changeme-in-production"),
+    ADMIN_SESSION_SECRET: z.string().min(32).optional(),
+    ADMIN_SESSION_TTL_HOURS: z.coerce.number().int().positive().default(12),
+    ADMIN_MICROSOFT_CLIENT_ID: z.string().min(1).optional(),
+    ADMIN_MICROSOFT_CLIENT_SECRET: z.string().min(1).optional(),
+    ADMIN_MICROSOFT_TENANT_ID: z.string().min(1).default("common"),
+    ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
+    ADMIN_MICROSOFT_ALLOWED_EMAILS: z.string().min(1).optional(),
+    ADMIN_MICROSOFT_ALLOWED_TENANT_IDS: z.string().min(1).optional(),
 
     // Pricing (integer cents, CHF only)
     PRICE_STANDARD_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
@@ -191,6 +199,33 @@ const EnvSchema = z
       return true;
     },
     { message: "CORS_ORIGIN must use HTTPS in production" },
+  )
+  .refine(
+    (data) => {
+      const adminSsoRequested = Boolean(
+        data.ADMIN_MICROSOFT_CLIENT_ID ||
+          data.ADMIN_MICROSOFT_CLIENT_SECRET ||
+          data.ADMIN_MICROSOFT_REDIRECT_URI ||
+          data.ADMIN_MICROSOFT_ALLOWED_EMAILS ||
+          data.ADMIN_MICROSOFT_ALLOWED_TENANT_IDS,
+      );
+
+      if (!adminSsoRequested) {
+        return true;
+      }
+
+      return Boolean(
+        data.ADMIN_SESSION_SECRET &&
+          data.ADMIN_MICROSOFT_CLIENT_ID &&
+          data.ADMIN_MICROSOFT_CLIENT_SECRET &&
+          data.ADMIN_MICROSOFT_REDIRECT_URI &&
+          data.ADMIN_MICROSOFT_ALLOWED_EMAILS,
+      );
+    },
+    {
+      message:
+        "Admin Microsoft SSO requires ADMIN_SESSION_SECRET, ADMIN_MICROSOFT_CLIENT_ID, ADMIN_MICROSOFT_CLIENT_SECRET, ADMIN_MICROSOFT_REDIRECT_URI, and ADMIN_MICROSOFT_ALLOWED_EMAILS",
+    },
   );
 
 export type Env = z.infer<typeof EnvSchema>;

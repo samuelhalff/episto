@@ -1,54 +1,48 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useState, useCallback, useEffect } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useAdminAuth } from "./admin-auth-context";
 import { AdminSidebar } from "./admin-sidebar";
 import { makeAuthHeader, adminFetch } from "./admin-api";
-import { getMsalInstance, loginRequest, isMsalConfigured } from "../../../lib/msal-config";
+import {
+  buildAdminMicrosoftLoginUrl,
+  getAdminAuthErrorMessage,
+} from "./admin-auth-client";
 
 export function AdminShell({ children }: { children: ReactNode }) {
-  const { authenticated, login } = useAdminAuth();
+  const { ready, authenticated, microsoftSsoEnabled, login } = useAdminAuth();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [msalReady, setMsalReady] = useState(false);
-  const [msalError, setMsalError] = useState<string | null>(null);
-  const [authMode, setAuthMode] = useState<"sso" | "credentials">(
-    isMsalConfigured ? "sso" : "credentials",
-  );
+  const [showCredentials, setShowCredentials] = useState(false);
 
-  useEffect(() => {
-    if (!isMsalConfigured) return;
-    const msalInstance = getMsalInstance();
-    if (!msalInstance) return;
-    void msalInstance.initialize().then(() => {
-      setMsalReady(true);
-    }).catch((err: unknown) => {
-      setMsalReady(false);
-      setMsalError(err instanceof Error ? err.message : "SSO initialization failed");
-    });
-  }, []);
+  const sanitizedReturnTo = useMemo(() => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+    nextSearchParams.delete("authError");
+    const nextSearch = nextSearchParams.toString();
+    return nextSearch.length > 0 ? `${pathname}?${nextSearch}` : pathname;
+  }, [pathname, searchParams]);
 
-  const handleMsalLogin = useCallback(async () => {
-    const msalInstance = getMsalInstance();
-    if (!msalInstance) return;
+  const authErrorMessage = getAdminAuthErrorMessage(searchParams.get("authError"));
+
+  const handleMicrosoftLogin = useCallback(() => {
     setLoading(true);
-    setMsalError(null);
-    try {
-      const response = await msalInstance.loginPopup(loginRequest);
-      const token = response.accessToken;
-      const header = `Bearer ${token}`;
-      await adminFetch("/admin/health", header);
-      login(header);
-    } catch (err) {
-      setMsalError(err instanceof Error ? err.message : "SSO login failed");
-    } finally {
-      setLoading(false);
-    }
-  }, [login]);
+    setError("");
+    // This flow should immediately leave the page, so loading stays active until navigation.
+    window.location.assign(
+      buildAdminMicrosoftLoginUrl(
+        process.env.NEXT_PUBLIC_API_URL ?? "/api",
+        sanitizedReturnTo,
+      ),
+    );
+  }, [sanitizedReturnTo]);
 
   const handleCredentialsLogin = useCallback(async () => {
     const header = makeAuthHeader(username, password);
@@ -57,12 +51,24 @@ export function AdminShell({ children }: { children: ReactNode }) {
     try {
       await adminFetch("/admin/health", header);
       login(header);
+      router.replace(sanitizedReturnTo);
     } catch {
       setError("Invalid credentials");
     } finally {
       setLoading(false);
     }
-  }, [username, password, login]);
+  }, [username, password, login, router, sanitizedReturnTo]);
+
+  if (!ready) {
+    return (
+      <div
+        className="flex min-h-screen items-center justify-center"
+        style={{ background: "var(--app-bg)", color: "var(--app-fg)" }}
+      >
+        <Loader2 className="h-6 w-6 animate-spin" />
+      </div>
+    );
+  }
 
   if (!authenticated) {
     return (
@@ -86,13 +92,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </p>
           </div>
 
-          {/* Microsoft SSO */}
-          {isMsalConfigured && authMode === "sso" && (
+          {microsoftSsoEnabled && !showCredentials && (
             <div className="space-y-4">
               <button
                 type="button"
-                disabled={loading || !msalReady}
-                onClick={() => void handleMsalLogin()}
+                disabled={loading}
+                onClick={handleMicrosoftLogin}
                 className="flex w-full items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-medium shadow-sm transition disabled:opacity-40"
                 style={{
                   borderColor: "var(--app-border)",
@@ -107,8 +112,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 )}
               </button>
 
-              {msalError && (
-                <p className="text-center text-sm text-destructive">{msalError}</p>
+              {authErrorMessage && (
+                <p className="text-center text-sm text-destructive">{authErrorMessage}</p>
               )}
 
               <div className="relative my-6">
@@ -122,7 +127,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
               <button
                 type="button"
-                onClick={() => setAuthMode("credentials")}
+                onClick={() => setShowCredentials(true)}
                 className="w-full text-center text-sm transition"
                 style={{ color: "var(--app-muted)" }}
               >
@@ -131,8 +136,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </div>
           )}
 
-          {/* Credentials form */}
-          {authMode === "credentials" && (
+          {(showCredentials || !microsoftSsoEnabled) && (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
@@ -169,6 +173,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
               {error && (
                 <p className="text-xs text-destructive">{error}</p>
               )}
+              {!error && authErrorMessage && (
+                <p className="text-xs text-destructive">{authErrorMessage}</p>
+              )}
               <button
                 type="submit"
                 disabled={loading || !username || !password}
@@ -181,10 +188,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 {loading ? <Loader2 className="mx-auto h-4 w-4 animate-spin" /> : "Sign In"}
               </button>
 
-              {isMsalConfigured && (
+              {microsoftSsoEnabled && (
                 <button
                   type="button"
-                  onClick={() => setAuthMode("sso")}
+                  onClick={() => setShowCredentials(false)}
                   className="w-full text-center text-sm transition"
                   style={{ color: "var(--app-muted)" }}
                 >

@@ -41,7 +41,7 @@ Swiss Mail exists at the intersection of **paper** and **digital**. The product 
 - **Letter preview** — feels like a real printed page: serif type, paper-white surface, elevated card, tight margins
 - **Workflow UI** — clean modern SaaS: Inter, slate tones, quiet borders, purposeful accents
 - **Information density** — high but never cluttered; use spacing to create breathing room, not visual noise
-- **Color usage** — mostly neutral. The primary accent appears on primary actions only. The warm accent appears on trust/highlight moments. Never both competing at once.
+- **Color usage** — mostly neutral. Primary workflow actions use a shared golden-yellow action token in both themes. Supporting, back, close, and dismiss actions stay neutral grey. Semantic warning/success tones remain separate and must not be reused as the primary CTA color.
 
 ---
 
@@ -49,15 +49,15 @@ Swiss Mail exists at the intersection of **paper** and **digital**. The product 
 
 ### Philosophy
 
-The palette is **90% neutral, 10% intentional**. The navy primary communicates authority (Swiss financial sector, official correspondence). The warm accent — a refined terracotta — adds human warmth without alerting (Swiss-cross red is intentionally avoided; it reads as danger in SaaS UI). Semantic colors follow standard conventions.
+The palette is **90% neutral, 10% intentional**. The core product workflow now uses a shared golden-yellow primary action token to make the next step unmistakable in both themes, while secondary and dismissive actions stay neutral grey. Warm accent/supporting tones are still available for trust or highlight moments, but semantic colors continue to follow standard conventions and must not be overloaded.
 
 ### Core Tokens
 
 | Token | Hex | Tailwind Name | Use |
 |-------|-----|---------------|-----|
-| `primary` | `#1E3A5F` | `primary` | Primary buttons, active nav, focus rings, links |
-| `primary-hover` | `#16304F` | `primary-hover` | Button hover state |
-| `primary-light` | `#EEF2F7` | `primary-light` | Tinted backgrounds, selected states |
+| `primary` | `#F6C54A` | `primary` | Primary workflow buttons, main next-step CTA |
+| `primary-hover` | `#E9B93D` | `primary-hover` | Primary CTA hover state |
+| `primary-light` | `#FFF4CC` | `primary-light` | Selected states, soft action highlights |
 | `accent` | `#B85C38` | `accent` | Highlights, progress steps, warm emphasis, pricing badges |
 | `accent-hover` | `#A04E2E` | `accent-hover` | Accent hover state |
 | `accent-light` | `#FBF0EB` | `accent-light` | Accent-tinted background (tooltips, banners) |
@@ -95,9 +95,9 @@ The palette is **90% neutral, 10% intentional**. The navy primary communicates a
 // tailwind.config.ts  →  theme.extend.colors
 colors: {
   primary: {
-    DEFAULT: '#1E3A5F',
-    hover:   '#16304F',
-    light:   '#EEF2F7',
+    DEFAULT: '#F6C54A',
+    hover:   '#E9B93D',
+    light:   '#FFF4CC',
   },
   accent: {
     DEFAULT: '#B85C38',
@@ -150,9 +150,9 @@ All tokens are also defined as CSS variables to enable future theming. Place in 
 ```css
 :root {
   /* Primary */
-  --color-primary:       #1E3A5F;
-  --color-primary-hover: #16304F;
-  --color-primary-light: #EEF2F7;
+  --color-primary:       #F6C54A;
+  --color-primary-hover: #E9B93D;
+  --color-primary-light: #FFF4CC;
 
   /* Accent */
   --color-accent:        #B85C38;
@@ -190,6 +190,15 @@ All tokens are also defined as CSS variables to enable future theming. Place in 
   --color-info-border:    #BFDBFE;
 }
 ```
+
+---
+
+## Action hierarchy
+
+- **Primary actions** use the shared yellow action family in both light and dark themes.
+- **Secondary actions** — back, close, cancel, hide, menu, and other supporting controls — use neutral grey surfaces.
+- **Warning states** stay semantic. Yellow warning/ambiguous badges are not interchangeable with primary CTA styling.
+- **Reusable action primitives** (`AppButton`, `ActionButton`, shared selector pills) own this hierarchy; routes should not hand-roll separate CTA color systems.
 
 ---
 

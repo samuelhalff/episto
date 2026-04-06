@@ -30,7 +30,10 @@
     "cancel": "Abbrechen",
     "showPreview": "Vorschau anzeigen",
     "hidePreview": "Vorschau ausblenden",
-    "refresh": "Aktualisieren"
+    "refresh": "Aktualisieren",
+    "privacyNoticeBody": "Swiss Mail verwendet ein einziges notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Drittanbieter-Analysen.",
+    "privacyPolicy": "Datenschutz",
+    "dismissPrivacyNotice": "Datenschutzhinweis ausblenden"
   },
   "home": {
     "title": "Formelle Briefe, einfach versendet",

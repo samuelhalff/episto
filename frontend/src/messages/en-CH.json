@@ -30,7 +30,10 @@
     "cancel": "Cancel",
     "showPreview": "Show preview",
     "hidePreview": "Hide preview",
-    "refresh": "Refresh"
+    "refresh": "Refresh",
+    "privacyNoticeBody": "Swiss Mail uses a single essential cookie for your session. No tracking, no third-party analytics.",
+    "privacyPolicy": "Privacy policy",
+    "dismissPrivacyNotice": "Dismiss privacy notice"
   },
   "home": {
     "title": "Formal letters, sent with ease",

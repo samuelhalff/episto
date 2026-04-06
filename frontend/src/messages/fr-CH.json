@@ -28,9 +28,12 @@
     "errorRecoveryTitle": "Nous n'avons pas pu ouvrir cette page",
     "errorRecoveryBody": "Veuillez réessayer, commencer une nouvelle lettre ou revenir à l'accueil.",
     "cancel": "Annuler",
-    "showPreview": "Afficher l'aperçu",
-    "hidePreview": "Masquer l'aperçu",
-    "refresh": "Actualiser"
+    "showPreview": "Afficher l’aperçu",
+    "hidePreview": "Masquer l’aperçu",
+    "refresh": "Actualiser",
+    "privacyNoticeBody": "Swiss Mail utilise un seul cookie essentiel pour votre session. Aucun suivi, aucune analyse tierce.",
+    "privacyPolicy": "Politique de confidentialite",
+    "dismissPrivacyNotice": "Fermer l'avis de confidentialite"
   },
   "home": {
     "title": "Lettres formelles, envoyées simplement",

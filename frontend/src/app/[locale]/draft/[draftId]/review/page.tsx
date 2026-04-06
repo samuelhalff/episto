@@ -16,7 +16,9 @@ import { FlowHeader } from "../../../../../components/product/FlowHeader";
 import { LetterPreview } from "../../../../../components/product/LetterPreview";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { ActionButton } from "../../../../../components/product/ActionButton";
+import { DeliveryTypeBadge } from "../../../../../components/product/DeliveryTypeBadge";
 import { DraftStepMenu } from "../../../../../components/product/DraftStepMenu";
+import { StatusBadge } from "../../../../../components/ui/status-badge";
 import { useDispatchQuote } from "../../../../../hooks/use-dispatch-quote";
 import { formatCentsAsCHF } from "../../../../../hooks/use-pricing";
 import { captureError } from "../../../../../lib/error-tracking";
@@ -172,7 +174,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
       <FlowHeader currentStep={1} draftId={draftId} title={t("title")} />
 
       <main
@@ -203,9 +205,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                     {t("letterPreviewBody")}
                   </p>
                 </div>
-                <span className="rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
-                  A4
-                </span>
+                <StatusBadge tone="neutral">A4</StatusBadge>
               </div>
 
               <LetterPreview
@@ -239,16 +239,9 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                     {t("reviewReadOnly")}
                   </p>
                 </div>
-                <span
-                  className={[
-                    "rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]",
-                    allComplete
-                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                      : "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                  ].join(" ")}
-                >
+                <StatusBadge tone={allComplete ? "success" : "warning"}>
                   {allComplete ? t("readyToSend") : t("needsAttention")}
-                </span>
+                </StatusBadge>
               </div>
 
               <div className="mt-6 space-y-4">
@@ -271,14 +264,21 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                   value={displaySubject ?? ""}
                   emptyLabel={t("requiredBeforeSending")}
                 />
-                <SummaryBlock
-                  label={t("deliveryTypeLabel")}
-                  value={
-                    displayDeliveryType === "registered"
-                      ? t("deliveryRegistered")
-                      : t("deliveryStandard")
-                  }
-                />
+                <div className="app-list-item-muted rounded-2xl p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-500">
+                    {t("deliveryTypeLabel")}
+                  </p>
+                  <div className="mt-2">
+                    <DeliveryTypeBadge
+                      deliveryType={displayDeliveryType}
+                      label={
+                        displayDeliveryType === "registered"
+                          ? t("deliveryRegistered")
+                          : t("deliveryStandard")
+                      }
+                    />
+                  </div>
+                </div>
                 <SummaryBlock
                   label={t("signature")}
                   value={
@@ -315,15 +315,15 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
         </div>
       </main>
 
-      <div className="app-sticky-bar fixed inset-x-0 bottom-0 z-30 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
+      <div className="app-sticky-bar fixed inset-x-0 bottom-0 z-30 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 lg:static lg:mt-8 lg:px-0 lg:pb-0 lg:pt-0 lg:bg-transparent lg:shadow-none lg:outline-none lg:backdrop-blur-none">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             {backError ? (
-              <p className="text-sm text-red-700 dark:text-red-400">
+              <p className="text-sm text-destructive">
                 {backError}
               </p>
             ) : !allComplete ? (
-              <p className="text-sm text-red-700 dark:text-red-400">
+              <p className="text-sm text-destructive">
                 {t("requiredBeforeSending")}
               </p>
             ) : !canRequestQuote ? (
@@ -335,7 +335,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                 {t("pricingLoading")}
               </p>
             ) : quoteErrorMessage ? (
-              <p className="text-sm text-red-700 dark:text-red-400">
+              <p className="text-sm text-destructive">
                 {quoteErrorMessage}
               </p>
             ) : (
@@ -375,7 +375,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               trailingIcon={<ChevronRight className="h-4 w-4 shrink-0" />}
               trailingMeta={
                 quote.data ? (
-                  <span className="hidden rounded-full bg-white/12 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 dark:bg-zinc-950/10 dark:text-zinc-950/80 sm:inline-flex">
+                  <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--action-primary-fg)] sm:inline-flex">
                     {formatCentsAsCHF(quote.data.totalCents)}
                   </span>
                 ) : null
@@ -411,8 +411,8 @@ function SummaryBlock({
       </p>
       <div className="mt-2 space-y-1">
         {hasValue ? (
-          values.map((line) => (
-            <p key={line} className="text-sm leading-6 text-zinc-900 dark:text-zinc-100">
+          values.map((line, index) => (
+            <p key={`${label}-${index}`} className="text-sm leading-6 text-zinc-900 dark:text-zinc-100">
               {line}
             </p>
           ))

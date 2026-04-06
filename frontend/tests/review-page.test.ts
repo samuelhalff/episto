@@ -69,4 +69,27 @@ describe("review page regressions", () => {
     expect(reviewPageSource).toContain('{ status: "fields_complete" }');
     expect(reviewPageSource).toContain("handleBackToDraft");
   });
+
+  it("uses shared status and delivery badges for review summary chrome", () => {
+    expect(reviewPageSource).toContain("StatusBadge");
+    expect(reviewPageSource).toContain("DeliveryTypeBadge");
+    expect(reviewPageSource).not.toContain("bg-emerald-50");
+    expect(reviewPageSource).not.toContain("bg-amber-50");
+  });
+
+  it("keeps the review footer fixed on mobile but static on desktop to avoid covering the preview", () => {
+    expect(reviewPageSource).toContain("lg:static");
+    expect(reviewPageSource).toContain("lg:bg-transparent");
+  });
+
+  it("uses semantic destructive text instead of route-local red shades for review errors", () => {
+    expect(reviewPageSource).toContain("text-destructive");
+    expect(reviewPageSource).not.toContain("text-red-700 dark:text-red-400");
+  });
+
+  it("uses stable summary row keys instead of raw address text", () => {
+    expect(reviewPageSource).toContain("values.map((line, index) =>");
+    expect(reviewPageSource).toContain('key={`${label}-${index}`}');
+    expect(reviewPageSource).not.toContain("key={line}");
+  });
 });

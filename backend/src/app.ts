@@ -17,7 +17,7 @@ import { paymentRoutes } from "./modules/payments/index.js";
 import { dispatchRoutes } from "./modules/dispatch/index.js";
 import { messageRoutes } from "./modules/messages/index.js";
 import { fileRoutes } from "./modules/files/index.js";
-import { adminRoutes } from "./modules/admin/index.js";
+import { adminAuthRoutes, adminRoutes } from "./modules/admin/index.js";
 import { orderRoutes } from "./modules/orders/index.js";
 import { pricingRoutes } from "./modules/pricing/pricing.routes.js";
 
@@ -211,6 +211,7 @@ export async function buildApp(logger: pino.Logger) {
   await app.register(dispatchRoutes, { prefix: "/api/v1" });
   await app.register(orderRoutes, { prefix: "/api/v1" });
   await app.register(messageRoutes, { prefix: "/api/v1" });
+  await app.register(adminAuthRoutes, { prefix: "/api/v1" });
   await app.register(adminRoutes, { prefix: "/api/v1" });
   await app.register(pricingRoutes, { prefix: "/api/v1" });
 

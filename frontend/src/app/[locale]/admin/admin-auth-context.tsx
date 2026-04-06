@@ -1,36 +1,89 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+  type ReactNode,
+} from "react";
+import {
+  resolveAdminAuthHeader,
+  shouldPersistAdminAuthHeader,
+} from "./admin-auth-client";
+import { adminLogout, fetchAdminAuthSession } from "./admin-api";
 
 interface AdminAuthState {
+  ready: boolean;
   authenticated: boolean;
   authHeader: string;
+  microsoftSsoEnabled: boolean;
   login: (header: string) => void;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AdminAuthContext = createContext<AdminAuthState | null>(null);
 
 export function AdminAuthProvider({ children }: { children: ReactNode }) {
-  const [authHeader, setAuthHeader] = useState(() => {
-    if (typeof window === "undefined") return "";
-    return sessionStorage.getItem("admin_auth") ?? "";
-  });
+  const [ready, setReady] = useState(false);
+  const [authHeader, setAuthHeader] = useState("");
+  const [microsoftSsoEnabled, setMicrosoftSsoEnabled] = useState(false);
+
+  useEffect(() => {
+    const storedHeader = sessionStorage.getItem("admin_auth") ?? "";
+    if (storedHeader.length > 0) {
+      setAuthHeader(storedHeader);
+      setReady(true);
+    }
+
+    let cancelled = false;
+
+    void fetchAdminAuthSession()
+      .then((session) => {
+        if (cancelled) return;
+
+        setMicrosoftSsoEnabled(session.microsoftSsoEnabled);
+
+        if (storedHeader.length === 0) {
+          setAuthHeader(resolveAdminAuthHeader("", session));
+          setReady(true);
+        }
+      })
+      .catch(() => {
+        if (cancelled) return;
+        if (storedHeader.length === 0) {
+          setAuthHeader("");
+          setReady(true);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const authenticated = authHeader.length > 0;
 
   const login = useCallback((header: string) => {
-    sessionStorage.setItem("admin_auth", header);
+    if (shouldPersistAdminAuthHeader(header)) {
+      sessionStorage.setItem("admin_auth", header);
+    } else {
+      sessionStorage.removeItem("admin_auth");
+    }
     setAuthHeader(header);
   }, []);
 
-  const logout = useCallback(() => {
+  const logout = useCallback(async () => {
+    await adminLogout();
     sessionStorage.removeItem("admin_auth");
     setAuthHeader("");
   }, []);
 
   return (
-    <AdminAuthContext.Provider value={{ authenticated, authHeader, login, logout }}>
+    <AdminAuthContext.Provider
+      value={{ ready, authenticated, authHeader, microsoftSsoEnabled, login, logout }}
+    >
       {children}
     </AdminAuthContext.Provider>
   );

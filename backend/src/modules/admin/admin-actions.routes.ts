@@ -206,7 +206,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "refund_requested",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin?.actor ?? env().ADMIN_USERNAME,
         details: { reason: body.reason, paymentId: payment.id },
       });
 
@@ -246,7 +246,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "refund_initiated",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin?.actor ?? env().ADMIN_USERNAME,
         details: { refundId, paymentId: payment.id, reason: body.reason },
       });
 
@@ -293,7 +293,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "reconciliation_requested",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin?.actor ?? env().ADMIN_USERNAME,
         details: { dispatchId: dispatch.id, currentState: dispatch.state },
       });
 

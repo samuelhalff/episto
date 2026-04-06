@@ -87,7 +87,8 @@ export default function CheckoutPage({
             appearance: {
               theme: "stripe" as const,
               variables: {
-                colorPrimary: "#18181b",
+                // Must match --action-primary-bg in globals.css. Stripe requires a literal hex.
+                colorPrimary: "#f6c54a",
                 borderRadius: "12px",
                 fontSizeBase: "16px",
                 fontFamily: "inherit",
@@ -159,7 +160,7 @@ export default function CheckoutPage({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
       <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
 
       <main

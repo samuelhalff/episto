@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useRef, useEffect, useState, useCallback } from "react";
+import { type ReactNode, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { WorkspaceSiteMenu } from "./WorkspaceSiteMenu";
 import { SecondaryButton } from "./cards";
@@ -53,26 +53,6 @@ export function DraftShell({
   const td = useTranslations("draft");
   const [stepPopoverOpen, setStepPopoverOpen] = useState(false);
   const stepNav = useStepNav();
-
-  const dockRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  // Sync dock height → content bottom padding so content is never hidden behind the sticky dock
-  useEffect(() => {
-    const dock = dockRef.current;
-    const content = contentRef.current;
-    if (!dock || !content) return;
-
-    const sync = () => {
-      content.style.paddingBottom = `${dock.offsetHeight + 16}px`;
-    };
-    sync();
-
-    if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(sync);
-    observer.observe(dock);
-    return () => observer.disconnect();
-  }, []);
 
   const dismissKeyboard = useCallback(() => {
     const el = document.activeElement;
@@ -244,11 +224,10 @@ export function DraftShell({
 
           {/* ── Step content ── */}
           <div
-            ref={contentRef}
             className={
               isCompactViewport
-                ? "flex-1 pb-32 pt-5"
-                : "mx-auto w-full max-w-[1400px] flex-1 px-4 pb-36 pt-2 lg:px-6"
+                ? "flex min-h-full flex-1 flex-col pb-32 pt-5"
+                : "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-36 pt-2 lg:px-6"
             }
           >
             {children}
@@ -256,7 +235,6 @@ export function DraftShell({
 
           {/* ── Sticky dock ── */}
           <div
-            ref={dockRef}
             className="relative sticky bottom-0 z-20 bg-[var(--app-surface-muted)] px-2 lg:px-0"
             style={{
               paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${isCompactViewport ? "0.5rem" : "0.75rem"})`,

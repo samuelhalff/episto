@@ -1,6 +1,12 @@
 // Admin dashboard types matching backend response shapes.
 // See docs/06-build-packs/admin-build-pack.md for full spec.
 
+import {
+  ADMIN_SESSION_AUTH,
+  type AdminSessionStatus,
+} from "./admin-auth-client";
+export { ADMIN_SESSION_AUTH } from "./admin-auth-client";
+
 export interface ServiceStatus {
   ok: boolean;
   detail?: string;
@@ -48,18 +54,56 @@ export function makeAuthHeader(username: string, password: string): string {
   return `Basic ${btoa(`${username}:${password}`)}`;
 }
 
+function getAdminApiBase(): string {
+  return (process.env.NEXT_PUBLIC_API_URL ?? "/api").replace(/\/$/, "");
+}
+
+function buildAdminHeaders(authHeader: string): HeadersInit {
+  return {
+    ...(authHeader !== ADMIN_SESSION_AUTH &&
+      authHeader.length > 0 && { Authorization: authHeader }),
+    "X-Requested-With": "XMLHttpRequest",
+  };
+}
+
 export async function adminFetch<T>(path: string, authHeader: string): Promise<T> {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/api";
-  const res = await fetch(`${apiBase}/v1${path}`, {
-    headers: {
-      Authorization: authHeader,
-      "X-Requested-With": "XMLHttpRequest",
-    },
+  const res = await fetch(`${getAdminApiBase()}/v1${path}`, {
+    credentials: "include",
+    headers: buildAdminHeaders(authHeader),
   });
   if (!res.ok) {
     throw new Error(`API error ${res.status}`);
   }
   return res.json() as Promise<T>;
+}
+
+export async function fetchAdminAuthSession(): Promise<AdminSessionStatus> {
+  const res = await fetch(`${getAdminApiBase()}/v1/admin/auth/session`, {
+    credentials: "include",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`API error ${res.status}`);
+  }
+
+  return res.json() as Promise<AdminSessionStatus>;
+}
+
+export async function adminLogout(): Promise<void> {
+  const res = await fetch(`${getAdminApiBase()}/v1/admin/auth/logout`, {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`API error ${res.status}`);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -126,13 +170,12 @@ export async function fetchAdminRetention(authHeader: string) {
 }
 
 export async function adminPost<T>(path: string, authHeader: string, body?: unknown): Promise<T> {
-  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/api";
-  const res = await fetch(`${apiBase}/v1${path}`, {
+  const res = await fetch(`${getAdminApiBase()}/v1${path}`, {
     method: "POST",
+    credentials: "include",
     headers: {
-      Authorization: authHeader,
+      ...buildAdminHeaders(authHeader),
       "Content-Type": "application/json",
-      "X-Requested-With": "XMLHttpRequest",
     },
     ...(body !== undefined && { body: JSON.stringify(body) }),
   });

@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { useAdminAuth } from "./admin-auth-context";
+import { getAdminPagePath } from "../../../lib/admin-paths";
 
 const NAV_SECTIONS = [
   {
@@ -31,8 +33,8 @@ const NAV_SECTIONS = [
 export function AdminSidebar() {
   const pathname = usePathname();
   const { logout } = useAdminAuth();
-  const locale = pathname.split("/")[1] ?? "en-CH";
-  const basePath = `/${locale}/admin`;
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState("");
 
   return (
     <nav
@@ -59,7 +61,7 @@ export function AdminSidebar() {
               {section.label}
             </div>
             {section.items.map((item) => {
-              const href = `${basePath}/${item.href}`;
+              const href = getAdminPagePath(pathname, item.href);
               const active = pathname === href || pathname.startsWith(`${href}/`);
               return (
                 <Link
@@ -80,15 +82,30 @@ export function AdminSidebar() {
         ))}
       </div>
 
+      {logoutError && (
+        <p className="px-4 text-xs text-destructive">{logoutError}</p>
+      )}
+
       <button
-        onClick={logout}
+        onClick={() => {
+          setLoggingOut(true);
+          setLogoutError("");
+          void logout()
+            .catch(() => {
+              setLogoutError("Sign-out failed. Please try again.");
+            })
+            .finally(() => {
+              setLoggingOut(false);
+            });
+        }}
+        disabled={loggingOut}
         className="m-4 rounded-lg border px-4 py-2 text-xs"
         style={{
           borderColor: "var(--app-border)",
           color: "var(--app-muted)",
         }}
       >
-        Sign Out
+        {loggingOut ? "Signing out..." : "Sign Out"}
       </button>
     </nav>
   );

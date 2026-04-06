@@ -8,13 +8,13 @@ import { queryKeys } from "@swiss-mail/shared";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminSessions } from "../admin-api";
 import { SectionPanel, PanelLoading, PanelError } from "../admin-metric-panels";
+import { getAdminPagePath } from "../../../../lib/admin-paths";
 
 const PAGE_SIZE = 20;
 
 export default function SessionsPage() {
   const { authHeader } = useAdminAuth();
   const pathname = usePathname();
-  const locale = pathname.split("/")[1] ?? "en-CH";
 
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
@@ -96,7 +96,7 @@ export default function SessionsPage() {
                     >
                       <td className="py-2.5 pr-4">
                         <Link
-                          href={`/${locale}/admin/sessions/${s.id}`}
+                          href={getAdminPagePath(pathname, `sessions/${s.id}`)}
                           className="font-mono text-xs underline-offset-2 hover:underline"
                           style={{ color: "var(--app-fg)" }}
                         >

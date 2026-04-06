@@ -25,6 +25,16 @@ const draftShellSource = readFileSync(
   "utf8",
 );
 
+const draftWorkspaceClientSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/DraftWorkspaceClient.tsx"),
+  "utf8",
+);
+
+const intakeStepSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/IntakeStep.tsx"),
+  "utf8",
+);
+
 const stepOverlaySource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/StepOverlay.tsx"),
   "utf8",
@@ -55,6 +65,38 @@ describe("workspace layout regressions", () => {
     expect(draftShellSource).toContain("ScrollShadowViewport");
     expect(draftShellSource).toContain("min-w-0");
     expect(draftShellSource).not.toContain("shouldHideDock");
+  });
+
+  it("keeps the desktop preview visible by default instead of resetting closed on each step", () => {
+    expect(draftWorkspaceClientSource).toContain(
+      "const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(true);",
+    );
+    expect(draftWorkspaceClientSource).not.toContain(
+      "setIsPreviewPanelOpen(false);\n  }, [resolvedStepSlug]);",
+    );
+  });
+
+  it("anchors the early intake thread toward the composer instead of leaving a dead zone", () => {
+    expect(intakeStepSource).toContain("flex flex-1 h-full min-h-full flex-col justify-end");
+    expect(intakeStepSource).toContain('className="mt-auto space-y-3 px-2"');
+    expect(draftShellSource).toContain(
+      '? "flex min-h-full flex-1 flex-col pb-32 pt-5"',
+    );
+    expect(draftShellSource).toContain(
+      ': "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-36 pt-2 lg:px-6"',
+    );
+  });
+
+  it("keeps the sticky draft dock in flow instead of adding duplicate bottom scroll padding", () => {
+    expect(draftShellSource).toContain('className="relative sticky bottom-0 z-20');
+    expect(draftShellSource).not.toContain("content.style.paddingBottom");
+    expect(draftShellSource).not.toContain("new ResizeObserver(sync)");
+  });
+
+  it("keeps the mobile workspace host shrinkable instead of forcing a 480px overflow width", () => {
+    expect(draftWorkspaceClientSource).toContain(
+      'className={isCompactViewport ? "min-w-0 flex-1" : "min-w-[480px] flex-1"}',
+    );
   });
 
   it("keeps step lists shrinkable instead of forcing horizontal overflow", () => {

@@ -158,7 +158,7 @@ export async function adminSessionsRoutes(app: FastifyInstance): Promise<void> {
       await recordSupportEvent(db, {
         sessionId: id,
         eventType: "data_cleared",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin?.actor ?? env().ADMIN_USERNAME,
         details: {
           reason,
           draftsCleared: cleared.rows.length,

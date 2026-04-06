@@ -95,6 +95,7 @@ components/
 - `components/ui/` is the only place for shared overlay primitives. Do not hand-roll new modal, sheet, popover, or dropdown foundations inside feature folders.
 - `components/product/` may compose primitives into Swiss Mail-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
 - Repeated CTA treatments belong in shared button wrappers, not per-step utility classes.
+- Primary workflow CTAs use the shared yellow action treatment. Secondary, back, close, and dismiss actions use the shared neutral grey treatment.
 - When a component needs presence or transition choreography beyond simple CSS hover/focus feedback, use `framer-motion` on top of the shared primitive rather than bespoke animation logic.
 - Bottom dock actions in the draft workspace must remain visible even while a prompt input is focused. If the next action is not yet available, keep the CTA visible and disabled or warning-styled; never hide the dock because focus changed.
 - Prompt shortcuts must be categorized by capability. When no body content exists yet, only content-generating shortcuts may be shown; refinement/formatting shortcuts belong only after a draft body exists.
@@ -113,8 +114,8 @@ The primary interactive element. Every button must clearly communicate what happ
 
 | Variant | Use case | Tailwind base |
 |---------|----------|---------------|
-| `primary` | Main CTA — "Draft your letter", "Send" | `bg-primary text-primary-foreground hover:bg-primary/90` |
-| `secondary` | Supporting action — "See how it works" | `bg-secondary text-secondary-foreground hover:bg-secondary/80` |
+| `primary` | Main CTA — "Draft your letter", "Send" | Shared yellow primary action treatment (`btn-primary`) |
+| `secondary` | Supporting or dismissive action — "Back", "Close", "See how it works" | Shared neutral grey action treatment (`btn-secondary`) |
 | `outline` | Tertiary action — "Edit", "Back" | `border border-input bg-background hover:bg-accent` |
 | `ghost` | Minimal action — inline links, nav items | `hover:bg-accent hover:text-accent-foreground` |
 | `destructive` | Dangerous action — "Cancel letter", "Remove" | `bg-destructive text-destructive-foreground hover:bg-destructive/90` |
@@ -153,6 +154,7 @@ The primary interactive element. Every button must clearly communicate what happ
 **Rules:**
 - ✅ Button labels describe the action: "Send my letter", "Upload file"
 - ✅ One primary button per visible section
+- ✅ Back, close, cancel, and other supporting controls reuse the shared secondary treatment instead of inventing route-specific chrome
 - ❌ Never use "Click here" or "Submit"
 - ❌ Never put two primary buttons next to each other
 - ❌ Never disable without a tooltip explaining why

@@ -26,6 +26,10 @@ const globalsCssSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/globals.css"),
   "utf8",
 );
+const priceSummarySource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/PriceSummary.tsx"),
+  "utf8",
+);
 
 const REQUIRED_CHECKOUT_KEYS = [
   "title",
@@ -146,5 +150,23 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).toContain('!["reviewed", "rendering"].includes');
     expect(checkoutPageSource).toContain("quoteEnabled={canRequestQuote}");
     expect(checkoutPageSource).toContain('t("pricingPending")');
+  });
+
+  it("keeps Stripe appearance aligned with the yellow primary action color", () => {
+    expect(checkoutPageSource).toContain('colorPrimary: "#f6c54a"');
+    expect(checkoutPageSource).toContain("Must match --action-primary-bg in globals.css");
+    expect(checkoutPageSource).not.toContain('colorPrimary: "#18181b"');
+  });
+
+  it("uses shared status and delivery badges in the order summary", () => {
+    expect(priceSummarySource).toContain("StatusBadge");
+    expect(priceSummarySource).toContain("DeliveryTypeBadge");
+    expect(priceSummarySource).not.toContain("text-amber-950");
+  });
+
+  it("uses semantic destructive text and primary-action token-aware price meta in the Stripe footer", () => {
+    expect(stripePaymentFormSource).toContain("text-destructive");
+    expect(stripePaymentFormSource).not.toContain("text-red-600 dark:text-red-400");
+    expect(stripePaymentFormSource).toContain("text-[var(--action-primary-fg)]/90");
   });
 });

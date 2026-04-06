@@ -103,11 +103,7 @@ export function StripePaymentForm({
         }}
       />
 
-      {errorMessage && (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-          {errorMessage}
-        </p>
-      )}
+      {errorMessage && <p role="alert" className="text-sm text-destructive">{errorMessage}</p>}
 
       <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2xl p-2 sm:static sm:bg-transparent sm:p-0 sm:shadow-none sm:outline-none sm:backdrop-blur-none">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -119,7 +115,7 @@ export function StripePaymentForm({
             disabled={!stripe || !elements}
             loading={isSubmitting}
             trailingMeta={
-              <span className="hidden rounded-full bg-white/12 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 dark:bg-zinc-950/10 dark:text-zinc-950/80 sm:inline-flex">
+              <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--action-primary-fg)]/90 sm:inline-flex">
                 {formatCentsAsCHF(priceCents)}
               </span>
             }

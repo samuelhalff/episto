@@ -208,6 +208,14 @@ All secrets and environment-specific values are injected as environment variable
 | `RESEND_API_KEY` | Resend transactional email API key | *(secret)* |
 | `ADMIN_USERNAME` | Admin Basic Auth username | `admin` |
 | `ADMIN_PASSWORD` | Admin Basic Auth password | *(secret, min 32 chars)* |
+| `ADMIN_SESSION_SECRET` | HMAC secret for admin session and OAuth state cookies | 64-char random string |
+| `ADMIN_SESSION_TTL_HOURS` | Admin session lifetime after Microsoft login | `12` |
+| `ADMIN_MICROSOFT_CLIENT_ID` | Microsoft app registration client ID for admin login | *(secret / env-specific)* |
+| `ADMIN_MICROSOFT_CLIENT_SECRET` | Microsoft app registration client secret for admin login | *(secret)* |
+| `ADMIN_MICROSOFT_TENANT_ID` | Microsoft tenant ID or `common` for multi-tenant login | `common` |
+| `ADMIN_MICROSOFT_REDIRECT_URI` | Backend callback URL for admin Microsoft login | `https://api.swissmail.ch/api/v1/admin/auth/microsoft/callback` |
+| `ADMIN_MICROSOFT_ALLOWED_EMAILS` | Comma-separated operator email allowlist for Microsoft login | `ops@example.com,admin@example.com` |
+| `ADMIN_MICROSOFT_ALLOWED_TENANT_IDS` | Optional comma-separated tenant allowlist layered on top of emails | `00000000-0000-0000-0000-000000000000` |
 | `NODE_ENV` | Runtime environment | `production` / `development` / `test` |
 | `PORT` | HTTP port (backend) | `4000` |
 | `LOG_LEVEL` | Pino log level | `info` |
@@ -711,7 +719,7 @@ Alerting channel: email (MVP), Slack or PagerDuty (post-MVP).
 
 ### Health status page
 
-A simple internal status page at `/admin/health` shows:
+A simple internal status page at `/{locale}/admin/health` shows:
 
 - API server: up/down
 - Database: connected/unreachable
@@ -721,7 +729,7 @@ A simple internal status page at `/admin/health` shows:
 - Last successful dispatch: timestamp
 - Last payment: timestamp
 
-This is admin-only (Basic Auth gated, see Section 11).
+This is admin-only (admin auth gated, see Section 11).
 
 ---
 
@@ -754,50 +762,28 @@ This is admin-only (Basic Auth gated, see Section 11).
 
 **Resolves IMPROV-8.**
 
-### MVP: HTTP Basic Auth
+### Backend-managed Microsoft SSO with Basic fallback
 
-All `/admin/*` routes are protected by HTTP Basic Auth over TLS.
+The admin UI is served from `/{locale}/admin/...`, while backend admin API routes remain under
+`/admin/*`.
 
-```ts
-// backend/src/plugins/adminAuth.ts
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import fp from 'fastify-plugin';
-import timingSafeEqual from 'crypto';
+Swiss Mail supports two operator authentication paths over TLS:
 
-async function adminAuthPlugin(app: FastifyInstance) {
-  app.decorate('verifyAdmin', async (request: FastifyRequest, reply: FastifyReply) => {
-    const auth = request.headers['authorization'];
-    if (!auth?.startsWith('Basic ')) {
-      reply.header('WWW-Authenticate', 'Basic realm="Swiss Mail Admin"');
-      return reply.code(401).send({ error: 'Unauthorized' });
-    }
+1. **Primary:** backend-managed Microsoft OAuth via
+   `/api/v1/admin/auth/microsoft/login` and
+   `/api/v1/admin/auth/microsoft/callback`
+2. **Fallback:** HTTP Basic Auth via `ADMIN_USERNAME` and `ADMIN_PASSWORD`
 
-    const [username, password] = Buffer.from(auth.slice(6), 'base64')
-      .toString()
-      .split(':');
+Operational rules:
 
-    const expectedUsername = process.env.ADMIN_USERNAME;
-    const expectedPassword = process.env.ADMIN_PASSWORD;
-
-    if (
-      !expectedUsername ||
-      !expectedPassword ||
-      username !== expectedUsername ||
-      !timingSafeCompare(password, expectedPassword)
-    ) {
-      return reply.code(401).send({ error: 'Unauthorized' });
-    }
-  });
-}
-
-export default fp(adminAuthPlugin, { name: 'admin-auth' });
-
-// Usage: app.get('/admin/dashboard', { preHandler: [app.verifyAdmin] }, handler);
-```
-
-- Credentials sourced from `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables.
-- `ADMIN_PASSWORD` must be at least 32 characters.
-- Never accessible without TLS (nginx must redirect HTTP → HTTPS before reaching the app).
+- Successful Microsoft login mints a signed HTTP-only admin session cookie using
+  `ADMIN_SESSION_SECRET`
+- `ADMIN_MICROSOFT_ALLOWED_EMAILS` is mandatory for Microsoft login; only allowlisted emails may
+  access the admin UI
+- `ADMIN_MICROSOFT_ALLOWED_TENANT_IDS` is optional and further restricts Microsoft login when set
+- Protected admin API routes accept either a valid admin session cookie or a valid Basic Auth header
+- Only the auth bootstrap endpoints remain reachable without a pre-existing admin session
+- Never accessible without TLS (nginx must redirect HTTP -> HTTPS before reaching the app)
 
 ---
 

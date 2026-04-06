@@ -254,7 +254,7 @@ interface UseLetterPreviewReturn {
 | `/draft/:id/confirmation` | Dispatch result and reference display |
 | `/resume/:token` | Guest resume path for unpaid/editable drafts |
 | `/status/:orderToken` | Paid-order status, receipt, and final artifact access |
-| `/admin/*` | Internal tools only — see [`admin-build-pack.md`](admin-build-pack.md) |
+| `/{locale}/admin/*` | Internal admin UI only — see [`admin-build-pack.md`](admin-build-pack.md) |
 
 ## Main screen composition for `/draft/:id`
 

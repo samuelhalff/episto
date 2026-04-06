@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { isPrivacyAcknowledged, acknowledgePrivacy } from "../../lib/consent";
 
 export function PrivacyNoticeStrip() {
+  const t = useTranslations("common");
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
@@ -21,33 +23,27 @@ export function PrivacyNoticeStrip() {
   };
 
   return (
-    <div
-      className="fixed bottom-0 left-0 right-0 z-50 border-t px-4 py-3"
-      style={{
-        background: "var(--app-surface-strong)",
-        borderColor: "var(--app-border)",
-      }}
-    >
-      <div className="mx-auto flex max-w-4xl items-center justify-between gap-4">
-        <p className="text-xs leading-relaxed" style={{ color: "var(--app-muted)" }}>
-          Swiss Mail uses a single essential cookie for your session.
-          No tracking, no third-party analytics.{" "}
-          <a
-            href="/privacy"
-            className="underline underline-offset-2"
-            style={{ color: "var(--app-fg)" }}
+    <div className="fixed inset-x-4 bottom-4 z-50 sm:left-1/2 sm:right-auto sm:w-[min(42rem,calc(100vw-2rem))] sm:-translate-x-1/2">
+      <div className="app-sticky-bar rounded-2xl px-4 py-3">
+        <div className="flex items-start justify-between gap-3 sm:items-center">
+          <p className="min-w-0 flex-1 text-xs leading-relaxed" style={{ color: "var(--app-muted)" }}>
+            {t("privacyNoticeBody")}{" "}
+            <a
+              href="/privacy"
+              className="underline underline-offset-2"
+              style={{ color: "var(--app-fg)" }}
+            >
+              {t("privacyPolicy")}
+            </a>
+          </p>
+          <button
+            onClick={handleDismiss}
+            className="app-choice-pill h-9 w-9 shrink-0 p-0 text-[var(--app-muted)] hover:text-[var(--app-fg)]"
+            aria-label={t("dismissPrivacyNotice")}
           >
-            Privacy policy
-          </a>
-        </p>
-        <button
-          onClick={handleDismiss}
-          className="shrink-0 rounded-lg p-1.5 transition hover:opacity-70"
-          style={{ color: "var(--app-muted)" }}
-          aria-label="Dismiss privacy notice"
-        >
-          <X className="h-4 w-4" />
-        </button>
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

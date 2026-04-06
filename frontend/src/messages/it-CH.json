@@ -30,7 +30,10 @@
     "cancel": "Annulla",
     "showPreview": "Mostra anteprima",
     "hidePreview": "Nascondi anteprima",
-    "refresh": "Aggiorna"
+    "refresh": "Aggiorna",
+    "privacyNoticeBody": "Swiss Mail utilizza un solo cookie essenziale per la sessione. Nessun tracciamento, nessuna analisi di terze parti.",
+    "privacyPolicy": "Informativa sulla privacy",
+    "dismissPrivacyNotice": "Chiudi l'avviso sulla privacy"
   },
   "home": {
     "title": "Lettere formali, inviate con semplicità",

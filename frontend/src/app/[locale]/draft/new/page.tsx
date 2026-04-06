@@ -22,6 +22,7 @@ import { Link, useRouter } from "../../../../i18n/navigation";
 import { routing } from "../../../../i18n/routing";
 import { ConfirmDialog } from "../../../../components/product/ConfirmDialog";
 import { LanguageSwitcher } from "../../../../components/marketing/LanguageSwitcher";
+import { AppButton } from "../../../../components/ui/app-button";
 import { useDictation } from "../../../../hooks/use-dictation";
 import { ApiError, apiFetch } from "../../../../lib/api";
 import { ActionButton, ActionLink } from "../../../../components/product/ActionButton";
@@ -362,7 +363,7 @@ export default function NewDraftPage() {
     }).format(new Date(state.draft.updatedAt ?? state.draft.createdAt));
 
     return (
-      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
         <EntryHeader />
 
         <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
@@ -437,7 +438,7 @@ export default function NewDraftPage() {
 
   if (state.kind === "error") {
     return (
-      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
         <EntryHeader />
 
         <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
@@ -478,7 +479,7 @@ export default function NewDraftPage() {
 
   if (state.kind === "loading") {
     return (
-      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
         <EntryHeader />
 
         <main className="flex min-h-[calc(100vh-73px)] items-center justify-center">
@@ -500,7 +501,7 @@ export default function NewDraftPage() {
       : null;
 
   return (
-    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
       <EntryHeader />
 
       <main
@@ -532,20 +533,23 @@ export default function NewDraftPage() {
                   setSubmissionError(null);
                 }}
                 placeholder={td("messagePlaceholder")}
-                className="app-form-control w-full resize-none rounded-[1.75rem] border border-zinc-200 px-5 py-4 text-base leading-7 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-700"
+                className="app-form-control w-full resize-none rounded-[1.75rem] border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-5 py-4 text-base leading-7 text-[var(--app-fg)] placeholder:text-[var(--app-muted)] focus:border-[var(--app-border-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--app-border)]"
               />
             </label>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <button
+                <AppButton
                   type="button"
-                  className={[
-                    "inline-flex min-h-12 items-center gap-2 rounded-full border px-4 text-sm font-medium transition-colors",
-                    dictation.isRecording
-                      ? "border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-100"
-                      : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-zinc-600 dark:hover:text-white",
-                  ].join(" ")}
+                  size="md"
+                  variant={dictation.isRecording ? "warning" : "secondary"}
+                  leadingIcon={
+                    dictation.isRecording ? (
+                      <Square className="h-4 w-4" />
+                    ) : (
+                      <Mic className="h-4 w-4" />
+                    )
+                  }
                   onClick={() => {
                     if (dictation.isRecording) {
                       dictation.stopRecording();
@@ -555,15 +559,10 @@ export default function NewDraftPage() {
                     dictation.startRecording(locale);
                   }}
                 >
-                  {dictation.isRecording ? (
-                    <Square className="h-4 w-4" />
-                  ) : (
-                    <Mic className="h-4 w-4" />
-                  )}
                   {dictation.isRecording ? td("stopDictation") : td("startDictation")}
-                </button>
+                </AppButton>
                 {helperText ? (
-                  <p className="text-sm text-zinc-500 dark:text-zinc-400">{helperText}</p>
+                  <p className="text-sm text-[var(--app-muted)]">{helperText}</p>
                 ) : null}
               </div>
 
@@ -609,10 +608,10 @@ export default function NewDraftPage() {
                         pendingAction: getQuickStartAction(quickStart.slug),
                       });
                     }}
-                    className="group rounded-[1.5rem] border border-zinc-200/80 bg-white px-5 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-70 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:border-zinc-700"
+                    className="app-list-item group rounded-[1.5rem] px-5 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
                   >
                     <div className="flex items-start gap-3">
-                      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">
+                      <span className="app-field-surface inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-[var(--app-muted-strong)]">
                         {pendingStartAction === getQuickStartAction(quickStart.slug) ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
                         ) : (
@@ -620,10 +619,10 @@ export default function NewDraftPage() {
                         )}
                       </span>
                       <div>
-                        <p className="text-sm font-semibold text-zinc-950 transition-colors group-hover:text-zinc-700 dark:text-zinc-50 dark:group-hover:text-zinc-200">
+                        <p className="text-sm font-semibold text-[var(--app-fg)] transition-colors group-hover:text-[var(--app-fg)]">
                           {quickStart.label}
                         </p>
-                        <p className="mt-1 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+                        <p className="mt-1 text-sm leading-6 text-[var(--app-muted)]">
                           {quickStart.prompt}
                         </p>
                       </div>
@@ -656,9 +655,9 @@ function EntryHeader() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
         <Link
           href="/"
-          className="inline-flex min-w-0 items-center gap-3 text-sm font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
+          className="inline-flex min-w-0 items-center gap-3 text-sm font-semibold tracking-tight text-[var(--app-fg)]"
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-950 text-xs font-semibold uppercase tracking-widest text-white shadow-sm dark:bg-amber-400 dark:text-zinc-950">
+          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--action-primary-bg)] text-xs font-semibold uppercase tracking-widest text-[var(--action-primary-fg)] shadow-sm">
             SM
           </span>
           <span className="truncate">{tc("appName")}</span>

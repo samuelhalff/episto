@@ -161,6 +161,13 @@ describe("draft workspace navigation", () => {
     expect(newDraftPageSource).toContain('pendingAction: "fresh"');
   });
 
+  it("keeps entry actions and quick starts on shared action surfaces", () => {
+    expect(newDraftPageSource).toContain("<AppButton");
+    expect(newDraftPageSource).toContain('variant={dictation.isRecording ? "warning" : "secondary"}');
+    expect(newDraftPageSource).toContain('className="app-list-item group');
+    expect(newDraftPageSource).toContain('className="app-field-surface inline-flex h-10 w-10');
+  });
+
   it("redirects prepared drafts away from the old editable workspace routes", () => {
     expect(draftWorkspaceClientSource).toContain("PREPARED_REVIEW_STATUSES");
     expect(draftWorkspaceClientSource).toContain("POST_SUBMISSION_STATUSES");

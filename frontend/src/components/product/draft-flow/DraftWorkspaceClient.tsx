@@ -53,7 +53,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const [showSteps, setShowSteps] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [, setIsInputFocused] = useState(false);
-  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(false);
+  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(true);
 
   useEffect(() => {
     if (!isCompactViewport) {
@@ -115,13 +115,15 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
 
   useEffect(() => {
     setIsNavigating(false);
-    setIsPreviewPanelOpen(false);
   }, [resolvedStepSlug]);
 
   useEffect(() => {
-    if (!isWideViewport) {
-      setIsPreviewPanelOpen(false);
+    if (isWideViewport) {
+      setIsPreviewPanelOpen(true);
+      return;
     }
+
+    setIsPreviewPanelOpen(false);
   }, [isWideViewport]);
 
   useEffect(() => {
@@ -334,7 +336,9 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
         style={{ height: workspaceHeight }}
       >
         <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-          <div className="min-h-0 min-w-[480px] flex-1">{stepComponents[currentStep]}</div>
+          <div className={isCompactViewport ? "min-w-0 flex-1" : "min-w-[480px] flex-1"}>
+            {stepComponents[currentStep]}
+          </div>
 
           {isWideViewport ? (
             <WorkspacePreviewPane
