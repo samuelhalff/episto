@@ -1,13 +1,9 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { AdminAuthProvider } from "./admin-auth-context";
-import { AdminShell } from "./admin-shell";
+import { NO_INDEX_METADATA } from "../../../lib/marketing-seo";
+import AdminLayoutClient from "./AdminLayoutClient";
+
+export const metadata = NO_INDEX_METADATA;
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
-  return (
-    <AdminAuthProvider>
-      <AdminShell>{children}</AdminShell>
-    </AdminAuthProvider>
-  );
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }
