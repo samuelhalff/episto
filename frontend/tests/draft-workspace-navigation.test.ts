@@ -194,7 +194,7 @@ describe("draft workspace navigation", () => {
   });
 
   it("provides destination-based previous-step actions inside the workspace", () => {
-    expect(stepsSource).toContain("getPreviousDraftWorkspaceStep");
+    expect(draftWorkspaceClientSource).toContain('from "../../../lib/customer-flow"');
     expect(draftWorkspaceClientSource).toContain("previousStepSlug");
     expect(draftWorkspaceClientSource).toContain("previousStepLabel");
     expect(draftShellSource).toContain("secondaryActionLabel");

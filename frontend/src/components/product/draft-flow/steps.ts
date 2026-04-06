@@ -70,16 +70,6 @@ export function getNextDraftWorkspaceStep(
     ?.slug;
 }
 
-export function getPreviousDraftWorkspaceStep(
-  currentStepIndex: number,
-): DraftWorkspaceStepSlug | undefined {
-  if (currentStepIndex <= 0) {
-    return undefined;
-  }
-
-  return DRAFT_WORKSPACE_STEPS[Math.max(currentStepIndex - 1, 0)]?.slug;
-}
-
 export function getDraftWorkspaceStepSlugByIndex(stepIndex: number): DraftWorkspaceStepSlug {
   return DRAFT_WORKSPACE_STEPS[clampDraftWorkspaceStepIndex(stepIndex)]?.slug ?? "intake";
 }
