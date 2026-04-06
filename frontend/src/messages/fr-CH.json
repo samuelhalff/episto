@@ -547,7 +547,9 @@
     "paymentError": "Paiement échoué. Veuillez réessayer.",
     "enterPaymentDetails": "Saisir les données de paiement",
     "continueToPayment": "Suivant",
-    "backToReview": "Retour"
+    "calculatingPayment": "Calcul du prix…",
+    "backToReview": "Retour",
+    "paymentMethodsHelp": "Payez avec TWINT ou une carte de crédit ou de débit. TWINT est disponible pour tous les clients des banques suisses."
   },
   "attachments": {
     "title": "Pièces jointes",

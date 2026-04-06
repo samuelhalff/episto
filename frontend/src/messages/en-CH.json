@@ -547,7 +547,9 @@
     "paymentError": "Payment failed. Please try again.",
     "enterPaymentDetails": "Enter payment details",
     "continueToPayment": "Next",
-    "backToReview": "Back"
+  "calculatingPayment": "Calculating price\u2026",
+    "backToReview": "Back",
+  "paymentMethodsHelp": "Pay with TWINT or a credit or debit card. TWINT is available to all Swiss bank customers."
   },
   "attachments": {
     "title": "Attachments",

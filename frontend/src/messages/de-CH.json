@@ -547,7 +547,9 @@
     "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "enterPaymentDetails": "Zahlungsdetails eingeben",
     "continueToPayment": "Weiter",
-    "backToReview": "Zurück"
+    "calculatingPayment": "Preis wird berechnet…",
+    "backToReview": "Zurück",
+    "paymentMethodsHelp": "Bezahlen Sie mit TWINT oder einer Kredit- oder Debitkarte. TWINT steht allen Schweizer Bankkunden zur Verfügung."
   },
   "attachments": {
     "title": "Anhänge",

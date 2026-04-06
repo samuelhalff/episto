@@ -547,7 +547,9 @@
     "paymentError": "Pagamento fallito. Si prega di riprovare.",
     "enterPaymentDetails": "Inserire i dati di pagamento",
     "continueToPayment": "Avanti",
-    "backToReview": "Indietro"
+    "calculatingPayment": "Calcolo del prezzo…",
+    "backToReview": "Indietro",
+    "paymentMethodsHelp": "Paga con TWINT o una carta di credito o di debito. TWINT è disponibile per tutti i clienti delle banche svizzere."
   },
   "attachments": {
     "title": "Allegati",

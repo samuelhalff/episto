@@ -144,6 +144,7 @@ export default function CheckoutPage({
     checkoutErrorMessage ??
     (!hasConfiguredStripeFrontend ? t("paymentConfigError") : null);
   const pricingPendingMessage = canRequestQuote ? null : t("pricingPending");
+  const isPricingPending = Boolean(pricingPendingMessage);
 
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
@@ -168,7 +169,7 @@ export default function CheckoutPage({
 
       <main
         id="main-content"
-        className="mx-auto grid max-w-7xl gap-6 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-12 lg:grid-cols-[340px_minmax(0,1fr)]"
+        className="mx-auto grid max-w-7xl gap-6 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-12 lg:grid-cols-[340px_minmax(0,1fr)]"
       >
         <aside className="space-y-4 lg:sticky lg:top-28">
           <PriceSummary
@@ -182,7 +183,7 @@ export default function CheckoutPage({
         </aside>
 
         <div className="space-y-6">
-          <div className="max-w-2xl">
+          <div className="w-full max-w-none">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
               {t("orderSummary")}
             </p>
@@ -216,7 +217,7 @@ export default function CheckoutPage({
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={errors.email ? "true" : undefined}
                   className={[
-                    "app-form-control mt-3 rounded-xl border px-4 py-3 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
+                    "app-form-control mt-3 w-full rounded-xl border px-4 py-3 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
                     errors.email
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
                       : "border-zinc-200 focus:border-zinc-400 focus:ring-zinc-200 dark:border-zinc-700 dark:focus:border-zinc-500 dark:focus:ring-zinc-700",
@@ -307,11 +308,13 @@ export default function CheckoutPage({
                       hasBlockingStripeConfigurationError ||
                       !canRequestQuote
                     }
-                    loading={isSubmitting}
-                    trailingIcon={<ArrowRight className="h-4 w-4 shrink-0" />}
+                    loading={isSubmitting || isPricingPending}
+                    trailingIcon={
+                      isPricingPending ? undefined : <ArrowRight className="h-4 w-4 shrink-0" />
+                    }
                     contentClassName="w-full"
                   >
-                    {t("continueToPayment")}
+                    {isPricingPending ? t("calculatingPayment") : t("continueToPayment")}
                   </ActionButton>
                 }
               />

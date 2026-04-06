@@ -90,6 +90,7 @@ export function StripePaymentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("paymentMethodsHelp")}</p>
       {/* Stripe's PaymentElement renders card fields, TWINT, and other methods */}
       <PaymentElement
         options={{
