@@ -37,7 +37,6 @@ interface IntakeStepProps {
   onInputFocusChange?: (focused: boolean) => void;
   isNavigating?: boolean;
   navigateToStep?: (step: "intake" | "sender" | "recipient" | "body" | "subject" | "logistics") => void;
-  furthestUnlockedStepIndex?: number;
 }
 
 export function IntakeStep({

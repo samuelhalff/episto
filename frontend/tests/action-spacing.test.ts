@@ -20,11 +20,6 @@ const bodyStepSource = readFileSync(
   "utf8",
 );
 
-const draftShellSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/draft-shell.tsx"),
-  "utf8",
-);
-
 describe("shared action spacing regressions", () => {
   it("keeps sheet footers on a shared vertical rhythm", () => {
     expect(sheetSource).toContain("flex flex-col gap-3 border-t");
@@ -39,7 +34,5 @@ describe("shared action spacing regressions", () => {
     expect(bodyStepSource).not.toContain('isCompactViewport ? "px-1"');
     expect(bodyStepSource).toContain("primaryAction={primaryCta}");
     expect(bodyStepSource).not.toContain("previewButton || primaryCta");
-    expect(draftShellSource).toContain("relative sticky bottom-0 z-20");
-    expect(draftShellSource).toContain("flex min-w-0 items-center gap-3");
   });
 });

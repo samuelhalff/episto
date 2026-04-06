@@ -49,7 +49,6 @@ interface StepProps {
   onInputFocusChange?: (focused: boolean) => void;
   isNavigating?: boolean;
   previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
 }
 
 type EditMode = "ai" | "manual";
@@ -81,7 +80,6 @@ export function BodyStep({
   onInputFocusChange,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");

@@ -17,7 +17,6 @@ interface StepProps {
   isCompactViewport?: boolean;
   isNavigating?: boolean;
   previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
 }
 
 export function AttachmentsStep({
@@ -29,7 +28,6 @@ export function AttachmentsStep({
   isCompactViewport,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);

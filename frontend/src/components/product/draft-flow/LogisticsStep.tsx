@@ -48,7 +48,6 @@ interface StepProps {
   isNavigating?: boolean;
   beginNavigation?: () => void;
   previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
 }
 
 export function LogisticsStep({
@@ -60,7 +59,6 @@ export function LogisticsStep({
   isNavigating,
   beginNavigation,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const router = useRouter();

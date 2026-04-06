@@ -37,7 +37,6 @@ interface StepProps {
   onInputFocusChange?: (focused: boolean) => void;
   isNavigating?: boolean;
   previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
 }
 
 export function SenderStep({
@@ -50,7 +49,6 @@ export function SenderStep({
   onInputFocusChange,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);

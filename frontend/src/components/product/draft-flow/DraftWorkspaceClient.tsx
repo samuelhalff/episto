@@ -200,7 +200,6 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     isNavigating,
     beginNavigation,
     navigateToStep,
-    furthestUnlockedStepIndex,
   };
 
   const stepComponents = [
@@ -294,7 +293,6 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
         <StepOverlay
           currentStep={currentStep}
           furthestUnlockedStepIndex={furthestUnlockedStepIndex}
-          isCompactViewport={isCompactViewport}
           steps={DRAFT_WORKSPACE_STEPS.map((step) => ({
             id: step.id,
             title: t(step.titleKey),
