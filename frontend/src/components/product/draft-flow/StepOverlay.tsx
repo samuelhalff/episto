@@ -14,7 +14,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "../../ui/sheet";
-import { PrimaryButton, SecondaryButton } from "./ui";
+import { SecondaryButton } from "./ui";
 
 interface Step {
   id: string;
@@ -76,7 +76,7 @@ export function StepOverlay({
           ) : null}
         </SheetHeader>
 
-        <SheetBody className="px-3 py-3 sm:px-4">
+        <SheetBody className="px-4 py-4 sm:px-5">
           <div className="space-y-1.5">
             {steps.map((step, idx) => {
               const isCurrent = idx === currentStep;
@@ -139,15 +139,9 @@ export function StepOverlay({
         </SheetBody>
 
         <SheetFooter>
-          {isCompactViewport ? (
-            <PrimaryButton onClick={requestClose} hideIcon>
-              {tc("hide")}
-            </PrimaryButton>
-          ) : (
-            <SecondaryButton onClick={requestClose} hideIcon>
-              {tc("hide")}
-            </SecondaryButton>
-          )}
+          <SecondaryButton leadingVisual="hide" onClick={requestClose} hideIcon>
+            {tc("hide")}
+          </SecondaryButton>
         </SheetFooter>
       </SheetContent>
     </Sheet>
