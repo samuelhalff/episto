@@ -17,6 +17,8 @@ describe("subject step textarea", () => {
     expect(subjectStepSource).toContain("<textarea");
     expect(subjectStepSource).toContain('textarea.style.height = "0px";');
     expect(subjectStepSource).toContain("normalizeLetterSubject(subject,");
+    expect(subjectStepSource).toContain('e.target.value.replace(/[\\r\\n]+/g, " ")');
     expect(subjectStepSource).not.toContain("<input");
+    expect(subjectStepSource).not.toContain("rows={");
   });
 });

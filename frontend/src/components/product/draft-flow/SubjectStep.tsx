@@ -50,9 +50,10 @@ export function SubjectStep({
     const textarea = textareaRef.current;
     if (!textarea) return;
     textarea.style.height = "0px";
-    const next = Math.min(textarea.scrollHeight, 176);
+    const scrollHeight = textarea.scrollHeight;
+    const next = Math.min(scrollHeight, 176);
     textarea.style.height = `${next}px`;
-    textarea.style.overflowY = textarea.scrollHeight > 176 ? "auto" : "hidden";
+    textarea.style.overflowY = scrollHeight > 176 ? "auto" : "hidden";
   }, [subject]);
 
   useEffect(() => {
@@ -143,7 +144,7 @@ export function SubjectStep({
             <textarea
               ref={textareaRef}
               value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+              onChange={(e) => setSubject(e.target.value.replace(/[\r\n]+/g, " "))}
               onFocus={() => {
                 setIsFieldFocused(true);
                 onInputFocusChange?.(true);
@@ -152,7 +153,6 @@ export function SubjectStep({
                 setIsFieldFocused(false);
                 onInputFocusChange?.(false);
               }}
-              rows={3}
               maxLength={200}
               placeholder={t("subjectInputPlaceholder")}
               className="app-form-control min-h-[88px] w-full resize-none bg-transparent font-semibold leading-6 text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
