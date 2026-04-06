@@ -6,6 +6,7 @@ import { WorkspaceSiteMenu } from "./WorkspaceSiteMenu";
 import { SecondaryButton } from "./cards";
 import { StepTriggerButton } from "./draft-composer";
 import { StepList } from "./StepOverlay";
+import { HeaderLanguageMenu } from "../../layout/HeaderLanguageMenu";
 import { useStepNav } from "./step-nav-context";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
@@ -187,6 +188,7 @@ export function DraftShell({
                   </span>
                 </button>
               ) : null}
+              <HeaderLanguageMenu />
               <WorkspaceSiteMenu isCompactViewport={false} />
             </div>
           </div>

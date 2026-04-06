@@ -21,7 +21,8 @@ import {
 import { Link, useRouter } from "../../../../i18n/navigation";
 import { routing } from "../../../../i18n/routing";
 import { ConfirmDialog } from "../../../../components/product/ConfirmDialog";
-import { LanguageSwitcher } from "../../../../components/marketing/LanguageSwitcher";
+import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
+import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
 import { AppButton } from "../../../../components/ui/app-button";
 import { useDictation } from "../../../../hooks/use-dictation";
 import { ApiError, apiFetch } from "../../../../lib/api";
@@ -648,6 +649,7 @@ export default function NewDraftPage() {
 }
 
 function EntryHeader() {
+  const t = useTranslations("marketing");
   const tc = useTranslations("common");
 
   return (
@@ -663,7 +665,17 @@ function EntryHeader() {
           <span className="truncate">{tc("appName")}</span>
         </Link>
 
-        <LanguageSwitcher />
+        <div className="hidden items-center gap-2 sm:flex">
+          <HeaderLanguageMenu />
+          <CustomerSiteMenu title={tc("appName")} description={t("nav.writeLetter")} />
+        </div>
+        <div className="sm:hidden">
+          <CustomerSiteMenu
+            title={tc("appName")}
+            description={t("nav.writeLetter")}
+            isCompactViewport
+          />
+        </div>
       </div>
     </header>
   );

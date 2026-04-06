@@ -8,6 +8,8 @@ import { Link } from "../../../../i18n/navigation";
 import { apiFetch } from "../../../../lib/api";
 import { queryKeys } from "@swiss-mail/shared";
 import type { OrderStatusResponse } from "@swiss-mail/shared";
+import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
+import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
 import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation";
 
 function useOrderStatus(orderToken: string) {
@@ -75,12 +77,23 @@ export default function StatusPage({
             </span>
             {tc("appName")}
           </Link>
-          <Link
-            href="/draft/new"
-            className="hidden rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300 sm:inline-flex"
-          >
-            {t("sendAnother")}
-          </Link>
+          <div className="hidden items-center gap-3 sm:flex">
+            <HeaderLanguageMenu />
+            <CustomerSiteMenu title={tc("appName")} description={t("sendAnother")} />
+            <Link
+              href="/draft/new"
+              className="rounded-full bg-zinc-950 px-4 py-2 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+            >
+              {t("sendAnother")}
+            </Link>
+          </div>
+          <div className="sm:hidden">
+            <CustomerSiteMenu
+              title={tc("appName")}
+              description={t("sendAnother")}
+              isCompactViewport
+            />
+          </div>
         </div>
       </header>
 
