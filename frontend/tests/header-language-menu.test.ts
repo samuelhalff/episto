@@ -1,67 +1,109 @@
-import { readFileSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { describe, expect, it, vi } from "vitest";
-import React from "react";
-import { render, fireEvent, screen } from "@testing-library/react";
+// @vitest-environment jsdom
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const headerLanguageMenuSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/layout/HeaderLanguageMenu.tsx"),
-  "utf8",
-);
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+const { replaceSpy } = vi.hoisted(() => ({
+  replaceSpy: vi.fn(),
+}));
+
+vi.mock("next-intl", () => ({
+  useLocale: () => "de-CH",
+  useTranslations: () => (key: string) => (key === "language" ? "Language" : key),
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams("useCase=lease-cancellation"),
+}));
+
+vi.mock("../src/i18n/navigation", () => ({
+  usePathname: () => "/draft/example",
+  useRouter: () => ({ replace: replaceSpy }),
+}));
+
+vi.mock("../src/i18n/routing", () => ({
+  routing: { locales: ["de-CH", "fr-CH", "it-CH", "en-CH"] },
+}));
+
+import { HeaderLanguageMenu } from "../src/components/layout/HeaderLanguageMenu";
 
 describe("header language menu", () => {
-  it("uses a compact popover trigger instead of the pill-strip selector", () => {
-    expect(headerLanguageMenuSource).toContain('import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";');
-    expect(headerLanguageMenuSource).toContain('aria-haspopup="listbox"');
-    expect(headerLanguageMenuSource).toContain("routing.locales.map");
-    expect(headerLanguageMenuSource).not.toContain("app-choice-pill");
+  beforeEach(() => {
+    replaceSpy.mockReset();
+    window.history.replaceState({}, "", "/draft/example?useCase=lease-cancellation#assistant");
   });
 
-  it("renders a listbox with role option and aria-selected", () => {
-    expect(headerLanguageMenuSource).toContain('role="listbox"');
-    expect(headerLanguageMenuSource).toContain('role="option"');
-    expect(headerLanguageMenuSource).toContain('aria-selected={isActive}');
-    expect(headerLanguageMenuSource).not.toContain('<Link');
+  afterEach(() => {
+    cleanup();
   });
 
-  it("renders and interacts as a true listbox", () => {
-    // Mock next-intl and routing
-    vi.mock("next-intl", () => ({
-      useLocale: () => "de-CH",
-      useTranslations: () => (key: string) => (key === "language" ? "Language" : key),
-    }));
-    vi.mock("../../frontend/src/i18n/routing", () => ({
-      routing: { locales: ["de-CH", "fr-CH", "it-CH"] },
-    }));
-    const push = vi.fn();
-    const replace = vi.fn();
-    vi.mock("../../frontend/src/i18n/navigation", () => ({
-      usePathname: () => "/foo/bar",
-      useRouter: () => ({ push, replace }),
-    }));
-    // Dynamically import after mocks
-    // Import as ESM
-    import("../../frontend/src/components/layout/HeaderLanguageMenu.tsx").then(({ HeaderLanguageMenu }) => {
-      render(React.createElement(HeaderLanguageMenu));
-      // Open the popover
-      const trigger = screen.getByRole("button", { name: /language/i });
-      fireEvent.click(trigger);
-      // Listbox and options
-      const listbox = screen.getByRole("listbox");
-      expect(listbox).toBeInTheDocument();
-      const options = screen.getAllByRole("option");
-      expect(options).toHaveLength(3);
-      // Focus and select
-      options[1].focus();
-      fireEvent.keyDown(listbox, { key: "ArrowDown" }); // should move focus to it-CH
-      fireEvent.keyDown(listbox, { key: "End" }); // should move focus to last
-      fireEvent.keyDown(listbox, { key: "Home" }); // should move focus to first
-      fireEvent.keyDown(listbox, { key: "Enter" }); // should select de-CH (already active)
-      fireEvent.keyDown(listbox, { key: "ArrowDown" });
-      fireEvent.keyDown(listbox, { key: "Enter" }); // should select fr-CH
-      expect(replace).toHaveBeenCalledWith("/foo/bar", { locale: "fr-CH" });
+  it("exposes the active locale in the compact trigger name", () => {
+    render(React.createElement(HeaderLanguageMenu));
+
+    const trigger = screen.getByRole("button", { name: "Language, Deutsch" });
+
+    expect(trigger.textContent ?? "").toContain("DE");
+    expect(trigger.getAttribute("aria-haspopup")).toBe("listbox");
+  });
+
+  it("shows readable locale names and preserves route state during keyboard locale changes", async () => {
+    const user = userEvent.setup();
+
+    render(React.createElement(HeaderLanguageMenu));
+
+    const trigger = screen.getByRole("button", { name: "Language, Deutsch" });
+    await user.click(trigger);
+
+    const listbox = await screen.findByRole("listbox", { name: "Language" });
+    const options = within(listbox).getAllByRole("option");
+    const optionText = options.map((option) => option.textContent?.replace(/\s+/g, " ").trim() ?? "");
+
+    expect(optionText).toEqual([
+      expect.stringContaining("Deutsch"),
+      expect.stringContaining("Français"),
+      expect.stringContaining("Italiano"),
+      expect.stringContaining("English"),
+    ]);
+    expect(options[0].getAttribute("aria-selected")).toBe("true");
+    expect(options[0].getAttribute("tabindex")).toBe("0");
+    expect(options.slice(1).every((option) => option.getAttribute("tabindex") === "-1")).toBe(
+      true,
+    );
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(options[0]);
     });
+
+    await user.keyboard("{ArrowDown}");
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(options[1]);
+    });
+
+    expect(options[0].getAttribute("tabindex")).toBe("-1");
+    expect(options[1].getAttribute("tabindex")).toBe("0");
+
+    await user.keyboard("{End}");
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(options[3]);
+    });
+
+    await user.keyboard("{Home}");
+
+    await waitFor(() => {
+      expect(document.activeElement).toBe(options[0]);
+    });
+
+    await user.keyboard("{ArrowDown}");
+    fireEvent.keyDown(options[1], { key: " " });
+
+    expect(replaceSpy).toHaveBeenCalledTimes(1);
+    expect(replaceSpy).toHaveBeenCalledWith(
+      "/draft/example?useCase=lease-cancellation#assistant",
+      { locale: "fr-CH" },
+    );
   });
 });

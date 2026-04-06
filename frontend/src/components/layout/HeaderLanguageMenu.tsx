@@ -1,71 +1,126 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import React, {
+  type KeyboardEvent,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ChevronDown, Globe } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "../../i18n/navigation";
 import { routing } from "../../i18n/routing";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { getAppButtonClassName } from "../ui/app-button";
 
+const LOCALE_LABELS: Readonly<Record<string, { code: string; name: string }>> = {
+  "de-CH": { code: "DE", name: "Deutsch" },
+  "fr-CH": { code: "FR", name: "Français" },
+  "it-CH": { code: "IT", name: "Italiano" },
+  "en-CH": { code: "EN", name: "English" },
+};
+
+function getLocaleCode(value: string) {
+  return LOCALE_LABELS[value]?.code ?? value.split("-")[0]?.toUpperCase() ?? value;
+}
+
+function getLocaleName(value: string) {
+  return LOCALE_LABELS[value]?.name ?? value;
+}
+
+function getLocaleIndex(value: string) {
+  const index = routing.locales.findIndex((locale) => locale === value);
+  return index >= 0 ? index : 0;
+}
+
 export function HeaderLanguageMenu() {
   const locale = useLocale();
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const t = useTranslations("common");
   const [open, setOpen] = useState(false);
-  const activeLabel = useMemo(
-    () => locale.split("-")[0]?.toUpperCase() ?? locale,
-    [locale],
-  );
+  const [focusedIndex, setFocusedIndex] = useState(() => getLocaleIndex(locale));
+  const optionRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const activeLabel = useMemo(() => getLocaleCode(locale), [locale]);
+  const activeLocaleName = useMemo(() => getLocaleName(locale), [locale]);
 
-  // Listbox keyboard navigation state
-  const [focusedIndex, setFocusedIndex] = useState(() => routing.locales.findIndex(l => l === locale));
-  const listboxRef = React.useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    setFocusedIndex(getLocaleIndex(locale));
+  }, [locale]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    optionRefs.current[focusedIndex]?.focus();
+  }, [focusedIndex, open]);
 
   function handleSelect(nextLocale: string) {
     setOpen(false);
-    router.replace(pathname, { locale: nextLocale });
+
+    if (nextLocale === locale) {
+      return;
+    }
+
+    const search = searchParams.toString();
+    const hash = window.location.hash;
+    const route = `${pathname}${search ? `?${search}` : ""}${hash}`;
+
+    router.replace(route, { locale: nextLocale });
   }
 
-  function handleListboxKeyDown(e: React.KeyboardEvent<HTMLDivElement>) {
-    if (!open) return;
-    const max = routing.locales.length - 1;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setFocusedIndex(i => (i < max ? i + 1 : 0));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setFocusedIndex(i => (i > 0 ? i - 1 : max));
-    } else if (e.key === "Home") {
-      e.preventDefault();
-      setFocusedIndex(0);
-    } else if (e.key === "End") {
-      e.preventDefault();
-      setFocusedIndex(max);
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      handleSelect(routing.locales[focusedIndex]);
+  function handleListboxKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (!open) {
+      return;
+    }
+
+    const maxIndex = routing.locales.length - 1;
+
+    switch (event.key) {
+      case "ArrowDown":
+        event.preventDefault();
+        setFocusedIndex((index) => (index < maxIndex ? index + 1 : 0));
+        break;
+      case "ArrowUp":
+        event.preventDefault();
+        setFocusedIndex((index) => (index > 0 ? index - 1 : maxIndex));
+        break;
+      case "Home":
+        event.preventDefault();
+        setFocusedIndex(0);
+        break;
+      case "End":
+        event.preventDefault();
+        setFocusedIndex(maxIndex);
+        break;
+      case "Enter":
+      case " ":
+        event.preventDefault();
+        handleSelect(routing.locales[focusedIndex] ?? locale);
+        break;
+      default:
+        break;
     }
   }
 
-  React.useEffect(() => {
-    if (!open) return;
-    const options = listboxRef.current?.querySelectorAll('[role="option"]');
-    if (options && options[focusedIndex]) {
-      (options[focusedIndex] as HTMLElement).focus();
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+
+    if (nextOpen) {
+      setFocusedIndex(getLocaleIndex(locale));
     }
-  }, [open, focusedIndex]);
+  }
 
   return (
-    <Popover open={open} onOpenChange={o => {
-      setOpen(o);
-      if (o) setFocusedIndex(routing.locales.findIndex(l => l === locale));
-    }}>
+    <Popover open={open} onOpenChange={handleOpenChange}>
       <PopoverTrigger asChild>
         <button
           type="button"
-          aria-label={t("language")}
+          aria-label={`${t("language")}, ${activeLocaleName}`}
           aria-haspopup="listbox"
           aria-expanded={open}
           className={getAppButtonClassName({
@@ -79,38 +134,48 @@ export function HeaderLanguageMenu() {
           <ChevronDown className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-[220px] p-2">
+      <PopoverContent
+        className="w-[220px] p-2"
+        onOpenAutoFocus={(event) => {
+          event.preventDefault();
+          queueMicrotask(() => {
+            optionRefs.current[getLocaleIndex(locale)]?.focus();
+          });
+        }}
+      >
         <div
-          ref={listboxRef}
           role="listbox"
           aria-label={t("language")}
-          tabIndex={-1}
+          aria-orientation="vertical"
           className="space-y-1"
           onKeyDown={handleListboxKeyDown}
         >
-          {routing.locales.map((nextLocale, idx) => {
-            const label = nextLocale.split("-")[0]?.toUpperCase() ?? nextLocale;
+          {routing.locales.map((nextLocale, index) => {
             const isActive = nextLocale === locale;
+            const isFocused = focusedIndex === index;
+
             return (
-              <button
+              <div
                 key={nextLocale}
+                ref={(node) => {
+                  optionRefs.current[index] = node;
+                }}
                 role="option"
                 aria-selected={isActive}
-                type="button"
-                tabIndex={focusedIndex === idx ? 0 : -1}
+                tabIndex={isFocused ? 0 : -1}
                 className={[
-                  "flex w-full min-h-11 items-center justify-between rounded-2xl px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400",
+                  "flex min-h-11 w-full cursor-pointer items-center justify-between rounded-2xl px-3 text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-400",
                   isActive
                     ? "bg-amber-50 text-zinc-950 dark:bg-amber-400/15 dark:text-amber-100"
                     : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-zinc-50",
                 ].join(" ")}
                 onClick={() => handleSelect(nextLocale)}
-                aria-current={isActive ? "page" : undefined}
-                autoFocus={open && focusedIndex === idx}
               >
-                <span>{label}</span>
-                <span className="text-xs text-zinc-400 dark:text-zinc-500">{nextLocale}</span>
-              </button>
+                <span>{getLocaleName(nextLocale)}</span>
+                <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                  {getLocaleCode(nextLocale)}
+                </span>
+              </div>
             );
           })}
         </div>
