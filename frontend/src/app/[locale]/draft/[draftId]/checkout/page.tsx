@@ -11,6 +11,7 @@ import { useDraft, useCheckout } from "../../../../../hooks/use-api";
 import { Link, useRouter } from "../../../../../i18n/navigation";
 import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
+import { FlowActionDock } from "../../../../../components/product/FlowActionDock";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm";
 import { ActionButton, ActionLink } from "../../../../../components/product/ActionButton";
@@ -283,8 +284,8 @@ export default function CheckoutPage({
                 </p>
               )}
 
-              <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2.5xl p-2 lg:static lg:bg-transparent lg:p-0 lg:shadow-none lg:outline-none lg:backdrop-blur-none">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <FlowActionDock
+                secondaryAction={
                   <ActionLink
                     href={backToReviewHref}
                     variant="secondary"
@@ -294,6 +295,8 @@ export default function CheckoutPage({
                   >
                     {t("backToReview")}
                   </ActionLink>
+                }
+                primaryAction={
                   <ActionButton
                     type="submit"
                     fullWidth
@@ -310,8 +313,8 @@ export default function CheckoutPage({
                   >
                     {t("continueToPayment")}
                   </ActionButton>
-                </div>
-              </div>
+                }
+              />
             </form>
           )}
 

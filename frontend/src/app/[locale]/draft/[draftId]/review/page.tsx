@@ -13,6 +13,7 @@ import {
 import { useRouter } from "../../../../../i18n/navigation";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
+import { FlowActionDock } from "../../../../../components/product/FlowActionDock";
 import { LetterPreview } from "../../../../../components/product/LetterPreview";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { ActionButton } from "../../../../../components/product/ActionButton";
@@ -316,38 +317,41 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
         </div>
       </main>
 
-      <div className="app-sticky-bar fixed inset-x-0 bottom-0 z-30 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4 lg:static lg:mt-8 lg:px-0 lg:pb-0 lg:pt-0 lg:bg-transparent lg:shadow-none lg:outline-none lg:backdrop-blur-none">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            {backError ? (
-              <p className="text-sm text-destructive">
-                {backError}
-              </p>
-            ) : !allComplete ? (
-              <p className="text-sm text-destructive">
-                {t("requiredBeforeSending")}
-              </p>
-            ) : !canRequestQuote ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {t("pricingPending")}
-              </p>
-            ) : quote.isLoading ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {t("pricingLoading")}
-              </p>
-            ) : quoteErrorMessage ? (
-              <p className="text-sm text-destructive">
-                {quoteErrorMessage}
-              </p>
-            ) : (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {quote.data
-                  ? `${t("total")} ${formatCentsAsCHF(quote.data.totalCents)}`
-                  : t("subtitle")}
-              </p>
-            )}
-          </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+      <FlowActionDock
+        hint={
+          backError ? (
+            <p className="text-sm text-destructive">{backError}</p>
+          ) : !allComplete ? (
+            <p className="text-sm text-destructive">{t("requiredBeforeSending")}</p>
+          ) : !canRequestQuote ? (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("pricingPending")}</p>
+          ) : quote.isLoading ? (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("pricingLoading")}</p>
+          ) : quoteErrorMessage ? (
+            <p className="text-sm text-destructive">{quoteErrorMessage}</p>
+          ) : (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              {quote.data
+                ? `${t("total")} ${formatCentsAsCHF(quote.data.totalCents)}`
+                : t("subtitle")}
+            </p>
+          )
+        }
+        secondaryAction={
+          <ActionButton
+            variant="secondary"
+            onClick={handleBackToDraft}
+            fullWidth
+            className="sm:w-auto"
+            loading={transitionDraft.isPending}
+            disabled={transitionDraft.isPending}
+            leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
+          >
+            {t("backToDraft")}
+          </ActionButton>
+        }
+        primaryAction={
+          <>
             {!alreadyPrepared ? (
               <DraftStepMenu
                 draftId={draftId}
@@ -356,17 +360,6 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                 buttonClassName="sm:w-auto"
               />
             ) : null}
-            <ActionButton
-              variant="secondary"
-              onClick={handleBackToDraft}
-              fullWidth
-              className="sm:w-auto"
-              loading={transitionDraft.isPending}
-              disabled={transitionDraft.isPending}
-              leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
-            >
-              {t("backToDraft")}
-            </ActionButton>
             <ActionButton
               onClick={handleProceedToPayment}
               fullWidth
@@ -384,9 +377,9 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
             >
               {t("proceedToPayment")}
             </ActionButton>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
     </div>
   );
 }

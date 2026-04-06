@@ -5,6 +5,7 @@ import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { useTranslations } from "next-intl";
 import { formatCentsAsCHF } from "../../hooks/use-pricing";
 import { ActionButton } from "./ActionButton";
+import { FlowActionDock } from "./FlowActionDock";
 
 // ---------------------------------------------------------------------------
 // StripePaymentForm
@@ -105,9 +106,9 @@ export function StripePaymentForm({
 
       {errorMessage && <p role="alert" className="text-sm text-destructive">{errorMessage}</p>}
 
-      <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2xl p-2 sm:static sm:bg-transparent sm:p-0 sm:shadow-none sm:outline-none sm:backdrop-blur-none">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          {secondaryAction}
+      <FlowActionDock
+        secondaryAction={secondaryAction}
+        primaryAction={
           <ActionButton
             type="submit"
             fullWidth
@@ -123,8 +124,8 @@ export function StripePaymentForm({
           >
             {isSubmitting ? t("paymentConfirming") : buttonLabel}
           </ActionButton>
-        </div>
-      </div>
+        }
+      />
     </form>
   );
 }
