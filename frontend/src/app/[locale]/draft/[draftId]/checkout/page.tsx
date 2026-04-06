@@ -17,6 +17,7 @@ import { ActionButton, ActionLink } from "../../../../../components/product/Acti
 import { captureError } from "../../../../../lib/error-tracking";
 import { normalizeLetterSubject } from "../../../../../lib/letter-content";
 import { getApiErrorCode, getApiErrorUserMessage } from "../../../../../lib/api";
+import { getCustomerFlowBackPath } from "../../../../../lib/customer-flow";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
@@ -75,6 +76,7 @@ export default function CheckoutPage({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
+  const backToReviewHref = getCustomerFlowBackPath(draftId, "checkout") ?? `/draft/${draftId}/review`;
 
   const isSubmitting = checkout.isProcessing;
 
@@ -284,7 +286,7 @@ export default function CheckoutPage({
               <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2.5xl p-2 lg:static lg:bg-transparent lg:p-0 lg:shadow-none lg:outline-none lg:backdrop-blur-none">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                   <ActionLink
-                    href={`/draft/${draftId}/review`}
+                    href={backToReviewHref}
                     variant="secondary"
                     fullWidth
                     className="sm:flex-1"

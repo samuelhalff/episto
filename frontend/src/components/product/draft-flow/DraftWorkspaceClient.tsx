@@ -28,12 +28,15 @@ import {
   getDraftWorkspaceStepIndex,
   getDraftWorkspaceUnlockedStepIndex,
   getNextDraftWorkspaceStep,
-  getPreviousDraftWorkspaceStep,
   isDraftWorkspaceStepLocked,
   resolveDraftWorkspaceStepSlug,
 } from "./steps";
 import { usePathname, useRouter } from "../../../i18n/navigation";
 import { ApiError } from "../../../lib/api";
+import {
+  getPreviousCustomerFlowStep,
+  isDraftWorkspaceCustomerFlowStep,
+} from "../../../lib/customer-flow";
 
 interface DraftWorkspaceClientProps {
   draftId: string;
@@ -105,7 +108,8 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const currentStep = Math.min(requestedStepIndex, furthestUnlockedStepIndex);
   const currentStepSlug = getDraftWorkspaceStepSlugByIndex(currentStep);
   const nextStepSlug = getNextDraftWorkspaceStep(currentStep);
-  const previousStepSlug = getPreviousDraftWorkspaceStep(currentStep);
+  const previousFlowStep = getPreviousCustomerFlowStep(currentStepSlug);
+  const previousStepSlug = isDraftWorkspaceCustomerFlowStep(previousFlowStep) ? previousFlowStep : undefined;
   const previousStepLabel =
     previousStepSlug === "intake"
       ? t("backToIntake")

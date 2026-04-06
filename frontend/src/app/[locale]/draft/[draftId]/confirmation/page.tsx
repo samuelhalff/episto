@@ -27,6 +27,7 @@ import { ActionLink } from "../../../../../components/product/ActionButton";
 import { DispatchConfirmation } from "../../../../../components/product/DispatchConfirmation";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
 import { getApiUrl } from "../../../../../lib/api";
+import { getCustomerFlowPath } from "../../../../../lib/customer-flow";
 import { getAppButtonClassName } from "../../../../../components/ui/app-button";
 import { StatusBadge } from "../../../../../components/ui/status-badge";
 
@@ -155,7 +156,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           {payment.data?.failureReason ?? t("paymentFailedSubtitle")}
         </p>
         <ActionLink
-          href={`/draft/${draftId}/checkout`}
+          href={getCustomerFlowPath(draftId, "checkout")}
           variant="secondary"
           leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
         >

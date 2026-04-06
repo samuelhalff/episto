@@ -23,6 +23,7 @@ import { useDispatchQuote } from "../../../../../hooks/use-dispatch-quote";
 import { formatCentsAsCHF } from "../../../../../hooks/use-pricing";
 import { captureError } from "../../../../../lib/error-tracking";
 import { getApiErrorUserMessage } from "../../../../../lib/api";
+import { getCustomerFlowPath } from "../../../../../lib/customer-flow";
 import {
   getAddressLines,
   getSignatureFileUrl,
@@ -162,7 +163,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
     void transitionDraft
       .mutateAsync({ status: "fields_complete" })
       .then(() => {
-        router.push(`/draft/${draftId}`);
+        router.push(getCustomerFlowPath(draftId, "logistics"));
       })
       .catch((err: unknown) => {
         setBackError(getApiErrorUserMessage(err) ?? tc("error"));
