@@ -515,7 +515,7 @@
     "orderSummary": "Your order",
     "checkoutIntro": "Review and pay securely",
     "email": "Email address",
-    "emailHelp": "We'll send your payment receipt and letter updates to this address. We won't use it for marketing.",
+    "emailHelp": "We'll send your receipt here first, then dispatch updates and a secure order-status link where the final PDF stays available while retained. We won't use this address for marketing.",
     "paymentMethod": "Payment method",
     "paymentPending": "Payment form loading…",
     "paymentConfigError": "Payment system is not configured. Please try again later.",
@@ -547,9 +547,9 @@
     "paymentError": "Payment failed. Please try again.",
     "enterPaymentDetails": "Enter payment details",
     "continueToPayment": "Next",
-  "calculatingPayment": "Calculating price\u2026",
+  "calculatingPayment": "Calculating\u2026",
     "backToReview": "Back",
-  "paymentMethodsHelp": "Pay with TWINT or a credit or debit card. TWINT is available to all Swiss bank customers."
+  "paymentMethodsHelp": "TWINT appears first. Cards and supported wallets appear when Stripe and your device make them available."
   },
   "attachments": {
     "title": "Attachments",

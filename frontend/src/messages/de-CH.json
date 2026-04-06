@@ -515,7 +515,7 @@
     "orderSummary": "Ihre Bestellung",
     "checkoutIntro": "Prüfen und sicher zahlen",
     "email": "E-Mail-Adresse",
-    "emailHelp": "Wir senden Ihre Zahlungsquittung und Brief-Updates an diese Adresse. Wir verwenden sie nicht für Marketing.",
+    "emailHelp": "Wir senden Ihre Quittung zuerst an diese Adresse und danach Versand-Updates sowie einen sicheren Bestellstatus-Link, über den das finale PDF verfügbar bleibt, solange es aufbewahrt wird. Keine Werbung.",
     "paymentMethod": "Zahlungsmethode",
     "paymentPending": "Zahlungsformular wird geladen…",
     "paymentConfigError": "Das Zahlungssystem ist nicht konfiguriert. Bitte versuchen Sie es später erneut.",
@@ -547,9 +547,9 @@
     "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "enterPaymentDetails": "Zahlungsdetails eingeben",
     "continueToPayment": "Weiter",
-    "calculatingPayment": "Preis wird berechnet…",
+    "calculatingPayment": "Berechnung…",
     "backToReview": "Zurück",
-    "paymentMethodsHelp": "Bezahlen Sie mit TWINT oder einer Kredit- oder Debitkarte. TWINT steht allen Schweizer Bankkunden zur Verfügung."
+    "paymentMethodsHelp": "TWINT erscheint zuerst. Karten und unterstützte Wallets werden angezeigt, wenn Stripe und Ihr Gerät sie freigeben."
   },
   "attachments": {
     "title": "Anhänge",

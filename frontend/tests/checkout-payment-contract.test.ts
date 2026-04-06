@@ -30,7 +30,7 @@ const locales = [
 // i18n key coverage
 // ---------------------------------------------------------------------------
 
-const NEW_CHECKOUT_KEYS = ["paymentMethodsHelp", "calculatingPayment"] as const;
+const NEW_CHECKOUT_KEYS = ["emailHelp", "paymentMethodsHelp", "calculatingPayment"] as const;
 
 describe("checkout-payment-contract i18n", () => {
   for (const locale of locales) {
@@ -46,6 +46,26 @@ describe("checkout-payment-contract i18n", () => {
       }
     });
   }
+
+  it("en-CH emailHelp mentions secure order-status link", () => {
+    const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
+    expect(checkout["emailHelp"]).toContain("secure order-status link");
+  });
+
+  it("en-CH paymentMethodsHelp mentions TWINT", () => {
+    const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
+    expect(checkout["paymentMethodsHelp"]).toContain("TWINT");
+  });
+
+  it("en-CH paymentMethodsHelp mentions supported wallets", () => {
+    const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
+    expect(checkout["paymentMethodsHelp"]).toContain("supported wallets");
+  });
+
+  it('en-CH calculatingPayment is exactly "Calculating\u2026"', () => {
+    const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
+    expect(checkout["calculatingPayment"]).toBe("Calculating\u2026");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -103,6 +123,10 @@ describe("checkout-payment-contract page layout", () => {
 describe("checkout-payment-contract StripePaymentForm", () => {
   it("renders a paymentMethodsHelp paragraph", () => {
     expect(stripePaymentFormSource).toContain('t("paymentMethodsHelp")');
+  });
+
+  it("styles the paymentMethodsHelp paragraph as a subtle helper (mb-3 text-xs)", () => {
+    expect(stripePaymentFormSource).toContain('mb-3 text-xs');
   });
 
   it("still lists twint first in paymentMethodOrder", () => {

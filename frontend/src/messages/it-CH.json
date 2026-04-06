@@ -515,7 +515,7 @@
     "orderSummary": "Il tuo ordine",
     "checkoutIntro": "Controlla e paga serenamente",
     "email": "Indirizzo e-mail",
-    "emailHelp": "Invieremo la ricevuta di pagamento e gli aggiornamenti sulla lettera a questo indirizzo. Non la useremo per marketing.",
+    "emailHelp": "Invieremo prima la ricevuta a questo indirizzo, poi gli aggiornamenti di spedizione e un link sicuro allo stato dell'ordine, dove il PDF finale resta disponibile finché viene conservato. Nessun marketing.",
     "paymentMethod": "Metodo di pagamento",
     "paymentPending": "Caricamento del modulo di pagamento…",
     "paymentConfigError": "Il sistema di pagamento non è configurato. Si prega di riprovare più tardi.",
@@ -547,9 +547,9 @@
     "paymentError": "Pagamento fallito. Si prega di riprovare.",
     "enterPaymentDetails": "Inserire i dati di pagamento",
     "continueToPayment": "Avanti",
-    "calculatingPayment": "Calcolo del prezzo…",
+    "calculatingPayment": "Calcolo…",
     "backToReview": "Indietro",
-    "paymentMethodsHelp": "Paga con TWINT o una carta di credito o di debito. TWINT è disponibile per tutti i clienti delle banche svizzere."
+    "paymentMethodsHelp": "TWINT appare per primo. Carte e wallet supportati vengono mostrati quando Stripe e il tuo dispositivo li rendono disponibili."
   },
   "attachments": {
     "title": "Allegati",
