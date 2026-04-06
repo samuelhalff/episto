@@ -1,4 +1,5 @@
 import {
+  DRAFT_WORKSPACE_STEPS,
   getDraftWorkspacePath,
   isDraftWorkspaceStepSlug,
   type DraftWorkspaceStepSlug,
@@ -7,13 +8,7 @@ import {
 export type CustomerFlowStep = DraftWorkspaceStepSlug | "review" | "checkout";
 
 export const CUSTOMER_FLOW_STEPS: CustomerFlowStep[] = [
-  "intake",
-  "sender",
-  "recipient",
-  "body",
-  "attachments",
-  "subject",
-  "logistics",
+  ...DRAFT_WORKSPACE_STEPS.map((s) => s.slug),
   "review",
   "checkout",
 ];
@@ -32,7 +27,7 @@ export function getPreviousCustomerFlowStep(
     return null;
   }
 
-  return CUSTOMER_FLOW_STEPS[index - 1] ?? null;
+  return CUSTOMER_FLOW_STEPS[index - 1];
 }
 
 export function getNextCustomerFlowStep(
@@ -43,7 +38,7 @@ export function getNextCustomerFlowStep(
     return null;
   }
 
-  return CUSTOMER_FLOW_STEPS[index + 1] ?? null;
+  return CUSTOMER_FLOW_STEPS[index + 1];
 }
 
 export function getCustomerFlowPath(

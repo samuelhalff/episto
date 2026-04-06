@@ -6,6 +6,7 @@ import {
   getCustomerFlowPath,
   getNextCustomerFlowStep,
   getPreviousCustomerFlowStep,
+  isDraftWorkspaceCustomerFlowStep,
 } from "../src/lib/customer-flow";
 
 describe("customer flow graph", () => {
@@ -24,12 +25,18 @@ describe("customer flow graph", () => {
   });
 
   it("returns the previous and next step across workspace and page boundaries", () => {
+    expect(getPreviousCustomerFlowStep("intake")).toBeNull();
     expect(getPreviousCustomerFlowStep("sender")).toBe("intake");
     expect(getPreviousCustomerFlowStep("review")).toBe("logistics");
     expect(getPreviousCustomerFlowStep("checkout")).toBe("review");
     expect(getNextCustomerFlowStep("logistics")).toBe("review");
     expect(getNextCustomerFlowStep("review")).toBe("checkout");
     expect(getNextCustomerFlowStep("checkout")).toBeNull();
+  });
+
+  it("classifies workspace vs non-workspace steps", () => {
+    expect(isDraftWorkspaceCustomerFlowStep("sender")).toBe(true);
+    expect(isDraftWorkspaceCustomerFlowStep("review")).toBe(false);
   });
 
   it("builds canonical routes for every flow step", () => {
@@ -44,5 +51,6 @@ describe("customer flow graph", () => {
     expect(getCustomerFlowBackPath("draft_123", "checkout")).toBe(
       "/draft/draft_123/review",
     );
+    expect(getCustomerFlowBackPath("draft_123", "intake")).toBeNull();
   });
 });
