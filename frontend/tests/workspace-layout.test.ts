@@ -71,7 +71,7 @@ describe("workspace layout regressions", () => {
 
   it("keeps the desktop preview visible by default instead of resetting closed on each step", () => {
     expect(draftWorkspaceClientSource).toContain(
-      "const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(true);",
+      "readPreviewPanelPreference(draftId) ?? true",
     );
     expect(draftWorkspaceClientSource).not.toContain(
       "setIsPreviewPanelOpen(false);\n  }, [resolvedStepSlug]);",

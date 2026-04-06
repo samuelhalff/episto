@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Loader2, RefreshCw, X } from "lucide-react";
 import { useDraft } from "../../../hooks/use-api";
@@ -20,9 +21,15 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
   const { previewData, isStale, isLoading, error, refreshPreview, isRefreshing } =
     useLetterPreview(draftId);
 
+  const [transitionsEnabled, setTransitionsEnabled] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setTransitionsEnabled(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
+
   return (
     <div
-      className={`flex h-full shrink-0 flex-col overflow-hidden bg-[var(--app-surface-soft)] transition-[width,opacity] duration-300 ease-out ${
+      className={`flex h-full shrink-0 flex-col overflow-hidden bg-[var(--app-surface-soft)] ${transitionsEnabled ? "transition-[width,opacity] duration-300 ease-out" : "transition-none"} ${
         isOpen
           ? "w-[520px] border-l border-[var(--app-border)] opacity-100"
           : "w-0 opacity-0"

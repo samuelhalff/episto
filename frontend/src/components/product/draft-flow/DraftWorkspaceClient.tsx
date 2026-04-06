@@ -37,6 +37,10 @@ import {
   getPreviousCustomerFlowStep,
   isDraftWorkspaceCustomerFlowStep,
 } from "../../../lib/customer-flow";
+import {
+  readPreviewPanelPreference,
+  writePreviewPanelPreference,
+} from "./preview-panel-preference";
 
 interface DraftWorkspaceClientProps {
   draftId: string;
@@ -64,7 +68,9 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const [showSteps, setShowSteps] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [, setIsInputFocused] = useState(false);
-  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(true);
+  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(
+    () => readPreviewPanelPreference(draftId) ?? true,
+  );
 
   useEffect(() => {
     if (!isCompactViewport) {
@@ -130,13 +136,8 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   }, [resolvedStepSlug]);
 
   useEffect(() => {
-    if (isWideViewport) {
-      setIsPreviewPanelOpen(true);
-      return;
-    }
-
-    setIsPreviewPanelOpen(false);
-  }, [isWideViewport]);
+    setIsPreviewPanelOpen(readPreviewPanelPreference(draftId) ?? true);
+  }, [draftId]);
 
   useEffect(() => {
     if (!draft.data) {
@@ -213,15 +214,20 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     [],
   );
 
-  const handleTogglePreview = useCallback(
-    () => setIsPreviewPanelOpen((prev) => !prev),
-    [],
-  );
+  const handleTogglePreview = useCallback(() => {
+    setIsPreviewPanelOpen((prev) => {
+      const next = !prev;
+      writePreviewPanelPreference(draftId, next);
+      return next;
+    });
+  }, [draftId]);
 
-  const handleClosePreview = useCallback(
-    () => setIsPreviewPanelOpen(false),
-    [],
-  );
+  const handleClosePreview = useCallback(() => {
+    setIsPreviewPanelOpen((prev) => {
+      if (prev) writePreviewPanelPreference(draftId, false);
+      return false;
+    });
+  }, [draftId]);
 
   const isPreviewPanelVisible = isWideViewport && isPreviewPanelOpen;
 
