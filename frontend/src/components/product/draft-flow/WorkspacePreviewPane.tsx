@@ -32,7 +32,7 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
       className={`flex h-full shrink-0 flex-col overflow-hidden bg-[var(--app-surface-soft)] ${transitionsEnabled ? "transition-[width,opacity] duration-300 ease-out" : "transition-none"} ${
         isOpen
           ? "w-[520px] border-l border-[var(--app-border)] opacity-100"
-          : "w-0 opacity-0"
+          : "w-0 border-l border-transparent opacity-0"
       }`}
       aria-hidden={!isOpen}
       {...(!isOpen ? { inert: true } : undefined)}

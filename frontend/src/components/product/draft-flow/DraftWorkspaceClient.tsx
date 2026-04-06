@@ -214,20 +214,19 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     [],
   );
 
-  const handleTogglePreview = useCallback(() => {
-    setIsPreviewPanelOpen((prev) => {
-      const next = !prev;
-      writePreviewPanelPreference(draftId, next);
-      return next;
-    });
-  }, [draftId]);
+  const handleTogglePreview = useCallback(
+    () => setIsPreviewPanelOpen((prev) => !prev),
+    [],
+  );
 
-  const handleClosePreview = useCallback(() => {
-    setIsPreviewPanelOpen((prev) => {
-      if (prev) writePreviewPanelPreference(draftId, false);
-      return false;
-    });
-  }, [draftId]);
+  const handleClosePreview = useCallback(
+    () => setIsPreviewPanelOpen(() => false),
+    [],
+  );
+
+  useEffect(() => {
+    writePreviewPanelPreference(draftId, isPreviewPanelOpen);
+  }, [draftId, isPreviewPanelOpen]);
 
   const isPreviewPanelVisible = isWideViewport && isPreviewPanelOpen;
 
