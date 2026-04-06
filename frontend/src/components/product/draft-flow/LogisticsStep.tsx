@@ -268,8 +268,6 @@ export function LogisticsStep({
       isStepMenuOpen={isStepMenuOpen}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      onTogglePreview={onTogglePreview}
-      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={canReview ? handleReview : handleBlockedReview}

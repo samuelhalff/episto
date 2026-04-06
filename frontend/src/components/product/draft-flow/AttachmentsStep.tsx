@@ -69,8 +69,6 @@ export function AttachmentsStep({
       isStepMenuOpen={isStepMenuOpen}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      onTogglePreview={onTogglePreview}
-      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={

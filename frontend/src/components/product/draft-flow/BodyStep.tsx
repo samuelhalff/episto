@@ -486,8 +486,6 @@ export function BodyStep({
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      onTogglePreview={onTogglePreview}
-      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={primaryCta}
       composer={
         isAiMode ? (

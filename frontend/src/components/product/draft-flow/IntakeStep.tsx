@@ -375,8 +375,6 @@ export function IntakeStep({
       isInputFocused={isComposerFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      onTogglePreview={onTogglePreview}
-      isPreviewPanelVisible={isPreviewPanelVisible}
       hideDockStepTrigger
       composer={intakeComposer}
     >

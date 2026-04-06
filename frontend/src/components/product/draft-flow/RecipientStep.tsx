@@ -342,8 +342,6 @@ export function RecipientStep({
       isInputFocused={isFormFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      onTogglePreview={onTogglePreview}
-      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={canProceed ? handleNext : handleBlockedNext}

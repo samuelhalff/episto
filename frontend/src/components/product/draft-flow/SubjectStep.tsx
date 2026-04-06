@@ -105,8 +105,6 @@ export function SubjectStep({
       isInputFocused={isFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      onTogglePreview={onTogglePreview}
-      isPreviewPanelVisible={isPreviewPanelVisible}
       primaryAction={
         <PrimaryButton
           onClick={canProceed ? handleConfirm : handleBlockedConfirm}
