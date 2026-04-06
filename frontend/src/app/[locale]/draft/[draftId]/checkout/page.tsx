@@ -168,7 +168,7 @@ export default function CheckoutPage({
 
       <main
         id="main-content"
-        className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 pt-8 sm:px-6 lg:grid-cols-[340px_minmax(0,1fr)]"
+        className="mx-auto grid max-w-7xl gap-6 px-4 pb-[calc(6rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-12 lg:grid-cols-[340px_minmax(0,1fr)]"
       >
         <aside className="space-y-4 lg:sticky lg:top-28">
           <PriceSummary

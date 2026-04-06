@@ -1,5 +1,3 @@
-"use client";
-
 import type { ReactNode } from "react";
 
 // ---------------------------------------------------------------------------
@@ -25,7 +23,7 @@ export function FlowActionDock({
       className={[
         "app-sticky-bar fixed inset-x-0 bottom-0 z-30 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4",
         "lg:static lg:mt-8 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:shadow-none lg:outline-none lg:backdrop-blur-none",
-        className ?? "",
+        className,
       ]
         .filter(Boolean)
         .join(" ")}

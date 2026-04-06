@@ -19,6 +19,7 @@ describe("FlowActionDock usage", () => {
       "utf-8",
     );
     expect(src).toContain("<FlowActionDock");
+    expect(src).toContain("pb-[calc(6rem+env(safe-area-inset-bottom))]");
   });
 
   it("StripePaymentForm uses FlowActionDock", () => {
