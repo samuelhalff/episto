@@ -421,10 +421,13 @@ export function BodyStep({
   const shouldShowBodyGenerationDialog =
     !canProceed &&
     (initialComposeStatus === "loading" || initialComposeStatus === "error");
-  // ── Dock: [Step trigger] [👁 Preview] [Primary CTA] ──────────────────────
-  const previewButton = canProceed ? (
+  // Keep preview in the sticky toolbar so it never widens the dock CTA row.
+  const bodyModeToolbarClassName =
+    "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7";
+  const previewToolbarButton = canProceed ? (
     <SurfaceIconButton
       type="button"
+      size="composer"
       onClick={() => setShowPreview(true)}
       disabled={isNavigating}
       aria-label={t("openDraftPreview")}
@@ -486,14 +489,7 @@ export function BodyStep({
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      primaryAction={
-        previewButton || primaryCta ? (
-          <div className="flex items-center gap-3">
-            {previewButton}
-            {primaryCta ? <div className="flex-1">{primaryCta}</div> : null}
-          </div>
-        ) : null
-      }
+      primaryAction={primaryCta}
       composer={
         isAiMode ? (
           <>
@@ -539,23 +535,28 @@ export function BodyStep({
     >
       <div className="space-y-5 pb-4">
         {/* ── Mode toggle ─────────────────────────────────────────────── */}
-        <div className="px-1">
-          <SegmentedControl
-            options={[
-              {
-                value: "ai" as const,
-                label: t("modeAi"),
-                icon: <Sparkles className="h-3 w-3" />,
-              },
-              {
-                value: "manual" as const,
-                label: t("modeManual"),
-                icon: <Pencil className="h-3 w-3" />,
-              },
-            ]}
-            value={editMode}
-            onChange={handleModeChange}
-          />
+        <div className={bodyModeToolbarClassName}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <SegmentedControl
+                options={[
+                  {
+                    value: "ai" as const,
+                    label: t("modeAi"),
+                    icon: <Sparkles className="h-3 w-3" />,
+                  },
+                  {
+                    value: "manual" as const,
+                    label: t("modeManual"),
+                    icon: <Pencil className="h-3 w-3" />,
+                  },
+                ]}
+                value={editMode}
+                onChange={handleModeChange}
+              />
+            </div>
+            {previewToolbarButton ? <div className="shrink-0">{previewToolbarButton}</div> : null}
+          </div>
         </div>
 
         {/* ── AI mode ─────────────────────────────────────────────────── */}
