@@ -40,7 +40,7 @@ import {
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 
-interface StepProps extends DraftWorkspaceStepShellProps {}
+type StepProps = DraftWorkspaceStepShellProps;
 
 export function LogisticsStep({
   draftId,
