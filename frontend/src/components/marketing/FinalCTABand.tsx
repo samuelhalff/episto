@@ -29,12 +29,12 @@ export function FinalCTABand({
         className,
       )}
     >
-      {eyebrow ? <SectionLabel className="text-white/70">{eyebrow}</SectionLabel> : null}
-      <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.05em] text-white md:text-5xl">
+      {eyebrow ? <SectionLabel className="text-zinc-800/80">{eyebrow}</SectionLabel> : null}
+      <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.05em] text-zinc-950 md:text-5xl">
         {title}
       </h2>
       {body ? (
-        <div className="mt-4 max-w-2xl text-sm leading-7 text-white/80 md:text-base">
+        <div className="mt-4 max-w-2xl text-sm leading-7 text-zinc-800/80 md:text-base">
           {body}
         </div>
       ) : null}

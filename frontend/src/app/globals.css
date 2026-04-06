@@ -341,18 +341,28 @@
 
   .marketing-cta-band {
     background:
-      radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 34%),
-      linear-gradient(135deg, #b85c38 0%, #a04e2e 100%);
-    box-shadow: 0 28px 90px rgba(160, 78, 46, 0.28);
-    color: #fffaf5;
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.28), transparent 36%),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--action-primary-bg) 82%, white) 0%,
+        var(--action-primary-bg) 58%,
+        var(--action-primary-hover) 100%
+      );
+    box-shadow: 0 28px 90px color-mix(in srgb, var(--action-primary-bg) 32%, transparent);
+    color: var(--action-primary-fg);
   }
 
   .dark .marketing-cta-band {
     background:
-      radial-gradient(circle at top, rgba(251, 191, 36, 0.12), transparent 36%),
-      linear-gradient(135deg, #7c3a1a 0%, #5c2d12 100%);
-    box-shadow: 0 28px 90px rgba(60, 20, 5, 0.5);
-    color: #fef3e2;
+      radial-gradient(circle at top, rgba(255, 255, 255, 0.18), transparent 38%),
+      linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--action-primary-bg) 76%, white) 0%,
+        var(--action-primary-bg) 54%,
+        var(--action-primary-hover) 100%
+      );
+    box-shadow: 0 28px 90px color-mix(in srgb, var(--action-primary-bg) 28%, transparent);
+    color: var(--action-primary-fg);
   }
 }
 

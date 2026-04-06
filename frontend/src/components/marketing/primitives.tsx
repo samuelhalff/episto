@@ -19,7 +19,7 @@ export function MarketingSection({
   return (
     <section
       className={cx(
-        "px-4 py-12 sm:px-6 sm:py-16 md:py-24 lg:py-28",
+        "px-4 py-16 sm:px-6 lg:py-24",
         muted && "bg-[var(--app-surface-muted)]/55 dark:bg-zinc-900/35",
         className,
       )}
