@@ -33,25 +33,20 @@ import {
 } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 import { LoadingDots } from "../../ui/loading-dots";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface StepProps {
-  draftId: string;
+interface StepProps
+  extends DraftWorkspaceStepShellProps,
+    DraftWorkspacePreviewToggleProps {
   onNext: () => void;
-  onPrevious?: (() => void) | undefined;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  onInputFocusChange?: (focused: boolean) => void;
-  isNavigating?: boolean;
-  previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
-  onTogglePreview?: (() => void) | undefined;
-  isPreviewPanelVisible?: boolean | undefined;
 }
 
 type EditMode = "ai" | "manual";
@@ -83,7 +78,6 @@ export function BodyStep({
   onInputFocusChange,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
   onTogglePreview,
   isPreviewPanelVisible,
 }: StepProps) {
@@ -425,10 +419,12 @@ export function BodyStep({
   const shouldShowBodyGenerationDialog =
     !canProceed &&
     (initialComposeStatus === "loading" || initialComposeStatus === "error");
-  // ── Dock: [Step trigger] [👁 Preview] [Primary CTA] ──────────────────────
-  const previewButton = canProceed && !isPreviewPanelVisible ? (
+  const bodyModeToolbarClassName =
+    "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7";
+  const previewToolbarButton = canProceed && !isPreviewPanelVisible ? (
     <SurfaceIconButton
       type="button"
+      size="composer"
       onClick={() => setShowPreview(true)}
       disabled={isNavigating}
       aria-label={t("openDraftPreview")}
@@ -492,14 +488,7 @@ export function BodyStep({
       isNavigating={isNavigating}
       onTogglePreview={onTogglePreview}
       isPreviewPanelVisible={isPreviewPanelVisible}
-      primaryAction={
-        previewButton || primaryCta ? (
-          <div className="flex items-center gap-3">
-            {previewButton}
-            {primaryCta ? <div className="flex-1">{primaryCta}</div> : null}
-          </div>
-        ) : null
-      }
+      primaryAction={primaryCta}
       composer={
         isAiMode ? (
           <>
@@ -556,23 +545,28 @@ export function BodyStep({
     >
       <div className="space-y-5 pb-4">
         {/* ── Mode toggle ─────────────────────────────────────────────── */}
-        <div className={isCompactViewport ? "px-1" : "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"}>
-          <SegmentedControl
-            options={[
-              {
-                value: "ai" as const,
-                label: t("modeAi"),
-                icon: <Sparkles className="h-3 w-3" />,
-              },
-              {
-                value: "manual" as const,
-                label: t("modeManual"),
-                icon: <Pencil className="h-3 w-3" />,
-              },
-            ]}
-            value={editMode}
-            onChange={handleModeChange}
-          />
+        <div className={bodyModeToolbarClassName}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <SegmentedControl
+                options={[
+                  {
+                    value: "ai" as const,
+                    label: t("modeAi"),
+                    icon: <Sparkles className="h-3 w-3" />,
+                  },
+                  {
+                    value: "manual" as const,
+                    label: t("modeManual"),
+                    icon: <Pencil className="h-3 w-3" />,
+                  },
+                ]}
+                value={editMode}
+                onChange={handleModeChange}
+              />
+            </div>
+            {previewToolbarButton ? <div className="shrink-0">{previewToolbarButton}</div> : null}
+          </div>
         </div>
 
         {/* ── AI mode ─────────────────────────────────────────────────── */}

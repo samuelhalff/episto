@@ -27,8 +27,6 @@ interface DraftShellProps {
   isCompactViewport?: boolean | undefined;
   hideDockStepTrigger?: boolean | undefined;
   isNavigating?: boolean | undefined;
-  onTogglePreview?: (() => void) | undefined;
-  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function DraftShell({
@@ -226,8 +224,8 @@ export function DraftShell({
           <div
             className={
               isCompactViewport
-                ? "flex min-h-full flex-1 flex-col pb-32 pt-5"
-                : "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-36 pt-2 lg:px-6"
+                ? "flex min-h-full flex-1 flex-col pb-10 pt-5"
+                : "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-12 pt-2 lg:px-6"
             }
           >
             {children}
@@ -235,9 +233,9 @@ export function DraftShell({
 
           {/* ── Sticky dock ── */}
           <div
-            className="relative sticky bottom-0 z-20 bg-[var(--app-surface-muted)] px-2 lg:px-0"
+            className="relative sticky bottom-0 z-20 bg-[var(--app-surface-muted)] px-3 sm:px-4 lg:px-0"
             style={{
-              paddingBottom: `calc(env(safe-area-inset-bottom, 0px) + ${isCompactViewport ? "0.5rem" : "0.75rem"})`,
+              paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)",
               paddingTop: isCompactViewport ? "0" : "1rem",
             }}
           >
@@ -255,7 +253,7 @@ export function DraftShell({
                 </div>
               ) : null}
 
-              <div className="flex min-w-0 items-center gap-3">
+              <div className="flex min-w-0 items-center gap-3 py-1">
                 {!hideDockStepTrigger && isCompactViewport ? (
                   <StepTriggerButton
                     size="dock"

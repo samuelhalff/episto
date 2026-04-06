@@ -220,4 +220,14 @@ describe("draft workspace navigation", () => {
     expect(logisticsStepSource).toContain('t("continueToReview")');
     expect(logisticsStepSource).not.toContain('t("reviewAndPay")');
   });
+
+  it("routes preview props only to steps that render preview controls", () => {
+    expect(draftWorkspaceClientSource).toContain("const previewProps = {");
+    expect(draftWorkspaceClientSource).not.toMatch(
+      /const commonProps = \{[\s\S]*onTogglePreview[\s\S]*isPreviewPanelVisible/,
+    );
+    expect(draftWorkspaceClientSource).not.toContain("furthestUnlockedStepIndex,");
+    expect(draftWorkspaceClientSource).toContain('<IntakeStep key="intake" {...commonProps} {...previewProps} />');
+    expect(draftWorkspaceClientSource).toContain('<BodyStep key="body" {...commonProps} {...previewProps} />');
+  });
 });

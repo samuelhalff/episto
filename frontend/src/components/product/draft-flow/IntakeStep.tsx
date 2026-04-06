@@ -26,20 +26,19 @@ import {
   shouldSendShortcutImmediately,
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
-import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import {
+  getDraftWorkspaceState,
+  mergeDraftWorkspaceState,
+} from "./workspace-state";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 
-interface IntakeStepProps {
-  draftId: string;
+interface IntakeStepProps
+  extends DraftWorkspaceStepShellProps,
+    DraftWorkspacePreviewToggleProps {
   onNext: () => void;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  onInputFocusChange?: (focused: boolean) => void;
-  isNavigating?: boolean;
-  navigateToStep?: (step: "intake" | "sender" | "recipient" | "body" | "subject" | "logistics") => void;
-  furthestUnlockedStepIndex?: number;
-  onTogglePreview?: (() => void) | undefined;
-  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function IntakeStep({
@@ -381,7 +380,7 @@ export function IntakeStep({
       hideDockStepTrigger
       composer={intakeComposer}
     >
-      <div className="flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-4">
+      <div className="flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-2">
         {hasConversationActivity ? (
           <section ref={threadContainerRef} className="mt-auto space-y-3 px-2" aria-live="polite">
             {conversation.messages.map((message) => {

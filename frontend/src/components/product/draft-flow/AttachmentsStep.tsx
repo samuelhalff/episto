@@ -7,19 +7,10 @@ import { AttachmentUploader } from "../AttachmentUploader";
 import { Card, DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { mergeDraftWorkspaceState } from "./workspace-state";
+import type { DraftWorkspaceStepShellProps } from "./step-props";
 
-interface StepProps {
-  draftId: string;
+interface StepProps extends DraftWorkspaceStepShellProps {
   onNext: () => void;
-  onPrevious?: (() => void) | undefined;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  isNavigating?: boolean;
-  previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
-  onTogglePreview?: (() => void) | undefined;
-  isPreviewPanelVisible?: boolean | undefined;
 }
 
 export function AttachmentsStep({
@@ -31,9 +22,6 @@ export function AttachmentsStep({
   isCompactViewport,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
-  onTogglePreview,
-  isPreviewPanelVisible,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);

@@ -157,9 +157,9 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     draft.data,
     draft.isLoading,
     draftId,
-    furthestUnlockedStepIndex,
     resolvedStepSlug,
     router,
+    furthestUnlockedStepIndex
   ]);
 
   const navigateToStep = useCallback(
@@ -177,7 +177,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       setIsNavigating(true);
       router.push(getDraftWorkspacePath(draftId, targetStepSlug));
     },
-    [currentStepSlug, draftId, furthestUnlockedStepIndex, router],
+    [currentStepSlug, draftId, router, furthestUnlockedStepIndex],
   );
 
   const beginNavigation = useCallback(() => {
@@ -213,6 +213,11 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
 
   const isPreviewPanelVisible = isWideViewport && isPreviewPanelOpen;
 
+  const previewProps = {
+    onTogglePreview: isWideViewport ? handleTogglePreview : undefined,
+    isPreviewPanelVisible,
+  };
+
   const commonProps = {
     draftId,
     onNext: handleNext,
@@ -225,16 +230,13 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     isNavigating,
     beginNavigation,
     navigateToStep,
-    furthestUnlockedStepIndex,
-    onTogglePreview: isWideViewport ? handleTogglePreview : undefined,
-    isPreviewPanelVisible,
   };
 
   const stepComponents = [
-    <IntakeStep key="intake" {...commonProps} />,
+    <IntakeStep key="intake" {...commonProps} {...previewProps} />,
     <SenderStep key="sender" {...commonProps} />,
     <RecipientStep key="recipient" {...commonProps} />,
-    <BodyStep key="body" {...commonProps} />,
+    <BodyStep key="body" {...commonProps} {...previewProps} />,
     <AttachmentsStep key="attachments" {...commonProps} />,
     <SubjectStep key="subject" {...commonProps} />,
     <LogisticsStep key="logistics" {...commonProps} />,

@@ -65,6 +65,8 @@ describe("workspace layout regressions", () => {
     expect(draftShellSource).toContain("ScrollShadowViewport");
     expect(draftShellSource).toContain("min-w-0");
     expect(draftShellSource).not.toContain("shouldHideDock");
+    expect(draftShellSource).not.toContain("onTogglePreview?:");
+    expect(draftShellSource).not.toContain("isPreviewPanelVisible?:");
   });
 
   it("keeps the desktop preview visible by default instead of resetting closed on each step", () => {
@@ -77,12 +79,18 @@ describe("workspace layout regressions", () => {
   });
 
   it("anchors the early intake thread toward the composer instead of leaving a dead zone", () => {
-    expect(intakeStepSource).toContain("flex flex-1 h-full min-h-full flex-col justify-end");
+    expect(intakeStepSource).toContain("flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-2");
     expect(intakeStepSource).toContain('className="mt-auto space-y-3 px-2"');
     expect(draftShellSource).toContain(
-      '? "flex min-h-full flex-1 flex-col pb-32 pt-5"',
+      '? "flex min-h-full flex-1 flex-col pb-10 pt-5"',
     );
     expect(draftShellSource).toContain(
+      ': "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-12 pt-2 lg:px-6"',
+    );
+    expect(draftShellSource).not.toContain(
+      '? "flex min-h-full flex-1 flex-col pb-32 pt-5"',
+    );
+    expect(draftShellSource).not.toContain(
       ': "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-36 pt-2 lg:px-6"',
     );
   });
