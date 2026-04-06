@@ -38,18 +38,9 @@ import {
   SegmentedControl,
 } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import type { DraftWorkspaceStepShellProps } from "./step-props";
 
-interface StepProps {
-  draftId: string;
-  onPrevious?: (() => void) | undefined;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  isNavigating?: boolean;
-  beginNavigation?: () => void;
-  previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
-}
+type StepProps = DraftWorkspaceStepShellProps;
 
 export function LogisticsStep({
   draftId,
@@ -60,7 +51,6 @@ export function LogisticsStep({
   isNavigating,
   beginNavigation,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const router = useRouter();

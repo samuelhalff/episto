@@ -20,26 +20,21 @@ const bodyStepSource = readFileSync(
   "utf8",
 );
 
-const siteMenuPanelSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/layout/SiteMenuPanel.tsx"),
-  "utf8",
-);
-
-const workspaceSiteMenuSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/WorkspaceSiteMenu.tsx"),
+const draftShellSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/draft-shell.tsx"),
   "utf8",
 );
 
 describe("shared action spacing regressions", () => {
   it("keeps sheet footers on a shared vertical rhythm", () => {
     expect(sheetSource).toContain("flex flex-col gap-3 border-t");
-    expect(sheetSource).toContain("pt-4");
   });
 
-  it("keeps the body-step dock actions and workspace menu sections aligned to the shared spacing scale", () => {
-    expect(bodyStepSource).toContain('className="flex items-center gap-3"');
-    expect(siteMenuPanelSource).toContain('className="space-y-4"');
-    expect(siteMenuPanelSource).toContain('className="space-y-3.5"');
-    expect(workspaceSiteMenuSource).toContain('className="space-y-3.5"');
+  it("keeps the body-step preview control out of the bottom dock", () => {
+    expect(bodyStepSource).toContain(
+      "// Keep preview in the sticky toolbar so it never widens the dock CTA row.",
+    );
+    expect(bodyStepSource).toContain("primaryCta");
+    expect(draftShellSource).toContain("flex min-w-0 items-center gap-3");
   });
 });

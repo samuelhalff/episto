@@ -56,6 +56,8 @@ describe("workspace layout regressions", () => {
     expect(draftShellSource).toContain("overflow-x-hidden");
     expect(draftShellSource).toContain("min-w-0");
     expect(draftShellSource).not.toContain("shouldHideDock");
+    expect(draftShellSource).not.toContain("onTogglePreview?:");
+    expect(draftShellSource).not.toContain("isPreviewPanelVisible?:");
   });
 
   it("keeps step lists shrinkable instead of forcing horizontal overflow", () => {

@@ -26,6 +26,10 @@ import {
   isDraftWorkspaceStepLocked,
   resolveDraftWorkspaceStepSlug,
 } from "./steps";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 import { usePathname, useRouter } from "../../../i18n/navigation";
 import { ApiError } from "../../../lib/api";
 
@@ -33,6 +37,10 @@ interface DraftWorkspaceClientProps {
   draftId: string;
   stepSlug?: DraftWorkspaceStepSlug;
 }
+
+type DraftWorkspaceNextableStepProps = DraftWorkspaceStepShellProps & {
+  onNext: () => void;
+};
 
 const PREPARED_REVIEW_STATUSES = new Set(["reviewed", "rendering", "ready"]);
 const POST_SUBMISSION_STATUSES = new Set(["submitted", "dispatched", "closed"]);
@@ -90,7 +98,8 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const isBootstrappingWorkspace =
     (!draft.data && draft.isLoading) || (!draft.data && session.isLoading);
   const furthestUnlockedStepIndex = getDraftWorkspaceUnlockedStepIndex(draft.data);
-  const currentStep = Math.min(requestedStepIndex, furthestUnlockedStepIndex);
+  const unlockedStepIndex = furthestUnlockedStepIndex;
+  const currentStep = Math.min(requestedStepIndex, unlockedStepIndex);
   const currentStepSlug = getDraftWorkspaceStepSlugByIndex(currentStep);
   const nextStepSlug = getNextDraftWorkspaceStep(currentStep);
   const previousStepSlug = getPreviousDraftWorkspaceStep(currentStep);
@@ -132,7 +141,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       return;
     }
 
-    if (!isDraftWorkspaceStepLocked(resolvedStepSlug, furthestUnlockedStepIndex)) {
+    if (!isDraftWorkspaceStepLocked(resolvedStepSlug, unlockedStepIndex)) {
       return;
     }
 
@@ -144,14 +153,14 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     draft.data,
     draft.isLoading,
     draftId,
-    furthestUnlockedStepIndex,
+    unlockedStepIndex,
     resolvedStepSlug,
     router,
   ]);
 
   const navigateToStep = useCallback(
     (targetStepSlug: DraftWorkspaceStepSlug) => {
-      if (isDraftWorkspaceStepLocked(targetStepSlug, furthestUnlockedStepIndex)) {
+      if (isDraftWorkspaceStepLocked(targetStepSlug, unlockedStepIndex)) {
         setShowSteps(false);
         return;
       }
@@ -164,7 +173,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       setIsNavigating(true);
       router.push(getDraftWorkspacePath(draftId, targetStepSlug));
     },
-    [currentStepSlug, draftId, furthestUnlockedStepIndex, router],
+    [currentStepSlug, draftId, unlockedStepIndex, router],
   );
 
   const beginNavigation = useCallback(() => {
@@ -200,14 +209,15 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     isNavigating,
     beginNavigation,
     navigateToStep,
-    furthestUnlockedStepIndex,
-  };
+  } satisfies DraftWorkspaceNextableStepProps;
+
+  const previewProps = {} satisfies DraftWorkspacePreviewToggleProps;
 
   const stepComponents = [
-    <IntakeStep key="intake" {...commonProps} />,
+    <IntakeStep key="intake" {...commonProps} {...previewProps} />,
     <SenderStep key="sender" {...commonProps} />,
     <RecipientStep key="recipient" {...commonProps} />,
-    <BodyStep key="body" {...commonProps} />,
+    <BodyStep key="body" {...commonProps} {...previewProps} />,
     <AttachmentsStep key="attachments" {...commonProps} />,
     <SubjectStep key="subject" {...commonProps} />,
     <LogisticsStep key="logistics" {...commonProps} />,
@@ -293,7 +303,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       {showSteps ? (
         <StepOverlay
           currentStep={currentStep}
-          furthestUnlockedStepIndex={furthestUnlockedStepIndex}
+          furthestUnlockedStepIndex={unlockedStepIndex}
           isCompactViewport={isCompactViewport}
           steps={DRAFT_WORKSPACE_STEPS.map((step) => ({
             id: step.id,

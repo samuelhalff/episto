@@ -7,18 +7,10 @@ import { normalizeLetterSubject } from "../../../lib/letter-content";
 import { DraftShell, Card, PrimaryButton } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { mergeDraftWorkspaceState } from "./workspace-state";
+import type { DraftWorkspaceStepShellProps } from "./step-props";
 
-interface StepProps {
-  draftId: string;
+interface StepProps extends DraftWorkspaceStepShellProps {
   onNext: () => void;
-  onPrevious?: (() => void) | undefined;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  onInputFocusChange?: (focused: boolean) => void;
-  isNavigating?: boolean;
-  previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
 }
 
 export function SubjectStep({
@@ -31,7 +23,6 @@ export function SubjectStep({
   onInputFocusChange,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);

@@ -19,6 +19,7 @@ import {
   mergeDraftWorkspaceState,
   type SenderDraftFormState,
 } from "./workspace-state";
+import type { DraftWorkspaceStepShellProps } from "./step-props";
 
 function getSenderPreviewName(sender: { firstName: string; lastName: string }): string {
   return [sender.firstName, sender.lastName]
@@ -27,17 +28,8 @@ function getSenderPreviewName(sender: { firstName: string; lastName: string }): 
     .join(" ");
 }
 
-interface StepProps {
-  draftId: string;
+interface StepProps extends DraftWorkspaceStepShellProps {
   onNext: () => void;
-  onPrevious?: (() => void) | undefined;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  onInputFocusChange?: (focused: boolean) => void;
-  isNavigating?: boolean;
-  previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
 }
 
 export function SenderStep({
@@ -50,7 +42,6 @@ export function SenderStep({
   onInputFocusChange,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const draft = useDraft(draftId);

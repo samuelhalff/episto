@@ -27,17 +27,15 @@ import {
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 
-interface IntakeStepProps {
-  draftId: string;
+interface IntakeStepProps
+  extends DraftWorkspaceStepShellProps,
+    DraftWorkspacePreviewToggleProps {
   onNext: () => void;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  onInputFocusChange?: (focused: boolean) => void;
-  isNavigating?: boolean;
-  navigateToStep?: (step: "intake" | "sender" | "recipient" | "body" | "subject" | "logistics") => void;
-  furthestUnlockedStepIndex?: number;
 }
 
 export function IntakeStep({

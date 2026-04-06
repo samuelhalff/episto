@@ -34,22 +34,19 @@ import {
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
 import { LoadingDots } from "../../ui/loading-dots";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
 
-interface StepProps {
-  draftId: string;
+interface StepProps
+  extends DraftWorkspaceStepShellProps,
+    DraftWorkspacePreviewToggleProps {
   onNext: () => void;
-  onPrevious?: (() => void) | undefined;
-  onStepClick: () => void;
-  isStepMenuOpen?: boolean;
-  isCompactViewport?: boolean;
-  onInputFocusChange?: (focused: boolean) => void;
-  isNavigating?: boolean;
-  previousStepLabel?: string | undefined;
-  furthestUnlockedStepIndex?: number;
 }
 
 type EditMode = "ai" | "manual";
@@ -81,7 +78,6 @@ export function BodyStep({
   onInputFocusChange,
   isNavigating,
   previousStepLabel,
-  furthestUnlockedStepIndex,
 }: StepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
@@ -422,6 +418,7 @@ export function BodyStep({
     !canProceed &&
     (initialComposeStatus === "loading" || initialComposeStatus === "error");
   // ── Dock: [Step trigger] [👁 Preview] [Primary CTA] ──────────────────────
+  // Keep preview in the sticky toolbar so it never widens the dock CTA row.
   const previewButton = canProceed ? (
     <SurfaceIconButton
       type="button"
