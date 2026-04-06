@@ -419,6 +419,7 @@ export function BodyStep({
   const shouldShowBodyGenerationDialog =
     !canProceed &&
     (initialComposeStatus === "loading" || initialComposeStatus === "error");
+  // Keep preview in the sticky toolbar so it never widens the dock CTA row.
   const bodyModeToolbarClassName =
     "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7";
   const previewToolbarButton = canProceed && !isPreviewPanelVisible ? (
