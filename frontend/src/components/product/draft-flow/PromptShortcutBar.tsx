@@ -52,9 +52,9 @@ export function PromptShortcutBar({
   return (
     <>
       <div
-        className={`flex min-w-0 max-w-full gap-1.5 px-1 pb-0.5 ${
+        className={`flex min-w-0 max-w-full gap-2 px-1 py-1 ${
           isCompactViewport
-            ? "flex-wrap overflow-hidden"
+            ? "flex-wrap overflow-visible"
             : "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         }`}
         aria-label="Prompt shortcuts"

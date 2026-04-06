@@ -13,7 +13,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "../../ui/sheet";
-import { PrimaryButton } from "./ui";
+import { SecondaryButton } from "./ui";
 
 interface Step {
   id: string;
@@ -146,7 +146,7 @@ export function StepOverlay({
           </SheetTitle>
         </SheetHeader>
 
-        <SheetBody className="px-3 py-3 sm:px-4">
+        <SheetBody className="px-4 py-4 sm:px-5">
           <StepList
             steps={steps}
             currentStep={currentStep}
@@ -156,9 +156,9 @@ export function StepOverlay({
         </SheetBody>
 
         <SheetFooter>
-          <PrimaryButton onClick={requestClose} hideIcon>
+          <SecondaryButton leadingVisual="hide" onClick={requestClose} hideIcon>
             {tc("hide")}
-          </PrimaryButton>
+          </SecondaryButton>
         </SheetFooter>
       </SheetContent>
     </Sheet>

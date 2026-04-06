@@ -33,4 +33,11 @@ describe("prompt shortcut UI regressions", () => {
     expect(promptShortcutSheetSource).toContain("<ArrowUpRight className=\"h-4 w-4\" />");
     expect(promptShortcutSheetSource).toContain("hover:-translate-y-0.5");
   });
+
+  it("gives shortcut chips and sheet rows breathing room instead of clipping their chrome", () => {
+    expect(promptShortcutBarSource).toContain('className={`flex min-w-0 max-w-full gap-2 px-1 py-1 ${');
+    expect(promptShortcutBarSource).toContain('? "flex-wrap overflow-visible"');
+    expect(promptShortcutBarSource).not.toContain("pb-0.5");
+    expect(promptShortcutSheetSource).toContain('<SheetBody className="px-4 py-4 sm:px-5">');
+  });
 });

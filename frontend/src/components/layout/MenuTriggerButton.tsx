@@ -2,6 +2,7 @@
 
 import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { motion, useReducedMotion } from "framer-motion";
+import { getAppButtonClassName } from "../ui/app-button";
 
 interface MenuTriggerButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   isOpen?: boolean;
@@ -37,20 +38,28 @@ function MenuTriggerIcon({ isOpen }: { isOpen: boolean }) {
 }
 
 export const MenuTriggerButton = forwardRef<HTMLButtonElement, MenuTriggerButtonProps>(
-  ({ isOpen = false, compact = false, label, className = "", type = "button", ...props }, ref) => (
-    <button
-      ref={ref}
-      type={type}
-      data-state={isOpen ? "open" : "closed"}
-      className={`menu-trigger-button inline-flex shrink-0 items-center justify-center gap-3 text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-100 dark:hover:bg-zinc-800 ${
-        compact ? "h-11 w-11 rounded-full" : "h-12 rounded-2xl px-4"
-      } ${className}`}
-      {...props}
-    >
-      <MenuTriggerIcon isOpen={isOpen} />
-      {!compact && label ? <span className="text-sm font-semibold">{label}</span> : null}
-    </button>
-  ),
+  ({ isOpen = false, compact = false, label, className = "", type = "button", ...props }, ref) => {
+    const sizeClassName = compact ? "h-11 w-11 rounded-full" : "h-12 rounded-2xl px-4 py-0";
+
+    return (
+      <button
+        ref={ref}
+        type={type}
+        data-state={isOpen ? "open" : "closed"}
+        className={getAppButtonClassName({
+          variant: "secondary",
+          size: compact ? "icon" : "md",
+          className: ["menu-trigger-button shrink-0 gap-3", sizeClassName, className]
+            .filter(Boolean)
+            .join(" "),
+        })}
+        {...props}
+      >
+        <MenuTriggerIcon isOpen={isOpen} />
+        {!compact && label ? <span className="text-sm font-semibold">{label}</span> : null}
+      </button>
+    );
+  },
 );
 
 MenuTriggerButton.displayName = "MenuTriggerButton";

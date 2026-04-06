@@ -21,6 +21,18 @@ const languageSwitcherSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/LanguageSwitcher.tsx"),
   "utf8",
 );
+const menuTriggerSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/layout/MenuTriggerButton.tsx"),
+  "utf8",
+);
+const stepOverlaySource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/StepOverlay.tsx"),
+  "utf8",
+);
+const promptShortcutSheetSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/PromptShortcutSheet.tsx"),
+  "utf8",
+);
 const siteMenuPanelSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/layout/SiteMenuPanel.tsx"),
   "utf8",
@@ -71,5 +83,31 @@ describe("shared button system", () => {
     expect(cardsSource).toContain("app-choice-pill");
     expect(languageSwitcherSource).toContain("app-choice-pill");
     expect(siteMenuPanelSource).toContain("getAppButtonClassName");
+  });
+
+  it("routes menu open and close triggers through the shared secondary action tokens", () => {
+    expect(menuTriggerSource).toContain("getAppButtonClassName");
+    expect(menuTriggerSource).toContain('variant: "secondary"');
+    expect(menuTriggerSource).not.toContain("action-primary");
+  });
+
+  it("uses secondary styling for dismissive hide actions in the draft workspace", () => {
+    expect(stepOverlaySource).toContain("SecondaryButton");
+    expect(stepOverlaySource).toContain('<SecondaryButton leadingVisual="hide" onClick={requestClose} hideIcon>');
+    expect(promptShortcutSheetSource).toContain(
+      '<SecondaryButton leadingVisual="hide" onClick={() => onOpenChange(false)} hideIcon>',
+    );
+    expect(stepOverlaySource).not.toContain('<PrimaryButton onClick={requestClose} hideIcon>');
+  });
+
+  it("renders hide and back secondary actions with different leading icons", () => {
+    expect(cardsSource).toContain('leadingVisual?: "back" | "hide" | "none"');
+    expect(cardsSource).toContain('leadingVisual = "back"');
+    expect(cardsSource).toContain('leadingVisual === "hide"');
+    expect(cardsSource).toContain("<ArrowLeft className=\"h-4 w-4\" />");
+    expect(cardsSource).toContain("<X className=\"h-4 w-4\" />");
+    expect(cardsSource).toContain(
+      'leadingIcon={!disabled && !loading ? leadingIcon : null}',
+    );
   });
 });

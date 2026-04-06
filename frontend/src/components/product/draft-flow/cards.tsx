@@ -1,7 +1,7 @@
 "use client";
 
 import { type ButtonHTMLAttributes, type ReactNode } from "react";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { AppButton } from "../../ui/app-button";
 
 function getCardClasses(isCompactViewport: boolean, density: "default" | "thin") {
@@ -117,6 +117,7 @@ interface SecondaryButtonProps {
   loading?: boolean;
   hideIcon?: boolean;
   fullWidth?: boolean;
+  leadingVisual?: "back" | "hide" | "none";
 }
 
 export function PrimaryButton({
@@ -151,7 +152,15 @@ export function SecondaryButton({
   loading = false,
   hideIcon = true,
   fullWidth = true,
+  leadingVisual = "back",
 }: SecondaryButtonProps) {
+  const leadingIcon =
+    leadingVisual === "none"
+      ? null
+      : leadingVisual === "hide"
+        ? <X className="h-4 w-4" />
+        : <ArrowLeft className="h-4 w-4" />;
+
   return (
     <AppButton
       variant="secondary"
@@ -160,7 +169,7 @@ export function SecondaryButton({
       onClick={onClick}
       disabled={disabled}
       loading={loading}
-      leadingIcon={!disabled && !loading ? <ArrowLeft className="h-4 w-4" /> : null}
+      leadingIcon={!disabled && !loading ? leadingIcon : null}
       trailingIcon={!disabled && !loading && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
     >
       <span>{children}</span>

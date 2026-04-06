@@ -57,7 +57,7 @@ describe("scroll shadow regressions", () => {
     expect(draftShellSource).toContain("<ScrollShadowViewport");
     expect(draftShellSource).toContain('surface="muted"');
     expect(previewModalSource).toContain('<SheetBody surface="muted"');
-    expect(promptShortcutSheetSource).toContain('<SheetBody className="px-3 py-3 sm:px-4">');
-    expect(stepOverlaySource).toContain('<SheetBody className="px-3 py-3 sm:px-4">');
+    expect(promptShortcutSheetSource).toContain('<SheetBody className="px-4 py-4 sm:px-5">');
+    expect(stepOverlaySource).toContain('<SheetBody className="px-4 py-4 sm:px-5">');
   });
 });

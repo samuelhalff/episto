@@ -58,7 +58,7 @@ export function PromptShortcutSheet({
           </SheetDescription>
         </SheetHeader>
 
-        <SheetBody className="px-3 py-3 sm:px-4">
+        <SheetBody className="px-4 py-4 sm:px-5">
           <div className="space-y-1.5">
             {shortcuts.map((shortcut) => (
               <button
@@ -97,7 +97,7 @@ export function PromptShortcutSheet({
         </SheetBody>
 
         <SheetFooter>
-          <SecondaryButton onClick={() => onOpenChange(false)} hideIcon>
+          <SecondaryButton leadingVisual="hide" onClick={() => onOpenChange(false)} hideIcon>
             {closeLabel}
           </SecondaryButton>
         </SheetFooter>
