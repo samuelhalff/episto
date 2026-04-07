@@ -583,6 +583,7 @@
     "attachmentsOptionalHelp": "Attachments are optional. Add them only if your letter needs supporting documents.",
     "edit": "Edit",
     "add": "Add",
+    "calculatingPrice": "Calculating price…",
     "proceedToPayment": "Next",
     "backToDraft": "Back",
     "total": "Total"

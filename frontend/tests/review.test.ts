@@ -27,6 +27,7 @@ const REQUIRED_REVIEW_KEYS = [
   "attachmentsOptionalHelp",
   "edit",
   "add",
+  "calculatingPrice",
   "proceedToPayment",
   "backToDraft",
   "total",
