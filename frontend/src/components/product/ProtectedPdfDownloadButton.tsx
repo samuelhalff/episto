@@ -11,7 +11,7 @@ import { getApiErrorUserMessage } from "../../lib/api";
 interface ProtectedPdfDownloadButtonProps {
   /** API path relative to the API base, e.g. /v1/drafts/{id}/pdf */
   apiPath: string;
-  /** Vitest-friendly namespace; defaults to "confirmation" */
+  /** i18n namespace that contains the downloadLetter/downloadUnavailable keys */
   namespace?: "confirmation" | "status";
   className?: string;
 }
@@ -42,6 +42,7 @@ export function ProtectedPdfDownloadButton({
     <div className={className}>
       <ActionButton
         variant="secondary"
+        fullWidth
         loading={loading}
         onClick={handleClick}
         leadingIcon={<Download className="h-4 w-4 shrink-0" />}

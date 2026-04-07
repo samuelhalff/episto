@@ -85,8 +85,12 @@ describe("ProtectedPdfDownloadButton.tsx", () => {
     expect(buttonSource).toMatch(/getApiErrorUserMessage/);
   });
 
-  it("has loading state", () => {
-    expect(buttonSource).toMatch(/loading/);
+  it("passes fullWidth to ActionButton so the button fills its wrapper", () => {
+    expect(buttonSource).toMatch(/fullWidth/);
+  });
+
+  it("namespace prop comment describes i18n purpose not test tooling", () => {
+    expect(buttonSource).not.toMatch(/Vitest-friendly/);
   });
 
   it("shows inline unavailable error message", () => {
