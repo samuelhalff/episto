@@ -244,9 +244,11 @@ export function ThreadActionCard({
       {description ? (
         <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{description}</p>
       ) : null}
-      <PrimaryButton onClick={onAction} disabled={disabled}>
-        {actionLabel}
-      </PrimaryButton>
+      <div className="w-full sm:max-w-sm">
+        <PrimaryButton onClick={onAction} disabled={disabled}>
+          {actionLabel}
+        </PrimaryButton>
+      </div>
     </Card>
   );
 }

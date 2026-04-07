@@ -36,10 +36,13 @@ describe("body generation dialog regressions", () => {
     );
   });
 
-  it("loading UI uses one drafting indicator with readable dark-mode contrast and no Loader2 spinner", () => {
+  it("loading UI uses one drafting indicator with stronger dual-theme contrast and no Loader2 spinner", () => {
     expect(bodyGenerationDialogSource).not.toContain("<Loader2");
     expect(bodyGenerationDialogSource).toContain("loadingLabel");
-    expect(bodyGenerationDialogSource).toContain("dark:bg-amber-400/22 dark:text-amber-100 dark:ring-amber-300/25");
+    expect(bodyGenerationDialogSource).toContain(
+      "bg-amber-100 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-300/20 dark:text-amber-50 dark:ring-amber-200/30",
+    );
+    expect(bodyGenerationDialogSource).toContain("dark:bg-amber-200/90");
     expect(bodyGenerationDialogSource).not.toContain("dark:bg-zinc-100 dark:text-zinc-950");
     expect(bodyGenerationDialogSource).toContain('role="status"');
     expect(bodyStepSource).toContain('loadingLabel={t("bodyGenerationLoadingLabel")}');
