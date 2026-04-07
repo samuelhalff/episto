@@ -186,11 +186,18 @@ export const PublicPricingReferenceScenarioSchema = z.object({
   registeredPostage: PostalPostageSchema,
 });
 
+export const PublicPricingSyncSchema = z.object({
+  sourceLabel: z.string().min(1),
+  lastSyncedAt: z.string().datetime(),
+  freshness: z.enum(["fresh", "stale"]),
+});
+
 export const PublicPricingResponseSchema = z.object({
   standard: PublicPricingTierSchema,
   registered: PublicPricingTierSchema,
   registeredSurchargeCents: z.number().int().nonnegative(),
   registeredSurchargeDisplayPrice: z.string().min(1),
+  sync: PublicPricingSyncSchema,
   providerBreakdown: z.object({
     providerName: z.literal("ePost"),
     note: z.string().min(1),
@@ -256,6 +263,7 @@ export type ProviderPostageRate = z.infer<typeof ProviderPostageRateSchema>;
 export type PublicPricingReferenceScenario = z.infer<
   typeof PublicPricingReferenceScenarioSchema
 >;
+export type PublicPricingSync = z.infer<typeof PublicPricingSyncSchema>;
 export type PublicPricingResponse = z.infer<typeof PublicPricingResponseSchema>;
 
 // ---------------------------------------------------------------------------
