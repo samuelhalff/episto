@@ -579,6 +579,7 @@
     "requiredBeforeSending": "Complete every required section before you continue to payment.",
     "pricingPending": "Final pricing will appear as soon as the PDF preview finishes rendering.",
     "pricingLoading": "Fetching live postal pricing.",
+    "calculatingPriceDetail": "We're calculating the live postal price for this letter.",
     "signatureMissingHelp": "No signature is fine for most correspondence, but it is recommended for formal notices.",
     "attachmentsOptionalHelp": "Attachments are optional. Add them only if your letter needs supporting documents.",
     "edit": "Edit",

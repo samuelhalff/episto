@@ -579,6 +579,7 @@
     "requiredBeforeSending": "Complétez chaque section obligatoire avant de passer au paiement.",
     "pricingPending": "Le prix final apparaîtra dès que l'aperçu PDF aura terminé son rendu.",
     "pricingLoading": "Récupération du tarif postal en direct.",
+    "calculatingPriceDetail": "Nous calculons le tarif postal en direct pour cette lettre.",
     "signatureMissingHelp": "L'absence de signature convient à la plupart des courriers, mais elle reste recommandée pour les avis formels.",
     "attachmentsOptionalHelp": "Les pièces jointes sont facultatives. Ajoutez-les seulement si votre lettre a besoin de justificatifs.",
     "edit": "Modifier",

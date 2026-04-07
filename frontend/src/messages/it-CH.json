@@ -579,6 +579,7 @@
     "requiredBeforeSending": "Completa tutte le sezioni obbligatorie prima di procedere al pagamento.",
     "pricingPending": "Il prezzo finale apparirà non appena l'anteprima PDF avrà terminato il rendering.",
     "pricingLoading": "Recupero del prezzo postale in tempo reale.",
+    "calculatingPriceDetail": "Stiamo calcolando il prezzo postale in tempo reale per questa lettera.",
     "signatureMissingHelp": "L'assenza di firma va bene per la maggior parte della corrispondenza, ma è consigliata per gli avvisi formali.",
     "attachmentsOptionalHelp": "Gli allegati sono facoltativi. Aggiungili solo se la lettera richiede documenti di supporto.",
     "edit": "Modifica",

@@ -46,6 +46,10 @@ describe("review page regressions", () => {
     expect(reviewPageSource).toContain('allComplete ? t("pricingPending")');
   });
 
+  it("passes review-specific loading detail copy into the shared price summary", () => {
+    expect(reviewPageSource).toContain('loadingMessage={t("calculatingPriceDetail")}');
+  });
+
   it("blocks the payment CTA until a live quote exists", () => {
     expect(reviewPageSource).toContain("const canProceedToPayment =");
     expect(reviewPageSource).toContain("Boolean(quote.data)");

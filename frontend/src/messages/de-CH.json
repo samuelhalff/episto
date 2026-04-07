@@ -579,6 +579,7 @@
     "requiredBeforeSending": "Vervollständigen Sie alle Pflichtangaben, bevor Sie zur Zahlung weitergehen.",
     "pricingPending": "Der finale Preis erscheint, sobald die PDF-Vorschau fertig gerendert ist.",
     "pricingLoading": "Der Live-Postpreis wird abgerufen.",
+    "calculatingPriceDetail": "Wir berechnen gerade den aktuellen Postpreis für diesen Brief.",
     "signatureMissingHelp": "Ohne Unterschrift ist für die meisten Schreiben in Ordnung, für formelle Mitteilungen aber empfohlen.",
     "attachmentsOptionalHelp": "Beilagen sind optional. Fügen Sie sie nur hinzu, wenn Ihr Schreiben Belege benötigt.",
     "edit": "Bearbeiten",

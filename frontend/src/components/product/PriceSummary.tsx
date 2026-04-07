@@ -17,6 +17,7 @@ export function PriceSummary({
   showTrustNote = false,
   quoteEnabled = true,
   pendingLabel,
+  loadingMessage,
 }: {
   draftId?: string;
   deliveryType: string;
@@ -24,6 +25,7 @@ export function PriceSummary({
   showTrustNote?: boolean;
   quoteEnabled?: boolean;
   pendingLabel?: string | undefined;
+  loadingMessage?: string | undefined;
 }) {
   const t = useTranslations("checkout");
   const quote = useDispatchQuote(draftId ?? "", Boolean(draftId) && quoteEnabled);
@@ -31,8 +33,7 @@ export function PriceSummary({
   const quoteErrorMessage = getApiErrorUserMessage(quote.error) ?? t("priceUnavailable");
   const summaryNote = !quoteEnabled
     ? pendingLabel
-    : quote.isLoading
-      ? t("pricingLoading")
+    : quote.isLoading ? loadingMessage ?? t("pricingLoading")
       : quote.isError
         ? quoteErrorMessage
         : t("draftingIncluded");

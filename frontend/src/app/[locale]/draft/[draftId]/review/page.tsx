@@ -313,6 +313,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               pendingLabel={
                 allComplete ? t("pricingPending") : t("requiredBeforeSending")
               }
+              loadingMessage={t("calculatingPriceDetail")}
             />
 
             {quoteErrorMessage ? (
