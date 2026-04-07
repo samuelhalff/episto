@@ -142,6 +142,18 @@ describe("public pricing service", () => {
     expect(result.sync.freshness).toBe("stale");
   });
 
+  it("marks sync freshness stale when the active rate matrix has no expiry boundary", () => {
+    const result = buildPublicPricingResponse({
+      version: createMatrixVersion({
+        expiresAt: null,
+      }),
+      entries: createMatrixEntries(),
+      now: new Date("2026-04-07T12:00:00.000Z"),
+    });
+
+    expect(result.sync.freshness).toBe("stale");
+  });
+
   it("fails clearly when there is no usable active rate matrix", () => {
     try {
       buildPublicPricingResponse({

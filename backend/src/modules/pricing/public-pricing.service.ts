@@ -198,7 +198,7 @@ export function buildPublicPricingResponse(args: {
   const registered = registeredExamples[0]!;
   const registeredSurchargeCents = registered.totalCents - standard.totalCents;
   const freshness =
-    version.expiresAt && version.expiresAt.getTime() <= now.getTime() ? "stale" : "fresh";
+    !version.expiresAt || version.expiresAt.getTime() <= now.getTime() ? "stale" : "fresh";
   const providerName = normalizeProviderName(version.providerName);
   const sourceUrl = getSourceUrl(version);
 
