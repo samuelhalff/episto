@@ -19,14 +19,13 @@ import {
   HelpCircle,
   Copy,
   Mail,
-  ExternalLink,
   PenLine,
   Loader2,
 } from "lucide-react";
 import { ActionLink } from "../../../../../components/product/ActionButton";
+import { ProtectedPdfDownloadButton } from "../../../../../components/product/ProtectedPdfDownloadButton";
 import { DispatchConfirmation } from "../../../../../components/product/DispatchConfirmation";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
-import { getApiUrl } from "../../../../../lib/api";
 import { getCustomerFlowPath } from "../../../../../lib/customer-flow";
 import { getAppButtonClassName } from "../../../../../components/ui/app-button";
 import { StatusBadge } from "../../../../../components/ui/status-badge";
@@ -118,7 +117,6 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
   const dispatch = useDispatchInfo(draftId, isSuccess);
 
   const orderRef = `SM-${draftId.slice(0, 8).toUpperCase()}`;
-  const pdfUrl = getApiUrl(`/v1/drafts/${draftId}/pdf`);
 
   const copyRef = useCallback(async () => {
     try {
@@ -320,18 +318,11 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
         {/* Actions */}
         <div className="flex flex-col items-center gap-3 pt-4 sm:flex-row sm:justify-center">
-          <a
-            href={pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={getAppButtonClassName({
-              variant: "secondary",
-              className: "sm:flex-1",
-            })}
-          >
-            <ExternalLink className="h-4 w-4" />
-            {t("viewLetter")}
-          </a>
+          <ProtectedPdfDownloadButton
+            apiPath={`/v1/drafts/${draftId}/pdf`}
+            namespace="confirmation"
+            className="sm:flex-1"
+          />
           <ActionLink
             href="/draft/new"
             variant="primary"

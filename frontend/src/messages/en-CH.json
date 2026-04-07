@@ -547,7 +547,7 @@
     "paymentError": "Payment failed. Please try again.",
     "enterPaymentDetails": "Enter payment details",
     "continueToPayment": "Next",
-    "calculatingPayment": "Calculating\u2026",
+    "calculatingPayment": "Calculating…",
     "backToReview": "Back",
     "paymentMethodsHelp": "TWINT appears first. Cards and supported wallets appear when Stripe and your device make them available."
   },
@@ -624,7 +624,9 @@
     "stateUnknown": "Status is being confirmed — we'll update you by email",
     "emailNotice": "A payment receipt has been sent to your email",
     "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
-    "stickyCtaLabel": "Send another letter"
+    "stickyCtaLabel": "Send another letter",
+    "downloadLetter": "Download letter",
+    "downloadUnavailable": "Download unavailable. Try again later."
   },
   "resume": {
     "loading": "Resuming your draft…",
@@ -647,7 +649,9 @@
     "sendAnother": "Send another letter",
     "recipient": "Recipient",
     "paymentAmount": "Amount paid",
-    "paidAt": "Payment date"
+    "paidAt": "Payment date",
+    "downloadLetter": "Download letter",
+    "downloadUnavailable": "Download unavailable. Try again later."
   },
   "files": {
     "addMore": "Add files",

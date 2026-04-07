@@ -624,7 +624,9 @@
     "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
     "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
     "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
-    "stickyCtaLabel": "Weiteren Brief senden"
+    "stickyCtaLabel": "Weiteren Brief senden",
+    "downloadLetter": "Brief herunterladen",
+    "downloadUnavailable": "Download nicht verfügbar. Bitte versuchen Sie es später erneut."
   },
   "resume": {
     "loading": "Entwurf wird geladen…",
@@ -647,7 +649,9 @@
     "sendAnother": "Weiteren Brief senden",
     "recipient": "Empfänger",
     "paymentAmount": "Bezahlter Betrag",
-    "paidAt": "Zahlungsdatum"
+    "paidAt": "Zahlungsdatum",
+    "downloadLetter": "Brief herunterladen",
+    "downloadUnavailable": "Download nicht verfügbar. Bitte versuchen Sie es später erneut."
   },
   "files": {
     "addMore": "Dateien hinzufügen",

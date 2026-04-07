@@ -11,6 +11,7 @@ import type { OrderStatusResponse } from "@swiss-mail/shared";
 import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
 import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation";
+import { ProtectedPdfDownloadButton } from "../../../../components/product/ProtectedPdfDownloadButton";
 
 function useOrderStatus(orderToken: string) {
   return useQuery({
@@ -151,14 +152,20 @@ export default function StatusPage({
           </div>
         </div>
 
-        <div className="text-center sm:hidden">
-          <Link
-            href="/draft/new"
-            className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
-          >
-            <PenLine className="h-4 w-4" />
-            {t("sendAnother")}
-          </Link>
+        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+          <ProtectedPdfDownloadButton
+            apiPath={`/v1/orders/${orderToken}/pdf`}
+            namespace="status"
+          />
+          <div className="text-center sm:hidden">
+            <Link
+              href="/draft/new"
+              className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+            >
+              <PenLine className="h-4 w-4" />
+              {t("sendAnother")}
+            </Link>
+          </div>
         </div>
       </main>
     </div>

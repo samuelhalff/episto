@@ -624,7 +624,9 @@
     "stateUnknown": "Lo stato è in fase di conferma — ti aggiorneremo via e-mail",
     "emailNotice": "Una ricevuta di pagamento è stata inviata alla tua e-mail",
     "emailNoticeDetail": "Riceverai un altro aggiornamento se lo stato della spedizione cambia.",
-    "stickyCtaLabel": "Invia un'altra lettera"
+    "stickyCtaLabel": "Invia un'altra lettera",
+    "downloadLetter": "Scarica la lettera",
+    "downloadUnavailable": "Download non disponibile. Riprovare più tardi."
   },
   "resume": {
     "loading": "Ripresa della bozza…",
@@ -647,7 +649,9 @@
     "sendAnother": "Invia un'altra lettera",
     "recipient": "Destinatario",
     "paymentAmount": "Importo pagato",
-    "paidAt": "Data di pagamento"
+    "paidAt": "Data di pagamento",
+    "downloadLetter": "Scarica la lettera",
+    "downloadUnavailable": "Download non disponibile. Riprovare più tardi."
   },
   "files": {
     "addMore": "Aggiungi file",
