@@ -56,6 +56,21 @@ Rebuild `/pricing` around one canonical pricing story.
 - Show stale prices when a previous snapshot exists, but mark them clearly and display the sync timestamp.
 - If no snapshot exists at all, show the pricing-unavailable state rather than fabricating values.
 
+### Matrix-backed scope amendment
+
+After aligning this design with the provider quote caching / rate-matrix work, the public pricing page
+must only show pricing inputs that the active stored rate matrix can actually prove.
+
+That means:
+
+- keep the sync banner, totals card, and standard-vs-registered comparison
+- keep the reference assumptions visible
+- replace raw C4 / duplex / synthetic unit-rate rows with matrix-backed scenario rows such as page-count
+  examples that come directly from stored matrix entries
+
+Until the pricing sync system stores or derives richer component-level inputs, the public page must not
+invent them.
+
 ## Page structure
 
 ### 1. Hero
@@ -112,24 +127,17 @@ This table explains the charged structure at a glance:
 
 This gives the user the commercial breakdown without burying them in mechanical print inputs too early.
 
-#### 4.2 Provider unit rates
+#### 4.2 Matrix-backed assumptions and examples
 
-This table lists the concrete provider-side inputs users expect to see when they want to verify the math:
+This table (or paired card set) should list only provider-side inputs the active stored matrix can
+actually prove today:
 
-- printed page
-- physical A4 sheet
-- C5 envelope
-- C4 envelope
-- standard postage
-- registered postage
-- first sheet, simplex
-- first sheet, duplex
-- additional sheet, simplex
-- additional sheet, duplex
+- fixed assumptions such as `CH`, `C5`, `LEFT`, `duplex = false`, and attachment mode
+- matrix-backed page-count examples and their quoted totals
+- standard vs registered values for those same stored scenarios
 
-The reference scenario explanation appears once in this area and nowhere else.
-
-The goal is completeness without echoing the same explanation across multiple cards.
+The goal is still completeness, but only with values the matrix actually stores. If the matrix does not
+prove a raw component, the page must not display it.
 
 ### 5. Standard vs registered comparison
 
