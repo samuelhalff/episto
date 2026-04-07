@@ -2,7 +2,7 @@ CREATE TYPE provider_rate_matrix_status AS ENUM ('building', 'active', 'failed',
 CREATE TYPE quote_source AS ENUM ('matrix', 'live');
 
 CREATE TABLE provider_rate_matrix_versions (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v7(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   provider_name text NOT NULL,
   status provider_rate_matrix_status NOT NULL,
   verified_at timestamptz,
@@ -15,7 +15,7 @@ CREATE TABLE provider_rate_matrix_versions (
 );
 
 CREATE TABLE provider_rate_matrix_entries (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v7(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   version_id uuid NOT NULL REFERENCES provider_rate_matrix_versions(id),
   postage text NOT NULL,
   number_of_page integer NOT NULL,
@@ -35,7 +35,7 @@ CREATE INDEX provider_rate_matrix_entries_lookup_idx
   ON provider_rate_matrix_entries (version_id, postage, number_of_page, attachment_mode, shipping_country, envelope_size, window_location, duplex);
 
 CREATE TABLE draft_quote_cache (
-  id uuid PRIMARY KEY DEFAULT uuid_generate_v7(),
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   draft_id uuid NOT NULL REFERENCES draft_letters(id),
   snapshot_id uuid REFERENCES draft_snapshots(id),
   pricing_input_hash text NOT NULL,
