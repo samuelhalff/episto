@@ -349,10 +349,11 @@ export function IntakeStep({
         ref={attachmentInputRef}
         type="file"
         accept=".pdf,.png,.jpg,.jpeg"
+        multiple
         className="hidden"
         onChange={async (event) => {
-          const file = event.target.files?.[0];
-          if (file) {
+          const selectedFiles = Array.from(event.target.files ?? []);
+          for (const file of selectedFiles) {
             await files.uploadFile(file, "attachment");
           }
           event.target.value = "";
