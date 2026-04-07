@@ -182,7 +182,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
 
       <main
         id="main-content"
-        className="mx-auto max-w-7xl space-y-8 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-[calc(9rem+env(safe-area-inset-bottom))]"
+        className="mx-auto max-w-7xl space-y-8 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-[calc(12rem+env(safe-area-inset-bottom))]"
       >
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
@@ -330,6 +330,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
       ) : null}
 
       <FlowActionDock
+        desktopSticky
         secondaryAction={
           <ActionButton
             variant="secondary"

@@ -65,11 +65,11 @@ describe("FlowActionDock desktopSticky support", () => {
     expect(src).toContain("desktopSticky");
   });
 
-  it("review page does NOT use desktopSticky (opt-in only on checkout surfaces)", () => {
+  it("review page now opts into desktopSticky so the desktop CTA stays visible", () => {
     const src = fs.readFileSync(
       path.join(srcDir, "app/[locale]/draft/[draftId]/review/page.tsx"),
       "utf-8",
     );
-    expect(src).not.toContain("desktopSticky");
+    expect(src).toContain("desktopSticky");
   });
 });

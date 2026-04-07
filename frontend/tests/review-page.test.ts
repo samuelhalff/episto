@@ -101,13 +101,11 @@ describe("review page regressions", () => {
     expect(reviewPageSource).not.toContain("bg-amber-50");
   });
 
-  it("keeps the review footer fixed on mobile but static on desktop to avoid covering the preview", () => {
-    // Desktop-static behavior lives in FlowActionDock, not in review/page.tsx
-    expect(flowActionDockSource).toContain("lg:static");
-    expect(flowActionDockSource).toContain("lg:bg-transparent");
-    // Review page opts into the shared dock and must not override to desktopSticky
+  it("keeps the review footer visible on desktop with extra bottom spacing for the content", () => {
+    expect(reviewPageSource).toContain("lg:pb-[calc(12rem+env(safe-area-inset-bottom))]");
+    expect(flowActionDockSource).toContain("desktopSticky");
     expect(reviewPageSource).toContain("<FlowActionDock");
-    expect(reviewPageSource).not.toContain("desktopSticky");
+    expect(reviewPageSource).toContain("desktopSticky");
   });
 
   it("uses semantic destructive text instead of route-local red shades for review errors", () => {
