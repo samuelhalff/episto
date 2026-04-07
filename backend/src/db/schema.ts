@@ -431,6 +431,33 @@ export const supportEvents = pgTable(
 );
 
 // ---------------------------------------------------------------------------
+// 12. product_events — supplementary analytics for events with no canonical table
+// (marketing page views, feature usage, AI quality signals)
+// Privacy: typed columns only (no JSONB) — compile-time + schema-level guard
+// ---------------------------------------------------------------------------
+
+export const productEvents = pgTable(
+  "product_events",
+  {
+    id: pk(),
+    eventName: text("event_name").notNull(),
+    sessionId: uuid("session_id"),
+    locale: text("locale"),
+    route: text("route"),
+    source: text("source"),
+    templateSlug: text("template_slug"),
+    surface: text("surface"),
+    durationMs: integer("duration_ms"),
+    errorFamily: text("error_family"),
+    createdAt: createdAt(),
+  },
+  (t) => ({
+    eventNameTimeIdx: index("product_events_event_name_time_idx").on(t.eventName, t.createdAt),
+    sessionIdx: index("product_events_session_idx").on(t.sessionId, t.createdAt),
+  }),
+);
+
+// ---------------------------------------------------------------------------
 // Relations — enable Drizzle relational queries
 // ---------------------------------------------------------------------------
 
@@ -441,6 +468,7 @@ export const sessionsRelations = relations(sessions, ({ many }) => ({
   fileAssets: many(fileAssets),
   paymentAttempts: many(paymentAttempts),
   supportEvents: many(supportEvents),
+  productEvents: many(productEvents),
 }));
 
 export const draftLettersRelations = relations(
@@ -583,3 +611,10 @@ export const supportEventsRelations = relations(
     }),
   }),
 );
+
+export const productEventsRelations = relations(productEvents, ({ one }) => ({
+  session: one(sessions, {
+    fields: [productEvents.sessionId],
+    references: [sessions.id],
+  }),
+}));

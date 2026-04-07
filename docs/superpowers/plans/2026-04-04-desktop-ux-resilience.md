@@ -6,7 +6,7 @@
 
 **Architecture:** Keep already-revealed UI visible during async work, move waiting feedback into local components instead of full-screen blanks, and route all customer-facing actions through one semantic button/toast system. Use small focused helpers for pending-turn handoff and API error correlation so the fixes stay reusable across the draft, review, checkout, and confirmation flows.
 
-**Tech Stack:** Next.js 15 App Router, React 19, next-intl, TanStack Query v5, Tailwind CSS, Sonner, Vitest
+**Tech Stack:** Next.js 16 App Router, React 19, next-intl, TanStack Query v5, Tailwind CSS, Sonner, Vitest
 
 ---
 

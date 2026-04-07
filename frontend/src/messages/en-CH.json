@@ -27,7 +27,13 @@
     "sessionExpiredBody": "For security, draft links only work inside the session that created them. Start a new letter or return to the homepage.",
     "errorRecoveryTitle": "We couldn't open this page",
     "errorRecoveryBody": "Please try again, start a new letter, or return to the homepage.",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "showPreview": "Show preview",
+    "hidePreview": "Hide preview",
+    "refresh": "Refresh",
+    "privacyNoticeBody": "Swiss Mail uses a single essential cookie for your session. No tracking, no third-party analytics.",
+    "privacyPolicy": "Privacy policy",
+    "dismissPrivacyNotice": "Dismiss privacy notice"
   },
   "home": {
     "title": "Formal letters, sent with ease",
@@ -75,7 +81,83 @@
       "help": "Help",
       "copyright": "© 2025 Swiss Mail. All rights reserved."
     },
-    "appName": "Swiss Mail"
+    "appName": "Swiss Mail",
+    "homepage": {
+      "hero": {
+        "badge": "Built for important letters",
+        "title": "Serious letters — professionally prepared, ready to send",
+        "subtitle": "Describe what you need. We guide you to a clear formal letter that you can review carefully before it goes out.",
+        "body": "Swiss Mail helps you prepare important correspondence without a trip to the post office — from first draft to postal submission in Switzerland.",
+        "primaryCta": "Write your letter now",
+        "secondaryCta": "See how it works",
+        "proof": "No account required · Clear total before payment · Privacy-conscious infrastructure"
+      },
+      "trustStrip": {
+        "postal": "Postal delivery in Switzerland",
+        "privacy": "Privacy-conscious infrastructure",
+        "encryption": "Encrypted in transit and at rest",
+        "noAccount": "Start without a subscription or account"
+      },
+      "howItWorks": {
+        "eyebrow": "How it works",
+        "title": "Three steps to a serious letter",
+        "intro": "Stay in control from start to finish: describe the situation, review the wording, then pay and send when it looks right.",
+        "steps": {
+          "describe": {
+            "title": "Describe the situation",
+            "body": "Write or dictate what the letter needs to do — a cancellation, a complaint, or an official request."
+          },
+          "review": {
+            "title": "Review the draft",
+            "body": "See a clean formal draft, adjust the tone and details, and check everything before moving on."
+          },
+          "send": {
+            "title": "Start dispatch",
+            "body": "When it looks right, confirm the total, pay securely, and we prepare the letter for postal submission."
+          }
+        }
+      },
+      "confidence": {
+        "eyebrow": "Why it feels reliable",
+        "title": "More confidence before you send",
+        "intro": "Swiss Mail does not replace your judgement — it gives your letter a professional frame and keeps you in control before dispatch.",
+        "cards": {
+          "structured": {
+            "title": "Properly structured",
+            "body": "Your situation becomes a formal letter with a clear structure instead of a rushed message."
+          },
+          "review": {
+            "title": "Reviewed before dispatch",
+            "body": "You can inspect the content, tone, and details before payment and postal submission begin."
+          },
+          "privacy": {
+            "title": "Handled with care",
+            "body": "We keep the flow transparent, show the total before payment, and present the service with privacy-conscious wording."
+          }
+        }
+      },
+      "useCases": {
+        "eyebrow": "Typical use cases",
+        "title": "For the letters you should not keep postponing",
+        "intro": "When the matter is serious, a well-prepared letter often carries more weight than a quick message.",
+        "cancellation": {
+          "title": "Cancel a subscription",
+          "description": "End memberships or service contracts with a formal written notice."
+        },
+        "lease": {
+          "title": "End a lease",
+          "description": "Write a clear notice to your landlord or property manager with the right formal tone."
+        },
+        "complaint": {
+          "title": "File a complaint",
+          "description": "Set out the problem in a way that is factual, complete, and taken seriously."
+        },
+        "authority": {
+          "title": "Write to an authority",
+          "description": "Prepare official correspondence so it reads as organised and professional from the start."
+        }
+      }
+    }
   },
   "howItWorks": {
     "title": "How Swiss Mail works",
@@ -235,7 +317,6 @@
     "stepReview": "Review",
     "stepPay": "Pay",
     "stepDone": "Done",
-    "stepProgress": "Step {current} of {total}",
     "phaseProgress": "Phase {current} of {total}",
     "stepMenuLabel": "Open steps",
     "stepLocked": "Locked",
@@ -266,7 +347,6 @@
     "inputPrompt": "Tell us what you need — speak or type",
     "dictationError": "Voice input unavailable. Please try again or type instead.",
     "workspaceTab": "Write",
-    "previewHint": "Preview the final letter here as it takes shape.",
     "previewSheetHint": "Paper layout updates as your draft changes.",
     "previewReadyToast": "Your letter is ready to preview.",
     "closePreview": "Close preview",
@@ -274,7 +354,7 @@
     "scrollToBottom": "Scroll to bottom",
     "showPreview": "Show preview",
     "hidePreview": "Hide preview",
-    "continueToReview": "Continue to review",
+    "continueToReview": "Next",
     "continueToReviewHint": "Complete your letter details to continue.",
     "reviewReadyHint": "Your draft is ready for a final review.",
     "previewUnavailableRetry": "Preview unavailable right now. Your content is saved — try again.",
@@ -289,8 +369,8 @@
     "intakeThreadActionHint": "You can keep chatting, or move on to your sender details when this looks right.",
     "intakeThreadSoftHint": "You can keep describing the situation here. If it's easier, switch to the manual steps.",
     "intakeThreadSoftAction": "Enter most details manually",
-    "continueToSender": "Continue to sender",
-    "continueToRecipient": "Continue to recipient",
+    "continueToSender": "Next",
+    "continueToRecipient": "Next",
     "tipFullContext": "Full context",
     "tipFullContextDesc": "Describe the whole situation. We'll extract names for you.",
     "tipDates": "Specific dates",
@@ -328,16 +408,16 @@
     "enterAddressManually": "Enter address manually",
     "backToSearch": "Back to search",
     "backToIntake": "Intake",
-    "backToSender": "Sender",
-    "backToRecipient": "Recipient",
-    "backToContent": "Content",
-    "backToAttachments": "Attachments",
-    "backToSubject": "Subject",
+    "backToSender": "Back",
+    "backToRecipient": "Back",
+    "backToContent": "Back",
+    "backToAttachments": "Back",
+    "backToSubject": "Back",
     "stepSaveFailed": "We couldn't save this step. Please review the fields and try again.",
     "senderSaved": "Sender details saved",
     "recipientSaved": "Recipient details saved",
     "confirmRecipient": "Confirm recipient",
-    "continueToContent": "Continue to content",
+    "continueToContent": "Next",
     "bodyContentTitle": "Content",
     "bodyContentSubtitle": "Work on the main message here. Salutation and closing are handled separately.",
     "bodyEditingSubtitle": "Edit the main message directly. Salutation and closing stay separate.",
@@ -349,11 +429,15 @@
     "bodyDraftEmptyTitle": "No content yet",
     "bodyDraftEmptyHint": "We compose the main message from what you've already told us.",
     "bodyManualEditHint": "Edit the main message directly here. Salutation and closing are handled separately in the final layout.",
+    "firstDraftReadyTitle": "Your first draft is ready",
+    "firstDraftReadyBody": "Check the suggested draft and make any changes you want, manually or with AI.",
+    "firstDraftReadyDismiss": "Dismiss",
     "bodyCoachmarkTitle": "You’re editing the main message only",
     "bodyCoachmarkBody": "Salutation and closing are handled separately in the letter layout. Focus here on the actual message you want to send.",
     "bodyCoachmarkAction": "Got it",
     "bodyGenerationLoadingTitle": "We’re drafting your content",
     "bodyGenerationLoadingDescription": "We’re turning the details you already confirmed into a first version of your letter. This should only take a moment.",
+    "bodyGenerationLoadingLabel": "Drafting",
     "bodyGenerationErrorTitle": "We couldn’t draft the content",
     "bodyGenerationErrorDescription": "Please refresh this step to try again. Support will be available here later if the problem persists.",
     "bodyGenerationRefreshAction": "Refresh draft",
@@ -361,7 +445,7 @@
     "letterBodyLabel": "Letter body",
     "doneEditing": "Done editing",
     "confirmContent": "Confirm content",
-    "continueToAttachments": "Continue to attachments",
+    "continueToAttachments": "Next",
     "editBodyManuallyBadge": "Edit body manually",
     "editWithAssistant": "Edit with assistant",
     "openDraftPreview": "Open draft preview",
@@ -421,12 +505,12 @@
     "attachmentsStepSubtitle": "Add supporting documents",
     "attachmentsOptionalBadge": "Optional",
     "attachmentsUploadingHint": "Finish the current upload before you continue.",
-    "continueToSubject": "Continue to subject",
+    "continueToSubject": "Next",
     "subjectLineTitle": "Subject",
     "subjectLineSubtitle": "Add a subject",
     "subjectLineLabel": "Subject line",
     "confirmSubject": "Confirm subject",
-    "continueToLogistics": "Continue to logistics",
+    "continueToLogistics": "Next",
     "subjectSuggestedHint": "We suggested a subject from your draft. Adjust it if you want.",
     "subjectInputPlaceholder": "e.g., Termination of internet subscription",
     "logisticsTitle": "Logistics",
@@ -498,12 +582,14 @@
     "requiredBeforeSending": "Complete every required section before you continue to payment.",
     "pricingPending": "Final pricing will appear as soon as the PDF preview finishes rendering.",
     "pricingLoading": "Fetching live postal pricing.",
+    "calculatingPriceDetail": "We're calculating the live postal price for this letter.",
     "signatureMissingHelp": "No signature is fine for most correspondence, but it is recommended for formal notices.",
     "attachmentsOptionalHelp": "Attachments are optional. Add them only if your letter needs supporting documents.",
     "edit": "Edit",
     "add": "Add",
-    "proceedToPayment": "Proceed to payment",
-    "backToDraft": "Draft",
+    "calculatingPrice": "Calculating price…",
+    "proceedToPayment": "Next",
+    "backToDraft": "Back",
     "total": "Total"
   },
   "checkout": {
@@ -511,13 +597,13 @@
     "orderSummary": "Your order",
     "checkoutIntro": "Review and pay securely",
     "email": "Email address",
-    "emailHelp": "We'll send your payment receipt and letter updates to this address. We won't use it for marketing.",
+    "emailHelp": "We'll send your receipt here first, then dispatch updates and a secure order-status link where the final PDF stays available while retained. We won't use this address for marketing.",
     "paymentMethod": "Payment method",
     "paymentPending": "Payment form loading…",
     "paymentConfigError": "Payment system is not configured. Please try again later.",
     "consentRequired": "You must accept the terms to continue.",
     "legalConsent": "I have read and agree to the <terms>Terms of Service</terms> and understand that Swiss Mail is not a legal service.",
-    "sendMyLetter": "Send my letter",
+    "sendMyLetter": "Pay",
     "securedByStripe": "Secured by Stripe",
     "swissDelivery": "Swiss postal delivery",
     "dataProtection": "Encrypted and securely stored",
@@ -542,8 +628,10 @@
     "paymentConfirming": "Processing payment…",
     "paymentError": "Payment failed. Please try again.",
     "enterPaymentDetails": "Enter payment details",
-    "continueToPayment": "Continue to payment",
-    "backToReview": "Review"
+    "continueToPayment": "Next",
+    "calculatingPayment": "Calculating…",
+    "backToReview": "Back",
+    "paymentMethodsHelp": "TWINT appears first. Cards and supported wallets appear when Stripe and your device make them available."
   },
   "attachments": {
     "title": "Attachments",
@@ -618,7 +706,9 @@
     "stateUnknown": "Status is being confirmed — we'll update you by email",
     "emailNotice": "A payment receipt has been sent to your email",
     "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
-    "stickyCtaLabel": "Send another letter"
+    "stickyCtaLabel": "Send another letter",
+    "downloadLetter": "Download final PDF",
+    "downloadUnavailable": "The final PDF is no longer available."
   },
   "resume": {
     "loading": "Resuming your draft…",
@@ -641,7 +731,9 @@
     "sendAnother": "Send another letter",
     "recipient": "Recipient",
     "paymentAmount": "Amount paid",
-    "paidAt": "Payment date"
+    "paidAt": "Payment date",
+    "downloadLetter": "Download final PDF",
+    "downloadUnavailable": "The final PDF is no longer available."
   },
   "files": {
     "addMore": "Add files",
@@ -727,6 +819,32 @@
       "providerNote": "Updates depend on provider capability"
     },
     "lastChecked": "Last updated: {time}"
+  },
+  "seo": {
+    "home": {
+      "title": "Swiss Mail — Prepare and send serious letters online",
+      "description": "Draft formal letters, review every detail, and start postal dispatch in Switzerland without opening an account."
+    },
+    "pricing": {
+      "title": "Pricing — Swiss Mail",
+      "description": "See reference totals for standard and registered letters, the Swiss Mail service fee, and how the final total is confirmed before payment."
+    },
+    "help": {
+      "title": "Help — Swiss Mail",
+      "description": "Answers about drafting, payment, dispatch, attachments, and support for Swiss Mail."
+    },
+    "privacy": {
+      "title": "Privacy — Swiss Mail",
+      "description": "Learn how Swiss Mail handles session data, files, payments, and retention with privacy-conscious safeguards."
+    },
+    "terms": {
+      "title": "Terms — Swiss Mail",
+      "description": "Read the terms for using Swiss Mail, paying for dispatch, and sending letters as a guest."
+    },
+    "imprint": {
+      "title": "Imprint — Swiss Mail",
+      "description": "Operator details and contact information for Swiss Mail."
+    }
   },
   "help": {
     "title": "Help & Support",

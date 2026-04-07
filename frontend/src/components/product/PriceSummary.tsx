@@ -7,6 +7,8 @@ import { DeliveryType } from "@swiss-mail/shared";
 import { formatCentsAsCHF } from "../../hooks/use-pricing";
 import { useDispatchQuote } from "../../hooks/use-dispatch-quote";
 import { getApiErrorUserMessage } from "../../lib/api";
+import { DeliveryTypeBadge } from "./DeliveryTypeBadge";
+import { StatusBadge } from "../ui/status-badge";
 
 export function PriceSummary({
   draftId,
@@ -15,6 +17,7 @@ export function PriceSummary({
   showTrustNote = false,
   quoteEnabled = true,
   pendingLabel,
+  loadingMessage,
 }: {
   draftId?: string;
   deliveryType: string;
@@ -22,6 +25,7 @@ export function PriceSummary({
   showTrustNote?: boolean;
   quoteEnabled?: boolean;
   pendingLabel?: string | undefined;
+  loadingMessage?: string | undefined;
 }) {
   const t = useTranslations("checkout");
   const quote = useDispatchQuote(draftId ?? "", Boolean(draftId) && quoteEnabled);
@@ -30,7 +34,7 @@ export function PriceSummary({
   const summaryNote = !quoteEnabled
     ? pendingLabel
     : quote.isLoading
-      ? t("pricingLoading")
+      ? (loadingMessage ?? t("pricingLoading"))
       : quote.isError
         ? quoteErrorMessage
         : t("draftingIncluded");
@@ -51,7 +55,7 @@ export function PriceSummary({
           </h2>
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">{summaryNote}</p>
         </div>
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
+        <span className="app-list-item-muted inline-flex h-11 w-11 items-center justify-center rounded-2xl text-zinc-500 dark:text-zinc-300">
           <ReceiptText className="h-5 w-5" />
         </span>
       </div>
@@ -66,9 +70,12 @@ export function PriceSummary({
         </div>
         <div className="flex items-center justify-between text-zinc-600 dark:text-zinc-300">
           <span>{t("delivery")}</span>
-          <span className="rounded-lg bg-zinc-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-            {isRegistered ? t("deliveryRegisteredLabel") : t("deliveryStandardLabel")}
-          </span>
+          <DeliveryTypeBadge
+            deliveryType={deliveryType}
+            label={
+              isRegistered ? t("deliveryRegisteredLabel") : t("deliveryStandardLabel")
+            }
+          />
         </div>
         {quote.data?.lineItems?.length ? (
           <div className="space-y-2">
@@ -93,15 +100,13 @@ export function PriceSummary({
           </div>
         ) : null}
         {quote.isError ? (
-          <div className="rounded-2xl border border-amber-200 bg-amber-50/80 px-4 py-4 text-amber-950 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-100">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-amber-700 dark:text-amber-300">
-              {t("livePricingTitle")}
-            </p>
+          <div className="app-list-item-muted rounded-2xl px-4 py-4 text-[var(--action-choice-active-fg)]">
+            <StatusBadge tone="warning">{t("livePricingTitle")}</StatusBadge>
             <p className="mt-1 text-sm leading-6">{quoteErrorMessage}</p>
           </div>
         ) : (
-          <div className="rounded-2xl bg-zinc-950 px-4 py-4 text-white dark:bg-amber-400 dark:text-zinc-950">
-            <div className="flex items-center justify-between font-semibold">
+          <div className="app-list-item-muted rounded-2xl px-4 py-4">
+            <div className="flex items-center justify-between font-semibold text-zinc-900 dark:text-zinc-50">
               <span>{t("total")}</span>
               <span className="text-lg">{totalValue}</span>
             </div>

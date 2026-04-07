@@ -18,6 +18,9 @@ const REQUIRED_DRAFT_KEYS = [
   "backToContent",
   "backToAttachments",
   "backToSubject",
+  "firstDraftReadyTitle",
+  "firstDraftReadyBody",
+  "firstDraftReadyDismiss",
 ] as const;
 
 const locales = [

@@ -22,10 +22,10 @@ export function LanguageSwitcher() {
             locale={l}
             aria-current={isActive ? "page" : undefined}
             className={[
-              "inline-flex min-h-10 min-w-10 items-center justify-center rounded-full border px-3 text-sm font-semibold transition-colors",
+              "app-choice-pill min-h-10 min-w-10 px-3 text-sm font-semibold",
               isActive
-                ? "border-primary/30 bg-primary/10 text-zinc-950 dark:border-amber-300/30 dark:bg-amber-400/15 dark:text-amber-100"
-                : "border-zinc-200 bg-white text-zinc-500 hover:border-zinc-300 hover:text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-100",
+                ? "app-choice-pill-active"
+                : "text-[var(--app-muted)] hover:text-[var(--app-fg)]",
             ].join(" ")}
           >
             {label}

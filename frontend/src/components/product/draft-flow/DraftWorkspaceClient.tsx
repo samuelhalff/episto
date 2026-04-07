@@ -6,6 +6,7 @@ import { useDraft, useSession } from "../../../hooks/use-api";
 import { useMediaQuery } from "../../../hooks/use-media-query";
 import { useVisualViewport } from "../../../hooks/use-visual-viewport";
 import { RecoveryScreen } from "../RecoveryScreen";
+import { StepNavProvider } from "./step-nav-context";
 import { StepOverlay } from "./StepOverlay";
 import { AttachmentsStep } from "./AttachmentsStep";
 import { BodyStep } from "./BodyStep";
@@ -14,6 +15,11 @@ import { LogisticsStep } from "./LogisticsStep";
 import { RecipientStep } from "./RecipientStep";
 import { SenderStep } from "./SenderStep";
 import { SubjectStep } from "./SubjectStep";
+import { WorkspacePreviewPane } from "./WorkspacePreviewPane";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 import {
   DRAFT_WORKSPACE_STEPS,
   getDraftWorkspaceStepSlugByIndex,
@@ -22,7 +28,6 @@ import {
   getDraftWorkspaceStepIndex,
   getDraftWorkspaceUnlockedStepIndex,
   getNextDraftWorkspaceStep,
-  getPreviousDraftWorkspaceStep,
   isDraftWorkspaceStepLocked,
   resolveDraftWorkspaceStepSlug,
 } from "./steps";
@@ -32,6 +37,14 @@ import type {
 } from "./step-props";
 import { usePathname, useRouter } from "../../../i18n/navigation";
 import { ApiError } from "../../../lib/api";
+import {
+  getPreviousCustomerFlowStep,
+  isDraftWorkspaceCustomerFlowStep,
+} from "../../../lib/customer-flow";
+import {
+  readPreviewPanelPreference,
+  writePreviewPanelPreference,
+} from "./preview-panel-preference";
 
 interface DraftWorkspaceClientProps {
   draftId: string;
@@ -54,10 +67,14 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const draft = useDraft(draftId);
   const viewportHeight = useVisualViewport();
   const isCompactViewport = useMediaQuery("(max-width: 1023px)");
+  const isWideViewport = useMediaQuery("(min-width: 1280px)");
 
   const [showSteps, setShowSteps] = useState(false);
   const [isNavigating, setIsNavigating] = useState(false);
   const [, setIsInputFocused] = useState(false);
+  const [isPreviewPanelOpen, setIsPreviewPanelOpen] = useState(
+    () => readPreviewPanelPreference(draftId) ?? true,
+  );
 
   useEffect(() => {
     if (!isCompactViewport) {
@@ -102,7 +119,8 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const currentStep = Math.min(requestedStepIndex, unlockedStepIndex);
   const currentStepSlug = getDraftWorkspaceStepSlugByIndex(currentStep);
   const nextStepSlug = getNextDraftWorkspaceStep(currentStep);
-  const previousStepSlug = getPreviousDraftWorkspaceStep(currentStep);
+  const previousFlowStep = getPreviousCustomerFlowStep(currentStepSlug);
+  const previousStepSlug = isDraftWorkspaceCustomerFlowStep(previousFlowStep) ? previousFlowStep : undefined;
   const previousStepLabel =
     previousStepSlug === "intake"
       ? t("backToIntake")
@@ -121,6 +139,10 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   useEffect(() => {
     setIsNavigating(false);
   }, [resolvedStepSlug]);
+
+  useEffect(() => {
+    setIsPreviewPanelOpen(readPreviewPanelPreference(draftId) ?? true);
+  }, [draftId]);
 
   useEffect(() => {
     if (!draft.data) {
@@ -153,9 +175,9 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     draft.data,
     draft.isLoading,
     draftId,
-    unlockedStepIndex,
     resolvedStepSlug,
     router,
+    furthestUnlockedStepIndex
   ]);
 
   const navigateToStep = useCallback(
@@ -173,7 +195,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       setIsNavigating(true);
       router.push(getDraftWorkspacePath(draftId, targetStepSlug));
     },
-    [currentStepSlug, draftId, unlockedStepIndex, router],
+    [currentStepSlug, draftId, router, furthestUnlockedStepIndex],
   );
 
   const beginNavigation = useCallback(() => {
@@ -197,6 +219,25 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     [],
   );
 
+  const handleTogglePreview = useCallback(() => {
+    const next = !isPreviewPanelOpen;
+    writePreviewPanelPreference(draftId, next);
+    setIsPreviewPanelOpen(next);
+  }, [draftId, isPreviewPanelOpen]);
+
+  const handleClosePreview = useCallback(() => {
+    const next = false;
+    writePreviewPanelPreference(draftId, next);
+    setIsPreviewPanelOpen(next);
+  }, [draftId]);
+
+  const isPreviewPanelVisible = isWideViewport && isPreviewPanelOpen;
+
+  const previewProps = {
+    onTogglePreview: isWideViewport ? handleTogglePreview : undefined,
+    isPreviewPanelVisible,
+  } satisfies DraftWorkspacePreviewToggleProps;
+
   const commonProps = {
     draftId,
     onNext: handleNext,
@@ -211,8 +252,6 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     navigateToStep,
   } satisfies DraftWorkspaceNextableStepProps;
 
-  const previewProps = {} satisfies DraftWorkspacePreviewToggleProps;
-
   const stepComponents = [
     <IntakeStep key="intake" {...commonProps} {...previewProps} />,
     <SenderStep key="sender" {...commonProps} />,
@@ -222,6 +261,20 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     <SubjectStep key="subject" {...commonProps} />,
     <LogisticsStep key="logistics" {...commonProps} />,
   ];
+
+  const translatedSteps = DRAFT_WORKSPACE_STEPS.map((step) => ({
+    id: step.id,
+    title: t(step.titleKey),
+  }));
+
+  const handleStepSelect = useCallback(
+    (idx: number) => {
+      const selectedStep = DRAFT_WORKSPACE_STEPS[idx];
+      if (!selectedStep) return;
+      navigateToStep(selectedStep.slug);
+    },
+    [navigateToStep],
+  );
 
   if (isBootstrappingWorkspace) {
     return (
@@ -291,32 +344,43 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   }
 
   return (
-    <div
-      id="draft-workspace-root"
-      className={`flex flex-col overflow-hidden bg-[var(--app-surface-muted)] transition-colors ${
-        isCompactViewport ? "fixed inset-0 overscroll-none" : "relative"
-      }`}
-      style={{ height: workspaceHeight }}
+    <StepNavProvider
+      steps={translatedSteps}
+      currentStep={currentStep}
+      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
+      onStepSelect={handleStepSelect}
     >
-      <div className="min-h-0 flex-1">{stepComponents[currentStep]}</div>
+      <div
+        id="draft-workspace-root"
+        className={`flex overflow-hidden bg-[var(--app-surface-muted)] transition-colors ${
+          isCompactViewport ? "fixed inset-0 flex-col overscroll-none" : "relative flex-col"
+        }`}
+        style={{ height: workspaceHeight }}
+      >
+        <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
+          <div className={isCompactViewport ? "min-w-0 flex-1" : "min-w-[480px] flex-1"}>
+            {stepComponents[currentStep]}
+          </div>
 
-      {showSteps ? (
-        <StepOverlay
-          currentStep={currentStep}
-          furthestUnlockedStepIndex={unlockedStepIndex}
-          isCompactViewport={isCompactViewport}
-          steps={DRAFT_WORKSPACE_STEPS.map((step) => ({
-            id: step.id,
-            title: t(step.titleKey),
-          }))}
-          onClose={() => setShowSteps(false)}
-          onSelect={(idx) => {
-            const selectedStep = DRAFT_WORKSPACE_STEPS[idx];
-            if (!selectedStep) return;
-            navigateToStep(selectedStep.slug);
-          }}
-        />
-      ) : null}
-    </div>
+          {isWideViewport ? (
+            <WorkspacePreviewPane
+              draftId={draftId}
+              isOpen={isPreviewPanelVisible}
+              onClose={handleClosePreview}
+            />
+          ) : null}
+        </div>
+
+        {showSteps && isCompactViewport ? (
+          <StepOverlay
+            currentStep={currentStep}
+            furthestUnlockedStepIndex={furthestUnlockedStepIndex}
+            steps={translatedSteps}
+            onClose={() => setShowSteps(false)}
+            onSelect={handleStepSelect}
+          />
+        ) : null}
+      </div>
+    </StepNavProvider>
   );
 }

@@ -34,7 +34,7 @@
 13. [Legal Pages (`/privacy`, `/terms`, `/imprint`)](#13-legal-pages-privacy-terms-imprint)
 
 ### Admin
-14. [Admin Dashboard (`/admin/*`)](#14-admin-dashboard-admin)
+14. [Admin Dashboard (`/{locale}/admin/*`)](#14-admin-dashboard-localeadmin)
 
 ---
 
@@ -2008,10 +2008,10 @@ No empty state. If legal content is unavailable, show a route-level `<ErrorPage>
 
 ---
 
-## 14. Admin Dashboard (`/admin/*`)
+## 14. Admin Dashboard (`/{locale}/admin/*`)
 
 ### Route
-`/admin/*` — protected, internal only
+`/{locale}/admin/*` — protected, internal only
 
 ### SEO
 - `noindex, nofollow` on all admin routes
@@ -2028,21 +2028,21 @@ No empty state. If legal content is unavailable, show a route-level `<ErrorPage>
 ### Route Map
 | Route | Purpose |
 |---|---|
-| `/admin` | Overview dashboard |
-| `/admin/letters` | Letter queue and status list |
-| `/admin/letters/:id` | Letter detail — full draft, dispatch events, payment events |
-| `/admin/dispatch` | Dispatch queue, failed/ambiguous states |
-| `/admin/payments` | Payment list, refund actions |
-| `/admin/sessions` | Active and expired sessions |
-| `/admin/files` | File asset browser, retention status |
-| `/admin/risk` | Suspicious activity flags and escalation queue |
+| `/{locale}/admin/overview` | Overview dashboard |
+| `/{locale}/admin/letters` | Letter queue and status list |
+| `/{locale}/admin/letters/:id` | Letter detail — full draft, dispatch events, payment events |
+| `/{locale}/admin/dispatch` | Dispatch queue, failed/ambiguous states |
+| `/{locale}/admin/payments` | Payment list, refund actions |
+| `/{locale}/admin/sessions` | Active and expired sessions |
+| `/{locale}/admin/files` | File asset browser, retention status |
+| `/{locale}/admin/risk` | Suspicious activity flags and escalation queue |
 
-### Overview Dashboard (`/admin`)
+### Overview Dashboard (`/{locale}/admin/overview`)
 - Metric cards: letters today, pending dispatch, failed dispatch, payments today, refunds pending
 - Recent activity feed: last N events (dispatch state changes, payment events, support flags)
 - No fake real-time unless WebSocket connection is confirmed
 
-### Letter Detail (`/admin/letters/:id`)
+### Letter Detail (`/{locale}/admin/letters/:id`)
 - Full draft content
 - Timeline of state transitions (payment → dispatch → status events)
 - Raw provider references (for support, not exposed to frontend users)
@@ -2081,7 +2081,7 @@ Admin routes must be protected at both the middleware and API level. Do not rely
 | `/privacy` | `MarketingLayout` | None | Yes | Legal prose, PDF download, all locales |
 | `/terms` | `MarketingLayout` | None | Yes | Legal prose, PDF download, all locales |
 | `/imprint` | `MarketingLayout` | None | Yes | Swiss-required company details |
-| `/admin/*` | `AdminLayout` | Admin auth | No | Internal only |
+| `/{locale}/admin/*` | `AdminLayout` | Admin auth | No | Internal only |
 
 ---
 

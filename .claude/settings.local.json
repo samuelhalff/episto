@@ -13,7 +13,8 @@
       "WebFetch(domain:www.srvrlss.io)",
       "WebFetch(domain:euro-stack.com)",
       "WebFetch(domain:docs.infomaniak.cloud)",
-      "WebFetch(domain:news.infomaniak.com)"
+      "WebFetch(domain:news.infomaniak.com)",
+      "Bash(wc:*)"
     ]
   }
 }

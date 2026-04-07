@@ -16,7 +16,6 @@ import {
   constructWebhookEvent,
   getPaymentIntentClientSecret,
 } from "./adapters/stripe.adapter.js";
-import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
 import { recordEvent } from "../analytics/index.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
 import { enqueueDispatchSubmission } from "../dispatch/dispatch.jobs.js";

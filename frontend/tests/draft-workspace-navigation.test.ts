@@ -25,11 +25,6 @@ const stepIndicatorSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/StepIndicator.tsx"),
   "utf8",
 );
-const stepsSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/steps.ts"),
-  "utf8",
-);
-
 const newDraftPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/new/page.tsx"),
   "utf8",
@@ -161,6 +156,13 @@ describe("draft workspace navigation", () => {
     expect(newDraftPageSource).toContain('pendingAction: "fresh"');
   });
 
+  it("keeps entry actions and quick starts on shared action surfaces", () => {
+    expect(newDraftPageSource).toContain("<AppButton");
+    expect(newDraftPageSource).toContain('variant={dictation.isRecording ? "warning" : "secondary"}');
+    expect(newDraftPageSource).toContain('className="app-list-item group');
+    expect(newDraftPageSource).toContain('className="app-field-surface inline-flex h-10 w-10');
+  });
+
   it("redirects prepared drafts away from the old editable workspace routes", () => {
     expect(draftWorkspaceClientSource).toContain("PREPARED_REVIEW_STATUSES");
     expect(draftWorkspaceClientSource).toContain("POST_SUBMISSION_STATUSES");
@@ -187,7 +189,7 @@ describe("draft workspace navigation", () => {
   });
 
   it("provides destination-based previous-step actions inside the workspace", () => {
-    expect(stepsSource).toContain("getPreviousDraftWorkspaceStep");
+    expect(draftWorkspaceClientSource).toContain('from "../../../lib/customer-flow"');
     expect(draftWorkspaceClientSource).toContain("previousStepSlug");
     expect(draftWorkspaceClientSource).toContain("previousStepLabel");
     expect(draftShellSource).toContain("secondaryActionLabel");
@@ -223,5 +225,4 @@ describe("draft workspace navigation", () => {
     expect(draftWorkspaceClientSource).toContain('<IntakeStep key="intake" {...commonProps} {...previewProps} />');
     expect(draftWorkspaceClientSource).toContain('<BodyStep key="body" {...commonProps} {...previewProps} />');
   });
-
 });

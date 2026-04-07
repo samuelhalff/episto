@@ -257,3 +257,111 @@ export type PublicPricingReferenceScenario = z.infer<
   typeof PublicPricingReferenceScenarioSchema
 >;
 export type PublicPricingResponse = z.infer<typeof PublicPricingResponseSchema>;
+
+// ---------------------------------------------------------------------------
+// Admin dashboard contracts
+// ---------------------------------------------------------------------------
+
+export interface AdminSummaryResponse {
+  activeSessions: number;
+  lettersSent: number;
+  revenueCents: number;
+  errorRate: number;
+  periodLabel: string;
+  generatedAt: string;
+}
+
+export interface AdminActiveResponse {
+  total: number;
+  byStage: {
+    browsing: number;
+    drafting: number;
+    review: number;
+    checkout: number;
+    confirmation: number;
+  };
+  generatedAt: string;
+}
+
+export interface AdminFunnelStep {
+  stage: string;
+  count: number;
+  dropOffPercent: number | null;
+}
+
+export interface AdminFunnelResponse {
+  steps: AdminFunnelStep[];
+  overallConversionPercent: number;
+  byLocale: Record<string, number>;
+  periodLabel: string;
+  generatedAt: string;
+}
+
+export interface AdminErrorEntry {
+  errorFamily: string;
+  count: number;
+  affectedSessions: number;
+}
+
+export interface AdminErrorsResponse {
+  entries: AdminErrorEntry[];
+  totalErrors: number;
+  periodLabel: string;
+  generatedAt: string;
+}
+
+export interface AdminLocaleEntry {
+  locale: string;
+  count: number;
+  percent: number;
+}
+
+export interface AdminLocaleResponse {
+  entries: AdminLocaleEntry[];
+  generatedAt: string;
+}
+
+export interface AdminAiResponse {
+  avgLatencyMs: number;
+  refusalRate: number;
+  regenerationRate: number;
+  totalRequests: number;
+  periodLabel: string;
+  generatedAt: string;
+}
+
+export interface AdminSessionListItem {
+  id: string;
+  locale: string | null;
+  email: string | null;
+  createdAt: string;
+  lastActivityAt: string | null;
+  draftCount: number;
+  latestDraftStatus: string | null;
+  paymentState: string | null;
+}
+
+export interface AdminSessionListResponse {
+  sessions: AdminSessionListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+export interface AdminRetentionInfo {
+  contentRetentionDays: number;
+  sessionTtlHours: number;
+  pdfRetentionHours: number;
+  auditRetentionDays: number;
+  recentCleanups: Array<{
+    type: string;
+    count: number;
+    ranAt: string;
+  }>;
+  pendingExpirations: {
+    expiredSessions: number;
+    expiredContent: number;
+    expiredPdfs: number;
+  };
+  generatedAt: string;
+}

@@ -213,10 +213,11 @@ See [`../04-product/document-template.md`](../04-product/document-template.md).
 
 ---
 
-### Admin auth at MVP — LOCKED: HTTP Basic Auth over TLS
+### Admin auth at MVP — LOCKED: backend-managed Microsoft SSO (tenant-only)
 
-**Locked choice:** MVP admin uses HTTP Basic Auth. Credentials from `ADMIN_USERNAME` and
-`ADMIN_PASSWORD` env vars. Middleware on all `/admin/*` routes.
+**Locked choice:** Admin access uses backend-managed Microsoft OAuth with a signed HTTP-only session
+cookie. Access is authorized by the configured WestBay tenant (`ADMIN_MICROSOFT_TENANT_ID`); any
+identity token from a different tenant is denied. No Basic Auth fallback exists.
 
 See [`admin-build-pack.md`](../06-build-packs/admin-build-pack.md).
 

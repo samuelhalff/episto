@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   ApiError,
@@ -8,6 +8,11 @@ import {
 } from "../src/lib/api";
 
 describe("API error helpers", () => {
+  afterEach(() => {
+    vi.resetModules();
+    delete process.env.NEXT_PUBLIC_API_URL;
+  });
+
   it("extracts the user-facing message from the canonical error envelope", () => {
     const error = new ApiError(503, {
       error: {
@@ -47,5 +52,14 @@ describe("API error helpers", () => {
     expect(error.getRequestId()).toBe("req-123");
     expect(error.path).toBe("/v1/drafts/draft-1/messages");
     expect(error.method).toBe("POST");
+  });
+
+  it("normalizes a bare backend origin to the /api base for shared frontend URLs", async () => {
+    process.env.NEXT_PUBLIC_API_URL = "http://localhost:4000";
+    vi.resetModules();
+
+    const { getApiUrl } = await import("../src/lib/api");
+
+    expect(getApiUrl("/v1/pricing")).toBe("http://localhost:4000/api/v1/pricing");
   });
 });

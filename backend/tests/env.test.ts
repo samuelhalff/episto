@@ -78,8 +78,12 @@ const EnvSchema = z
     RESEND_API_KEY: z.string().startsWith("re_"),
     EMAIL_FROM: z.string().email().default("noreply@swissmail.ch"),
     CORS_ORIGIN: z.string().default("http://localhost:5000"),
-    ADMIN_USERNAME: z.string().min(1).default("admin"),
-    ADMIN_PASSWORD: z.string().min(8).default("changeme-in-production"),
+    ADMIN_SESSION_SECRET: z.string().min(32).optional(),
+    ADMIN_SESSION_TTL_HOURS: z.coerce.number().int().positive().default(12),
+    ADMIN_MICROSOFT_CLIENT_ID: z.string().min(1).optional(),
+    ADMIN_MICROSOFT_CLIENT_SECRET: z.string().min(1).optional(),
+    ADMIN_MICROSOFT_TENANT_ID: z.string().min(1).default("common"),
+    ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
     PRICE_STANDARD_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
     PRICE_REGISTERED_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
   })
@@ -146,6 +150,32 @@ const EnvSchema = z
       message:
         "AZURE_EXISTING_AGENT_ID must match AZURE_AI_AGENT_NAME:AZURE_AI_AGENT_VERSION when both are set",
     },
+  )
+  .refine(
+    (data) => {
+      const adminSsoRequested = Boolean(
+        data.ADMIN_MICROSOFT_CLIENT_ID ||
+          data.ADMIN_MICROSOFT_CLIENT_SECRET ||
+          data.ADMIN_MICROSOFT_REDIRECT_URI,
+      );
+
+      if (!adminSsoRequested) {
+        return true;
+      }
+
+      return Boolean(
+        data.ADMIN_SESSION_SECRET &&
+          data.ADMIN_MICROSOFT_CLIENT_ID &&
+          data.ADMIN_MICROSOFT_CLIENT_SECRET &&
+          data.ADMIN_MICROSOFT_REDIRECT_URI &&
+          data.ADMIN_MICROSOFT_TENANT_ID &&
+          data.ADMIN_MICROSOFT_TENANT_ID !== "common",
+      );
+    },
+    {
+      message:
+        "Admin Microsoft SSO requires ADMIN_SESSION_SECRET, ADMIN_MICROSOFT_CLIENT_ID, ADMIN_MICROSOFT_CLIENT_SECRET, ADMIN_MICROSOFT_REDIRECT_URI, and a specific ADMIN_MICROSOFT_TENANT_ID (not 'common')",
+    },
   );
 
 // Minimal valid env for tests
@@ -161,7 +191,6 @@ const validEnv = () => ({
   AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
   AZURE_OPENAI_API_KEY: "key123",
   RESEND_API_KEY: "re_abc123",
-  ADMIN_PASSWORD: "changeme-for-tests",
 });
 
 // ---------------------------------------------------------------------------
@@ -404,5 +433,54 @@ describe("EnvSchema — validation constraints", () => {
       AZURE_AI_AGENT_VERSION: "3",
     });
     expect(result.success).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Admin Microsoft SSO validation
+// ---------------------------------------------------------------------------
+
+const ssoBase = () => ({
+  ...validEnv(),
+  ADMIN_SESSION_SECRET: "admin-session-secret-at-least-32-characters-long",
+  ADMIN_MICROSOFT_CLIENT_ID: "client-id",
+  ADMIN_MICROSOFT_CLIENT_SECRET: "client-secret",
+  ADMIN_MICROSOFT_REDIRECT_URI: "https://app.example.com/admin/auth/microsoft/callback",
+  ADMIN_MICROSOFT_TENANT_ID: "westbaysa-tenant",
+});
+
+describe("EnvSchema — Admin Microsoft SSO validation", () => {
+  it("accepts full SSO config without ADMIN_MICROSOFT_ALLOWED_EMAILS", () => {
+    const result = EnvSchema.safeParse(ssoBase());
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects SSO config when ADMIN_MICROSOFT_TENANT_ID is 'common'", () => {
+    const result = EnvSchema.safeParse({
+      ...ssoBase(),
+      ADMIN_MICROSOFT_TENANT_ID: "common",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects partial SSO config (client_id set but missing other required fields)", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      ADMIN_MICROSOFT_CLIENT_ID: "client-id",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects SSO config without ADMIN_SESSION_SECRET", () => {
+    const result = EnvSchema.safeParse({
+      ...ssoBase(),
+      ADMIN_SESSION_SECRET: undefined,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts env with no SSO fields set (SSO not requested)", () => {
+    const result = EnvSchema.safeParse(validEnv());
+    expect(result.success).toBe(true);
   });
 });

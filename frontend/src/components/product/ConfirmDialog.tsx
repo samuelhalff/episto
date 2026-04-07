@@ -104,7 +104,7 @@ export function ConfirmDialog({
         onKeyDown={handleKeyDown}
         className="fixed inset-0 z-[201] flex items-center justify-center p-6 outline-none"
       >
-        <div className="w-full max-w-sm rounded-3xl border border-zinc-200/80 bg-white p-6 text-center shadow-prominent-warm dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-prominent">
+        <div className="app-panel w-full max-w-sm rounded-3xl p-6 text-center shadow-prominent-warm dark:shadow-prominent">
           {icon ? <div className="mb-4 flex justify-center">{icon}</div> : null}
           <h2
             id="confirm-dialog-title"

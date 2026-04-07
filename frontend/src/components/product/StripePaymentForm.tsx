@@ -3,8 +3,8 @@
 import { type ReactNode, useEffect, useState } from "react";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useTranslations } from "next-intl";
-import { formatCentsAsCHF } from "../../hooks/use-pricing";
 import { ActionButton } from "./ActionButton";
+import { FlowActionDock } from "./FlowActionDock";
 
 // ---------------------------------------------------------------------------
 // StripePaymentForm
@@ -26,7 +26,7 @@ interface StripePaymentFormProps {
 }
 
 export function StripePaymentForm({
-  priceCents,
+  priceCents: _priceCents,
   returnUrl,
   buttonLabel,
   secondaryAction,
@@ -89,6 +89,7 @@ export function StripePaymentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">{t("paymentMethodsHelp")}</p>
       {/* Stripe's PaymentElement renders card fields, TWINT, and other methods */}
       <PaymentElement
         options={{
@@ -103,32 +104,24 @@ export function StripePaymentForm({
         }}
       />
 
-      {errorMessage && (
-        <p role="alert" className="text-sm text-red-600 dark:text-red-400">
-          {errorMessage}
-        </p>
-      )}
+      {errorMessage && <p role="alert" className="text-sm text-destructive">{errorMessage}</p>}
 
-      <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2xl p-2 sm:static sm:bg-transparent sm:p-0 sm:shadow-none sm:outline-none sm:backdrop-blur-none">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          {secondaryAction}
+      <FlowActionDock
+        desktopSticky
+        secondaryAction={secondaryAction}
+        primaryAction={
           <ActionButton
             type="submit"
             fullWidth
             className="sm:flex-1"
             disabled={!stripe || !elements}
             loading={isSubmitting}
-            trailingMeta={
-              <span className="hidden rounded-full bg-white/12 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 dark:bg-zinc-950/10 dark:text-zinc-950/80 sm:inline-flex">
-                {formatCentsAsCHF(priceCents)}
-              </span>
-            }
             contentClassName="w-full"
           >
             {isSubmitting ? t("paymentConfirming") : buttonLabel}
           </ActionButton>
-        </div>
-      </div>
+        }
+      />
     </form>
   );
 }

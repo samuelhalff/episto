@@ -9,11 +9,18 @@ const config: Config = {
         border: "var(--app-border)",
         ring: "var(--app-border-strong)",
         foreground: "var(--app-fg)",
+        primary: {
+          DEFAULT: "var(--action-primary-bg)",
+          foreground: "var(--action-primary-fg)",
+          light: "var(--action-choice-active-bg)",
+        },
         muted: {
           DEFAULT: "var(--app-surface-muted)",
           foreground: "var(--app-muted)",
         },
         card: "var(--app-surface-strong)",
+        success: "#16a34a",
+        destructive: "#dc2626",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],

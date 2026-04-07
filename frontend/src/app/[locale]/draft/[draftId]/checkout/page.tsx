@@ -11,12 +11,14 @@ import { useDraft, useCheckout } from "../../../../../hooks/use-api";
 import { Link, useRouter } from "../../../../../i18n/navigation";
 import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
+import { FlowActionDock } from "../../../../../components/product/FlowActionDock";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm";
 import { ActionButton, ActionLink } from "../../../../../components/product/ActionButton";
 import { captureError } from "../../../../../lib/error-tracking";
 import { normalizeLetterSubject } from "../../../../../lib/letter-content";
 import { getApiErrorCode, getApiErrorUserMessage } from "../../../../../lib/api";
+import { getCustomerFlowBackPath } from "../../../../../lib/customer-flow";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
@@ -75,6 +77,7 @@ export default function CheckoutPage({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
+  const backToReviewHref = getCustomerFlowBackPath(draftId, "checkout") ?? `/draft/${draftId}/review`;
 
   const isSubmitting = checkout.isProcessing;
 
@@ -87,7 +90,8 @@ export default function CheckoutPage({
             appearance: {
               theme: "stripe" as const,
               variables: {
-                colorPrimary: "#18181b",
+                // Must match --action-primary-bg in globals.css. Stripe requires a literal hex.
+                colorPrimary: "#f6c54a",
                 borderRadius: "12px",
                 fontSizeBase: "16px",
                 fontFamily: "inherit",
@@ -140,6 +144,7 @@ export default function CheckoutPage({
     checkoutErrorMessage ??
     (!hasConfiguredStripeFrontend ? t("paymentConfigError") : null);
   const pricingPendingMessage = canRequestQuote ? null : t("pricingPending");
+  const isPricingPending = Boolean(pricingPendingMessage);
 
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
@@ -159,12 +164,12 @@ export default function CheckoutPage({
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
       <FlowHeader currentStep={2} draftId={draftId} title={t("title")} />
 
       <main
         id="main-content"
-        className="mx-auto grid max-w-7xl gap-6 px-4 pb-12 pt-8 sm:px-6 lg:grid-cols-[340px_minmax(0,1fr)]"
+        className="mx-auto grid max-w-7xl gap-6 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-12 lg:grid-cols-[340px_minmax(0,1fr)]"
       >
         <aside className="space-y-4 lg:sticky lg:top-28">
           <PriceSummary
@@ -178,7 +183,7 @@ export default function CheckoutPage({
         </aside>
 
         <div className="space-y-6">
-          <div className="max-w-2xl">
+          <div className="w-full max-w-none">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
               {t("orderSummary")}
             </p>
@@ -212,7 +217,7 @@ export default function CheckoutPage({
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={errors.email ? "true" : undefined}
                   className={[
-                    "app-form-control mt-3 rounded-xl border px-4 py-3 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
+                    "app-form-control mt-3 w-full rounded-xl border px-4 py-3 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
                     errors.email
                       ? "border-destructive focus:border-destructive focus:ring-destructive"
                       : "border-zinc-200 focus:border-zinc-400 focus:ring-zinc-200 dark:border-zinc-700 dark:focus:border-zinc-500 dark:focus:ring-zinc-700",
@@ -280,17 +285,20 @@ export default function CheckoutPage({
                 </p>
               )}
 
-              <div className="app-sticky-bar sticky bottom-4 z-10 rounded-2.5xl p-2 lg:static lg:bg-transparent lg:p-0 lg:shadow-none lg:outline-none lg:backdrop-blur-none">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <FlowActionDock
+                desktopSticky
+                secondaryAction={
                   <ActionLink
-                    href={`/draft/${draftId}/review`}
+                    href={backToReviewHref}
                     variant="secondary"
                     fullWidth
-                    className="sm:flex-1"
+                    className="sm:w-auto sm:min-w-[10rem]"
                     leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
                   >
                     {t("backToReview")}
                   </ActionLink>
+                }
+                primaryAction={
                   <ActionButton
                     type="submit"
                     fullWidth
@@ -301,14 +309,16 @@ export default function CheckoutPage({
                       hasBlockingStripeConfigurationError ||
                       !canRequestQuote
                     }
-                    loading={isSubmitting}
-                    trailingIcon={<ArrowRight className="h-4 w-4 shrink-0" />}
+                    loading={isSubmitting || isPricingPending}
+                    trailingIcon={
+                      isPricingPending ? undefined : <ArrowRight className="h-4 w-4 shrink-0" />
+                    }
                     contentClassName="w-full"
                   >
-                    {t("continueToPayment")}
+                    {isPricingPending ? t("calculatingPayment") : t("continueToPayment")}
                   </ActionButton>
-                </div>
-              </div>
+                }
+              />
             </form>
           )}
 

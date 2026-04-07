@@ -1,13 +1,15 @@
 "use client";
 
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Lock } from "lucide-react";
 import { WorkspaceSiteMenu } from "./WorkspaceSiteMenu";
-import { DRAFT_WORKSPACE_STEPS } from "./steps";
-import { Card, SecondaryButton } from "./cards";
+import { SecondaryButton } from "./cards";
 import { StepTriggerButton } from "./draft-composer";
+import { StepList } from "./StepOverlay";
+import { HeaderLanguageMenu } from "../../layout/HeaderLanguageMenu";
+import { useStepNav } from "./step-nav-context";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
+import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 
 interface DraftShellProps {
   step?: number;
@@ -26,7 +28,6 @@ interface DraftShellProps {
   isCompactViewport?: boolean | undefined;
   hideDockStepTrigger?: boolean | undefined;
   isNavigating?: boolean | undefined;
-  furthestUnlockedStepIndex?: number | undefined;
 }
 
 export function DraftShell({
@@ -46,46 +47,32 @@ export function DraftShell({
   isCompactViewport = false,
   hideDockStepTrigger = false,
   isNavigating = false,
-  furthestUnlockedStepIndex,
 }: DraftShellProps) {
-  const t = useTranslations("draft");
   const tc = useTranslations("common");
-  const isCompressed = isCompactViewport;
-  const useInlineDock = isCompactViewport;
-  const currentStepIndex = Math.max(0, (step ?? 1) - 1);
-  const desktopSteps = DRAFT_WORKSPACE_STEPS.slice(0, totalSteps ?? DRAFT_WORKSPACE_STEPS.length);
-  const maxUnlockedStepIndex = Math.max(
-    1,
-    Math.min(furthestUnlockedStepIndex ?? currentStepIndex, desktopSteps.length - 1),
-  );
+  const td = useTranslations("draft");
+  const [stepPopoverOpen, setStepPopoverOpen] = useState(false);
+  const stepNav = useStepNav();
 
-  function dismissKeyboard() {
-    const activeElement = document.activeElement;
-    if (activeElement instanceof HTMLElement) {
-      activeElement.blur();
-    }
-  }
+  const dismissKeyboard = useCallback(() => {
+    const el = document.activeElement;
+    if (el instanceof HTMLElement) el.blur();
+  }, []);
 
   function handleSurfacePointerDown(target: EventTarget | null) {
-    if (!(target instanceof Element) || !isCompactViewport || !isInputFocused) {
-      return;
-    }
-
+    if (!(target instanceof Element) || !isCompactViewport || !isInputFocused) return;
     if (
       target.closest("[data-draft-keep-focus]") ||
       target.closest("input, textarea, select, button, a, [role='button'], [contenteditable='true']")
-    ) {
-      return;
-    }
-
+    ) return;
     dismissKeyboard();
   }
 
   return (
     <div
-      className="relative flex h-full min-w-0 flex-col overflow-x-hidden bg-[var(--app-surface-muted)] transition-colors"
+      className="relative flex h-full min-w-0 flex-col bg-[var(--app-surface-muted)] transition-colors"
       aria-busy={isNavigating}
     >
+      {/* Navigation progress indicator */}
       <div
         aria-hidden="true"
         className={`pointer-events-none absolute inset-x-0 top-0 z-30 h-0.5 overflow-hidden transition-opacity duration-200 ${
@@ -94,236 +81,213 @@ export function DraftShell({
       >
         <div className="h-full w-full animate-pulse bg-gradient-to-r from-transparent via-amber-400/90 to-transparent dark:via-amber-300" />
       </div>
+
+      {/* ── Header — OUTSIDE scroll so it shares the same coordinate space as the Sheet overlay ── */}
       <div
         onPointerDownCapture={(event) => handleSurfacePointerDown(event.target)}
-        className={`shrink-0 transition-all duration-300 ${
-          isCompressed ? "px-6 pb-1 pt-5 sm:px-8" : "px-6 pb-4 pt-7 sm:px-8 lg:px-10 lg:pb-6 lg:pt-9"
+        className={`shrink-0 bg-[var(--app-surface-muted)] ${
+          isCompactViewport
+            ? "px-6 pb-1 pt-5 sm:px-8"
+            : "border-b border-zinc-200/60 px-6 py-3 sm:px-8 lg:px-10 dark:border-zinc-800/40"
         }`}
       >
-        <div className={`mx-auto w-full ${isCompactViewport ? "" : "max-w-[1380px]"}`}>
-          <div className={`flex items-start justify-between gap-4 ${isCompactViewport ? "" : "lg:max-w-[760px]"}`}>
+        {isCompactViewport ? (
+          <div className="flex items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              {!isCompactViewport ? (
-                <p className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                  {tc("appName")}
+              <h2 className="text-[26px] font-bold leading-[1.1] tracking-tight text-zinc-950 dark:text-zinc-50">
+                {title}
+              </h2>
+              {subtitle ? (
+                <p className="mt-1 text-[13px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+                  {subtitle}
                 </p>
               ) : null}
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0 flex-1">
-                  <h2
-                    className={`font-bold leading-[1.1] tracking-tight text-zinc-950 transition-all duration-300 dark:text-zinc-50 ${
-                      isCompressed ? "text-[26px]" : "text-[32px] lg:text-[40px]"
-                    }`}
-                  >
-                    {title}
-                  </h2>
-                  {subtitle ? (
-                    <p
-                      className={`mt-2 leading-relaxed text-zinc-500 transition-all duration-300 dark:text-zinc-400 ${
-                        isCompressed ? "text-[13px]" : "text-[15px] lg:max-w-[58ch] lg:text-base"
-                      }`}
-                    >
-                      {subtitle}
-                    </p>
-                  ) : null}
-                </div>
-                <WorkspaceSiteMenu isCompactViewport={isCompactViewport} />
-              </div>
             </div>
+            <WorkspaceSiteMenu isCompactViewport />
           </div>
-        </div>
-      </div>
-
-      <div className={`mx-auto flex min-h-0 min-w-0 w-full flex-1 overflow-x-hidden ${isCompactViewport ? "" : "max-w-[1380px] gap-8 px-4 lg:px-10"}`}>
-        <div className={`flex min-h-0 min-w-0 flex-1 flex-col ${isCompactViewport ? "" : "lg:max-w-[760px]"}`}>
-          <ScrollShadowViewport
-            onPointerDownCapture={(event) => handleSurfacePointerDown(event.target)}
-            onScroll={() => {
-              if (isCompactViewport && isInputFocused) {
-                dismissKeyboard();
-              }
-            }}
-            surface="muted"
-            className={`min-h-0 min-w-0 flex-1 overflow-y-auto ${isCompactViewport ? "px-4" : ""} ${
-              useInlineDock
-                ? "pb-4"
-                : composer
-                  ? isCompressed
-                    ? "pb-28"
-                    : "pb-40"
-                  : isCompressed
-                    ? "pb-24"
-                  : "pb-32"
-            }`}
-          >
-            <div className={isCompactViewport ? "pt-5" : "pt-2"}>
-              {children}
-            </div>
-          </ScrollShadowViewport>
-
-          <div
-            className={`left-0 right-0 z-20 px-2 ${useInlineDock ? "pt-0" : "pt-4"} ${
-              useInlineDock
-                ? "relative mt-auto bg-[var(--app-surface-muted)]"
-                : "absolute bottom-0 bg-gradient-to-t from-[var(--app-surface-muted)] via-[var(--app-surface-muted)] to-transparent lg:static lg:bg-transparent lg:px-0 lg:pb-8 lg:pt-6"
-            }`}
-            style={{
-              paddingBottom: useInlineDock
-                ? "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)"
-                : "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)",
-            }}
-          >
-            {useInlineDock ? (
-              <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-x-0 top-0 z-0 h-5 -translate-y-full bg-gradient-to-t from-[var(--app-surface-muted)] via-[var(--app-surface-muted)]/80 to-transparent"
-              />
-            ) : null}
-            {composer ? (
-              <div
-                data-draft-keep-focus
-                className={useInlineDock ? "relative z-10 mb-3 min-w-0 pt-1" : "relative z-10 mb-5 min-w-0"}
-              >
-                {composer}
-              </div>
-            ) : null}
-
-            <div className="flex min-w-0 items-center gap-3">
-              {!hideDockStepTrigger ? (
-                <StepTriggerButton
-                  size="dock"
-                  isOpen={isStepMenuOpen}
-                  aria-label={stepTriggerLabel}
-                  disabled={isNavigating}
-                  onClick={onStepClick}
-                />
-              ) : null}
-              {secondaryActionLabel || primaryAction ? (
-                <div className="flex min-w-0 flex-1 items-center gap-3">
-                  {secondaryActionLabel && onSecondaryAction ? (
-                    <div className="min-w-0 max-w-[13rem] flex-1 sm:max-w-[15rem]">
-                      <SecondaryButton
-                        onClick={onSecondaryAction}
-                        disabled={isNavigating}
-                        fullWidth
-                      >
-                        {secondaryActionLabel}
-                      </SecondaryButton>
-                    </div>
-                  ) : null}
-                  {primaryAction ? (
-                    <div className="min-w-0 flex-1">
-                      {primaryAction}
-                    </div>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
-
-        {!isCompactViewport ? (
-          <aside className="hidden w-[320px] shrink-0 lg:block">
-            <div className="sticky top-8 space-y-4 pb-8">
-              <Card className="bg-[var(--app-surface)] backdrop-blur-sm">
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                      {t("stepProgress", { current: step ?? 1, total: totalSteps ?? desktopSteps.length })}
-                    </div>
-                    <h3 className="mt-2 text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-                      {title}
-                    </h3>
-                    {subtitle ? (
-                      <p className="mt-2 text-sm leading-6 text-zinc-500 dark:text-zinc-400">{subtitle}</p>
-                    ) : null}
-                  </div>
-
-                  {onStepClick ? (
+        ) : (
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              {tc("appName")}
+            </p>
+            <div className="flex items-center gap-2">
+              {step != null && totalSteps != null && stepNav ? (
+                <Popover open={stepPopoverOpen} onOpenChange={setStepPopoverOpen}>
+                  <PopoverTrigger asChild>
                     <button
                       type="button"
-                      onClick={onStepClick}
-                      className="inline-flex min-h-11 items-center rounded-full bg-[var(--app-surface-soft)] px-4 text-sm font-semibold text-zinc-700 transition-colors hover:bg-[var(--app-surface)] dark:text-[var(--app-muted-strong)]"
+                      disabled={isNavigating}
+                      aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
+                      className="group inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
                     >
-                      {stepTriggerLabel ?? t("stepsTitle")}
-                    </button>
-                  ) : null}
-                </div>
-              </Card>
-
-              <Card className="bg-[var(--app-surface)] backdrop-blur-sm">
-                <div className="space-y-3">
-                  <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                    {t("stepsProgressOverview")}
-                  </div>
-                  <div className="space-y-2">
-                    {desktopSteps.map((desktopStep, index) => {
-                      const isCurrent = index === currentStepIndex;
-                      const isCompleted = index < currentStepIndex;
-                      const isLocked = index > maxUnlockedStepIndex;
-                      return (
-                        <div
-                          key={desktopStep.slug}
-                          className={`flex items-center gap-3 rounded-2xl px-3 py-3 ${
-                            isCurrent
-                              ? "bg-[var(--app-surface-soft)] ring-1 ring-[var(--app-border-strong)]"
-                              : isLocked
-                                ? "app-list-item-muted"
-                              : "bg-transparent"
-                          }`}
-                        >
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: totalSteps }, (_, i) => (
                           <div
-                            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[10px] font-black ${
-                              isCurrent
-                                ? "bg-zinc-950 text-white dark:bg-amber-400 dark:text-zinc-950"
-                                : isCompleted
-                                  ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300"
-                                  : "bg-[var(--app-surface-soft)] text-zinc-400 dark:text-[var(--app-muted)]"
-                             }`}
-                          >
-                            {isCompleted ? (
-                              <Check className="h-4 w-4" />
-                            ) : (
-                              desktopStep.id
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <div
-                              className={`truncate text-sm font-semibold ${
-                                isCurrent
-                                  ? "text-zinc-950 dark:text-zinc-50"
-                                  : isLocked
-                                    ? "text-[var(--app-muted)]"
-                                    : "text-zinc-500 dark:text-zinc-400"
-                              }`}
-                            >
-                              {t(desktopStep.titleKey)}
-                            </div>
-                          </div>
-                          {isLocked ? (
-                            <Lock className="h-3.5 w-3.5 text-[var(--app-muted)]" />
-                          ) : null}
-                        </div>
-                      );
-                    })}
+                            key={i}
+                            className={`h-1.5 rounded-full transition-all ${
+                              i === step
+                                ? "w-4 bg-amber-500 dark:bg-amber-400"
+                                : i < step
+                                  ? "w-2 bg-zinc-400 dark:bg-zinc-500"
+                                  : "w-1.5 bg-zinc-200 dark:bg-zinc-700"
+                            }`}
+                          />
+                        ))}
+                      </div>
+                      <span aria-hidden="true" className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300">
+                        {step + 1} / {totalSteps}
+                      </span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" sideOffset={8} className="w-[320px] p-0">
+                    <div className="px-4 pb-2 pt-4">
+                      <h3 className="text-sm font-semibold text-zinc-950 dark:text-zinc-50">
+                        {td("stepsTitle")}
+                      </h3>
+                      <p className="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                        {td("stepsProgressOverview")}
+                      </p>
+                    </div>
+                    <div className="px-2 pb-3">
+                      <StepList
+                        steps={stepNav.steps}
+                        currentStep={stepNav.currentStep}
+                        furthestUnlockedStepIndex={stepNav.furthestUnlockedStepIndex}
+                        onSelect={(idx) => {
+                          stepNav.onStepSelect(idx);
+                          setStepPopoverOpen(false);
+                        }}
+                      />
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              ) : step != null && totalSteps != null && onStepClick ? (
+                <button
+                  type="button"
+                  onClick={onStepClick}
+                  disabled={isNavigating}
+                  aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
+                  className="group inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
+                >
+                  <div className="flex items-center gap-1">
+                    {Array.from({ length: totalSteps }, (_, i) => (
+                      <div
+                        key={i}
+                        className={`h-1.5 rounded-full transition-all ${
+                          i === step
+                            ? "w-4 bg-amber-500 dark:bg-amber-400"
+                            : i < step
+                              ? "w-2 bg-zinc-400 dark:bg-zinc-500"
+                              : "w-1.5 bg-zinc-200 dark:bg-zinc-700"
+                        }`}
+                      />
+                    ))}
                   </div>
-                </div>
-              </Card>
-
-              <Card className="bg-[var(--app-surface)]">
-                <div className="space-y-2">
-                  <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                    {tc("appName")}
-                  </div>
-                  <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-                    {t("previewHint")}
-                  </p>
-                </div>
-              </Card>
+                  <span aria-hidden="true" className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300">
+                    {step + 1} / {totalSteps}
+                  </span>
+                </button>
+              ) : null}
+              <HeaderLanguageMenu />
+              <WorkspaceSiteMenu isCompactViewport={false} />
             </div>
-          </aside>
-        ) : null}
+          </div>
+        )}
       </div>
+
+      {/* ── Scroll area — fills remaining height below the header ── */}
+      <ScrollShadowViewport
+        flush
+        onPointerDownCapture={(event) => handleSurfacePointerDown(event.target)}
+        onScroll={() => {
+          if (isCompactViewport && isInputFocused) dismissKeyboard();
+        }}
+        surface="muted"
+        className={`min-h-0 flex-1 ${isCompactViewport ? "px-4" : ""}`}
+      >
+        <div className="flex min-h-full flex-col">
+          {/* ── Title block (desktop only — scrolls away) ── */}
+          {!isCompactViewport ? (
+            <div className="px-6 pb-4 pt-6 sm:px-8 lg:px-10 lg:pb-6 lg:pt-8">
+              <div className="mx-auto w-full max-w-[1400px]">
+                <h2 className="text-[32px] font-bold leading-[1.1] tracking-tight text-zinc-950 lg:text-[40px] dark:text-zinc-50">
+                  {title}
+                </h2>
+                {subtitle ? (
+                  <p className="mt-2 text-[15px] leading-relaxed text-zinc-500 lg:max-w-[58ch] lg:text-base dark:text-zinc-400">
+                    {subtitle}
+                  </p>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+
+          {/* ── Step content ── */}
+          <div
+            className={
+              isCompactViewport
+                ? "flex min-h-full flex-1 flex-col pb-10 pt-5"
+                : "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-12 pt-2 lg:px-6"
+            }
+          >
+            {children}
+          </div>
+
+          {/* ── Sticky dock ── */}
+          <div
+            className="relative sticky bottom-0 z-20 bg-[var(--app-surface-muted)] px-3 sm:px-4 lg:px-0"
+            style={{
+              paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.75rem)",
+              paddingTop: isCompactViewport ? "0" : "1rem",
+            }}
+          >
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-x-0 top-0 z-0 h-8 -translate-y-full bg-gradient-to-t from-[var(--app-surface-muted)] to-transparent"
+            />
+            <div className={isCompactViewport ? "" : "mx-auto w-full max-w-5xl px-4 lg:px-6"}>
+              {composer ? (
+                <div
+                  data-draft-keep-focus
+                  className={`relative z-10 min-w-0 ${isCompactViewport ? "mb-3 pt-1" : "mb-5"}`}
+                >
+                  {composer}
+                </div>
+              ) : null}
+
+              <div className="flex min-w-0 items-center gap-3 py-1">
+                {!hideDockStepTrigger && isCompactViewport ? (
+                  <StepTriggerButton
+                    size="dock"
+                    isOpen={isStepMenuOpen}
+                    aria-label={stepTriggerLabel}
+                    disabled={isNavigating}
+                    onClick={onStepClick}
+                  />
+                ) : null}
+                {secondaryActionLabel || primaryAction ? (
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    {secondaryActionLabel && onSecondaryAction ? (
+                      <div className="min-w-0 max-w-[13rem] flex-1 sm:max-w-[15rem]">
+                        <SecondaryButton
+                          onClick={onSecondaryAction}
+                          disabled={isNavigating}
+                          fullWidth
+                        >
+                          {secondaryActionLabel}
+                        </SecondaryButton>
+                      </div>
+                    ) : null}
+                    {primaryAction ? (
+                      <div className="min-w-0 flex-1">{primaryAction}</div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </div>
+      </ScrollShadowViewport>
     </div>
   );
 }

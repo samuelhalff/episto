@@ -168,9 +168,6 @@ services:
       NODE_ENV: development
       HOSTNAME: "0.0.0.0"
       NEXT_DIST_DIR: .next
-      WATCHPACK_POLLING: "true"
-      WATCHPACK_POLLING_INTERVAL: "1000"
-      CHOKIDAR_USEPOLLING: "true"
       API_URL: http://backend:4000
       NEXT_PUBLIC_API_URL: /api
       NEXT_PUBLIC_SITE_URL: https://ark-fid.ddns.net

@@ -27,7 +27,13 @@
     "sessionExpiredBody": "Aus Sicherheitsgründen funktionieren Entwurfslinks nur in der Sitzung, in der sie erstellt wurden. Starten Sie einen neuen Brief oder kehren Sie zur Startseite zurück.",
     "errorRecoveryTitle": "Diese Seite konnte nicht geöffnet werden",
     "errorRecoveryBody": "Bitte versuchen Sie es erneut, starten Sie einen neuen Brief oder kehren Sie zur Startseite zurück.",
-    "cancel": "Abbrechen"
+    "cancel": "Abbrechen",
+    "showPreview": "Vorschau anzeigen",
+    "hidePreview": "Vorschau ausblenden",
+    "refresh": "Aktualisieren",
+    "privacyNoticeBody": "Swiss Mail verwendet ein einziges notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Drittanbieter-Analysen.",
+    "privacyPolicy": "Datenschutz",
+    "dismissPrivacyNotice": "Datenschutzhinweis ausblenden"
   },
   "home": {
     "title": "Formelle Briefe, einfach versendet",
@@ -75,7 +81,83 @@
       "help": "Hilfe",
       "copyright": "© 2025 Swiss Mail. Alle Rechte vorbehalten."
     },
-    "appName": "Swiss Mail"
+    "appName": "Swiss Mail",
+    "homepage": {
+      "hero": {
+        "badge": "Für wichtige Briefe gemacht",
+        "title": "Wichtige Briefe — professionell vorbereitet, bereit zum Versand",
+        "subtitle": "Beschreiben Sie Ihr Anliegen. Wir führen Sie zu einem klaren, formellen Brief, den Sie vor dem Versand in Ruhe prüfen können.",
+        "body": "Swiss Mail hilft Ihnen, ernsthafte Korrespondenz ohne Postschalter-Umweg sauber vorzubereiten — vom ersten Entwurf bis zur postalischen Aufgabe in der Schweiz.",
+        "primaryCta": "Jetzt Brief schreiben",
+        "secondaryCta": "So funktioniert es",
+        "proof": "Kein Konto erforderlich · Klarer Total vor der Zahlung · Datenschutzbewusste Infrastruktur"
+      },
+      "trustStrip": {
+        "postal": "Postalische Zustellung in der Schweiz",
+        "privacy": "Datenschutzbewusste Infrastruktur",
+        "encryption": "Verschlüsselt bei Übertragung und Speicherung",
+        "noAccount": "Ohne Abo und ohne Konto startbar"
+      },
+      "howItWorks": {
+        "eyebrow": "So funktioniert es",
+        "title": "Drei Schritte zu einem seriösen Brief",
+        "intro": "Sie behalten den Überblick: Anliegen beschreiben, Formulierung prüfen, erst dann bezahlen und absenden.",
+        "steps": {
+          "describe": {
+            "title": "Anliegen schildern",
+            "body": "Beschreiben oder diktieren Sie, was der Brief erreichen soll — etwa eine Kündigung, eine Beschwerde oder eine offizielle Anfrage."
+          },
+          "review": {
+            "title": "Entwurf prüfen",
+            "body": "Sie sehen einen sauber strukturierten Brief, passen Ton und Details an und kontrollieren alles vor dem nächsten Schritt."
+          },
+          "send": {
+            "title": "Versand auslösen",
+            "body": "Wenn alles stimmt, bestätigen Sie den Total, bezahlen sicher und wir bereiten den Brief für die postalische Aufgabe vor."
+          }
+        }
+      },
+      "confidence": {
+        "eyebrow": "Warum es Vertrauen schafft",
+        "title": "Mehr Sicherheit vor dem Senden",
+        "intro": "Swiss Mail ersetzt nicht Ihre Entscheidung — es gibt Ihrem Brief einen professionellen Rahmen und lässt Ihnen vor dem Versand die Kontrolle.",
+        "cards": {
+          "structured": {
+            "title": "Klar strukturiert",
+            "body": "Aus Ihrem Anliegen entsteht ein formeller Brief mit nachvollziehbarer Struktur statt einer hastig formulierten Nachricht."
+          },
+          "review": {
+            "title": "Vor dem Versand kontrollierbar",
+            "body": "Sie prüfen Inhalt, Ton und Angaben in Ruhe, bevor Zahlung und postalische Aufgabe ausgelöst werden."
+          },
+          "privacy": {
+            "title": "Sorgfältig abgewickelt",
+            "body": "Wir kommunizieren den Ablauf transparent, zeigen den Total vor der Zahlung und halten die Verarbeitung datenschutzbewusst."
+          }
+        }
+      },
+      "useCases": {
+        "eyebrow": "Typische Anlässe",
+        "title": "Für Briefe, die Sie nicht weiter aufschieben sollten",
+        "intro": "Wenn ein Anliegen ernst klingt, hilft ein sauber formulierter Brief oft mehr als eine kurze Nachricht.",
+        "cancellation": {
+          "title": "Abo kündigen",
+          "description": "Beenden Sie Mitgliedschaften oder Verträge mit einer formellen schriftlichen Kündigung."
+        },
+        "lease": {
+          "title": "Mietverhältnis kündigen",
+          "description": "Formulieren Sie eine klare Mitteilung an Verwaltung oder Vermietung mit dem nötigen formellen Ton."
+        },
+        "complaint": {
+          "title": "Beschwerde einreichen",
+          "description": "Bringen Sie ein Problem sachlich, vollständig und ernsthaft auf den Punkt."
+        },
+        "authority": {
+          "title": "An eine Behörde schreiben",
+          "description": "Bereiten Sie offizielle Korrespondenz so vor, dass sie geordnet und professionell wirkt."
+        }
+      }
+    }
   },
   "howItWorks": {
     "title": "So funktioniert Swiss Mail",
@@ -235,7 +317,6 @@
     "stepReview": "Prüfen",
     "stepPay": "Bezahlen",
     "stepDone": "Fertig",
-    "stepProgress": "Schritt {current} von {total}",
     "phaseProgress": "Phase {current} von {total}",
     "stepMenuLabel": "Schritte öffnen",
     "stepLocked": "Gesperrt",
@@ -266,7 +347,6 @@
     "inputPrompt": "Sagen Sie uns, was Sie brauchen — sprechen oder tippen",
     "dictationError": "Spracheingabe nicht verfügbar. Bitte erneut versuchen oder tippen.",
     "workspaceTab": "Schreiben",
-    "previewHint": "Hier sehen Sie die finale Briefansicht, während Ihr Entwurf Form annimmt.",
     "previewSheetHint": "Das Briefblatt aktualisiert sich mit Ihrem Entwurf.",
     "previewReadyToast": "Ihr Brief ist zur Vorschau bereit.",
     "closePreview": "Vorschau schliessen",
@@ -274,7 +354,7 @@
     "scrollToBottom": "Nach unten scrollen",
     "showPreview": "Vorschau anzeigen",
     "hidePreview": "Vorschau ausblenden",
-    "continueToReview": "Weiter zur Prüfung",
+    "continueToReview": "Weiter",
     "continueToReviewHint": "Vervollständigen Sie Ihre Briefangaben, um fortzufahren.",
     "reviewReadyHint": "Ihr Entwurf ist bereit für die abschliessende Prüfung.",
     "previewUnavailableRetry": "Vorschau momentan nicht verfügbar. Ihr Inhalt ist gespeichert — bitte erneut versuchen.",
@@ -289,8 +369,8 @@
     "intakeThreadActionHint": "Sie können weiter chatten oder mit den Absenderangaben fortfahren, sobald das hier passt.",
     "intakeThreadSoftHint": "Sie können die Situation hier weiter beschreiben. Wenn es einfacher ist, wechseln Sie zu den manuellen Schritten.",
     "intakeThreadSoftAction": "Die meisten Angaben manuell eingeben",
-    "continueToSender": "Weiter zu den Absenderangaben",
-    "continueToRecipient": "Weiter zum Empfänger",
+    "continueToSender": "Weiter",
+    "continueToRecipient": "Weiter",
     "tipFullContext": "Gesamtkontext",
     "tipFullContextDesc": "Beschreiben Sie die ganze Situation. Namen und Rollen extrahieren wir für Sie.",
     "tipDates": "Konkrete Daten",
@@ -328,16 +408,16 @@
     "enterAddressManually": "Adresse manuell eingeben",
     "backToSearch": "Zurück zur Suche",
     "backToIntake": "Ausgangslage",
-    "backToSender": "Absender",
-    "backToRecipient": "Empfänger",
-    "backToContent": "Text",
-    "backToAttachments": "Beilagen",
-    "backToSubject": "Betreff",
+    "backToSender": "Zurück",
+    "backToRecipient": "Zurück",
+    "backToContent": "Zurück",
+    "backToAttachments": "Zurück",
+    "backToSubject": "Zurück",
     "stepSaveFailed": "Dieser Schritt konnte nicht gespeichert werden. Bitte prüfe die Felder und versuche es erneut.",
     "senderSaved": "Absenderangaben gespeichert",
     "recipientSaved": "Empfängerangaben gespeichert",
     "confirmRecipient": "Empfänger bestätigen",
-    "continueToContent": "Weiter zum Text",
+    "continueToContent": "Weiter",
     "bodyContentTitle": "Inhalt",
     "bodyContentSubtitle": "Hier formulieren Sie nur den Haupttext. Anrede und Schlussformel werden separat gesetzt.",
     "bodyEditingSubtitle": "Bearbeiten Sie hier nur den Haupttext. Anrede und Schlussformel bleiben separat.",
@@ -349,11 +429,15 @@
     "bodyDraftEmptyTitle": "Noch kein Inhalt",
     "bodyDraftEmptyHint": "Wir erstellen den Haupttext aus Ihren bisherigen Angaben.",
     "bodyManualEditHint": "Bearbeiten Sie hier direkt den Haupttext. Anrede und Schlussformel werden im finalen Layout separat gesetzt.",
+    "firstDraftReadyTitle": "Ihr erster Entwurf ist bereit",
+    "firstDraftReadyBody": "Prufen Sie den vorgeschlagenen Entwurf und passen Sie ihn nach Wunsch an, manuell oder mit KI.",
+    "firstDraftReadyDismiss": "Schliessen",
     "bodyCoachmarkTitle": "Hier bearbeiten Sie nur den Haupttext",
     "bodyCoachmarkBody": "Anrede und Schlussformel werden im Brieflayout separat gesetzt. Konzentrieren Sie sich hier auf die eigentliche Nachricht Ihres Briefs.",
     "bodyCoachmarkAction": "Verstanden",
     "bodyGenerationLoadingTitle": "Wir formulieren Ihren Inhalt",
     "bodyGenerationLoadingDescription": "Wir erstellen aus Ihren bereits bestätigten Angaben eine erste Fassung Ihres Briefs. Das sollte nur einen Moment dauern.",
+    "bodyGenerationLoadingLabel": "Formulieren",
     "bodyGenerationErrorTitle": "Der Inhalt konnte nicht erstellt werden",
     "bodyGenerationErrorDescription": "Bitte laden Sie diesen Schritt neu und versuchen Sie es erneut. Eine Support-Option wird hier später ergänzt, falls das Problem bleibt.",
     "bodyGenerationRefreshAction": "Entwurf neu laden",
@@ -361,7 +445,7 @@
     "letterBodyLabel": "Brieftext",
     "doneEditing": "Bearbeitung abschliessen",
     "confirmContent": "Inhalt bestätigen",
-    "continueToAttachments": "Weiter zu den Beilagen",
+    "continueToAttachments": "Weiter",
     "editBodyManuallyBadge": "Inhalt manuell bearbeiten",
     "editWithAssistant": "Mit der KI bearbeiten",
     "openDraftPreview": "Entwurfsvorschau öffnen",
@@ -421,12 +505,12 @@
     "attachmentsStepSubtitle": "Unterlagen jetzt hinzufügen",
     "attachmentsOptionalBadge": "Optional",
     "attachmentsUploadingHint": "Warten Sie, bis der Upload abgeschlossen ist, bevor Sie fortfahren.",
-    "continueToSubject": "Weiter zum Betreff",
+    "continueToSubject": "Weiter",
     "subjectLineTitle": "Betreff",
     "subjectLineSubtitle": "Betreff jetzt eingeben",
     "subjectLineLabel": "Betreff",
     "confirmSubject": "Betreff bestätigen",
-    "continueToLogistics": "Weiter zum Versand",
+    "continueToLogistics": "Weiter",
     "subjectSuggestedHint": "Wir haben einen Betreff aus Ihrem Entwurf vorgeschlagen. Passen Sie ihn bei Bedarf an.",
     "subjectInputPlaceholder": "z. B. Kündigung des Internet-Abonnements",
     "logisticsTitle": "Versand",
@@ -498,12 +582,14 @@
     "requiredBeforeSending": "Vervollständigen Sie alle Pflichtangaben, bevor Sie zur Zahlung weitergehen.",
     "pricingPending": "Der finale Preis erscheint, sobald die PDF-Vorschau fertig gerendert ist.",
     "pricingLoading": "Der Live-Postpreis wird abgerufen.",
+    "calculatingPriceDetail": "Wir berechnen gerade den aktuellen Postpreis für diesen Brief.",
     "signatureMissingHelp": "Ohne Unterschrift ist für die meisten Schreiben in Ordnung, für formelle Mitteilungen aber empfohlen.",
     "attachmentsOptionalHelp": "Beilagen sind optional. Fügen Sie sie nur hinzu, wenn Ihr Schreiben Belege benötigt.",
     "edit": "Bearbeiten",
     "add": "Hinzufügen",
-    "proceedToPayment": "Weiter zur Zahlung",
-    "backToDraft": "Entwurf",
+    "calculatingPrice": "Preis wird berechnet…",
+    "proceedToPayment": "Weiter",
+    "backToDraft": "Zurück",
     "total": "Total"
   },
   "checkout": {
@@ -511,13 +597,13 @@
     "orderSummary": "Ihre Bestellung",
     "checkoutIntro": "Prüfen und sicher zahlen",
     "email": "E-Mail-Adresse",
-    "emailHelp": "Wir senden Ihre Zahlungsquittung und Brief-Updates an diese Adresse. Wir verwenden sie nicht für Marketing.",
+    "emailHelp": "Wir senden Ihre Quittung zuerst an diese Adresse und danach Versand-Updates sowie einen sicheren Bestellstatus-Link, über den das finale PDF verfügbar bleibt, solange es aufbewahrt wird. Keine Werbung.",
     "paymentMethod": "Zahlungsmethode",
     "paymentPending": "Zahlungsformular wird geladen…",
     "paymentConfigError": "Das Zahlungssystem ist nicht konfiguriert. Bitte versuchen Sie es später erneut.",
     "consentRequired": "Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.",
     "legalConsent": "Ich habe die <terms>Nutzungsbedingungen</terms> gelesen und stimme diesen zu. Ich verstehe, dass Swiss Mail keine Rechtsdienstleistung erbringt.",
-    "sendMyLetter": "Brief absenden",
+    "sendMyLetter": "Bezahlen",
     "securedByStripe": "Gesichert durch Stripe",
     "swissDelivery": "Versand über die Schweizerische Post",
     "dataProtection": "Verschlüsselt und sicher gespeichert",
@@ -542,8 +628,10 @@
     "paymentConfirming": "Zahlung wird verarbeitet…",
     "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "enterPaymentDetails": "Zahlungsdetails eingeben",
-    "continueToPayment": "Weiter zur Zahlung",
-    "backToReview": "Prüfung"
+    "continueToPayment": "Weiter",
+    "calculatingPayment": "Berechnung…",
+    "backToReview": "Zurück",
+    "paymentMethodsHelp": "TWINT erscheint zuerst. Karten und unterstützte Wallets werden angezeigt, wenn Stripe und Ihr Gerät sie freigeben."
   },
   "attachments": {
     "title": "Anhänge",
@@ -618,7 +706,9 @@
     "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
     "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
     "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
-    "stickyCtaLabel": "Weiteren Brief senden"
+    "stickyCtaLabel": "Weiteren Brief senden",
+    "downloadLetter": "Finales PDF herunterladen",
+    "downloadUnavailable": "Das finale PDF ist nicht mehr verfügbar."
   },
   "resume": {
     "loading": "Entwurf wird geladen…",
@@ -641,7 +731,9 @@
     "sendAnother": "Weiteren Brief senden",
     "recipient": "Empfänger",
     "paymentAmount": "Bezahlter Betrag",
-    "paidAt": "Zahlungsdatum"
+    "paidAt": "Zahlungsdatum",
+    "downloadLetter": "Finales PDF herunterladen",
+    "downloadUnavailable": "Das finale PDF ist nicht mehr verfügbar."
   },
   "files": {
     "addMore": "Dateien hinzufügen",
@@ -727,6 +819,32 @@
       "providerNote": "Updates hängen von der Anbieterkapazität ab"
     },
     "lastChecked": "Zuletzt aktualisiert: {time}"
+  },
+  "seo": {
+    "home": {
+      "title": "Swiss Mail — Wichtige Briefe online vorbereiten und versenden",
+      "description": "Verfassen Sie formelle Briefe, prüfen Sie jedes Detail und lösen Sie die postalische Aufgabe in der Schweiz aus — ohne Konto."
+    },
+    "pricing": {
+      "title": "Preise — Swiss Mail",
+      "description": "Sehen Sie Referenzpreise für Standard und Einschreiben, die Servicegebühr von Swiss Mail und wie der finale Total vor der Zahlung bestätigt wird."
+    },
+    "help": {
+      "title": "Hilfe — Swiss Mail",
+      "description": "Antworten zu Briefentwurf, Zahlung, Versand, Anhängen und Support bei Swiss Mail."
+    },
+    "privacy": {
+      "title": "Datenschutz — Swiss Mail",
+      "description": "Erfahren Sie, wie Swiss Mail Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
+    },
+    "terms": {
+      "title": "AGB — Swiss Mail",
+      "description": "Lesen Sie die Bedingungen für Nutzung, Bezahlung und Versand mit Swiss Mail."
+    },
+    "imprint": {
+      "title": "Impressum — Swiss Mail",
+      "description": "Betreiberangaben und Kontaktinformationen von Swiss Mail."
+    }
   },
   "help": {
     "title": "Hilfe & Support",

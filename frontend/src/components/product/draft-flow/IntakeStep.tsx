@@ -26,7 +26,10 @@ import {
   shouldSendShortcutImmediately,
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
-import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import {
+  getDraftWorkspaceState,
+  mergeDraftWorkspaceState,
+} from "./workspace-state";
 import type {
   DraftWorkspacePreviewToggleProps,
   DraftWorkspaceStepShellProps,
@@ -47,6 +50,8 @@ export function IntakeStep({
   onInputFocusChange,
   isNavigating,
   navigateToStep,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: IntakeStepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
@@ -290,8 +295,6 @@ export function IntakeStep({
             sheetDescription={t("intakeShortcutSheetHint")}
             closeLabel={tc("close")}
             disabled={conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse}
-            isCompactViewport={isCompactViewport}
-            compactPrimaryCount={1}
             onShortcutSelect={(shortcut) => {
               void handleIntakeShortcut(shortcut.prompt);
             }}
@@ -299,13 +302,22 @@ export function IntakeStep({
         }
         leadingActions={
           <>
-            <StepTriggerButton
-              size="composer"
-              isOpen={isStepMenuOpen}
-              aria-label={t("stepMenuLabel")}
-              disabled={isNavigating}
-              onClick={onStepClick}
-            />
+            {isCompactViewport ? (
+              <StepTriggerButton
+                size="composer"
+                isOpen={isStepMenuOpen}
+                aria-label={t("stepMenuLabel")}
+                disabled={isNavigating}
+                onClick={onStepClick}
+              />
+            ) : null}
+            {onTogglePreview ? (
+              <ComposerIconButton
+                icon={isPreviewPanelVisible ? "preview-off" : "preview"}
+                aria-label={isPreviewPanelVisible ? tc("hidePreview") : tc("showPreview")}
+                onClick={onTogglePreview}
+              />
+            ) : null}
             <ComposerIconButton
               icon="attach"
               aria-label={t("attachmentsLabel")}
@@ -337,10 +349,11 @@ export function IntakeStep({
         ref={attachmentInputRef}
         type="file"
         accept=".pdf,.png,.jpg,.jpeg"
+        multiple
         className="hidden"
         onChange={async (event) => {
-          const file = event.target.files?.[0];
-          if (file) {
+          const selectedFiles = Array.from(event.target.files ?? []);
+          for (const file of selectedFiles) {
             await files.uploadFile(file, "attachment");
           }
           event.target.value = "";
@@ -351,6 +364,8 @@ export function IntakeStep({
 
   return (
     <DraftShell
+      step={0}
+      totalSteps={7}
       title={t("intakeTitle")}
       subtitle={t("intakeSubtitle")}
       onStepClick={onStepClick}
@@ -362,9 +377,9 @@ export function IntakeStep({
       hideDockStepTrigger
       composer={intakeComposer}
     >
-      <div className="space-y-8 pb-4">
+      <div className="flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-2">
         {hasConversationActivity ? (
-          <section ref={threadContainerRef} className="space-y-3 px-2" aria-live="polite">
+          <section ref={threadContainerRef} className="mt-auto space-y-3 px-2" aria-live="polite">
             {conversation.messages.map((message) => {
               const isUserMessage = message.role === "user";
               const showRetryAction =
@@ -376,7 +391,7 @@ export function IntakeStep({
 
               return (
                 <div key={message.id} className={`flex ${isUserMessage ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[85%] ${isUserMessage ? "" : "space-y-2"}`}>
+                  <div className={`max-w-[min(88%,40rem)] ${isUserMessage ? "" : "space-y-2"}`}>
                     <div
                       className={`rounded-3xl px-4 py-3 text-sm leading-relaxed shadow-sm ring-1 ring-black/5 ${
                         isUserMessage
@@ -405,7 +420,7 @@ export function IntakeStep({
 
             {conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse ? (
               <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-3xl rounded-bl-[10px] bg-[var(--app-surface-soft)] px-4 py-3 text-sm leading-relaxed text-zinc-700 shadow-sm ring-1 ring-black/5 dark:text-zinc-100 dark:ring-white/5">
+                <div className="max-w-[min(88%,40rem)] rounded-3xl rounded-bl-[10px] bg-[var(--app-surface-soft)] px-4 py-3 text-sm leading-relaxed text-zinc-700 shadow-sm ring-1 ring-black/5 dark:text-zinc-100 dark:ring-white/5">
                   {conversation.streamingText ? (
                     <div className="whitespace-pre-wrap">
                       {conversation.streamingText}

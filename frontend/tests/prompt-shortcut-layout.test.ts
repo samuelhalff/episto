@@ -8,33 +8,39 @@ const primaryShortcuts = [
   { id: "three", label: "Three", prompt: "Three", description: "Three" },
 ];
 
-const overflowShortcuts = [
-  { id: "four", label: "Four", prompt: "Four", description: "Four" },
-];
-
 describe("prompt shortcut layout", () => {
-  it("keeps all primary shortcuts inline on wide viewports", () => {
+  it("reserves space for More before deciding the final visible shortcut count", () => {
     const layout = resolvePromptShortcutLayout({
       primaryShortcuts,
-      overflowShortcuts,
-      isCompactViewport: false,
-      compactPrimaryCount: 1,
+      overflowShortcuts: [],
+      availableWidth: 188,
+      leadingWidth: 0,
+      moreWidth: 68,
+      shortcutWidths: new Map([
+        ["one", 52],
+        ["two", 56],
+        ["three", 64],
+      ]),
+      gap: 8,
     });
 
-    expect(layout.visiblePrimaryShortcuts.map((shortcut) => shortcut.id)).toEqual([
-      "one",
-      "two",
-      "three",
-    ]);
-    expect(layout.sheetShortcuts.map((shortcut) => shortcut.id)).toEqual(["four"]);
+    expect(layout.visiblePrimaryShortcuts.map((shortcut) => shortcut.id)).toEqual(["one"]);
+    expect(layout.sheetShortcuts.map((shortcut) => shortcut.id)).toEqual(["two", "three"]);
   });
 
-  it("moves excess primary shortcuts into the More sheet on compact viewports", () => {
+  it("keeps deferred primary shortcuts ahead of existing overflow shortcuts", () => {
     const layout = resolvePromptShortcutLayout({
       primaryShortcuts,
-      overflowShortcuts,
-      isCompactViewport: true,
-      compactPrimaryCount: 1,
+      overflowShortcuts: [{ id: "four", label: "Four", prompt: "Four", description: "Four" }],
+      availableWidth: 192,
+      leadingWidth: 56,
+      moreWidth: 68,
+      shortcutWidths: new Map([
+        ["one", 52],
+        ["two", 56],
+        ["three", 64],
+      ]),
+      gap: 8,
     });
 
     expect(layout.visiblePrimaryShortcuts.map((shortcut) => shortcut.id)).toEqual(["one"]);
@@ -43,5 +49,20 @@ describe("prompt shortcut layout", () => {
       "three",
       "four",
     ]);
+  });
+
+  it("reserves the leading-slot gap before fitting the first shortcut", () => {
+    const layout = resolvePromptShortcutLayout({
+      primaryShortcuts: primaryShortcuts.slice(0, 1),
+      overflowShortcuts: [{ id: "four", label: "Four", prompt: "Four", description: "Four" }],
+      availableWidth: 128,
+      hasLeadingSlot: true,
+      moreWidth: 68,
+      shortcutWidths: new Map([["one", 52]]),
+      gap: 8,
+    });
+
+    expect(layout.visiblePrimaryShortcuts).toEqual([]);
+    expect(layout.sheetShortcuts.map((shortcut) => shortcut.id)).toEqual(["one", "four"]);
   });
 });

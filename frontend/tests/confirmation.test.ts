@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, it, expect } from "vitest";
 import {
   PAYMENT_SUCCESS_STATES,
@@ -40,6 +43,12 @@ import enCH from "../src/messages/en-CH.json";
 import deCH from "../src/messages/de-CH.json";
 import frCH from "../src/messages/fr-CH.json";
 import itCH from "../src/messages/it-CH.json";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const confirmationPageSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/draft/[draftId]/confirmation/page.tsx"),
+  "utf8",
+);
 
 const REQUIRED_CONFIRMATION_KEYS = [
   "title",
@@ -117,5 +126,25 @@ describe("confirmation i18n keys", () => {
       ).sort();
       expect(keys).toEqual(enKeys);
     }
+  });
+});
+
+describe("confirmation page regressions", () => {
+  it("uses shared action primitives instead of hardcoded CTA classes", () => {
+    expect(confirmationPageSource).toContain("ActionLink");
+    expect(confirmationPageSource).toContain("getAppButtonClassName");
+    expect(confirmationPageSource).not.toContain("bg-zinc-950 px-6 py-3");
+  });
+
+  it("uses shared status badges and panel surfaces for confirmation chrome", () => {
+    expect(confirmationPageSource).toContain("StatusBadge");
+    expect(confirmationPageSource).toContain("app-panel");
+  });
+
+  it("keeps confirmation timeline states readable in dark mode without duplicate icon imports", () => {
+    expect(confirmationPageSource).not.toContain("HelpCircle as HelpCircleIcon");
+    expect(confirmationPageSource).toContain("dark:bg-emerald-500/15 dark:text-emerald-300");
+    expect(confirmationPageSource).toContain("dark:bg-zinc-800 dark:text-zinc-500");
+    expect(confirmationPageSource).toContain("text-zinc-400 dark:text-zinc-500");
   });
 });

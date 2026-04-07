@@ -11,6 +11,11 @@ const reviewPageSource = readFileSync(
   "utf8",
 );
 
+const flowActionDockSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/FlowActionDock.tsx"),
+  "utf8",
+);
+
 describe("review page regressions", () => {
   it("keeps the quote hook above the early loading return", () => {
     expect(reviewPageSource.indexOf("const quote = useDispatchQuote")).toBeGreaterThan(
@@ -41,10 +46,29 @@ describe("review page regressions", () => {
     expect(reviewPageSource).toContain('allComplete ? t("pricingPending")');
   });
 
+  it("passes review-specific loading detail copy into the shared price summary", () => {
+    expect(reviewPageSource).toContain('loadingMessage={t("calculatingPriceDetail")}');
+  });
+
   it("blocks the payment CTA until a live quote exists", () => {
     expect(reviewPageSource).toContain("const canProceedToPayment =");
     expect(reviewPageSource).toContain("Boolean(quote.data)");
     expect(reviewPageSource).toContain("quoteErrorMessage");
+  });
+
+  it("shows an explicit calculating state on the review CTA while pricing is loading", () => {
+    expect(reviewPageSource).toContain(
+      "const isReviewPriceCalculating = canRequestQuote && quote.isLoading",
+    );
+    expect(reviewPageSource).toContain(
+      "loading={isReviewPriceCalculating || reviewDraft.isPending || updateDraft.isPending}",
+    );
+    expect(reviewPageSource).toContain(
+      '{isReviewPriceCalculating ? t("calculatingPrice") : t("proceedToPayment")}',
+    );
+    expect(reviewPageSource).toContain(
+      "trailingMeta={!isReviewPriceCalculating && quote.data ? (",
+    );
   });
 
   it("disables the nested preview chrome on the review page", () => {
@@ -68,5 +92,30 @@ describe("review page regressions", () => {
     expect(reviewPageSource).toContain("useTransitionDraft");
     expect(reviewPageSource).toContain('{ status: "fields_complete" }');
     expect(reviewPageSource).toContain("handleBackToDraft");
+  });
+
+  it("uses shared status and delivery badges for review summary chrome", () => {
+    expect(reviewPageSource).toContain("StatusBadge");
+    expect(reviewPageSource).toContain("DeliveryTypeBadge");
+    expect(reviewPageSource).not.toContain("bg-emerald-50");
+    expect(reviewPageSource).not.toContain("bg-amber-50");
+  });
+
+  it("keeps the review footer visible on desktop with extra bottom spacing for the content", () => {
+    expect(reviewPageSource).toContain("lg:pb-[calc(12rem+env(safe-area-inset-bottom))]");
+    expect(flowActionDockSource).toContain("desktopSticky");
+    expect(reviewPageSource).toContain("<FlowActionDock");
+    expect(reviewPageSource).toContain("desktopSticky");
+  });
+
+  it("uses semantic destructive text instead of route-local red shades for review errors", () => {
+    expect(reviewPageSource).toContain("text-destructive");
+    expect(reviewPageSource).not.toContain("text-red-700 dark:text-red-400");
+  });
+
+  it("uses stable summary row keys instead of raw address text", () => {
+    expect(reviewPageSource).toContain("values.map((line, index) =>");
+    expect(reviewPageSource).toContain('key={`${label}-${index}`}');
+    expect(reviewPageSource).not.toContain("key={line}");
   });
 });

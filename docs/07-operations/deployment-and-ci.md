@@ -206,8 +206,12 @@ All secrets and environment-specific values are injected as environment variable
 | `SESSION_SECRET` | Secret for cookie signing and related HMAC use, if enabled by the session implementation | 64-char random hex string |
 | `BASE_URL` | Public-facing URL | `https://swissmail.ch` |
 | `RESEND_API_KEY` | Resend transactional email API key | *(secret)* |
-| `ADMIN_USERNAME` | Admin Basic Auth username | `admin` |
-| `ADMIN_PASSWORD` | Admin Basic Auth password | *(secret, min 32 chars)* |
+| `ADMIN_SESSION_SECRET` | HMAC secret for admin session and OAuth state cookies | 64-char random string |
+| `ADMIN_SESSION_TTL_HOURS` | Admin session lifetime after Microsoft login | `12` |
+| `ADMIN_MICROSOFT_CLIENT_ID` | Microsoft app registration client ID for admin login. Must come from the dedicated WestBay admin app registration, not the temporary AI `AZURE_*` app. | *(secret / env-specific)* |
+| `ADMIN_MICROSOFT_CLIENT_SECRET` | Microsoft app registration client secret for admin login | *(secret)* |
+| `ADMIN_MICROSOFT_TENANT_ID` | WestBay tenant ID — must be an explicit tenant, never `"common"` | *(secret / env-specific)* |
+| `ADMIN_MICROSOFT_REDIRECT_URI` | Fallback backend callback URL for admin Microsoft login. Runtime prefers the current request origin when constructing the OAuth callback, but the Azure app registration must still allow the public and local callback URLs you use. | `https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback` |
 | `NODE_ENV` | Runtime environment | `production` / `development` / `test` |
 | `PORT` | HTTP port (backend) | `4000` |
 | `LOG_LEVEL` | Pino log level | `info` |
@@ -535,7 +539,8 @@ For the Infomaniak-centered deployment:
 | `AZURE_OPENAI_API_KEY` | 1. Generate/rotate key in Azure. 2. Update env. 3. Restart. 4. Revoke old key. |
 | `SWISS_POST_CLIENT_SECRET` | 1. Rotate Swiss Post client secret. 2. Update env. 3. Restart backend and worker. 4. Revoke old secret. |
 | `RESEND_API_KEY` | 1. Create new Resend API key. 2. Update env. 3. Restart backend and worker. 4. Revoke old key. |
-| `ADMIN_PASSWORD` | 1. Update `ADMIN_PASSWORD` env var. 2. Restart backend. |
+| `ADMIN_SESSION_SECRET` | 1. Generate new 64-char random secret. 2. Update env. 3. Restart backend (existing admin sessions are invalidated). |
+| `ADMIN_MICROSOFT_CLIENT_SECRET` | 1. Rotate secret in Azure app registration. 2. Update env. 3. Restart backend. 4. Revoke old secret. |
 
 ---
 
@@ -711,7 +716,7 @@ Alerting channel: email (MVP), Slack or PagerDuty (post-MVP).
 
 ### Health status page
 
-A simple internal status page at `/admin/health` shows:
+A simple internal status page at `/{locale}/admin/health` shows:
 
 - API server: up/down
 - Database: connected/unreachable
@@ -721,7 +726,7 @@ A simple internal status page at `/admin/health` shows:
 - Last successful dispatch: timestamp
 - Last payment: timestamp
 
-This is admin-only (Basic Auth gated, see Section 11).
+This is admin-only (admin auth gated, see Section 11).
 
 ---
 
@@ -754,50 +759,23 @@ This is admin-only (Basic Auth gated, see Section 11).
 
 **Resolves IMPROV-8.**
 
-### MVP: HTTP Basic Auth
+### Backend-managed Microsoft SSO (tenant-only)
 
-All `/admin/*` routes are protected by HTTP Basic Auth over TLS.
+The admin UI is served from `/{locale}/admin/...`, while backend admin API routes remain under
+`/admin/*`.
 
-```ts
-// backend/src/plugins/adminAuth.ts
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import fp from 'fastify-plugin';
-import timingSafeEqual from 'crypto';
+Admin operator authentication uses backend-managed Microsoft OAuth over TLS. No Basic Auth fallback
+exists.
 
-async function adminAuthPlugin(app: FastifyInstance) {
-  app.decorate('verifyAdmin', async (request: FastifyRequest, reply: FastifyReply) => {
-    const auth = request.headers['authorization'];
-    if (!auth?.startsWith('Basic ')) {
-      reply.header('WWW-Authenticate', 'Basic realm="Swiss Mail Admin"');
-      return reply.code(401).send({ error: 'Unauthorized' });
-    }
-
-    const [username, password] = Buffer.from(auth.slice(6), 'base64')
-      .toString()
-      .split(':');
-
-    const expectedUsername = process.env.ADMIN_USERNAME;
-    const expectedPassword = process.env.ADMIN_PASSWORD;
-
-    if (
-      !expectedUsername ||
-      !expectedPassword ||
-      username !== expectedUsername ||
-      !timingSafeCompare(password, expectedPassword)
-    ) {
-      return reply.code(401).send({ error: 'Unauthorized' });
-    }
-  });
-}
-
-export default fp(adminAuthPlugin, { name: 'admin-auth' });
-
-// Usage: app.get('/admin/dashboard', { preHandler: [app.verifyAdmin] }, handler);
-```
-
-- Credentials sourced from `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables.
-- `ADMIN_PASSWORD` must be at least 32 characters.
-- Never accessible without TLS (nginx must redirect HTTP → HTTPS before reaching the app).
+- Microsoft login flows through `/api/v1/admin/auth/microsoft/login` and
+  `/api/v1/admin/auth/microsoft/callback`
+- Successful login mints a signed HTTP-only admin session cookie using `ADMIN_SESSION_SECRET`
+- Access is authorized by `ADMIN_MICROSOFT_TENANT_ID` (the WestBay tenant); any identity from a
+  different tenant is rejected with `access_denied`. `ADMIN_MICROSOFT_TENANT_ID` must be set to an
+  explicit tenant ID — never `"common"`
+- Protected admin API routes accept only a valid admin session cookie
+- Only the auth bootstrap endpoints remain reachable without a pre-existing admin session
+- Never accessible without TLS (nginx must redirect HTTP → HTTPS before reaching the app)
 
 ---
 

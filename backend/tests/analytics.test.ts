@@ -41,9 +41,9 @@ describe("analytics module", () => {
   // -----------------------------------------------------------------------
 
   describe("ANALYTICS_EVENTS constants", () => {
-    it("defines all 23 event names from the taxonomy", () => {
+    it("defines all 29 event names from the taxonomy", () => {
       const keys = Object.keys(ANALYTICS_EVENTS);
-      expect(keys).toHaveLength(23);
+      expect(keys).toHaveLength(29);
     });
 
     it("includes marketing events", () => {

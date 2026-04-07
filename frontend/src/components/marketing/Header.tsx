@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
 import { MenuTriggerButton } from "../layout/MenuTriggerButton";
+import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";
 import { SiteMenuPanel } from "../layout/SiteMenuPanel";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import {
   getSheetSurfaceClassName,
@@ -68,7 +68,7 @@ export function Header() {
             <ThemeToggle compact />
           </div>
           <div className="hidden md:block">
-            <LanguageSwitcher />
+            <HeaderLanguageMenu />
           </div>
           <Link
             href="/draft/new"

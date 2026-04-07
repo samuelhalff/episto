@@ -27,7 +27,13 @@
     "sessionExpiredBody": "Pour des raisons de sécurité, les liens de brouillon ne fonctionnent que dans la session qui les a créés. Commencez une nouvelle lettre ou revenez à l'accueil.",
     "errorRecoveryTitle": "Nous n'avons pas pu ouvrir cette page",
     "errorRecoveryBody": "Veuillez réessayer, commencer une nouvelle lettre ou revenir à l'accueil.",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "showPreview": "Afficher l’aperçu",
+    "hidePreview": "Masquer l’aperçu",
+    "refresh": "Actualiser",
+    "privacyNoticeBody": "Swiss Mail utilise un seul cookie essentiel pour votre session. Aucun suivi, aucune analyse tierce.",
+    "privacyPolicy": "Politique de confidentialite",
+    "dismissPrivacyNotice": "Fermer l'avis de confidentialite"
   },
   "home": {
     "title": "Lettres formelles, envoyées simplement",
@@ -75,7 +81,83 @@
       "help": "Aide",
       "copyright": "© 2025 Swiss Mail. Tous droits réservés."
     },
-    "appName": "Swiss Mail"
+    "appName": "Swiss Mail",
+    "homepage": {
+      "hero": {
+        "badge": "Conçu pour les lettres importantes",
+        "title": "Lettres importantes — préparées avec soin, prêtes à l’envoi",
+        "subtitle": "Décrivez votre besoin. Nous vous guidons vers une lettre formelle claire que vous pouvez relire tranquillement avant l’envoi.",
+        "body": "Swiss Mail vous aide à préparer une correspondance importante sans passage au guichet — du premier brouillon jusqu’à la remise au circuit postal en Suisse.",
+        "primaryCta": "Rédigez votre lettre maintenant",
+        "secondaryCta": "Voir comment cela fonctionne",
+        "proof": "Aucun compte requis · Total clair avant paiement · Infrastructure soucieuse de la confidentialité"
+      },
+      "trustStrip": {
+        "postal": "Envoi postal en Suisse",
+        "privacy": "Infrastructure soucieuse de la confidentialité",
+        "encryption": "Chiffré en transit et au repos",
+        "noAccount": "Démarrez sans abonnement ni compte"
+      },
+      "howItWorks": {
+        "eyebrow": "Comment ça fonctionne",
+        "title": "Trois étapes pour une lettre sérieuse",
+        "intro": "Vous gardez la main: vous décrivez la situation, vous relisez le texte, puis vous payez et envoyez seulement quand tout est juste.",
+        "steps": {
+          "describe": {
+            "title": "Décrire la situation",
+            "body": "Écrivez ou dictez ce que la lettre doit accomplir — une résiliation, une réclamation ou une demande officielle."
+          },
+          "review": {
+            "title": "Relire le brouillon",
+            "body": "Vous voyez une lettre formelle bien structurée, ajustez le ton et les détails, puis vérifiez l’ensemble avant la suite."
+          },
+          "send": {
+            "title": "Lancer l’envoi",
+            "body": "Quand tout vous convient, vous confirmez le total, payez en sécurité et nous préparons la lettre pour l’envoi postal."
+          }
+        }
+      },
+      "confidence": {
+        "eyebrow": "Pourquoi cela rassure",
+        "title": "Plus de confiance avant l’envoi",
+        "intro": "Swiss Mail ne remplace pas votre jugement — il donne à votre lettre un cadre professionnel et vous laisse le contrôle avant l’envoi.",
+        "cards": {
+          "structured": {
+            "title": "Structure nette",
+            "body": "Votre situation devient une lettre formelle avec une structure claire, plutôt qu’un message rédigé dans la précipitation."
+          },
+          "review": {
+            "title": "Relue avant l’envoi",
+            "body": "Vous vérifiez le contenu, le ton et les détails avant que le paiement et l’envoi postal ne commencent."
+          },
+          "privacy": {
+            "title": "Traitée avec soin",
+            "body": "Nous rendons le parcours transparent, affichons le total avant paiement et gardons un discours respectueux de la confidentialité."
+          }
+        }
+      },
+      "useCases": {
+        "eyebrow": "Cas fréquents",
+        "title": "Pour les lettres que vous ne devriez plus repousser",
+        "intro": "Quand l’enjeu est sérieux, une lettre bien préparée porte souvent plus qu’un simple message rapide.",
+        "cancellation": {
+          "title": "Résilier un abonnement",
+          "description": "Mettez fin à un abonnement ou à un contrat de service avec un courrier formel écrit."
+        },
+        "lease": {
+          "title": "Résilier un bail",
+          "description": "Rédigez un avis clair à votre bailleur ou à la gérance avec le ton formel adapté."
+        },
+        "complaint": {
+          "title": "Déposer une réclamation",
+          "description": "Exposez le problème de manière factuelle, complète et suffisamment sérieuse pour être entendu."
+        },
+        "authority": {
+          "title": "Écrire à une autorité",
+          "description": "Préparez une correspondance officielle qui donne immédiatement une impression d’ordre et de sérieux."
+        }
+      }
+    }
   },
   "howItWorks": {
     "title": "Comment fonctionne Swiss Mail",
@@ -235,7 +317,6 @@
     "stepReview": "Vérifier",
     "stepPay": "Payer",
     "stepDone": "Terminé",
-    "stepProgress": "Étape {current} sur {total}",
     "phaseProgress": "Phase {current} sur {total}",
     "stepMenuLabel": "Ouvrir les étapes",
     "stepLocked": "Verrouillé",
@@ -266,7 +347,6 @@
     "inputPrompt": "Dites-nous ce dont vous avez besoin — parlez ou tapez",
     "dictationError": "Saisie vocale indisponible. Réessayez ou tapez.",
     "workspaceTab": "Rédiger",
-    "previewHint": "Visualisez ici la lettre finale au fur et à mesure de la rédaction.",
     "previewSheetHint": "La mise en page se met à jour à chaque modification du brouillon.",
     "previewReadyToast": "Votre lettre est prête à être prévisualisée.",
     "closePreview": "Fermer l'aperçu",
@@ -274,7 +354,7 @@
     "scrollToBottom": "Défiler vers le bas",
     "showPreview": "Afficher l'aperçu",
     "hidePreview": "Masquer l'aperçu",
-    "continueToReview": "Continuer vers la vérification",
+    "continueToReview": "Suivant",
     "continueToReviewHint": "Complétez les détails de votre lettre pour continuer.",
     "reviewReadyHint": "Votre brouillon est prêt pour une vérification finale.",
     "previewUnavailableRetry": "Aperçu indisponible pour le moment. Votre contenu est enregistré — veuillez réessayer.",
@@ -289,8 +369,8 @@
     "intakeThreadActionHint": "Vous pouvez continuer à discuter ou passer aux coordonnées de l’expéditeur lorsque cela vous semble prêt.",
     "intakeThreadSoftHint": "Vous pouvez continuer à décrire la situation ici. Si c’est plus simple, passez aux étapes manuelles.",
     "intakeThreadSoftAction": "Saisir l’essentiel manuellement",
-    "continueToSender": "Continuer vers l’expéditeur",
-    "continueToRecipient": "Continuer vers le destinataire",
+    "continueToSender": "Suivant",
+    "continueToRecipient": "Suivant",
     "tipFullContext": "Contexte complet",
     "tipFullContextDesc": "Décrivez toute la situation. Nous extrairons les noms pour vous.",
     "tipDates": "Dates précises",
@@ -328,16 +408,16 @@
     "enterAddressManually": "Saisir l’adresse manuellement",
     "backToSearch": "Retour à la recherche",
     "backToIntake": "Description",
-    "backToSender": "Expéditeur",
-    "backToRecipient": "Destinataire",
-    "backToContent": "Contenu",
-    "backToAttachments": "Pièces jointes",
-    "backToSubject": "Objet",
+    "backToSender": "Retour",
+    "backToRecipient": "Retour",
+    "backToContent": "Retour",
+    "backToAttachments": "Retour",
+    "backToSubject": "Retour",
     "stepSaveFailed": "Nous n’avons pas pu enregistrer cette étape. Veuillez vérifier les champs et réessayer.",
     "senderSaved": "Coordonnées de l'expéditeur enregistrées",
     "recipientSaved": "Coordonnées du destinataire enregistrées",
     "confirmRecipient": "Confirmer le destinataire",
-    "continueToContent": "Continuer vers le contenu",
+    "continueToContent": "Suivant",
     "bodyContentTitle": "Contenu",
     "bodyContentSubtitle": "Travaillez ici le message principal. La salutation et la formule de clôture sont gérées séparément.",
     "bodyEditingSubtitle": "Modifiez ici le message principal. La salutation et la formule de clôture restent séparées.",
@@ -349,11 +429,15 @@
     "bodyDraftEmptyTitle": "Commencez par un prompt, pas par une page vide",
     "bodyDraftEmptyHint": "Nous composons le message principal à partir de ce que vous avez déjà indiqué.",
     "bodyManualEditHint": "Modifiez ici directement le message principal. La salutation et la formule de clôture sont gérées séparément dans la mise en page finale.",
+    "firstDraftReadyTitle": "Votre premier brouillon est pret",
+    "firstDraftReadyBody": "Verifiez le brouillon propose et modifiez-le comme vous le souhaitez, manuellement ou avec l'IA.",
+    "firstDraftReadyDismiss": "Fermer",
     "bodyCoachmarkTitle": "Vous modifiez uniquement le message principal",
     "bodyCoachmarkBody": "La salutation et la formule de clôture sont gérées séparément dans la mise en page de la lettre. Concentrez-vous ici sur le message à envoyer.",
     "bodyCoachmarkAction": "Compris",
     "bodyGenerationLoadingTitle": "Nous rédigeons votre contenu",
     "bodyGenerationLoadingDescription": "Nous transformons les informations déjà confirmées en une première version de votre lettre. Cela ne devrait prendre qu’un instant.",
+    "bodyGenerationLoadingLabel": "Rédaction",
     "bodyGenerationErrorTitle": "Nous n’avons pas pu rédiger le contenu",
     "bodyGenerationErrorDescription": "Veuillez actualiser cette étape pour réessayer. Un bouton de support sera ajouté ici plus tard si le problème persiste.",
     "bodyGenerationRefreshAction": "Actualiser le brouillon",
@@ -361,7 +445,7 @@
     "letterBodyLabel": "Texte de la lettre",
     "doneEditing": "Terminer",
     "confirmContent": "Confirmer le contenu",
-    "continueToAttachments": "Continuer vers les pièces jointes",
+    "continueToAttachments": "Suivant",
     "editBodyManuallyBadge": "Modifier le contenu manuellement",
     "editWithAssistant": "Modifier avec l’assistant",
     "openDraftPreview": "Ouvrir l’aperçu du brouillon",
@@ -421,12 +505,12 @@
     "attachmentsStepSubtitle": "Ajoutez vos justificatifs",
     "attachmentsOptionalBadge": "Facultatif",
     "attachmentsUploadingHint": "Attendez la fin du téléversement avant de continuer.",
-    "continueToSubject": "Continuer vers l’objet",
+    "continueToSubject": "Suivant",
     "subjectLineTitle": "Objet",
     "subjectLineSubtitle": "Ajoutez un objet",
     "subjectLineLabel": "Objet",
     "confirmSubject": "Confirmer l’objet",
-    "continueToLogistics": "Continuer vers la logistique",
+    "continueToLogistics": "Suivant",
     "subjectSuggestedHint": "Nous avons proposé un objet à partir de votre brouillon. Ajustez-le si besoin.",
     "subjectInputPlaceholder": "p. ex. Résiliation de l’abonnement internet",
     "logisticsTitle": "Logistique",
@@ -498,12 +582,14 @@
     "requiredBeforeSending": "Complétez chaque section obligatoire avant de passer au paiement.",
     "pricingPending": "Le prix final apparaîtra dès que l'aperçu PDF aura terminé son rendu.",
     "pricingLoading": "Récupération du tarif postal en direct.",
+    "calculatingPriceDetail": "Nous calculons le tarif postal en direct pour cette lettre.",
     "signatureMissingHelp": "L'absence de signature convient à la plupart des courriers, mais elle reste recommandée pour les avis formels.",
     "attachmentsOptionalHelp": "Les pièces jointes sont facultatives. Ajoutez-les seulement si votre lettre a besoin de justificatifs.",
     "edit": "Modifier",
     "add": "Ajouter",
-    "proceedToPayment": "Passer au paiement",
-    "backToDraft": "Brouillon",
+    "calculatingPrice": "Calcul du prix…",
+    "proceedToPayment": "Suivant",
+    "backToDraft": "Retour",
     "total": "Total"
   },
   "checkout": {
@@ -511,13 +597,13 @@
     "orderSummary": "Votre commande",
     "checkoutIntro": "Vérifiez et payez sereinement",
     "email": "Adresse e-mail",
-    "emailHelp": "Nous enverrons votre reçu de paiement et les mises à jour de votre lettre à cette adresse. Nous ne l'utiliserons pas à des fins marketing.",
+    "emailHelp": "Nous enverrons d'abord votre reçu à cette adresse, puis les mises à jour d'envoi et un lien sécurisé vers le statut de la commande, où le PDF final reste disponible pendant la période de conservation. Aucun marketing.",
     "paymentMethod": "Moyen de paiement",
     "paymentPending": "Chargement du formulaire de paiement…",
     "paymentConfigError": "Le système de paiement n'est pas configuré. Veuillez réessayer plus tard.",
     "consentRequired": "Vous devez accepter les conditions pour continuer.",
     "legalConsent": "J'ai lu et j'accepte les <terms>conditions d'utilisation</terms> et je comprends que Swiss Mail ne fournit pas de services juridiques.",
-    "sendMyLetter": "Envoyer ma lettre",
+    "sendMyLetter": "Payer",
     "securedByStripe": "Sécurisé par Stripe",
     "swissDelivery": "Expédition par la Poste Suisse",
     "dataProtection": "Chiffré et stocké de manière sécurisée",
@@ -542,8 +628,10 @@
     "paymentConfirming": "Traitement du paiement…",
     "paymentError": "Paiement échoué. Veuillez réessayer.",
     "enterPaymentDetails": "Saisir les données de paiement",
-    "continueToPayment": "Passer au paiement",
-    "backToReview": "Vérification"
+    "continueToPayment": "Suivant",
+    "calculatingPayment": "Calcul…",
+    "backToReview": "Retour",
+    "paymentMethodsHelp": "TWINT apparaît d'abord. Les cartes et portefeuilles pris en charge s'affichent lorsque Stripe et votre appareil les rendent disponibles."
   },
   "attachments": {
     "title": "Pièces jointes",
@@ -618,7 +706,9 @@
     "stateUnknown": "Le statut est en cours de confirmation — nous vous informerons par e-mail",
     "emailNotice": "Un reçu de paiement a été envoyé à votre adresse e-mail",
     "emailNoticeDetail": "Vous recevrez une autre mise à jour si le statut d'envoi évolue.",
-    "stickyCtaLabel": "Envoyer une autre lettre"
+    "stickyCtaLabel": "Envoyer une autre lettre",
+    "downloadLetter": "Télécharger le PDF final",
+    "downloadUnavailable": "Le PDF final n'est plus disponible."
   },
   "resume": {
     "loading": "Reprise de votre brouillon…",
@@ -641,7 +731,9 @@
     "sendAnother": "Envoyer une autre lettre",
     "recipient": "Destinataire",
     "paymentAmount": "Montant payé",
-    "paidAt": "Date de paiement"
+    "paidAt": "Date de paiement",
+    "downloadLetter": "Télécharger le PDF final",
+    "downloadUnavailable": "Le PDF final n'est plus disponible."
   },
   "files": {
     "addMore": "Ajouter des fichiers",
@@ -727,6 +819,32 @@
       "providerNote": "Les mises à jour dépendent du prestataire"
     },
     "lastChecked": "Dernière mise à jour : {time}"
+  },
+  "seo": {
+    "home": {
+      "title": "Swiss Mail — Préparer et envoyer des lettres sérieuses en ligne",
+      "description": "Rédigez une lettre formelle, relisez chaque détail et lancez l’envoi postal en Suisse sans créer de compte."
+    },
+    "pricing": {
+      "title": "Tarifs — Swiss Mail",
+      "description": "Consultez les totaux de référence pour le courrier standard et recommandé, les frais Swiss Mail et la confirmation du total avant paiement."
+    },
+    "help": {
+      "title": "Aide — Swiss Mail",
+      "description": "Réponses sur la rédaction, le paiement, l’envoi, les pièces jointes et le support Swiss Mail."
+    },
+    "privacy": {
+      "title": "Confidentialité — Swiss Mail",
+      "description": "Découvrez comment Swiss Mail traite les données de session, les fichiers, les paiements et la conservation avec une approche respectueuse de la confidentialité."
+    },
+    "terms": {
+      "title": "Conditions — Swiss Mail",
+      "description": "Lisez les conditions d’utilisation, de paiement et d’envoi de Swiss Mail."
+    },
+    "imprint": {
+      "title": "Mentions légales — Swiss Mail",
+      "description": "Informations sur l’exploitant et coordonnées de contact de Swiss Mail."
+    }
   },
   "help": {
     "title": "Aide & Support",

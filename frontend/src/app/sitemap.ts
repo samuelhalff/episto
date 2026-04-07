@@ -1,7 +1,8 @@
 import type { MetadataRoute } from "next";
+import { routing } from "../i18n/routing";
+import { getSiteUrl } from "../lib/marketing-seo";
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://swissmail.ch";
-const LOCALES = ["de-CH", "fr-CH", "it-CH", "en-CH"] as const;
+const LOCALES = routing.locales;
 
 const STATIC_ROUTES = [
   "",
@@ -13,12 +14,13 @@ const STATIC_ROUTES = [
 ] as const;
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = getSiteUrl();
   const entries: MetadataRoute.Sitemap = [];
 
   for (const route of STATIC_ROUTES) {
     for (const locale of LOCALES) {
       entries.push({
-        url: `${BASE_URL}/${locale}${route}`,
+        url: `${baseUrl}/${locale}${route}`,
         lastModified: new Date(),
         changeFrequency: route === "" ? "weekly" : "monthly",
         priority: route === "" ? 1.0 : 0.7,

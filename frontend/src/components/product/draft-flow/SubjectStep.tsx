@@ -32,6 +32,7 @@ export function SubjectStep({
   const [subject, setSubject] = useState("");
   const hasHydratedRef = useRef(false);
   const lastSavedSubjectRef = useRef("");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const normalizedSubject =
     normalizeLetterSubject(subject, draft.data?.locale ?? "de-CH") ?? "";
 
@@ -44,6 +45,16 @@ export function SubjectStep({
     lastSavedSubjectRef.current = initialSubject;
     hasHydratedRef.current = true;
   }, [draft.data?.locale, draft.data?.subject]);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (!textarea) return;
+    textarea.style.height = "0px";
+    const scrollHeight = textarea.scrollHeight;
+    const next = Math.min(scrollHeight, 176);
+    textarea.style.height = `${next}px`;
+    textarea.style.overflowY = scrollHeight > 176 ? "auto" : "hidden";
+  }, [subject]);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
@@ -93,7 +104,7 @@ export function SubjectStep({
 
   return (
     <DraftShell
-      step={6}
+      step={5}
       totalSteps={7}
       title={t("subjectLineTitle")}
       subtitle={t("subjectLineSubtitle")}
@@ -130,9 +141,10 @@ export function SubjectStep({
             </p>
           ) : null}
           <Card isCompactViewport={isCompactViewport} density="thin">
-            <input
+            <textarea
+              ref={textareaRef}
               value={subject}
-              onChange={(e) => setSubject(e.target.value)}
+              onChange={(e) => setSubject(e.target.value.replace(/[\r\n]+/g, " "))}
               onFocus={() => {
                 setIsFieldFocused(true);
                 onInputFocusChange?.(true);
@@ -143,7 +155,7 @@ export function SubjectStep({
               }}
               maxLength={200}
               placeholder={t("subjectInputPlaceholder")}
-              className="app-form-control w-full bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+              className="app-form-control min-h-[88px] w-full resize-none bg-transparent font-semibold leading-6 text-zinc-900 placeholder:text-zinc-300 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
             />
           </Card>
           <div className="px-2 text-right text-[10px] text-zinc-400">

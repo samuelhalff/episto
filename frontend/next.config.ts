@@ -66,10 +66,6 @@ const securityHeaders = [
 
 function createConfig(): NextConfig {
   const distDir = process.env.NEXT_DIST_DIR || ".next";
-  const watchPollInterval = Number.parseInt(
-    process.env.WATCHPACK_POLLING_INTERVAL ?? "1000",
-    10,
-  );
 
   return {
     reactStrictMode: true,
@@ -78,23 +74,6 @@ function createConfig(): NextConfig {
     allowedDevOrigins: ["ark-fid.ddns.net"],
     experimental: {
       serverComponentsHmrCache: false,
-    },
-    webpack(config, { dev }) {
-      // Resolve .js extension imports to .ts/.tsx files in the stable webpack toolchain.
-      config.resolve.extensionAlias = {
-        ".js": [".js", ".ts", ".tsx"],
-        ".jsx": [".jsx", ".tsx"],
-      };
-
-      if (dev) {
-        config.watchOptions = {
-          ...config.watchOptions,
-          poll: Number.isFinite(watchPollInterval) ? watchPollInterval : 1000,
-          aggregateTimeout: 300,
-        };
-      }
-
-      return config;
     },
     async headers() {
       return [

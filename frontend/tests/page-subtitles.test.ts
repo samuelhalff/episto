@@ -12,6 +12,10 @@ import itCH from "../src/messages/it-CH.json";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const homePageSource = readFileSync(path.join(repoRoot, "frontend/src/app/[locale]/page.tsx"), "utf8");
+const homepageHeroSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/HomepageHero.tsx"),
+  "utf8",
+);
 const helpPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/help/page.tsx"),
   "utf8",
@@ -69,7 +73,6 @@ const locales = [
 ] as const;
 
 const MAIN_PAGE_SUBTITLE_PATHS = [
-  { label: "homepage hero", path: ["marketing", "heroSubtitle"] },
   { label: "pricing page", path: ["pricing", "subtitle"] },
   { label: "help page", path: ["help", "subtitle"] },
   { label: "draft entry", path: ["draft", "entrySubtitle"] },
@@ -112,7 +115,8 @@ function getWordCount(value: string): number {
 
 describe("main page subtitle wiring", () => {
   it("uses the dedicated short subtitle keys on the main product pages", () => {
-    expect(homePageSource).toContain('{t("heroSubtitle")}');
+    expect(homePageSource).toContain("<HomepageHero />");
+    expect(homepageHeroSource).toContain('{t("homepage.hero.subtitle")}');
     expect(pricingPageSource).toContain('subtitle={t("subtitle")}');
     expect(helpPageSource).toContain('{t("subtitle")}');
     expect(newDraftPageSource).toContain('{td("entrySubtitle")}');

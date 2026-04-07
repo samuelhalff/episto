@@ -1,20 +1,20 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import { requireAdmin } from "../src/shared/middleware/require-admin.js";
+import { createAdminSessionToken } from "../src/modules/admin/admin-auth.js";
 
-// Mock env() to return known credentials
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
-    ADMIN_USERNAME: "admin",
-    ADMIN_PASSWORD: "secret-password-123",
+    ADMIN_SESSION_SECRET: "admin-session-secret-at-least-32-characters",
   }),
 }));
 
-function makeRequest(authHeader?: string): FastifyRequest {
+function makeRequest(authHeader?: string, cookies?: Record<string, string>): FastifyRequest {
   return {
     headers: {
       ...(authHeader !== undefined ? { authorization: authHeader } : {}),
     },
+    cookies: cookies ?? {},
     log: { info: vi.fn() },
   } as unknown as FastifyRequest;
 }
@@ -26,15 +26,14 @@ describe("requireAdmin middleware", () => {
     vi.clearAllMocks();
   });
 
-  it("accepts valid Basic Auth credentials", async () => {
+  it("rejects valid Basic Auth credentials because only admin sessions are supported", async () => {
     const encoded = Buffer.from("admin:secret-password-123").toString("base64");
     const req = makeRequest(`Basic ${encoded}`);
 
-    await expect(requireAdmin(req, mockReply)).resolves.toBeUndefined();
-    expect(req.log.info).toHaveBeenCalledWith(
-      { admin: "admin" },
-      "Admin access",
-    );
+    await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
+    });
   });
 
   it("rejects missing Authorization header (401)", async () => {
@@ -65,40 +64,71 @@ describe("requireAdmin middleware", () => {
     });
   });
 
-  it("rejects wrong username (403)", async () => {
+  it("rejects wrong username in Basic auth (401)", async () => {
     const encoded = Buffer.from("wrong-user:secret-password-123").toString(
       "base64",
     );
     const req = makeRequest(`Basic ${encoded}`);
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
-      statusCode: 403,
-      code: "ADMIN_FORBIDDEN",
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
     });
   });
 
-  it("rejects wrong password (403)", async () => {
+  it("rejects wrong password in Basic auth (401)", async () => {
     const encoded = Buffer.from("admin:wrong-password").toString("base64");
     const req = makeRequest(`Basic ${encoded}`);
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
-      statusCode: 403,
-      code: "ADMIN_FORBIDDEN",
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
     });
   });
 
-  it("rejects completely wrong credentials (403)", async () => {
+  it("rejects completely wrong Basic auth credentials (401)", async () => {
     const encoded = Buffer.from("hacker:12345").toString("base64");
     const req = makeRequest(`Basic ${encoded}`);
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
-      statusCode: 403,
-      code: "ADMIN_FORBIDDEN",
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
     });
   });
 
   it("rejects empty Authorization value (401)", async () => {
     const req = makeRequest("");
+
+    await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
+    });
+  });
+
+  it("accepts a valid signed admin session cookie", async () => {
+    const token = createAdminSessionToken(
+      {
+        actor: "sam@example.com",
+        authMethod: "microsoft",
+        email: "sam@example.com",
+        name: "Sam",
+        oid: "oid-123",
+        tid: "tid-456",
+      },
+      "admin-session-secret-at-least-32-characters",
+      Date.now() + 60_000,
+    );
+    const req = makeRequest(undefined, { admin_session: token });
+
+    await expect(requireAdmin(req, mockReply)).resolves.toBeUndefined();
+    expect(req.log.info).toHaveBeenCalledWith(
+      { admin: "sam@example.com", authMethod: "microsoft" },
+      "Admin access",
+    );
+  });
+
+  it("rejects an invalid signed admin session cookie (401)", async () => {
+    const req = makeRequest(undefined, { admin_session: "invalid" });
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
       statusCode: 401,

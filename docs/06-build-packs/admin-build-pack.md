@@ -7,16 +7,24 @@ to become a content warehouse or a shadow editor.
 
 ## Admin authentication — LOCKED (IMPROV-8)
 
-**MVP: HTTP Basic Auth over TLS.**
+**Operator auth uses backend-managed Microsoft SSO over TLS. Only signed admin session cookies are accepted; no Basic Auth fallback exists.**
 
-- Credentials are loaded from `ADMIN_USERNAME` and `ADMIN_PASSWORD` environment variables
-- Auth middleware is applied to all `/admin/*` routes before any handler logic runs
-- No admin route may be reachable without passing the middleware check
-- Credentials must never be hardcoded or committed to source control
+- Microsoft login starts at `/api/v1/admin/auth/microsoft/login` and returns through
+  `/api/v1/admin/auth/microsoft/callback`
+- Successful Microsoft login mints a signed HTTP-only admin session cookie; the frontend must use
+  backend session status, not browser-stored Microsoft tokens
+- Access is authorized by the configured `ADMIN_MICROSOFT_TENANT_ID` (the WestBay tenant);
+  any identity token from a different tenant is rejected with `access_denied`
+- `ADMIN_MICROSOFT_TENANT_ID` must be set to an explicit tenant ID — never `"common"`
+- `ADMIN_MICROSOFT_*` is a dedicated admin app registration and tenant binding. Do not reuse the
+  temporary AI `AZURE_*` tenant/client values for admin auth
+- Auth middleware is applied to all privileged `/admin/*` API routes; only the auth bootstrap
+  endpoints are reachable without an existing admin session
+- Credentials and secrets must never be hardcoded or committed to source control
 - TLS is required — the admin interface must not be served over plain HTTP in any environment
 
-This is the locked MVP auth approach. A more sophisticated admin auth system (SSO, role-based
-access) is a future enhancement and must be documented before implementation.
+The backend API remains under `/admin/*`, and the operator UI is served on locale-prefixed path routes
+under `/{locale}/admin/*`.
 
 ## Admin pages
 
@@ -107,6 +115,6 @@ The following are permanently out of scope for the admin interface:
 Every privileged admin action must emit a `support_event` record with:
 - Timestamp
 - Action type
-- Actor identifier (env-level; not a full user record in MVP)
+- Actor identifier (Microsoft email or preferred_username from the ID token)
 - Session or draft reference
 - Optional note

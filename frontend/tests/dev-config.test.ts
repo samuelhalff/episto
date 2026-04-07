@@ -23,30 +23,35 @@ const dockerComposeSource = readFileSync(
 );
 
 describe("frontend dev hot reload configuration", () => {
-  it("keeps the stable Next.js scripts instead of Turbopack overrides", () => {
-    expect(frontendPackageJson.scripts?.dev).toContain("next dev");
+  it("uses Turbopack for dev mode", () => {
+    expect(frontendPackageJson.scripts?.dev).toContain("--turbopack");
     expect(frontendPackageJson.scripts?.build).toBe("next build");
     expect(frontendPackageJson.scripts?.start).toBe("next start");
   });
 
-  it("preserves webpack extension aliases for TypeScript ESM source imports", () => {
-    expect(nextConfigSource).toContain("serverComponentsHmrCache: false");
-    expect(nextConfigSource).toContain("config.resolve.extensionAlias");
-    expect(nextConfigSource).toContain('".js": [".js", ".ts", ".tsx"]');
-    expect(nextConfigSource).toContain('".jsx": [".jsx", ".tsx"]');
-    expect(nextConfigSource).toContain("config.watchOptions");
-    expect(nextConfigSource).toContain("aggregateTimeout: 300");
-    expect(nextConfigSource).toContain("WATCHPACK_POLLING_INTERVAL");
+  it("does not carry legacy webpack config", () => {
+    expect(nextConfigSource).not.toContain("config.resolve.extensionAlias");
+    expect(nextConfigSource).not.toContain("config.watchOptions");
+    expect(nextConfigSource).not.toContain("WATCHPACK_POLLING_INTERVAL");
+    expect(nextConfigSource).not.toContain("webpack(config");
   });
 
-  it("keeps Docker polling, container-managed dependencies, and the isolated .next cache for bind-mounted edits", () => {
+  it("keeps essential Next.js config", () => {
+    expect(nextConfigSource).toContain("serverComponentsHmrCache: false");
+    expect(nextConfigSource).toContain("reactStrictMode: true");
+    expect(nextConfigSource).toContain('output: "standalone"');
+  });
+
+  it("Docker compose has no webpack-specific polling vars", () => {
+    expect(dockerComposeSource).not.toContain("WATCHPACK_POLLING");
+    expect(dockerComposeSource).not.toContain("CHOKIDAR_USEPOLLING");
+  });
+
+  it("keeps Docker container setup for frontend dev", () => {
     expect(dockerComposeSource).toContain("working_dir: /app/frontend");
     expect(dockerComposeSource).toContain("- frontend_node_modules:/app/node_modules");
     expect(dockerComposeSource).toContain("- frontend_next_cache:/app/frontend/.next");
     expect(dockerComposeSource).toContain("NEXT_DIST_DIR: .next");
-    expect(dockerComposeSource).toContain('WATCHPACK_POLLING: "true"');
-    expect(dockerComposeSource).toContain('WATCHPACK_POLLING_INTERVAL: "1000"');
-    expect(dockerComposeSource).toContain('CHOKIDAR_USEPOLLING: "true"');
     expect(dockerComposeSource).toContain("npm ci --include=dev --no-fund --no-audit");
     expect(dockerComposeSource).toContain(
       "lock_hash=$$(sha256sum /app/package-lock.json",
@@ -57,6 +62,5 @@ describe("frontend dev hot reload configuration", () => {
     expect(dockerComposeSource).toContain("[ ! -d /app/node_modules/next ]");
     expect(dockerComposeSource).toContain("/app/node_modules/.package-lock.sha256");
     expect(dockerComposeSource).toContain("find .next");
-    expect(dockerComposeSource).not.toContain("/app/frontend/.next-turbo");
   });
 });

@@ -1,7 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
-import { env } from "../../shared/config/index.js";
 import { requireAdmin } from "../../shared/middleware/require-admin.js";
 import {
   recordSupportEvent,
@@ -12,6 +11,9 @@ import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { adminActionRoutes } from "./admin-actions.routes.js";
 import { adminHealthRoutes } from "./admin-health.routes.js";
 import { adminOverviewRoutes } from "./admin-overview.routes.js";
+import { adminMetricsRoutes } from "./admin-metrics.routes.js";
+import { adminSessionsRoutes } from "./admin-sessions.routes.js";
+import { adminRetentionRoutes } from "./admin-retention.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin read-only routes (timeline, session details, content access)
@@ -191,7 +193,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "content_access",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin!.actor,
         details: { reason: body.reason },
       });
 
@@ -218,4 +220,9 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
   // Register admin overview/dashboard counters endpoint
   await app.register(adminOverviewRoutes);
+
+  // Register analytics dashboard endpoints
+  await app.register(adminMetricsRoutes);
+  await app.register(adminSessionsRoutes);
+  await app.register(adminRetentionRoutes);
 }

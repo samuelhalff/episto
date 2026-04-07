@@ -3,6 +3,9 @@
   "private": true,
   "type": "module",
   "packageManager": "npm@10.8.2",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "workspaces": [
     "shared",
     "backend",
@@ -17,13 +20,16 @@
     "format:fix": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf shared/dist backend/dist frontend/.next frontend/.next-turbo **/tsconfig.tsbuildinfo"
+    "clean": "rm -rf shared/dist backend/dist frontend/.next **/tsconfig.tsbuildinfo"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
     "eslint": "^9.0.0",
+    "jsdom": "^26.1.0",
     "prettier": "^3.3.0",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.57.1",

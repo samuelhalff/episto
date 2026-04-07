@@ -11,6 +11,8 @@
  */
 
 import { createLogger } from "../../shared/logging/index.js";
+import { CompositeSink } from "./composite-sink.js";
+import { DbSink } from "./db-sink.js";
 
 const logger = createLogger("analytics");
 
@@ -46,7 +48,16 @@ export type AnalyticsEvent =
   | { event: "dispatch_accepted"; draftId: string; dispatchAttemptId: string }
   | { event: "dispatch_ambiguous"; draftId: string; dispatchAttemptId: string; reasonCategory: string }
   | { event: "order_status_viewed"; draftId: string; dispatchState: string }
-  | { event: "refund_confirmed"; draftId: string; paymentAttemptId: string; amountCents: number };
+  | { event: "refund_confirmed"; draftId: string; paymentAttemptId: string; amountCents: number }
+  // §4.6 Rendering
+  | { event: "render_completed"; draftId: string; durationMs: number }
+  | { event: "render_failed"; draftId: string; errorFamily: string }
+  // §4.7 Page and feature tracking (supplementary)
+  | { event: "page_viewed"; route: string; locale: string; sessionId?: string }
+  | { event: "feature_used"; surface: string; locale: string; sessionId?: string }
+  // §4.8 AI quality
+  | { event: "ai_generation_requested"; draftId: string; locale: string }
+  | { event: "ai_generation_completed"; draftId: string; durationMs: number; wasRefusal: boolean };
 
 // ---------------------------------------------------------------------------
 // Event name constants — for type-safe usage at call sites
@@ -81,6 +92,15 @@ export const ANALYTICS_EVENTS = {
   DISPATCH_AMBIGUOUS: "dispatch_ambiguous",
   ORDER_STATUS_VIEWED: "order_status_viewed",
   REFUND_CONFIRMED: "refund_confirmed",
+  // Rendering
+  RENDER_COMPLETED: "render_completed",
+  RENDER_FAILED: "render_failed",
+  // Page & feature
+  PAGE_VIEWED: "page_viewed",
+  FEATURE_USED: "feature_used",
+  // AI quality
+  AI_GENERATION_REQUESTED: "ai_generation_requested",
+  AI_GENERATION_COMPLETED: "ai_generation_completed",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -103,17 +123,18 @@ const logSink: AnalyticsSink = {
 };
 
 // ---------------------------------------------------------------------------
-// Active sink — singleton, replaceable for testing or vendor swap
+// Active sink — composite by default (log + DB), replaceable for testing
 // ---------------------------------------------------------------------------
 
-let _sink: AnalyticsSink = logSink;
+const defaultSink: AnalyticsSink = new CompositeSink([logSink, new DbSink()]);
+let _sink: AnalyticsSink = defaultSink;
 
 export function setAnalyticsSink(sink: AnalyticsSink): void {
   _sink = sink;
 }
 
 export function resetAnalyticsSink(): void {
-  _sink = logSink;
+  _sink = defaultSink;
 }
 
 // ---------------------------------------------------------------------------

@@ -1,7 +1,12 @@
 "use client";
 
-import { type ButtonHTMLAttributes, type ReactNode, useEffect, useRef } from "react";
-import { ArrowUp, Layers, Mic, Paperclip, Square } from "lucide-react";
+import React, {
+  type ButtonHTMLAttributes,
+  type ReactNode,
+  useEffect,
+  useRef,
+} from "react";
+import { ArrowUp, Eye, EyeOff, Layers, Mic, Paperclip, Square } from "lucide-react";
 import { AppButton } from "../../ui/app-button";
 
 interface DraftComposerProps {
@@ -106,9 +111,8 @@ export function DraftComposer({
               variant={canSend || isSending ? "primary" : "secondary"}
               size="icon"
               className={canSend ? "scale-105" : "shadow-none"}
-            >
-              <ArrowUp className="h-5 w-5" />
-            </AppButton>
+              leadingIcon={!isSending ? <ArrowUp className="h-5 w-5" /> : undefined}
+            />
           </div>
         </div>
       </div>
@@ -198,7 +202,7 @@ export function ComposerBadge({
 }
 
 interface ComposerIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  icon: "attach" | "dictate" | "stop";
+  icon: "attach" | "dictate" | "stop" | "preview" | "preview-off";
   tone?: "neutral" | "accent";
   isActive?: boolean;
   badgeCount?: number;
@@ -213,7 +217,16 @@ export function ComposerIconButton({
   type = "button",
   ...props
 }: ComposerIconButtonProps) {
-  const Icon = icon === "attach" ? Paperclip : icon === "stop" ? Square : Mic;
+  const Icon =
+    icon === "attach"
+      ? Paperclip
+      : icon === "stop"
+        ? Square
+        : icon === "preview"
+          ? Eye
+          : icon === "preview-off"
+            ? EyeOff
+            : Mic;
   const toneClass =
     tone === "accent"
       ? isActive

@@ -22,15 +22,15 @@ const themeToggleSource = readFileSync(
 
 describe("toggle contrast regressions", () => {
   it("keeps segmented controls visibly defined in light mode through shell contrast", () => {
-    expect(cardsSource).toContain("bg-zinc-200/90");
+    expect(cardsSource).toContain("bg-[var(--app-surface-soft)]");
     expect(cardsSource).toContain("shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]");
     expect(cardsSource).toContain('value === option.value');
-    expect(cardsSource).toContain("bg-amber-100 text-amber-950 shadow-sm shadow-amber-200/60");
+    expect(cardsSource).toContain('"app-choice-pill-active shadow-sm"');
   });
 
   it("keeps the theme toggle track visible in light mode through contrast instead of a hard border", () => {
-    expect(themeToggleSource).toContain("bg-zinc-200");
-    expect(themeToggleSource).toContain("shadow-[inset_0_1px_1px_rgba(255,255,255,0.6)]");
-    expect(themeToggleSource).toContain("dark:bg-zinc-800");
+    expect(themeToggleSource).toContain("app-field-surface");
+    expect(themeToggleSource).toContain("shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]");
+    expect(themeToggleSource).toContain("dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]");
   });
 });

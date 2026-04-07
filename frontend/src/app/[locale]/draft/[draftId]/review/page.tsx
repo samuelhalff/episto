@@ -13,14 +13,18 @@ import {
 import { useRouter } from "../../../../../i18n/navigation";
 import { ChevronRight, ArrowLeft, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
+import { FlowActionDock } from "../../../../../components/product/FlowActionDock";
 import { LetterPreview } from "../../../../../components/product/LetterPreview";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { ActionButton } from "../../../../../components/product/ActionButton";
+import { DeliveryTypeBadge } from "../../../../../components/product/DeliveryTypeBadge";
 import { DraftStepMenu } from "../../../../../components/product/DraftStepMenu";
+import { StatusBadge } from "../../../../../components/ui/status-badge";
 import { useDispatchQuote } from "../../../../../hooks/use-dispatch-quote";
 import { formatCentsAsCHF } from "../../../../../hooks/use-pricing";
 import { captureError } from "../../../../../lib/error-tracking";
 import { getApiErrorUserMessage } from "../../../../../lib/api";
+import { getCustomerFlowPath } from "../../../../../lib/customer-flow";
 import {
   getAddressLines,
   getSignatureFileUrl,
@@ -108,6 +112,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
     !quote.isError &&
     !reviewDraft.isPending &&
     !updateDraft.isPending;
+  const isReviewPriceCalculating = canRequestQuote && quote.isLoading;
 
   function handleProceedToPayment() {
     if (!canProceedToPayment) return;
@@ -160,7 +165,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
     void transitionDraft
       .mutateAsync({ status: "fields_complete" })
       .then(() => {
-        router.push(`/draft/${draftId}`);
+        router.push(getCustomerFlowPath(draftId, "logistics"));
       })
       .catch((err: unknown) => {
         setBackError(getApiErrorUserMessage(err) ?? tc("error"));
@@ -172,12 +177,12 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
       <FlowHeader currentStep={1} draftId={draftId} title={t("title")} />
 
       <main
         id="main-content"
-        className="mx-auto max-w-7xl space-y-8 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-[calc(9rem+env(safe-area-inset-bottom))]"
+        className="mx-auto max-w-7xl space-y-8 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-[calc(12rem+env(safe-area-inset-bottom))]"
       >
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
@@ -203,9 +208,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                     {t("letterPreviewBody")}
                   </p>
                 </div>
-                <span className="rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:bg-zinc-800 dark:text-zinc-300">
-                  A4
-                </span>
+                <StatusBadge tone="neutral">A4</StatusBadge>
               </div>
 
               <LetterPreview
@@ -239,16 +242,9 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                     {t("reviewReadOnly")}
                   </p>
                 </div>
-                <span
-                  className={[
-                    "rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em]",
-                    allComplete
-                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300"
-                      : "bg-amber-50 text-amber-700 dark:bg-amber-500/15 dark:text-amber-300",
-                  ].join(" ")}
-                >
+                <StatusBadge tone={allComplete ? "success" : "warning"}>
                   {allComplete ? t("readyToSend") : t("needsAttention")}
-                </span>
+                </StatusBadge>
               </div>
 
               <div className="mt-6 space-y-4">
@@ -271,14 +267,21 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                   value={displaySubject ?? ""}
                   emptyLabel={t("requiredBeforeSending")}
                 />
-                <SummaryBlock
-                  label={t("deliveryTypeLabel")}
-                  value={
-                    displayDeliveryType === "registered"
-                      ? t("deliveryRegistered")
-                      : t("deliveryStandard")
-                  }
-                />
+                <div className="app-list-item-muted rounded-2xl p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-500">
+                    {t("deliveryTypeLabel")}
+                  </p>
+                  <div className="mt-2">
+                    <DeliveryTypeBadge
+                      deliveryType={displayDeliveryType}
+                      label={
+                        displayDeliveryType === "registered"
+                          ? t("deliveryRegistered")
+                          : t("deliveryStandard")
+                      }
+                    />
+                  </div>
+                </div>
                 <SummaryBlock
                   label={t("signature")}
                   value={
@@ -310,43 +313,39 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               pendingLabel={
                 allComplete ? t("pricingPending") : t("requiredBeforeSending")
               }
+              loadingMessage={t("calculatingPriceDetail")}
             />
+
+            {quoteErrorMessage ? (
+              <p className="text-sm text-destructive">{quoteErrorMessage}</p>
+            ) : null}
           </aside>
         </div>
       </main>
 
-      <div className="app-sticky-bar fixed inset-x-0 bottom-0 z-30 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            {backError ? (
-              <p className="text-sm text-red-700 dark:text-red-400">
-                {backError}
-              </p>
-            ) : !allComplete ? (
-              <p className="text-sm text-red-700 dark:text-red-400">
-                {t("requiredBeforeSending")}
-              </p>
-            ) : !canRequestQuote ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {t("pricingPending")}
-              </p>
-            ) : quote.isLoading ? (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {t("pricingLoading")}
-              </p>
-            ) : quoteErrorMessage ? (
-              <p className="text-sm text-red-700 dark:text-red-400">
-                {quoteErrorMessage}
-              </p>
-            ) : (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                {quote.data
-                  ? `${t("total")} ${formatCentsAsCHF(quote.data.totalCents)}`
-                  : t("subtitle")}
-              </p>
-            )}
-          </div>
-          <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+      {backError ? (
+        <p className="px-4 pb-2 text-center text-sm text-destructive lg:text-right">
+          {backError}
+        </p>
+      ) : null}
+
+      <FlowActionDock
+        desktopSticky
+        secondaryAction={
+          <ActionButton
+            variant="secondary"
+            onClick={handleBackToDraft}
+            fullWidth
+            className="sm:w-auto"
+            loading={transitionDraft.isPending}
+            disabled={transitionDraft.isPending}
+            leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
+          >
+            {t("backToDraft")}
+          </ActionButton>
+        }
+        primaryAction={
+          <>
             {!alreadyPrepared ? (
               <DraftStepMenu
                 draftId={draftId}
@@ -356,36 +355,23 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               />
             ) : null}
             <ActionButton
-              variant="secondary"
-              onClick={handleBackToDraft}
-              fullWidth
-              className="sm:w-auto"
-              loading={transitionDraft.isPending}
-              disabled={transitionDraft.isPending}
-              leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
-            >
-              {t("backToDraft")}
-            </ActionButton>
-            <ActionButton
               onClick={handleProceedToPayment}
               fullWidth
               className="sm:w-auto"
               disabled={!canProceedToPayment}
-              loading={reviewDraft.isPending || updateDraft.isPending}
+              loading={isReviewPriceCalculating || reviewDraft.isPending || updateDraft.isPending}
               trailingIcon={<ChevronRight className="h-4 w-4 shrink-0" />}
-              trailingMeta={
-                quote.data ? (
-                  <span className="hidden rounded-full bg-white/12 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/90 dark:bg-zinc-950/10 dark:text-zinc-950/80 sm:inline-flex">
-                    {formatCentsAsCHF(quote.data.totalCents)}
-                  </span>
-                ) : null
-              }
+              trailingMeta={!isReviewPriceCalculating && quote.data ? (
+                <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--action-primary-fg)] sm:inline-flex">
+                  {formatCentsAsCHF(quote.data.totalCents)}
+                </span>
+              ) : null}
             >
-              {t("proceedToPayment")}
+              {isReviewPriceCalculating ? t("calculatingPrice") : t("proceedToPayment")}
             </ActionButton>
-          </div>
-        </div>
-      </div>
+          </>
+        }
+      />
     </div>
   );
 }
@@ -411,8 +397,8 @@ function SummaryBlock({
       </p>
       <div className="mt-2 space-y-1">
         {hasValue ? (
-          values.map((line) => (
-            <p key={line} className="text-sm leading-6 text-zinc-900 dark:text-zinc-100">
+          values.map((line, index) => (
+            <p key={`${label}-${index}`} className="text-sm leading-6 text-zinc-900 dark:text-zinc-100">
               {line}
             </p>
           ))

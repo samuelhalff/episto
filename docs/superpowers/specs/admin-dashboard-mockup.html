@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Swiss Mail — Admin Dashboard Mockup</title>
+<style>
+  :root {
+    --bg: #0a0a0a; --surface: #141414; --surface-soft: #1a1a1a;
+    --border: #262626; --text: #e5e5e5; --text-muted: #737373;
+    --accent: #c8956c; --accent-soft: rgba(200,149,108,0.12);
+    --green: #22c55e; --green-bg: rgba(34,197,94,0.1);
+    --red: #ef4444; --red-bg: rgba(239,68,68,0.1);
+    --yellow: #eab308; --yellow-bg: rgba(234,179,8,0.1);
+    --blue: #3b82f6; --blue-bg: rgba(59,130,246,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+
+  /* Layout */
+  .admin-shell { display: flex; min-height: 100vh; }
+  .sidebar { width: 220px; background: var(--surface); border-right: 1px solid var(--border); padding: 24px 0; flex-shrink: 0; }
+  .sidebar-logo { padding: 0 20px 24px; font-size: 14px; font-weight: 600; color: var(--accent); letter-spacing: 0.5px; }
+  .sidebar-nav { display: flex; flex-direction: column; gap: 2px; }
+  .sidebar-item { padding: 10px 20px; font-size: 13px; color: var(--text-muted); cursor: pointer; border-left: 3px solid transparent; transition: all 0.15s; }
+  .sidebar-item:hover { color: var(--text); background: var(--surface-soft); }
+  .sidebar-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+  .sidebar-section { padding: 16px 20px 6px; font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+
+  .main { flex: 1; padding: 32px; overflow-y: auto; }
+  .page-title { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .page-subtitle { font-size: 13px; color: var(--text-muted); margin-bottom: 24px; }
+  .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+  .time-pills { display: flex; gap: 4px; }
+  .time-pill { padding: 4px 12px; font-size: 11px; border-radius: 6px; border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; background: transparent; }
+  .time-pill.active { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+
+  /* KPI Cards */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .kpi-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .kpi-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .kpi-change { font-size: 11px; margin-top: 4px; }
+  .kpi-change.up { color: var(--green); }
+  .kpi-change.down { color: var(--red); }
+  .kpi-change.neutral { color: var(--text-muted); }
+  .kpi-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+  .kpi-dot.live { background: var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Panels */
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+  .panel-title { font-size: 13px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .panel-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); }
+
+  /* Grid layouts */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+  /* Funnel */
+  .funnel-step { display: flex; align-items: center; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .funnel-step:last-child { border-bottom: none; }
+  .funnel-name { width: 120px; font-size: 13px; color: var(--text-muted); }
+  .funnel-bar-wrap { flex: 1; height: 28px; background: var(--surface-soft); border-radius: 6px; overflow: hidden; position: relative; }
+  .funnel-bar { height: 100%; border-radius: 6px; display: flex; align-items: center; padding-left: 12px; font-size: 12px; font-weight: 600; transition: width 0.6s ease; }
+  .funnel-bar.s1 { width: 100%; background: var(--accent-soft); color: var(--accent); }
+  .funnel-bar.s2 { width: 72%; background: var(--accent-soft); color: var(--accent); }
+  .funnel-bar.s3 { width: 48%; background: var(--accent-soft); color: var(--accent); }
+  .funnel-bar.s4 { width: 31%; background: var(--accent-soft); color: var(--accent); }
+  .funnel-bar.s5 { width: 24%; background: var(--accent-soft); color: var(--accent); }
+  .funnel-bar.s6 { width: 22%; background: var(--green-bg); color: var(--green); }
+  .funnel-drop { width: 60px; text-align: right; font-size: 11px; color: var(--red); }
+
+  /* Active sessions */
+  .stage-row { display: flex; align-items: center; gap: 12px; padding: 8px 0; }
+  .stage-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .stage-label { flex: 1; font-size: 13px; color: var(--text-muted); }
+  .stage-count { font-size: 14px; font-weight: 600; min-width: 30px; text-align: right; }
+
+  /* Error table */
+  .error-row { display: flex; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .error-row:last-child { border-bottom: none; }
+  .error-family { flex: 1; font-family: monospace; font-size: 12px; }
+  .error-count { width: 50px; text-align: right; font-weight: 600; color: var(--red); }
+  .error-sessions { width: 80px; text-align: right; color: var(--text-muted); font-size: 12px; }
+
+  /* Locale bars */
+  .locale-row { display: flex; align-items: center; gap: 12px; padding: 6px 0; }
+  .locale-code { width: 50px; font-size: 12px; font-family: monospace; color: var(--text-muted); }
+  .locale-bar-wrap { flex: 1; height: 20px; background: var(--surface-soft); border-radius: 4px; overflow: hidden; }
+  .locale-bar { height: 100%; background: var(--accent-soft); border-radius: 4px; }
+  .locale-pct { width: 40px; text-align: right; font-size: 12px; color: var(--text-muted); }
+
+  /* AI quality */
+  .ai-metric { text-align: center; padding: 16px; }
+  .ai-value { font-size: 24px; font-weight: 700; }
+  .ai-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .ai-good { color: var(--green); }
+  .ai-warn { color: var(--yellow); }
+
+  /* Privacy strip mockup */
+  .privacy-strip-demo { position: fixed; bottom: 0; left: 0; right: 0; background: var(--surface); border-top: 1px solid var(--border); padding: 12px 32px; display: flex; align-items: center; justify-content: space-between; font-size: 13px; z-index: 100; }
+  .privacy-strip-demo .lock { margin-right: 8px; }
+  .privacy-strip-demo a { color: var(--accent); text-decoration: underline; margin-left: 8px; }
+  .privacy-strip-demo button { padding: 4px 12px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-size: 12px; }
+
+  /* Page tabs */
+  .page-tabs { display: none; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* Section heading */
+  .section-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="admin-shell">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">◆ SWISS MAIL ADMIN</div>
+    <div class="sidebar-nav">
+      <div class="sidebar-section">Dashboard</div>
+      <div class="sidebar-item active" onclick="showTab('overview')">Overview</div>
+      <div class="sidebar-item" onclick="showTab('funnel')">Funnel Analysis</div>
+      <div class="sidebar-section">Operations</div>
+      <div class="sidebar-item" onclick="showTab('cases')">Cases & Search</div>
+      <div class="sidebar-item" onclick="showTab('flags')">Flags & Queue</div>
+      <div class="sidebar-section">System</div>
+      <div class="sidebar-item" onclick="showTab('health')">Health</div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main" style="padding-bottom: 60px;">
+
+    <!-- ============ OVERVIEW TAB ============ -->
+    <div class="tab-content active" id="tab-overview">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Last refreshed 3s ago · polling every 15s</p>
+        </div>
+        <div class="time-pills">
+          <button class="time-pill">Today</button>
+          <button class="time-pill active">7 days</button>
+          <button class="time-pill">30 days</button>
+        </div>
+      </div>
+
+      <!-- KPI Cards -->
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label"><span class="kpi-dot live"></span> Active Sessions</div>
+          <div class="kpi-value">23</div>
+          <div class="kpi-change neutral">Right now</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Letters Sent</div>
+          <div class="kpi-value">147</div>
+          <div class="kpi-change up">↑ 12% vs previous period</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Revenue (CHF)</div>
+          <div class="kpi-value">486.75</div>
+          <div class="kpi-change up">↑ 8% vs previous period</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Error Rate</div>
+          <div class="kpi-value">1.2%</div>
+          <div class="kpi-change down">↑ 0.3% vs previous period</div>
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="two-col">
+        <!-- Active Sessions by Stage -->
+        <div class="panel">
+          <div class="panel-title"><span class="kpi-dot live"></span> Active Sessions by Stage</div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--blue)"></div><div class="stage-label">Browsing / Landing</div><div class="stage-count">9</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--accent)"></div><div class="stage-label">Drafting</div><div class="stage-count">7</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--yellow)"></div><div class="stage-label">Review</div><div class="stage-count">3</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--green)"></div><div class="stage-label">Checkout / Payment</div><div class="stage-count">3</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--green)"></div><div class="stage-label">Confirmation</div><div class="stage-count">1</div></div>
+        </div>
+
+        <!-- Errors -->
+        <div class="panel">
+          <div class="panel-title">Top Errors <span class="panel-badge badge-red">5 families</span></div>
+          <div class="error-row"><div class="error-family">payment_declined</div><div class="error-sessions">4 sessions</div><div class="error-count">6</div></div>
+          <div class="error-row"><div class="error-family">dispatch_timeout</div><div class="error-sessions">2 sessions</div><div class="error-count">3</div></div>
+          <div class="error-row"><div class="error-family">render_failed</div><div class="error-sessions">1 session</div><div class="error-count">2</div></div>
+          <div class="error-row"><div class="error-family">file_too_large</div><div class="error-sessions">2 sessions</div><div class="error-count">2</div></div>
+          <div class="error-row"><div class="error-family">ai_refusal</div><div class="error-sessions">1 session</div><div class="error-count">1</div></div>
+        </div>
+      </div>
+
+      <!-- Second row -->
+      <div class="two-col">
+        <!-- Locale Distribution -->
+        <div class="panel">
+          <div class="panel-title">Sessions by Locale</div>
+          <div class="locale-row"><div class="locale-code">de-CH</div><div class="locale-bar-wrap"><div class="locale-bar" style="width:58%"></div></div><div class="locale-pct">58%</div></div>
+          <div class="locale-row"><div class="locale-code">fr-CH</div><div class="locale-bar-wrap"><div class="locale-bar" style="width:24%"></div></div><div class="locale-pct">24%</div></div>
+          <div class="locale-row"><div class="locale-code">en-CH</div><div class="locale-bar-wrap"><div class="locale-bar" style="width:12%"></div></div><div class="locale-pct">12%</div></div>
+          <div class="locale-row"><div class="locale-code">it-CH</div><div class="locale-bar-wrap"><div class="locale-bar" style="width:6%"></div></div><div class="locale-pct">6%</div></div>
+        </div>
+
+        <!-- AI Quality -->
+        <div class="panel">
+          <div class="panel-title">AI Quality</div>
+          <div class="three-col">
+            <div class="ai-metric"><div class="ai-value ai-good">2.1s</div><div class="ai-label">Avg Generation</div></div>
+            <div class="ai-metric"><div class="ai-value ai-good">3.2%</div><div class="ai-label">Refusal Rate</div></div>
+            <div class="ai-metric"><div class="ai-value ai-warn">18%</div><div class="ai-label">Regeneration Rate</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment & Dispatch summary -->
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-title">Payment Health</div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--green)"></div><div class="stage-label">Captured</div><div class="stage-count" style="color:var(--green)">138</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--red)"></div><div class="stage-label">Failed</div><div class="stage-count" style="color:var(--red)">6</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--yellow)"></div><div class="stage-label">Pending</div><div class="stage-count" style="color:var(--yellow)">3</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--blue)"></div><div class="stage-label">Refunded</div><div class="stage-count" style="color:var(--blue)">2</div></div>
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--text-muted);">
+            Success rate: <strong style="color:var(--green)">93.2%</strong> · Avg order: <strong>CHF 3.31</strong>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Dispatch Health</div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--green)"></div><div class="stage-label">Accepted</div><div class="stage-count" style="color:var(--green)">132</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--red)"></div><div class="stage-label">Rejected</div><div class="stage-count" style="color:var(--red)">3</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--yellow)"></div><div class="stage-label">Ambiguous</div><div class="stage-count" style="color:var(--yellow)">5</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--blue)"></div><div class="stage-label">Submitted (pending)</div><div class="stage-count" style="color:var(--blue)">7</div></div>
+          <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:12px; color:var(--text-muted);">
+            Acceptance rate: <strong style="color:var(--green)">95.6%</strong> · Avg accept time: <strong>4.2s</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FUNNEL TAB ============ -->
+    <div class="tab-content" id="tab-funnel">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Conversion Funnel</h1>
+          <p class="page-subtitle">Where users drop off in the letter-sending flow</p>
+        </div>
+        <div class="time-pills">
+          <button class="time-pill">Today</button>
+          <button class="time-pill active">7 days</button>
+          <button class="time-pill">30 days</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Funnel Steps</div>
+        <div class="funnel-step"><div class="funnel-name">Sessions</div><div class="funnel-bar-wrap"><div class="funnel-bar s1">842</div></div><div class="funnel-drop"></div></div>
+        <div class="funnel-step"><div class="funnel-name">Draft Started</div><div class="funnel-bar-wrap"><div class="funnel-bar s2">605</div></div><div class="funnel-drop">−28.1%</div></div>
+        <div class="funnel-step"><div class="funnel-name">Review Reached</div><div class="funnel-bar-wrap"><div class="funnel-bar s3">401</div></div><div class="funnel-drop">−33.7%</div></div>
+        <div class="funnel-step"><div class="funnel-name">Checkout</div><div class="funnel-bar-wrap"><div class="funnel-bar s4">264</div></div><div class="funnel-drop">−34.2%</div></div>
+        <div class="funnel-step"><div class="funnel-name">Payment OK</div><div class="funnel-bar-wrap"><div class="funnel-bar s5">201</div></div><div class="funnel-drop">−23.9%</div></div>
+        <div class="funnel-step"><div class="funnel-name">Dispatched</div><div class="funnel-bar-wrap"><div class="funnel-bar s6">189</div></div><div class="funnel-drop">−6.0%</div></div>
+      </div>
+
+      <div class="section-label">Overall: 22.4% session-to-dispatch conversion</div>
+
+      <div class="two-col" style="margin-top:16px">
+        <div class="panel">
+          <div class="panel-title">Biggest Drop-offs</div>
+          <div class="error-row"><div class="error-family" style="color:var(--text)">Review → Checkout</div><div class="error-sessions" style="color:var(--text-muted)">137 lost</div><div class="error-count">−34.2%</div></div>
+          <div class="error-row"><div class="error-family" style="color:var(--text)">Draft → Review</div><div class="error-sessions" style="color:var(--text-muted)">204 lost</div><div class="error-count">−33.7%</div></div>
+          <div class="error-row"><div class="error-family" style="color:var(--text)">Session → Draft</div><div class="error-sessions" style="color:var(--text-muted)">237 lost</div><div class="error-count">−28.1%</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Funnel by Locale</div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--accent)"></div><div class="stage-label">de-CH</div><div class="stage-count">24.1%</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--accent)"></div><div class="stage-label">fr-CH</div><div class="stage-count">21.8%</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--accent)"></div><div class="stage-label">en-CH</div><div class="stage-count">19.2%</div></div>
+          <div class="stage-row"><div class="stage-dot" style="background:var(--accent)"></div><div class="stage-label">it-CH</div><div class="stage-count">17.6%</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ CASES TAB ============ -->
+    <div class="tab-content" id="tab-cases">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Cases & Search</h1>
+          <p class="page-subtitle">Look up any session, draft, payment, or dispatch</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div style="display:flex; gap:8px; margin-bottom:20px;">
+          <input type="text" placeholder="Search by session ID, draft ID, email, or tracking number..." style="flex:1; padding:10px 16px; background:var(--surface-soft); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; outline:none;">
+          <button style="padding:10px 20px; background:var(--accent-soft); border:1px solid var(--accent); border-radius:8px; color:var(--accent); font-size:13px; cursor:pointer;">Search</button>
+        </div>
+        <div style="color:var(--text-muted); font-size:13px; text-align:center; padding:40px 0;">
+          Enter a search term to look up cases. Results will show the unified timeline for the matching entity.
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ FLAGS TAB ============ -->
+    <div class="tab-content" id="tab-flags">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Flags & Review Queue</h1>
+          <p class="page-subtitle">Items requiring attention</p>
+        </div>
+      </div>
+      <div class="two-col">
+        <div class="panel">
+          <div class="panel-title">Ambiguous Dispatches <span class="panel-badge badge-yellow">5 pending</span></div>
+          <div style="font-size:13px; color:var(--text-muted); padding:20px 0; text-align:center;">
+            5 dispatches with unknown/ambiguous state require manual review
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Suspicious Activity <span class="panel-badge badge-red">2 flagged</span></div>
+          <div style="font-size:13px; color:var(--text-muted); padding:20px 0; text-align:center;">
+            2 sessions flagged for unusual patterns
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">Pending Refunds <span class="panel-badge badge-yellow">1 pending</span></div>
+        <div style="font-size:13px; color:var(--text-muted); padding:20px 0; text-align:center;">
+          1 refund awaiting confirmation
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ HEALTH TAB ============ -->
+    <div class="tab-content" id="tab-health">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">System Health</h1>
+          <p class="page-subtitle">Infrastructure and service status</p>
+        </div>
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-card">
+          <div class="kpi-label">Uptime</div>
+          <div class="kpi-value" style="font-size:20px;">14d 7h 23m</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Memory</div>
+          <div class="kpi-value" style="font-size:20px;">312 MB</div>
+          <div class="kpi-change neutral">of 1024 MB</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">DB Connections</div>
+          <div class="kpi-value" style="font-size:20px;">8 / 20</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Queue Backlog</div>
+          <div class="kpi-value" style="font-size:20px;">3 jobs</div>
+          <div class="kpi-change neutral">Processing normally</div>
+        </div>
+      </div>
+      <div class="three-col">
+        <div class="panel">
+          <div class="panel-title">PostgreSQL <span class="panel-badge badge-green">Healthy</span></div>
+          <div class="stage-row"><div class="stage-label" style="font-size:12px">Query P99</div><div class="stage-count" style="font-size:12px">12ms</div></div>
+          <div class="stage-row"><div class="stage-label" style="font-size:12px">Pool usage</div><div class="stage-count" style="font-size:12px">40%</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Redis <span class="panel-badge badge-green">Healthy</span></div>
+          <div class="stage-row"><div class="stage-label" style="font-size:12px">Memory</div><div class="stage-count" style="font-size:12px">28 MB</div></div>
+          <div class="stage-row"><div class="stage-label" style="font-size:12px">Connected clients</div><div class="stage-count" style="font-size:12px">4</div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-title">Object Storage <span class="panel-badge badge-green">Healthy</span></div>
+          <div class="stage-row"><div class="stage-label" style="font-size:12px">Bucket size</div><div class="stage-count" style="font-size:12px">1.2 GB</div></div>
+          <div class="stage-row"><div class="stage-label" style="font-size:12px">Objects</div><div class="stage-count" style="font-size:12px">2,847</div></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Privacy Notice Strip (mockup) -->
+<div class="privacy-strip-demo">
+  <span><span class="lock">🔒</span> We use only essential cookies for your session. No tracking. No ads. <a href="/privacy">Privacy Policy</a></span>
+  <button>Dismiss ×</button>
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

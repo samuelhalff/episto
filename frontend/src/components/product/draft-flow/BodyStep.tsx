@@ -16,6 +16,7 @@ import { useDictation } from "../../../hooks/use-dictation";
 import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { BodyGenerationDialog } from "./BodyGenerationDialog";
+import { getBodyLoadingState } from "./body-loading-state";
 import { getBodyShortcutDefinitions } from "./body-shortcuts";
 import {
   mergeShortcutIntoComposerValue,
@@ -28,11 +29,16 @@ import {
   DraftComposer,
   DraftShell,
   PrimaryButton,
+  SecondaryButton,
   SegmentedControl,
   SurfaceIconButton,
 } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import type {
+  DraftWorkspacePreviewToggleProps,
+  DraftWorkspaceStepShellProps,
+} from "./step-props";
 import { LoadingDots } from "../../ui/loading-dots";
 import type {
   DraftWorkspacePreviewToggleProps,
@@ -51,7 +57,7 @@ interface StepProps
 
 type EditMode = "ai" | "manual";
 
-const BODY_STEP_COACHMARK_STORAGE_KEY = "swiss-mail.body-step-coachmark-dismissed.v1";
+const BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY = "swiss-mail.body-step-first-draft-ready-dismissed.v1";
 
 function getFirstDraftMessageId(metadata: unknown): string | null {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
@@ -78,6 +84,8 @@ export function BodyStep({
   onInputFocusChange,
   isNavigating,
   previousStepLabel,
+  onTogglePreview,
+  isPreviewPanelVisible,
 }: StepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
@@ -95,7 +103,7 @@ export function BodyStep({
   const [editMode, setEditMode] = useState<EditMode>("ai");
   const [bodyText, setBodyText] = useState("");
   const [userEdited, setUserEdited] = useState(false);
-  const [showBodyCoachmark, setShowBodyCoachmark] = useState(false);
+  const [showFirstDraftReadyDialog, setShowFirstDraftReadyDialog] = useState(false);
   const [isComposerFocused, setIsComposerFocused] = useState(false);
   const [isManualFieldFocused, setIsManualFieldFocused] = useState(false);
   const [isAutoComposing, setIsAutoComposing] = useState(false);
@@ -106,6 +114,7 @@ export function BodyStep({
   const lastSavedBodyRef = useRef("");
   const hasRequestedInitialComposeRef = useRef(false);
   const completionCountAtComposeRef = useRef(0);
+  const initialFirstDraftMessageIdRef = useRef<string | null | undefined>(undefined);
   const refineAutosave = useQueuedAutosave({
     value: refineText,
     enabled: hasHydratedRef.current,
@@ -160,18 +169,6 @@ export function BodyStep({
     );
     dictation.resetText();
   }, [dictation.finalText, dictation.resetText]);
-
-  useEffect(() => {
-    try {
-      if (window.localStorage.getItem(BODY_STEP_COACHMARK_STORAGE_KEY) === "dismissed") {
-        return;
-      }
-    } catch {
-      // Ignore storage access failures and still show the coachmark once in-memory.
-    }
-
-    setShowBodyCoachmark(true);
-  }, []);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
@@ -234,6 +231,7 @@ export function BodyStep({
 
   useEffect(() => {
     if (draft.data?.body?.trim()) {
+      setIsAutoComposing(false);
       setInitialComposeStatus("idle");
       return;
     }
@@ -244,9 +242,13 @@ export function BodyStep({
       if (draft.isFetching || composeFromContext.isPending) {
         return;
       }
-      setIsAutoComposing(false);
-      setInitialComposeStatus("error");
-      return;
+
+      const completionGraceTimeoutId = window.setTimeout(() => {
+        setIsAutoComposing(false);
+        setInitialComposeStatus("error");
+      }, 150);
+
+      return () => window.clearTimeout(completionGraceTimeoutId);
     }
 
     if (composeFromContext.isError || conversation.error) {
@@ -392,15 +394,6 @@ export function BodyStep({
     setEditMode(mode);
   }
 
-  function dismissBodyCoachmark() {
-    setShowBodyCoachmark(false);
-
-    try {
-      window.localStorage.setItem(BODY_STEP_COACHMARK_STORAGE_KEY, "dismissed");
-    } catch {
-      // Ignore storage access failures; dismiss for the current render session.
-    }
-  }
   const helperText = dictation.error
     ? t("dictationError")
     : dictation.isRecording
@@ -409,19 +402,69 @@ export function BodyStep({
 
   const isAiMode = editMode === "ai";
   const isManualMode = editMode === "manual";
-  const isAiBusy =
-    isAutoComposing ||
-    conversation.isSending ||
-    conversation.isStreaming ||
-    conversation.isAwaitingResponse;
-  const shouldShowBodyGenerationDialog =
-    !canProceed &&
-    (initialComposeStatus === "loading" || initialComposeStatus === "error");
-  // ── Dock: [Step trigger] [👁 Preview] [Primary CTA] ──────────────────────
+  const loadingState = getBodyLoadingState({
+    hasBody: canProceed,
+    initialComposeStatus,
+    isSending: conversation.isSending,
+    isStreaming: conversation.isStreaming,
+    isAwaitingResponse: conversation.isAwaitingResponse,
+  });
+  const isAiBusy = loadingState.isAiBusy;
+  const shouldShowBodyGenerationDialog = loadingState.showBodyGenerationDialog;
+  const showRefinementLoadingCard = loadingState.showRefinementLoadingCard;
+
+  useEffect(() => {
+    const firstDraftMessageId = getFirstDraftMessageId(draft.data?.metadata);
+
+    if (initialFirstDraftMessageIdRef.current === undefined) {
+      initialFirstDraftMessageIdRef.current = firstDraftMessageId;
+      return;
+    }
+
+    if (!firstDraftMessageId || shouldShowBodyGenerationDialog || !bodyText.trim()) {
+      return;
+    }
+
+    if (firstDraftMessageId === initialFirstDraftMessageIdRef.current) {
+      return;
+    }
+
+    try {
+      if (
+        window.localStorage.getItem(BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY) ===
+        "dismissed"
+      ) {
+        initialFirstDraftMessageIdRef.current = firstDraftMessageId;
+        return;
+      }
+    } catch {
+      // Keep the one-time behavior in memory if storage is unavailable.
+    }
+
+    initialFirstDraftMessageIdRef.current = firstDraftMessageId;
+    setShowFirstDraftReadyDialog(true);
+  }, [bodyText, draft.data?.metadata, shouldShowBodyGenerationDialog]);
+
+  function dismissFirstDraftReadyDialog() {
+    setShowFirstDraftReadyDialog(false);
+
+    try {
+      window.localStorage.setItem(
+        BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY,
+        "dismissed",
+      );
+    } catch {
+      // Ignore storage access failures; dismiss for the current render session.
+    }
+  }
+
   // Keep preview in the sticky toolbar so it never widens the dock CTA row.
-  const previewButton = canProceed ? (
+  const bodyModeToolbarClassName =
+    "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7";
+  const previewToolbarButton = canProceed && !isPreviewPanelVisible ? (
     <SurfaceIconButton
       type="button"
+      size="composer"
       onClick={() => setShowPreview(true)}
       disabled={isNavigating}
       aria-label={t("openDraftPreview")}
@@ -461,8 +504,6 @@ export function BodyStep({
       sheetDescription={t("bodyShortcutSheetHint")}
       closeLabel={tc("close")}
       disabled={isAiBusy}
-      isCompactViewport={isCompactViewport}
-      compactPrimaryCount={2}
       onShortcutSelect={(action) => {
         void handleRefinementShortcut(action.prompt);
       }}
@@ -471,7 +512,7 @@ export function BodyStep({
 
   return (
     <DraftShell
-      step={4}
+      step={3}
       totalSteps={7}
       title={t("bodyContentTitle")}
       subtitle={undefined}
@@ -483,14 +524,7 @@ export function BodyStep({
       isInputFocused={isComposerFocused || isManualFieldFocused}
       isCompactViewport={isCompactViewport}
       isNavigating={isNavigating}
-      primaryAction={
-        previewButton || primaryCta ? (
-          <div className="flex items-center gap-3">
-            {previewButton}
-            {primaryCta ? <div className="flex-1">{primaryCta}</div> : null}
-          </div>
-        ) : null
-      }
+      primaryAction={primaryCta}
       composer={
         isAiMode ? (
           <>
@@ -511,6 +545,17 @@ export function BodyStep({
               isSending={isAiBusy}
               isCompactViewport={isCompactViewport}
               topBadges={quickActionBadges}
+              leadingActions={
+                onTogglePreview ? (
+                  <ComposerIconButton
+                    icon={isPreviewPanelVisible ? "preview-off" : "preview"}
+                    aria-label={
+                      isPreviewPanelVisible ? tc("hidePreview") : tc("showPreview")
+                    }
+                    onClick={onTogglePreview}
+                  />
+                ) : undefined
+              }
               trailingActions={
                 <ComposerIconButton
                   icon={dictation.isRecording ? "stop" : "dictate"}
@@ -536,23 +581,28 @@ export function BodyStep({
     >
       <div className="space-y-5 pb-4">
         {/* ── Mode toggle ─────────────────────────────────────────────── */}
-        <div className="px-1">
-          <SegmentedControl
-            options={[
-              {
-                value: "ai" as const,
-                label: t("modeAi"),
-                icon: <Sparkles className="h-3 w-3" />,
-              },
-              {
-                value: "manual" as const,
-                label: t("modeManual"),
-                icon: <Pencil className="h-3 w-3" />,
-              },
-            ]}
-            value={editMode}
-            onChange={handleModeChange}
-          />
+        <div className={bodyModeToolbarClassName}>
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <SegmentedControl
+                options={[
+                  {
+                    value: "ai" as const,
+                    label: t("modeAi"),
+                    icon: <Sparkles className="h-3 w-3" />,
+                  },
+                  {
+                    value: "manual" as const,
+                    label: t("modeManual"),
+                    icon: <Pencil className="h-3 w-3" />,
+                  },
+                ]}
+                value={editMode}
+                onChange={handleModeChange}
+              />
+            </div>
+            {previewToolbarButton ? <div className="shrink-0">{previewToolbarButton}</div> : null}
+          </div>
         </div>
 
         {/* ── AI mode ─────────────────────────────────────────────────── */}
@@ -598,7 +648,7 @@ export function BodyStep({
                 </div>
               </Card>
             )}
-            {isAiBusy && canProceed && !shouldShowBodyGenerationDialog ? (
+            {showRefinementLoadingCard ? (
               <Card isCompactViewport={isCompactViewport} density="thin" className="app-list-item-muted">
                 <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300">
                   <LoadingDots />
@@ -635,7 +685,7 @@ export function BodyStep({
                           className={`flex ${isUser ? "justify-end" : "justify-start"}`}
                         >
                           <div
-                            className={`max-w-[85%] rounded-2.5xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                            className={`max-w-[min(88%,40rem)] rounded-2.5xl px-3.5 py-2.5 text-sm leading-relaxed ${
                               isUser
                                 ? "rounded-br-[8px] bg-zinc-900 text-white dark:bg-zinc-800"
                                 : "rounded-bl-[8px] text-zinc-500 dark:text-zinc-400"
@@ -698,6 +748,7 @@ export function BodyStep({
           status={initialComposeStatus === "error" ? "error" : "loading"}
           loadingTitle={t("bodyGenerationLoadingTitle")}
           loadingDescription={t("bodyGenerationLoadingDescription")}
+          loadingLabel={t("bodyGenerationLoadingLabel")}
           errorTitle={t("bodyGenerationErrorTitle")}
           errorDescription={t("bodyGenerationErrorDescription")}
           refreshLabel={t("bodyGenerationRefreshAction")}
@@ -706,23 +757,23 @@ export function BodyStep({
         />
       ) : null}
 
-      {showBodyCoachmark && !shouldShowBodyGenerationDialog ? (
+      {showFirstDraftReadyDialog && !shouldShowBodyGenerationDialog ? (
         <div className="fixed inset-0 z-[180] flex items-end justify-center bg-black/35 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] pt-8 sm:items-center sm:pb-8">
           <div className="app-panel w-full max-w-md rounded-4xl p-5 shadow-2xl">
             <h3 className="text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-              {t("bodyCoachmarkTitle")}
+              {t("firstDraftReadyTitle")}
             </h3>
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-              {t("bodyCoachmarkBody")}
+              {t("firstDraftReadyBody")}
             </p>
             <div className="mt-5 flex justify-end">
-              <button
-                type="button"
-                onClick={dismissBodyCoachmark}
-                className="inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+              <SecondaryButton
+                onClick={dismissFirstDraftReadyDialog}
+                fullWidth={false}
+                leadingVisual="none"
               >
-                {t("bodyCoachmarkAction")}
-              </button>
+                {t("firstDraftReadyDismiss")}
+              </SecondaryButton>
             </div>
           </div>
         </div>

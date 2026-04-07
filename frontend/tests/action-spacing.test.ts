@@ -31,10 +31,15 @@ describe("shared action spacing regressions", () => {
   });
 
   it("keeps the body-step preview control out of the bottom dock", () => {
+    expect(bodyStepSource).toContain("bodyModeToolbarClassName");
     expect(bodyStepSource).toContain(
       "// Keep preview in the sticky toolbar so it never widens the dock CTA row.",
     );
-    expect(bodyStepSource).toContain("primaryCta");
+    expect(bodyStepSource).toContain("previewToolbarButton");
+    expect(bodyStepSource).not.toContain('isCompactViewport ? "px-1"');
+    expect(bodyStepSource).toContain("primaryAction={primaryCta}");
+    expect(bodyStepSource).not.toContain("previewButton || primaryCta");
+    expect(draftShellSource).toContain("relative sticky bottom-0 z-20");
     expect(draftShellSource).toContain("flex min-w-0 items-center gap-3");
   });
 });

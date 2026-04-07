@@ -9,7 +9,6 @@ import {
   PAYMENT_SUCCESS_STATES,
   PAYMENT_FAILURE_STATES,
 } from "../../../../../hooks/use-payment-status";
-import { Link } from "../../../../../i18n/navigation";
 import {
   CheckCircle2,
   AlertCircle,
@@ -20,14 +19,16 @@ import {
   HelpCircle,
   Copy,
   Mail,
-  ExternalLink,
   PenLine,
   Loader2,
-  HelpCircle as HelpCircleIcon,
 } from "lucide-react";
+import { ActionLink } from "../../../../../components/product/ActionButton";
+import { ProtectedPdfDownloadButton } from "../../../../../components/product/ProtectedPdfDownloadButton";
 import { DispatchConfirmation } from "../../../../../components/product/DispatchConfirmation";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
-import { getApiUrl } from "../../../../../lib/api";
+import { getCustomerFlowPath } from "../../../../../lib/customer-flow";
+import { getAppButtonClassName } from "../../../../../components/ui/app-button";
+import { StatusBadge } from "../../../../../components/ui/status-badge";
 
 // ---------------------------------------------------------------------------
 // Timeline Step
@@ -61,7 +62,9 @@ function TimelineStep({
         <div
           className={[
             "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl",
-            isComplete ? "bg-emerald-100 text-emerald-600" : "bg-zinc-100 text-zinc-400",
+            isComplete
+              ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300"
+              : "bg-zinc-100 text-zinc-400 dark:bg-zinc-800 dark:text-zinc-500",
           ].join(" ")}
         >
           <Icon className="h-4 w-4" />
@@ -70,7 +73,7 @@ function TimelineStep({
           <div
             className={[
               "mt-1 h-8 w-px",
-              isComplete ? "bg-emerald-300" : "bg-zinc-200",
+              isComplete ? "bg-emerald-300 dark:bg-emerald-400/40" : "bg-zinc-200 dark:bg-zinc-800",
             ].join(" ")}
           />
         )}
@@ -114,7 +117,6 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
   const dispatch = useDispatchInfo(draftId, isSuccess);
 
   const orderRef = `SM-${draftId.slice(0, 8).toUpperCase()}`;
-  const pdfUrl = getApiUrl(`/v1/drafts/${draftId}/pdf`);
 
   const copyRef = useCallback(async () => {
     try {
@@ -151,13 +153,13 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           {payment.data?.failureReason ?? t("paymentFailedSubtitle")}
         </p>
-        <Link
-          href={`/draft/${draftId}/checkout`}
-          className="inline-flex items-center gap-2 rounded-2xl bg-zinc-950 px-6 py-3 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+        <ActionLink
+          href={getCustomerFlowPath(draftId, "checkout")}
+          variant="secondary"
+          leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
         >
-          <ArrowLeft className="h-4 w-4 shrink-0" />
           {t("backToCheckout")}
-        </Link>
+        </ActionLink>
       </main>
     );
   }
@@ -187,7 +189,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     unknown: {
       subtitle: t("unknownSubtitle"),
       tone: "warning" as const,
-      icon: <HelpCircleIcon className="h-16 w-16 text-amber-500" />,
+      icon: <HelpCircle className="h-16 w-16 text-amber-500" />,
     },
     reconciled: {
       subtitle: t("acceptedSubtitle"),
@@ -197,6 +199,22 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
   } as const;
   const activeStateCopy =
     stateCopy[dispatchState as keyof typeof stateCopy] ?? stateCopy.queued;
+  const stateLabel =
+    dispatchState === "submitted"
+      ? t("stateSubmitted")
+      : dispatchState === "accepted" || dispatchState === "reconciled"
+        ? t("stateAccepted")
+        : dispatchState === "rejected"
+          ? t("stateRejected")
+          : dispatchState === "unknown"
+            ? t("stateUnknown")
+            : t("stateQueued");
+  const stateTone =
+    activeStateCopy.tone === "success"
+      ? "success"
+      : activeStateCopy.tone === "danger"
+        ? "danger"
+        : "warning";
 
   // Determine which timeline steps are complete based on dispatch progress
   const isStepComplete = (index: number): boolean => {
@@ -217,6 +235,9 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         <div className="flex justify-center">{activeStateCopy.icon}</div>
 
         <div>
+          <StatusBadge tone={stateTone} className="mb-3">
+            {stateLabel}
+          </StatusBadge>
           <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">{t("title")}</h1>
           <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{activeStateCopy.subtitle}</p>
         </div>
@@ -225,8 +246,11 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         <button
           type="button"
           onClick={copyRef}
-          className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-2 text-sm text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
-          style={{ outline: "1px solid var(--app-border)" }}
+          className={getAppButtonClassName({
+            variant: "secondary",
+            size: "sm",
+            className: "font-medium",
+          })}
           aria-label={t("copyReference")}
         >
           <span className="font-medium">{t("orderReference")}:</span>
@@ -241,11 +265,10 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         </button>
 
         <div
-          className="mx-auto max-w-sm rounded-3xl bg-white p-6 text-left shadow-sm dark:bg-zinc-900"
-          style={{ outline: "1px solid var(--app-border)" }}
+          className="app-panel mx-auto max-w-sm rounded-3xl p-6 text-left"
           aria-live="polite"
         >
-          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("dispatchTitle")}
           </h2>
           <DispatchConfirmation
@@ -261,8 +284,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
         {/* What happens next — 4-step timeline */}
         <div
-          className="mx-auto max-w-sm rounded-3xl bg-white p-6 text-left shadow-sm dark:bg-zinc-900"
-          style={{ outline: "1px solid var(--app-border)" }}
+          className="app-panel mx-auto max-w-sm rounded-3xl p-6 text-left"
         >
           <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("whatHappensNext")}
@@ -283,46 +305,45 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
         {/* Email notice */}
         <div
-          className="mx-auto flex max-w-sm items-center gap-3 rounded-2.5xl bg-blue-50 px-5 py-3 text-left text-sm text-blue-800"
-          style={{ outline: "1px solid rgba(59,130,246,0.1)" }}
+          className="app-panel-muted mx-auto flex max-w-sm items-center gap-3 rounded-2.5xl px-5 py-3 text-left text-sm text-zinc-700 dark:text-zinc-200"
         >
           <Mail className="h-5 w-5 shrink-0" />
           <div>
-            <p>{t("emailNotice")}</p>
-            <p className="mt-1 text-xs text-blue-800/80">{t("emailNoticeDetail")}</p>
+            <StatusBadge tone="info" className="mb-2">
+              {t("emailNotice")}
+            </StatusBadge>
+            <p className="text-xs text-zinc-600 dark:text-zinc-300">{t("emailNoticeDetail")}</p>
           </div>
         </div>
 
         {/* Actions */}
         <div className="flex flex-col items-center gap-3 pt-4 sm:flex-row sm:justify-center">
-          <a
-            href={pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-2.5 text-sm text-zinc-600 shadow-sm transition hover:bg-zinc-50 active:scale-[0.98] dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
-            style={{ outline: "1px solid var(--app-border)" }}
-          >
-            <ExternalLink className="h-4 w-4" />
-            {t("viewLetter")}
-          </a>
-          <Link
+          <ProtectedPdfDownloadButton
+            apiPath={`/v1/drafts/${draftId}/pdf`}
+            namespace="confirmation"
+            className="sm:flex-1"
+          />
+          <ActionLink
             href="/draft/new"
-            className="inline-flex items-center gap-2 rounded-2xl bg-zinc-950 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+            variant="primary"
+            fullWidth
+            className="sm:flex-1"
+            leadingIcon={<PenLine className="h-4 w-4" />}
           >
-            <PenLine className="h-4 w-4" />
             {t("sendAnother")}
-          </Link>
+          </ActionLink>
         </div>
       </main>
 
       {/* Mobile sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[var(--app-surface-muted)]/95 p-4 shadow-[0_-1px_0_rgba(0,0,0,0.05)] backdrop-blur-md dark:bg-zinc-950/95 dark:shadow-[0_-1px_0_rgba(255,255,255,0.06)] md:hidden">
-        <Link
+      <div className="app-sticky-bar fixed inset-x-4 bottom-4 rounded-2.5xl p-2 md:hidden">
+        <ActionLink
           href="/draft/new"
-          className="block rounded-2xl bg-zinc-950 py-3 text-center text-sm font-semibold text-white transition-all duration-200 hover:bg-zinc-800 active:scale-[0.98] dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+          variant="primary"
+          fullWidth
         >
           {t("stickyCtaLabel")}
-        </Link>
+        </ActionLink>
       </div>
     </>
   );
@@ -341,7 +362,7 @@ export default function ConfirmationPage({
   const t = useTranslations("confirmation");
 
   return (
-    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors dark:bg-zinc-950">
+    <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
       <FlowHeader currentStep={3} draftId={draftId} title={t("title")} />
 
       <Suspense

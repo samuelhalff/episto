@@ -1,7 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { eq, or, ilike } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
-import { env } from "../../shared/config/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { recordSupportEvent } from "./index.js";
 import { createRefund } from "../payments/adapters/stripe.adapter.js";
@@ -206,7 +205,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "refund_requested",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin!.actor,
         details: { reason: body.reason, paymentId: payment.id },
       });
 
@@ -246,7 +245,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "refund_initiated",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin!.actor,
         details: { refundId, paymentId: payment.id, reason: body.reason },
       });
 
@@ -293,7 +292,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "reconciliation_requested",
-        actor: env().ADMIN_USERNAME,
+        actor: request.admin!.actor,
         details: { dispatchId: dispatch.id, currentState: dispatch.state },
       });
 

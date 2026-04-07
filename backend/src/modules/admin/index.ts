@@ -5,7 +5,6 @@ import { schema } from "../../db/index.js";
 /**
  * Admin module — support events and audit trail.
  *
- * Admin auth MVP: HTTP Basic Auth over TLS (locked decision).
  * Support posture: metadata-first. Privileged content access
  * must emit a support_event.
  */
@@ -67,4 +66,5 @@ export async function listSupportEventsForDraft(
     .orderBy(sql`${schema.supportEvents.createdAt} DESC`);
 }
 
+export { adminAuthRoutes } from "./admin-auth.routes.js";
 export { adminRoutes } from "./admin.routes.js";

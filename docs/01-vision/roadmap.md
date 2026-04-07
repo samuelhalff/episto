@@ -45,7 +45,7 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | Queue strategy | ✅ Locked — BullMQ + Redis |
 | Validation strategy | ✅ Locked — shared Zod schemas |
 | Monitoring baseline | ✅ Locked — structured logs + error tracking + alerting |
-| Admin auth (MVP) | ✅ Locked — HTTP Basic Auth over TLS |
+| Admin auth (MVP) | ✅ Locked — Microsoft SSO (tenant-only, no Basic Auth fallback) |
 | Address validation | ✅ Locked — soft validation with warnings |
 | File policy | ✅ Locked — provisional defaults; narrow PDF/PNG/JPG set |
 | Locale direction | ✅ Locked — product targets four Swiss locales; launch enablement is per-locale and quality-gated |
