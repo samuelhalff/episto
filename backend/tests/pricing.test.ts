@@ -12,6 +12,7 @@ vi.mock("../src/shared/config/index.js", () => ({
 import {
   buildPublicPricingResponse,
   formatCHF,
+  selectCanonicalActivePublicPricingVersion,
 } from "../src/modules/pricing/public-pricing.service.js";
 
 function createMatrixVersion(overrides?: Partial<Parameters<typeof buildPublicPricingResponse>[0]["version"]>) {
@@ -210,6 +211,147 @@ describe("public pricing service", () => {
         code: "PRICING_UNAVAILABLE",
       });
     }
+  });
+
+  it("fails clearly when the active matrix has a non-http source url", () => {
+    try {
+      buildPublicPricingResponse({
+        version: createMatrixVersion({
+          sourceEndpoint: "javascript:alert('pricing')",
+        }),
+        entries: createMatrixEntries(),
+        now: new Date("2026-04-07T12:00:00.000Z"),
+      });
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+        message:
+          "Public pricing is unavailable because the active provider rate matrix has an invalid source URL.",
+      });
+    }
+  });
+
+  it("fails clearly when the active matrix makes registered cheaper than standard", () => {
+    try {
+      buildPublicPricingResponse({
+        version: createMatrixVersion(),
+        entries: createMatrixEntries().map((entry) =>
+          entry.postage === "REGISTERED" && entry.numberOfPage === 1
+            ? {
+                ...entry,
+                providerQuotedCents: 100,
+              }
+            : entry,
+        ),
+        now: new Date("2026-04-07T12:00:00.000Z"),
+      });
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+        message:
+          "Public pricing is unavailable because the registered rate is lower than the standard rate in the active matrix.",
+      });
+    }
+  });
+
+  it("selects the canonical active matrix by effective freshness instead of updatedAt", () => {
+    const canonical = createMatrixVersion({
+      id: "11111111-1111-4111-8111-111111111112",
+      effectiveAt: new Date("2026-04-08T06:00:00.000Z"),
+      verifiedAt: new Date("2026-04-08T06:00:00.000Z"),
+      updatedAt: new Date("2026-04-08T05:00:00.000Z"),
+    });
+    const metadataEditedOlderRow = createMatrixVersion({
+      id: "11111111-1111-4111-8111-111111111113",
+      effectiveAt: new Date("2026-04-07T06:00:00.000Z"),
+      verifiedAt: new Date("2026-04-07T06:00:00.000Z"),
+      updatedAt: new Date("2026-04-09T06:00:00.000Z"),
+    });
+
+    const result = selectCanonicalActivePublicPricingVersion([
+      metadataEditedOlderRow,
+      canonical,
+    ]);
+
+    expect(result?.id).toBe(canonical.id);
+  });
+
+  it("falls back to effectiveAt when verifiedAt is unavailable", () => {
+    const newerEffectiveAt = createMatrixVersion({
+      id: "11111111-1111-4111-8111-111111111118",
+      effectiveAt: new Date("2026-04-08T06:00:00.000Z"),
+      verifiedAt: null,
+    });
+    const olderEffectiveAt = createMatrixVersion({
+      id: "11111111-1111-4111-8111-111111111119",
+      effectiveAt: new Date("2026-04-07T06:00:00.000Z"),
+      verifiedAt: null,
+    });
+
+    const result = selectCanonicalActivePublicPricingVersion([
+      olderEffectiveAt,
+      newerEffectiveAt,
+    ]);
+
+    expect(result?.id).toBe(newerEffectiveAt.id);
+  });
+
+  it("fails clearly when active matrix freshness signals are ambiguous", () => {
+    try {
+      selectCanonicalActivePublicPricingVersion([
+        createMatrixVersion({
+          id: "11111111-1111-4111-8111-111111111114",
+          effectiveAt: new Date("2026-04-08T06:00:00.000Z"),
+          verifiedAt: new Date("2026-04-08T06:00:00.000Z"),
+          createdAt: new Date("2026-04-08T05:55:00.000Z"),
+          updatedAt: new Date("2026-04-09T06:00:00.000Z"),
+        }),
+        createMatrixVersion({
+          id: "11111111-1111-4111-8111-111111111115",
+          effectiveAt: new Date("2026-04-08T06:00:00.000Z"),
+          verifiedAt: new Date("2026-04-08T06:00:00.000Z"),
+          createdAt: new Date("2026-04-08T05:55:00.000Z"),
+          updatedAt: new Date("2026-04-10T06:00:00.000Z"),
+        }),
+      ]);
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+        message:
+          "Public pricing is unavailable because the active provider rate matrix selection is ambiguous.",
+      });
+    }
+  });
+
+  it("prefers the latest effectiveAt even when another row has a newer verifiedAt", () => {
+    const newerEffectiveAt = createMatrixVersion({
+      id: "11111111-1111-4111-8111-111111111116",
+      effectiveAt: new Date("2026-04-09T06:00:00.000Z"),
+      verifiedAt: new Date("2026-04-07T06:00:00.000Z"),
+      createdAt: new Date("2026-04-07T05:55:00.000Z"),
+    });
+    const newerVerifiedAtOnly = createMatrixVersion({
+      id: "11111111-1111-4111-8111-111111111117",
+      effectiveAt: new Date("2026-04-08T06:00:00.000Z"),
+      verifiedAt: new Date("2026-04-10T06:00:00.000Z"),
+      createdAt: new Date("2026-04-08T05:55:00.000Z"),
+    });
+
+    const result = selectCanonicalActivePublicPricingVersion([
+      newerVerifiedAtOnly,
+      newerEffectiveAt,
+    ]);
+
+    expect(result?.id).toBe(newerEffectiveAt.id);
   });
 });
 

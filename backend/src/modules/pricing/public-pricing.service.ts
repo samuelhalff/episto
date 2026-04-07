@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import {
   PublicPricingResponseSchema,
   type PostalPostage,
@@ -51,6 +51,42 @@ export interface PublicPricingMatrixEntry {
   createdAt: Date;
 }
 
+function getLatestTimestampCandidates(
+  versions: PublicPricingMatrixVersion[],
+  getTimestamp: (version: PublicPricingMatrixVersion) => Date | null,
+): PublicPricingMatrixVersion[] {
+  const withTimestamp = versions
+    .map((version) => ({
+      version,
+      timestamp: getTimestamp(version)?.getTime() ?? null,
+    }))
+    .filter(
+      (entry): entry is { version: PublicPricingMatrixVersion; timestamp: number } =>
+        entry.timestamp !== null,
+    );
+
+  if (withTimestamp.length === 0) {
+    return [];
+  }
+
+  const latestTimestamp = Math.max(...withTimestamp.map((entry) => entry.timestamp));
+  return withTimestamp
+    .filter((entry) => entry.timestamp === latestTimestamp)
+    .map((entry) => entry.version);
+}
+
+function selectSingleCandidateOrThrow(
+  versions: PublicPricingMatrixVersion[],
+): PublicPricingMatrixVersion {
+  if (versions.length !== 1) {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the active provider rate matrix selection is ambiguous.",
+    );
+  }
+
+  return versions[0]!;
+}
+
 function pricingUnavailableError(message = PRICING_UNAVAILABLE_MESSAGE): AppError {
   return new AppError({
     family: "provider_outage",
@@ -82,7 +118,11 @@ function getSourceUrl(version: PublicPricingMatrixVersion): string {
   }
 
   try {
-    return new URL(version.sourceEndpoint).toString();
+    const sourceUrl = new URL(version.sourceEndpoint);
+    if (sourceUrl.protocol !== "http:" && sourceUrl.protocol !== "https:") {
+      throw new Error("invalid protocol");
+    }
+    return sourceUrl.toString();
   } catch {
     throw pricingUnavailableError(
       "Public pricing is unavailable because the active provider rate matrix has an invalid source URL.",
@@ -123,6 +163,41 @@ function buildPageCountExample(
     displayPrice: formatCHF(totalCents),
     currency: "CHF",
   };
+}
+
+export function selectCanonicalActivePublicPricingVersion(
+  versions: PublicPricingMatrixVersion[],
+): PublicPricingMatrixVersion | null {
+  if (versions.length === 0) {
+    return null;
+  }
+
+  const latestEffectiveAt = getLatestTimestampCandidates(
+    versions,
+    (version) => version.effectiveAt,
+  );
+  if (latestEffectiveAt.length > 0) {
+    const latestVerifiedWithinEffectiveAt = getLatestTimestampCandidates(
+      latestEffectiveAt,
+      (version) => version.verifiedAt,
+    );
+    return selectSingleCandidateOrThrow(
+      latestVerifiedWithinEffectiveAt.length > 0
+        ? latestVerifiedWithinEffectiveAt
+        : latestEffectiveAt,
+    );
+  }
+
+  const latestVerifiedAt = getLatestTimestampCandidates(
+    versions,
+    (version) => version.verifiedAt,
+  );
+
+  if (latestVerifiedAt.length > 0) {
+    return selectSingleCandidateOrThrow(latestVerifiedAt);
+  }
+
+  return selectSingleCandidateOrThrow(versions);
 }
 
 function getRequiredEntry(
@@ -196,6 +271,13 @@ export function buildPublicPricingResponse(args: {
   );
   const standard = standardExamples[0]!;
   const registered = registeredExamples[0]!;
+
+  if (registered.providerQuotedCents < standard.providerQuotedCents) {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the registered rate is lower than the standard rate in the active matrix.",
+    );
+  }
+
   const registeredSurchargeCents = registered.totalCents - standard.totalCents;
   const freshness =
     !version.expiresAt || version.expiresAt.getTime() <= now.getTime() ? "stale" : "fresh";
@@ -264,7 +346,7 @@ async function loadActivePublicPricingMatrix(
   version: PublicPricingMatrixVersion | null;
   entries: PublicPricingMatrixEntry[];
 }> {
-  const [version] = await db
+  const versions = await db
     .select({
       id: schema.providerRateMatrixVersions.id,
       providerName: schema.providerRateMatrixVersions.providerName,
@@ -277,9 +359,10 @@ async function loadActivePublicPricingMatrix(
       updatedAt: schema.providerRateMatrixVersions.updatedAt,
     })
     .from(schema.providerRateMatrixVersions)
-    .where(eq(schema.providerRateMatrixVersions.status, "active"))
-    .orderBy(desc(schema.providerRateMatrixVersions.updatedAt))
-    .limit(1);
+    .where(eq(schema.providerRateMatrixVersions.status, "active"));
+  const version = selectCanonicalActivePublicPricingVersion(
+    versions as PublicPricingMatrixVersion[],
+  );
 
   if (!version) {
     return {
