@@ -18,7 +18,7 @@ const reviewPageSource = readFileSync(
 describe("price summary loading copy", () => {
   it("lets review override the active loading copy while quote calculation is in flight", () => {
     expect(priceSummarySource).toContain("loadingMessage?: string | undefined");
-    expect(priceSummarySource).toContain('? loadingMessage ?? t("pricingLoading")');
+    expect(priceSummarySource).toContain('loadingMessage ?? t("pricingLoading")');
     expect(reviewPageSource).toContain('loadingMessage={t("calculatingPriceDetail")}');
   });
 });

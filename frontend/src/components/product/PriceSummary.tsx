@@ -33,7 +33,8 @@ export function PriceSummary({
   const quoteErrorMessage = getApiErrorUserMessage(quote.error) ?? t("priceUnavailable");
   const summaryNote = !quoteEnabled
     ? pendingLabel
-    : quote.isLoading ? loadingMessage ?? t("pricingLoading")
+    : quote.isLoading
+      ? (loadingMessage ?? t("pricingLoading"))
       : quote.isError
         ? quoteErrorMessage
         : t("draftingIncluded");
@@ -71,7 +72,9 @@ export function PriceSummary({
           <span>{t("delivery")}</span>
           <DeliveryTypeBadge
             deliveryType={deliveryType}
-            label={isRegistered ? t("deliveryRegisteredLabel") : t("deliveryStandardLabel")}
+            label={
+              isRegistered ? t("deliveryRegisteredLabel") : t("deliveryStandardLabel")
+            }
           />
         </div>
         {quote.data?.lineItems?.length ? (
