@@ -164,9 +164,9 @@ describe("checkout footer actions", () => {
     expect(priceSummarySource).not.toContain("text-amber-950");
   });
 
-  it("uses semantic destructive text and primary-action token-aware price meta in the Stripe footer", () => {
+  it("uses semantic destructive text without the old price-pill footer meta", () => {
     expect(stripePaymentFormSource).toContain("text-destructive");
     expect(stripePaymentFormSource).not.toContain("text-red-600 dark:text-red-400");
-    expect(stripePaymentFormSource).toContain("text-[var(--action-primary-fg)]/90");
+    expect(stripePaymentFormSource).not.toContain("text-[var(--action-primary-fg)]/90");
   });
 });
