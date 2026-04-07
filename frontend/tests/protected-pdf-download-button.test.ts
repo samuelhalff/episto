@@ -96,6 +96,10 @@ describe("ProtectedPdfDownloadButton.tsx", () => {
   it("shows inline unavailable error message", () => {
     expect(buttonSource).toMatch(/downloadUnavailable/);
   });
+
+  it("marks the error paragraph with role=alert for live-region announcement", () => {
+    expect(buttonSource).toMatch(/role="alert"/);
+  });
 });
 
 // ---------------------------------------------------------------------------

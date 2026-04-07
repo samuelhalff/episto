@@ -50,7 +50,7 @@ export function ProtectedPdfDownloadButton({
         {t("downloadLetter")}
       </ActionButton>
       {errorMessage && (
-        <p className="mt-1 text-center text-xs text-destructive">{errorMessage}</p>
+        <p role="alert" className="mt-1 text-center text-xs text-destructive">{errorMessage}</p>
       )}
     </div>
   );
