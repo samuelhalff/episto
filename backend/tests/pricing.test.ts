@@ -1,19 +1,34 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("../src/shared/config/index.js", () => ({
-  env: () => ({
+const { defaultEnv, envMock } = vi.hoisted(() => {
+  const defaultEnv = () => ({
     PRICE_STANDARD_MARKUP_CENTS: 340,
     PRICE_REGISTERED_MARKUP_CENTS: 340,
     EPOST_STANDARD_POSTAGE: "A_POST",
     EPOST_REGISTERED_POSTAGE: "REGISTERED",
-  }),
+  });
+
+  return {
+    defaultEnv,
+    envMock: vi.fn(defaultEnv),
+  };
+});
+
+vi.mock("../src/shared/config/index.js", () => ({
+  env: envMock,
 }));
 
 import {
   buildPublicPricingResponse,
   formatCHF,
+  getLastSyncedAt,
   selectCanonicalActivePublicPricingVersion,
 } from "../src/modules/pricing/public-pricing.service.js";
+
+afterEach(() => {
+  envMock.mockReset();
+  envMock.mockImplementation(defaultEnv);
+});
 
 function createMatrixVersion(overrides?: Partial<Parameters<typeof buildPublicPricingResponse>[0]["version"]>) {
   return {
@@ -155,6 +170,19 @@ describe("public pricing service", () => {
     expect(result.sync.freshness).toBe("stale");
   });
 
+  it("uses createdAt for lastSyncedAt when verifiedAt and effectiveAt are unavailable", () => {
+    const lastSyncedAt = getLastSyncedAt(
+      createMatrixVersion({
+        verifiedAt: null,
+        effectiveAt: null,
+        createdAt: new Date("2026-04-07T05:55:00.000Z"),
+        updatedAt: new Date("2026-04-10T06:00:00.000Z"),
+      }),
+    );
+
+    expect(lastSyncedAt.toISOString()).toBe("2026-04-07T05:55:00.000Z");
+  });
+
   it("fails clearly when there is no usable active rate matrix", () => {
     try {
       buildPublicPricingResponse({
@@ -256,6 +284,31 @@ describe("public pricing service", () => {
         code: "PRICING_UNAVAILABLE",
         message:
           "Public pricing is unavailable because the registered rate is lower than the standard rate in the active matrix.",
+      });
+    }
+  });
+
+  it("fails clearly when the registered surcharge would be negative after markup", () => {
+    envMock.mockReturnValue({
+      ...defaultEnv(),
+      PRICE_STANDARD_MARKUP_CENTS: 600,
+      PRICE_REGISTERED_MARKUP_CENTS: 100,
+    });
+
+    try {
+      buildPublicPricingResponse({
+        version: createMatrixVersion(),
+        entries: createMatrixEntries(),
+        now: new Date("2026-04-07T12:00:00.000Z"),
+      });
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+        message:
+          "Public pricing is unavailable because the registered surcharge is negative in the active matrix.",
       });
     }
   });

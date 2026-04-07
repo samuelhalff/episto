@@ -130,8 +130,8 @@ function getSourceUrl(version: PublicPricingMatrixVersion): string {
   }
 }
 
-function getLastSyncedAt(version: PublicPricingMatrixVersion): Date {
-  return version.verifiedAt ?? version.effectiveAt ?? version.updatedAt ?? version.createdAt;
+export function getLastSyncedAt(version: PublicPricingMatrixVersion): Date {
+  return version.verifiedAt ?? version.effectiveAt ?? version.createdAt;
 }
 
 function getVerifiedDate(version: PublicPricingMatrixVersion): string {
@@ -286,6 +286,11 @@ export function buildPublicPricingResponse(args: {
   }
 
   const registeredSurchargeCents = registered.totalCents - standard.totalCents;
+  if (registeredSurchargeCents < 0) {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the registered surcharge is negative in the active matrix.",
+    );
+  }
   const freshness =
     !version.expiresAt || version.expiresAt.getTime() <= now.getTime() ? "stale" : "fresh";
   const providerName = normalizeProviderName(version.providerName);
