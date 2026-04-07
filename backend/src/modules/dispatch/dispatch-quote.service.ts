@@ -245,7 +245,7 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
     quote: {
       draftId: providerQuote.draftId,
       snapshotId: providerQuote.snapshotId,
-      deliveryType: providerQuote.deliveryType,
+      deliveryType: source.deliveryType,
       providerQuotedCents: providerQuote.providerQuotedCents,
       swissMailMarkupCents: providerQuote.swissMailMarkupCents,
       totalCents: providerQuote.totalCents,
