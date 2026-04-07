@@ -151,6 +151,20 @@ describe("shared contract schemas", () => {
     ).toThrow();
   });
 
+  it("rejects legacy raw provider unit fields on the public pricing response", () => {
+    const response = createPublicPricingResponse();
+
+    expect(() =>
+      PublicPricingResponseSchema.parse({
+        ...response,
+        providerBreakdown: {
+          ...response.providerBreakdown,
+          perPrintedPageCents: 5,
+        },
+      }),
+    ).toThrow();
+  });
+
   it("parses a dispatch quote response with backend quote metadata", () => {
     const result = DraftDispatchQuoteResponseSchema.parse({
       quote: {

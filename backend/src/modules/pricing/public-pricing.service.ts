@@ -63,7 +63,31 @@ function pricingUnavailableError(message = PRICING_UNAVAILABLE_MESSAGE): AppErro
 }
 
 function normalizeProviderName(providerName: string): string {
-  return providerName.trim().toLowerCase() === "epost" ? "ePost" : providerName.trim();
+  const normalized = providerName.trim();
+
+  if (normalized.length === 0) {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the active provider rate matrix is missing a valid provider name.",
+    );
+  }
+
+  return normalized.toLowerCase() === "epost" ? "ePost" : normalized;
+}
+
+function getSourceUrl(version: PublicPricingMatrixVersion): string {
+  if (!version.sourceEndpoint) {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the active provider rate matrix is missing its source URL.",
+    );
+  }
+
+  try {
+    return new URL(version.sourceEndpoint).toString();
+  } catch {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the active provider rate matrix has an invalid source URL.",
+    );
+  }
 }
 
 function getLastSyncedAt(version: PublicPricingMatrixVersion): Date {
@@ -134,12 +158,6 @@ export function buildPublicPricingResponse(args: {
     throw pricingUnavailableError();
   }
 
-  if (!version.sourceEndpoint) {
-    throw pricingUnavailableError(
-      "Public pricing is unavailable because the active provider rate matrix is missing its source URL.",
-    );
-  }
-
   const config = env();
   const standardPostage = config.EPOST_STANDARD_POSTAGE as PostalPostage;
   const registeredPostage = config.EPOST_REGISTERED_POSTAGE as PostalPostage;
@@ -180,53 +198,64 @@ export function buildPublicPricingResponse(args: {
   const registered = registeredExamples[0]!;
   const registeredSurchargeCents = registered.totalCents - standard.totalCents;
   const freshness =
-    version.expiresAt && version.expiresAt.getTime() < now.getTime() ? "stale" : "fresh";
+    version.expiresAt && version.expiresAt.getTime() <= now.getTime() ? "stale" : "fresh";
   const providerName = normalizeProviderName(version.providerName);
+  const sourceUrl = getSourceUrl(version);
 
-  return PublicPricingResponseSchema.parse({
-    standard: {
-      totalCents: standard.totalCents,
-      displayPrice: standard.displayPrice,
-      currency: "CHF",
-      providerQuotedCents: standard.providerQuotedCents,
-      providerQuotedDisplayPrice: standard.providerQuotedDisplayPrice,
-      swissMailMarkupCents: config.PRICE_STANDARD_MARKUP_CENTS,
-      swissMailMarkupDisplayPrice: formatCHF(config.PRICE_STANDARD_MARKUP_CENTS),
-    },
-    registered: {
-      totalCents: registered.totalCents,
-      displayPrice: registered.displayPrice,
-      currency: "CHF",
-      providerQuotedCents: registered.providerQuotedCents,
-      providerQuotedDisplayPrice: registered.providerQuotedDisplayPrice,
-      swissMailMarkupCents: config.PRICE_REGISTERED_MARKUP_CENTS,
-      swissMailMarkupDisplayPrice: formatCHF(config.PRICE_REGISTERED_MARKUP_CENTS),
-    },
-    registeredSurchargeCents,
-    registeredSurchargeDisplayPrice: formatCHF(registeredSurchargeCents),
-    sync: {
-      sourceLabel: `${providerName} active rate matrix`,
-      lastSyncedAt: getLastSyncedAt(version).toISOString(),
-      freshness,
-    },
-    providerBreakdown: {
-      providerName,
-      note: "Public pricing examples come from the active stored provider rate matrix for Swiss domestic no-attachment letters.",
-      sourceUrl: version.sourceEndpoint,
-      verifiedDate: getVerifiedDate(version),
-      referenceScenario: {
-        ...PUBLIC_REFERENCE_ASSUMPTIONS,
-        standardPostage,
-        registeredPostage,
+  try {
+    return PublicPricingResponseSchema.parse({
+      standard: {
+        totalCents: standard.totalCents,
+        displayPrice: standard.displayPrice,
+        currency: "CHF",
+        providerQuotedCents: standard.providerQuotedCents,
+        providerQuotedDisplayPrice: standard.providerQuotedDisplayPrice,
+        swissMailMarkupCents: config.PRICE_STANDARD_MARKUP_CENTS,
+        swissMailMarkupDisplayPrice: formatCHF(config.PRICE_STANDARD_MARKUP_CENTS),
       },
-      pageCountExamples: {
-        standard: standardExamples,
-        registered: registeredExamples,
+      registered: {
+        totalCents: registered.totalCents,
+        displayPrice: registered.displayPrice,
+        currency: "CHF",
+        providerQuotedCents: registered.providerQuotedCents,
+        providerQuotedDisplayPrice: registered.providerQuotedDisplayPrice,
+        swissMailMarkupCents: config.PRICE_REGISTERED_MARKUP_CENTS,
+        swissMailMarkupDisplayPrice: formatCHF(config.PRICE_REGISTERED_MARKUP_CENTS),
       },
-      pricesExcludeVat: true,
-      currency: "CHF",
-    },
-  });
+      registeredSurchargeCents,
+      registeredSurchargeDisplayPrice: formatCHF(registeredSurchargeCents),
+      sync: {
+        sourceLabel: `${providerName} active rate matrix`,
+        lastSyncedAt: getLastSyncedAt(version).toISOString(),
+        freshness,
+      },
+      providerBreakdown: {
+        providerName,
+        note: "Public pricing examples come from the active stored provider rate matrix for Swiss domestic no-attachment letters.",
+        sourceUrl,
+        verifiedDate: getVerifiedDate(version),
+        referenceScenario: {
+          ...PUBLIC_REFERENCE_ASSUMPTIONS,
+          standardPostage,
+          registeredPostage,
+        },
+        pageCountExamples: {
+          standard: standardExamples,
+          registered: registeredExamples,
+        },
+        pricesExcludeVat: true,
+        currency: "CHF",
+      },
+    });
+  } catch (error) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the active provider rate matrix metadata could not be normalized.",
+    );
+  }
 }
 
 async function loadActivePublicPricingMatrix(

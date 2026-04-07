@@ -173,7 +173,7 @@ export const PublicPricingTierSchema = z.object({
   providerQuotedDisplayPrice: z.string().min(1),
   swissMailMarkupCents: z.number().int().nonnegative(),
   swissMailMarkupDisplayPrice: z.string().min(1),
-});
+}).strict();
 
 export const PublicPricingReferenceScenarioSchema = z.object({
   shippingCountry: z.literal("CH"),
@@ -183,7 +183,7 @@ export const PublicPricingReferenceScenarioSchema = z.object({
   attachmentMode: z.enum(["none", "single_hint"]),
   standardPostage: PostalPostageSchema,
   registeredPostage: PostalPostageSchema,
-});
+}).strict();
 
 export const PublicPricingPageCountExampleSchema = z.object({
   pageCount: z.number().int().positive(),
@@ -192,18 +192,18 @@ export const PublicPricingPageCountExampleSchema = z.object({
   totalCents: z.number().int().nonnegative(),
   displayPrice: z.string().min(1),
   currency: z.literal("CHF"),
-});
+}).strict();
 
 export const PublicPricingPageCountExamplesSchema = z.object({
   standard: z.array(PublicPricingPageCountExampleSchema).nonempty(),
   registered: z.array(PublicPricingPageCountExampleSchema).nonempty(),
-});
+}).strict();
 
 export const PublicPricingSyncSchema = z.object({
   sourceLabel: z.string().min(1),
   lastSyncedAt: z.string().datetime(),
   freshness: z.enum(["fresh", "stale"]),
-});
+}).strict();
 
 export const PublicPricingResponseSchema = z.object({
   standard: PublicPricingTierSchema,
@@ -220,8 +220,8 @@ export const PublicPricingResponseSchema = z.object({
     pageCountExamples: PublicPricingPageCountExamplesSchema,
     pricesExcludeVat: z.boolean(),
     currency: z.literal("CHF"),
-  }),
-});
+  }).strict(),
+}).strict();
 
 /** Response shape for GET /api/v1/orders/:orderToken */
 export interface OrderStatusResponse {

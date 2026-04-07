@@ -129,6 +129,19 @@ describe("public pricing service", () => {
     expect(result.sync.freshness).toBe("stale");
   });
 
+  it("marks sync freshness stale when the active rate matrix expires exactly now", () => {
+    const now = new Date("2026-04-07T12:00:00.000Z");
+    const result = buildPublicPricingResponse({
+      version: createMatrixVersion({
+        expiresAt: now,
+      }),
+      entries: createMatrixEntries(),
+      now,
+    });
+
+    expect(result.sync.freshness).toBe("stale");
+  });
+
   it("fails clearly when there is no usable active rate matrix", () => {
     try {
       buildPublicPricingResponse({
@@ -155,6 +168,26 @@ describe("public pricing service", () => {
         entries: createMatrixEntries().filter(
           (entry) => !(entry.postage === "REGISTERED" && entry.numberOfPage === 5),
         ),
+        now: new Date("2026-04-07T12:00:00.000Z"),
+      });
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+      });
+    }
+  });
+
+  it("fails with a pricing unavailable error when active matrix metadata is unusable", () => {
+    try {
+      buildPublicPricingResponse({
+        version: createMatrixVersion({
+          providerName: "   ",
+          sourceEndpoint: "not-a-url",
+        }),
+        entries: createMatrixEntries(),
         now: new Date("2026-04-07T12:00:00.000Z"),
       });
       throw new Error("expected public pricing to fail");
