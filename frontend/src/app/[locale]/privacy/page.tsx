@@ -1,9 +1,34 @@
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import { Header } from "../../../components/marketing/Header";
 import { Footer } from "../../../components/marketing/Footer";
+import { buildMarketingMetadata } from "../../../lib/marketing-seo";
+import { routing } from "../../../i18n/routing";
 
-export default function PrivacyPage() {
-  const t = useTranslations("legal");
+type Locale = (typeof routing.locales)[number];
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "seo" });
+
+  return buildMarketingMetadata({
+    locale,
+    pathname: "/privacy",
+    title: t("privacy.title"),
+    description: t("privacy.description"),
+  });
+}
+
+export default async function PrivacyPage({
+  params,
+}: {
+  params: Promise<{ locale: Locale }>;
+}) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "legal" });
 
   return (
     <>

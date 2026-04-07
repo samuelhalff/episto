@@ -815,6 +815,32 @@
     },
     "lastChecked": "Zuletzt aktualisiert: {time}"
   },
+  "seo": {
+    "home": {
+      "title": "Swiss Mail — Wichtige Briefe online vorbereiten und versenden",
+      "description": "Verfassen Sie formelle Briefe, prüfen Sie jedes Detail und lösen Sie die postalische Aufgabe in der Schweiz aus — ohne Konto."
+    },
+    "pricing": {
+      "title": "Preise — Swiss Mail",
+      "description": "Sehen Sie Referenzpreise für Standard und Einschreiben, die Servicegebühr von Swiss Mail und wie der finale Total vor der Zahlung bestätigt wird."
+    },
+    "help": {
+      "title": "Hilfe — Swiss Mail",
+      "description": "Antworten zu Briefentwurf, Zahlung, Versand, Anhängen und Support bei Swiss Mail."
+    },
+    "privacy": {
+      "title": "Datenschutz — Swiss Mail",
+      "description": "Erfahren Sie, wie Swiss Mail Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
+    },
+    "terms": {
+      "title": "AGB — Swiss Mail",
+      "description": "Lesen Sie die Bedingungen für Nutzung, Bezahlung und Versand mit Swiss Mail."
+    },
+    "imprint": {
+      "title": "Impressum — Swiss Mail",
+      "description": "Betreiberangaben und Kontaktinformationen von Swiss Mail."
+    }
+  },
   "help": {
     "title": "Hilfe & Support",
     "subtitle": "Antworten und Kontakt",

@@ -7,6 +7,10 @@ import { afterEach, describe, expect, it } from "vitest";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const originalSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
+function readRepoFile(relativePath: string) {
+  return readFileSync(path.join(repoRoot, relativePath), "utf8");
+}
+
 afterEach(() => {
   if (originalSiteUrl === undefined) {
     delete process.env.NEXT_PUBLIC_SITE_URL;
@@ -81,11 +85,72 @@ describe("marketing seo plumbing", () => {
     ];
 
     for (const file of files) {
-      const source = readFileSync(path.join(repoRoot, file), "utf8");
+      const source = readRepoFile(file);
 
       expect(source).toContain("NO_INDEX_METADATA");
       expect(source).toContain("export const metadata = NO_INDEX_METADATA");
     }
+  });
+
+  it("wires route-level metadata for every current marketing page", () => {
+    const pages = [
+      {
+        file: "frontend/src/app/[locale]/page.tsx",
+        pathname: 'pathname: ""',
+        namespace: 'namespace: "seo"',
+      },
+      {
+        file: "frontend/src/app/[locale]/pricing/page.tsx",
+        pathname: 'pathname: "/pricing"',
+        namespace: 'namespace: "seo"',
+      },
+      {
+        file: "frontend/src/app/[locale]/help/page.tsx",
+        pathname: 'pathname: "/help"',
+        namespace: 'namespace: "seo"',
+      },
+      {
+        file: "frontend/src/app/[locale]/privacy/page.tsx",
+        pathname: 'pathname: "/privacy"',
+        namespace: 'namespace: "seo"',
+      },
+      {
+        file: "frontend/src/app/[locale]/terms/page.tsx",
+        pathname: 'pathname: "/terms"',
+        namespace: 'namespace: "seo"',
+      },
+      {
+        file: "frontend/src/app/[locale]/imprint/page.tsx",
+        pathname: 'pathname: "/imprint"',
+        namespace: 'namespace: "seo"',
+      },
+    ];
+
+    for (const page of pages) {
+      const source = readRepoFile(page.file);
+
+      expect(source).toContain("export async function generateMetadata");
+      expect(source).toContain("buildMarketingMetadata");
+      expect(source).toContain(page.pathname);
+      expect(source).toContain(page.namespace);
+    }
+  });
+
+  it("renders structured-data hooks on supported marketing pages", () => {
+    const homePage = readRepoFile("frontend/src/app/[locale]/page.tsx");
+    const pricingPage = readRepoFile("frontend/src/app/[locale]/pricing/page.tsx");
+    const helpPage = readRepoFile("frontend/src/app/[locale]/help/page.tsx");
+
+    expect(homePage).toContain("JsonLd");
+    expect(homePage).toContain("buildOrganizationJsonLd");
+    expect(homePage).toContain("buildWebsiteJsonLd");
+    expect(homePage).toContain("buildServiceJsonLd");
+
+    expect(pricingPage).toContain("JsonLd");
+    expect(pricingPage).toContain("buildServiceJsonLd");
+
+    expect(helpPage).toContain("JsonLd");
+    expect(helpPage).toContain("buildFaqJsonLd");
   });
 
   it("includes only marketing routes in the sitemap", async () => {

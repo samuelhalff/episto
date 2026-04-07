@@ -815,6 +815,32 @@
     },
     "lastChecked": "Dernière mise à jour : {time}"
   },
+  "seo": {
+    "home": {
+      "title": "Swiss Mail — Préparer et envoyer des lettres sérieuses en ligne",
+      "description": "Rédigez une lettre formelle, relisez chaque détail et lancez l’envoi postal en Suisse sans créer de compte."
+    },
+    "pricing": {
+      "title": "Tarifs — Swiss Mail",
+      "description": "Consultez les totaux de référence pour le courrier standard et recommandé, les frais Swiss Mail et la confirmation du total avant paiement."
+    },
+    "help": {
+      "title": "Aide — Swiss Mail",
+      "description": "Réponses sur la rédaction, le paiement, l’envoi, les pièces jointes et le support Swiss Mail."
+    },
+    "privacy": {
+      "title": "Confidentialité — Swiss Mail",
+      "description": "Découvrez comment Swiss Mail traite les données de session, les fichiers, les paiements et la conservation avec une approche respectueuse de la confidentialité."
+    },
+    "terms": {
+      "title": "Conditions — Swiss Mail",
+      "description": "Lisez les conditions d’utilisation, de paiement et d’envoi de Swiss Mail."
+    },
+    "imprint": {
+      "title": "Mentions légales — Swiss Mail",
+      "description": "Informations sur l’exploitant et coordonnées de contact de Swiss Mail."
+    }
+  },
   "help": {
     "title": "Aide & Support",
     "subtitle": "Réponses et contact",

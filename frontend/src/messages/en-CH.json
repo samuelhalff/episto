@@ -815,6 +815,32 @@
     },
     "lastChecked": "Last updated: {time}"
   },
+  "seo": {
+    "home": {
+      "title": "Swiss Mail — Prepare and send serious letters online",
+      "description": "Draft formal letters, review every detail, and start postal dispatch in Switzerland without opening an account."
+    },
+    "pricing": {
+      "title": "Pricing — Swiss Mail",
+      "description": "See reference totals for standard and registered letters, the Swiss Mail service fee, and how the final total is confirmed before payment."
+    },
+    "help": {
+      "title": "Help — Swiss Mail",
+      "description": "Answers about drafting, payment, dispatch, attachments, and support for Swiss Mail."
+    },
+    "privacy": {
+      "title": "Privacy — Swiss Mail",
+      "description": "Learn how Swiss Mail handles session data, files, payments, and retention with privacy-conscious safeguards."
+    },
+    "terms": {
+      "title": "Terms — Swiss Mail",
+      "description": "Read the terms for using Swiss Mail, paying for dispatch, and sending letters as a guest."
+    },
+    "imprint": {
+      "title": "Imprint — Swiss Mail",
+      "description": "Operator details and contact information for Swiss Mail."
+    }
+  },
   "help": {
     "title": "Help & Support",
     "subtitle": "Answers and contact",
