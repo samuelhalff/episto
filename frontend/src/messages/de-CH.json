@@ -81,7 +81,83 @@
       "help": "Hilfe",
       "copyright": "© 2025 Swiss Mail. Alle Rechte vorbehalten."
     },
-    "appName": "Swiss Mail"
+    "appName": "Swiss Mail",
+    "homepage": {
+      "hero": {
+        "badge": "Für wichtige Briefe gemacht",
+        "title": "Wichtige Briefe — professionell vorbereitet, bereit zum Versand",
+        "subtitle": "Beschreiben Sie Ihr Anliegen. Wir führen Sie zu einem klaren, formellen Brief, den Sie vor dem Versand in Ruhe prüfen können.",
+        "body": "Swiss Mail hilft Ihnen, ernsthafte Korrespondenz ohne Postschalter-Umweg sauber vorzubereiten — vom ersten Entwurf bis zur postalischen Aufgabe in der Schweiz.",
+        "primaryCta": "Jetzt Brief schreiben",
+        "secondaryCta": "So funktioniert es",
+        "proof": "Kein Konto erforderlich · Klarer Total vor der Zahlung · Datenschutzbewusste Infrastruktur"
+      },
+      "trustStrip": {
+        "postal": "Postalische Zustellung in der Schweiz",
+        "privacy": "Datenschutzbewusste Infrastruktur",
+        "encryption": "Verschlüsselt bei Übertragung und Speicherung",
+        "noAccount": "Ohne Abo und ohne Konto startbar"
+      },
+      "howItWorks": {
+        "eyebrow": "So funktioniert es",
+        "title": "Drei Schritte zu einem seriösen Brief",
+        "intro": "Sie behalten den Überblick: Anliegen beschreiben, Formulierung prüfen, erst dann bezahlen und absenden.",
+        "steps": {
+          "describe": {
+            "title": "Anliegen schildern",
+            "body": "Beschreiben oder diktieren Sie, was der Brief erreichen soll — etwa eine Kündigung, eine Beschwerde oder eine offizielle Anfrage."
+          },
+          "review": {
+            "title": "Entwurf prüfen",
+            "body": "Sie sehen einen sauber strukturierten Brief, passen Ton und Details an und kontrollieren alles vor dem nächsten Schritt."
+          },
+          "send": {
+            "title": "Versand auslösen",
+            "body": "Wenn alles stimmt, bestätigen Sie den Total, bezahlen sicher und wir bereiten den Brief für die postalische Aufgabe vor."
+          }
+        }
+      },
+      "confidence": {
+        "eyebrow": "Warum es Vertrauen schafft",
+        "title": "Mehr Sicherheit vor dem Senden",
+        "intro": "Swiss Mail ersetzt nicht Ihre Entscheidung — es gibt Ihrem Brief einen professionellen Rahmen und lässt Ihnen vor dem Versand die Kontrolle.",
+        "cards": {
+          "structured": {
+            "title": "Klar strukturiert",
+            "body": "Aus Ihrem Anliegen entsteht ein formeller Brief mit nachvollziehbarer Struktur statt einer hastig formulierten Nachricht."
+          },
+          "review": {
+            "title": "Vor dem Versand kontrollierbar",
+            "body": "Sie prüfen Inhalt, Ton und Angaben in Ruhe, bevor Zahlung und postalische Aufgabe ausgelöst werden."
+          },
+          "privacy": {
+            "title": "Sorgfältig abgewickelt",
+            "body": "Wir kommunizieren den Ablauf transparent, zeigen den Total vor der Zahlung und halten die Verarbeitung datenschutzbewusst."
+          }
+        }
+      },
+      "useCases": {
+        "eyebrow": "Typische Anlässe",
+        "title": "Für Briefe, die Sie nicht weiter aufschieben sollten",
+        "intro": "Wenn ein Anliegen ernst klingt, hilft ein sauber formulierter Brief oft mehr als eine kurze Nachricht.",
+        "cancellation": {
+          "title": "Abo kündigen",
+          "description": "Beenden Sie Mitgliedschaften oder Verträge mit einer formellen schriftlichen Kündigung."
+        },
+        "lease": {
+          "title": "Mietverhältnis kündigen",
+          "description": "Formulieren Sie eine klare Mitteilung an Verwaltung oder Vermietung mit dem nötigen formellen Ton."
+        },
+        "complaint": {
+          "title": "Beschwerde einreichen",
+          "description": "Bringen Sie ein Problem sachlich, vollständig und ernsthaft auf den Punkt."
+        },
+        "authority": {
+          "title": "An eine Behörde schreiben",
+          "description": "Bereiten Sie offizielle Korrespondenz so vor, dass sie geordnet und professionell wirkt."
+        }
+      }
+    }
   },
   "howItWorks": {
     "title": "So funktioniert Swiss Mail",

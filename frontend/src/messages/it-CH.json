@@ -81,7 +81,83 @@
       "help": "Aiuto",
       "copyright": "© 2025 Swiss Mail. Tutti i diritti riservati."
     },
-    "appName": "Swiss Mail"
+    "appName": "Swiss Mail",
+    "homepage": {
+      "hero": {
+        "badge": "Pensato per lettere importanti",
+        "title": "Lettere importanti — preparate con cura, pronte per l’invio",
+        "subtitle": "Descriva ciò di cui ha bisogno. La guidiamo verso una lettera formale chiara che può controllare con calma prima dell’invio.",
+        "body": "Swiss Mail La aiuta a preparare una corrispondenza importante senza passare dallo sportello postale — dalla prima bozza fino alla presa in carico per l’invio in Svizzera.",
+        "primaryCta": "Scriva la Sua lettera ora",
+        "secondaryCta": "Veda come funziona",
+        "proof": "Nessun conto richiesto · Totale chiaro prima del pagamento · Infrastruttura attenta alla privacy"
+      },
+      "trustStrip": {
+        "postal": "Invio postale in Svizzera",
+        "privacy": "Infrastruttura attenta alla privacy",
+        "encryption": "Crittografato in transito e a riposo",
+        "noAccount": "Può iniziare senza abbonamento né conto"
+      },
+      "howItWorks": {
+        "eyebrow": "Come funziona",
+        "title": "Tre passi per una lettera seria",
+        "intro": "Rimane Lei a decidere: descrive la situazione, rivede il testo, poi paga e invia solo quando tutto è corretto.",
+        "steps": {
+          "describe": {
+            "title": "Descrivere la situazione",
+            "body": "Scriva o detti ciò che la lettera deve ottenere — una disdetta, un reclamo o una richiesta ufficiale."
+          },
+          "review": {
+            "title": "Rivedere la bozza",
+            "body": "Vede una lettera formale ben strutturata, adatta tono e dettagli e controlla tutto prima di procedere."
+          },
+          "send": {
+            "title": "Avviare l’invio",
+            "body": "Quando è tutto a posto, conferma il totale, paga in modo sicuro e noi prepariamo la lettera per l’invio postale."
+          }
+        }
+      },
+      "confidence": {
+        "eyebrow": "Perché ispira fiducia",
+        "title": "Più sicurezza prima dell’invio",
+        "intro": "Swiss Mail non sostituisce il Suo giudizio — dà alla Sua lettera una cornice professionale e Le lascia il controllo prima dell’invio.",
+        "cards": {
+          "structured": {
+            "title": "Struttura professionale",
+            "body": "La Sua situazione diventa una lettera formale con una struttura chiara, non un messaggio scritto in fretta."
+          },
+          "review": {
+            "title": "Controllata prima dell’invio",
+            "body": "Può verificare contenuto, tono e dettagli prima che inizino pagamento e invio postale."
+          },
+          "privacy": {
+            "title": "Gestita con cura",
+            "body": "Rendiamo il percorso trasparente, mostriamo il totale prima del pagamento e descriviamo il servizio con attenzione alla privacy."
+          }
+        }
+      },
+      "useCases": {
+        "eyebrow": "Casi tipici",
+        "title": "Per le lettere che non dovrebbe più rimandare",
+        "intro": "Quando la questione è seria, una lettera ben preparata pesa spesso più di un messaggio veloce.",
+        "cancellation": {
+          "title": "Disdire un abbonamento",
+          "description": "Chiuda abbonamenti o contratti di servizio con una comunicazione scritta formale."
+        },
+        "lease": {
+          "title": "Disdire una locazione",
+          "description": "Scriva un avviso chiaro al locatore o all’amministrazione con il tono formale corretto."
+        },
+        "complaint": {
+          "title": "Presentare un reclamo",
+          "description": "Esponga il problema in modo fattuale, completo e sufficientemente serio da essere preso in considerazione."
+        },
+        "authority": {
+          "title": "Scrivere a un’autorità",
+          "description": "Prepari una corrispondenza ufficiale che risulti ordinata e professionale fin dall’inizio."
+        }
+      }
+    }
   },
   "howItWorks": {
     "title": "Come funziona Swiss Mail",

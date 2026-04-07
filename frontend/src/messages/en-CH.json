@@ -81,7 +81,83 @@
       "help": "Help",
       "copyright": "© 2025 Swiss Mail. All rights reserved."
     },
-    "appName": "Swiss Mail"
+    "appName": "Swiss Mail",
+    "homepage": {
+      "hero": {
+        "badge": "Built for important letters",
+        "title": "Serious letters — professionally prepared, ready to send",
+        "subtitle": "Describe what you need. We guide you to a clear formal letter that you can review carefully before it goes out.",
+        "body": "Swiss Mail helps you prepare important correspondence without a trip to the post office — from first draft to postal submission in Switzerland.",
+        "primaryCta": "Write your letter now",
+        "secondaryCta": "See how it works",
+        "proof": "No account required · Clear total before payment · Privacy-conscious infrastructure"
+      },
+      "trustStrip": {
+        "postal": "Postal delivery in Switzerland",
+        "privacy": "Privacy-conscious infrastructure",
+        "encryption": "Encrypted in transit and at rest",
+        "noAccount": "Start without a subscription or account"
+      },
+      "howItWorks": {
+        "eyebrow": "How it works",
+        "title": "Three steps to a serious letter",
+        "intro": "Stay in control from start to finish: describe the situation, review the wording, then pay and send when it looks right.",
+        "steps": {
+          "describe": {
+            "title": "Describe the situation",
+            "body": "Write or dictate what the letter needs to do — a cancellation, a complaint, or an official request."
+          },
+          "review": {
+            "title": "Review the draft",
+            "body": "See a clean formal draft, adjust the tone and details, and check everything before moving on."
+          },
+          "send": {
+            "title": "Start dispatch",
+            "body": "When it looks right, confirm the total, pay securely, and we prepare the letter for postal submission."
+          }
+        }
+      },
+      "confidence": {
+        "eyebrow": "Why it feels reliable",
+        "title": "More confidence before you send",
+        "intro": "Swiss Mail does not replace your judgement — it gives your letter a professional frame and keeps you in control before dispatch.",
+        "cards": {
+          "structured": {
+            "title": "Properly structured",
+            "body": "Your situation becomes a formal letter with a clear structure instead of a rushed message."
+          },
+          "review": {
+            "title": "Reviewed before dispatch",
+            "body": "You can inspect the content, tone, and details before payment and postal submission begin."
+          },
+          "privacy": {
+            "title": "Handled with care",
+            "body": "We keep the flow transparent, show the total before payment, and present the service with privacy-conscious wording."
+          }
+        }
+      },
+      "useCases": {
+        "eyebrow": "Typical use cases",
+        "title": "For the letters you should not keep postponing",
+        "intro": "When the matter is serious, a well-prepared letter often carries more weight than a quick message.",
+        "cancellation": {
+          "title": "Cancel a subscription",
+          "description": "End memberships or service contracts with a formal written notice."
+        },
+        "lease": {
+          "title": "End a lease",
+          "description": "Write a clear notice to your landlord or property manager with the right formal tone."
+        },
+        "complaint": {
+          "title": "File a complaint",
+          "description": "Set out the problem in a way that is factual, complete, and taken seriously."
+        },
+        "authority": {
+          "title": "Write to an authority",
+          "description": "Prepare official correspondence so it reads as organised and professional from the start."
+        }
+      }
+    }
   },
   "howItWorks": {
     "title": "How Swiss Mail works",
