@@ -29,6 +29,7 @@ import {
   DraftComposer,
   DraftShell,
   PrimaryButton,
+  SecondaryButton,
   SegmentedControl,
   SurfaceIconButton,
 } from "./ui";
@@ -52,7 +53,7 @@ interface StepProps
 
 type EditMode = "ai" | "manual";
 
-const BODY_STEP_COACHMARK_STORAGE_KEY = "swiss-mail.body-step-coachmark-dismissed.v1";
+const BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY = "swiss-mail.body-step-first-draft-ready-dismissed.v1";
 
 function getFirstDraftMessageId(metadata: unknown): string | null {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {
@@ -98,7 +99,7 @@ export function BodyStep({
   const [editMode, setEditMode] = useState<EditMode>("ai");
   const [bodyText, setBodyText] = useState("");
   const [userEdited, setUserEdited] = useState(false);
-  const [showBodyCoachmark, setShowBodyCoachmark] = useState(false);
+  const [showFirstDraftReadyDialog, setShowFirstDraftReadyDialog] = useState(false);
   const [isComposerFocused, setIsComposerFocused] = useState(false);
   const [isManualFieldFocused, setIsManualFieldFocused] = useState(false);
   const [isAutoComposing, setIsAutoComposing] = useState(false);
@@ -109,6 +110,7 @@ export function BodyStep({
   const lastSavedBodyRef = useRef("");
   const hasRequestedInitialComposeRef = useRef(false);
   const completionCountAtComposeRef = useRef(0);
+  const initialFirstDraftMessageIdRef = useRef<string | null | undefined>(undefined);
   const refineAutosave = useQueuedAutosave({
     value: refineText,
     enabled: hasHydratedRef.current,
@@ -163,18 +165,6 @@ export function BodyStep({
     );
     dictation.resetText();
   }, [dictation.finalText, dictation.resetText]);
-
-  useEffect(() => {
-    try {
-      if (window.localStorage.getItem(BODY_STEP_COACHMARK_STORAGE_KEY) === "dismissed") {
-        return;
-      }
-    } catch {
-      // Ignore storage access failures and still show the coachmark once in-memory.
-    }
-
-    setShowBodyCoachmark(true);
-  }, []);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
@@ -400,15 +390,6 @@ export function BodyStep({
     setEditMode(mode);
   }
 
-  function dismissBodyCoachmark() {
-    setShowBodyCoachmark(false);
-
-    try {
-      window.localStorage.setItem(BODY_STEP_COACHMARK_STORAGE_KEY, "dismissed");
-    } catch {
-      // Ignore storage access failures; dismiss for the current render session.
-    }
-  }
   const helperText = dictation.error
     ? t("dictationError")
     : dictation.isRecording
@@ -427,6 +408,52 @@ export function BodyStep({
   const isAiBusy = loadingState.isAiBusy;
   const shouldShowBodyGenerationDialog = loadingState.showBodyGenerationDialog;
   const showRefinementLoadingCard = loadingState.showRefinementLoadingCard;
+
+  useEffect(() => {
+    const firstDraftMessageId = getFirstDraftMessageId(draft.data?.metadata);
+
+    if (initialFirstDraftMessageIdRef.current === undefined) {
+      initialFirstDraftMessageIdRef.current = firstDraftMessageId;
+      return;
+    }
+
+    if (!firstDraftMessageId || shouldShowBodyGenerationDialog || !bodyText.trim()) {
+      return;
+    }
+
+    if (firstDraftMessageId === initialFirstDraftMessageIdRef.current) {
+      return;
+    }
+
+    try {
+      if (
+        window.localStorage.getItem(BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY) ===
+        "dismissed"
+      ) {
+        initialFirstDraftMessageIdRef.current = firstDraftMessageId;
+        return;
+      }
+    } catch {
+      // Keep the one-time behavior in memory if storage is unavailable.
+    }
+
+    initialFirstDraftMessageIdRef.current = firstDraftMessageId;
+    setShowFirstDraftReadyDialog(true);
+  }, [bodyText, draft.data?.metadata, shouldShowBodyGenerationDialog]);
+
+  function dismissFirstDraftReadyDialog() {
+    setShowFirstDraftReadyDialog(false);
+
+    try {
+      window.localStorage.setItem(
+        BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY,
+        "dismissed",
+      );
+    } catch {
+      // Ignore storage access failures; dismiss for the current render session.
+    }
+  }
+
   // Keep preview in the sticky toolbar so it never widens the dock CTA row.
   const bodyModeToolbarClassName =
     "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7";
@@ -726,23 +753,23 @@ export function BodyStep({
         />
       ) : null}
 
-      {showBodyCoachmark && !shouldShowBodyGenerationDialog ? (
+      {showFirstDraftReadyDialog && !shouldShowBodyGenerationDialog ? (
         <div className="fixed inset-0 z-[180] flex items-end justify-center bg-black/35 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] pt-8 sm:items-center sm:pb-8">
           <div className="app-panel w-full max-w-md rounded-4xl p-5 shadow-2xl">
             <h3 className="text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-              {t("bodyCoachmarkTitle")}
+              {t("firstDraftReadyTitle")}
             </h3>
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-              {t("bodyCoachmarkBody")}
+              {t("firstDraftReadyBody")}
             </p>
             <div className="mt-5 flex justify-end">
-              <button
-                type="button"
-                onClick={dismissBodyCoachmark}
-                className="inline-flex min-h-11 items-center rounded-full bg-zinc-950 px-5 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+              <SecondaryButton
+                onClick={dismissFirstDraftReadyDialog}
+                fullWidth={false}
+                leadingVisual="none"
               >
-                {t("bodyCoachmarkAction")}
-              </button>
+                {t("firstDraftReadyDismiss")}
+              </SecondaryButton>
             </div>
           </div>
         </div>
