@@ -8,6 +8,7 @@ import {
 } from "../schemas/index.ts";
 import {
   DispatchAttachmentPolicySchema,
+  DispatchQuoteSchema,
   PostalPostageSchema,
 } from "../dispatch-provider.ts";
 import { DRAFT_CONTENT_LIMITS } from "../limits.ts";
@@ -141,9 +142,18 @@ export interface DraftDispatchQuote {
   lineItems: DraftDispatchQuoteLineItem[];
 }
 
-export interface DraftDispatchQuoteResponse {
-  quote: DraftDispatchQuote;
-}
+export const DraftDispatchQuoteMetaSchema = z.object({
+  source: z.enum(["matrix", "live"]),
+  quotedAt: z.string().datetime(),
+  expiresAt: z.string().datetime().nullable(),
+});
+
+export const DraftDispatchQuoteResponseSchema = z.object({
+  quote: DispatchQuoteSchema,
+  meta: DraftDispatchQuoteMetaSchema,
+});
+
+export type DraftDispatchQuoteResponse = z.infer<typeof DraftDispatchQuoteResponseSchema>;
 
 export const DraftAttachmentConstraintsSchema = DispatchAttachmentPolicySchema.extend({
   maxFileBytes: z.number().int().positive(),

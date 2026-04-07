@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import * as schema from "../src/db/schema.js";
 import {
   insertSessionSchema,
@@ -279,5 +279,20 @@ describe("drizzle-zod insert schemas", () => {
       actor: "admin@example.com",
     });
     expect(result.success).toBe(true);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Pricing quote persistence schema
+// ---------------------------------------------------------------------------
+
+describe("pricing quote persistence schema", () => {
+  it("exports provider rate matrix tables", () => {
+    expect(schema.providerRateMatrixVersions).toBeDefined();
+    expect(schema.providerRateMatrixEntries).toBeDefined();
+  });
+
+  it("exports draft quote cache table", () => {
+    expect(schema.draftQuoteCache).toBeDefined();
   });
 });

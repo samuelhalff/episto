@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  DraftDispatchQuoteResponseSchema,
   DraftFilesResponseSchema,
   PublicPricingResponseSchema,
 } from "../src/contracts/index.ts";
@@ -234,5 +235,33 @@ describe("shared contract schemas", () => {
         },
       }),
     ).toThrow();
+  });
+
+  it("parses a dispatch quote response with backend quote metadata", () => {
+    const result = DraftDispatchQuoteResponseSchema.parse({
+      quote: {
+        draftId: "11111111-1111-4111-8111-111111111111",
+        snapshotId: "22222222-2222-4222-8222-222222222222",
+        deliveryType: "registered",
+        providerQuotedCents: 625,
+        swissMailMarkupCents: 340,
+        totalCents: 965,
+        currency: "CHF",
+        providerQuoteReference: "preview-123",
+        attachmentHandling: "single_hint",
+        lineItems: [
+          { label: "ePost provider quote", amountCents: 625, source: "provider" },
+          { label: "Swiss Mail service", amountCents: 340, source: "swiss_mail" },
+        ],
+      },
+      meta: {
+        source: "matrix",
+        quotedAt: "2026-04-07T12:00:00.000Z",
+        expiresAt: "2026-04-08T12:00:00.000Z",
+      },
+    });
+
+    expect(result.meta.source).toBe("matrix");
+    expect(result.quote.totalCents).toBe(965);
   });
 });

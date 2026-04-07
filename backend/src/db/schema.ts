@@ -1,4 +1,5 @@
 import {
+  boolean,
   check,
   index,
   integer,
@@ -454,6 +455,113 @@ export const productEvents = pgTable(
   (t) => ({
     eventNameTimeIdx: index("product_events_event_name_time_idx").on(t.eventName, t.createdAt),
     sessionIdx: index("product_events_session_idx").on(t.sessionId, t.createdAt),
+  }),
+);
+
+// ---------------------------------------------------------------------------
+// 13. provider_rate_matrix_versions — provider pricing snapshots
+// ---------------------------------------------------------------------------
+
+export const providerRateMatrixStatusEnum = pgEnum("provider_rate_matrix_status", [
+  "building",
+  "active",
+  "failed",
+  "retired",
+]);
+
+export const quoteSourceEnum = pgEnum("quote_source", ["matrix", "live"]);
+
+export const providerRateMatrixVersions = pgTable(
+  "provider_rate_matrix_versions",
+  {
+    id: pk(),
+    providerName: text("provider_name").notNull(),
+    status: providerRateMatrixStatusEnum("status").notNull(),
+    verifiedAt: ts("verified_at"),
+    effectiveAt: ts("effective_at"),
+    expiresAt: ts("expires_at"),
+    sourceEndpoint: text("source_endpoint"),
+    failureReason: text("failure_reason"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (t) => ({
+    statusIdx: index("provider_rate_matrix_versions_status_idx").on(t.status, t.createdAt),
+  }),
+);
+
+// ---------------------------------------------------------------------------
+// 14. provider_rate_matrix_entries — individual pricing rows per version
+// ---------------------------------------------------------------------------
+
+export const providerRateMatrixEntries = pgTable(
+  "provider_rate_matrix_entries",
+  {
+    id: pk(),
+    versionId: uuid("version_id")
+      .notNull()
+      .references(() => providerRateMatrixVersions.id),
+    postage: text("postage").notNull(),
+    numberOfPage: integer("number_of_page").notNull(),
+    attachmentMode: text("attachment_mode").notNull(),
+    shippingCountry: text("shipping_country").notNull(),
+    envelopeSize: text("envelope_size").notNull(),
+    windowLocation: text("window_location").notNull(),
+    duplex: boolean("duplex").notNull(),
+    providerQuotedCents: integer("provider_quoted_cents").notNull(),
+    currency: text("currency").default("CHF").notNull(),
+    providerQuoteReference: text("provider_quote_reference"),
+    verifiedAt: ts("verified_at"),
+    createdAt: createdAt(),
+  },
+  (t) => ({
+    lookupIdx: index("provider_rate_matrix_entries_lookup_idx").on(
+      t.versionId,
+      t.postage,
+      t.numberOfPage,
+      t.attachmentMode,
+      t.shippingCountry,
+      t.envelopeSize,
+      t.windowLocation,
+      t.duplex,
+    ),
+  }),
+);
+
+// ---------------------------------------------------------------------------
+// 15. draft_quote_cache — cached pricing quotes per draft
+// ---------------------------------------------------------------------------
+
+export const draftQuoteCache = pgTable(
+  "draft_quote_cache",
+  {
+    id: pk(),
+    draftId: uuid("draft_id")
+      .notNull()
+      .references(() => draftLetters.id),
+    snapshotId: uuid("snapshot_id").references(() => draftSnapshots.id),
+    pricingInputHash: text("pricing_input_hash").notNull(),
+    pricingInput: jsonb("pricing_input").notNull(),
+    source: quoteSourceEnum("source").notNull(),
+    deliveryType: deliveryTypeEnum("delivery_type").notNull(),
+    postage: text("postage").notNull(),
+    providerQuotedCents: integer("provider_quoted_cents").notNull(),
+    swissMailMarkupCents: integer("swiss_mail_markup_cents").notNull(),
+    totalCents: integer("total_cents").notNull(),
+    currency: text("currency").default("CHF").notNull(),
+    providerQuoteReference: text("provider_quote_reference"),
+    rateMatrixVersionId: uuid("rate_matrix_version_id").references(
+      () => providerRateMatrixVersions.id,
+    ),
+    generatedAt: ts("generated_at").notNull(),
+    expiresAt: ts("expires_at"),
+    createdAt: createdAt(),
+  },
+  (t) => ({
+    inputHashIdx: index("draft_quote_cache_input_hash_idx").on(
+      t.pricingInputHash,
+      t.generatedAt,
+    ),
   }),
 );
 
