@@ -114,6 +114,15 @@ describe("checkout-payment-contract page layout", () => {
     );
     expect(trailingIconMatch).not.toBeNull();
   });
+
+  it("gives the desktop back action room instead of forcing equal-width compression", () => {
+    const backActionBlock = checkoutPageSource.slice(
+      checkoutPageSource.indexOf("href={backToReviewHref}"),
+      checkoutPageSource.indexOf("primaryAction={"),
+    );
+    expect(checkoutPageSource).toContain('className="sm:w-auto sm:min-w-[10rem]"');
+    expect(backActionBlock).not.toContain('className="sm:flex-1"');
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -136,5 +145,13 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     expect(methods).toHaveLength(2);
     expect(methods[0]).toBe("twint");
     expect(methods[1]).toBe("card");
+  });
+
+  it("does not render a trailing price chip in the final Stripe payment CTA", () => {
+    expect(stripePaymentFormSource).not.toContain("trailingMeta={");
+    expect(stripePaymentFormSource).not.toContain("formatCentsAsCHF");
+    expect(stripePaymentFormSource).toContain(
+      '{isSubmitting ? t("paymentConfirming") : buttonLabel}',
+    );
   });
 });

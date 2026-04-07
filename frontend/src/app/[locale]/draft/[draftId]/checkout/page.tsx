@@ -292,7 +292,7 @@ export default function CheckoutPage({
                     href={backToReviewHref}
                     variant="secondary"
                     fullWidth
-                    className="sm:flex-1"
+                    className="sm:w-auto sm:min-w-[10rem]"
                     leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
                   >
                     {t("backToReview")}
