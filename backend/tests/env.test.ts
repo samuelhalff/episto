@@ -86,6 +86,8 @@ const EnvSchema = z
     ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
     PRICE_STANDARD_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
     PRICE_REGISTERED_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
+    DISPATCH_RATE_MATRIX_TTL_HOURS: z.coerce.number().int().positive().default(24),
+    LIVE_DISPATCH_QUOTE_TTL_MINUTES: z.coerce.number().int().positive().default(30),
   })
   .refine(
     (data) => {
@@ -483,4 +485,18 @@ describe("EnvSchema — Admin Microsoft SSO validation", () => {
     const result = EnvSchema.safeParse(validEnv());
     expect(result.success).toBe(true);
   });
+});
+
+// ---------------------------------------------------------------------------
+// Dispatch pricing refresh config
+// ---------------------------------------------------------------------------
+
+it("parses dispatch pricing refresh settings", () => {
+  const result = EnvSchema.parse({
+    ...validEnv(),
+    DISPATCH_RATE_MATRIX_TTL_HOURS: "24",
+    LIVE_DISPATCH_QUOTE_TTL_MINUTES: "30",
+  });
+  expect(result.DISPATCH_RATE_MATRIX_TTL_HOURS).toBe(24);
+  expect(result.LIVE_DISPATCH_QUOTE_TTL_MINUTES).toBe(30);
 });

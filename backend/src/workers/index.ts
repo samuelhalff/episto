@@ -5,6 +5,7 @@ import { startRenderPdfWorker } from "./render-pdf.worker.js";
 import { startSubmitDispatchWorker } from "./submit-dispatch.worker.js";
 import { startReconcileDispatchWorker } from "./reconcile-dispatch.worker.js";
 import { startCleanupAssetsWorker } from "./cleanup-assets.worker.js";
+import { startRefreshDispatchRatesWorker } from "./refresh-dispatch-rates.worker.js";
 
 const logger = createLogger();
 
@@ -22,6 +23,7 @@ export function startWorkers(): void {
   const submitDispatchWorker = startSubmitDispatchWorker();
   const reconcileDispatchWorker = startReconcileDispatchWorker();
   const cleanupAssetsWorker = startCleanupAssetsWorker();
+  const refreshDispatchRatesWorker = startRefreshDispatchRatesWorker();
 
   workers.push(
     emailWorker,
@@ -29,6 +31,7 @@ export function startWorkers(): void {
     submitDispatchWorker,
     reconcileDispatchWorker,
     cleanupAssetsWorker,
+    refreshDispatchRatesWorker,
   );
 
   // Log completion/failure events for all workers

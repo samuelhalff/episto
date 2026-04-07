@@ -4,6 +4,15 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import type { DispatchPricingInput } from "./dispatch-pricing-input.service.js";
 
+/**
+ * Placeholder — full implementation comes in a later task.
+ * Checks if the active rate matrix is stale and refreshes it from the provider
+ * if the TTL has elapsed.
+ */
+export async function refreshDispatchRateMatrixIfNeeded(_db: Db, _now: Date): Promise<void> {
+  // TODO: implement matrix staleness check and refresh
+}
+
 export async function getActiveMatrixQuote(
   db: Db,
   input: DispatchPricingInput,

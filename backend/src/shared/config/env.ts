@@ -113,6 +113,10 @@ const EnvSchema = z
     // Pricing (integer cents, CHF only)
     PRICE_STANDARD_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
     PRICE_REGISTERED_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
+
+    // Dispatch rate matrix refresh
+    DISPATCH_RATE_MATRIX_TTL_HOURS: z.coerce.number().int().positive().default(24),
+    LIVE_DISPATCH_QUOTE_TTL_MINUTES: z.coerce.number().int().positive().default(30),
   })
   .refine(
     (data) => {

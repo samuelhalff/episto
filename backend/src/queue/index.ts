@@ -29,6 +29,7 @@ export const QUEUE_NAMES = {
   RECONCILE_DISPATCH: "reconcile-ambiguous-dispatch",
   SEND_EMAIL: "send-transactional-email",
   CLEANUP_ASSETS: "cleanup-expired-assets",
+  REFRESH_DISPATCH_RATES: "refresh-dispatch-rates",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -99,6 +100,10 @@ export interface CleanupAssetsJob {
   batchSize: number;
 }
 
+export interface RefreshDispatchRatesJob {
+  reason: "stale_matrix";
+}
+
 // ---------------------------------------------------------------------------
 // Scheduled jobs — repeatable BullMQ jobs for periodic tasks
 // ---------------------------------------------------------------------------
@@ -118,6 +123,16 @@ export async function registerScheduledJobs(): Promise<void> {
     {
       repeat: { pattern: "0 * * * *" }, // every hour at :00
       jobId: "scheduled-cleanup",
+    },
+  );
+
+  const refreshQueue = getQueue(QUEUE_NAMES.REFRESH_DISPATCH_RATES);
+  await refreshQueue.add(
+    "scheduled-rate-refresh-sentinel",
+    { reason: "stale_matrix" } satisfies RefreshDispatchRatesJob,
+    {
+      repeat: { pattern: "5 * * * *" }, // every hour at :05
+      jobId: "scheduled-rate-refresh-sentinel",
     },
   );
 }

@@ -6,6 +6,8 @@ vi.mock("../src/queue/index.js", () => ({
   QUEUE_NAMES: {
     SUBMIT_DISPATCH: "submit-dispatch",
     RECONCILE_DISPATCH: "reconcile-ambiguous-dispatch",
+    CLEANUP_ASSETS: "cleanup-expired-assets",
+    REFRESH_DISPATCH_RATES: "refresh-dispatch-rates",
   },
   getQueue: () => ({ add }),
 }));
@@ -64,3 +66,4 @@ describe("dispatch job helpers", () => {
     );
   });
 });
+

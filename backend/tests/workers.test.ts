@@ -55,16 +55,17 @@ vi.mock("../src/shared/logging/index.js", () => ({
 }));
 
 describe("queue names", () => {
-  it("defines all 5 required queue names from build pack", () => {
+  it("defines all 6 required queue names", () => {
     expect(QUEUE_NAMES.RENDER_PDF).toBe("render-pdf");
     expect(QUEUE_NAMES.SUBMIT_DISPATCH).toBe("submit-dispatch");
     expect(QUEUE_NAMES.RECONCILE_DISPATCH).toBe("reconcile-ambiguous-dispatch");
     expect(QUEUE_NAMES.SEND_EMAIL).toBe("send-transactional-email");
     expect(QUEUE_NAMES.CLEANUP_ASSETS).toBe("cleanup-expired-assets");
+    expect(QUEUE_NAMES.REFRESH_DISPATCH_RATES).toBe("refresh-dispatch-rates");
   });
 
-  it("has exactly 5 queue names", () => {
-    expect(Object.keys(QUEUE_NAMES)).toHaveLength(5);
+  it("has exactly 6 queue names", () => {
+    expect(Object.keys(QUEUE_NAMES)).toHaveLength(6);
   });
 });
 
@@ -117,10 +118,20 @@ describe("worker factories", () => {
     expect(worker).toBeDefined();
     expect(worker.name).toBe(QUEUE_NAMES.CLEANUP_ASSETS);
   });
+
+  it("startRefreshDispatchRatesWorker returns a worker for REFRESH_DISPATCH_RATES queue", async () => {
+    const { startRefreshDispatchRatesWorker } = await import(
+      "../src/workers/refresh-dispatch-rates.worker.js"
+    );
+    const worker = startRefreshDispatchRatesWorker();
+    expect(worker).toBeDefined();
+    expect(worker.name).toBe(QUEUE_NAMES.REFRESH_DISPATCH_RATES);
+    await worker.close();
+  });
 });
 
 describe("startWorkers orchestrator", () => {
-  it("starts all 5 workers", async () => {
+  it("starts all 6 workers", async () => {
     const { startWorkers, stopWorkers } = await import(
       "../src/workers/index.js"
     );
@@ -147,11 +158,24 @@ describe("registerScheduledJobs", () => {
     );
   });
 
+  it("registers an hourly pricing refresh sentinel job", async () => {
+    await registerScheduledJobs();
+
+    expect(addSpy).toHaveBeenCalledWith(
+      "scheduled-rate-refresh-sentinel",
+      { reason: "stale_matrix" },
+      expect.objectContaining({
+        repeat: { pattern: "5 * * * *" },
+        jobId: "scheduled-rate-refresh-sentinel",
+      }),
+    );
+  });
+
   it("is idempotent — safe to call multiple times", async () => {
     addSpy.mockClear();
     await registerScheduledJobs();
     await registerScheduledJobs();
     // BullMQ deduplicates by jobId; we verify no errors thrown
-    expect(addSpy).toHaveBeenCalledTimes(2);
+    expect(addSpy).toHaveBeenCalledTimes(4); // 2 jobs × 2 calls
   });
 });
