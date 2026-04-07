@@ -18,7 +18,6 @@ export function buildDispatchPricingInput(args: {
   deliveryType: "standard" | "registered";
   estimatedPages: number;
   attachmentCount: number;
-  country: string;
 }): DispatchPricingInput {
   return {
     deliveryType: args.deliveryType,
@@ -36,5 +35,17 @@ export function buildDispatchPricingInput(args: {
 }
 
 export function hashDispatchPricingInput(input: DispatchPricingInput): string {
-  return createHash("sha256").update(JSON.stringify(input)).digest("hex");
+  // Explicit alphabetical key ordering guarantees a stable hash regardless of
+  // how the object was constructed.
+  const stable = {
+    attachmentMode: input.attachmentMode,
+    deliveryType: input.deliveryType,
+    duplex: input.duplex,
+    envelopeSize: input.envelopeSize,
+    numberOfPage: input.numberOfPage,
+    postage: input.postage,
+    shippingCountry: input.shippingCountry,
+    windowLocation: input.windowLocation,
+  };
+  return createHash("sha256").update(JSON.stringify(stable)).digest("hex");
 }
