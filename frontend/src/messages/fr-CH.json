@@ -625,8 +625,8 @@
     "emailNotice": "Un reçu de paiement a été envoyé à votre adresse e-mail",
     "emailNoticeDetail": "Vous recevrez une autre mise à jour si le statut d'envoi évolue.",
     "stickyCtaLabel": "Envoyer une autre lettre",
-    "downloadLetter": "Télécharger la lettre",
-    "downloadUnavailable": "Téléchargement indisponible. Réessayez plus tard."
+    "downloadLetter": "Télécharger le PDF final",
+    "downloadUnavailable": "Le PDF final n'est plus disponible."
   },
   "resume": {
     "loading": "Reprise de votre brouillon…",
@@ -650,8 +650,8 @@
     "recipient": "Destinataire",
     "paymentAmount": "Montant payé",
     "paidAt": "Date de paiement",
-    "downloadLetter": "Télécharger la lettre",
-    "downloadUnavailable": "Téléchargement indisponible. Réessayez plus tard."
+    "downloadLetter": "Télécharger le PDF final",
+    "downloadUnavailable": "Le PDF final n'est plus disponible."
   },
   "files": {
     "addMore": "Ajouter des fichiers",

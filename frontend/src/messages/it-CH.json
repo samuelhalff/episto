@@ -625,8 +625,8 @@
     "emailNotice": "Una ricevuta di pagamento è stata inviata alla tua e-mail",
     "emailNoticeDetail": "Riceverai un altro aggiornamento se lo stato della spedizione cambia.",
     "stickyCtaLabel": "Invia un'altra lettera",
-    "downloadLetter": "Scarica la lettera",
-    "downloadUnavailable": "Download non disponibile. Riprovare più tardi."
+    "downloadLetter": "Scarica il PDF finale",
+    "downloadUnavailable": "Il PDF finale non è più disponibile."
   },
   "resume": {
     "loading": "Ripresa della bozza…",
@@ -650,8 +650,8 @@
     "recipient": "Destinatario",
     "paymentAmount": "Importo pagato",
     "paidAt": "Data di pagamento",
-    "downloadLetter": "Scarica la lettera",
-    "downloadUnavailable": "Download non disponibile. Riprovare più tardi."
+    "downloadLetter": "Scarica il PDF finale",
+    "downloadUnavailable": "Il PDF finale non è più disponibile."
   },
   "files": {
     "addMore": "Aggiungi file",

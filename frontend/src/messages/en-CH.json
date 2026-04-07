@@ -625,8 +625,8 @@
     "emailNotice": "A payment receipt has been sent to your email",
     "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
     "stickyCtaLabel": "Send another letter",
-    "downloadLetter": "Download letter",
-    "downloadUnavailable": "Download unavailable. Try again later."
+    "downloadLetter": "Download final PDF",
+    "downloadUnavailable": "The final PDF is no longer available."
   },
   "resume": {
     "loading": "Resuming your draft…",
@@ -650,8 +650,8 @@
     "recipient": "Recipient",
     "paymentAmount": "Amount paid",
     "paidAt": "Payment date",
-    "downloadLetter": "Download letter",
-    "downloadUnavailable": "Download unavailable. Try again later."
+    "downloadLetter": "Download final PDF",
+    "downloadUnavailable": "The final PDF is no longer available."
   },
   "files": {
     "addMore": "Add files",

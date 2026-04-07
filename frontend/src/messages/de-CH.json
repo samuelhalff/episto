@@ -625,8 +625,8 @@
     "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
     "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
     "stickyCtaLabel": "Weiteren Brief senden",
-    "downloadLetter": "Brief herunterladen",
-    "downloadUnavailable": "Download nicht verfügbar. Bitte versuchen Sie es später erneut."
+    "downloadLetter": "Finales PDF herunterladen",
+    "downloadUnavailable": "Das finale PDF ist nicht mehr verfügbar."
   },
   "resume": {
     "loading": "Entwurf wird geladen…",
@@ -650,8 +650,8 @@
     "recipient": "Empfänger",
     "paymentAmount": "Bezahlter Betrag",
     "paidAt": "Zahlungsdatum",
-    "downloadLetter": "Brief herunterladen",
-    "downloadUnavailable": "Download nicht verfügbar. Bitte versuchen Sie es später erneut."
+    "downloadLetter": "Finales PDF herunterladen",
+    "downloadUnavailable": "Das finale PDF ist nicht mehr verfügbar."
   },
   "files": {
     "addMore": "Dateien hinzufügen",

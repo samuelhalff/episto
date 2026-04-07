@@ -162,3 +162,28 @@ for (const { name, messages } of LOCALES) {
     }
   });
 }
+
+// ---------------------------------------------------------------------------
+// en-CH exact copy values (locked against approved plan)
+// ---------------------------------------------------------------------------
+
+describe("en-CH exact copy values", () => {
+  const confirmation = (enCH as Record<string, Record<string, string>>)["confirmation"];
+  const status = (enCH as Record<string, Record<string, string>>)["status"];
+
+  it("confirmation.downloadLetter matches approved copy", () => {
+    expect(confirmation["downloadLetter"]).toBe("Download final PDF");
+  });
+
+  it("confirmation.downloadUnavailable matches approved copy", () => {
+    expect(confirmation["downloadUnavailable"]).toBe("The final PDF is no longer available.");
+  });
+
+  it("status.downloadLetter matches approved copy", () => {
+    expect(status["downloadLetter"]).toBe("Download final PDF");
+  });
+
+  it("status.downloadUnavailable matches approved copy", () => {
+    expect(status["downloadUnavailable"]).toBe("The final PDF is no longer available.");
+  });
+});
