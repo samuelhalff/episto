@@ -11,6 +11,11 @@ const reviewPageSource = readFileSync(
   "utf8",
 );
 
+const flowActionDockSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/FlowActionDock.tsx"),
+  "utf8",
+);
+
 describe("review page regressions", () => {
   it("keeps the quote hook above the early loading return", () => {
     expect(reviewPageSource.indexOf("const quote = useDispatchQuote")).toBeGreaterThan(
@@ -78,8 +83,12 @@ describe("review page regressions", () => {
   });
 
   it("keeps the review footer fixed on mobile but static on desktop to avoid covering the preview", () => {
-    expect(reviewPageSource).toContain("lg:static");
-    expect(reviewPageSource).toContain("lg:bg-transparent");
+    // Desktop-static behavior lives in FlowActionDock, not in review/page.tsx
+    expect(flowActionDockSource).toContain("lg:static");
+    expect(flowActionDockSource).toContain("lg:bg-transparent");
+    // Review page opts into the shared dock and must not override to desktopSticky
+    expect(reviewPageSource).toContain("<FlowActionDock");
+    expect(reviewPageSource).not.toContain("desktopSticky");
   });
 
   it("uses semantic destructive text instead of route-local red shades for review errors", () => {

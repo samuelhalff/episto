@@ -313,9 +313,19 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
                 allComplete ? t("pricingPending") : t("requiredBeforeSending")
               }
             />
+
+            {quoteErrorMessage ? (
+              <p className="text-sm text-destructive">{quoteErrorMessage}</p>
+            ) : null}
           </aside>
         </div>
       </main>
+
+      {backError ? (
+        <p className="px-4 pb-2 text-center text-sm text-destructive lg:text-right">
+          {backError}
+        </p>
+      ) : null}
 
       <FlowActionDock
         secondaryAction={

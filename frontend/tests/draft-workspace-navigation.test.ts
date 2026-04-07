@@ -25,11 +25,6 @@ const stepIndicatorSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/StepIndicator.tsx"),
   "utf8",
 );
-const stepsSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/steps.ts"),
-  "utf8",
-);
-
 const newDraftPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/new/page.tsx"),
   "utf8",
