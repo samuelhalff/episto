@@ -23,6 +23,8 @@ const REQUIRED_REVIEW_KEYS = [
   "deliveryRegisteredBadge",
   "deliveryRegisteredDescription",
   "requiredBeforeSending",
+  "pricingPending",
+  "pricingLoading",
   "signatureMissingHelp",
   "attachmentsOptionalHelp",
   "edit",
