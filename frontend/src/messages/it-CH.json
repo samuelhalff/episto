@@ -358,6 +358,7 @@
     "bodyCoachmarkAction": "Ho capito",
     "bodyGenerationLoadingTitle": "Stiamo preparando il contenuto",
     "bodyGenerationLoadingDescription": "Stiamo trasformando i dettagli che hai già confermato in una prima versione della lettera. Dovrebbe richiedere solo un momento.",
+    "bodyGenerationLoadingLabel": "Stesura",
     "bodyGenerationErrorTitle": "Non siamo riusciti a preparare il contenuto",
     "bodyGenerationErrorDescription": "Aggiorna questo passaggio per riprovare. Più avanti aggiungeremo qui un pulsante di supporto se il problema continua.",
     "bodyGenerationRefreshAction": "Aggiorna bozza",

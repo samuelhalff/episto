@@ -16,6 +16,7 @@ import { useDictation } from "../../../hooks/use-dictation";
 import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { BodyGenerationDialog } from "./BodyGenerationDialog";
+import { getBodyLoadingState } from "./body-loading-state";
 import { getBodyShortcutDefinitions } from "./body-shortcuts";
 import {
   mergeShortcutIntoComposerValue,
@@ -236,6 +237,7 @@ export function BodyStep({
 
   useEffect(() => {
     if (draft.data?.body?.trim()) {
+      setIsAutoComposing(false);
       setInitialComposeStatus("idle");
       return;
     }
@@ -246,9 +248,13 @@ export function BodyStep({
       if (draft.isFetching || composeFromContext.isPending) {
         return;
       }
-      setIsAutoComposing(false);
-      setInitialComposeStatus("error");
-      return;
+
+      const completionGraceTimeoutId = window.setTimeout(() => {
+        setIsAutoComposing(false);
+        setInitialComposeStatus("error");
+      }, 150);
+
+      return () => window.clearTimeout(completionGraceTimeoutId);
     }
 
     if (composeFromContext.isError || conversation.error) {
@@ -411,14 +417,16 @@ export function BodyStep({
 
   const isAiMode = editMode === "ai";
   const isManualMode = editMode === "manual";
-  const isAiBusy =
-    isAutoComposing ||
-    conversation.isSending ||
-    conversation.isStreaming ||
-    conversation.isAwaitingResponse;
-  const shouldShowBodyGenerationDialog =
-    !canProceed &&
-    (initialComposeStatus === "loading" || initialComposeStatus === "error");
+  const loadingState = getBodyLoadingState({
+    hasBody: canProceed,
+    initialComposeStatus,
+    isSending: conversation.isSending,
+    isStreaming: conversation.isStreaming,
+    isAwaitingResponse: conversation.isAwaitingResponse,
+  });
+  const isAiBusy = loadingState.isAiBusy;
+  const shouldShowBodyGenerationDialog = loadingState.showBodyGenerationDialog;
+  const showRefinementLoadingCard = loadingState.showRefinementLoadingCard;
   // Keep preview in the sticky toolbar so it never widens the dock CTA row.
   const bodyModeToolbarClassName =
     "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7";
@@ -465,8 +473,6 @@ export function BodyStep({
       sheetDescription={t("bodyShortcutSheetHint")}
       closeLabel={tc("close")}
       disabled={isAiBusy}
-      isCompactViewport={isCompactViewport}
-      compactPrimaryCount={2}
       onShortcutSelect={(action) => {
         void handleRefinementShortcut(action.prompt);
       }}
@@ -611,7 +617,7 @@ export function BodyStep({
                 </div>
               </Card>
             )}
-            {isAiBusy && canProceed && !shouldShowBodyGenerationDialog ? (
+            {showRefinementLoadingCard ? (
               <Card isCompactViewport={isCompactViewport} density="thin" className="app-list-item-muted">
                 <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-300">
                   <LoadingDots />
@@ -711,6 +717,7 @@ export function BodyStep({
           status={initialComposeStatus === "error" ? "error" : "loading"}
           loadingTitle={t("bodyGenerationLoadingTitle")}
           loadingDescription={t("bodyGenerationLoadingDescription")}
+          loadingLabel={t("bodyGenerationLoadingLabel")}
           errorTitle={t("bodyGenerationErrorTitle")}
           errorDescription={t("bodyGenerationErrorDescription")}
           refreshLabel={t("bodyGenerationRefreshAction")}

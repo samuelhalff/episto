@@ -358,6 +358,7 @@
     "bodyCoachmarkAction": "Verstanden",
     "bodyGenerationLoadingTitle": "Wir formulieren Ihren Inhalt",
     "bodyGenerationLoadingDescription": "Wir erstellen aus Ihren bereits bestätigten Angaben eine erste Fassung Ihres Briefs. Das sollte nur einen Moment dauern.",
+    "bodyGenerationLoadingLabel": "Formulieren",
     "bodyGenerationErrorTitle": "Der Inhalt konnte nicht erstellt werden",
     "bodyGenerationErrorDescription": "Bitte laden Sie diesen Schritt neu und versuchen Sie es erneut. Eine Support-Option wird hier später ergänzt, falls das Problem bleibt.",
     "bodyGenerationRefreshAction": "Entwurf neu laden",

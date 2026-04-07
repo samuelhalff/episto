@@ -358,6 +358,7 @@
     "bodyCoachmarkAction": "Compris",
     "bodyGenerationLoadingTitle": "Nous rédigeons votre contenu",
     "bodyGenerationLoadingDescription": "Nous transformons les informations déjà confirmées en une première version de votre lettre. Cela ne devrait prendre qu’un instant.",
+    "bodyGenerationLoadingLabel": "Rédaction",
     "bodyGenerationErrorTitle": "Nous n’avons pas pu rédiger le contenu",
     "bodyGenerationErrorDescription": "Veuillez actualiser cette étape pour réessayer. Un bouton de support sera ajouté ici plus tard si le problème persiste.",
     "bodyGenerationRefreshAction": "Actualiser le brouillon",

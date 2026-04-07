@@ -28,6 +28,21 @@ describe("body generation dialog regressions", () => {
     expect(bodyStepSource).not.toContain("conversation.streamingText ? (");
   });
 
+  it("routes body-step loading through the extracted helper instead of ad-hoc inline flags", () => {
+    expect(bodyStepSource).toContain('import { getBodyLoadingState } from "./body-loading-state";');
+    expect(bodyStepSource).toContain("const loadingState = getBodyLoadingState({");
+    expect(bodyStepSource).toContain(
+      "const shouldShowBodyGenerationDialog = loadingState.showBodyGenerationDialog;",
+    );
+  });
+
+  it("loading UI uses one drafting indicator with readable dark-mode contrast and no Loader2 spinner", () => {
+    expect(bodyGenerationDialogSource).not.toContain("<Loader2");
+    expect(bodyGenerationDialogSource).toContain("loadingLabel");
+    expect(bodyGenerationDialogSource).toContain("dark:bg-zinc-100 dark:text-zinc-950");
+    expect(bodyStepSource).toContain('loadingLabel={t("bodyGenerationLoadingLabel")}');
+  });
+
   it("keeps the generation recovery state non-dismissible with refresh first and support disabled", () => {
     expect(bodyGenerationDialogSource).toContain("onEscapeKeyDown={(event) => event.preventDefault()}");
     expect(bodyGenerationDialogSource).toContain("onPointerDownOutside={(event) => event.preventDefault()}");

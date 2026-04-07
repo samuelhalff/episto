@@ -358,6 +358,7 @@
     "bodyCoachmarkAction": "Got it",
     "bodyGenerationLoadingTitle": "We’re drafting your content",
     "bodyGenerationLoadingDescription": "We’re turning the details you already confirmed into a first version of your letter. This should only take a moment.",
+    "bodyGenerationLoadingLabel": "Drafting",
     "bodyGenerationErrorTitle": "We couldn’t draft the content",
     "bodyGenerationErrorDescription": "Please refresh this step to try again. Support will be available here later if the problem persists.",
     "bodyGenerationRefreshAction": "Refresh draft",

@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertTriangle, Loader2, LifeBuoy, RefreshCw, Sparkles } from "lucide-react";
+import { AlertTriangle, LifeBuoy, RefreshCw, Sparkles } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ interface BodyGenerationDialogProps {
   status: "loading" | "error";
   loadingTitle: string;
   loadingDescription: string;
+  loadingLabel: string;
   errorTitle: string;
   errorDescription: string;
   refreshLabel: string;
@@ -26,6 +27,7 @@ export function BodyGenerationDialog({
   status,
   loadingTitle,
   loadingDescription,
+  loadingLabel,
   errorTitle,
   errorDescription,
   refreshLabel,
@@ -46,7 +48,7 @@ export function BodyGenerationDialog({
             <div
               className={`inline-flex h-14 w-14 items-center justify-center rounded-3xl ${
                 isLoading
-                  ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100 dark:bg-amber-400/16 dark:text-amber-200 dark:ring-amber-300/18"
+                  ? "bg-amber-50 text-amber-700 ring-1 ring-amber-100 dark:bg-zinc-100 dark:text-zinc-950 dark:ring-zinc-200"
                   : "bg-red-50 text-red-600 ring-1 ring-red-100 dark:bg-red-500/14 dark:text-red-200 dark:ring-red-400/18"
               }`}
             >
@@ -68,7 +70,7 @@ export function BodyGenerationDialog({
             {isLoading ? (
               <div className="mt-7 w-full rounded-3xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4">
                 <div className="flex items-center justify-center gap-3">
-                  <Loader2 className="h-4 w-4 animate-spin text-amber-600 dark:text-amber-300" />
+                  <span className="text-sm font-medium text-amber-700 dark:text-amber-300">{loadingLabel}</span>
                   <div className="flex items-center gap-1.5" aria-hidden="true">
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300 [animation-delay:-0.2s] dark:bg-amber-300/90" />
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-300 [animation-delay:-0.1s] dark:bg-amber-300/90" />
