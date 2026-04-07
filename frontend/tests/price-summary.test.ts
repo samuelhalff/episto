@@ -11,7 +11,7 @@ const priceSummarySource = readFileSync(
   "utf8",
 );
 const reviewPageSource = readFileSync(
-  path.join(repoRoot, "frontend/src/app/[locale]/draft/[draftId]/review/page.tsx"),
+  path.join(repoRoot, "frontend/src/components/product/review/ReviewPageReady.tsx"),
   "utf8",
 );
 

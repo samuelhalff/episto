@@ -17,6 +17,10 @@ const reviewSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/[draftId]/review/page.tsx"),
   "utf8",
 );
+const reviewReadySource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/review/ReviewPageReady.tsx"),
+  "utf8",
+);
 const checkoutSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx"),
   "utf8",
@@ -32,11 +36,11 @@ const confirmationSource = readFileSync(
 describe("customer flow back wiring", () => {
   it("uses the shared customer-flow helper instead of page-local back routes", () => {
     expect(workspaceSource).toContain('from "../../../lib/customer-flow"');
-    expect(reviewSource).toContain('from "../../../../../lib/customer-flow"');
+    expect(reviewReadySource).toContain('from "../../../lib/customer-flow"');
     expect(checkoutSource).toContain('from "../../../../../lib/customer-flow"');
     expect(confirmationSource).toContain('from "../../../../../lib/customer-flow"');
 
-    expect(reviewSource).toContain('router.push(getCustomerFlowPath(draftId, "logistics"))');
+    expect(reviewReadySource).toContain('router.push(getCustomerFlowPath(draftId, "logistics"))');
     expect(reviewSource).not.toContain("router.push(`/draft/${draftId}`)");
 
     expect(checkoutSource).toContain(

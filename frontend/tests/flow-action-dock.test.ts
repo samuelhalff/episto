@@ -7,7 +7,7 @@ const srcDir = path.resolve(__dirname, "../src");
 describe("FlowActionDock usage", () => {
   it("review page uses FlowActionDock", () => {
     const src = fs.readFileSync(
-      path.join(srcDir, "app/[locale]/draft/[draftId]/review/page.tsx"),
+      path.join(srcDir, "components/product/review/ReviewPageReady.tsx"),
       "utf-8",
     );
     expect(src).toContain("<FlowActionDock");
@@ -67,7 +67,7 @@ describe("FlowActionDock desktopSticky support", () => {
 
   it("review page now opts into desktopSticky so the desktop CTA stays visible", () => {
     const src = fs.readFileSync(
-      path.join(srcDir, "app/[locale]/draft/[draftId]/review/page.tsx"),
+      path.join(srcDir, "components/product/review/ReviewPageReady.tsx"),
       "utf-8",
     );
     expect(src).toContain("desktopSticky");

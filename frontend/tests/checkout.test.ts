@@ -97,6 +97,11 @@ describe("checkout i18n keys", () => {
 });
 
 describe("checkout footer actions", () => {
+  it("keeps checkout blocked on payment creation failures even when pricing is already present", () => {
+    expect(checkoutPageSource).toContain("showCheckoutBlockedState");
+    expect(checkoutPageSource).toContain('t("pricingBlockedEnvironmentBody")');
+  });
+
   it("keeps checkout focused on payment instead of exposing draft step navigation", () => {
     expect(checkoutPageSource).not.toContain("<DraftStepMenu");
   });
