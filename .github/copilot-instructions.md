@@ -90,3 +90,10 @@ Map all errors to canonical families: validation, policy refusal, payment failur
 4. Build frontend state and flows
 5. Add provider integration details
 6. Admin and polish
+
+## Git workflow preference
+
+- Work directly on `main` for this repository unless the user explicitly asks for something else.
+- Do not create git worktrees for Swiss Mail.
+- Do not create feature branches for Swiss Mail.
+- Make regular, descriptive commits while working.

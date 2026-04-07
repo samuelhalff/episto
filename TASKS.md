@@ -3,6 +3,7 @@
 **Status:** Phase 7 — Pre-launch hardening and operational UI complete
 **Upstream:** [Roadmap](docs/01-vision/roadmap.md)
 **Guidelines:** [Copilot Instructions](.github/copilot-instructions.md)
+**Workflow preference:** Work directly on `main` in this repository. Do not create extra worktrees or feature branches unless the user explicitly asks for them. Use regular, descriptive commits while working.
 
 ---
 
