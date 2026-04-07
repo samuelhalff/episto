@@ -332,26 +332,58 @@ describe("public pricing service", () => {
     }
   });
 
-  it("prefers the latest effectiveAt even when another row has a newer verifiedAt", () => {
-    const newerEffectiveAt = createMatrixVersion({
-      id: "11111111-1111-4111-8111-111111111116",
-      effectiveAt: new Date("2026-04-09T06:00:00.000Z"),
-      verifiedAt: new Date("2026-04-07T06:00:00.000Z"),
-      createdAt: new Date("2026-04-07T05:55:00.000Z"),
-    });
-    const newerVerifiedAtOnly = createMatrixVersion({
-      id: "11111111-1111-4111-8111-111111111117",
-      effectiveAt: new Date("2026-04-08T06:00:00.000Z"),
-      verifiedAt: new Date("2026-04-10T06:00:00.000Z"),
-      createdAt: new Date("2026-04-08T05:55:00.000Z"),
-    });
+  it("fails clearly when effectiveAt and verifiedAt point to different active versions", () => {
+    try {
+      selectCanonicalActivePublicPricingVersion([
+        createMatrixVersion({
+          id: "11111111-1111-4111-8111-111111111116",
+          effectiveAt: new Date("2026-04-09T06:00:00.000Z"),
+          verifiedAt: new Date("2026-04-07T06:00:00.000Z"),
+          createdAt: new Date("2026-04-07T05:55:00.000Z"),
+        }),
+        createMatrixVersion({
+          id: "11111111-1111-4111-8111-111111111117",
+          effectiveAt: new Date("2026-04-08T06:00:00.000Z"),
+          verifiedAt: new Date("2026-04-10T06:00:00.000Z"),
+          createdAt: new Date("2026-04-08T05:55:00.000Z"),
+        }),
+      ]);
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+        message:
+          "Public pricing is unavailable because the active provider rate matrix selection is ambiguous.",
+      });
+    }
+  });
 
-    const result = selectCanonicalActivePublicPricingVersion([
-      newerVerifiedAtOnly,
-      newerEffectiveAt,
-    ]);
-
-    expect(result?.id).toBe(newerEffectiveAt.id);
+  it("fails clearly when a row without effectiveAt has the latest verifiedAt", () => {
+    try {
+      selectCanonicalActivePublicPricingVersion([
+        createMatrixVersion({
+          id: "11111111-1111-4111-8111-111111111120",
+          effectiveAt: new Date("2026-04-09T06:00:00.000Z"),
+          verifiedAt: new Date("2026-04-07T06:00:00.000Z"),
+        }),
+        createMatrixVersion({
+          id: "11111111-1111-4111-8111-111111111121",
+          effectiveAt: null,
+          verifiedAt: new Date("2026-04-10T06:00:00.000Z"),
+        }),
+      ]);
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+        message:
+          "Public pricing is unavailable because the active provider rate matrix selection is ambiguous.",
+      });
+    }
   });
 });
 

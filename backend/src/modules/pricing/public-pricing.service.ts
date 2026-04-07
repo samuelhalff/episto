@@ -176,22 +176,29 @@ export function selectCanonicalActivePublicPricingVersion(
     versions,
     (version) => version.effectiveAt,
   );
-  if (latestEffectiveAt.length > 0) {
-    const latestVerifiedWithinEffectiveAt = getLatestTimestampCandidates(
-      latestEffectiveAt,
-      (version) => version.verifiedAt,
-    );
-    return selectSingleCandidateOrThrow(
-      latestVerifiedWithinEffectiveAt.length > 0
-        ? latestVerifiedWithinEffectiveAt
-        : latestEffectiveAt,
-    );
-  }
-
   const latestVerifiedAt = getLatestTimestampCandidates(
     versions,
     (version) => version.verifiedAt,
   );
+
+  if (latestEffectiveAt.length > 0) {
+    if (latestVerifiedAt.length === 0) {
+      return selectSingleCandidateOrThrow(latestEffectiveAt);
+    }
+
+    const latestEffectiveIds = new Set(latestEffectiveAt.map((version) => version.id));
+    const latestVerifiedWithinEffectiveAt = latestVerifiedAt.filter((version) =>
+      latestEffectiveIds.has(version.id),
+    );
+
+    if (latestVerifiedWithinEffectiveAt.length !== latestVerifiedAt.length) {
+      throw pricingUnavailableError(
+        "Public pricing is unavailable because the active provider rate matrix selection is ambiguous.",
+      );
+    }
+
+    return selectSingleCandidateOrThrow(latestVerifiedWithinEffectiveAt);
+  }
 
   if (latestVerifiedAt.length > 0) {
     return selectSingleCandidateOrThrow(latestVerifiedAt);
