@@ -112,6 +112,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
     !quote.isError &&
     !reviewDraft.isPending &&
     !updateDraft.isPending;
+  const isReviewPriceCalculating = canRequestQuote && quote.isLoading;
 
   function handleProceedToPayment() {
     if (!canProceedToPayment) return;
@@ -356,17 +357,15 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               fullWidth
               className="sm:w-auto"
               disabled={!canProceedToPayment}
-              loading={reviewDraft.isPending || updateDraft.isPending}
+              loading={isReviewPriceCalculating || reviewDraft.isPending || updateDraft.isPending}
               trailingIcon={<ChevronRight className="h-4 w-4 shrink-0" />}
-              trailingMeta={
-                quote.data ? (
-                  <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--action-primary-fg)] sm:inline-flex">
-                    {formatCentsAsCHF(quote.data.totalCents)}
-                  </span>
-                ) : null
-              }
+              trailingMeta={!isReviewPriceCalculating && quote.data ? (
+                <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--action-primary-fg)] sm:inline-flex">
+                  {formatCentsAsCHF(quote.data.totalCents)}
+                </span>
+              ) : null}
             >
-              {t("proceedToPayment")}
+              {isReviewPriceCalculating ? t("calculatingPrice") : t("proceedToPayment")}
             </ActionButton>
           </>
         }

@@ -52,6 +52,21 @@ describe("review page regressions", () => {
     expect(reviewPageSource).toContain("quoteErrorMessage");
   });
 
+  it("shows an explicit calculating state on the review CTA while pricing is loading", () => {
+    expect(reviewPageSource).toContain(
+      "const isReviewPriceCalculating = canRequestQuote && quote.isLoading",
+    );
+    expect(reviewPageSource).toContain(
+      "loading={isReviewPriceCalculating || reviewDraft.isPending || updateDraft.isPending}",
+    );
+    expect(reviewPageSource).toContain(
+      '{isReviewPriceCalculating ? t("calculatingPrice") : t("proceedToPayment")}',
+    );
+    expect(reviewPageSource).toContain(
+      "trailingMeta={!isReviewPriceCalculating && quote.data ? (",
+    );
+  });
+
   it("disables the nested preview chrome on the review page", () => {
     expect(reviewPageSource).toContain("showHeader={false}");
   });
