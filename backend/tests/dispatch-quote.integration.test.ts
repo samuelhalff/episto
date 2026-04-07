@@ -411,4 +411,97 @@ describeIfIntegrationDb("dispatch quote integration", () => {
     expect(result.meta.source).toBe("matrix");
     expect(result.quote.totalCents).toBeGreaterThan(0);
   });
+
+  it("resolves a payment quote via the live provider on a cache miss", async () => {
+    const { harness, draftId } = await seedSessionAndDraft({
+      estimatedPages: 2,
+      deliveryType: "registered",
+    });
+    cleanup = harness.cleanup;
+
+    await createSnapshot(harness.db, draftId, {
+      schemaVersion: 1,
+      locale: "en-CH",
+      deliveryType: "registered",
+      subject: "Subject",
+      body: "Body",
+      enclosureNote: null,
+      signatureMode: "typed",
+      tone: "formal",
+      intent: "cancellation",
+      sender: {
+        firstName: "Sam",
+        lastName: "Example",
+        company: null,
+        addressLine1: "Rue Example 1",
+        addressLine2: null,
+        postalCode: "1205",
+        city: "Geneva",
+        country: "CH",
+      },
+      recipient: {
+        firstName: null,
+        lastName: null,
+        company: "Swisscom AG",
+        department: null,
+        addressLine1: "Alte Tiefenaustrasse 6",
+        addressLine2: null,
+        postalCode: "3050",
+        city: "Bern",
+        country: "CH",
+      },
+      attachmentAssetIds: [],
+      signatureAssetId: null,
+      metadata: null,
+    });
+
+    const quotePrice = vi.fn(async (dispatchPackage) => ({
+      draftId: dispatchPackage.draftId,
+      snapshotId: dispatchPackage.snapshotId,
+      deliveryType: dispatchPackage.deliveryType,
+      providerQuotedCents: 578,
+      swissMailMarkupCents: 340,
+      totalCents: 918,
+      currency: "CHF" as const,
+      lineItems: [],
+      providerQuoteReference: "live-preview-pay-123",
+      attachmentHandling: "excluded" as const,
+    }));
+
+    const fakeAdapter: DispatchAdapter = {
+      getCapabilities() {
+        return {
+          providerName: "test-provider",
+          attachmentPolicy: {
+            maxAttachmentsPerDraft: 5,
+            allowedMimeTypes: ["application/pdf"],
+          },
+        };
+      },
+      quotePrice,
+      async submit() {
+        throw new Error("not used in this test");
+      },
+      async checkStatus() {
+        throw new Error("not used in this test");
+      },
+    };
+
+    const { loadEnv } = await import("../src/shared/config/index.js");
+    loadEnv();
+
+    const { setDispatchAdapter } =
+      await import("../src/modules/dispatch/adapters/postal.adapter.js");
+    const { resolvePaymentDispatchQuoteForDraft } =
+      await import("../src/modules/dispatch/dispatch-quote.service.js");
+
+    setDispatchAdapter(fakeAdapter);
+
+    const result = await resolvePaymentDispatchQuoteForDraft(harness.db, draftId);
+
+    expect(result.meta.source).toBe("live");
+    expect(result.quote.totalCents).toBe(918);
+    expect(result.quote.providerQuoteReference).toBe("live-preview-pay-123");
+    expect(quotePrice).toHaveBeenCalledOnce();
+  });
 });

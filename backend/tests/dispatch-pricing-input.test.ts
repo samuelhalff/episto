@@ -19,7 +19,6 @@ describe("dispatch pricing input", () => {
       deliveryType: "registered",
       estimatedPages: 3,
       attachmentCount: 1,
-      country: "CH",
     });
 
     expect(input).toMatchObject({

@@ -45,7 +45,6 @@ interface PricingSource {
 async function buildPricingSourceForDraft(
   db: Db,
   draftId: string,
-  _options: { requireSnapshot: boolean },
 ): Promise<PricingSource> {
   const inputs = await getDraftPricingInputs(db, draftId);
   const snapshot = await getLatestSnapshot(db, draftId);
@@ -56,7 +55,6 @@ async function buildPricingSourceForDraft(
     deliveryType: inputs.deliveryType,
     estimatedPages: inputs.estimatedPages,
     attachmentCount: inputs.attachmentCount,
-    country: "CH",
   });
 
   return {
@@ -68,7 +66,7 @@ async function buildPricingSourceForDraft(
   };
 }
 
-export interface ResolvedDisplayQuote {
+export interface ResolvedDispatchQuote {
   quote: {
     draftId: string;
     snapshotId: string | null;
@@ -92,7 +90,7 @@ async function resolveDispatchQuoteFromCacheOrMatrix(
   db: Db,
   source: PricingSource,
   _options: { purpose: "display" },
-): Promise<ResolvedDisplayQuote> {
+): Promise<ResolvedDispatchQuote> {
   const matrixRow = await getActiveMatrixQuote(db, source.pricingInput);
 
   if (!matrixRow) {
@@ -164,17 +162,15 @@ async function resolveDispatchQuoteFromCacheOrMatrix(
 export async function resolveDisplayDispatchQuoteForDraft(
   db: Db,
   draftId: string,
-): Promise<ResolvedDisplayQuote> {
-  const source = await buildPricingSourceForDraft(db, draftId, {
-    requireSnapshot: false,
-  });
+): Promise<ResolvedDispatchQuote> {
+  const source = await buildPricingSourceForDraft(db, draftId);
   return resolveDispatchQuoteFromCacheOrMatrix(db, source, { purpose: "display" });
 }
 
 async function resolveDispatchQuoteFromCacheOrLiveProvider(
   db: Db,
   source: PricingSource,
-): Promise<ResolvedDisplayQuote> {
+): Promise<ResolvedDispatchQuote> {
   const cached = await getFreshLiveQuoteByHash(db, source.pricingInputHash);
   if (cached) {
     return {
@@ -265,9 +261,7 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
 export async function resolvePaymentDispatchQuoteForDraft(
   db: Db,
   draftId: string,
-): Promise<ResolvedDisplayQuote> {
-  const source = await buildPricingSourceForDraft(db, draftId, {
-    requireSnapshot: false,
-  });
+): Promise<ResolvedDispatchQuote> {
+  const source = await buildPricingSourceForDraft(db, draftId);
   return resolveDispatchQuoteFromCacheOrLiveProvider(db, source);
 }
