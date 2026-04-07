@@ -19,7 +19,10 @@ import {
 import { recordEvent } from "../analytics/index.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
 import { enqueueDispatchSubmission } from "../dispatch/dispatch.jobs.js";
-import { getDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
+import {
+  resolveDisplayDispatchQuoteForDraft,
+  resolvePaymentDispatchQuoteForDraft,
+} from "../dispatch/dispatch-quote.service.js";
 
 // ---------------------------------------------------------------------------
 // Input schemas
@@ -219,8 +222,11 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      const quote = await getDispatchQuoteForDraft(db, draftId);
-      reply.send({ quote });
+      const resolvedDisplayQuote = await resolveDisplayDispatchQuoteForDraft(db, draftId);
+      reply.send({
+        quote: resolvedDisplayQuote.quote,
+        meta: resolvedDisplayQuote.meta,
+      });
     },
   );
 
@@ -261,8 +267,8 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      const quote = await getDispatchQuoteForDraft(db, draftId);
-      const amountCents = quote.totalCents;
+      const resolvedPaymentQuote = await resolvePaymentDispatchQuoteForDraft(db, draftId);
+      const amountCents = resolvedPaymentQuote.quote.totalCents;
 
       // Use a transaction to prevent concurrent checkout race conditions.
       // Re-check for existing non-terminal payment inside the transaction.
@@ -286,13 +292,13 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           sessionId: session.id,
           amountCents,
           breakdown: {
-            deliveryType: quote.deliveryType,
-            providerQuotedCents: quote.providerQuotedCents,
-            swissMailMarkupCents: quote.swissMailMarkupCents,
-            totalCents: quote.totalCents,
-            providerQuoteReference: quote.providerQuoteReference,
-            attachmentHandling: quote.attachmentHandling,
-            lineItems: quote.lineItems,
+            deliveryType: resolvedPaymentQuote.quote.deliveryType,
+            providerQuotedCents: resolvedPaymentQuote.quote.providerQuotedCents,
+            swissMailMarkupCents: resolvedPaymentQuote.quote.swissMailMarkupCents,
+            totalCents: resolvedPaymentQuote.quote.totalCents,
+            providerQuoteReference: resolvedPaymentQuote.quote.providerQuoteReference,
+            attachmentHandling: resolvedPaymentQuote.quote.attachmentHandling,
+            lineItems: resolvedPaymentQuote.quote.lineItems,
           },
         });
 
@@ -311,7 +317,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           stripePaymentIntentId: stripeResult.paymentIntentId,
           clientSecret: stripeResult.clientSecret,
           priceCents: amountCents,
-          quote,
+          quote: resolvedPaymentQuote.quote,
         };
       });
 

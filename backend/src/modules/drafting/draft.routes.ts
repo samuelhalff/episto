@@ -12,7 +12,7 @@ import {
 import { createSenderProfile, createRecipientProfile } from "./profile.service.js";
 import { createSnapshot } from "../rendering/snapshot.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
-import { calculatePrice } from "../pricing/index.js";
+import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
 import { getPaymentForDraft, transitionPaymentState } from "../payments/payment.service.js";
 import { cancelPaymentIntent } from "../payments/adapters/stripe.adapter.js";
 import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
@@ -362,9 +362,8 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         .map((f) => f.id);
       const signatureFile = files.find((f) => f.kind === "signature");
 
-      // Calculate locked price
-      const deliveryType = draft.deliveryType as "standard" | "registered";
-      const price = calculatePrice(deliveryType);
+      // Fetch resolved display quote
+      const resolvedDisplayQuoteForReview = await resolveDisplayDispatchQuoteForDraft(db, draftId);
 
       // Build snapshot data
       const snapshotData = {
@@ -447,7 +446,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           recipient: snapshotData.recipient,
           attachmentFileIds,
           signatureFileId: signatureFile?.id ?? null,
-          priceCents: price.totalCents,
+          priceCents: resolvedDisplayQuoteForReview.quote.totalCents,
           createdAt: snapshot.createdAt.toISOString(),
         },
       });
@@ -542,11 +541,11 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           null;
       }
 
-      // Calculate price if delivery type is known
+      // Resolve display price through shared quote resolver
       const deliveryType = (snapshotData?.deliveryType ?? draft.deliveryType) as
         | "standard"
         | "registered";
-      const price = calculatePrice(deliveryType);
+      const resolvedDisplayQuote = await resolveDisplayDispatchQuoteForDraft(db, draftId);
 
       reply.send({
         preview: {
@@ -562,7 +561,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           signatureMode: snapshotData?.signatureMode ?? draft.signatureMode,
           signatureFileId,
           attachmentCount,
-          priceCents: price.totalCents,
+          priceCents: resolvedDisplayQuote.quote.totalCents,
           updatedAt: snapshotData
             ? latestSnapshot!.createdAt.toISOString()
             : draft.updatedAt.toISOString(),

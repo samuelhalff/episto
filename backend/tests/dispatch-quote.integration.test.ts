@@ -1,7 +1,23 @@
+import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { eq } from "drizzle-orm";
 import { afterEach, describe, expect, it, vi } from "vitest";
+
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const draftRoutesSource = readFileSync(
+  path.join(repoRoot, "backend/src/modules/drafting/draft.routes.ts"),
+  "utf8",
+);
+
+describe("draft preview routing", () => {
+  it("returns preview price from the shared quote resolver instead of calculatePrice", () => {
+    expect(draftRoutesSource).toContain("resolveDisplayDispatchQuoteForDraft");
+    expect(draftRoutesSource).not.toContain("calculatePrice");
+  });
+});
 
 import { schema } from "../src/db/index.js";
 import type { DispatchAdapter } from "../src/modules/dispatch/adapters/postal.adapter.js";
