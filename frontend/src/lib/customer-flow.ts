@@ -27,7 +27,11 @@ export function getPreviousCustomerFlowStep(
     return null;
   }
 
-  return CUSTOMER_FLOW_STEPS[index - 1] as CustomerFlowStep;
+  const previousStep = CUSTOMER_FLOW_STEPS[index - 1];
+  if (previousStep === undefined) {
+    return null;
+  }
+  return previousStep;
 }
 
 export function getNextCustomerFlowStep(
@@ -38,7 +42,11 @@ export function getNextCustomerFlowStep(
     return null;
   }
 
-  return CUSTOMER_FLOW_STEPS[index + 1] as CustomerFlowStep;
+  const nextStep = CUSTOMER_FLOW_STEPS[index + 1];
+  if (nextStep === undefined) {
+    return null;
+  }
+  return nextStep;
 }
 
 export function getCustomerFlowPath(
