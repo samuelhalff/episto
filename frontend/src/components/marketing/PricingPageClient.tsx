@@ -11,7 +11,7 @@ import {
   ShieldQuestion,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { usePricing, formatCentsAsCHF } from "../../hooks/use-pricing";
+import { usePricing } from "../../hooks/use-pricing";
 import { FinalCTABand } from "./FinalCTABand";
 import { PricingFromText } from "./PricingFromText";
 import {
@@ -27,6 +27,7 @@ export function PricingHeroPanel() {
   const t = useTranslations("pricing");
   const pricing = usePricing();
   const provider = pricing.data?.providerBreakdown ?? null;
+  const standardReferenceExample = provider?.pageCountExamples.standard[0] ?? null;
 
   return (
     <div>
@@ -84,9 +85,9 @@ export function PricingHeroPanel() {
       {provider ? (
         <p className="mt-6 text-xs leading-6 text-zinc-500 dark:text-zinc-400">
           {t("referenceScenarioInline", {
-            printedPages: provider.referenceScenario.printedPages,
-            physicalSheets: provider.referenceScenario.physicalSheets,
-            envelopeFormat: provider.referenceScenario.envelopeFormat,
+            printedPages: standardReferenceExample?.pageCount ?? 1,
+            physicalSheets: standardReferenceExample?.pageCount ?? 1,
+            envelopeFormat: provider.referenceScenario.envelopeSize,
           })}
         </p>
       ) : null}
@@ -100,6 +101,12 @@ export function PricingBreakdownSection() {
   const standard = pricing.data?.standard ?? null;
   const registered = pricing.data?.registered ?? null;
   const provider = pricing.data?.providerBreakdown ?? null;
+  const standardExamples = provider?.pageCountExamples.standard ?? [];
+  const registeredExamples = provider?.pageCountExamples.registered ?? [];
+  const firstStandardExample = standardExamples[0] ?? null;
+  const firstRegisteredExample = registeredExamples[0] ?? null;
+  const lastStandardExample = standardExamples[standardExamples.length - 1] ?? null;
+  const lastRegisteredExample = registeredExamples[registeredExamples.length - 1] ?? null;
 
   const currentStandardPostage = provider
     ? getPostageLabel(t, provider.referenceScenario.standardPostage)
@@ -110,34 +117,20 @@ export function PricingBreakdownSection() {
 
   const providerRows = [
     {
-      label: t("providerPrintedPageLabel"),
-      value: provider ? formatCentsAsCHF(provider.perPrintedPageCents) : undefined,
+      label: t("providerStandardQuoteLabel"),
+      value: firstStandardExample?.providerQuotedDisplayPrice,
     },
     {
-      label: t("providerPhysicalSheetLabel"),
-      value: provider ? formatCentsAsCHF(provider.perA4SheetCents) : undefined,
+      label: t("providerRegisteredQuoteLabel"),
+      value: firstRegisteredExample?.providerQuotedDisplayPrice,
     },
     {
-      label: t("providerEnvelopeC5Label"),
-      value: provider ? formatCentsAsCHF(provider.envelopeC5Cents) : undefined,
+      label: t("standardTotalLabel"),
+      value: firstStandardExample?.displayPrice,
     },
     {
-      label: t("providerStandardPostageLabel", { postage: currentStandardPostage }),
-      value: provider
-        ? formatCentsAsCHF(
-            provider.postageCents[provider.referenceScenario.standardPostage],
-          )
-        : undefined,
-    },
-    {
-      label: t("providerRegisteredPostageLabel", {
-        postage: currentRegisteredPostage,
-      }),
-      value: provider
-        ? formatCentsAsCHF(
-            provider.postageCents[provider.referenceScenario.registeredPostage],
-          )
-        : undefined,
+      label: t("registeredTotalLabel"),
+      value: firstRegisteredExample?.displayPrice,
     },
   ];
 
@@ -297,73 +290,57 @@ export function PricingBreakdownSection() {
               <h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em] text-zinc-950 dark:text-zinc-50">
                 {t("referenceCardTitle")}
               </h3>
-              <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
-                {provider
-                  ? t("referenceCardBody", {
-                      printedPages: provider.referenceScenario.printedPages,
-                      physicalSheets: provider.referenceScenario.physicalSheets,
-                      envelopeFormat: provider.referenceScenario.envelopeFormat,
+                <p className="mt-3 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                  {provider
+                    ? t("referenceCardBody", {
+                      printedPages: firstStandardExample?.pageCount ?? 1,
+                      physicalSheets: firstStandardExample?.pageCount ?? 1,
+                      envelopeFormat: provider.referenceScenario.envelopeSize,
                       standardPostage: currentStandardPostage,
                       registeredPostage: currentRegisteredPostage,
                     })
                   : t("referenceCardFallback")}
-              </p>
-              <div className="mt-6 space-y-3">
-                <PricingRow
-                  label={t("providerFirstSheetSimplexLabel")}
-                  price={
-                    <PriceAmount
-                      loading={pricing.isLoading}
-                      value={
-                        provider
-                          ? formatCentsAsCHF(provider.firstSheetC5Cents.simplexCents)
-                          : undefined
-                      }
-                      fallback={t("priceUnavailable")}
-                    />
-                  }
-                />
-                <PricingRow
-                  label={t("providerFirstSheetDuplexLabel")}
-                  price={
-                    <PriceAmount
-                      loading={pricing.isLoading}
-                      value={
-                        provider
-                          ? formatCentsAsCHF(provider.firstSheetC5Cents.duplexCents)
-                          : undefined
-                      }
-                      fallback={t("priceUnavailable")}
-                    />
-                  }
-                />
-                <PricingRow
-                  label={t("providerExtraSheetSimplexLabel")}
-                  price={
-                    <PriceAmount
-                      loading={pricing.isLoading}
-                      value={
-                        provider
-                          ? formatCentsAsCHF(provider.additionalA4SheetCents.simplexCents)
-                          : undefined
-                      }
-                      fallback={t("priceUnavailable")}
-                    />
-                  }
-                />
-                <PricingRow
-                  label={t("providerExtraSheetDuplexLabel")}
-                  price={
-                    <PriceAmount
-                      loading={pricing.isLoading}
-                      value={
-                        provider
-                          ? formatCentsAsCHF(provider.additionalA4SheetCents.duplexCents)
-                          : undefined
-                      }
-                      fallback={t("priceUnavailable")}
-                    />
-                  }
+                </p>
+                <div className="mt-6 space-y-3">
+                  <PricingRow
+                    label={`${t("standardTotalLabel")} (${firstStandardExample?.pageCount ?? 1})`}
+                    price={
+                      <PriceAmount
+                        loading={pricing.isLoading}
+                        value={firstStandardExample?.displayPrice}
+                        fallback={t("priceUnavailable")}
+                      />
+                    }
+                  />
+                  <PricingRow
+                    label={`${t("registeredTotalLabel")} (${firstRegisteredExample?.pageCount ?? 1})`}
+                    price={
+                      <PriceAmount
+                        loading={pricing.isLoading}
+                        value={firstRegisteredExample?.displayPrice}
+                        fallback={t("priceUnavailable")}
+                      />
+                    }
+                  />
+                  <PricingRow
+                    label={`${t("standardTotalLabel")} (${lastStandardExample?.pageCount ?? 1})`}
+                    price={
+                      <PriceAmount
+                        loading={pricing.isLoading}
+                        value={lastStandardExample?.displayPrice}
+                        fallback={t("priceUnavailable")}
+                      />
+                    }
+                  />
+                  <PricingRow
+                    label={`${t("registeredTotalLabel")} (${lastRegisteredExample?.pageCount ?? 1})`}
+                    price={
+                      <PriceAmount
+                        loading={pricing.isLoading}
+                        value={lastRegisteredExample?.displayPrice}
+                        fallback={t("priceUnavailable")}
+                      />
+                    }
                 />
               </div>
               {provider ? (

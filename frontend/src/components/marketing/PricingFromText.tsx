@@ -14,18 +14,19 @@ export function PricingFromText({
   const pricing = usePricing();
   const standard = pricing.data?.standard ?? null;
   const provider = pricing.data?.providerBreakdown ?? null;
+  const standardReferenceExample = provider?.pageCountExamples.standard[0] ?? null;
 
   const title = standard
     ? t("pricingFrom", { price: standard.displayPrice })
     : t("pricingFromFallback");
 
   const note =
-    standard && provider && standard.swissMailMarkupCents > 0
+    standard && provider && standardReferenceExample && standard.swissMailMarkupCents > 0
       ? t("pricingNotes", {
           service: standard.swissMailMarkupDisplayPrice,
-          printedPages: provider.referenceScenario.printedPages,
-          physicalSheets: provider.referenceScenario.physicalSheets,
-          envelopeFormat: provider.referenceScenario.envelopeFormat,
+          printedPages: standardReferenceExample.pageCount,
+          physicalSheets: standardReferenceExample.pageCount,
+          envelopeFormat: provider.referenceScenario.envelopeSize,
         })
       : t("pricingNotesFallback");
 
