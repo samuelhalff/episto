@@ -40,10 +40,6 @@ import type {
   DraftWorkspaceStepShellProps,
 } from "./step-props";
 import { LoadingDots } from "../../ui/loading-dots";
-import type {
-  DraftWorkspacePreviewToggleProps,
-  DraftWorkspaceStepShellProps,
-} from "./step-props";
 
 // ---------------------------------------------------------------------------
 // Types

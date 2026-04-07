@@ -31,10 +31,6 @@ import {
   isDraftWorkspaceStepLocked,
   resolveDraftWorkspaceStepSlug,
 } from "./steps";
-import type {
-  DraftWorkspacePreviewToggleProps,
-  DraftWorkspaceStepShellProps,
-} from "./step-props";
 import { usePathname, useRouter } from "../../../i18n/navigation";
 import { ApiError } from "../../../lib/api";
 import {
