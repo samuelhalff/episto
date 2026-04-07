@@ -18,6 +18,9 @@ import {
   dispatchAttempts,
   dispatchStatusEvents,
   supportEvents,
+  providerRateMatrixVersions,
+  providerRateMatrixEntries,
+  draftQuoteCache,
 } from "./schema.js";
 
 // ---------------------------------------------------------------------------
@@ -38,6 +41,9 @@ export const insertDispatchAttemptSchema = createInsertSchema(dispatchAttempts);
 export const insertDispatchStatusEventSchema =
   createInsertSchema(dispatchStatusEvents);
 export const insertSupportEventSchema = createInsertSchema(supportEvents);
+export const insertProviderRateMatrixVersionSchema = createInsertSchema(providerRateMatrixVersions);
+export const insertProviderRateMatrixEntrySchema = createInsertSchema(providerRateMatrixEntries);
+export const insertDraftQuoteCacheSchema = createInsertSchema(draftQuoteCache);
 
 // ---------------------------------------------------------------------------
 // Select schemas — validate data read from DB
@@ -57,6 +63,9 @@ export const selectDispatchAttemptSchema = createSelectSchema(dispatchAttempts);
 export const selectDispatchStatusEventSchema =
   createSelectSchema(dispatchStatusEvents);
 export const selectSupportEventSchema = createSelectSchema(supportEvents);
+export const selectProviderRateMatrixVersionSchema = createSelectSchema(providerRateMatrixVersions);
+export const selectProviderRateMatrixEntrySchema = createSelectSchema(providerRateMatrixEntries);
+export const selectDraftQuoteCacheSchema = createSelectSchema(draftQuoteCache);
 
 // ---------------------------------------------------------------------------
 // Type helpers — infer types from insert/select schemas
@@ -84,3 +93,9 @@ export type InsertDispatchAttempt = z.infer<typeof insertDispatchAttemptSchema>;
 export type SelectDispatchAttempt = z.infer<
   typeof selectDispatchAttemptSchema
 >;
+export type InsertProviderRateMatrixVersion = z.infer<typeof insertProviderRateMatrixVersionSchema>;
+export type SelectProviderRateMatrixVersion = z.infer<typeof selectProviderRateMatrixVersionSchema>;
+export type InsertProviderRateMatrixEntry = z.infer<typeof insertProviderRateMatrixEntrySchema>;
+export type SelectProviderRateMatrixEntry = z.infer<typeof selectProviderRateMatrixEntrySchema>;
+export type InsertDraftQuoteCache = z.infer<typeof insertDraftQuoteCacheSchema>;
+export type SelectDraftQuoteCache = z.infer<typeof selectDraftQuoteCacheSchema>;

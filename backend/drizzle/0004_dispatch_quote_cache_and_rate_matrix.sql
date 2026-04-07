@@ -14,9 +14,6 @@ CREATE TABLE provider_rate_matrix_versions (
   updated_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX provider_rate_matrix_versions_status_idx
-  ON provider_rate_matrix_versions (status, created_at);
-
 CREATE TABLE provider_rate_matrix_entries (
   id uuid PRIMARY KEY DEFAULT uuid_generate_v7(),
   version_id uuid NOT NULL REFERENCES provider_rate_matrix_versions(id),

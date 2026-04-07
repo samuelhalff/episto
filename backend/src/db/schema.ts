@@ -485,9 +485,6 @@ export const providerRateMatrixVersions = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
-  (t) => ({
-    statusIdx: index("provider_rate_matrix_versions_status_idx").on(t.status, t.createdAt),
-  }),
 );
 
 // ---------------------------------------------------------------------------
