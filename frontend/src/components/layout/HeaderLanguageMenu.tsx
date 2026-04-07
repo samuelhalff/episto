@@ -124,13 +124,13 @@ export function HeaderLanguageMenu() {
           aria-haspopup="listbox"
           aria-expanded={open}
           className={getAppButtonClassName({
-            variant: "secondary",
+            variant: "ghost",
             size: "md",
-            className: "min-h-11 gap-2 rounded-full px-4 py-0",
+            className: "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
           })}
         >
           <Globe className="h-4 w-4" />
-          <span className="text-sm font-semibold">{activeLabel}</span>
+          <span className="text-sm font-medium">{activeLabel}</span>
           <ChevronDown className={`h-4 w-4 transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
       </PopoverTrigger>

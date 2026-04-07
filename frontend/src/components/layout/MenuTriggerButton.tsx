@@ -39,7 +39,7 @@ function MenuTriggerIcon({ isOpen }: { isOpen: boolean }) {
 
 export const MenuTriggerButton = forwardRef<HTMLButtonElement, MenuTriggerButtonProps>(
   ({ isOpen = false, compact = false, label, className = "", type = "button", ...props }, ref) => {
-    const sizeClassName = compact ? "h-11 w-11 rounded-full" : "h-12 rounded-2xl px-4 py-0";
+    const sizeClassName = compact ? "h-11 w-11 rounded-2xl p-0" : "min-h-11 rounded-2xl px-4 py-0";
 
     return (
       <button
@@ -49,7 +49,7 @@ export const MenuTriggerButton = forwardRef<HTMLButtonElement, MenuTriggerButton
         className={getAppButtonClassName({
           variant: "secondary",
           size: compact ? "icon" : "md",
-          className: ["menu-trigger-button shrink-0 gap-3", sizeClassName, className]
+          className: ["menu-trigger-button app-toolbar-button shrink-0 gap-3 shadow-none", sizeClassName, className]
             .filter(Boolean)
             .join(" "),
         })}

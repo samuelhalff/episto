@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
 import { StepIndicator } from "./StepIndicator";
@@ -11,6 +12,7 @@ interface FlowHeaderProps {
   draftId: string;
   title: string;
   statusLabel?: string;
+  headerAction?: ReactNode;
 }
 
 export function FlowHeader({
@@ -18,6 +20,7 @@ export function FlowHeader({
   draftId,
   title: _title,
   statusLabel,
+  headerAction,
 }: FlowHeaderProps) {
   const t = useTranslations("marketing");
   const tc = useTranslations("common");
@@ -62,7 +65,8 @@ export function FlowHeader({
               <StepIndicator currentStep={currentStep} draftId={draftId} />
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+              {headerAction}
               <HeaderLanguageMenu />
               <CustomerSiteMenu title={tc("appName")} description={t("nav.writeLetter")} />
               {statusLabel ? (

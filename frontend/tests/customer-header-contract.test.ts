@@ -41,7 +41,9 @@ describe("customer header contract", () => {
     expect(flowHeaderSource).not.toContain("CompactLanguageSwitcher");
     expect(flowHeaderSource).toContain('<div className="sm:hidden">');
     expect(flowHeaderSource).toContain('<div className="mt-3 min-w-0">');
-    expect(workspaceMenuSource).toContain('from "../../layout/CustomerSiteMenu"');
+    expect(workspaceMenuSource).toContain('from "../../layout/MenuTriggerButton"');
+    expect(workspaceMenuSource).toContain("SheetClose asChild");
+    expect(workspaceMenuSource).toContain("fixed right-6");
     expect(draftShellSource).toContain("<HeaderLanguageMenu");
     expect(entryPageSource).toContain("<HeaderLanguageMenu");
     expect(entryPageSource.match(/<CustomerSiteMenu/g)?.length).toBe(2);

@@ -40,13 +40,13 @@ describe("FlowActionDock desktopSticky support", () => {
     expect(src).toContain("desktopSticky");
   });
 
-  it("FlowActionDock desktop sticky mode includes a bottom offset so dock is not flush to viewport edge", () => {
+  it("FlowActionDock desktop sticky mode stays flush to the viewport edge", () => {
     const src = fs.readFileSync(
       path.join(srcDir, "components/product/FlowActionDock.tsx"),
       "utf-8",
     );
-    // Must have a lg:bottom-N class (e.g. lg:bottom-6) for the sticky offset
-    expect(src).toMatch(/lg:bottom-\d/);
+    expect(src).toContain("lg:bottom-0");
+    expect(src).not.toContain("lg:bottom-6");
   });
 
   it("checkout page passes desktopSticky to FlowActionDock", () => {

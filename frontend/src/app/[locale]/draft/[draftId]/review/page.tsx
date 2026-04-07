@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   useDraft,
@@ -17,9 +17,10 @@ import { FlowActionDock } from "../../../../../components/product/FlowActionDock
 import { LetterPreview } from "../../../../../components/product/LetterPreview";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
 import { ActionButton } from "../../../../../components/product/ActionButton";
-import { DeliveryTypeBadge } from "../../../../../components/product/DeliveryTypeBadge";
 import { DraftStepMenu } from "../../../../../components/product/DraftStepMenu";
 import { StatusBadge } from "../../../../../components/ui/status-badge";
+import { ReviewSummaryCard, type ReviewSummaryItem } from "../../../../../components/product/review/ReviewSummaryCard";
+import { useReviewPrimaryActionState } from "../../../../../components/product/review/review-action-state";
 import { useDispatchQuote } from "../../../../../hooks/use-dispatch-quote";
 import { formatCentsAsCHF } from "../../../../../hooks/use-pricing";
 import { captureError } from "../../../../../lib/error-tracking";
@@ -104,18 +105,92 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
     "submitted",
     "dispatched",
   ].includes(d.status);
-  const canProceedToPayment =
-    allComplete &&
-    canRequestQuote &&
-    Boolean(quote.data) &&
-    !quote.isLoading &&
-    !quote.isError &&
-    !reviewDraft.isPending &&
-    !updateDraft.isPending;
-  const isReviewPriceCalculating = canRequestQuote && quote.isLoading;
+  const isSubmittingReview = reviewDraft.isPending || updateDraft.isPending;
+  const reviewActionState = useReviewPrimaryActionState({
+    allComplete,
+    alreadyPrepared,
+    hasQuote: Boolean(quote.data),
+    hasQuoteError: quote.isError,
+    isQuoteLoading: quote.isLoading,
+    isSubmitting: isSubmittingReview,
+  });
+  const reviewSummaryItems = useMemo<ReviewSummaryItem[]>(
+    () => [
+      {
+        label: t("senderDetails"),
+        value: senderLines,
+        emptyLabel: preview.isLoading ? tc("loading") : t("requiredBeforeSending"),
+      },
+      {
+        label: t("recipientDetails"),
+        value: recipientLines,
+        emptyLabel: preview.isLoading ? tc("loading") : t("requiredBeforeSending"),
+      },
+      {
+        label: t("signature"),
+        value: hasSignature
+          ? signatureMode === "image"
+            ? t("uploadedSignature")
+            : t("typedSignature")
+          : t("noSignature"),
+        helperText: !hasSignature ? t("signatureMissingHelp") : undefined,
+      },
+      {
+        label: t("attachments"),
+        value: hasAttachments
+          ? t("attachmentCount", { count: attachmentCount })
+          : t("noAttachments"),
+        helperText: !hasAttachments ? t("attachmentsOptionalHelp") : undefined,
+      },
+    ],
+    [
+      attachmentCount,
+      hasAttachments,
+      hasSignature,
+      preview.isLoading,
+      recipientLines,
+      senderLines,
+      signatureMode,
+      t,
+      tc,
+    ],
+  );
+  const previewDraft = useMemo(
+    () => ({
+      ...d,
+      locale: previewLocale,
+      deliveryType: displayDeliveryType,
+      subject: displaySubject,
+      body: displayBody,
+      enclosureNote: displayEnclosureNote,
+      signatureMode,
+      signatureAssetId: signatureFileId,
+    }),
+    [
+      d,
+      displayBody,
+      displayDeliveryType,
+      displayEnclosureNote,
+      displaySubject,
+      previewLocale,
+      signatureFileId,
+      signatureMode,
+    ],
+  );
+  const desktopStepAction = useMemo(
+    () =>
+      !alreadyPrepared ? (
+        <DraftStepMenu
+          draftId={draftId}
+          draft={d}
+          triggerStyle="toolbar"
+        />
+      ) : null,
+    [alreadyPrepared, d, draftId],
+  );
 
-  function handleProceedToPayment() {
-    if (!canProceedToPayment) return;
+  const handleProceedToPayment = useCallback(() => {
+    if (!reviewActionState.canProceed) return;
 
     if (alreadyPrepared) {
       router.push(`/draft/${draftId}/checkout`);
@@ -156,9 +231,20 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
           route: `/draft/${draftId}/review`,
         });
       });
-  }
+  }, [
+    alreadyPrepared,
+    d,
+    draftId,
+    normalizedDraftSubject,
+    reviewActionState.canProceed,
+    reviewDraft,
+    router,
+    signatureFileId,
+    signatureMode,
+    updateDraft,
+  ]);
 
-  function handleBackToDraft() {
+  const handleBackToDraft = useCallback(() => {
     if (transitionDraft.isPending) return;
     setBackError(null);
 
@@ -174,11 +260,16 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
           route: `/draft/${draftId}/review`,
         });
       });
-  }
+  }, [draftId, router, tc, transitionDraft]);
 
   return (
     <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
-      <FlowHeader currentStep={1} draftId={draftId} title={t("title")} />
+      <FlowHeader
+        currentStep={1}
+        draftId={draftId}
+        title={t("title")}
+        headerAction={desktopStepAction}
+      />
 
       <main
         id="main-content"
@@ -212,16 +303,7 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
               </div>
 
               <LetterPreview
-                draft={{
-                  ...d,
-                  locale: previewLocale,
-                  deliveryType: displayDeliveryType,
-                  subject: displaySubject,
-                  body: displayBody,
-                  enclosureNote: displayEnclosureNote,
-                  signatureMode,
-                  signatureAssetId: signatureFileId,
-                }}
+                draft={previewDraft}
                 senderProfile={previewData?.sender}
                 recipientProfile={previewData?.recipient}
                 signatureMode={hasSignature ? signatureMode : null}
@@ -232,78 +314,13 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-28">
-            <div className="app-panel rounded-3xl p-6">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                    {t("summaryTitle")}
-                  </h2>
-                  <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                    {t("reviewReadOnly")}
-                  </p>
-                </div>
-                <StatusBadge tone={allComplete ? "success" : "warning"}>
-                  {allComplete ? t("readyToSend") : t("needsAttention")}
-                </StatusBadge>
-              </div>
-
-              <div className="mt-6 space-y-4">
-                <SummaryBlock
-                  label={t("senderDetails")}
-                  value={senderLines}
-                  emptyLabel={
-                    preview.isLoading ? tc("loading") : t("requiredBeforeSending")
-                  }
-                />
-                <SummaryBlock
-                  label={t("recipientDetails")}
-                  value={recipientLines}
-                  emptyLabel={
-                    preview.isLoading ? tc("loading") : t("requiredBeforeSending")
-                  }
-                />
-                <SummaryBlock
-                  label={t("subjectLine")}
-                  value={displaySubject ?? ""}
-                  emptyLabel={t("requiredBeforeSending")}
-                />
-                <div className="app-list-item-muted rounded-2xl p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-500">
-                    {t("deliveryTypeLabel")}
-                  </p>
-                  <div className="mt-2">
-                    <DeliveryTypeBadge
-                      deliveryType={displayDeliveryType}
-                      label={
-                        displayDeliveryType === "registered"
-                          ? t("deliveryRegistered")
-                          : t("deliveryStandard")
-                      }
-                    />
-                  </div>
-                </div>
-                <SummaryBlock
-                  label={t("signature")}
-                  value={
-                    hasSignature
-                      ? signatureMode === "image"
-                        ? t("uploadedSignature")
-                        : t("typedSignature")
-                      : t("noSignature")
-                  }
-                  helperText={!hasSignature ? t("signatureMissingHelp") : undefined}
-                />
-                <SummaryBlock
-                  label={t("attachments")}
-                  value={
-                    hasAttachments
-                      ? t("attachmentCount", { count: attachmentCount })
-                      : t("noAttachments")
-                  }
-                  helperText={!hasAttachments ? t("attachmentsOptionalHelp") : undefined}
-                />
-              </div>
-            </div>
+            <ReviewSummaryCard
+              title={t("summaryTitle")}
+              description={t("reviewReadOnly")}
+              statusTone={allComplete ? "success" : "warning"}
+              statusLabel={allComplete ? t("readyToSend") : t("needsAttention")}
+              items={reviewSummaryItems}
+            />
 
             <PriceSummary
               draftId={draftId}
@@ -347,72 +364,34 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
         primaryAction={
           <>
             {!alreadyPrepared ? (
-              <DraftStepMenu
-                draftId={draftId}
-                draft={d}
-                fullWidth
-                buttonClassName="sm:w-auto"
-              />
+              <div className="lg:hidden">
+                <DraftStepMenu
+                  draftId={draftId}
+                  draft={d}
+                  fullWidth
+                  buttonClassName="sm:w-auto"
+                />
+              </div>
             ) : null}
             <ActionButton
               onClick={handleProceedToPayment}
               fullWidth
               className="sm:w-auto"
-              disabled={!canProceedToPayment}
-              loading={isReviewPriceCalculating || reviewDraft.isPending || updateDraft.isPending}
+              contentClassName="w-full"
+              disabled={reviewActionState.disabled}
+              loading={reviewActionState.loading}
               trailingIcon={<ChevronRight className="h-4 w-4 shrink-0" />}
-              trailingMeta={!isReviewPriceCalculating && quote.data ? (
+              trailingMeta={reviewActionState.showTrailingMeta && quote.data ? (
                 <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--action-primary-fg)] sm:inline-flex">
                   {formatCentsAsCHF(quote.data.totalCents)}
                 </span>
               ) : null}
             >
-              {isReviewPriceCalculating ? t("calculatingPrice") : t("proceedToPayment")}
+              {t(reviewActionState.labelKey)}
             </ActionButton>
           </>
         }
       />
-    </div>
-  );
-}
-
-function SummaryBlock({
-  label,
-  value,
-  helperText,
-  emptyLabel,
-}: {
-  label: string;
-  value: string | string[];
-  helperText?: string | undefined;
-  emptyLabel?: string | undefined;
-}) {
-  const values = Array.isArray(value) ? value.filter(Boolean) : [value].filter(Boolean);
-  const hasValue = values.length > 0;
-
-  return (
-    <div className="app-list-item-muted rounded-2xl p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-400 dark:text-zinc-500">
-        {label}
-      </p>
-      <div className="mt-2 space-y-1">
-        {hasValue ? (
-          values.map((line, index) => (
-            <p key={`${label}-${index}`} className="text-sm leading-6 text-zinc-900 dark:text-zinc-100">
-              {line}
-            </p>
-          ))
-        ) : (
-          <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-            {emptyLabel ?? "—"}
-          </p>
-        )}
-      </div>
-      {helperText ? (
-        <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
-          {helperText}
-        </p>
-      ) : null}
     </div>
   );
 }

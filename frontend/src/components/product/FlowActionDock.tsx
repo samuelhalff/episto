@@ -11,8 +11,7 @@ interface FlowActionDockProps {
   primaryAction: ReactNode;
   secondaryAction?: ReactNode;
   className?: string;
-  /** When true, keeps the dock sticky at the bottom of the viewport on desktop
-   *  (offset so it is not flush to the edge). Use only on checkout/payment surfaces. */
+  /** When true, keeps the dock sticky at the bottom of the viewport on desktop. */
   desktopSticky?: boolean | undefined;
 }
 
@@ -27,7 +26,7 @@ export function FlowActionDock({
       className={[
         "app-sticky-bar fixed inset-x-0 bottom-0 z-30 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-4",
         desktopSticky
-          ? "lg:sticky lg:bottom-6 lg:inset-x-auto lg:z-30 lg:mt-8 lg:pb-4"
+          ? "lg:sticky lg:bottom-0 lg:inset-x-auto lg:z-30 lg:mt-8 lg:pb-4"
           : "lg:static lg:mt-8 lg:bg-transparent lg:px-0 lg:pb-0 lg:pt-0 lg:shadow-none lg:outline-none lg:backdrop-blur-none",
         className,
       ]

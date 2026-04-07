@@ -128,7 +128,7 @@ export function LetterPreview({
           className={`rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] dark:bg-[linear-gradient(180deg,#151c25_0%,#10161f_100%)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] ${
             isImmersive
               ? "flex min-h-0 flex-1 rounded-none p-4 sm:rounded-2xl sm:p-6 lg:p-8"
-              : "p-5 sm:p-6"
+              : "aspect-[210/297] p-5 sm:p-6"
           }`}
         >
           <div

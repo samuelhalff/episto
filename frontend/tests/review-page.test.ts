@@ -16,6 +16,11 @@ const flowActionDockSource = readFileSync(
   "utf8",
 );
 
+const reviewSummaryCardSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/review/ReviewSummaryCard.tsx"),
+  "utf8",
+);
+
 describe("review page regressions", () => {
   it("keeps the quote hook above the early loading return", () => {
     expect(reviewPageSource.indexOf("const quote = useDispatchQuote")).toBeGreaterThan(
@@ -51,23 +56,16 @@ describe("review page regressions", () => {
   });
 
   it("blocks the payment CTA until a live quote exists", () => {
-    expect(reviewPageSource).toContain("const canProceedToPayment =");
-    expect(reviewPageSource).toContain("Boolean(quote.data)");
-    expect(reviewPageSource).toContain("quoteErrorMessage");
+    expect(reviewPageSource).toContain("useReviewPrimaryActionState");
+    expect(reviewPageSource).toContain("hasQuote: Boolean(quote.data)");
+    expect(reviewPageSource).toContain("hasQuoteError: quote.isError");
+    expect(reviewPageSource).toContain("reviewActionState.disabled");
   });
 
   it("shows an explicit calculating state on the review CTA while pricing is loading", () => {
-    expect(reviewPageSource).toContain(
-      "const isReviewPriceCalculating = canRequestQuote && quote.isLoading",
-    );
-    expect(reviewPageSource).toContain(
-      "loading={isReviewPriceCalculating || reviewDraft.isPending || updateDraft.isPending}",
-    );
-    expect(reviewPageSource).toContain(
+    expect(reviewPageSource).toContain("useReviewPrimaryActionState");
+    expect(reviewPageSource).not.toContain(
       '{isReviewPriceCalculating ? t("calculatingPrice") : t("proceedToPayment")}',
-    );
-    expect(reviewPageSource).toContain(
-      "trailingMeta={!isReviewPriceCalculating && quote.data ? (",
     );
   });
 
@@ -94,11 +92,15 @@ describe("review page regressions", () => {
     expect(reviewPageSource).toContain("handleBackToDraft");
   });
 
-  it("uses shared status and delivery badges for review summary chrome", () => {
+  it("uses shared status badge chrome for the review summary without route-local color tokens", () => {
     expect(reviewPageSource).toContain("StatusBadge");
-    expect(reviewPageSource).toContain("DeliveryTypeBadge");
     expect(reviewPageSource).not.toContain("bg-emerald-50");
     expect(reviewPageSource).not.toContain("bg-amber-50");
+  });
+
+  it("removes redundant subject and delivery recap rows from the review summary", () => {
+    expect(reviewPageSource).not.toContain('label={t("subjectLine")}');
+    expect(reviewPageSource).not.toContain('label={t("deliveryTypeLabel")}');
   });
 
   it("keeps the review footer visible on desktop with extra bottom spacing for the content", () => {
@@ -114,8 +116,8 @@ describe("review page regressions", () => {
   });
 
   it("uses stable summary row keys instead of raw address text", () => {
-    expect(reviewPageSource).toContain("values.map((line, index) =>");
-    expect(reviewPageSource).toContain('key={`${label}-${index}`}');
-    expect(reviewPageSource).not.toContain("key={line}");
+    expect(reviewSummaryCardSource).toContain("values.map((line, index) =>");
+    expect(reviewSummaryCardSource).toContain('key={`${label}-${index}`}');
+    expect(reviewSummaryCardSource).not.toContain("key={line}");
   });
 });
