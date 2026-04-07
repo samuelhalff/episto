@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useCallback, useState } from "react";
+import { useEffect, useCallback, useMemo, useSyncExternalStore } from "react";
 import type { DocumentModel } from "@swiss-mail/shared";
 import { getApiUrl } from "../lib/api";
 import { captureMessage } from "../lib/error-tracking";
@@ -47,6 +47,7 @@ export type DraftStreamEvent =
   | { type: "connected"; data: { draftId: string } };
 
 type EventListener = (event: DraftStreamEvent) => void;
+type ConnectionStatusListener = () => void;
 
 // ---------------------------------------------------------------------------
 // Hook: useDraftStream
@@ -54,6 +55,268 @@ type EventListener = (event: DraftStreamEvent) => void;
 
 const MAX_RECONNECT_FAILURES = 3;
 const POLL_INTERVAL_MS = 5_000;
+const RECONNECT_BASE_DELAY_MS = 1_000;
+const noopUnsubscribe = () => {};
+
+interface DraftStreamConnection {
+  readonly connected: boolean;
+  acquire: () => void;
+  release: () => void;
+  subscribe: (listener: EventListener) => () => void;
+  subscribeStatus: (listener: ConnectionStatusListener) => () => void;
+}
+
+const draftStreamConnections = new Map<string, DraftStreamConnection>();
+
+function getDraftStreamConnection(draftId: string): DraftStreamConnection {
+  const existing = draftStreamConnections.get(draftId);
+  if (existing) {
+    return existing;
+  }
+
+  let connected = false;
+  let subscriberCount = 0;
+  let failCount = 0;
+  let eventSource: EventSource | null = null;
+  let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  let pollTimer: ReturnType<typeof setInterval> | null = null;
+  let disposed = false;
+
+  const listeners = new Set<EventListener>();
+  const statusListeners = new Set<ConnectionStatusListener>();
+
+  const notifyStatus = () => {
+    for (const listener of Array.from(statusListeners)) {
+      listener();
+    }
+  };
+
+  const setConnected = (nextConnected: boolean) => {
+    if (connected === nextConnected) {
+      return;
+    }
+    connected = nextConnected;
+    notifyStatus();
+  };
+
+  const dispatch = (event: DraftStreamEvent) => {
+    for (const listener of Array.from(listeners)) {
+      listener(event);
+    }
+  };
+
+  const clearReconnectTimer = () => {
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+    }
+  };
+
+  const clearPollingTimer = () => {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+  };
+
+  const closeEventSource = () => {
+    if (eventSource) {
+      eventSource.close();
+      eventSource = null;
+    }
+  };
+
+  const handleParseError = (eventType: DraftStreamEvent["type"]) => {
+    captureMessage(`SSE ${eventType} event parse error`, "warning", {
+      component: "useDraftStream",
+    });
+  };
+
+  const dispatchJsonEvent = (type: DraftStreamEvent["type"], rawEvent: Event) => {
+    const messageEvent = rawEvent as MessageEvent<string>;
+    try {
+      switch (type) {
+        case "connected":
+          dispatch({
+            type,
+            data: JSON.parse(messageEvent.data) as { draftId: string },
+          });
+          break;
+        case "ai_token":
+          dispatch({
+            type,
+            data: JSON.parse(messageEvent.data) as AiTokenEvent,
+          });
+          break;
+        case "ai_message_complete":
+          dispatch({
+            type,
+            data: JSON.parse(messageEvent.data) as AiMessageCompleteEvent,
+          });
+          break;
+        case "field_update":
+          dispatch({
+            type,
+            data: JSON.parse(messageEvent.data) as FieldUpdateEvent,
+          });
+          break;
+        case "draft_status":
+          dispatch({
+            type,
+            data: JSON.parse(messageEvent.data) as DraftStatusEvent,
+          });
+          break;
+        case "error":
+          dispatch({
+            type,
+            data: JSON.parse(messageEvent.data) as StreamErrorEvent,
+          });
+          break;
+      }
+    } catch {
+      handleParseError(type);
+    }
+  };
+
+  const startPollingFallback = () => {
+    if (disposed || subscriberCount === 0 || pollTimer) {
+      return;
+    }
+
+    closeEventSource();
+    setConnected(false);
+    pollTimer = setInterval(() => {
+      dispatch({
+        type: "error",
+        data: { code: "SSE_FALLBACK", message: "Polling mode" },
+      });
+    }, POLL_INTERVAL_MS);
+  };
+
+  const scheduleReconnect = () => {
+    if (disposed || subscriberCount === 0) {
+      return;
+    }
+
+    if (failCount >= MAX_RECONNECT_FAILURES) {
+      startPollingFallback();
+      return;
+    }
+
+    if (reconnectTimer) {
+      return;
+    }
+
+    reconnectTimer = setTimeout(() => {
+      reconnectTimer = null;
+      connect();
+    }, RECONNECT_BASE_DELAY_MS * failCount);
+  };
+
+  const connect = () => {
+    if (disposed || subscriberCount === 0 || eventSource) {
+      return;
+    }
+
+    clearPollingTimer();
+
+    if (typeof EventSource === "undefined") {
+      startPollingFallback();
+      return;
+    }
+
+    const nextEventSource = new EventSource(getApiUrl(`/v1/drafts/${draftId}/stream`), {
+      withCredentials: true,
+    });
+    eventSource = nextEventSource;
+
+    nextEventSource.addEventListener("connected", (event) => {
+      failCount = 0;
+      clearPollingTimer();
+      setConnected(true);
+      dispatchJsonEvent("connected", event);
+    });
+
+    nextEventSource.addEventListener("ai_token", (event) => {
+      dispatchJsonEvent("ai_token", event);
+    });
+
+    nextEventSource.addEventListener("ai_message_complete", (event) => {
+      dispatchJsonEvent("ai_message_complete", event);
+    });
+
+    nextEventSource.addEventListener("field_update", (event) => {
+      dispatchJsonEvent("field_update", event);
+    });
+
+    nextEventSource.addEventListener("draft_status", (event) => {
+      dispatchJsonEvent("draft_status", event);
+    });
+
+    nextEventSource.addEventListener("error", (event) => {
+      if (disposed) {
+        return;
+      }
+
+      const messageEvent = event as MessageEvent<string>;
+      if (messageEvent.data) {
+        dispatchJsonEvent("error", event);
+      }
+
+      if (nextEventSource.readyState === EventSource.CLOSED) {
+        failCount += 1;
+        closeEventSource();
+        setConnected(false);
+        scheduleReconnect();
+      }
+    });
+  };
+
+  const connection: DraftStreamConnection = {
+    get connected() {
+      return connected;
+    },
+    acquire() {
+      disposed = false;
+      subscriberCount += 1;
+      if (subscriberCount === 1) {
+        connect();
+      }
+    },
+    release() {
+      subscriberCount = Math.max(0, subscriberCount - 1);
+      if (subscriberCount > 0) {
+        return;
+      }
+
+      disposed = true;
+      clearReconnectTimer();
+      clearPollingTimer();
+      closeEventSource();
+      setConnected(false);
+      listeners.clear();
+      statusListeners.clear();
+      if (draftStreamConnections.get(draftId) === connection) {
+        draftStreamConnections.delete(draftId);
+      }
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    subscribeStatus(listener) {
+      statusListeners.add(listener);
+      return () => {
+        statusListeners.delete(listener);
+      };
+    },
+  };
+
+  draftStreamConnections.set(draftId, connection);
+  return connection;
+}
 
 /**
  * Single shared SSE connection per active draft per tab.
@@ -61,144 +324,42 @@ const POLL_INTERVAL_MS = 5_000;
  * per draft. Multiple hooks consume events via listeners.
  */
 export function useDraftStream(draftId: string | null) {
-  const [connected, setConnected] = useState(false);
-  const eventSourceRef = useRef<EventSource | null>(null);
-  const listenersRef = useRef<Set<EventListener>>(new Set());
-  const failCountRef = useRef(0);
+  const connection = useMemo(
+    () => (draftId ? getDraftStreamConnection(draftId) : null),
+    [draftId],
+  );
 
   const subscribe = useCallback((listener: EventListener) => {
-    listenersRef.current.add(listener);
-    return () => {
-      listenersRef.current.delete(listener);
-    };
-  }, []);
+    if (!connection) {
+      return noopUnsubscribe;
+    }
+
+    return connection.subscribe(listener);
+  }, [connection]);
+
+  const connected = useSyncExternalStore(
+    useCallback((listener: ConnectionStatusListener) => {
+      if (!connection) {
+        return noopUnsubscribe;
+      }
+
+      return connection.subscribeStatus(listener);
+    }, [connection]),
+    useCallback(() => connection?.connected ?? false, [connection]),
+    () => false,
+  );
 
   useEffect(() => {
-    if (!draftId) return;
-
-    let cancelled = false;
-    let pollTimer: ReturnType<typeof setInterval> | null = null;
-
-    function dispatch(event: DraftStreamEvent) {
-      for (const listener of listenersRef.current) {
-        listener(event);
-      }
+    if (!connection) {
+      return;
     }
 
-    function connect() {
-      if (cancelled) return;
-
-      const url = getApiUrl(`/v1/drafts/${draftId}/stream`);
-      const es = new EventSource(url, { withCredentials: true });
-      eventSourceRef.current = es;
-
-      es.addEventListener("connected", (e) => {
-        failCountRef.current = 0;
-        setConnected(true);
-        try {
-          dispatch({ type: "connected", data: JSON.parse(e.data) });
-        } catch {
-          captureMessage("SSE connected event parse error", "warning", {
-            component: "useDraftStream",
-          });
-        }
-      });
-
-      es.addEventListener("ai_token", (e) => {
-        try {
-          dispatch({ type: "ai_token", data: JSON.parse(e.data) });
-        } catch {
-          captureMessage("SSE ai_token event parse error", "warning", {
-            component: "useDraftStream",
-          });
-        }
-      });
-
-      es.addEventListener("ai_message_complete", (e) => {
-        try {
-          dispatch({ type: "ai_message_complete", data: JSON.parse(e.data) });
-        } catch {
-          captureMessage("SSE ai_message_complete event parse error", "warning", {
-            component: "useDraftStream",
-          });
-        }
-      });
-
-      es.addEventListener("field_update", (e) => {
-        try {
-          dispatch({ type: "field_update", data: JSON.parse(e.data) });
-        } catch {
-          captureMessage("SSE field_update event parse error", "warning", {
-            component: "useDraftStream",
-          });
-        }
-      });
-
-      es.addEventListener("draft_status", (e) => {
-        try {
-          dispatch({ type: "draft_status", data: JSON.parse(e.data) });
-        } catch {
-          captureMessage("SSE draft_status event parse error", "warning", {
-            component: "useDraftStream",
-          });
-        }
-      });
-
-      es.addEventListener("error", (e) => {
-        if (cancelled) return;
-
-        // EventSource auto-reconnects on most errors, but if the
-        // connection is fully closed we need to handle it
-        if (es.readyState === EventSource.CLOSED) {
-          setConnected(false);
-          failCountRef.current += 1;
-
-          if (failCountRef.current >= MAX_RECONNECT_FAILURES) {
-            // Fallback to polling per realtime-strategy.md
-            es.close();
-            eventSourceRef.current = null;
-            pollTimer = setInterval(() => {
-              // Polling is handled by React Query invalidation in consuming hooks
-              dispatch({
-                type: "error",
-                data: { code: "SSE_FALLBACK", message: "Polling mode" },
-              });
-            }, POLL_INTERVAL_MS);
-            return;
-          }
-
-          // Retry connection after a short delay
-          setTimeout(connect, 1000 * failCountRef.current);
-        }
-
-        // Try to parse error data if available
-        const messageEvent = e as MessageEvent;
-        if (messageEvent.data) {
-          try {
-            dispatch({ type: "error", data: JSON.parse(messageEvent.data) });
-          } catch {
-            captureMessage("SSE error event parse error", "warning", {
-              component: "useDraftStream",
-            });
-          }
-        }
-      });
-    }
-
-    connect();
+    connection.acquire();
 
     return () => {
-      cancelled = true;
-      if (eventSourceRef.current) {
-        eventSourceRef.current.close();
-        eventSourceRef.current = null;
-      }
-      if (pollTimer) {
-        clearInterval(pollTimer);
-      }
-      setConnected(false);
+      connection.release();
     };
-  }, [draftId]);
+  }, [connection]);
 
   return { connected, subscribe };
 }

@@ -5,6 +5,7 @@ const mocks = vi.hoisted(() => ({
   createWorker: vi.fn(),
   emailQueueAdd: vi.fn().mockResolvedValue(undefined),
   createDispatchAttempt: vi.fn(),
+  getDispatchAttemptByPaymentAttemptId: vi.fn(),
   getDispatchAttempt: vi.fn(),
   transitionDispatchState: vi.fn(),
   adapterSubmit: vi.fn(),
@@ -82,6 +83,7 @@ vi.mock("../src/db/index.js", () => ({
 
 vi.mock("../src/modules/dispatch/dispatch.service.js", () => ({
   createDispatchAttempt: mocks.createDispatchAttempt,
+  getDispatchAttemptByPaymentAttemptId: mocks.getDispatchAttemptByPaymentAttemptId,
   getDispatchAttempt: mocks.getDispatchAttempt,
   transitionDispatchState: mocks.transitionDispatchState,
 }));
@@ -123,6 +125,7 @@ describe("dispatch workers", () => {
     mocks.createWorker.mockReset();
     mocks.emailQueueAdd.mockClear();
     mocks.createDispatchAttempt.mockReset();
+    mocks.getDispatchAttemptByPaymentAttemptId.mockReset();
     mocks.getDispatchAttempt.mockReset();
     mocks.transitionDispatchState.mockReset();
     mocks.adapterSubmit.mockReset();
@@ -182,6 +185,41 @@ describe("dispatch workers", () => {
     expect(job.log).toHaveBeenCalledWith(
       "Dispatch settlement deferred for reconciliation: dispatch-1",
     );
+  });
+
+  it("does not resubmit when a dispatch attempt already exists for the payment", async () => {
+    mocks.getDispatchAttemptByPaymentAttemptId.mockResolvedValue({
+      id: "dispatch-existing",
+      paymentAttemptId: "payment-duplicate",
+      state: "submitted",
+      providerReference: "provider-existing",
+    });
+    mocks.createDispatchAttempt.mockResolvedValue({ id: "dispatch-new" });
+    mocks.buildDispatchPackage.mockResolvedValue({ deliveryType: "standard" });
+    mocks.adapterSubmit.mockResolvedValue({
+      state: "accepted",
+      providerReference: "provider-new",
+      trackingNumber: null,
+      providerPayload: { ok: true },
+      failureReason: null,
+    });
+
+    const { processSubmitDispatchJob } =
+      await import("../src/workers/submit-dispatch.worker.js");
+
+    const job = {
+      data: {
+        draftId: "draft-duplicate",
+        snapshotId: "snapshot-duplicate",
+        paymentId: "payment-duplicate",
+      },
+      log: vi.fn(),
+    };
+
+    await expect(processSubmitDispatchJob(job as never)).resolves.toBeUndefined();
+
+    expect(mocks.createDispatchAttempt).not.toHaveBeenCalled();
+    expect(mocks.adapterSubmit).not.toHaveBeenCalled();
   });
 
   it("finalizes synchronous rejected submissions through the resolution path instead of leaving the draft submitted", async () => {

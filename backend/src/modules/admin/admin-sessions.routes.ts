@@ -6,7 +6,7 @@ import { recordSupportEvent } from "./index.js";
 import type {
   AdminSessionListResponse,
   AdminSessionListItem,
-} from "../../../../shared/src/contracts/index.js";
+} from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // Helpers

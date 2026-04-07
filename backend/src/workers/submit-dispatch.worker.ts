@@ -11,6 +11,7 @@ import { createLogger } from "../shared/logging/index.js";
 import { getDb, schema } from "../db/index.js";
 import {
   createDispatchAttempt,
+  getDispatchAttemptByPaymentAttemptId,
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs.js";
@@ -50,13 +51,31 @@ export async function processSubmitDispatchJob(
 
   logger.info({ draftId, snapshotId, paymentId }, "Starting dispatch submission");
 
-  // 1. Create dispatch attempt
-  const attempt = await createDispatchAttempt(db, {
-    draftId,
-    snapshotId,
-    paymentAttemptId: paymentId,
-    providerName: capabilities.providerName,
-  });
+  const existingAttempt = await getDispatchAttemptByPaymentAttemptId(db, paymentId);
+  if (existingAttempt && existingAttempt.state !== "queued") {
+    logger.warn(
+      {
+        draftId,
+        snapshotId,
+        paymentId,
+        dispatchId: existingAttempt.id,
+        state: existingAttempt.state,
+      },
+      "Skipping duplicate dispatch submission for existing payment attempt",
+    );
+    job.log(`Dispatch already exists for payment ${paymentId}: ${existingAttempt.id}`);
+    return;
+  }
+
+  // 1. Create or reuse the queued dispatch attempt
+  const attempt =
+    existingAttempt ??
+    (await createDispatchAttempt(db, {
+      draftId,
+      snapshotId,
+      paymentAttemptId: paymentId,
+      providerName: capabilities.providerName,
+    }));
 
   const dispatchPackage = await buildDispatchPackage(db, draftId, snapshotId);
 

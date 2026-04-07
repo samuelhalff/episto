@@ -16,85 +16,50 @@ import {
   getAllowedDispatchTransitions,
 } from "../src/state-machines.js";
 
-// ---------------------------------------------------------------------------
-// DraftStatus
-// ---------------------------------------------------------------------------
-
 describe("DraftStatus transitions", () => {
-  it("allows collecting → fields_complete", () => {
+  it("allows the documented primary progression", () => {
     expect(canTransitionDraft(DraftStatus.collecting, DraftStatus.fields_complete)).toBe(true);
-  });
-
-  it("allows fields_complete → collecting (backtrack)", () => {
-    expect(canTransitionDraft(DraftStatus.fields_complete, DraftStatus.collecting)).toBe(true);
-  });
-
-  it("allows fields_complete → reviewed", () => {
     expect(canTransitionDraft(DraftStatus.fields_complete, DraftStatus.reviewed)).toBe(true);
-  });
-
-  it("allows reviewed → rendering", () => {
     expect(canTransitionDraft(DraftStatus.reviewed, DraftStatus.rendering)).toBe(true);
-  });
-
-  it("allows reviewed → fields_complete (back to editing)", () => {
-    expect(canTransitionDraft(DraftStatus.reviewed, DraftStatus.fields_complete)).toBe(true);
-  });
-
-  it("allows rendering → fields_complete (back to editing)", () => {
-    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(true);
-  });
-
-  it("allows ready → fields_complete (back to editing)", () => {
-    expect(canTransitionDraft(DraftStatus.ready, DraftStatus.fields_complete)).toBe(true);
-  });
-
-  it("allows rendering → ready", () => {
     expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.ready)).toBe(true);
-  });
-
-  it("allows rendering → collecting (failure fallback)", () => {
-    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.collecting)).toBe(true);
-  });
-
-  it("allows ready → submitted", () => {
     expect(canTransitionDraft(DraftStatus.ready, DraftStatus.submitted)).toBe(true);
-  });
-
-  it("allows dispatched → closed", () => {
+    expect(canTransitionDraft(DraftStatus.submitted, DraftStatus.dispatched)).toBe(true);
     expect(canTransitionDraft(DraftStatus.dispatched, DraftStatus.closed)).toBe(true);
   });
 
-  it("rejects collecting → dispatched (skip)", () => {
-    expect(canTransitionDraft(DraftStatus.collecting, DraftStatus.dispatched)).toBe(false);
+  it("allows only the documented backtracking paths", () => {
+    expect(canTransitionDraft(DraftStatus.fields_complete, DraftStatus.collecting)).toBe(true);
+    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.collecting)).toBe(true);
+    expect(canTransitionDraft(DraftStatus.ready, DraftStatus.collecting)).toBe(true);
   });
 
-  it("rejects closed → collecting (terminal)", () => {
-    expect(canTransitionDraft(DraftStatus.closed, DraftStatus.collecting)).toBe(false);
+  it("keeps review immutable until rendering starts", () => {
+    expect(canTransitionDraft(DraftStatus.reviewed, DraftStatus.fields_complete)).toBe(false);
+    expect(getAllowedDraftTransitions(DraftStatus.reviewed)).toEqual([
+      DraftStatus.rendering,
+      DraftStatus.closed,
+    ]);
   });
 
-  it("rejects self-transition", () => {
-    expect(canTransitionDraft(DraftStatus.collecting, DraftStatus.collecting)).toBe(false);
+  it("routes rendering failures back to collecting only", () => {
+    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(false);
+    expect(getAllowedDraftTransitions(DraftStatus.rendering)).toEqual([
+      DraftStatus.ready,
+      DraftStatus.collecting,
+      DraftStatus.closed,
+    ]);
   });
 
-  it("assertTransitionDraft throws on invalid", () => {
-    expect(() =>
-      assertTransitionDraft(DraftStatus.collecting, DraftStatus.dispatched),
-    ).toThrow("Invalid draft transition");
+  it("routes ready edits back to collecting only", () => {
+    expect(canTransitionDraft(DraftStatus.ready, DraftStatus.fields_complete)).toBe(false);
+    expect(getAllowedDraftTransitions(DraftStatus.ready)).toEqual([
+      DraftStatus.submitted,
+      DraftStatus.collecting,
+      DraftStatus.closed,
+    ]);
   });
 
-  it("assertTransitionDraft does not throw on valid", () => {
-    expect(() =>
-      assertTransitionDraft(DraftStatus.collecting, DraftStatus.fields_complete),
-    ).not.toThrow();
-  });
-
-  it("getAllowedDraftTransitions returns correct list", () => {
-    const allowed = getAllowedDraftTransitions(DraftStatus.fields_complete);
-    expect(allowed).toEqual([DraftStatus.collecting, DraftStatus.reviewed, DraftStatus.closed]);
-  });
-
-  it("any non-terminal state can transition to closed", () => {
+  it("allows any non-terminal draft state to close", () => {
     const nonTerminal = [
       DraftStatus.collecting,
       DraftStatus.fields_complete,
@@ -104,132 +69,114 @@ describe("DraftStatus transitions", () => {
       DraftStatus.submitted,
       DraftStatus.dispatched,
     ] as const;
+
     for (const status of nonTerminal) {
       expect(canTransitionDraft(status, DraftStatus.closed)).toBe(true);
     }
   });
 
-  it("terminal state has no allowed transitions", () => {
+  it("rejects skips, self-transitions, and terminal re-entry", () => {
+    expect(canTransitionDraft(DraftStatus.collecting, DraftStatus.dispatched)).toBe(false);
+    expect(canTransitionDraft(DraftStatus.collecting, DraftStatus.collecting)).toBe(false);
+    expect(canTransitionDraft(DraftStatus.closed, DraftStatus.collecting)).toBe(false);
     expect(getAllowedDraftTransitions(DraftStatus.closed)).toEqual([]);
+  });
+
+  it("assertTransitionDraft enforces the documented graph", () => {
+    expect(() =>
+      assertTransitionDraft(DraftStatus.collecting, DraftStatus.dispatched),
+    ).toThrow("Invalid draft transition");
+    expect(() =>
+      assertTransitionDraft(DraftStatus.collecting, DraftStatus.fields_complete),
+    ).not.toThrow();
   });
 });
 
-// ---------------------------------------------------------------------------
-// PaymentState
-// ---------------------------------------------------------------------------
-
 describe("PaymentState transitions", () => {
-  it("allows pending → authorized", () => {
+  it("allows the documented pending and authorized flows", () => {
     expect(canTransitionPayment(PaymentState.pending, PaymentState.authorized)).toBe(true);
-  });
-
-  it("allows pending → failed", () => {
+    expect(canTransitionPayment(PaymentState.pending, PaymentState.captured)).toBe(true);
     expect(canTransitionPayment(PaymentState.pending, PaymentState.failed)).toBe(true);
-  });
-
-  it("allows authorized → captured", () => {
+    expect(canTransitionPayment(PaymentState.pending, PaymentState.cancelled)).toBe(true);
     expect(canTransitionPayment(PaymentState.authorized, PaymentState.captured)).toBe(true);
+    expect(canTransitionPayment(PaymentState.authorized, PaymentState.cancelled)).toBe(true);
+    expect(canTransitionPayment(PaymentState.authorized, PaymentState.failed)).toBe(true);
   });
 
-  it("allows captured → refund_pending", () => {
+  it("allows refund flow transitions and unrecoverable failure from active states", () => {
     expect(canTransitionPayment(PaymentState.captured, PaymentState.refund_pending)).toBe(true);
+    expect(canTransitionPayment(PaymentState.captured, PaymentState.failed)).toBe(true);
+    expect(getAllowedPaymentTransitions(PaymentState.refund_pending)).toEqual([
+      PaymentState.refunded,
+      PaymentState.partially_refunded,
+      PaymentState.failed,
+    ]);
   });
 
-  it("allows refund_pending → refunded", () => {
-    expect(canTransitionPayment(PaymentState.refund_pending, PaymentState.refunded)).toBe(true);
+  it("keeps failed and partially_refunded terminal", () => {
+    expect(canTransitionPayment(PaymentState.failed, PaymentState.pending)).toBe(false);
+    expect(getAllowedPaymentTransitions(PaymentState.failed)).toEqual([]);
+    expect(getAllowedPaymentTransitions(PaymentState.partially_refunded)).toEqual([]);
   });
 
-  it("allows refund_pending → partially_refunded", () => {
-    expect(canTransitionPayment(PaymentState.refund_pending, PaymentState.partially_refunded)).toBe(true);
-  });
-
-  it("allows failed → pending (retry)", () => {
-    expect(canTransitionPayment(PaymentState.failed, PaymentState.pending)).toBe(true);
-  });
-
-  it("allows pending → captured (automatic capture: Twint, Apple Pay, Google Pay)", () => {
-    expect(canTransitionPayment(PaymentState.pending, PaymentState.captured)).toBe(true);
-  });
-
-  it("allows the full automatic-capture flow: pending → captured → refund_pending → refunded", () => {
-    expect(canTransitionPayment(PaymentState.pending, PaymentState.captured)).toBe(true);
-    expect(canTransitionPayment(PaymentState.captured, PaymentState.refund_pending)).toBe(true);
-    expect(canTransitionPayment(PaymentState.refund_pending, PaymentState.refunded)).toBe(true);
-  });
-
-  it("rejects refunded → pending (terminal)", () => {
-    expect(canTransitionPayment(PaymentState.refunded, PaymentState.pending)).toBe(false);
-  });
-
-  it("rejects cancelled → authorized (terminal)", () => {
+  it("keeps cancelled and refunded terminal", () => {
     expect(canTransitionPayment(PaymentState.cancelled, PaymentState.authorized)).toBe(false);
-  });
-
-  it("assertTransitionPayment throws on invalid", () => {
-    expect(() =>
-      assertTransitionPayment(PaymentState.pending, PaymentState.refunded),
-    ).toThrow("Invalid payment transition");
-  });
-
-  it("terminal states have no transitions", () => {
+    expect(canTransitionPayment(PaymentState.refunded, PaymentState.pending)).toBe(false);
     expect(getAllowedPaymentTransitions(PaymentState.cancelled)).toEqual([]);
     expect(getAllowedPaymentTransitions(PaymentState.refunded)).toEqual([]);
   });
+
+  it("supports the documented automatic capture path", () => {
+    expect(canTransitionPayment(PaymentState.pending, PaymentState.captured)).toBe(true);
+    expect(canTransitionPayment(PaymentState.captured, PaymentState.refund_pending)).toBe(true);
+    expect(canTransitionPayment(PaymentState.refund_pending, PaymentState.refunded)).toBe(true);
+  });
+
+  it("assertTransitionPayment enforces the documented graph", () => {
+    expect(() =>
+      assertTransitionPayment(PaymentState.pending, PaymentState.refunded),
+    ).toThrow("Invalid payment transition");
+    expect(() =>
+      assertTransitionPayment(PaymentState.pending, PaymentState.authorized),
+    ).not.toThrow();
+  });
 });
 
-// ---------------------------------------------------------------------------
-// DispatchState
-// ---------------------------------------------------------------------------
-
 describe("DispatchState transitions", () => {
-  it("allows queued → submitted", () => {
+  it("allows the documented submission flow", () => {
     expect(canTransitionDispatch(DispatchState.queued, DispatchState.submitted)).toBe(true);
-  });
-
-  it("allows submitted → accepted", () => {
     expect(canTransitionDispatch(DispatchState.submitted, DispatchState.accepted)).toBe(true);
-  });
-
-  it("allows submitted → rejected", () => {
     expect(canTransitionDispatch(DispatchState.submitted, DispatchState.rejected)).toBe(true);
-  });
-
-  it("allows submitted → unknown", () => {
     expect(canTransitionDispatch(DispatchState.submitted, DispatchState.unknown)).toBe(true);
   });
 
-  it("allows unknown → reconciled", () => {
-    expect(canTransitionDispatch(DispatchState.unknown, DispatchState.reconciled)).toBe(true);
+  it("allows only documented reconciliation from unknown", () => {
+    expect(getAllowedDispatchTransitions(DispatchState.unknown)).toEqual([
+      DispatchState.reconciled,
+      DispatchState.accepted,
+      DispatchState.rejected,
+    ]);
   });
 
-  it("allows unknown → accepted (late resolution)", () => {
-    expect(canTransitionDispatch(DispatchState.unknown, DispatchState.accepted)).toBe(true);
+  it("keeps accepted, rejected, and reconciled terminal", () => {
+    expect(canTransitionDispatch(DispatchState.accepted, DispatchState.reconciled)).toBe(false);
+    expect(canTransitionDispatch(DispatchState.rejected, DispatchState.submitted)).toBe(false);
+    expect(canTransitionDispatch(DispatchState.reconciled, DispatchState.queued)).toBe(false);
+    expect(getAllowedDispatchTransitions(DispatchState.accepted)).toEqual([]);
+    expect(getAllowedDispatchTransitions(DispatchState.rejected)).toEqual([]);
+    expect(getAllowedDispatchTransitions(DispatchState.reconciled)).toEqual([]);
   });
 
-  it("allows unknown → rejected (late resolution)", () => {
-    expect(canTransitionDispatch(DispatchState.unknown, DispatchState.rejected)).toBe(true);
-  });
-
-  it("rejects queued → accepted (skip)", () => {
+  it("rejects skipped transitions", () => {
     expect(canTransitionDispatch(DispatchState.queued, DispatchState.accepted)).toBe(false);
   });
 
-  it("rejects rejected → submitted (terminal)", () => {
-    expect(canTransitionDispatch(DispatchState.rejected, DispatchState.submitted)).toBe(false);
-  });
-
-  it("rejects reconciled → anything (terminal)", () => {
-    expect(canTransitionDispatch(DispatchState.reconciled, DispatchState.queued)).toBe(false);
-  });
-
-  it("assertTransitionDispatch throws on invalid", () => {
+  it("assertTransitionDispatch enforces the documented graph", () => {
     expect(() =>
       assertTransitionDispatch(DispatchState.queued, DispatchState.reconciled),
     ).toThrow("Invalid dispatch transition");
-  });
-
-  it("terminal states have no transitions", () => {
-    expect(getAllowedDispatchTransitions(DispatchState.rejected)).toEqual([]);
-    expect(getAllowedDispatchTransitions(DispatchState.reconciled)).toEqual([]);
+    expect(() =>
+      assertTransitionDispatch(DispatchState.submitted, DispatchState.accepted),
+    ).not.toThrow();
   });
 });

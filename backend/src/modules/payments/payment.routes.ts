@@ -6,6 +6,7 @@ import { requireSession } from "../sessions/session.middleware.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   createPaymentAttempt,
+  getPaymentAttemptById,
   getPaymentForDraft,
   setPaymentIntentId,
   transitionPaymentState,
@@ -54,6 +55,16 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  async function getWebhookPayment(draftId: string, paymentAttemptId: string) {
+    const db = getDb();
+    const payment = await getPaymentAttemptById(db, paymentAttemptId);
+    if (!payment || payment.draftId !== draftId) {
+      return { db, payment: null as null };
+    }
+
+    return { db, payment };
+  }
+
   app.post("/webhooks/stripe", async (request: FastifyRequest, reply: FastifyReply) => {
     const signature = request.headers["stripe-signature"];
     if (typeof signature !== "string") {
@@ -76,9 +87,8 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
         const paymentAttemptId = intent.metadata?.paymentAttemptId;
         if (!draftId || !paymentAttemptId || intent.status !== "requires_capture") break;
 
-        const db = getDb();
-        const payment = await getPaymentForDraft(db, draftId);
-        if (!payment || payment.id !== paymentAttemptId) break;
+        const { db, payment } = await getWebhookPayment(draftId, paymentAttemptId);
+        if (!payment) break;
 
         await transitionPaymentState(db, payment.id, "authorized", {
           stripePaymentIntentId: intent.id,
@@ -101,9 +111,8 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
         const paymentAttemptId = intent.metadata?.paymentAttemptId;
         if (!draftId || !paymentAttemptId) break;
 
-        const db = getDb();
-        const payment = await getPaymentForDraft(db, draftId);
-        if (!payment || payment.id !== paymentAttemptId) break;
+        const { db, payment } = await getWebhookPayment(draftId, paymentAttemptId);
+        if (!payment) break;
 
         const chargeId =
           typeof intent.latest_charge === "string" ? intent.latest_charge : null;
@@ -154,9 +163,8 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
         const paymentAttemptId = intent.metadata?.paymentAttemptId;
         if (!draftId || !paymentAttemptId) break;
 
-        const db = getDb();
-        const payment = await getPaymentForDraft(db, draftId);
-        if (!payment || payment.id !== paymentAttemptId) break;
+        const { db, payment } = await getWebhookPayment(draftId, paymentAttemptId);
+        if (!payment) break;
 
         const failureMessage = intent.last_payment_error?.message ?? "Payment failed";
 
@@ -179,9 +187,8 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
         const paymentAttemptId = intent.metadata?.paymentAttemptId;
         if (!draftId || !paymentAttemptId) break;
 
-        const db = getDb();
-        const payment = await getPaymentForDraft(db, draftId);
-        if (!payment || payment.id !== paymentAttemptId) break;
+        const { db, payment } = await getWebhookPayment(draftId, paymentAttemptId);
+        if (!payment) break;
 
         await transitionPaymentState(db, payment.id, "cancelled");
         break;

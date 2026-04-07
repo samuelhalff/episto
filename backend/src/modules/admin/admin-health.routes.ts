@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
-import { S3Client, HeadBucketCommand } from "@aws-sdk/client-s3";
 import { getDb, schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
 import { getQueue, QUEUE_NAMES } from "../../queue/index.js";
+import { checkBucketAccess } from "../files/adapters/s3.adapter.js";
 
 // ---------------------------------------------------------------------------
 // Admin health endpoint
@@ -81,17 +81,7 @@ async function checkDatabase(): Promise<ServiceStatus> {
 
 async function checkObjectStorage(): Promise<ServiceStatus> {
   try {
-    const config = env();
-    const client = new S3Client({
-      endpoint: config.S3_ENDPOINT,
-      region: config.S3_REGION,
-      credentials: {
-        accessKeyId: config.S3_ACCESS_KEY,
-        secretAccessKey: config.S3_SECRET_KEY,
-      },
-      forcePathStyle: true,
-    });
-    await client.send(new HeadBucketCommand({ Bucket: config.S3_BUCKET }));
+    await checkBucketAccess();
     return { ok: true };
   } catch (err) {
     return { ok: false, detail: err instanceof Error ? err.message : "unknown" };

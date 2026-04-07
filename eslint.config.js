@@ -17,6 +17,64 @@ export default tseslint.config(
     },
   },
   {
+    files: ["backend/src/**/*.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["**/shared/src/**"],
+              message:
+                "Import shared contracts through @swiss-mail/shared, not shared/src paths.",
+            },
+            {
+              group: [
+                "@aws-sdk/*",
+                "stripe",
+                "@stripe/*",
+                "openai",
+                "@azure/ai-projects",
+                "@azure/identity",
+                "resend",
+              ],
+              message:
+                "Import provider SDKs only inside backend adapter modules.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: [
+      "backend/src/modules/ai/adapters/**/*.ts",
+      "backend/src/modules/email/**/*.ts",
+      "backend/src/modules/files/adapters/**/*.ts",
+      "backend/src/modules/payments/adapters/**/*.ts",
+    ],
+    rules: {
+      "no-restricted-imports": "off",
+    },
+  },
+  {
+    files: ["frontend/src/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["**/shared/src/**"],
+              message:
+                "Import shared contracts through @swiss-mail/shared, not shared/src paths.",
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ["frontend/public/sw.js"],
     languageOptions: {
       globals: {

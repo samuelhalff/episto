@@ -138,6 +138,20 @@ export async function getDispatchForDraft(
   return row ? toDispatchRow(row) : null;
 }
 
+export async function getDispatchAttemptByPaymentAttemptId(
+  db: Db,
+  paymentAttemptId: string,
+): Promise<DispatchAttemptRow | null> {
+  const [row] = await db
+    .select()
+    .from(schema.dispatchAttempts)
+    .where(eq(schema.dispatchAttempts.paymentAttemptId, paymentAttemptId))
+    .orderBy(desc(schema.dispatchAttempts.createdAt))
+    .limit(1);
+
+  return row ? toDispatchRow(row) : null;
+}
+
 // ---------------------------------------------------------------------------
 // Transition dispatch state
 // ---------------------------------------------------------------------------

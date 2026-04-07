@@ -3,6 +3,7 @@ import {
   PutObjectCommand,
   DeleteObjectCommand,
   HeadObjectCommand,
+  HeadBucketCommand,
   GetObjectCommand,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
@@ -182,4 +183,13 @@ export async function objectExists(key: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+export async function checkBucketAccess(): Promise<void> {
+  const client = getS3Client();
+  await client.send(
+    new HeadBucketCommand({
+      Bucket: getBucket(),
+    }),
+  );
 }

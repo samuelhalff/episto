@@ -1,16 +1,35 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, isNotNull, lte } from "drizzle-orm";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import type { DispatchPricingInput } from "./dispatch-pricing-input.service.js";
 
 /**
- * Placeholder — full implementation comes in a later task.
- * Checks if the active rate matrix is stale and refreshes it from the provider
- * if the TTL has elapsed.
+ * Retire expired active matrix versions so stale pricing does not remain the
+ * current canonical source indefinitely. A later provider-backed refresh path
+ * can build a new version; this job keeps the stored source of truth honest.
  */
-export async function refreshDispatchRateMatrixIfNeeded(_db: Db, _now: Date): Promise<void> {
-  // TODO: implement matrix staleness check and refresh
+export async function refreshDispatchRateMatrixIfNeeded(db: Db, now: Date): Promise<void> {
+  const expiredVersions = await db
+    .select({ id: schema.providerRateMatrixVersions.id })
+    .from(schema.providerRateMatrixVersions)
+    .where(
+      and(
+        eq(schema.providerRateMatrixVersions.status, "active"),
+        isNotNull(schema.providerRateMatrixVersions.expiresAt),
+        lte(schema.providerRateMatrixVersions.expiresAt, now),
+      ),
+    );
+
+  for (const version of expiredVersions) {
+    await db
+      .update(schema.providerRateMatrixVersions)
+      .set({
+        status: "retired",
+        updatedAt: now,
+      })
+      .where(eq(schema.providerRateMatrixVersions.id, version.id));
+  }
 }
 
 export async function getActiveMatrixQuote(

@@ -4,28 +4,30 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 // Mock heavy dependencies before importing the module under test
 // ---------------------------------------------------------------------------
 
-const mockExecute = vi.fn().mockResolvedValue([{ "?column?": 1 }]);
+const mocks = vi.hoisted(() => ({
+  mockExecute: vi.fn().mockResolvedValue([{ "?column?": 1 }]),
+  mockCheckBucketAccess: vi.fn().mockResolvedValue(undefined),
+  mockGetJobCounts: vi.fn().mockResolvedValue({
+    waiting: 0,
+    active: 0,
+    failed: 0,
+  }),
+}));
+
 vi.mock("../src/db/index.js", () => ({
-  getDb: () => ({ execute: mockExecute }),
+  getDb: () => ({ execute: mocks.mockExecute }),
   schema: {
     paymentAttempts: { createdAt: "createdAt" },
     dispatchAttempts: { submittedAt: "submittedAt" },
   },
 }));
 
-const mockSend = vi.fn().mockResolvedValue({});
-vi.mock("@aws-sdk/client-s3", () => ({
-  S3Client: vi.fn().mockImplementation(() => ({ send: mockSend })),
-  HeadBucketCommand: vi.fn().mockImplementation((input) => input),
+vi.mock("../src/modules/files/adapters/s3.adapter.js", () => ({
+  checkBucketAccess: mocks.mockCheckBucketAccess,
 }));
 
-const mockGetJobCounts = vi.fn().mockResolvedValue({
-  waiting: 0,
-  active: 0,
-  failed: 0,
-});
 vi.mock("../src/queue/index.js", () => ({
-  getQueue: () => ({ getJobCounts: mockGetJobCounts }),
+  getQueue: () => ({ getJobCounts: mocks.mockGetJobCounts }),
   QUEUE_NAMES: {
     RENDER_PDF: "render-pdf",
     SUBMIT_DISPATCH: "submit-dispatch",
@@ -37,11 +39,12 @@ vi.mock("../src/queue/index.js", () => ({
 
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
-    S3_ENDPOINT: "http://localhost:9000",
-    S3_REGION: "us-east-1",
-    S3_BUCKET: "swiss-mail-test",
-    S3_ACCESS_KEY: "minioadmin",
-    S3_SECRET_KEY: "minioadmin",
+    AZURE_OPENAI_API_KEY: "",
+    AZURE_OPENAI_DEPLOYMENT: "",
+    AI_PROJECT_CONNECTION_STRING: "",
+    AI_PROJECT_EVALUATION_MODEL: "",
+    AI_PROJECT_MODEL_DEPLOYMENT: "",
+    AI_PROJECT_ENDPOINT: "",
   }),
 }));
 
@@ -80,9 +83,9 @@ import { adminHealthRoutes } from "../src/modules/admin/admin-health.routes.js";
 describe("adminHealthRoutes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockExecute.mockResolvedValue([{ "?column?": 1 }]);
-    mockSend.mockResolvedValue({});
-    mockGetJobCounts.mockResolvedValue({ waiting: 0, active: 0, failed: 0 });
+    mocks.mockExecute.mockResolvedValue([{ "?column?": 1 }]);
+    mocks.mockCheckBucketAccess.mockResolvedValue(undefined);
+    mocks.mockGetJobCounts.mockResolvedValue({ waiting: 0, active: 0, failed: 0 });
   });
 
   it("is a function (Fastify plugin)", () => {
@@ -140,7 +143,7 @@ describe("adminHealthRoutes", () => {
   });
 
   it("handler returns 200 even when database check fails", async () => {
-    mockExecute.mockRejectedValue(new Error("Connection refused"));
+    mocks.mockExecute.mockRejectedValue(new Error("Connection refused"));
 
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
     const mockApp = {
@@ -168,7 +171,7 @@ describe("adminHealthRoutes", () => {
   });
 
   it("handler returns 200 even when object storage check fails", async () => {
-    mockSend.mockRejectedValue(new Error("Bucket not found"));
+    mocks.mockCheckBucketAccess.mockRejectedValue(new Error("Bucket not found"));
 
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
     const mockApp = {
@@ -191,7 +194,7 @@ describe("adminHealthRoutes", () => {
   });
 
   it("handler returns 200 even when Redis/queue check fails", async () => {
-    mockGetJobCounts.mockRejectedValue(new Error("Redis ECONNREFUSED"));
+    mocks.mockGetJobCounts.mockRejectedValue(new Error("Redis ECONNREFUSED"));
 
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
     const mockApp = {

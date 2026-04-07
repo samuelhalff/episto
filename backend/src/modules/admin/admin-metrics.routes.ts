@@ -9,7 +9,7 @@ import type {
   AdminErrorsResponse,
   AdminLocaleResponse,
   AdminAiResponse,
-} from "../../../../shared/src/contracts/index.js";
+} from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // Helpers

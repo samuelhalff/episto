@@ -16,9 +16,9 @@ const DRAFT_TRANSITIONS: Record<DraftStatusValue, readonly DraftStatusValue[]> =
       DraftStatus.reviewed,
       DraftStatus.closed,
     ],
-    [DraftStatus.reviewed]: [DraftStatus.fields_complete, DraftStatus.rendering, DraftStatus.closed],
-    [DraftStatus.rendering]: [DraftStatus.ready, DraftStatus.fields_complete, DraftStatus.collecting, DraftStatus.closed],
-    [DraftStatus.ready]: [DraftStatus.submitted, DraftStatus.fields_complete, DraftStatus.collecting, DraftStatus.closed],
+    [DraftStatus.reviewed]: [DraftStatus.rendering, DraftStatus.closed],
+    [DraftStatus.rendering]: [DraftStatus.ready, DraftStatus.collecting, DraftStatus.closed],
+    [DraftStatus.ready]: [DraftStatus.submitted, DraftStatus.collecting, DraftStatus.closed],
     [DraftStatus.submitted]: [DraftStatus.dispatched, DraftStatus.closed],
     [DraftStatus.dispatched]: [DraftStatus.closed],
     [DraftStatus.closed]: [],
@@ -43,18 +43,16 @@ const PAYMENT_TRANSITIONS: Record<
     PaymentState.failed,
     PaymentState.cancelled,
   ],
-  [PaymentState.captured]: [
-    PaymentState.refund_pending,
-  ],
-  [PaymentState.failed]: [PaymentState.pending],
+  [PaymentState.captured]: [PaymentState.refund_pending, PaymentState.failed],
+  [PaymentState.failed]: [],
   [PaymentState.cancelled]: [],
   [PaymentState.refund_pending]: [
     PaymentState.refunded,
     PaymentState.partially_refunded,
-    PaymentState.captured,
+    PaymentState.failed,
   ],
   [PaymentState.refunded]: [],
-  [PaymentState.partially_refunded]: [PaymentState.refund_pending],
+  [PaymentState.partially_refunded]: [],
 };
 
 // ---------------------------------------------------------------------------
@@ -71,7 +69,7 @@ const DISPATCH_TRANSITIONS: Record<
     DispatchState.rejected,
     DispatchState.unknown,
   ],
-  [DispatchState.accepted]: [DispatchState.reconciled],
+  [DispatchState.accepted]: [],
   [DispatchState.rejected]: [],
   [DispatchState.unknown]: [
     DispatchState.reconciled,
