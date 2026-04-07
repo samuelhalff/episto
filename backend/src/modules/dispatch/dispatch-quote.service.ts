@@ -1,19 +1,22 @@
-import { count, eq } from "drizzle-orm";
-
 import type { Db } from "../../db/index.js";
-import { schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
-import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { validationError } from "../../shared/errors/index.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
 import { getDispatchAdapter } from "./adapters/postal.adapter.js";
-import { buildDispatchPackage } from "./dispatch-package.service.js";
+import {
+  buildDispatchPackage,
+  getDraftPricingInputs,
+} from "./dispatch-package.service.js";
 import {
   buildDispatchPricingInput,
   hashDispatchPricingInput,
   type DispatchPricingInput,
 } from "./dispatch-pricing-input.service.js";
 import { getActiveMatrixQuote } from "./dispatch-rate-matrix.service.js";
-import { storeResolvedQuote } from "./dispatch-quote-cache.service.js";
+import {
+  getFreshLiveQuoteByHash,
+  storeResolvedQuote,
+} from "./dispatch-quote-cache.service.js";
 
 export async function getDispatchQuoteForDraft(
   db: Db,
@@ -44,44 +47,22 @@ async function buildPricingSourceForDraft(
   draftId: string,
   _options: { requireSnapshot: boolean },
 ): Promise<PricingSource> {
-  const [draft] = await db
-    .select({
-      deliveryType: schema.draftLetters.deliveryType,
-      estimatedPages: schema.draftLetters.estimatedPages,
-    })
-    .from(schema.draftLetters)
-    .where(eq(schema.draftLetters.id, draftId))
-    .limit(1);
-
-  if (!draft) {
-    throw notFoundError("draft");
-  }
-
-  const [attachmentResult] = await db
-    .select({ total: count() })
-    .from(schema.fileAssets)
-    .where(
-      eq(schema.fileAssets.draftId, draftId),
-    );
-
-  const attachmentCount = Number(attachmentResult?.total ?? 0);
-  const estimatedPages = draft.estimatedPages ?? 1;
-
+  const inputs = await getDraftPricingInputs(db, draftId);
   const snapshot = await getLatestSnapshot(db, draftId);
 
   const pricingInput = buildDispatchPricingInput({
     draftId,
     snapshotId: snapshot?.id ?? null,
-    deliveryType: draft.deliveryType,
-    estimatedPages,
-    attachmentCount,
+    deliveryType: inputs.deliveryType,
+    estimatedPages: inputs.estimatedPages,
+    attachmentCount: inputs.attachmentCount,
     country: "CH",
   });
 
   return {
     draftId,
     snapshotId: snapshot?.id ?? null,
-    deliveryType: draft.deliveryType,
+    deliveryType: inputs.deliveryType,
     pricingInput,
     pricingInputHash: hashDispatchPricingInput(pricingInput),
   };
@@ -190,6 +171,97 @@ export async function resolveDisplayDispatchQuoteForDraft(
   return resolveDispatchQuoteFromCacheOrMatrix(db, source, { purpose: "display" });
 }
 
+async function resolveDispatchQuoteFromCacheOrLiveProvider(
+  db: Db,
+  source: PricingSource,
+): Promise<ResolvedDisplayQuote> {
+  const cached = await getFreshLiveQuoteByHash(db, source.pricingInputHash);
+  if (cached) {
+    return {
+      quote: {
+        draftId: cached.draftId,
+        snapshotId: cached.snapshotId,
+        deliveryType: cached.deliveryType,
+        providerQuotedCents: cached.providerQuotedCents,
+        swissMailMarkupCents: cached.swissMailMarkupCents,
+        totalCents: cached.totalCents,
+        currency: "CHF",
+        lineItems: [
+          {
+            label: "Provider quote",
+            amountCents: cached.providerQuotedCents,
+            source: "provider",
+          },
+          {
+            label: "Swiss Mail service",
+            amountCents: cached.swissMailMarkupCents,
+            source: "swiss_mail",
+          },
+        ],
+        providerQuoteReference: cached.providerQuoteReference,
+        attachmentHandling:
+          source.pricingInput.attachmentMode === "single_hint"
+            ? "single_hint"
+            : "excluded",
+      },
+      meta: {
+        source: "live",
+        quotedAt: cached.generatedAt,
+        expiresAt: cached.expiresAt,
+      },
+    };
+  }
+
+  const snapshot = await getLatestSnapshot(db, source.draftId);
+  if (!snapshot) {
+    throw validationError("Review the draft before requesting a checkout price.");
+  }
+
+  const dispatchPackage = await buildDispatchPackage(db, source.draftId, snapshot.id, {
+    allowPendingRenderedPdf: true,
+  });
+
+  const providerQuote = await getDispatchAdapter().quotePrice(dispatchPackage);
+  const generatedAt = new Date();
+
+  await storeResolvedQuote(db, {
+    draftId: source.draftId,
+    snapshotId: snapshot.id,
+    pricingInputHash: source.pricingInputHash,
+    pricingInput: source.pricingInput,
+    source: "live",
+    deliveryType: source.deliveryType,
+    postage: source.pricingInput.postage,
+    providerQuotedCents: providerQuote.providerQuotedCents,
+    swissMailMarkupCents: providerQuote.swissMailMarkupCents,
+    totalCents: providerQuote.totalCents,
+    providerQuoteReference: providerQuote.providerQuoteReference,
+    rateMatrixVersionId: null,
+    generatedAt,
+    expiresAt: null,
+  });
+
+  return {
+    quote: {
+      draftId: providerQuote.draftId,
+      snapshotId: providerQuote.snapshotId,
+      deliveryType: providerQuote.deliveryType,
+      providerQuotedCents: providerQuote.providerQuotedCents,
+      swissMailMarkupCents: providerQuote.swissMailMarkupCents,
+      totalCents: providerQuote.totalCents,
+      currency: "CHF",
+      lineItems: providerQuote.lineItems,
+      providerQuoteReference: providerQuote.providerQuoteReference,
+      attachmentHandling: providerQuote.attachmentHandling,
+    },
+    meta: {
+      source: "live",
+      quotedAt: generatedAt,
+      expiresAt: null,
+    },
+  };
+}
+
 export async function resolvePaymentDispatchQuoteForDraft(
   db: Db,
   draftId: string,
@@ -197,5 +269,5 @@ export async function resolvePaymentDispatchQuoteForDraft(
   const source = await buildPricingSourceForDraft(db, draftId, {
     requireSnapshot: false,
   });
-  return resolveDispatchQuoteFromCacheOrMatrix(db, source, { purpose: "display" });
+  return resolveDispatchQuoteFromCacheOrLiveProvider(db, source);
 }

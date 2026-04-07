@@ -1,4 +1,4 @@
-import { and, eq, inArray } from "drizzle-orm";
+import { and, count, eq, inArray } from "drizzle-orm";
 import {
   DispatchPackageSchema,
   SnapshotDataSchema,
@@ -157,4 +157,50 @@ export async function buildDispatchPackage(
         },
     attachments,
   });
+}
+
+export interface DraftPricingInputs {
+  deliveryType: "standard" | "registered";
+  estimatedPages: number;
+  attachmentCount: number;
+}
+
+/**
+ * Fetches the attachment count and estimated page count for a draft without
+ * requiring a snapshot. Used by the pricing-input builder to compute display
+ * quotes before a snapshot exists.
+ */
+export async function getDraftPricingInputs(
+  db: Db,
+  draftId: string,
+): Promise<DraftPricingInputs> {
+  const [draft] = await db
+    .select({
+      deliveryType: schema.draftLetters.deliveryType,
+      estimatedPages: schema.draftLetters.estimatedPages,
+    })
+    .from(schema.draftLetters)
+    .where(eq(schema.draftLetters.id, draftId))
+    .limit(1);
+
+  if (!draft) {
+    throw notFoundError("draft");
+  }
+
+  const [attachmentResult] = await db
+    .select({ total: count() })
+    .from(schema.fileAssets)
+    .where(
+      and(
+        eq(schema.fileAssets.draftId, draftId),
+        eq(schema.fileAssets.kind, "attachment"),
+        eq(schema.fileAssets.status, "active"),
+      ),
+    );
+
+  return {
+    deliveryType: draft.deliveryType,
+    estimatedPages: draft.estimatedPages ?? 1,
+    attachmentCount: Number(attachmentResult?.total ?? 0),
+  };
 }
