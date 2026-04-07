@@ -13,6 +13,10 @@ const finalCtaBandSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/FinalCTABand.tsx"),
   "utf8",
 );
+const homepageSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/page.tsx"),
+  "utf8",
+);
 const globalsCssSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/globals.css"),
   "utf8",
@@ -39,13 +43,19 @@ describe("marketing homepage shared visual primitives", () => {
     expect(marketingIconTokenSource).toContain("size-5");
   });
 
-  it("uses the primary yellow cta band treatment with dark text", () => {
+  it("uses the primary yellow cta band treatment with enforced dark body contrast", () => {
+    expect(homepageSource).toContain(
+      'noteClassName="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/70',
+    );
     expect(finalCtaBandSource).toContain("text-zinc-950");
-    expect(finalCtaBandSource).toContain("text-zinc-800/80");
+    expect(finalCtaBandSource).toContain("[&_p]:!text-zinc-800/80");
+    expect(finalCtaBandSource).toContain("[&_p:first-of-type]:!text-zinc-950");
     expect(finalCtaBandSource).not.toContain("text-white");
     expect(globalsCssSource).toContain(".marketing-cta-band");
     expect(globalsCssSource).toContain("var(--action-primary-bg)");
     expect(globalsCssSource).toContain("var(--action-primary-hover)");
-    expect(globalsCssSource).not.toContain("linear-gradient(135deg, #b85c38 0%, #a04e2e 100%)");
+    expect(globalsCssSource).not.toContain(
+      "linear-gradient(135deg, #b85c38 0%, #a04e2e 100%)",
+    );
   });
 });
