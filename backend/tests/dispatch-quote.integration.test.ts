@@ -369,4 +369,46 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       message: "Final page count is not ready yet.",
     });
   });
+
+  it("can build a display quote for first review without requiring a snapshot", async () => {
+    const { harness, draftId } = await seedSessionAndDraft({
+      estimatedPages: 2,
+      deliveryType: "registered",
+    });
+    cleanup = harness.cleanup;
+
+    const versionId = randomUUID();
+    await harness.db.insert(schema.providerRateMatrixVersions).values({
+      id: versionId,
+      providerName: "epost",
+      status: "active",
+      verifiedAt: new Date(),
+      effectiveAt: new Date(),
+      expiresAt: null,
+    });
+
+    await harness.db.insert(schema.providerRateMatrixEntries).values({
+      versionId,
+      postage: "REGISTERED",
+      numberOfPage: 2,
+      attachmentMode: "none",
+      shippingCountry: "CH",
+      envelopeSize: "C5",
+      windowLocation: "LEFT",
+      duplex: false,
+      providerQuotedCents: 578,
+      currency: "CHF",
+    });
+
+    const { loadEnv } = await import("../src/shared/config/index.js");
+    loadEnv();
+
+    const { resolveDisplayDispatchQuoteForDraft } =
+      await import("../src/modules/dispatch/dispatch-quote.service.js");
+
+    const result = await resolveDisplayDispatchQuoteForDraft(harness.db, draftId);
+
+    expect(result.meta.source).toBe("matrix");
+    expect(result.quote.totalCents).toBeGreaterThan(0);
+  });
 });
