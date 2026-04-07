@@ -1,9 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  calculatePrice,
-  formatCHF,
-  getPublicPricing,
-} from "../src/modules/pricing/index.js";
+import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
@@ -14,118 +9,169 @@ vi.mock("../src/shared/config/index.js", () => ({
   }),
 }));
 
-describe("calculatePrice", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
+import {
+  buildPublicPricingResponse,
+  formatCHF,
+} from "../src/modules/pricing/public-pricing.service.js";
 
-  it("adds the configured markup on top of the standard reference scenario", () => {
-    const result = calculatePrice("standard");
-    expect(result.totalCents).toBe(495);
-    expect(result.baseCents).toBe(155);
-  });
+function createMatrixVersion(overrides?: Partial<Parameters<typeof buildPublicPricingResponse>[0]["version"]>) {
+  return {
+    id: "11111111-1111-4111-8111-111111111111",
+    providerName: "epost",
+    status: "active" as const,
+    verifiedAt: new Date("2026-04-07T06:00:00.000Z"),
+    effectiveAt: new Date("2026-04-07T06:00:00.000Z"),
+    expiresAt: new Date("2026-04-08T06:00:00.000Z"),
+    sourceEndpoint: "https://www.epost.ch/en/business-customers/digital-letter",
+    createdAt: new Date("2026-04-07T05:55:00.000Z"),
+    updatedAt: new Date("2026-04-07T06:00:00.000Z"),
+    ...overrides,
+  };
+}
 
-  it("adds the configured markup on top of the registered reference scenario", () => {
-    const result = calculatePrice("registered");
-    expect(result.totalCents).toBe(918);
-    expect(result.baseCents).toBe(578);
-  });
+function createMatrixEntries() {
+  return [
+    { postage: "A_POST", numberOfPage: 1, providerQuotedCents: 155 },
+    { postage: "A_POST", numberOfPage: 2, providerQuotedCents: 170 },
+    { postage: "A_POST", numberOfPage: 3, providerQuotedCents: 185 },
+    { postage: "A_POST", numberOfPage: 4, providerQuotedCents: 200 },
+    { postage: "A_POST", numberOfPage: 5, providerQuotedCents: 215 },
+    { postage: "REGISTERED", numberOfPage: 1, providerQuotedCents: 578 },
+    { postage: "REGISTERED", numberOfPage: 2, providerQuotedCents: 593 },
+    { postage: "REGISTERED", numberOfPage: 3, providerQuotedCents: 608 },
+    { postage: "REGISTERED", numberOfPage: 4, providerQuotedCents: 623 },
+    { postage: "REGISTERED", numberOfPage: 5, providerQuotedCents: 638 },
+  ].map((entry, index) => ({
+    id: `22222222-2222-4222-8222-${(index + 1).toString().padStart(12, "0")}`,
+    versionId: "11111111-1111-4111-8111-111111111111",
+    attachmentMode: "none" as const,
+    shippingCountry: "CH" as const,
+    envelopeSize: "C5" as const,
+    windowLocation: "LEFT" as const,
+    duplex: false as const,
+    currency: "CHF" as const,
+    providerQuoteReference: null,
+    verifiedAt: new Date("2026-04-07T06:00:00.000Z"),
+    createdAt: new Date("2026-04-07T06:00:00.000Z"),
+    ...entry,
+  }));
+}
 
-  it("uses delivery surcharge for Swiss Mail markup and leaves page/attachment surcharges at zero", () => {
-    const result = calculatePrice("standard");
-    expect(result.deliverySurchargeCents).toBe(340);
-    expect(result.pageSurchargeCents).toBe(0);
-    expect(result.attachmentSurchargeCents).toBe(0);
-  });
-
-  it("total equals base + all surcharges", () => {
-    const result = calculatePrice("registered");
-    const sum =
-      result.baseCents +
-      result.deliverySurchargeCents +
-      result.pageSurchargeCents +
-      result.attachmentSurchargeCents;
-    expect(result.totalCents).toBe(sum);
-  });
-});
-
-describe("getPublicPricing", () => {
-  it("returns the standard and registered totals with markup and provider references", () => {
-    const result = getPublicPricing();
-
-    expect(result.standard).toMatchObject({
-      totalCents: 495,
-      providerQuotedCents: 155,
-      swissMailMarkupCents: 340,
-      currency: "CHF",
+describe("public pricing service", () => {
+  it("maps an active rate matrix into public totals, sync metadata, and examples", () => {
+    const result = buildPublicPricingResponse({
+      version: createMatrixVersion(),
+      entries: createMatrixEntries(),
+      now: new Date("2026-04-07T12:00:00.000Z"),
     });
-    expect(result.registered).toMatchObject({
-      totalCents: 918,
-      providerQuotedCents: 578,
-      swissMailMarkupCents: 340,
+
+    expect(result.standard).toEqual({
+      totalCents: 495,
+      displayPrice: "CHF 4.95",
       currency: "CHF",
+      providerQuotedCents: 155,
+      providerQuotedDisplayPrice: "CHF 1.55",
+      swissMailMarkupCents: 340,
+      swissMailMarkupDisplayPrice: "CHF 3.40",
+    });
+    expect(result.registered).toEqual({
+      totalCents: 918,
+      displayPrice: "CHF 9.18",
+      currency: "CHF",
+      providerQuotedCents: 578,
+      providerQuotedDisplayPrice: "CHF 5.78",
+      swissMailMarkupCents: 340,
+      swissMailMarkupDisplayPrice: "CHF 3.40",
     });
     expect(result.registeredSurchargeCents).toBe(423);
-  });
-
-  it("includes the verified public ePost reference inputs used on the pricing page", () => {
-    const result = getPublicPricing();
-
-    expect(result.providerBreakdown).toEqual({
-      providerName: "ePost",
-      note: "Reference scenario verified against official ePost public pricing inputs for one printed page, one A4 sheet, one C5 envelope, and the currently configured postage mapping.",
-      sourceUrl: "https://www.epost.ch/en/business-customers/digital-letter",
-      verifiedDate: "2026-04-03",
-      perPrintedPageCents: 5,
-      perA4SheetCents: 10,
-      envelopeC5Cents: 30,
-      envelopeC4Cents: 60,
-      postageCents: {
-        A_POST: 110,
-        B_POST: 92,
-        B_POST_LARGEVOLUME: 60,
-        A_PLUS: 267,
-        REGISTERED: 533,
-      },
-      firstSheetC5Cents: {
-        simplexCents: 45,
-        duplexCents: 50,
-      },
-      additionalA4SheetCents: {
-        simplexCents: 15,
-        duplexCents: 20,
-      },
-      referenceScenario: {
-        printedPages: 1,
-        physicalSheets: 1,
-        envelopeFormat: "C5",
-        standardPostage: "A_POST",
-        registeredPostage: "REGISTERED",
-      },
-      pricesExcludeVat: true,
+    expect(result.sync).toEqual({
+      sourceLabel: "ePost active rate matrix",
+      lastSyncedAt: "2026-04-07T06:00:00.000Z",
+      freshness: "fresh",
+    });
+    expect(result.providerBreakdown.referenceScenario).toEqual({
+      shippingCountry: "CH",
+      envelopeSize: "C5",
+      windowLocation: "LEFT",
+      duplex: false,
+      attachmentMode: "none",
+      standardPostage: "A_POST",
+      registeredPostage: "REGISTERED",
+    });
+    expect(result.providerBreakdown.pageCountExamples.standard).toHaveLength(5);
+    expect(result.providerBreakdown.pageCountExamples.standard[0]).toEqual({
+      pageCount: 1,
+      providerQuotedCents: 155,
+      providerQuotedDisplayPrice: "CHF 1.55",
+      totalCents: 495,
+      displayPrice: "CHF 4.95",
       currency: "CHF",
     });
+    expect(result.providerBreakdown.pageCountExamples.registered[4]).toEqual({
+      pageCount: 5,
+      providerQuotedCents: 638,
+      providerQuotedDisplayPrice: "CHF 6.38",
+      totalCents: 978,
+      displayPrice: "CHF 9.78",
+      currency: "CHF",
+    });
+  });
+
+  it("marks sync freshness stale when the active rate matrix is expired", () => {
+    const result = buildPublicPricingResponse({
+      version: createMatrixVersion({
+        expiresAt: new Date("2026-04-07T05:59:59.000Z"),
+      }),
+      entries: createMatrixEntries(),
+      now: new Date("2026-04-07T12:00:00.000Z"),
+    });
+
+    expect(result.sync.freshness).toBe("stale");
+  });
+
+  it("fails clearly when there is no usable active rate matrix", () => {
+    try {
+      buildPublicPricingResponse({
+        version: null,
+        entries: [],
+        now: new Date("2026-04-07T12:00:00.000Z"),
+      });
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+        message:
+          "Public pricing is unavailable because no usable active provider rate matrix exists.",
+      });
+    }
+  });
+
+  it("fails clearly when required reference rows are missing", () => {
+    try {
+      buildPublicPricingResponse({
+        version: createMatrixVersion(),
+        entries: createMatrixEntries().filter(
+          (entry) => !(entry.postage === "REGISTERED" && entry.numberOfPage === 5),
+        ),
+        now: new Date("2026-04-07T12:00:00.000Z"),
+      });
+      throw new Error("expected public pricing to fail");
+    } catch (error) {
+      expect(error).toMatchObject({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "PRICING_UNAVAILABLE",
+      });
+    }
   });
 });
 
 describe("formatCHF", () => {
-  it("formats 490 cents as CHF 4.90", () => {
+  it("formats cents as a CHF string", () => {
     expect(formatCHF(490)).toBe("CHF 4.90");
-  });
-
-  it("formats 890 cents as CHF 8.90", () => {
-    expect(formatCHF(890)).toBe("CHF 8.90");
-  });
-
-  it("formats 0 cents as CHF 0.00", () => {
     expect(formatCHF(0)).toBe("CHF 0.00");
-  });
-
-  it("formats 1000 cents as CHF 10.00", () => {
-    expect(formatCHF(1000)).toBe("CHF 10.00");
-  });
-
-  it("formats 5 cents as CHF 0.05", () => {
     expect(formatCHF(5)).toBe("CHF 0.05");
   });
 });

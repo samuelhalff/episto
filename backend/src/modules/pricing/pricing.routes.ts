@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { getDb } from "../../db/index.js";
 import { getPublicPricing } from "./index.js";
 
 /**
@@ -9,6 +10,7 @@ import { getPublicPricing } from "./index.js";
  */
 export async function pricingRoutes(app: FastifyInstance): Promise<void> {
   app.get("/pricing", async (_request, reply) => {
-    reply.send(getPublicPricing());
+    const db = getDb();
+    reply.send(await getPublicPricing(db));
   });
 }

@@ -175,25 +175,28 @@ export const PublicPricingTierSchema = z.object({
   swissMailMarkupDisplayPrice: z.string().min(1),
 });
 
-export const ProviderPrintRateSchema = z.object({
-  simplexCents: z.number().int().nonnegative(),
-  duplexCents: z.number().int().nonnegative(),
-});
-
-export const ProviderPostageRateSchema = z.object({
-  A_POST: z.number().int().nonnegative(),
-  B_POST: z.number().int().nonnegative(),
-  B_POST_LARGEVOLUME: z.number().int().nonnegative(),
-  A_PLUS: z.number().int().nonnegative(),
-  REGISTERED: z.number().int().nonnegative(),
-});
-
 export const PublicPricingReferenceScenarioSchema = z.object({
-  printedPages: z.number().int().positive(),
-  physicalSheets: z.number().int().positive(),
-  envelopeFormat: z.enum(["C5", "C4"]),
+  shippingCountry: z.literal("CH"),
+  envelopeSize: z.literal("C5"),
+  windowLocation: z.literal("LEFT"),
+  duplex: z.literal(false),
+  attachmentMode: z.enum(["none", "single_hint"]),
   standardPostage: PostalPostageSchema,
   registeredPostage: PostalPostageSchema,
+});
+
+export const PublicPricingPageCountExampleSchema = z.object({
+  pageCount: z.number().int().positive(),
+  providerQuotedCents: z.number().int().nonnegative(),
+  providerQuotedDisplayPrice: z.string().min(1),
+  totalCents: z.number().int().nonnegative(),
+  displayPrice: z.string().min(1),
+  currency: z.literal("CHF"),
+});
+
+export const PublicPricingPageCountExamplesSchema = z.object({
+  standard: z.array(PublicPricingPageCountExampleSchema).nonempty(),
+  registered: z.array(PublicPricingPageCountExampleSchema).nonempty(),
 });
 
 export const PublicPricingSyncSchema = z.object({
@@ -209,18 +212,12 @@ export const PublicPricingResponseSchema = z.object({
   registeredSurchargeDisplayPrice: z.string().min(1),
   sync: PublicPricingSyncSchema,
   providerBreakdown: z.object({
-    providerName: z.literal("ePost"),
+    providerName: z.string().min(1),
     note: z.string().min(1),
     sourceUrl: z.string().url(),
     verifiedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    perPrintedPageCents: z.number().int().nonnegative(),
-    perA4SheetCents: z.number().int().nonnegative(),
-    envelopeC5Cents: z.number().int().nonnegative(),
-    envelopeC4Cents: z.number().int().nonnegative(),
-    postageCents: ProviderPostageRateSchema,
-    firstSheetC5Cents: ProviderPrintRateSchema,
-    additionalA4SheetCents: ProviderPrintRateSchema,
     referenceScenario: PublicPricingReferenceScenarioSchema,
+    pageCountExamples: PublicPricingPageCountExamplesSchema,
     pricesExcludeVat: z.boolean(),
     currency: z.literal("CHF"),
   }),
@@ -268,10 +265,14 @@ export type RecipientCompanyDetailsResponseType = z.infer<
 export type DraftAttachmentConstraints = z.infer<typeof DraftAttachmentConstraintsSchema>;
 export type DraftFilesResponse = z.infer<typeof DraftFilesResponseSchema>;
 export type PublicPricingTier = z.infer<typeof PublicPricingTierSchema>;
-export type ProviderPrintRate = z.infer<typeof ProviderPrintRateSchema>;
-export type ProviderPostageRate = z.infer<typeof ProviderPostageRateSchema>;
 export type PublicPricingReferenceScenario = z.infer<
   typeof PublicPricingReferenceScenarioSchema
+>;
+export type PublicPricingPageCountExample = z.infer<
+  typeof PublicPricingPageCountExampleSchema
+>;
+export type PublicPricingPageCountExamples = z.infer<
+  typeof PublicPricingPageCountExamplesSchema
 >;
 export type PublicPricingSync = z.infer<typeof PublicPricingSyncSchema>;
 export type PublicPricingResponse = z.infer<typeof PublicPricingResponseSchema>;

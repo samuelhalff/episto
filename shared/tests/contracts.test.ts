@@ -6,6 +6,91 @@ import {
   PublicPricingResponseSchema,
 } from "../src/contracts/index.ts";
 
+function createPublicPricingResponse() {
+  return {
+    standard: {
+      totalCents: 495,
+      displayPrice: "CHF 4.95",
+      currency: "CHF",
+      providerQuotedCents: 155,
+      providerQuotedDisplayPrice: "CHF 1.55",
+      swissMailMarkupCents: 340,
+      swissMailMarkupDisplayPrice: "CHF 3.40",
+    },
+    registered: {
+      totalCents: 918,
+      displayPrice: "CHF 9.18",
+      currency: "CHF",
+      providerQuotedCents: 578,
+      providerQuotedDisplayPrice: "CHF 5.78",
+      swissMailMarkupCents: 340,
+      swissMailMarkupDisplayPrice: "CHF 3.40",
+    },
+    registeredSurchargeCents: 423,
+    registeredSurchargeDisplayPrice: "CHF 4.23",
+    sync: {
+      sourceLabel: "ePost active rate matrix",
+      lastSyncedAt: "2026-04-07T06:00:00.000Z",
+      freshness: "fresh" as const,
+    },
+    providerBreakdown: {
+      providerName: "ePost",
+      note: "Public pricing examples come from the active stored provider rate matrix for Swiss domestic no-attachment letters.",
+      sourceUrl: "https://www.epost.ch/en/business-customers/digital-letter",
+      verifiedDate: "2026-04-07",
+      referenceScenario: {
+        shippingCountry: "CH" as const,
+        envelopeSize: "C5" as const,
+        windowLocation: "LEFT" as const,
+        duplex: false as const,
+        attachmentMode: "none" as const,
+        standardPostage: "A_POST" as const,
+        registeredPostage: "REGISTERED" as const,
+      },
+      pageCountExamples: {
+        standard: [
+          {
+            pageCount: 1,
+            providerQuotedCents: 155,
+            providerQuotedDisplayPrice: "CHF 1.55",
+            totalCents: 495,
+            displayPrice: "CHF 4.95",
+            currency: "CHF" as const,
+          },
+          {
+            pageCount: 2,
+            providerQuotedCents: 170,
+            providerQuotedDisplayPrice: "CHF 1.70",
+            totalCents: 510,
+            displayPrice: "CHF 5.10",
+            currency: "CHF" as const,
+          },
+        ],
+        registered: [
+          {
+            pageCount: 1,
+            providerQuotedCents: 578,
+            providerQuotedDisplayPrice: "CHF 5.78",
+            totalCents: 918,
+            displayPrice: "CHF 9.18",
+            currency: "CHF" as const,
+          },
+          {
+            pageCount: 2,
+            providerQuotedCents: 593,
+            providerQuotedDisplayPrice: "CHF 5.93",
+            totalCents: 933,
+            displayPrice: "CHF 9.33",
+            currency: "CHF" as const,
+          },
+        ],
+      },
+      pricesExcludeVat: true,
+      currency: "CHF" as const,
+    },
+  };
+}
+
 describe("shared contract schemas", () => {
   it("parses a draft files response with attachment constraints", () => {
     const result = DraftFilesResponseSchema.parse({
@@ -37,201 +122,30 @@ describe("shared contract schemas", () => {
     expect(result.attachmentConstraints.allowedMimeTypes).toEqual(["application/pdf"]);
   });
 
-  it("parses the public pricing response used by marketing surfaces", () => {
-    const result = PublicPricingResponseSchema.parse({
-      standard: {
-        totalCents: 495,
-        displayPrice: "CHF 4.95",
-        currency: "CHF",
-        providerQuotedCents: 155,
-        providerQuotedDisplayPrice: "CHF 1.55",
-        swissMailMarkupCents: 340,
-        swissMailMarkupDisplayPrice: "CHF 3.40",
-      },
-      registered: {
-        totalCents: 918,
-        displayPrice: "CHF 9.18",
-        currency: "CHF",
-        providerQuotedCents: 578,
-        providerQuotedDisplayPrice: "CHF 5.78",
-        swissMailMarkupCents: 340,
-        swissMailMarkupDisplayPrice: "CHF 3.40",
-      },
-      registeredSurchargeCents: 423,
-      registeredSurchargeDisplayPrice: "CHF 4.23",
-      sync: {
-        sourceLabel: "ePost daily sync",
-        lastSyncedAt: "2026-04-03T06:00:00.000Z",
-        freshness: "fresh",
-      },
-      providerBreakdown: {
-        providerName: "ePost",
-        note: "Reference scenario verified against official ePost public pricing inputs for one printed page, one A4 sheet, one C5 envelope, and the currently configured postage mapping.",
-        sourceUrl: "https://www.epost.ch/en/business-customers/digital-letter",
-        verifiedDate: "2026-04-03",
-        perPrintedPageCents: 5,
-        perA4SheetCents: 10,
-        envelopeC5Cents: 30,
-        envelopeC4Cents: 60,
-        postageCents: {
-          A_POST: 110,
-          B_POST: 92,
-          B_POST_LARGEVOLUME: 60,
-          A_PLUS: 267,
-          REGISTERED: 533,
-        },
-        firstSheetC5Cents: {
-          simplexCents: 45,
-          duplexCents: 50,
-        },
-        additionalA4SheetCents: {
-          simplexCents: 15,
-          duplexCents: 20,
-        },
-        referenceScenario: {
-          printedPages: 1,
-          physicalSheets: 1,
-          envelopeFormat: "C5",
-          standardPostage: "A_POST",
-          registeredPostage: "REGISTERED",
-        },
-        pricesExcludeVat: true,
-        currency: "CHF",
-      },
-    });
+  it("parses the matrix-backed public pricing response used by marketing surfaces", () => {
+    const result = PublicPricingResponseSchema.parse(createPublicPricingResponse());
 
     expect(result.registered.totalCents).toBe(918);
-    expect(result.providerBreakdown.firstSheetC5Cents.duplexCents).toBe(50);
+    expect(result.providerBreakdown.referenceScenario.attachmentMode).toBe("none");
+    expect(result.providerBreakdown.pageCountExamples.standard[1]?.pageCount).toBe(2);
   });
 
   it("requires sync metadata on the public pricing response", () => {
-    const result = PublicPricingResponseSchema.parse({
-      standard: {
-        totalCents: 495,
-        displayPrice: "CHF 4.95",
-        currency: "CHF",
-        providerQuotedCents: 155,
-        providerQuotedDisplayPrice: "CHF 1.55",
-        swissMailMarkupCents: 340,
-        swissMailMarkupDisplayPrice: "CHF 3.40",
-      },
-      registered: {
-        totalCents: 918,
-        displayPrice: "CHF 9.18",
-        currency: "CHF",
-        providerQuotedCents: 578,
-        providerQuotedDisplayPrice: "CHF 5.78",
-        swissMailMarkupCents: 340,
-        swissMailMarkupDisplayPrice: "CHF 3.40",
-      },
-      registeredSurchargeCents: 423,
-      registeredSurchargeDisplayPrice: "CHF 4.23",
-      sync: {
-        sourceLabel: "ePost daily sync",
-        lastSyncedAt: "2026-04-07T06:00:00.000Z",
-        freshness: "fresh",
-      },
-      providerBreakdown: {
-        providerName: "ePost",
-        note: "Reference scenario built from the latest stored provider pricing snapshot.",
-        sourceUrl: "https://www.epost.ch/en/business-customers/digital-letter",
-        verifiedDate: "2026-04-07",
-        perPrintedPageCents: 5,
-        perA4SheetCents: 10,
-        envelopeC5Cents: 30,
-        envelopeC4Cents: 60,
-        postageCents: {
-          A_POST: 110,
-          B_POST: 92,
-          B_POST_LARGEVOLUME: 60,
-          A_PLUS: 267,
-          REGISTERED: 533,
-        },
-        firstSheetC5Cents: {
-          simplexCents: 45,
-          duplexCents: 50,
-        },
-        additionalA4SheetCents: {
-          simplexCents: 15,
-          duplexCents: 20,
-        },
-        referenceScenario: {
-          printedPages: 1,
-          physicalSheets: 1,
-          envelopeFormat: "C5",
-          standardPostage: "A_POST",
-          registeredPostage: "REGISTERED",
-        },
-        pricesExcludeVat: true,
-        currency: "CHF",
-      },
-    });
+    const result = PublicPricingResponseSchema.parse(createPublicPricingResponse());
 
     expect(result.sync.freshness).toBe("fresh");
     expect(result.sync.lastSyncedAt).toBe("2026-04-07T06:00:00.000Z");
   });
 
   it("rejects unsupported public pricing freshness values", () => {
+    const response = createPublicPricingResponse();
+
     expect(() =>
       PublicPricingResponseSchema.parse({
-        standard: {
-          totalCents: 495,
-          displayPrice: "CHF 4.95",
-          currency: "CHF",
-          providerQuotedCents: 155,
-          providerQuotedDisplayPrice: "CHF 1.55",
-          swissMailMarkupCents: 340,
-          swissMailMarkupDisplayPrice: "CHF 3.40",
-        },
-        registered: {
-          totalCents: 918,
-          displayPrice: "CHF 9.18",
-          currency: "CHF",
-          providerQuotedCents: 578,
-          providerQuotedDisplayPrice: "CHF 5.78",
-          swissMailMarkupCents: 340,
-          swissMailMarkupDisplayPrice: "CHF 3.40",
-        },
-        registeredSurchargeCents: 423,
-        registeredSurchargeDisplayPrice: "CHF 4.23",
+        ...response,
         sync: {
-          sourceLabel: "ePost daily sync",
-          lastSyncedAt: "2026-04-07T06:00:00.000Z",
+          ...response.sync,
           freshness: "late",
-        },
-        providerBreakdown: {
-          providerName: "ePost",
-          note: "Reference scenario built from the latest stored provider pricing snapshot.",
-          sourceUrl: "https://www.epost.ch/en/business-customers/digital-letter",
-          verifiedDate: "2026-04-07",
-          perPrintedPageCents: 5,
-          perA4SheetCents: 10,
-          envelopeC5Cents: 30,
-          envelopeC4Cents: 60,
-          postageCents: {
-            A_POST: 110,
-            B_POST: 92,
-            B_POST_LARGEVOLUME: 60,
-            A_PLUS: 267,
-            REGISTERED: 533,
-          },
-          firstSheetC5Cents: {
-            simplexCents: 45,
-            duplexCents: 50,
-          },
-          additionalA4SheetCents: {
-            simplexCents: 15,
-            duplexCents: 20,
-          },
-          referenceScenario: {
-            printedPages: 1,
-            physicalSheets: 1,
-            envelopeFormat: "C5",
-            standardPostage: "A_POST",
-            registeredPostage: "REGISTERED",
-          },
-          pricesExcludeVat: true,
-          currency: "CHF",
         },
       }),
     ).toThrow();
