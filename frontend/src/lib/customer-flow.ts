@@ -27,7 +27,7 @@ export function getPreviousCustomerFlowStep(
     return null;
   }
 
-  return CUSTOMER_FLOW_STEPS[index - 1];
+  return CUSTOMER_FLOW_STEPS[index - 1] as CustomerFlowStep;
 }
 
 export function getNextCustomerFlowStep(
@@ -38,7 +38,7 @@ export function getNextCustomerFlowStep(
     return null;
   }
 
-  return CUSTOMER_FLOW_STEPS[index + 1];
+  return CUSTOMER_FLOW_STEPS[index + 1] as CustomerFlowStep;
 }
 
 export function getCustomerFlowPath(
