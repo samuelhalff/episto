@@ -1,6 +1,24 @@
 import { captureError } from "./error-tracking";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api";
+export function normalizeApiBase(apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/api"): string {
+  const trimmedBase = apiBase.replace(/\/$/, "");
+
+  try {
+    const url = new URL(trimmedBase);
+    if (url.pathname === "" || url.pathname === "/") {
+      url.pathname = "/api";
+      return url.toString();
+    }
+  } catch {
+    // Relative values like "/api" are already valid.
+  }
+
+  return trimmedBase;
+}
+
+export function getApiBase(): string {
+  return normalizeApiBase();
+}
 
 export class ApiError extends Error {
   constructor(
@@ -78,7 +96,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   };
 
   const method = init?.method ?? "GET";
-  const res = await fetch(`${API_BASE}${path}`, {
+  const res = await fetch(`${getApiBase()}${path}`, {
     credentials: "include",
     headers,
     ...init,
@@ -109,5 +127,5 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 }
 
 export function getApiUrl(path: string): string {
-  return `${API_BASE}${path}`;
+  return `${getApiBase()}${path}`;
 }

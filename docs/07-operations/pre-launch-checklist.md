@@ -49,7 +49,7 @@ Do not ship a public production release until every blocking item here is explic
 - [ ] Privacy policy matches real data flows, including any third-party AI processing
 - [ ] Security headers and cookie settings match `security-and-privacy.md`
 - [ ] Secrets are stored outside source control and rotated for production
-- [ ] Admin access is protected by TLS + HTTP Basic Auth as documented
+- [ ] Admin access is protected by TLS + Microsoft SSO as documented
 - [ ] Audit logging exists for privileged admin/support actions
 - [ ] Content retention and metadata retention behaviors are verified against config
 - [ ] Data-access and deletion handling matches `security-and-privacy.md`

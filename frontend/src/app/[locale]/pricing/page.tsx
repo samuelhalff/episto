@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import type { Locale } from "../../../i18n/routing";
 import { JsonLd } from "../../../components/marketing/JsonLd";
 import { MarketingHero } from "../../../components/marketing/MarketingHero";
 import { MarketingLayout } from "../../../components/marketing/MarketingLayout";
@@ -7,9 +8,6 @@ import {
   PricingHeroPanel,
 } from "../../../components/marketing/PricingPageClient";
 import { buildMarketingMetadata, buildServiceJsonLd } from "../../../lib/marketing-seo";
-import { routing } from "../../../i18n/routing";
-
-type Locale = (typeof routing.locales)[number];
 
 export async function generateMetadata({
   params,
@@ -39,13 +37,14 @@ export default async function PricingPage({
 
   return (
     <>
-      <JsonLd
-        data={buildServiceJsonLd({
-          locale,
-          title: seo("pricing.title"),
-          description: seo("pricing.description"),
-        })}
-      />
+        <JsonLd
+          data={buildServiceJsonLd({
+            locale,
+            title: seo("pricing.title"),
+            description: seo("pricing.description"),
+            pathname: "/pricing",
+          })}
+        />
       <MarketingLayout>
         <MarketingHero
           eyebrow={t("noHiddenFees")}

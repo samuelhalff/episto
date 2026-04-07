@@ -2,14 +2,12 @@
 
 import { useState, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAdminAuth } from "../../admin-auth-context";
 import { adminPost } from "../../admin-api";
 import { SectionPanel, PanelError } from "../../admin-metric-panels";
 import { Loader2 } from "lucide-react";
 
 export default function SessionDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const { authHeader } = useAdminAuth();
   const router = useRouter();
   const [clearing, setClearing] = useState(false);
   const [cleared, setCleared] = useState(false);
@@ -25,7 +23,7 @@ export default function SessionDetailPage() {
     setClearing(true);
     setError("");
     try {
-      await adminPost(`/admin/sessions/${id}/clear`, authHeader, { reason });
+      await adminPost(`/admin/sessions/${id}/clear`, { reason });
       setCleared(true);
       setConfirmOpen(false);
     } catch (err) {
@@ -33,7 +31,7 @@ export default function SessionDetailPage() {
     } finally {
       setClearing(false);
     }
-  }, [id, authHeader, reason]);
+  }, [id, reason]);
 
   return (
     <div className="space-y-6">

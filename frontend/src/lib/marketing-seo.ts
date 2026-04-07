@@ -107,17 +107,19 @@ export function buildServiceJsonLd({
   locale,
   title,
   description,
+  pathname = "",
 }: {
   locale: Locale;
   title: string;
   description: string;
+  pathname?: string | undefined;
 }) {
   return {
     "@context": "https://schema.org",
     "@type": "Service",
     name: title,
     description,
-    url: `${getSiteUrl()}/${locale}`,
+    url: buildLocaleUrl(locale, pathname),
     areaServed: "CH",
     availableLanguage: locale,
     provider: {

@@ -51,6 +51,7 @@ function getMicrosoftJwks(): ReturnType<typeof createRemoteJWKSet> {
 
 export async function exchangeMicrosoftCodeForTokens(
   code: string,
+  redirectUri?: string,
 ): Promise<MicrosoftTokenExchange> {
   const config = getAdminMicrosoftConfig();
   const response = await fetch(
@@ -64,7 +65,7 @@ export async function exchangeMicrosoftCodeForTokens(
         client_id: config.clientId,
         client_secret: config.clientSecret,
         code,
-        redirect_uri: config.redirectUri,
+        redirect_uri: redirectUri ?? config.redirectUri,
         grant_type: "authorization_code",
       }),
     },

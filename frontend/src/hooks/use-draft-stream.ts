@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import type { DocumentModel } from "@swiss-mail/shared";
+import { getApiUrl } from "../lib/api";
 import { captureMessage } from "../lib/error-tracking";
 
 // ---------------------------------------------------------------------------
@@ -51,7 +52,6 @@ type EventListener = (event: DraftStreamEvent) => void;
 // Hook: useDraftStream
 // ---------------------------------------------------------------------------
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 const MAX_RECONNECT_FAILURES = 3;
 const POLL_INTERVAL_MS = 5_000;
 
@@ -88,7 +88,7 @@ export function useDraftStream(draftId: string | null) {
     function connect() {
       if (cancelled) return;
 
-      const url = `${API_BASE}/v1/drafts/${draftId}/stream`;
+      const url = getApiUrl(`/v1/drafts/${draftId}/stream`);
       const es = new EventSource(url, { withCredentials: true });
       eventSourceRef.current = es;
 

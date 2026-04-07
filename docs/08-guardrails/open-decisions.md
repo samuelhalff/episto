@@ -213,11 +213,11 @@ See [`../04-product/document-template.md`](../04-product/document-template.md).
 
 ---
 
-### Admin auth at MVP — LOCKED: backend-managed Microsoft SSO with Basic fallback
+### Admin auth at MVP — LOCKED: backend-managed Microsoft SSO (tenant-only)
 
 **Locked choice:** Admin access uses backend-managed Microsoft OAuth with a signed HTTP-only session
-cookie when Microsoft SSO is configured. `ADMIN_MICROSOFT_ALLOWED_EMAILS` controls who may sign in,
-and HTTP Basic Auth via `ADMIN_USERNAME` / `ADMIN_PASSWORD` remains the operational fallback.
+cookie. Access is authorized by the configured WestBay tenant (`ADMIN_MICROSOFT_TENANT_ID`); any
+identity token from a different tenant is denied. No Basic Auth fallback exists.
 
 See [`admin-build-pack.md`](../06-build-packs/admin-build-pack.md).
 

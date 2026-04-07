@@ -7,13 +7,13 @@ import { fetchAdminRetention } from "../admin-api";
 import { MetricCard, SectionPanel, PanelLoading, PanelError } from "../admin-metric-panels";
 
 export default function RetentionPage() {
-  const { authHeader } = useAdminAuth();
+  const { authenticated } = useAdminAuth();
 
   const retention = useQuery({
     queryKey: queryKeys.admin.retention(),
-    queryFn: () => fetchAdminRetention(authHeader),
+    queryFn: () => fetchAdminRetention(),
     refetchInterval: 30_000,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   return (

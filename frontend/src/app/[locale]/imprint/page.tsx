@@ -1,10 +1,8 @@
 import { getTranslations } from "next-intl/server";
+import type { Locale } from "../../../i18n/routing";
 import { Header } from "../../../components/marketing/Header";
 import { Footer } from "../../../components/marketing/Footer";
 import { buildMarketingMetadata } from "../../../lib/marketing-seo";
-import { routing } from "../../../i18n/routing";
-
-type Locale = (typeof routing.locales)[number];
 
 export async function generateMetadata({
   params,

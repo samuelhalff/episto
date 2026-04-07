@@ -10,13 +10,13 @@ import { PanelLoading, PanelError } from "../admin-metric-panels";
 const REFETCH_MS = 15_000;
 
 export default function HealthPage() {
-  const { authHeader } = useAdminAuth();
+  const { authenticated } = useAdminAuth();
 
   const health = useQuery({
     queryKey: queryKeys.admin.health(),
-    queryFn: () => adminFetch<HealthResponse>("/admin/health", authHeader),
+    queryFn: () => adminFetch<HealthResponse>("/admin/health"),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   return (

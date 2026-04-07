@@ -2,13 +2,117 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { afterEach, describe, expect, it } from "vitest";
+import * as React from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("next-intl/server", async () => {
+  const { readFileSync } = await import("node:fs");
+  const { join, sep } = await import("node:path");
+
+  const getNestedValue = (source: unknown, keyPath: string) =>
+    keyPath.split(".").reduce<unknown>((value, segment) => {
+      if (!value || typeof value !== "object") {
+        return undefined;
+      }
+
+      return (value as Record<string, unknown>)[segment];
+    }, source);
+
+  const formatMessage = (message: string, values?: Record<string, unknown>) =>
+    message.replace(/\{(\w+)\}/g, (_, key: string) => String(values?.[key] ?? `{${key}}`));
+
+  const frontendRoot = process.cwd().endsWith(`${sep}frontend`)
+    ? process.cwd()
+    : join(process.cwd(), "frontend");
+
+  const readLocaleMessages = (locale: string) =>
+    JSON.parse(
+      readFileSync(join(frontendRoot, "src", "messages", `${locale}.json`), "utf8"),
+    ) as Record<string, unknown>;
+
+  return {
+    async getTranslations({
+      locale = "de-CH",
+      namespace,
+    }: {
+      locale?: string;
+      namespace?: string;
+    }) {
+      const messages = readLocaleMessages(locale);
+      const base = namespace ? getNestedValue(messages, namespace) : messages;
+
+      return (key: string, values?: Record<string, unknown>) => {
+        const value = getNestedValue(base, key);
+
+        if (typeof value !== "string") {
+          throw new Error(`Missing translation: ${namespace ? `${namespace}.` : ""}${key}`);
+        }
+
+        return formatMessage(value, values);
+      };
+    },
+  };
+});
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const originalSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+const localeMessages = {
+  "de-CH": JSON.parse(readRepoFile("frontend/src/messages/de-CH.json")) as Record<string, unknown>,
+  "en-CH": JSON.parse(readRepoFile("frontend/src/messages/en-CH.json")) as Record<string, unknown>,
+  "fr-CH": JSON.parse(readRepoFile("frontend/src/messages/fr-CH.json")) as Record<string, unknown>,
+  "it-CH": JSON.parse(readRepoFile("frontend/src/messages/it-CH.json")) as Record<string, unknown>,
+} as const;
+
+const marketingRouteModules = {
+  home: () => import("../src/app/[locale]/page"),
+  pricing: () => import("../src/app/[locale]/pricing/page"),
+  help: () => import("../src/app/[locale]/help/page"),
+  privacy: () => import("../src/app/[locale]/privacy/page"),
+  terms: () => import("../src/app/[locale]/terms/page"),
+  imprint: () => import("../src/app/[locale]/imprint/page"),
+} as const;
+
+globalThis.React = React;
+
+vi.mock("../src/i18n/navigation", async () => {
+  const React = await import("react");
+
+  return {
+    Link: ({ href, children, ...props }: Record<string, unknown>) =>
+      React.createElement(
+        "a",
+        { href: typeof href === "string" ? href : String(href ?? "#"), ...props },
+        children,
+      ),
+  };
+});
 
 function readRepoFile(relativePath: string) {
   return readFileSync(path.join(repoRoot, relativePath), "utf8");
+}
+
+function getNestedValue(source: unknown, keyPath: string) {
+  return keyPath.split(".").reduce<unknown>((value, segment) => {
+    if (!value || typeof value !== "object") {
+      return undefined;
+    }
+
+    return (value as Record<string, unknown>)[segment];
+  }, source);
+}
+
+function getTopLevelChildren(element: React.ReactElement) {
+  const children = element.props.children;
+  return Array.isArray(children) ? children : [children];
+}
+
+function getJsonLdNode(element: React.ReactElement) {
+  return getTopLevelChildren(element).find(
+    (child): child is React.ReactElement =>
+      React.isValidElement(child) &&
+      typeof child.type === "function" &&
+      child.type.name === "JsonLd",
+  );
 }
 
 afterEach(() => {
@@ -92,65 +196,127 @@ describe("marketing seo plumbing", () => {
     }
   });
 
-  it("wires route-level metadata for every current marketing page", () => {
+  it("returns locale-aware metadata for every current marketing page", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://example.test";
+
     const pages = [
       {
-        file: "frontend/src/app/[locale]/page.tsx",
-        pathname: 'pathname: ""',
-        namespace: 'namespace: "seo"',
+        loadModule: marketingRouteModules.home,
+        locale: "en-CH",
+        pathname: "",
+        titleKey: "seo.home.title",
+        descriptionKey: "seo.home.description",
       },
       {
-        file: "frontend/src/app/[locale]/pricing/page.tsx",
-        pathname: 'pathname: "/pricing"',
-        namespace: 'namespace: "seo"',
+        loadModule: marketingRouteModules.pricing,
+        locale: "fr-CH",
+        pathname: "/pricing",
+        titleKey: "seo.pricing.title",
+        descriptionKey: "seo.pricing.description",
       },
       {
-        file: "frontend/src/app/[locale]/help/page.tsx",
-        pathname: 'pathname: "/help"',
-        namespace: 'namespace: "seo"',
+        loadModule: marketingRouteModules.help,
+        locale: "it-CH",
+        pathname: "/help",
+        titleKey: "seo.help.title",
+        descriptionKey: "seo.help.description",
       },
       {
-        file: "frontend/src/app/[locale]/privacy/page.tsx",
-        pathname: 'pathname: "/privacy"',
-        namespace: 'namespace: "seo"',
+        loadModule: marketingRouteModules.privacy,
+        locale: "de-CH",
+        pathname: "/privacy",
+        titleKey: "seo.privacy.title",
+        descriptionKey: "seo.privacy.description",
       },
       {
-        file: "frontend/src/app/[locale]/terms/page.tsx",
-        pathname: 'pathname: "/terms"',
-        namespace: 'namespace: "seo"',
+        loadModule: marketingRouteModules.terms,
+        locale: "en-CH",
+        pathname: "/terms",
+        titleKey: "seo.terms.title",
+        descriptionKey: "seo.terms.description",
       },
       {
-        file: "frontend/src/app/[locale]/imprint/page.tsx",
-        pathname: 'pathname: "/imprint"',
-        namespace: 'namespace: "seo"',
+        loadModule: marketingRouteModules.imprint,
+        locale: "fr-CH",
+        pathname: "/imprint",
+        titleKey: "seo.imprint.title",
+        descriptionKey: "seo.imprint.description",
       },
-    ];
+    ] as const;
 
     for (const page of pages) {
-      const source = readRepoFile(page.file);
+      const module = await page.loadModule();
+      const metadata = await module.generateMetadata({
+        params: Promise.resolve({ locale: page.locale }),
+      });
+      const messages = localeMessages[page.locale];
 
-      expect(source).toContain("export async function generateMetadata");
-      expect(source).toContain("buildMarketingMetadata");
-      expect(source).toContain(page.pathname);
-      expect(source).toContain(page.namespace);
+      expect(metadata).toMatchObject({
+        title: getNestedValue(messages, page.titleKey),
+        description: getNestedValue(messages, page.descriptionKey),
+      });
+      expect(metadata.alternates?.canonical).toBe(
+        `https://example.test/${page.locale}${page.pathname}`,
+      );
     }
   });
 
-  it("renders structured-data hooks on supported marketing pages", () => {
-    const homePage = readRepoFile("frontend/src/app/[locale]/page.tsx");
-    const pricingPage = readRepoFile("frontend/src/app/[locale]/pricing/page.tsx");
-    const helpPage = readRepoFile("frontend/src/app/[locale]/help/page.tsx");
+  it("returns route-specific structured data only on supported marketing pages", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://example.test";
 
-    expect(homePage).toContain("JsonLd");
-    expect(homePage).toContain("buildOrganizationJsonLd");
-    expect(homePage).toContain("buildWebsiteJsonLd");
-    expect(homePage).toContain("buildServiceJsonLd");
+    const { default: HomePage } = await marketingRouteModules.home();
+    const { default: PricingPage } = await marketingRouteModules.pricing();
+    const { default: HelpPage } = await marketingRouteModules.help();
+    const { default: PrivacyPage } = await marketingRouteModules.privacy();
+    const { default: TermsPage } = await marketingRouteModules.terms();
+    const { default: ImprintPage } = await marketingRouteModules.imprint();
 
-    expect(pricingPage).toContain("JsonLd");
-    expect(pricingPage).toContain("buildServiceJsonLd");
+    const homePage = await HomePage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const pricingPage = await PricingPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const helpPage = await HelpPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const privacyPage = await PrivacyPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const termsPage = await TermsPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const imprintPage = await ImprintPage({ params: Promise.resolve({ locale: "en-CH" }) });
 
-    expect(helpPage).toContain("JsonLd");
-    expect(helpPage).toContain("buildFaqJsonLd");
+    const homeJsonLd = getJsonLdNode(homePage);
+    const pricingJsonLd = getJsonLdNode(pricingPage);
+    const helpJsonLd = getJsonLdNode(helpPage);
+
+    expect(homeJsonLd?.props.data).toMatchObject([
+      { "@type": "Organization", url: "https://example.test" },
+      { "@type": "WebSite", url: "https://example.test" },
+      {
+        "@type": "Service",
+        name: getNestedValue(localeMessages["en-CH"], "seo.home.title"),
+        description: getNestedValue(localeMessages["en-CH"], "seo.home.description"),
+        url: "https://example.test/en-CH",
+      },
+    ]);
+
+    expect(pricingJsonLd?.props.data).toMatchObject({
+      "@type": "Service",
+      name: getNestedValue(localeMessages["en-CH"], "seo.pricing.title"),
+      description: getNestedValue(localeMessages["en-CH"], "seo.pricing.description"),
+      url: "https://example.test/en-CH/pricing",
+    });
+
+    expect(helpJsonLd?.props.data).toMatchObject({
+      "@type": "FAQPage",
+      mainEntity: expect.arrayContaining([
+        expect.objectContaining({
+          "@type": "Question",
+          name: getNestedValue(localeMessages["en-CH"], "help.faq1q"),
+          acceptedAnswer: expect.objectContaining({
+            "@type": "Answer",
+            text: getNestedValue(localeMessages["en-CH"], "help.faq1a"),
+          }),
+        }),
+      ]),
+    });
+
+    expect(getJsonLdNode(privacyPage)).toBeUndefined();
+    expect(getJsonLdNode(termsPage)).toBeUndefined();
+    expect(getJsonLdNode(imprintPage)).toBeUndefined();
   });
 
   it("includes only marketing routes in the sitemap", async () => {

@@ -103,8 +103,6 @@ jobs:
       AI_DRAFT_MODEL: gpt-4.1
       AI_CLASSIFY_MODEL: gpt-4.1-mini
       RESEND_API_KEY: re_dummy
-      ADMIN_USERNAME: admin
-      ADMIN_PASSWORD: adminpasswordatleast32characterslong
       BASE_URL: http://localhost:4000
       CORS_ORIGIN: http://localhost:3000
     steps:

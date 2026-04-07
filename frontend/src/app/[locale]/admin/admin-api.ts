@@ -1,11 +1,10 @@
 // Admin dashboard types matching backend response shapes.
 // See docs/06-build-packs/admin-build-pack.md for full spec.
 
+import { getApiBase } from "../../../lib/api";
 import {
-  ADMIN_SESSION_AUTH,
   type AdminSessionStatus,
 } from "./admin-auth-client";
-export { ADMIN_SESSION_AUTH } from "./admin-auth-client";
 
 export interface ServiceStatus {
   ok: boolean;
@@ -50,26 +49,12 @@ export interface OverviewResponse {
 // Admin API helpers
 // ---------------------------------------------------------------------------
 
-export function makeAuthHeader(username: string, password: string): string {
-  return `Basic ${btoa(`${username}:${password}`)}`;
-}
-
-function getAdminApiBase(): string {
-  return (process.env.NEXT_PUBLIC_API_URL ?? "/api").replace(/\/$/, "");
-}
-
-function buildAdminHeaders(authHeader: string): HeadersInit {
-  return {
-    ...(authHeader !== ADMIN_SESSION_AUTH &&
-      authHeader.length > 0 && { Authorization: authHeader }),
-    "X-Requested-With": "XMLHttpRequest",
-  };
-}
-
-export async function adminFetch<T>(path: string, authHeader: string): Promise<T> {
-  const res = await fetch(`${getAdminApiBase()}/v1${path}`, {
+export async function adminFetch<T>(path: string): Promise<T> {
+  const res = await fetch(`${getApiBase()}/v1${path}`, {
     credentials: "include",
-    headers: buildAdminHeaders(authHeader),
+    headers: {
+      "X-Requested-With": "XMLHttpRequest",
+    },
   });
   if (!res.ok) {
     throw new Error(`API error ${res.status}`);
@@ -78,7 +63,7 @@ export async function adminFetch<T>(path: string, authHeader: string): Promise<T
 }
 
 export async function fetchAdminAuthSession(): Promise<AdminSessionStatus> {
-  const res = await fetch(`${getAdminApiBase()}/v1/admin/auth/session`, {
+  const res = await fetch(`${getApiBase()}/v1/admin/auth/session`, {
     credentials: "include",
     headers: {
       "X-Requested-With": "XMLHttpRequest",
@@ -93,7 +78,7 @@ export async function fetchAdminAuthSession(): Promise<AdminSessionStatus> {
 }
 
 export async function adminLogout(): Promise<void> {
-  const res = await fetch(`${getAdminApiBase()}/v1/admin/auth/logout`, {
+  const res = await fetch(`${getApiBase()}/v1/admin/auth/logout`, {
     method: "POST",
     credentials: "include",
     headers: {
@@ -121,60 +106,44 @@ import type {
   AdminRetentionInfo,
 } from "@swiss-mail/shared";
 
-export async function fetchAdminSummary(authHeader: string, period = "7d") {
-  return adminFetch<AdminSummaryResponse>(
-    `/admin/metrics/summary?period=${period}`, authHeader,
-  );
+export async function fetchAdminSummary(period = "7d") {
+  return adminFetch<AdminSummaryResponse>(`/admin/metrics/summary?period=${period}`);
 }
 
-export async function fetchAdminActive(authHeader: string) {
-  return adminFetch<AdminActiveResponse>(
-    "/admin/metrics/active", authHeader,
-  );
+export async function fetchAdminActive() {
+  return adminFetch<AdminActiveResponse>("/admin/metrics/active");
 }
 
-export async function fetchAdminFunnel(authHeader: string, period = "7d") {
-  return adminFetch<AdminFunnelResponse>(
-    `/admin/metrics/funnel?period=${period}`, authHeader,
-  );
+export async function fetchAdminFunnel(period = "7d") {
+  return adminFetch<AdminFunnelResponse>(`/admin/metrics/funnel?period=${period}`);
 }
 
-export async function fetchAdminErrors(authHeader: string, period = "7d") {
-  return adminFetch<AdminErrorsResponse>(
-    `/admin/metrics/errors?period=${period}`, authHeader,
-  );
+export async function fetchAdminErrors(period = "7d") {
+  return adminFetch<AdminErrorsResponse>(`/admin/metrics/errors?period=${period}`);
 }
 
-export async function fetchAdminLocale(authHeader: string) {
-  return adminFetch<AdminLocaleResponse>(
-    "/admin/metrics/locale", authHeader,
-  );
+export async function fetchAdminLocale() {
+  return adminFetch<AdminLocaleResponse>("/admin/metrics/locale");
 }
 
-export async function fetchAdminAi(authHeader: string, period = "7d") {
-  return adminFetch<AdminAiResponse>(
-    `/admin/metrics/ai?period=${period}`, authHeader,
-  );
+export async function fetchAdminAi(period = "7d") {
+  return adminFetch<AdminAiResponse>(`/admin/metrics/ai?period=${period}`);
 }
 
-export async function fetchAdminSessions(authHeader: string, params: string) {
-  return adminFetch<AdminSessionListResponse>(
-    `/admin/sessions?${params}`, authHeader,
-  );
+export async function fetchAdminSessions(params = "") {
+  return adminFetch<AdminSessionListResponse>(`/admin/sessions?${params}`);
 }
 
-export async function fetchAdminRetention(authHeader: string) {
-  return adminFetch<AdminRetentionInfo>(
-    "/admin/retention", authHeader,
-  );
+export async function fetchAdminRetention() {
+  return adminFetch<AdminRetentionInfo>("/admin/retention");
 }
 
-export async function adminPost<T>(path: string, authHeader: string, body?: unknown): Promise<T> {
-  const res = await fetch(`${getAdminApiBase()}/v1${path}`, {
+export async function adminPost<T>(path: string, body?: unknown): Promise<T> {
+  const res = await fetch(`${getApiBase()}/v1${path}`, {
     method: "POST",
     credentials: "include",
     headers: {
-      ...buildAdminHeaders(authHeader),
+      "X-Requested-With": "XMLHttpRequest",
       "Content-Type": "application/json",
     },
     ...(body !== undefined && { body: JSON.stringify(body) }),

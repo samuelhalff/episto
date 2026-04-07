@@ -30,35 +30,35 @@ function formatPercent(rate: number): string {
 }
 
 export default function OverviewPage() {
-  const { authHeader } = useAdminAuth();
+  const { authenticated } = useAdminAuth();
   const [period, setPeriod] = useState("7d");
 
   const summary = useQuery({
     queryKey: queryKeys.admin.summary(period),
-    queryFn: () => fetchAdminSummary(authHeader, period),
+    queryFn: () => fetchAdminSummary(period),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   const active = useQuery({
     queryKey: queryKeys.admin.active(),
-    queryFn: () => fetchAdminActive(authHeader),
+    queryFn: () => fetchAdminActive(),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   const locale = useQuery({
     queryKey: queryKeys.admin.locale(),
-    queryFn: () => fetchAdminLocale(authHeader),
+    queryFn: () => fetchAdminLocale(),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   const ai = useQuery({
     queryKey: queryKeys.admin.ai(period),
-    queryFn: () => fetchAdminAi(authHeader, period),
+    queryFn: () => fetchAdminAi(period),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   return (

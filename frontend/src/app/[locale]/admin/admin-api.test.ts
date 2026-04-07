@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
-  ADMIN_SESSION_AUTH,
   adminFetch,
   adminLogout,
   fetchAdminAuthSession,
@@ -9,34 +8,17 @@ import {
 describe("admin-api", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+    delete process.env.NEXT_PUBLIC_API_URL;
   });
 
-  it("sends basic auth headers and browser credentials for admin fetches", async () => {
+  it("does not send Authorization headers for admin fetches", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ ok: true }),
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    await adminFetch("/admin/health", "Basic abc123");
-
-    expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/health", {
-      credentials: "include",
-      headers: {
-        Authorization: "Basic abc123",
-        "X-Requested-With": "XMLHttpRequest",
-      },
-    });
-  });
-
-  it("omits Authorization when using the cookie-backed session sentinel", async () => {
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ ok: true }),
-    });
-    vi.stubGlobal("fetch", fetchMock);
-
-    await adminFetch("/admin/health", ADMIN_SESSION_AUTH);
+    await adminFetch("/admin/health");
 
     expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/health", {
       credentials: "include",
@@ -56,6 +38,24 @@ describe("admin-api", () => {
     await fetchAdminAuthSession();
 
     expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/auth/session", {
+      credentials: "include",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+  });
+
+  it("normalizes a bare backend origin to the /api base for admin requests", async () => {
+    process.env.NEXT_PUBLIC_API_URL = "http://localhost:4000";
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ authenticated: false, microsoftSsoEnabled: false }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchAdminAuthSession();
+
+    expect(fetchMock).toHaveBeenCalledWith("http://localhost:4000/api/v1/admin/auth/session", {
       credentials: "include",
       headers: {
         "X-Requested-With": "XMLHttpRequest",

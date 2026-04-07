@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import type { Locale } from "../../i18n/routing";
 import { JsonLd } from "../../components/marketing/JsonLd";
 import { ConfidenceBlock } from "../../components/marketing/ConfidenceBlock";
 import { FinalCTABand } from "../../components/marketing/FinalCTABand";
@@ -14,10 +15,7 @@ import {
   buildServiceJsonLd,
   buildWebsiteJsonLd,
 } from "../../lib/marketing-seo";
-import { routing } from "../../i18n/routing";
 import { MarketingSection } from "../../components/marketing/primitives";
-
-type Locale = (typeof routing.locales)[number];
 
 export async function generateMetadata({
   params,

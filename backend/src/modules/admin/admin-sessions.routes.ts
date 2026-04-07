@@ -3,7 +3,6 @@ import { sql, eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { recordSupportEvent } from "./index.js";
-import { env } from "../../shared/config/index.js";
 import type {
   AdminSessionListResponse,
   AdminSessionListItem,
@@ -158,7 +157,7 @@ export async function adminSessionsRoutes(app: FastifyInstance): Promise<void> {
       await recordSupportEvent(db, {
         sessionId: id,
         eventType: "data_cleared",
-        actor: request.admin?.actor ?? env().ADMIN_USERNAME,
+        actor: request.admin!.actor,
         details: {
           reason,
           draftsCleared: cleared.rows.length,

@@ -10,20 +10,20 @@ import { PanelLoading, PanelError } from "../admin-metric-panels";
 const REFETCH_MS = 15_000;
 
 export default function FlagsPage() {
-  const { authHeader } = useAdminAuth();
+  const { authenticated } = useAdminAuth();
 
   const overview = useQuery({
     queryKey: queryKeys.admin.overview(),
-    queryFn: () => adminFetch<OverviewResponse>("/admin/overview", authHeader),
+    queryFn: () => adminFetch<OverviewResponse>("/admin/overview"),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   const health = useQuery({
     queryKey: queryKeys.admin.health(),
-    queryFn: () => adminFetch<HealthResponse>("/admin/health", authHeader),
+    queryFn: () => adminFetch<HealthResponse>("/admin/health"),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   return (

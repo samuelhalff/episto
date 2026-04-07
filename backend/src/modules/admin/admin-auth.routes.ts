@@ -15,6 +15,7 @@ import {
 } from "./admin-microsoft.js";
 
 const ADMIN_OAUTH_STATE_TTL_SECONDS = 10 * 60;
+const ADMIN_MICROSOFT_CALLBACK_PATH = "/api/v1/admin/auth/microsoft/callback";
 
 function isMicrosoftSsoConfigured(config = env()): boolean {
   return Boolean(
@@ -22,7 +23,8 @@ function isMicrosoftSsoConfigured(config = env()): boolean {
       config.ADMIN_MICROSOFT_CLIENT_ID &&
       config.ADMIN_MICROSOFT_CLIENT_SECRET &&
       config.ADMIN_MICROSOFT_REDIRECT_URI &&
-      config.ADMIN_MICROSOFT_ALLOWED_EMAILS,
+      config.ADMIN_MICROSOFT_TENANT_ID &&
+      config.ADMIN_MICROSOFT_TENANT_ID !== "common",
   );
 }
 
@@ -60,8 +62,8 @@ function buildMicrosoftAuthorizeUrl(
   config: {
     ADMIN_MICROSOFT_TENANT_ID: string;
     ADMIN_MICROSOFT_CLIENT_ID: string;
-    ADMIN_MICROSOFT_REDIRECT_URI: string;
   },
+  redirectUri: string,
   state: string,
 ): string {
   const url = new URL(
@@ -69,7 +71,7 @@ function buildMicrosoftAuthorizeUrl(
   );
   url.searchParams.set("client_id", config.ADMIN_MICROSOFT_CLIENT_ID);
   url.searchParams.set("response_type", "code");
-  url.searchParams.set("redirect_uri", config.ADMIN_MICROSOFT_REDIRECT_URI);
+  url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("response_mode", "query");
   url.searchParams.set("scope", "openid profile email");
   url.searchParams.set("state", state);
@@ -82,27 +84,50 @@ function appendAuthError(returnTo: string, authError: string): string {
   return `${url.pathname}${url.search}${url.hash}`;
 }
 
-function resolveAllowedEmails(raw: string): Set<string> {
-  return new Set(
-    raw
-      .split(",")
-      .map((value) => value.trim().toLowerCase())
-      .filter((value) => value.length > 0),
-  );
-}
-
-function resolveAllowedTenantIds(raw?: string): Set<string> {
-  if (!raw) {
-    return new Set();
+function firstHeaderValue(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) {
+    return value[0]?.split(",")[0]?.trim();
   }
 
-  return new Set(
-    raw
-      .split(",")
-      .map((value) => value.trim().toLowerCase())
-      .filter((value) => value.length > 0),
-  );
+  return value?.split(",")[0]?.trim();
 }
+
+function isRoutableCallbackHost(host: string): boolean {
+  const normalizedHost = host.replace(/^\[|\]$/g, "");
+  const hostName = normalizedHost.split(":")[0] ?? normalizedHost;
+
+  if (
+    hostName === "localhost" ||
+    hostName === "127.0.0.1" ||
+    hostName === "::1"
+  ) {
+    return true;
+  }
+
+  return hostName.includes(".");
+}
+
+function resolveAdminMicrosoftRedirectUri(
+  request: FastifyRequest,
+  configuredRedirectUri: string,
+): string {
+  const forwardedHost = firstHeaderValue(request.headers["x-forwarded-host"]);
+  const host = forwardedHost ?? firstHeaderValue(request.headers.host);
+
+  if (
+    !host ||
+    host === "localhost:80" ||
+    host === "127.0.0.1:80" ||
+    !isRoutableCallbackHost(host)
+  ) {
+    return configuredRedirectUri;
+  }
+
+  const forwardedProto = firstHeaderValue(request.headers["x-forwarded-proto"]);
+  const protocol = forwardedProto ?? (isSecureCookie(request) ? "https" : "http");
+  return `${protocol}://${host}${ADMIN_MICROSOFT_CALLBACK_PATH}`;
+}
+
 
 function readAdminSession(request: FastifyRequest) {
   const token = request.cookies[ADMIN_SESSION_COOKIE_NAME];
@@ -154,6 +179,10 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
         reply.status(404).send({ error: "Microsoft SSO is not configured" });
         return;
       }
+      const redirectUri = resolveAdminMicrosoftRedirectUri(
+        request,
+        config.ADMIN_MICROSOFT_REDIRECT_URI,
+      );
 
       const state = randomUUID();
       const returnTo = request.query.returnTo ?? "/en-CH/overview";
@@ -176,8 +205,8 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
           {
             ADMIN_MICROSOFT_TENANT_ID: config.ADMIN_MICROSOFT_TENANT_ID,
             ADMIN_MICROSOFT_CLIENT_ID: config.ADMIN_MICROSOFT_CLIENT_ID,
-            ADMIN_MICROSOFT_REDIRECT_URI: config.ADMIN_MICROSOFT_REDIRECT_URI,
           },
+          redirectUri,
           state,
         ),
       );
@@ -191,10 +220,18 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
       reply,
     ) => {
       const config = env();
-      if (!config.ADMIN_SESSION_SECRET || !isMicrosoftSsoConfigured(config)) {
+      if (
+        !config.ADMIN_SESSION_SECRET ||
+        !config.ADMIN_MICROSOFT_REDIRECT_URI ||
+        !isMicrosoftSsoConfigured(config)
+      ) {
         reply.redirect(appendAuthError("/en-CH/overview", "auth_failed"));
         return;
       }
+      const redirectUri = resolveAdminMicrosoftRedirectUri(
+        request,
+        config.ADMIN_MICROSOFT_REDIRECT_URI,
+      );
 
       const stateToken = request.cookies[ADMIN_OAUTH_STATE_COOKIE_NAME];
       const stateClaims = stateToken
@@ -216,37 +253,35 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
       }
 
       try {
-        const { idToken } = await exchangeMicrosoftCodeForTokens(request.query.code);
+        const { idToken } = await exchangeMicrosoftCodeForTokens(
+          request.query.code,
+          redirectUri,
+        );
         const identity = await validateMicrosoftIdToken(idToken);
-        const allowedEmailsSource = config.ADMIN_MICROSOFT_ALLOWED_EMAILS;
-        if (!allowedEmailsSource) {
+        const configuredTenantId = config.ADMIN_MICROSOFT_TENANT_ID;
+
+        if (!configuredTenantId || configuredTenantId === "common") {
           reply.redirect(appendAuthError(returnTo, "auth_failed"));
           return;
         }
 
-        const allowedEmails = resolveAllowedEmails(allowedEmailsSource);
-        const allowedTenantIds = resolveAllowedTenantIds(
-          config.ADMIN_MICROSOFT_ALLOWED_TENANT_IDS,
-        );
-        const normalizedEmail = identity.email?.trim().toLowerCase();
-
-        if (!normalizedEmail || !allowedEmails.has(normalizedEmail)) {
+        if (identity.tid.trim().toLowerCase() !== configuredTenantId.trim().toLowerCase()) {
           reply.redirect(appendAuthError(returnTo, "access_denied"));
           return;
         }
 
-        if (
-          allowedTenantIds.size > 0 &&
-          !allowedTenantIds.has(identity.tid.trim().toLowerCase())
-        ) {
-          reply.redirect(appendAuthError(returnTo, "access_denied"));
+        const actorEmail = identity.email;
+        if (!actorEmail) {
+          reply.redirect(appendAuthError(returnTo, "auth_failed"));
           return;
         }
+
+        const actor = actorEmail.trim().toLowerCase();
 
         const ttlSeconds = config.ADMIN_SESSION_TTL_HOURS * 3600;
         const sessionToken = createAdminSessionToken(
           {
-            actor: normalizedEmail,
+            actor,
             authMethod: "microsoft",
             ...(identity.email !== undefined && { email: identity.email }),
             ...(identity.name !== undefined && { name: identity.name }),

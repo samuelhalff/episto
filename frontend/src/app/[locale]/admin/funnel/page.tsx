@@ -16,21 +16,21 @@ import {
 const REFETCH_MS = 15_000;
 
 export default function FunnelPage() {
-  const { authHeader } = useAdminAuth();
+  const { authenticated } = useAdminAuth();
   const [period, setPeriod] = useState("7d");
 
   const funnel = useQuery({
     queryKey: queryKeys.admin.funnel(period),
-    queryFn: () => fetchAdminFunnel(authHeader, period),
+    queryFn: () => fetchAdminFunnel(period),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   const errors = useQuery({
     queryKey: queryKeys.admin.errors(period),
-    queryFn: () => fetchAdminErrors(authHeader, period),
+    queryFn: () => fetchAdminErrors(period),
     refetchInterval: REFETCH_MS,
-    enabled: !!authHeader,
+    enabled: authenticated,
   });
 
   return (

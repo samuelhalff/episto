@@ -1,6 +1,11 @@
 "use client";
 
-import { type ButtonHTMLAttributes, type ReactNode, useEffect, useRef } from "react";
+import React, {
+  type ButtonHTMLAttributes,
+  type ReactNode,
+  useEffect,
+  useRef,
+} from "react";
 import { ArrowUp, Eye, EyeOff, Layers, Mic, Paperclip, Square } from "lucide-react";
 import { AppButton } from "../../ui/app-button";
 
@@ -106,9 +111,8 @@ export function DraftComposer({
               variant={canSend || isSending ? "primary" : "secondary"}
               size="icon"
               className={canSend ? "scale-105" : "shadow-none"}
-            >
-              <ArrowUp className="h-5 w-5" />
-            </AppButton>
+              leadingIcon={!isSending ? <ArrowUp className="h-5 w-5" /> : undefined}
+            />
           </div>
         </div>
       </div>

@@ -295,8 +295,6 @@ export function IntakeStep({
             sheetDescription={t("intakeShortcutSheetHint")}
             closeLabel={tc("close")}
             disabled={conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse}
-            isCompactViewport={isCompactViewport}
-            compactPrimaryCount={1}
             onShortcutSelect={(shortcut) => {
               void handleIntakeShortcut(shortcut.prompt);
             }}

@@ -206,16 +206,12 @@ All secrets and environment-specific values are injected as environment variable
 | `SESSION_SECRET` | Secret for cookie signing and related HMAC use, if enabled by the session implementation | 64-char random hex string |
 | `BASE_URL` | Public-facing URL | `https://swissmail.ch` |
 | `RESEND_API_KEY` | Resend transactional email API key | *(secret)* |
-| `ADMIN_USERNAME` | Admin Basic Auth username | `admin` |
-| `ADMIN_PASSWORD` | Admin Basic Auth password | *(secret, min 32 chars)* |
 | `ADMIN_SESSION_SECRET` | HMAC secret for admin session and OAuth state cookies | 64-char random string |
 | `ADMIN_SESSION_TTL_HOURS` | Admin session lifetime after Microsoft login | `12` |
-| `ADMIN_MICROSOFT_CLIENT_ID` | Microsoft app registration client ID for admin login | *(secret / env-specific)* |
+| `ADMIN_MICROSOFT_CLIENT_ID` | Microsoft app registration client ID for admin login. Must come from the dedicated WestBay admin app registration, not the temporary AI `AZURE_*` app. | *(secret / env-specific)* |
 | `ADMIN_MICROSOFT_CLIENT_SECRET` | Microsoft app registration client secret for admin login | *(secret)* |
-| `ADMIN_MICROSOFT_TENANT_ID` | Microsoft tenant ID or `common` for multi-tenant login | `common` |
-| `ADMIN_MICROSOFT_REDIRECT_URI` | Backend callback URL for admin Microsoft login | `https://api.swissmail.ch/api/v1/admin/auth/microsoft/callback` |
-| `ADMIN_MICROSOFT_ALLOWED_EMAILS` | Comma-separated operator email allowlist for Microsoft login | `ops@example.com,admin@example.com` |
-| `ADMIN_MICROSOFT_ALLOWED_TENANT_IDS` | Optional comma-separated tenant allowlist layered on top of emails | `00000000-0000-0000-0000-000000000000` |
+| `ADMIN_MICROSOFT_TENANT_ID` | WestBay tenant ID — must be an explicit tenant, never `"common"` | *(secret / env-specific)* |
+| `ADMIN_MICROSOFT_REDIRECT_URI` | Fallback backend callback URL for admin Microsoft login. Runtime prefers the current request origin when constructing the OAuth callback, but the Azure app registration must still allow the public and local callback URLs you use. | `https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback` |
 | `NODE_ENV` | Runtime environment | `production` / `development` / `test` |
 | `PORT` | HTTP port (backend) | `4000` |
 | `LOG_LEVEL` | Pino log level | `info` |
@@ -543,7 +539,8 @@ For the Infomaniak-centered deployment:
 | `AZURE_OPENAI_API_KEY` | 1. Generate/rotate key in Azure. 2. Update env. 3. Restart. 4. Revoke old key. |
 | `SWISS_POST_CLIENT_SECRET` | 1. Rotate Swiss Post client secret. 2. Update env. 3. Restart backend and worker. 4. Revoke old secret. |
 | `RESEND_API_KEY` | 1. Create new Resend API key. 2. Update env. 3. Restart backend and worker. 4. Revoke old key. |
-| `ADMIN_PASSWORD` | 1. Update `ADMIN_PASSWORD` env var. 2. Restart backend. |
+| `ADMIN_SESSION_SECRET` | 1. Generate new 64-char random secret. 2. Update env. 3. Restart backend (existing admin sessions are invalidated). |
+| `ADMIN_MICROSOFT_CLIENT_SECRET` | 1. Rotate secret in Azure app registration. 2. Update env. 3. Restart backend. 4. Revoke old secret. |
 
 ---
 
@@ -762,28 +759,23 @@ This is admin-only (admin auth gated, see Section 11).
 
 **Resolves IMPROV-8.**
 
-### Backend-managed Microsoft SSO with Basic fallback
+### Backend-managed Microsoft SSO (tenant-only)
 
 The admin UI is served from `/{locale}/admin/...`, while backend admin API routes remain under
 `/admin/*`.
 
-Swiss Mail supports two operator authentication paths over TLS:
+Admin operator authentication uses backend-managed Microsoft OAuth over TLS. No Basic Auth fallback
+exists.
 
-1. **Primary:** backend-managed Microsoft OAuth via
-   `/api/v1/admin/auth/microsoft/login` and
-   `/api/v1/admin/auth/microsoft/callback`
-2. **Fallback:** HTTP Basic Auth via `ADMIN_USERNAME` and `ADMIN_PASSWORD`
-
-Operational rules:
-
-- Successful Microsoft login mints a signed HTTP-only admin session cookie using
-  `ADMIN_SESSION_SECRET`
-- `ADMIN_MICROSOFT_ALLOWED_EMAILS` is mandatory for Microsoft login; only allowlisted emails may
-  access the admin UI
-- `ADMIN_MICROSOFT_ALLOWED_TENANT_IDS` is optional and further restricts Microsoft login when set
-- Protected admin API routes accept either a valid admin session cookie or a valid Basic Auth header
+- Microsoft login flows through `/api/v1/admin/auth/microsoft/login` and
+  `/api/v1/admin/auth/microsoft/callback`
+- Successful login mints a signed HTTP-only admin session cookie using `ADMIN_SESSION_SECRET`
+- Access is authorized by `ADMIN_MICROSOFT_TENANT_ID` (the WestBay tenant); any identity from a
+  different tenant is rejected with `access_denied`. `ADMIN_MICROSOFT_TENANT_ID` must be set to an
+  explicit tenant ID — never `"common"`
+- Protected admin API routes accept only a valid admin session cookie
 - Only the auth bootstrap endpoints remain reachable without a pre-existing admin session
-- Never accessible without TLS (nginx must redirect HTTP -> HTTPS before reaching the app)
+- Never accessible without TLS (nginx must redirect HTTP → HTTPS before reaching the app)
 
 ---
 

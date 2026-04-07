@@ -15,6 +15,14 @@ const promptShortcutBarSource = readFileSync(
   "utf8",
 );
 
+const promptShortcutHookSource = readFileSync(
+  path.join(
+    repoRoot,
+    "frontend/src/components/product/draft-flow/useMeasuredPromptShortcutLayout.ts",
+  ),
+  "utf8",
+);
+
 const promptShortcutSheetSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/PromptShortcutSheet.tsx"),
   "utf8",
@@ -34,10 +42,33 @@ describe("prompt shortcut UI regressions", () => {
     expect(promptShortcutSheetSource).toContain("hover:-translate-y-0.5");
   });
 
-  it("gives shortcut chips and sheet rows breathing room instead of clipping their chrome", () => {
-    expect(promptShortcutBarSource).toContain('className={`flex min-w-0 max-w-full gap-2 px-1 py-1 ${');
-    expect(promptShortcutBarSource).toContain('? "flex-wrap overflow-visible"');
-    expect(promptShortcutBarSource).not.toContain("pb-0.5");
+  it("keeps the inline shortcut row on one line and measures overflow instead of wrapping", () => {
+    expect(promptShortcutBarSource).toContain("useMeasuredPromptShortcutLayout");
+    expect(promptShortcutBarSource).toContain("hasLeadingSlot: Boolean(leadingSlot)");
+    expect(promptShortcutBarSource).toContain(
+      'className="flex min-w-0 max-w-full flex-nowrap items-center gap-2 overflow-hidden px-1 py-1"',
+    );
+    expect(promptShortcutBarSource).toContain('className="min-w-0 flex-1"');
+    expect(promptShortcutBarSource).toContain('aria-hidden="true"');
+    expect(promptShortcutBarSource).toContain("<ComposerBadge className={shortcutBadgeClassName}>");
+    expect(promptShortcutBarSource).toContain("<ComposerBadge className={moreBadgeClassName}>");
+    expect(promptShortcutBarSource).not.toContain('? "flex-wrap overflow-visible"');
+    expect(promptShortcutHookSource).toContain("window.getComputedStyle(container)");
+    expect(promptShortcutHookSource).toContain(
+      "container.clientWidth - paddingLeft - paddingRight",
+    );
     expect(promptShortcutSheetSource).toContain('<SheetBody className="px-4 py-4 sm:px-5">');
+  });
+
+  it("keeps hidden shortcut measurements clipped so they cannot widen the draft viewport", () => {
+    expect(promptShortcutBarSource).toContain(
+      'className="relative min-w-0 max-w-full overflow-hidden"',
+    );
+    expect(promptShortcutBarSource).toContain(
+      'className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-0"',
+    );
+    expect(promptShortcutBarSource).not.toContain(
+      'className="pointer-events-none absolute left-0 top-0 -z-10 flex opacity-0"',
+    );
   });
 });

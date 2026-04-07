@@ -1,31 +1,14 @@
-export const ADMIN_SESSION_AUTH = "Session";
+import { normalizeApiBase } from "../../../lib/api";
 
 export interface AdminSessionStatus {
   authenticated: boolean;
   microsoftSsoEnabled: boolean;
   admin?: {
     actor: string;
-    authMethod: "basic" | "microsoft";
+    authMethod: "microsoft";
     email?: string;
     name?: string;
   };
-}
-
-export function resolveAdminAuthHeader(
-  storedHeader: string | null | undefined,
-  session: AdminSessionStatus | null,
-): string {
-  const normalizedStoredHeader = storedHeader?.trim() ?? "";
-  if (normalizedStoredHeader.length > 0) {
-    return normalizedStoredHeader;
-  }
-
-  return session?.authenticated ? ADMIN_SESSION_AUTH : "";
-}
-
-export function shouldPersistAdminAuthHeader(authHeader: string): boolean {
-  const normalizedAuthHeader = authHeader.trim();
-  return normalizedAuthHeader.length > 0 && normalizedAuthHeader !== ADMIN_SESSION_AUTH;
 }
 
 export function getAdminAuthErrorMessage(authError: string | null): string | null {
@@ -42,5 +25,5 @@ export function getAdminAuthErrorMessage(authError: string | null): string | nul
 }
 
 export function buildAdminMicrosoftLoginUrl(apiBase: string, returnTo: string): string {
-  return `${apiBase.replace(/\/$/, "")}/v1/admin/auth/microsoft/login?returnTo=${encodeURIComponent(returnTo)}`;
+  return `${normalizeApiBase(apiBase)}/v1/admin/auth/microsoft/login?returnTo=${encodeURIComponent(returnTo)}`;
 }

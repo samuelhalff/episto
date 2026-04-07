@@ -45,6 +45,47 @@ vi.mock("next-intl", () => {
   };
 });
 
+vi.mock("next-intl/server", () => {
+  const getNested = (source: unknown, keyPath: string) =>
+    keyPath.split(".").reduce<unknown>((value, segment) => {
+      if (!value || typeof value !== "object") {
+        return undefined;
+      }
+
+      return (value as Record<string, unknown>)[segment];
+    }, source);
+
+  const formatMessage = (message: string, values?: Record<string, unknown>) =>
+    message.replace(/\{(\w+)\}/g, (_, key: string) =>
+      String(values?.[key] ?? `{${key}}`),
+    );
+
+  return {
+    async getTranslations({
+      namespace,
+    }: {
+      locale?: string;
+      namespace?: string;
+    }) {
+      const base = namespace
+        ? getNested(i18nState.messages, namespace)
+        : i18nState.messages;
+
+      return (key: string, values?: Record<string, unknown>) => {
+        const value = getNested(base, key);
+
+        if (typeof value !== "string") {
+          throw new Error(
+            `Missing translation: ${namespace ? `${namespace}.` : ""}${key}`,
+          );
+        }
+
+        return formatMessage(value, values);
+      };
+    },
+  };
+});
+
 vi.mock("../src/i18n/navigation", async () => {
   const React = await import("react");
 
@@ -180,7 +221,7 @@ const requiredHomepageKeys = [
 type LocaleKey = keyof typeof localeMessagePaths;
 type MessageTree = Record<string, unknown>;
 
-type RenderableComponent = () => JSX.Element;
+type RenderableComponent = () => React.ReactElement;
 
 globalThis.React = React;
 
@@ -205,6 +246,12 @@ function readLocaleMessages(locale: LocaleKey) {
 function renderWithMessages(Component: RenderableComponent, messages: MessageTree) {
   i18nState.messages = messages;
   return renderToStaticMarkup(React.createElement(Component));
+}
+
+async function renderHomePageWithMessages(locale: LocaleKey, messages: MessageTree) {
+  i18nState.messages = messages;
+  const page = await HomePage({ params: Promise.resolve({ locale }) });
+  return renderToStaticMarkup(page);
 }
 
 describe("marketing homepage shared visual primitives", () => {
@@ -329,9 +376,9 @@ describe("marketing homepage shared visual primitives", () => {
     }
   });
 
-  it("renders the homepage with the reusable sections in the expected order", () => {
+  it("renders the homepage with the reusable sections in the expected order", async () => {
     const messages = readLocaleMessages("en-CH");
-    const markup = renderWithMessages(HomePage, messages);
+    const markup = await renderHomePageWithMessages("en-CH", messages);
     const orderedCopy = [
       "marketing.homepage.hero.title",
       "marketing.homepage.trustStrip.postal",
@@ -350,7 +397,7 @@ describe("marketing homepage shared visual primitives", () => {
     }
   });
 
-  it("covers the full new homepage translation surface in every locale", () => {
+  it("covers the full new homepage translation surface in every locale", async () => {
     for (const locale of Object.keys(localeMessagePaths) as LocaleKey[]) {
       const messages = readLocaleMessages(locale);
 
@@ -361,7 +408,7 @@ describe("marketing homepage shared visual primitives", () => {
         ).toBeTypeOf("string");
       }
 
-      const markup = renderWithMessages(HomePage, messages);
+      const markup = await renderHomePageWithMessages(locale, messages);
       expect(markup).toContain(
         String(getNestedValue(messages, "marketing.homepage.hero.title")),
       );

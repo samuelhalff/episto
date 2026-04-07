@@ -3,11 +3,8 @@ import type { FastifyRequest, FastifyReply } from "fastify";
 import { requireAdmin } from "../src/shared/middleware/require-admin.js";
 import { createAdminSessionToken } from "../src/modules/admin/admin-auth.js";
 
-// Mock env() to return known credentials
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
-    ADMIN_USERNAME: "admin",
-    ADMIN_PASSWORD: "secret-password-123",
     ADMIN_SESSION_SECRET: "admin-session-secret-at-least-32-characters",
   }),
 }));
@@ -29,15 +26,14 @@ describe("requireAdmin middleware", () => {
     vi.clearAllMocks();
   });
 
-  it("accepts valid Basic Auth credentials", async () => {
+  it("rejects valid Basic Auth credentials because only admin sessions are supported", async () => {
     const encoded = Buffer.from("admin:secret-password-123").toString("base64");
     const req = makeRequest(`Basic ${encoded}`);
 
-    await expect(requireAdmin(req, mockReply)).resolves.toBeUndefined();
-    expect(req.log.info).toHaveBeenCalledWith(
-      { admin: "admin" },
-      "Admin access",
-    );
+    await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
+    });
   });
 
   it("rejects missing Authorization header (401)", async () => {
@@ -68,35 +64,35 @@ describe("requireAdmin middleware", () => {
     });
   });
 
-  it("rejects wrong username (403)", async () => {
+  it("rejects wrong username in Basic auth (401)", async () => {
     const encoded = Buffer.from("wrong-user:secret-password-123").toString(
       "base64",
     );
     const req = makeRequest(`Basic ${encoded}`);
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
-      statusCode: 403,
-      code: "ADMIN_FORBIDDEN",
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
     });
   });
 
-  it("rejects wrong password (403)", async () => {
+  it("rejects wrong password in Basic auth (401)", async () => {
     const encoded = Buffer.from("admin:wrong-password").toString("base64");
     const req = makeRequest(`Basic ${encoded}`);
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
-      statusCode: 403,
-      code: "ADMIN_FORBIDDEN",
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
     });
   });
 
-  it("rejects completely wrong credentials (403)", async () => {
+  it("rejects completely wrong Basic auth credentials (401)", async () => {
     const encoded = Buffer.from("hacker:12345").toString("base64");
     const req = makeRequest(`Basic ${encoded}`);
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({
-      statusCode: 403,
-      code: "ADMIN_FORBIDDEN",
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
     });
   });
 

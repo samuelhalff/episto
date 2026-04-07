@@ -13,7 +13,7 @@ import { getAdminPagePath } from "../../../../lib/admin-paths";
 const PAGE_SIZE = 20;
 
 export default function SessionsPage() {
-  const { authHeader } = useAdminAuth();
+  const { authenticated } = useAdminAuth();
   const pathname = usePathname();
 
   const [page, setPage] = useState(1);
@@ -29,8 +29,8 @@ export default function SessionsPage() {
 
   const sessions = useQuery({
     queryKey: queryKeys.admin.sessions(page, filterString),
-    queryFn: () => fetchAdminSessions(authHeader, params.toString()),
-    enabled: !!authHeader,
+    queryFn: () => fetchAdminSessions(params.toString()),
+    enabled: authenticated,
   });
 
   const totalPages = sessions.data

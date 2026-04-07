@@ -102,31 +102,18 @@ const EnvSchema = z
     // CORS
     CORS_ORIGIN: z.string().default("http://localhost:5000"),
 
-    // Admin (HTTP Basic Auth)
-    ADMIN_USERNAME: z.string().min(1).default("admin"),
-    ADMIN_PASSWORD: z.string().min(8).default("changeme-in-production"),
+    // Admin
     ADMIN_SESSION_SECRET: z.string().min(32).optional(),
     ADMIN_SESSION_TTL_HOURS: z.coerce.number().int().positive().default(12),
     ADMIN_MICROSOFT_CLIENT_ID: z.string().min(1).optional(),
     ADMIN_MICROSOFT_CLIENT_SECRET: z.string().min(1).optional(),
     ADMIN_MICROSOFT_TENANT_ID: z.string().min(1).default("common"),
     ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
-    ADMIN_MICROSOFT_ALLOWED_EMAILS: z.string().min(1).optional(),
-    ADMIN_MICROSOFT_ALLOWED_TENANT_IDS: z.string().min(1).optional(),
 
     // Pricing (integer cents, CHF only)
     PRICE_STANDARD_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
     PRICE_REGISTERED_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
   })
-  .refine(
-    (data) => {
-      if (data.NODE_ENV === "production") {
-        return data.ADMIN_PASSWORD !== "changeme-in-production";
-      }
-      return true;
-    },
-    { message: "ADMIN_PASSWORD must be changed from default in production" },
-  )
   .refine(
     (data) => {
       if (data.AI_PROVIDER_MODE === "azure_openai") {
@@ -205,9 +192,7 @@ const EnvSchema = z
       const adminSsoRequested = Boolean(
         data.ADMIN_MICROSOFT_CLIENT_ID ||
           data.ADMIN_MICROSOFT_CLIENT_SECRET ||
-          data.ADMIN_MICROSOFT_REDIRECT_URI ||
-          data.ADMIN_MICROSOFT_ALLOWED_EMAILS ||
-          data.ADMIN_MICROSOFT_ALLOWED_TENANT_IDS,
+          data.ADMIN_MICROSOFT_REDIRECT_URI,
       );
 
       if (!adminSsoRequested) {
@@ -219,12 +204,13 @@ const EnvSchema = z
           data.ADMIN_MICROSOFT_CLIENT_ID &&
           data.ADMIN_MICROSOFT_CLIENT_SECRET &&
           data.ADMIN_MICROSOFT_REDIRECT_URI &&
-          data.ADMIN_MICROSOFT_ALLOWED_EMAILS,
+          data.ADMIN_MICROSOFT_TENANT_ID &&
+          data.ADMIN_MICROSOFT_TENANT_ID !== "common",
       );
     },
     {
       message:
-        "Admin Microsoft SSO requires ADMIN_SESSION_SECRET, ADMIN_MICROSOFT_CLIENT_ID, ADMIN_MICROSOFT_CLIENT_SECRET, ADMIN_MICROSOFT_REDIRECT_URI, and ADMIN_MICROSOFT_ALLOWED_EMAILS",
+        "Admin Microsoft SSO requires ADMIN_SESSION_SECRET, ADMIN_MICROSOFT_CLIENT_ID, ADMIN_MICROSOFT_CLIENT_SECRET, ADMIN_MICROSOFT_REDIRECT_URI, and a specific ADMIN_MICROSOFT_TENANT_ID (not 'common')",
     },
   );
 

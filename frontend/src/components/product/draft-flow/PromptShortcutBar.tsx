@@ -3,8 +3,8 @@
 import { useState, type ReactNode } from "react";
 
 import { ComposerBadge } from "./ui";
-import { resolvePromptShortcutLayout } from "./prompt-shortcut-layout";
 import { PromptShortcutSheet, type PromptShortcutItem } from "./PromptShortcutSheet";
+import { useMeasuredPromptShortcutLayout } from "./useMeasuredPromptShortcutLayout";
 
 export interface PromptShortcutAction extends PromptShortcutItem {
   prompt: string;
@@ -19,8 +19,6 @@ interface PromptShortcutBarProps {
   sheetDescription: string;
   closeLabel: string;
   disabled?: boolean;
-  isCompactViewport?: boolean | undefined;
-  compactPrimaryCount?: number | undefined;
   onShortcutSelect: (shortcut: PromptShortcutAction) => void;
 }
 
@@ -33,17 +31,19 @@ export function PromptShortcutBar({
   sheetDescription,
   closeLabel,
   disabled = false,
-  isCompactViewport = false,
-  compactPrimaryCount,
   onShortcutSelect,
 }: PromptShortcutBarProps) {
   const [showShortcutSheet, setShowShortcutSheet] = useState(false);
-  const { visiblePrimaryShortcuts, sheetShortcuts } = resolvePromptShortcutLayout({
+  const { containerRef, moreRef, shortcutRefs, layout } = useMeasuredPromptShortcutLayout({
     primaryShortcuts,
     overflowShortcuts,
-    isCompactViewport,
-    compactPrimaryCount,
+    hasLeadingSlot: Boolean(leadingSlot),
   });
+  const { visiblePrimaryShortcuts, sheetShortcuts } = layout;
+  const shortcutBadgeClassName =
+    "shrink-0 whitespace-nowrap border border-[var(--app-border)] bg-[var(--app-surface-strong)] text-zinc-600 shadow-sm hover:-translate-y-px hover:border-amber-300 hover:bg-amber-50 hover:text-zinc-950 hover:shadow-[0_10px_30px_rgba(245,158,11,0.12)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:border-[var(--app-border)] disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] disabled:shadow-none dark:text-[var(--app-muted-strong)] dark:hover:bg-amber-400/10 dark:hover:text-[var(--app-fg)] dark:hover:shadow-[0_14px_34px_rgba(245,158,11,0.1)] dark:disabled:text-[var(--app-muted)]";
+  const moreBadgeClassName =
+    "shrink-0 whitespace-nowrap border border-[var(--app-border)] bg-[var(--app-surface-soft)] text-zinc-700 shadow-sm hover:-translate-y-px hover:border-amber-300/80 hover:bg-[var(--app-surface)] hover:text-zinc-950 hover:shadow-[0_10px_30px_rgba(245,158,11,0.1)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:border-[var(--app-border)] disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] disabled:shadow-none dark:text-[var(--app-muted-strong)] dark:hover:text-[var(--app-fg)] dark:hover:shadow-[0_14px_34px_rgba(245,158,11,0.08)] dark:disabled:text-[var(--app-muted)]";
 
   if (!leadingSlot && visiblePrimaryShortcuts.length === 0 && sheetShortcuts.length === 0) {
     return null;
@@ -51,42 +51,68 @@ export function PromptShortcutBar({
 
   return (
     <>
-      <div
-        className={`flex min-w-0 max-w-full gap-2 px-1 py-1 ${
-          isCompactViewport
-            ? "flex-wrap overflow-visible"
-            : "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        }`}
-        aria-label="Prompt shortcuts"
-      >
-        {leadingSlot}
-        {visiblePrimaryShortcuts.map((shortcut) => (
-          <ComposerBadge
-            key={shortcut.id}
-            disabled={disabled}
-            onClick={() => onShortcutSelect(shortcut)}
-            className={`border border-[var(--app-border)] bg-[var(--app-surface-strong)] text-zinc-600 shadow-sm hover:-translate-y-px hover:border-amber-300 hover:bg-amber-50 hover:text-zinc-950 hover:shadow-[0_10px_30px_rgba(245,158,11,0.12)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:border-[var(--app-border)] disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] disabled:shadow-none dark:text-[var(--app-muted-strong)] dark:hover:bg-amber-400/10 dark:hover:text-[var(--app-fg)] dark:hover:shadow-[0_14px_34px_rgba(245,158,11,0.1)] dark:disabled:text-[var(--app-muted)] ${
-              isCompactViewport
-                ? "min-w-0 max-w-full truncate"
-                : "shrink-0 whitespace-nowrap"
-            }`}
-          >
-            {shortcut.label}
-          </ComposerBadge>
-        ))}
-        {sheetShortcuts.length > 0 ? (
-          <ComposerBadge
-            disabled={disabled}
-            onClick={() => setShowShortcutSheet(true)}
-            className={`border border-[var(--app-border)] bg-[var(--app-surface-soft)] text-zinc-700 shadow-sm hover:-translate-y-px hover:border-amber-300/80 hover:bg-[var(--app-surface)] hover:text-zinc-950 hover:shadow-[0_10px_30px_rgba(245,158,11,0.1)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:border-[var(--app-border)] disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] disabled:shadow-none dark:text-[var(--app-muted-strong)] dark:hover:text-[var(--app-fg)] dark:hover:shadow-[0_14px_34px_rgba(245,158,11,0.08)] dark:disabled:text-[var(--app-muted)] ${
-              isCompactViewport
-                ? "min-w-0 max-w-full truncate"
-                : "shrink-0 whitespace-nowrap"
-            }`}
-          >
-            {moreLabel}
-          </ComposerBadge>
-        ) : null}
+      <div className="relative min-w-0 max-w-full overflow-hidden">
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-0"
+        >
+          <div className="flex w-max items-center gap-2 px-1 py-1">
+            {primaryShortcuts.map((shortcut) => (
+              <span
+                key={shortcut.id}
+                ref={(node) => {
+                  if (node) {
+                    shortcutRefs.current.set(shortcut.id, node);
+                    return;
+                  }
+
+                  shortcutRefs.current.delete(shortcut.id);
+                }}
+                className="shrink-0"
+              >
+                <ComposerBadge className={shortcutBadgeClassName}>
+                  {shortcut.label}
+                </ComposerBadge>
+              </span>
+            ))}
+            {overflowShortcuts.length > 0 || primaryShortcuts.length > 1 ? (
+              <span ref={moreRef} className="shrink-0">
+                <ComposerBadge className={moreBadgeClassName}>{moreLabel}</ComposerBadge>
+              </span>
+            ) : null}
+          </div>
+        </div>
+
+        <div
+          ref={containerRef}
+          className="flex min-w-0 max-w-full flex-nowrap items-center gap-2 overflow-hidden px-1 py-1"
+          aria-label="Prompt shortcuts"
+        >
+          {leadingSlot ? (
+            <span className="min-w-0 flex-1">
+              {leadingSlot}
+            </span>
+          ) : null}
+          {visiblePrimaryShortcuts.map((shortcut) => (
+            <ComposerBadge
+              key={shortcut.id}
+              disabled={disabled}
+              onClick={() => onShortcutSelect(shortcut)}
+              className={shortcutBadgeClassName}
+            >
+              {shortcut.label}
+            </ComposerBadge>
+          ))}
+          {sheetShortcuts.length > 0 ? (
+            <ComposerBadge
+              disabled={disabled}
+              onClick={() => setShowShortcutSheet(true)}
+              className={moreBadgeClassName}
+            >
+              {moreLabel}
+            </ComposerBadge>
+          ) : null}
+        </div>
       </div>
 
       <PromptShortcutSheet

@@ -40,7 +40,10 @@ describe("admin-microsoft helpers", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const result = await exchangeMicrosoftCodeForTokens("code-123");
+    const result = await exchangeMicrosoftCodeForTokens(
+      "code-123",
+      "https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback",
+    );
 
     expect(fetchMock).toHaveBeenCalledWith(
       "https://login.microsoftonline.com/common/oauth2/v2.0/token",
@@ -58,7 +61,7 @@ describe("admin-microsoft helpers", () => {
     expect(body.get("client_secret")).toBe("swiss-mail-client-secret");
     expect(body.get("code")).toBe("code-123");
     expect(body.get("redirect_uri")).toBe(
-      "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
+      "https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback",
     );
     expect(body.get("grant_type")).toBe("authorization_code");
     expect(result).toEqual({

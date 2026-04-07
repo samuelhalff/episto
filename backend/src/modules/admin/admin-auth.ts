@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 
 export interface AdminSessionClaimsInput {
   actor: string;
-  authMethod: "basic" | "microsoft";
+  authMethod: "microsoft";
   email?: string;
   name?: string;
   oid?: string;

@@ -29,7 +29,7 @@
 - [x] Rendering Module (snapshot service — Puppeteer templates pending)
 - [x] Tracking Module (adapter shell — provider API pending)
 - [x] Retention Module (cleanup service: sessions, files, drafts, PDFs)
-- [x] Admin Module (Basic Auth, timeline, search, refund via Stripe API, reconcile pending provider)
+- [x] Admin Module (tenant-only Microsoft SSO, timeline, search, refund via Stripe API, reconcile pending provider)
 - [x] Order Module (public token-authenticated status + PDF download via S3 presigned URL; token resolved via payment_attempts.order_access_token_hash)
 - [x] Email Module (Resend adapter + BullMQ worker with 5 templates)
 - [x] Pricing Module (config-driven CHF pricing: 4.90 standard, 8.90 registered)
@@ -130,7 +130,7 @@
 - [x] HTML metadata (title, description, manifest link in locale layout)
 
 ### Phase 7C — Admin Dashboard UI:
-- [x] Admin login page (HTTP Basic Auth, client-side credential prompt)
+- [x] Admin login page (Microsoft SSO redirect with backend session bootstrap)
 - [x] Service health panel (API, database, Redis, object storage status with green/red indicators)
 - [x] Operational overview panel (ambiguous dispatches, recent refunds, payment/dispatch state counts)
 - [x] Queue status panel (waiting, active, failed job counts per queue)
