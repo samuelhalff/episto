@@ -108,6 +108,7 @@ export function StripePaymentForm({
       {errorMessage && <p role="alert" className="text-sm text-destructive">{errorMessage}</p>}
 
       <FlowActionDock
+        desktopSticky
         secondaryAction={secondaryAction}
         primaryAction={
           <ActionButton

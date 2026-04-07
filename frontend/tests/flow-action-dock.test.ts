@@ -30,3 +30,46 @@ describe("FlowActionDock usage", () => {
     expect(src).toContain("<FlowActionDock");
   });
 });
+
+describe("FlowActionDock desktopSticky support", () => {
+  it("FlowActionDock component accepts a desktopSticky prop", () => {
+    const src = fs.readFileSync(
+      path.join(srcDir, "components/product/FlowActionDock.tsx"),
+      "utf-8",
+    );
+    expect(src).toContain("desktopSticky");
+  });
+
+  it("FlowActionDock desktop sticky mode includes a bottom offset so dock is not flush to viewport edge", () => {
+    const src = fs.readFileSync(
+      path.join(srcDir, "components/product/FlowActionDock.tsx"),
+      "utf-8",
+    );
+    // Must have a lg:bottom-N class (e.g. lg:bottom-6) for the sticky offset
+    expect(src).toMatch(/lg:bottom-\d/);
+  });
+
+  it("checkout page passes desktopSticky to FlowActionDock", () => {
+    const src = fs.readFileSync(
+      path.join(srcDir, "app/[locale]/draft/[draftId]/checkout/page.tsx"),
+      "utf-8",
+    );
+    expect(src).toContain("desktopSticky");
+  });
+
+  it("StripePaymentForm passes desktopSticky to FlowActionDock", () => {
+    const src = fs.readFileSync(
+      path.join(srcDir, "components/product/StripePaymentForm.tsx"),
+      "utf-8",
+    );
+    expect(src).toContain("desktopSticky");
+  });
+
+  it("review page does NOT use desktopSticky (opt-in only on checkout surfaces)", () => {
+    const src = fs.readFileSync(
+      path.join(srcDir, "app/[locale]/draft/[draftId]/review/page.tsx"),
+      "utf-8",
+    );
+    expect(src).not.toContain("desktopSticky");
+  });
+});

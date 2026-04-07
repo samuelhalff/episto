@@ -286,6 +286,7 @@ export default function CheckoutPage({
               )}
 
               <FlowActionDock
+                desktopSticky
                 secondaryAction={
                   <ActionLink
                     href={backToReviewHref}
