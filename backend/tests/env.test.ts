@@ -488,15 +488,17 @@ describe("EnvSchema — Admin Microsoft SSO validation", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Dispatch pricing refresh config
+// Dispatch pricing refresh config — runtime loader test
 // ---------------------------------------------------------------------------
 
-it("parses dispatch pricing refresh settings", () => {
-  const result = EnvSchema.parse({
-    ...validEnv(),
-    DISPATCH_RATE_MATRIX_TTL_HOURS: "24",
-    LIVE_DISPATCH_QUOTE_TTL_MINUTES: "30",
-  });
-  expect(result.DISPATCH_RATE_MATRIX_TTL_HOURS).toBe(24);
-  expect(result.LIVE_DISPATCH_QUOTE_TTL_MINUTES).toBe(30);
+it("parses dispatch pricing refresh settings", async () => {
+  const { loadEnv, env } = await import("../src/shared/config/index.js");
+
+  process.env.DISPATCH_RATE_MATRIX_TTL_HOURS = "24";
+  process.env.LIVE_DISPATCH_QUOTE_TTL_MINUTES = "30";
+
+  loadEnv();
+
+  expect(env().DISPATCH_RATE_MATRIX_TTL_HOURS).toBe(24);
+  expect(env().LIVE_DISPATCH_QUOTE_TTL_MINUTES).toBe(30);
 });

@@ -158,19 +158,6 @@ describe("registerScheduledJobs", () => {
     );
   });
 
-  it("registers an hourly pricing refresh sentinel job", async () => {
-    await registerScheduledJobs();
-
-    expect(addSpy).toHaveBeenCalledWith(
-      "scheduled-rate-refresh-sentinel",
-      { reason: "stale_matrix" },
-      expect.objectContaining({
-        repeat: { pattern: "5 * * * *" },
-        jobId: "scheduled-rate-refresh-sentinel",
-      }),
-    );
-  });
-
   it("is idempotent — safe to call multiple times", async () => {
     addSpy.mockClear();
     await registerScheduledJobs();

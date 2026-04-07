@@ -2,14 +2,35 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const add = vi.fn();
 
-vi.mock("../src/queue/index.js", () => ({
-  QUEUE_NAMES: {
-    SUBMIT_DISPATCH: "submit-dispatch",
-    RECONCILE_DISPATCH: "reconcile-ambiguous-dispatch",
-    CLEANUP_ASSETS: "cleanup-expired-assets",
-    REFRESH_DISPATCH_RATES: "refresh-dispatch-rates",
-  },
-  getQueue: () => ({ add }),
+// Mock at the BullMQ level so the real queue/index module runs (including
+// registerScheduledJobs) while Queue.add is intercepted by the spy.
+vi.mock("bullmq", () => {
+  class MockQueue {
+    name: string;
+    constructor(name: string) {
+      this.name = name;
+    }
+    add(...args: unknown[]) {
+      return add(...args);
+    }
+    close() {
+      return Promise.resolve();
+    }
+  }
+  class MockWorker {
+    name: string;
+    constructor(name: string) {
+      this.name = name;
+    }
+    close() {
+      return Promise.resolve();
+    }
+  }
+  return { Queue: MockQueue, Worker: MockWorker };
+});
+
+vi.mock("../src/shared/config/index.js", () => ({
+  env: () => ({ REDIS_URL: "redis://localhost:6379" }),
 }));
 
 describe("dispatch job helpers", () => {
@@ -63,6 +84,21 @@ describe("dispatch job helpers", () => {
       {
         jobId: "dispatch-reconcile:dispatch-1",
       },
+    );
+  });
+
+  it("registers an hourly pricing refresh sentinel job", async () => {
+    const { registerScheduledJobs } = await import("../src/queue/index.js");
+
+    await registerScheduledJobs();
+
+    expect(add).toHaveBeenCalledWith(
+      "scheduled-rate-refresh-sentinel",
+      { reason: "stale_matrix" },
+      expect.objectContaining({
+        jobId: "scheduled-rate-refresh-sentinel",
+        repeat: { pattern: "5 * * * *" },
+      }),
     );
   });
 });
