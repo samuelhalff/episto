@@ -1,21 +1,161 @@
-import { readFileSync } from "node:fs";
 import { randomUUID } from "node:crypto";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 
+import Fastify, { type FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const draftRoutesSource = readFileSync(
-  path.join(repoRoot, "backend/src/modules/drafting/draft.routes.ts"),
-  "utf8",
-);
+// ---------------------------------------------------------------------------
+// Draft preview HTTP route test (mocked dependencies, no real DB required)
+// ---------------------------------------------------------------------------
 
-describe("draft preview routing", () => {
-  it("returns preview price from the shared quote resolver instead of calculatePrice", () => {
-    expect(draftRoutesSource).toContain("resolveDisplayDispatchQuoteForDraft");
-    expect(draftRoutesSource).not.toContain("calculatePrice");
+describe("draft preview route", () => {
+  let app: FastifyInstance;
+
+  beforeEach(async () => {
+    vi.resetModules();
+
+    // Drizzle query chain — resolves to [] at any await point in the chain
+    function makeChain() {
+      const chain: Record<string, unknown> = {};
+      chain.from = vi.fn().mockReturnValue(chain);
+      chain.where = vi.fn().mockReturnValue(chain);
+      chain.orderBy = vi.fn().mockReturnValue(chain);
+      chain.limit = vi.fn().mockReturnValue(chain);
+      // Thenable so `await db.select()...` resolves to an empty array
+      (chain as { then: unknown }).then = (
+        onFulfilled: (v: unknown[]) => unknown,
+        onRejected?: (e: unknown) => unknown,
+      ) => Promise.resolve([]).then(onFulfilled, onRejected);
+      return chain;
+    }
+
+    vi.doMock("../src/db/index.js", () => ({
+      getDb: () => ({ select: vi.fn().mockImplementation(() => makeChain()) }),
+      schema: new Proxy({}, { get: () => ({}) }),
+    }));
+
+    vi.doMock("../src/modules/sessions/session.middleware.js", () => ({
+      requireSession: vi.fn().mockImplementation(
+        async (request: { session?: unknown }) => {
+          request.session = {
+            id: "preview-session",
+            type: "guest",
+            locale: "en-CH",
+            email: null,
+            resumeTokenExpiresAt: new Date("2030-01-01"),
+            expiresAt: new Date("2030-01-01"),
+            createdAt: new Date("2026-01-01"),
+            updatedAt: new Date("2026-01-01"),
+          };
+        },
+      ),
+      COOKIE_NAME: "session",
+    }));
+
+    vi.doMock("../src/modules/drafting/draft.service.js", () => ({
+      getDraftById: vi.fn().mockResolvedValue({
+        id: "preview-draft",
+        sessionId: "preview-session",
+        status: "collecting",
+        locale: "en-CH",
+        deliveryType: "registered",
+        subject: "Test Subject",
+        body: "Test body",
+        enclosureNote: null,
+        signatureMode: "typed",
+        signatureAssetId: null,
+        senderProfileId: null,
+        recipientProfileId: null,
+        estimatedPages: 1,
+        schemaVersion: 1,
+        tone: "formal",
+        intent: "cancellation",
+        metadata: null,
+        updatedAt: new Date("2026-01-01"),
+      }),
+      createDraft: vi.fn(),
+      listDraftsBySession: vi.fn(),
+      updateDraft: vi.fn(),
+      transitionDraftStatus: vi.fn(),
+    }));
+
+    vi.doMock("../src/modules/dispatch/dispatch-quote.service.js", () => ({
+      resolveDisplayDispatchQuoteForDraft: vi.fn().mockResolvedValue({
+        quote: {
+          draftId: "preview-draft",
+          snapshotId: null,
+          deliveryType: "registered",
+          providerQuotedCents: 578,
+          swissMailMarkupCents: 340,
+          totalCents: 918,
+          currency: "CHF",
+          lineItems: [],
+          providerQuoteReference: null,
+          attachmentHandling: "excluded",
+        },
+        meta: { source: "matrix", quotedAt: null, expiresAt: null },
+      }),
+    }));
+
+    // Stubs for modules imported by draft.routes.ts but not invoked on preview
+    vi.doMock("../src/modules/drafting/profile.service.js", () => ({
+      createSenderProfile: vi.fn(),
+      createRecipientProfile: vi.fn(),
+    }));
+    vi.doMock("../src/modules/rendering/snapshot.service.js", () => ({
+      createSnapshot: vi.fn(),
+      getLatestSnapshot: vi.fn().mockResolvedValue(null),
+    }));
+    vi.doMock("../src/modules/rendering/pdf-access.js", () => ({
+      sendRenderedDraftPdf: vi.fn(),
+    }));
+    vi.doMock("../src/modules/payments/payment.service.js", () => ({
+      getPaymentForDraft: vi.fn(),
+      transitionPaymentState: vi.fn(),
+    }));
+    vi.doMock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
+      cancelPaymentIntent: vi.fn(),
+    }));
+    vi.doMock("../src/modules/analytics/index.js", () => ({
+      recordEvent: vi.fn(),
+    }));
+    vi.doMock("../src/queue/index.js", () => ({
+      getQueue: vi.fn(),
+      QUEUE_NAMES: { RENDER_PDF: "render-pdf" },
+    }));
+    vi.doMock("../src/modules/ai/index.js", () => ({
+      handleComposeFromContext: vi.fn(),
+    }));
+    vi.doMock("../src/modules/drafting/review-validation.js", () => ({
+      getReviewMissingFields: vi.fn().mockReturnValue([]),
+    }));
+
+    const { draftRoutes } = await import("../src/modules/drafting/draft.routes.js");
+
+    app = Fastify({ logger: false });
+    app.setErrorHandler((error, _request, reply) => {
+      const statusCode = (error as { statusCode?: number }).statusCode ?? 500;
+      reply.status(statusCode).send({ error: String(error) });
+    });
+    await app.register(draftRoutes);
+  });
+
+  afterEach(async () => {
+    await app.close();
+    // Unmock modules that the integration tests below import dynamically
+    vi.unmock("../src/modules/dispatch/dispatch-quote.service.js");
+    vi.unmock("../src/shared/config/index.js");
+    vi.resetModules();
+  });
+
+  it("returns preview price from the shared quote resolver instead of calculatePrice", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/drafts/preview-draft/preview",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().preview.priceCents).toBeGreaterThan(0);
   });
 });
 
