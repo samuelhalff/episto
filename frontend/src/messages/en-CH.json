@@ -547,9 +547,9 @@
     "paymentError": "Payment failed. Please try again.",
     "enterPaymentDetails": "Enter payment details",
     "continueToPayment": "Next",
-  "calculatingPayment": "Calculating\u2026",
+    "calculatingPayment": "Calculating\u2026",
     "backToReview": "Back",
-  "paymentMethodsHelp": "TWINT appears first. Cards and supported wallets appear when Stripe and your device make them available."
+    "paymentMethodsHelp": "TWINT appears first. Cards and supported wallets appear when Stripe and your device make them available."
   },
   "attachments": {
     "title": "Attachments",

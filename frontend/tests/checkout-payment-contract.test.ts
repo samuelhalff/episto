@@ -129,10 +129,12 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     expect(stripePaymentFormSource).toContain('mb-3 text-xs');
   });
 
-  it("still lists twint first in paymentMethodOrder", () => {
+  it("paymentMethodOrder contract: first twint, second card, length 2", () => {
     const match = stripePaymentFormSource.match(/paymentMethodOrder:\s*\[([^\]]+)\]/);
     expect(match).not.toBeNull();
     const methods = match![1].split(",").map((s: string) => s.trim().replace(/['"]/g, ""));
+    expect(methods).toHaveLength(2);
     expect(methods[0]).toBe("twint");
+    expect(methods[1]).toBe("card");
   });
 });
