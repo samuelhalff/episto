@@ -540,7 +540,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       status: "active",
       verifiedAt: new Date(),
       effectiveAt: new Date(),
-      expiresAt: null,
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     });
 
     await harness.db.insert(schema.providerRateMatrixEntries).values({
@@ -659,5 +659,108 @@ describeIfIntegrationDb("dispatch quote integration", () => {
     expect(result.quote.totalCents).toBe(918);
     expect(result.quote.providerQuoteReference).toBe("live-preview-pay-123");
     expect(quotePrice).toHaveBeenCalledOnce();
+  });
+
+  it("live quote cache entries receive an expiresAt derived from LIVE_DISPATCH_QUOTE_TTL_MINUTES", async () => {
+    const { harness, draftId } = await seedSessionAndDraft({
+      estimatedPages: 2,
+      deliveryType: "registered",
+    });
+    cleanup = harness.cleanup;
+
+    await createSnapshot(harness.db, draftId, {
+      schemaVersion: 1,
+      locale: "en-CH",
+      deliveryType: "registered",
+      subject: "Subject",
+      body: "Body",
+      enclosureNote: null,
+      signatureMode: "typed",
+      tone: "formal",
+      intent: "cancellation",
+      sender: {
+        firstName: "Sam",
+        lastName: "Example",
+        company: null,
+        addressLine1: "Rue Example 1",
+        addressLine2: null,
+        postalCode: "1205",
+        city: "Geneva",
+        country: "CH",
+      },
+      recipient: {
+        firstName: null,
+        lastName: null,
+        company: "Swisscom AG",
+        department: null,
+        addressLine1: "Alte Tiefenaustrasse 6",
+        addressLine2: null,
+        postalCode: "3050",
+        city: "Bern",
+        country: "CH",
+      },
+      attachmentAssetIds: [],
+      signatureAssetId: null,
+      metadata: null,
+    });
+
+    const quotePrice = vi.fn(async (dispatchPackage) => ({
+      draftId: dispatchPackage.draftId,
+      snapshotId: dispatchPackage.snapshotId,
+      deliveryType: dispatchPackage.deliveryType,
+      providerQuotedCents: 578,
+      swissMailMarkupCents: 340,
+      totalCents: 918,
+      currency: "CHF" as const,
+      lineItems: [],
+      providerQuoteReference: "live-ttl-test",
+      attachmentHandling: "excluded" as const,
+    }));
+
+    const fakeAdapter: DispatchAdapter = {
+      getCapabilities() {
+        return {
+          providerName: "test-provider",
+          attachmentPolicy: {
+            maxAttachmentsPerDraft: 5,
+            allowedMimeTypes: ["application/pdf"],
+          },
+        };
+      },
+      quotePrice,
+      async submit() { throw new Error("not used"); },
+      async checkStatus() { throw new Error("not used"); },
+    };
+
+    const { loadEnv } = await import("../src/shared/config/index.js");
+    loadEnv();
+
+    const { setDispatchAdapter } =
+      await import("../src/modules/dispatch/adapters/postal.adapter.js");
+    const { resolvePaymentDispatchQuoteForDraft } =
+      await import("../src/modules/dispatch/dispatch-quote.service.js");
+
+    setDispatchAdapter(fakeAdapter);
+
+    const before = Date.now();
+    const result = await resolvePaymentDispatchQuoteForDraft(harness.db, draftId);
+    const after = Date.now();
+
+    expect(result.meta.expiresAt).not.toBeNull();
+    const expiresMs = result.meta.expiresAt!.getTime();
+    // Default TTL is 30 minutes; assert expiresAt is roughly generatedAt + TTL
+    const expectedMin = before + 29 * 60 * 1000;
+    const expectedMax = after + 31 * 60 * 1000;
+    expect(expiresMs).toBeGreaterThanOrEqual(expectedMin);
+    expect(expiresMs).toBeLessThanOrEqual(expectedMax);
+
+    // Verify it was persisted to the cache with the expiry
+    const [cached] = await harness.db
+      .select({ expiresAt: schema.draftQuoteCache.expiresAt })
+      .from(schema.draftQuoteCache)
+      .where(eq(schema.draftQuoteCache.draftId, draftId))
+      .limit(1);
+    expect(cached?.expiresAt).not.toBeNull();
+    expect(cached!.expiresAt!.getTime()).toBeGreaterThanOrEqual(expectedMin);
   });
 });

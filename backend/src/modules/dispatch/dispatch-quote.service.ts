@@ -220,6 +220,10 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
   const providerQuote = await getDispatchAdapter().quotePrice(dispatchPackage);
   const generatedAt = new Date();
 
+  const cfg = env();
+  const liveTtlMs = cfg.LIVE_DISPATCH_QUOTE_TTL_MINUTES * 60 * 1000;
+  const liveExpiresAt = new Date(generatedAt.getTime() + liveTtlMs);
+
   await storeResolvedQuote(db, {
     draftId: source.draftId,
     snapshotId: snapshot.id,
@@ -234,7 +238,7 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
     providerQuoteReference: providerQuote.providerQuoteReference,
     rateMatrixVersionId: null,
     generatedAt,
-    expiresAt: null,
+    expiresAt: liveExpiresAt,
   });
 
   return {
@@ -253,7 +257,7 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
     meta: {
       source: "live",
       quotedAt: generatedAt,
-      expiresAt: null,
+      expiresAt: liveExpiresAt,
     },
   };
 }

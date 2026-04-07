@@ -1,4 +1,4 @@
-import { and, eq, isNotNull, lte } from "drizzle-orm";
+import { and, eq, gt, isNotNull, lte } from "drizzle-orm";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
@@ -35,6 +35,7 @@ export async function refreshDispatchRateMatrixIfNeeded(db: Db, now: Date): Prom
 export async function getActiveMatrixQuote(
   db: Db,
   input: DispatchPricingInput,
+  now = new Date(),
 ): Promise<{
   providerQuotedCents: number;
   versionId: string;
@@ -59,6 +60,8 @@ export async function getActiveMatrixQuote(
     .where(
       and(
         eq(schema.providerRateMatrixVersions.status, "active"),
+        isNotNull(schema.providerRateMatrixVersions.expiresAt),
+        gt(schema.providerRateMatrixVersions.expiresAt, now),
         eq(schema.providerRateMatrixEntries.postage, input.postage),
         eq(schema.providerRateMatrixEntries.numberOfPage, input.numberOfPage),
         eq(schema.providerRateMatrixEntries.attachmentMode, input.attachmentMode),
