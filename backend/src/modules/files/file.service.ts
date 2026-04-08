@@ -159,8 +159,8 @@ export async function createFileAsset(
 
   if (data.kind === "attachment" && data.draftId) {
     const attachmentConstraints = getDraftAttachmentConstraints();
-    const existing = await db
-      .select({ id: schema.fileAssets.id })
+    const [existing] = await db
+      .select({ total: sql<number>`count(*)` })
       .from(schema.fileAssets)
       .where(
         and(
@@ -170,7 +170,7 @@ export async function createFileAsset(
         ),
       );
 
-    if (existing.length >= attachmentConstraints.maxAttachmentsPerDraft) {
+    if (Number(existing?.total ?? 0) >= attachmentConstraints.maxAttachmentsPerDraft) {
       throw createAttachmentLimitError(attachmentConstraints);
     }
   }

@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { Loader2, Package, PenLine, AlertCircle } from "lucide-react";
 import { Link } from "../../../../i18n/navigation";
 import { apiFetch } from "../../../../lib/api";
-import { queryKeys } from "@swiss-mail/shared";
+import { OrderStatusResponseSchema, queryKeys } from "@swiss-mail/shared";
 import type { OrderStatusResponse } from "@swiss-mail/shared";
 import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
@@ -16,7 +16,10 @@ import { ProtectedPdfDownloadButton } from "../../../../components/product/Prote
 function useOrderStatus(orderToken: string) {
   return useQuery({
     queryKey: queryKeys.order(orderToken),
-    queryFn: () => apiFetch<OrderStatusResponse>(`/v1/orders/${orderToken}`),
+    queryFn: async (): Promise<OrderStatusResponse> =>
+      OrderStatusResponseSchema.parse(
+        await apiFetch<unknown>(`/v1/orders/${orderToken}`),
+      ),
     staleTime: 30_000,
     refetchInterval: 60_000,
     retry: (count, error) => {

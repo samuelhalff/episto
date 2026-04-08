@@ -20,15 +20,18 @@ import { schema } from "../../db/index.js";
 import { createFileAsset, renderStorageKey } from "../files/file.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
+import { AppError } from "../../shared/errors/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import {
   extractAiDocumentMetadata,
   flattenDocumentModel,
   getLetterFraming,
+  SnapshotDataSchema,
   type DocumentModel,
   type DocumentBlock,
   type InlineSpan,
   type ListItem,
+  type SnapshotData,
 } from "@swiss-mail/shared";
 import { stripLetterFramingDocument } from "@swiss-mail/shared/letter-framing";
 
@@ -79,42 +82,38 @@ export async function closeBrowser(): Promise<void> {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Snapshot data shape (matches database-schema.md §4.3)
-// ---------------------------------------------------------------------------
+function parseSnapshotData(
+  snapshotId: string,
+  draftId: string,
+  snapshotData: unknown,
+): SnapshotData {
+  const parsed = SnapshotDataSchema.safeParse(snapshotData);
+  if (parsed.success) {
+    return parsed.data;
+  }
 
-interface SnapshotData {
-  schemaVersion: number;
-  locale: string;
-  deliveryType: string;
-  subject?: string | null;
-  body?: string | null;
-  enclosureNote?: string | null;
-  signatureMode?: string | null;
-  tone?: string | null;
-  intent?: string | null;
-  sender?: {
-    firstName: string;
-    lastName: string;
-    company?: string | null;
-    addressLine1: string;
-    addressLine2?: string | null;
-    postalCode: string;
-    city: string;
-    country: string;
-  } | null;
-  recipient?: {
-    firstName?: string | null;
-    lastName?: string | null;
-    company?: string | null;
-    department?: string | null;
-    addressLine1: string;
-    addressLine2?: string | null;
-    postalCode: string;
-    city: string;
-    country: string;
-  } | null;
-  metadata?: Record<string, unknown> | null;
+  logger.error(
+    {
+      snapshotId,
+      draftId,
+      issues: parsed.error.issues,
+    },
+    "Snapshot data failed validation before PDF render",
+  );
+
+  throw new AppError({
+    family: "rendering_failure",
+    statusCode: 500,
+    code: "SNAPSHOT_DATA_INVALID",
+    message: `Snapshot ${snapshotId} contains invalid data`,
+    userMessage: "This draft snapshot is invalid and could not be rendered.",
+    userAction: "Refresh the preview and try again.",
+    fields: parsed.error.issues.map((issue) => ({
+      field: issue.path.length > 0 ? issue.path.join(".") : "snapshotData",
+      message: issue.message,
+    })),
+    cause: parsed.error,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -422,7 +421,11 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
     throw new Error(`Snapshot not found: ${snapshotId}`);
   }
 
-  const snapshotData = snapshot.snapshotData as SnapshotData;
+  const snapshotData = parseSnapshotData(
+    snapshot.id,
+    snapshot.draftId,
+    snapshot.snapshotData,
+  );
 
   // 2. Render HTML
   const html = renderLetterHtml(snapshotData);

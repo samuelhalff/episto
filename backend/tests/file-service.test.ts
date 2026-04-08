@@ -1,7 +1,20 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it, vi } from "vitest";
+
+vi.mock("../src/modules/dispatch/adapters/postal.adapter.js", () => ({
+  getDispatchAdapter: () => ({
+    getCapabilities: () => ({
+      attachmentPolicy: {
+        maxAttachmentsPerDraft: 5,
+        allowedMimeTypes: ["application/pdf"],
+      },
+    }),
+  }),
+}));
+
 import {
   assertUploadMimeMatchesContent,
   attachmentStorageKey,
+  createFileAsset,
   signatureStorageKey,
   renderStorageKey,
 } from "../src/modules/files/file.service.js";
@@ -62,6 +75,41 @@ describe("Storage key generation", () => {
           Buffer.from("not-a-real-pdf"),
         ),
       ).toThrow("File content does not match the declared MIME type");
+    });
+  });
+
+  describe("createFileAsset", () => {
+    it("enforces attachment limits using the counted attachment total", async () => {
+      const selectChain: Record<string, unknown> = {};
+      selectChain.from = vi.fn().mockReturnValue(selectChain);
+      selectChain.where = vi.fn().mockResolvedValue([{ total: 5 }]);
+
+      const returning = vi.fn().mockResolvedValue([
+        {
+          id: "file-1",
+        },
+      ]);
+      const values = vi.fn().mockReturnValue({ returning });
+      const insert = vi.fn().mockReturnValue({ values });
+      const db = {
+        select: vi.fn().mockReturnValue(selectChain),
+        insert,
+      };
+
+      await expect(
+        createFileAsset(db as never, {
+          sessionId: "11111111-1111-4111-8111-111111111111",
+          draftId: "22222222-2222-4222-8222-222222222222",
+          kind: "attachment",
+          storageKey: "attachments/session/file",
+          mimeType: "application/pdf",
+          sizeBytes: 1024,
+        }),
+      ).rejects.toMatchObject({
+        code: "ATTACHMENT_LIMIT_REACHED",
+      });
+
+      expect(insert).not.toHaveBeenCalled();
     });
   });
 });

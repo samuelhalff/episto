@@ -3,8 +3,10 @@ import { describe, expect, it } from "vitest";
 import {
   AddressDetails,
   AddressSearchResult,
+  CreateRecipientProfileInput,
   DraftDispatchQuoteResponseSchema,
   DraftFilesResponseSchema,
+  OrderStatusResponseSchema,
   PublicPricingResponseSchema,
 } from "../src/contracts/index.ts";
 
@@ -89,6 +91,36 @@ function createPublicPricingResponse() {
       },
       pricesExcludeVat: true,
       currency: "CHF" as const,
+    },
+  };
+}
+
+function createOrderStatusResponse() {
+  return {
+    order: {
+      draftId: "11111111-1111-4111-8111-111111111111",
+      orderRef: "SM-ABC12345",
+      locale: "en-CH" as const,
+      payment: {
+        state: "captured" as const,
+        priceCents: 965,
+        currency: "CHF",
+        capturedAt: "2026-04-08T12:00:00.000Z",
+        refundedAt: null,
+      },
+      dispatch: {
+        state: "accepted" as const,
+        providerRef: "provider-123",
+        trackingNumber: "99.00.000000.12345678",
+        submittedAt: "2026-04-08T12:01:00.000Z",
+        acceptedAt: "2026-04-08T12:02:00.000Z",
+        rejectedAt: null,
+        trackingAvailable: true,
+        lastCheckedAt: "2026-04-08T12:03:00.000Z",
+      },
+      deliveryType: "registered" as const,
+      recipientName: "Ada Lovelace",
+      createdAt: "2026-04-08T11:59:00.000Z",
     },
   };
 }
@@ -193,6 +225,45 @@ describe("shared contract schemas", () => {
 
     expect(result.meta.source).toBe("matrix");
     expect(result.quote.totalCents).toBe(965);
+  });
+
+  it("requires a recipient name or company when creating recipient profiles", () => {
+    expect(() =>
+      CreateRecipientProfileInput.parse({
+        firstName: null,
+        lastName: null,
+        company: null,
+        department: null,
+        addressLine1: "Seestrasse 10",
+        addressLine2: null,
+        postalCode: "6300",
+        city: "Zug",
+        country: "CH",
+      }),
+    ).toThrow();
+  });
+
+  it("parses the public order status response shape", () => {
+    const result = OrderStatusResponseSchema.parse(createOrderStatusResponse());
+
+    expect(result.order.payment.state).toBe("captured");
+    expect(result.order.dispatch.state).toBe("accepted");
+  });
+
+  it("rejects order status responses with unsupported payment states", () => {
+    const response = createOrderStatusResponse();
+
+    expect(() =>
+      OrderStatusResponseSchema.parse({
+        order: {
+          ...response.order,
+          payment: {
+            ...response.order.payment,
+            state: "paid",
+          },
+        },
+      }),
+    ).toThrow();
   });
 
   it("keeps address autocomplete contracts provider-opaque", () => {

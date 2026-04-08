@@ -56,6 +56,27 @@ export const SwissPostalCodeSchema = z
   .string()
   .regex(/^[0-9]{4}$/, "Swiss postal codes are 4 digits");
 
+function addNameOrCompanyIssue(
+  value: {
+    firstName?: string | null;
+    lastName?: string | null;
+    company?: string | null;
+  },
+  ctx: z.RefinementCtx,
+): void {
+  const hasIdentity = [value.company, value.firstName, value.lastName].some(
+    (part) => typeof part === "string" && part.trim().length > 0,
+  );
+
+  if (!hasIdentity) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["company"],
+      message: "Provide a recipient name or company.",
+    });
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Address schemas
 // ---------------------------------------------------------------------------
@@ -77,21 +98,23 @@ export const SenderProfileSchema = z.object({
   updatedAt: z.coerce.date(),
 });
 
-export const RecipientProfileSchema = z.object({
-  id: z.string().uuid(),
-  sessionId: z.string().uuid(),
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  company: z.string().nullable(),
-  department: z.string().nullable(),
-  addressLine1: z.string().min(1),
-  addressLine2: z.string().nullable(),
-  postalCode: SwissPostalCodeSchema,
-  city: z.string().min(1),
-  country: z.string().length(2).default("CH"),
-  createdAt: z.coerce.date(),
-  updatedAt: z.coerce.date(),
-});
+export const RecipientProfileSchema = z
+  .object({
+    id: z.string().uuid(),
+    sessionId: z.string().uuid(),
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    company: z.string().nullable(),
+    department: z.string().nullable(),
+    addressLine1: z.string().min(1),
+    addressLine2: z.string().nullable(),
+    postalCode: SwissPostalCodeSchema,
+    city: z.string().min(1),
+    country: z.string().length(2).default("CH"),
+    createdAt: z.coerce.date(),
+    updatedAt: z.coerce.date(),
+  })
+  .superRefine(addNameOrCompanyIssue);
 
 // ---------------------------------------------------------------------------
 // Session
@@ -149,17 +172,19 @@ export const SnapshotSenderSchema = z.object({
   country: z.string(),
 });
 
-export const SnapshotRecipientSchema = z.object({
-  firstName: z.string().nullable(),
-  lastName: z.string().nullable(),
-  company: z.string().nullable(),
-  department: z.string().nullable(),
-  addressLine1: z.string(),
-  addressLine2: z.string().nullable(),
-  postalCode: z.string(),
-  city: z.string(),
-  country: z.string(),
-});
+export const SnapshotRecipientSchema = z
+  .object({
+    firstName: z.string().nullable(),
+    lastName: z.string().nullable(),
+    company: z.string().nullable(),
+    department: z.string().nullable(),
+    addressLine1: z.string(),
+    addressLine2: z.string().nullable(),
+    postalCode: z.string(),
+    city: z.string(),
+    country: z.string(),
+  })
+  .superRefine(addNameOrCompanyIssue);
 
 export const SnapshotDataSchema = z.object({
   schemaVersion: z.number().int(),

@@ -220,6 +220,17 @@ describe("RecipientProfileSchema", () => {
     expect(r.lastName).toBeNull();
   });
 
+  it("requires a company or at least one recipient name part", () => {
+    expect(() =>
+      RecipientProfileSchema.parse({
+        ...validRecipient(),
+        firstName: null,
+        lastName: null,
+        company: null,
+      }),
+    ).toThrow();
+  });
+
   it("rejects missing addressLine1", () => {
     const r = validRecipient();
     delete (r as Record<string, unknown>).addressLine1;

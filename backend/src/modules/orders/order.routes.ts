@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { desc, eq } from "drizzle-orm";
+import { OrderStatusResponseSchema } from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
@@ -88,7 +89,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
         }
       }
 
-      reply.send({
+      const response = OrderStatusResponseSchema.parse({
         order: {
           draftId: draft.id,
           orderRef: `SM-${draft.id.slice(0, 8).toUpperCase()}`,
@@ -121,6 +122,8 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
           createdAt: draft.createdAt.toISOString(),
         },
       });
+
+      reply.send(response);
 
       recordEvent({
         event: "order_status_viewed",

@@ -3,8 +3,10 @@ import { z } from "zod";
 import {
   LocaleSchema,
   DeliveryTypeSchema,
+  DispatchStateSchema,
   SwissPostalCodeSchema,
   FileAssetSchema,
+  PaymentStateSchema,
 } from "../schemas/index.ts";
 import {
   DispatchAttachmentPolicySchema,
@@ -58,6 +60,18 @@ export const CreateRecipientProfileInput = z.object({
   postalCode: SwissPostalCodeSchema,
   city: z.string().min(1),
   country: z.string().length(2).default("CH"),
+}).superRefine((value, ctx) => {
+  const hasIdentity = [value.company, value.firstName, value.lastName].some(
+    (part) => typeof part === "string" && part.trim().length > 0,
+  );
+
+  if (!hasIdentity) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["company"],
+      message: "Provide a recipient name or company.",
+    });
+  }
 });
 
 export const SendMessageInput = z.object({
@@ -135,24 +149,28 @@ export const AddressDetailsResponse = z.object({
 // API response types (what the server sends back)
 // ---------------------------------------------------------------------------
 
-export interface OrderStatusPayment {
-  state: string;
-  priceCents: number;
-  currency: string;
-  capturedAt: string | null;
-  refundedAt: string | null;
-}
+export const OrderStatusPaymentSchema = z.object({
+  state: PaymentStateSchema,
+  priceCents: z.number().int().nonnegative(),
+  currency: z.literal("CHF"),
+  capturedAt: z.string().datetime().nullable(),
+  refundedAt: z.string().datetime().nullable(),
+}).strict();
 
-export interface OrderStatusDispatch {
-  state: string;
-  providerRef: string | null;
-  trackingNumber: string | null;
-  submittedAt: string | null;
-  acceptedAt: string | null;
-  rejectedAt: string | null;
-  trackingAvailable: boolean;
-  lastCheckedAt: string | null;
-}
+export type OrderStatusPayment = z.infer<typeof OrderStatusPaymentSchema>;
+
+export const OrderStatusDispatchSchema = z.object({
+  state: DispatchStateSchema,
+  providerRef: z.string().nullable(),
+  trackingNumber: z.string().nullable(),
+  submittedAt: z.string().datetime().nullable(),
+  acceptedAt: z.string().datetime().nullable(),
+  rejectedAt: z.string().datetime().nullable(),
+  trackingAvailable: z.boolean(),
+  lastCheckedAt: z.string().datetime().nullable(),
+}).strict();
+
+export type OrderStatusDispatch = z.infer<typeof OrderStatusDispatchSchema>;
 
 export interface DraftDispatchQuoteLineItem {
   label: string;
@@ -255,18 +273,20 @@ export const PublicPricingResponseSchema = z.object({
 }).strict();
 
 /** Response shape for GET /api/v1/orders/:orderToken */
-export interface OrderStatusResponse {
-  order: {
-    draftId: string;
-    orderRef: string;
-    locale: string;
-    payment: OrderStatusPayment;
-    dispatch: OrderStatusDispatch;
-    deliveryType: string;
-    recipientName: string;
-    createdAt: string;
-  };
-}
+export const OrderStatusResponseSchema = z.object({
+  order: z.object({
+    draftId: z.string().uuid(),
+    orderRef: z.string().min(1),
+    locale: LocaleSchema,
+    payment: OrderStatusPaymentSchema,
+    dispatch: OrderStatusDispatchSchema,
+    deliveryType: DeliveryTypeSchema,
+    recipientName: z.string(),
+    createdAt: z.string().datetime(),
+  }).strict(),
+}).strict();
+
+export type OrderStatusResponse = z.infer<typeof OrderStatusResponseSchema>;
 
 // ---------------------------------------------------------------------------
 // Inferred input types
