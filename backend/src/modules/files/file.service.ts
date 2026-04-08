@@ -60,6 +60,48 @@ export function getDraftAttachmentConstraints(): DraftAttachmentConstraints {
   };
 }
 
+const PDF_SIGNATURE = Buffer.from("%PDF-");
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const JPEG_SIGNATURE = Buffer.from([0xff, 0xd8, 0xff]);
+
+function bufferStartsWith(buffer: Buffer, signature: Buffer): boolean {
+  return buffer.length >= signature.length && buffer.subarray(0, signature.length).equals(signature);
+}
+
+function matchesDeclaredMimeType(mimeType: string, buffer: Buffer): boolean {
+  switch (mimeType) {
+    case "application/pdf":
+      return bufferStartsWith(buffer, PDF_SIGNATURE);
+    case "image/png":
+      return bufferStartsWith(buffer, PNG_SIGNATURE);
+    case "image/jpeg":
+      return bufferStartsWith(buffer, JPEG_SIGNATURE);
+    default:
+      return false;
+  }
+}
+
+export function assertUploadMimeMatchesContent(
+  kind: "attachment" | "signature",
+  mimeType: string,
+  buffer: Buffer,
+): void {
+  if (!isAllowedUploadMimeType(kind, mimeType)) {
+    return;
+  }
+
+  if (matchesDeclaredMimeType(mimeType, buffer)) {
+    return;
+  }
+
+  throw validationError("File content does not match the declared MIME type", [
+    {
+      field: "file",
+      message: `Uploaded bytes do not match ${mimeType}`,
+    },
+  ]);
+}
+
 export async function getDraftUploadTotalBytes(
   db: Db,
   draftId: string,

@@ -13,9 +13,7 @@ import { createSenderProfile, createRecipientProfile } from "./profile.service.j
 import { createSnapshot } from "../rendering/snapshot.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
-import { calculatePrice } from "../pricing/index.js";
-import { getPaymentForDraft, transitionPaymentState } from "../payments/payment.service.js";
-import { cancelPaymentIntent } from "../payments/adapters/stripe.adapter.js";
+import { cancelPendingDraftPayment } from "../payments/payment-cancellation.service.js";
 import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   UpdateDraftInput,
@@ -215,17 +213,13 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       // When returning to editable state, cancel any pending payment so
       // checkout will create a fresh PaymentIntent with the updated quote.
       if (status === "fields_complete" || status === "collecting") {
-        const payment = await getPaymentForDraft(db, draftId);
-        if (payment && payment.state === "pending" && payment.stripePaymentIntentId) {
-          try {
-            await cancelPaymentIntent(payment.stripePaymentIntentId);
-            await transitionPaymentState(db, payment.id, "cancelled");
-          } catch (err) {
-            logger.warn(
-              { draftId, paymentId: payment.id, err },
-              "Failed to cancel stale payment intent on back-to-edit; checkout will create a new one",
-            );
-          }
+        try {
+          await cancelPendingDraftPayment(db, draftId);
+        } catch (err) {
+          logger.warn(
+            { draftId, err },
+            "Failed to cancel stale payment intent on back-to-edit; checkout will create a new one",
+          );
         }
       }
 
@@ -545,14 +539,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const deliveryType = (snapshotData?.deliveryType ?? draft.deliveryType) as
         | "standard"
         | "registered";
-      const shouldUseReferencePrice = !snapshotData && draft.estimatedPages == null;
-      const resolvedDisplayQuote = shouldUseReferencePrice
-        ? {
-            quote: {
-              totalCents: calculatePrice(deliveryType).totalCents,
-            },
-          }
-        : await resolveDisplayDispatchQuoteForDraft(db, draftId);
+      const resolvedDisplayQuote = await resolveDisplayDispatchQuoteForDraft(db, draftId);
 
       reply.send({
         preview: {

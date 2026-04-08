@@ -1,5 +1,6 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { AppError } from "../src/shared/errors/index.js";
 
 const mocks = vi.hoisted(() => ({
   db: { tag: "db" },
@@ -132,5 +133,41 @@ describe("payment webhook routes", () => {
       snapshotId: "snapshot-1",
       paymentId: "payment-1",
     });
+  });
+
+  it("rejects webhook requests when the preserved raw body is not a Buffer", async () => {
+    const tamperedApp = Fastify();
+    tamperedApp.setErrorHandler((error, request, reply) => {
+      if (error instanceof AppError) {
+        reply.status(error.statusCode).send(error.toResponse(request.id));
+        return;
+      }
+
+      throw error;
+    });
+    tamperedApp.addHook("preHandler", (request, _reply, done) => {
+      if (request.url === "/webhooks/stripe") {
+        // Simulate a misconfigured parser or hook overwriting the raw payload.
+        (request as FastifyInstance["request"] & { rawBodyBuffer?: unknown }).rawBodyBuffer =
+          "tampered-body";
+      }
+      done();
+    });
+    await tamperedApp.register(paymentRoutes);
+
+    const response = await tamperedApp.inject({
+      method: "POST",
+      url: "/webhooks/stripe",
+      payload: { ok: true },
+      headers: {
+        "content-type": "application/json",
+        "stripe-signature": "signature",
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(mocks.constructWebhookEvent).not.toHaveBeenCalled();
+
+    await tamperedApp.close();
   });
 });

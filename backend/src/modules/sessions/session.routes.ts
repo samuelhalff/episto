@@ -61,8 +61,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
         rateLimit: {
           max: 60,
           timeWindow: "1 hour",
-          keyGenerator: (req: FastifyRequest) =>
-            req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ?? req.ip,
+          keyGenerator: (req: FastifyRequest) => req.ip,
         },
       },
     },
@@ -182,8 +181,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
         rateLimit: {
           max: 20,
           timeWindow: "1 hour",
-          keyGenerator: (req: FastifyRequest) =>
-            req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ?? req.ip,
+          keyGenerator: (req: FastifyRequest) => req.ip,
         },
       },
     },

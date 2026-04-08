@@ -19,6 +19,10 @@ const EnvSchema = z
     LOG_LEVEL: z
       .enum(["fatal", "error", "warn", "info", "debug", "trace"])
       .default("info"),
+    TRUST_PROXY: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
 
     // Database
     DATABASE_URL: z.string().url(),
@@ -123,6 +127,7 @@ const EnvSchema = z
 
     // Dispatch rate matrix refresh
     DISPATCH_RATE_MATRIX_TTL_HOURS: z.coerce.number().int().positive().default(24),
+    DISPATCH_RATE_MATRIX_REFRESH_CRON: z.string().min(1).default("5 6 * * *"),
     LIVE_DISPATCH_QUOTE_TTL_MINUTES: z.coerce.number().int().positive().default(30),
   })
   .refine(

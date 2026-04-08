@@ -11,6 +11,7 @@ import { requireSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import {
+  assertUploadMimeMatchesContent,
   attachmentStorageKey,
   createFileAsset,
   deleteFileAsset,
@@ -118,6 +119,8 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
           ],
         );
       }
+
+      assertUploadMimeMatchesContent(kind, mimeType, buffer);
 
       // Check per-draft limits
       const existingFiles = await db

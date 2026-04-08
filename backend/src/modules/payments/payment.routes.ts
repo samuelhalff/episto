@@ -73,9 +73,9 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
 
     // Raw body preserved by our custom content type parser
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const rawBody: Buffer | undefined = (request as any).rawBodyBuffer;
-    if (!rawBody) {
-      throw validationError("Missing request body");
+    const rawBody: unknown = (request as any).rawBodyBuffer;
+    if (!Buffer.isBuffer(rawBody)) {
+      throw validationError("Missing raw request body");
     }
 
     const event = constructWebhookEvent(rawBody, signature);
@@ -281,6 +281,13 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       // Re-check for existing non-terminal payment inside the transaction.
       const NON_TERMINAL_STATES = ["pending", "authorized", "captured", "refund_pending"];
       const result = await db.transaction(async (tx) => {
+        if (body.email) {
+          await tx
+            .update(schema.sessions)
+            .set({ email: body.email, updatedAt: new Date() })
+            .where(eq(schema.sessions.id, session.id));
+        }
+
         const existing = await getPaymentForDraft(tx, draftId);
         if (existing && NON_TERMINAL_STATES.includes(existing.state)) {
           return {
@@ -327,14 +334,6 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           quote: resolvedPaymentQuote.quote,
         };
       });
-
-      // Store email on session for receipt delivery
-      if (body.email) {
-        await db
-          .update(schema.sessions)
-          .set({ email: body.email, updatedAt: new Date() })
-          .where(eq(schema.sessions.id, session.id));
-      }
 
       if (result.isExisting) {
         const clientSecret =

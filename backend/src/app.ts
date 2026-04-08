@@ -29,6 +29,7 @@ export async function buildApp(logger: pino.Logger) {
     genReqId: () => randomUUID(),
     requestTimeout: 30_000,
     bodyLimit: 5 * 1024 * 1024, // 5 MB
+    trustProxy: config.TRUST_PROXY,
   });
 
   // ---- Plugins ----
@@ -77,10 +78,7 @@ export async function buildApp(logger: pino.Logger) {
   await app.register(fastifyRateLimit, {
     max: 100,
     timeWindow: "1 minute",
-    keyGenerator: (req: FastifyRequest) => {
-      const forwarded = req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim();
-      return forwarded && forwarded.length > 0 ? forwarded : req.ip;
-    },
+    keyGenerator: (req: FastifyRequest) => req.ip,
   });
 
   // ---- CSRF protection ----

@@ -30,7 +30,7 @@ async function resolveOrderToken(
 }
 
 function ipKey(req: FastifyRequest): string {
-  return req.headers["x-forwarded-for"]?.toString().split(",")[0]?.trim() ?? req.ip;
+  return req.ip;
 }
 
 export async function orderRoutes(app: FastifyInstance): Promise<void> {

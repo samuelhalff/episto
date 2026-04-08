@@ -40,6 +40,27 @@ loadLocalEnvFiles();
 
 // Security headers — values locked in docs/07-operations/security-and-privacy.md §Security headers
 // CSP includes Stripe domains as required by docs (script-src, frame-src, connect-src).
+export function buildContentSecurityPolicy(isDevelopment: boolean): string {
+  const scriptSrc = [
+    "script-src 'self' 'unsafe-inline'",
+    ...(isDevelopment ? ["'unsafe-eval'"] : []),
+    "https://js.stripe.com",
+  ].join(" ");
+
+  return [
+    "default-src 'self'",
+    scriptSrc,
+    "frame-src https://js.stripe.com https://hooks.stripe.com",
+    "connect-src 'self' https://api.stripe.com https://api.swissmail.ch ws: wss:",
+    "img-src 'self' data: https:",
+    "style-src 'self' 'unsafe-inline'",
+    "font-src 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join("; ");
+}
+
 const securityHeaders = [
   {
     key: "Strict-Transport-Security",
@@ -55,21 +76,7 @@ const securityHeaders = [
   },
   {
     key: "Content-Security-Policy",
-    value: [
-      "default-src 'self'",
-      // Next.js dev mode requires 'unsafe-eval' for source maps and HMR.
-      // In production, remove 'unsafe-eval' and use nonces instead.
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
-      "frame-src https://js.stripe.com https://hooks.stripe.com",
-      // ws:/wss: needed for HMR WebSocket in dev; production also calls api.swissmail.ch.
-      "connect-src 'self' https://api.stripe.com https://api.swissmail.ch ws: wss:",
-      "img-src 'self' data: https:",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self'",
-      "object-src 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; "),
+    value: buildContentSecurityPolicy(process.env.NODE_ENV !== "production"),
   },
 ];
 

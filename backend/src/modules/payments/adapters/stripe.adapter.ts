@@ -61,19 +61,22 @@ export async function createPaymentIntent(
   metadata: { draftId: string; sessionId: string; paymentAttemptId: string },
 ): Promise<{ paymentIntentId: string; clientSecret: string }> {
   try {
-    const intent = await getStripe().paymentIntents.create({
-      amount: amountCents,
-      currency: "chf",
-      metadata: {
-        draftId: metadata.draftId,
-        sessionId: metadata.sessionId,
-        paymentAttemptId: metadata.paymentAttemptId,
+    const intent = await getStripe().paymentIntents.create(
+      {
+        amount: amountCents,
+        currency: "chf",
+        metadata: {
+          draftId: metadata.draftId,
+          sessionId: metadata.sessionId,
+          paymentAttemptId: metadata.paymentAttemptId,
+        },
+        // Automatic capture is required to support Twint and other immediate-capture
+        // methods. Stripe filters out Twint when capture_method is set to non-automatic.
+        // All methods now go pending → captured via payment_intent.succeeded.
+        automatic_payment_methods: { enabled: true },
       },
-      // Automatic capture is required to support Twint and other immediate-capture
-      // methods. Stripe filters out Twint when capture_method is set to non-automatic.
-      // All methods now go pending → captured via payment_intent.succeeded.
-      automatic_payment_methods: { enabled: true },
-    });
+      { idempotencyKey: metadata.paymentAttemptId },
+    );
 
     if (!intent.client_secret) {
       throw new Error("Stripe did not return a client_secret");
