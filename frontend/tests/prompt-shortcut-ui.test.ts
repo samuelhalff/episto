@@ -45,14 +45,19 @@ describe("prompt shortcut UI regressions", () => {
   it("keeps the inline shortcut row on one line and measures overflow instead of wrapping", () => {
     expect(promptShortcutBarSource).toContain("useMeasuredPromptShortcutLayout");
     expect(promptShortcutBarSource).toContain("hasLeadingSlot: Boolean(leadingSlot)");
+    expect(promptShortcutBarSource).toContain("leadingRef");
     expect(promptShortcutBarSource).toContain(
       'className="flex min-w-0 max-w-full flex-nowrap items-center gap-2 overflow-hidden px-1 py-1"',
     );
-    expect(promptShortcutBarSource).toContain('className="min-w-0 flex-1"');
+    expect(promptShortcutBarSource).toContain('ref={leadingRef}');
+    expect(promptShortcutBarSource).toContain('className="min-w-0 max-w-full shrink"');
     expect(promptShortcutBarSource).toContain('aria-hidden="true"');
     expect(promptShortcutBarSource).toContain("<ComposerBadge className={shortcutBadgeClassName}>");
     expect(promptShortcutBarSource).toContain("<ComposerBadge className={moreBadgeClassName}>");
     expect(promptShortcutBarSource).not.toContain('? "flex-wrap overflow-visible"');
+    expect(promptShortcutHookSource).toContain("const leadingRef = useRef<HTMLSpanElement>(null);");
+    expect(promptShortcutHookSource).toContain("const [leadingWidth, setLeadingWidth] = useState(0);");
+    expect(promptShortcutHookSource).toContain("setLeadingWidth(leadingRef.current?.offsetWidth ?? 0)");
     expect(promptShortcutHookSource).toContain("window.getComputedStyle(container)");
     expect(promptShortcutHookSource).toContain(
       "container.clientWidth - paddingLeft - paddingRight",

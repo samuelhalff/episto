@@ -34,11 +34,12 @@ export function PromptShortcutBar({
   onShortcutSelect,
 }: PromptShortcutBarProps) {
   const [showShortcutSheet, setShowShortcutSheet] = useState(false);
-  const { containerRef, moreRef, shortcutRefs, layout } = useMeasuredPromptShortcutLayout({
-    primaryShortcuts,
-    overflowShortcuts,
-    hasLeadingSlot: Boolean(leadingSlot),
-  });
+  const { containerRef, leadingRef, moreRef, shortcutRefs, layout } =
+    useMeasuredPromptShortcutLayout({
+      primaryShortcuts,
+      overflowShortcuts,
+      hasLeadingSlot: Boolean(leadingSlot),
+    });
   const { visiblePrimaryShortcuts, sheetShortcuts } = layout;
   const shortcutBadgeClassName =
     "shrink-0 whitespace-nowrap border border-[var(--app-border)] bg-[var(--app-surface-strong)] text-zinc-600 shadow-sm hover:-translate-y-px hover:border-amber-300 hover:bg-amber-50 hover:text-zinc-950 hover:shadow-[0_10px_30px_rgba(245,158,11,0.12)] active:translate-y-0 active:scale-[0.98] disabled:translate-y-0 disabled:border-[var(--app-border)] disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] disabled:shadow-none dark:text-[var(--app-muted-strong)] dark:hover:bg-amber-400/10 dark:hover:text-[var(--app-fg)] dark:hover:shadow-[0_14px_34px_rgba(245,158,11,0.1)] dark:disabled:text-[var(--app-muted)]";
@@ -57,6 +58,11 @@ export function PromptShortcutBar({
           className="pointer-events-none absolute inset-0 -z-10 overflow-hidden opacity-0"
         >
           <div className="flex w-max items-center gap-2 px-1 py-1">
+            {leadingSlot ? (
+              <span ref={leadingRef} className="min-w-0 max-w-full shrink-0">
+                {leadingSlot}
+              </span>
+            ) : null}
             {primaryShortcuts.map((shortcut) => (
               <span
                 key={shortcut.id}
@@ -89,7 +95,7 @@ export function PromptShortcutBar({
           aria-label="Prompt shortcuts"
         >
           {leadingSlot ? (
-            <span className="min-w-0 flex-1">
+            <span className="min-w-0 max-w-full shrink">
               {leadingSlot}
             </span>
           ) : null}

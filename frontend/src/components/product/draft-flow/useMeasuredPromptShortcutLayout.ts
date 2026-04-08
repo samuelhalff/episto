@@ -21,9 +21,11 @@ export function useMeasuredPromptShortcutLayout<TShortcut extends PromptShortcut
   gap = 8,
 }: UseMeasuredPromptShortcutLayoutOptions<TShortcut>) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const leadingRef = useRef<HTMLSpanElement>(null);
   const moreRef = useRef<HTMLSpanElement>(null);
   const shortcutRefs = useRef(new Map<string, HTMLSpanElement>());
   const [availableWidth, setAvailableWidth] = useState(0);
+  const [leadingWidth, setLeadingWidth] = useState(0);
   const [shortcutWidths, setShortcutWidths] = useState<Map<string, number>>(new Map());
   const [moreWidth, setMoreWidth] = useState(0);
 
@@ -39,6 +41,7 @@ export function useMeasuredPromptShortcutLayout<TShortcut extends PromptShortcut
       const paddingRight = Number.parseFloat(computedStyle.paddingRight) || 0;
 
       setAvailableWidth(Math.max(0, container.clientWidth - paddingLeft - paddingRight));
+      setLeadingWidth(leadingRef.current?.offsetWidth ?? 0);
       setMoreWidth(moreRef.current?.offsetWidth ?? 0);
       setShortcutWidths(
         new Map(
@@ -53,6 +56,9 @@ export function useMeasuredPromptShortcutLayout<TShortcut extends PromptShortcut
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(container);
+    if (leadingRef.current) {
+      observer.observe(leadingRef.current);
+    }
     if (moreRef.current) {
       observer.observe(moreRef.current);
     }
@@ -62,11 +68,13 @@ export function useMeasuredPromptShortcutLayout<TShortcut extends PromptShortcut
   }, [overflowShortcuts.length, primaryShortcuts]);
 
   const needsMoreChip = overflowShortcuts.length > 0 || primaryShortcuts.length > 1;
+  const hasMeasuredLeadingSlot = !hasLeadingSlot || leadingWidth > 0;
   const hasMeasuredShortcuts = primaryShortcuts.every(
     (shortcut) => (shortcutWidths.get(shortcut.id) ?? 0) > 0,
   );
   const hasMeasurements =
     availableWidth > 0 &&
+    hasMeasuredLeadingSlot &&
     hasMeasuredShortcuts &&
     (!needsMoreChip || moreWidth > 0);
 
@@ -86,6 +94,7 @@ export function useMeasuredPromptShortcutLayout<TShortcut extends PromptShortcut
       primaryShortcuts,
       overflowShortcuts,
       availableWidth,
+      leadingWidth,
       shortcutWidths,
       moreWidth,
       hasLeadingSlot,
@@ -96,6 +105,7 @@ export function useMeasuredPromptShortcutLayout<TShortcut extends PromptShortcut
     gap,
     hasMeasurements,
     hasLeadingSlot,
+    leadingWidth,
     moreWidth,
     overflowShortcuts,
     primaryShortcuts,
@@ -104,6 +114,7 @@ export function useMeasuredPromptShortcutLayout<TShortcut extends PromptShortcut
 
   return {
     containerRef,
+    leadingRef,
     moreRef,
     shortcutRefs,
     hasMeasurements,

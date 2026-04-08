@@ -65,4 +65,22 @@ describe("prompt shortcut layout", () => {
     expect(layout.visiblePrimaryShortcuts).toEqual([]);
     expect(layout.sheetShortcuts.map((shortcut) => shortcut.id)).toEqual(["one", "four"]);
   });
+
+  it("uses the measured leading badge width before fitting shortcuts", () => {
+    const layout = resolvePromptShortcutLayout({
+      primaryShortcuts: primaryShortcuts.slice(0, 2),
+      overflowShortcuts: [],
+      availableWidth: 190,
+      leadingWidth: 104,
+      moreWidth: 68,
+      shortcutWidths: new Map([
+        ["one", 52],
+        ["two", 56],
+      ]),
+      gap: 8,
+    });
+
+    expect(layout.visiblePrimaryShortcuts).toEqual([]);
+    expect(layout.sheetShortcuts.map((shortcut) => shortcut.id)).toEqual(["one", "two"]);
+  });
 });
