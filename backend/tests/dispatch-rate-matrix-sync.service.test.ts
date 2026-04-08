@@ -17,7 +17,7 @@ type SyncDbTx = {
   update: ReturnType<typeof vi.fn>;
 };
 
-function createSyncDbHarness() {
+function createSyncDbHarness(options?: { transactionError?: Error }) {
   const state = {
     insertedBuildingVersions: [] as Array<{ status: string; sourceEndpoint: string }>,
     insertedEntries: [] as Array<{
@@ -57,8 +57,12 @@ function createSyncDbHarness() {
     update: vi.fn(() => ({
       set: rootUpdateSet,
     })),
-    transaction: vi.fn(async (callback: (tx: SyncDbTx) => Promise<unknown>) =>
-      callback({
+    transaction: vi.fn(async (callback: (tx: SyncDbTx) => Promise<unknown>) => {
+      if (options?.transactionError) {
+        throw options.transactionError;
+      }
+
+      return callback({
         insert: vi.fn(() => ({
           values: vi.fn(async (value: unknown) => {
             if (Array.isArray(value)) {
@@ -77,8 +81,8 @@ function createSyncDbHarness() {
             }),
           })),
         })),
-      }),
-    ),
+      });
+    }),
   };
 
   return { db: db as never, state };
@@ -127,5 +131,34 @@ describe("syncDispatchRateMatrix", () => {
 
     expect(state.retiredVersionIds).toEqual([]);
     expect(state.failedVersionUpdates).toEqual([{ failureReason: "preview failed" }]);
+  });
+
+  it("marks the attempted version failed when activation conflicts after quoting", async () => {
+    const { db, state } = createSyncDbHarness({
+      transactionError: new Error(
+        'duplicate key value violates unique constraint "provider_rate_matrix_versions_active_provider_idx"',
+      ),
+    });
+    const quoteReferencePrice = vi.fn(async (input: DispatchPricingInput) => ({
+      providerQuotedCents: input.numberOfPage * 100,
+      providerQuoteReference: null,
+      quotedAt: new Date("2026-04-08T06:05:00.000Z"),
+    }));
+
+    await expect(
+      syncDispatchRateMatrix({
+        db,
+        adapter: { quoteReferencePrice } as never,
+        now: new Date("2026-04-08T06:05:00.000Z"),
+      }),
+    ).rejects.toThrow("provider_rate_matrix_versions_active_provider_idx");
+
+    expect(state.retiredVersionIds).toEqual([]);
+    expect(state.failedVersionUpdates).toEqual([
+      {
+        failureReason:
+          'duplicate key value violates unique constraint "provider_rate_matrix_versions_active_provider_idx"',
+      },
+    ]);
   });
 });

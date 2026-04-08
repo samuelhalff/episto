@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import Redis from "ioredis";
+import { Redis } from "ioredis";
 import { env } from "./config/index.js";
 import { createLogger } from "./logging/index.js";
 
@@ -22,7 +22,7 @@ function getRedisClient(): Redis {
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
   });
-  redisClient.on("error", (err) => {
+  redisClient.on("error", (err: unknown) => {
     logger.error({ err }, "Redis lock client error");
   });
 

@@ -271,6 +271,9 @@ docker compose exec -T backend npm run dispatch:refresh-rates -w backend
 - A healthy seed leaves exactly one active `provider_rate_matrix_versions` row for `epost` and 20
   `provider_rate_matrix_entries` rows for that version. Public pricing should then report `sync`
   metadata instead of `PRICING_UNAVAILABLE`.
+- With the default 24-hour matrix TTL and daily cron, `sync.freshness` may briefly read as `stale`
+  while the next 06:05 refresh is still running. That is expected: the last successful active
+  matrix remains available for display pricing until the replacement version finishes.
 
 ---
 

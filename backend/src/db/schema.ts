@@ -483,6 +483,13 @@ export const providerRateMatrixVersions = pgTable(
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
+  (t) => ({
+    activeProviderUniq: uniqueIndex(
+      "provider_rate_matrix_versions_active_provider_idx",
+    )
+      .on(t.providerName)
+      .where(sql`${t.status} = 'active'::provider_rate_matrix_status`),
+  }),
 );
 
 // ---------------------------------------------------------------------------

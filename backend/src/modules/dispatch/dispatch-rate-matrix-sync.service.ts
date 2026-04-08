@@ -93,10 +93,6 @@ export async function syncDispatchRateMatrix(args: {
       });
     }
 
-    if (entries.length !== inputs.length) {
-      throw new Error(`expected ${inputs.length} matrix entries but built ${entries.length}`);
-    }
-
     await db.transaction(async (tx) => {
       await tx.insert(schema.providerRateMatrixEntries).values(entries);
       await tx
