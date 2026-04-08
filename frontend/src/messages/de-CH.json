@@ -629,7 +629,7 @@
     "edit": "Bearbeiten",
     "add": "Hinzufügen",
     "calculatingPrice": "Preis wird berechnet…",
-    "proceedToPayment": "Weiter",
+    "proceedToPayment": "Kasse",
     "backToDraft": "Zurück",
     "total": "Total"
   },
@@ -668,6 +668,8 @@
     "stripeIntegrationPending": "Stripe-Zahlungsintegration ausstehend",
     "paymentConfirming": "Zahlung wird verarbeitet…",
     "paymentError": "Zahlung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+    "paymentSessionExpired": "Ihre vorherige Zahlungssitzung ist abgelaufen. Fahren Sie erneut fort, um ein neues Zahlungsformular zu laden.",
+    "paymentFormUnavailable": "Das Zahlungsformular konnte nicht geladen werden. Fahren Sie erneut fort, um es nochmals zu versuchen.",
     "enterPaymentDetails": "Zahlungsdetails eingeben",
     "continueToPayment": "Weiter",
     "calculatingPayment": "Berechnung…",

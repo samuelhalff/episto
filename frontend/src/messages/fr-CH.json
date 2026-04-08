@@ -629,7 +629,7 @@
     "edit": "Modifier",
     "add": "Ajouter",
     "calculatingPrice": "Calcul du prix…",
-    "proceedToPayment": "Suivant",
+    "proceedToPayment": "Paiement",
     "backToDraft": "Retour",
     "total": "Total"
   },
@@ -668,6 +668,8 @@
     "stripeIntegrationPending": "Intégration du paiement Stripe en attente",
     "paymentConfirming": "Traitement du paiement…",
     "paymentError": "Paiement échoué. Veuillez réessayer.",
+    "paymentSessionExpired": "Votre session de paiement précédente a expiré. Continuez à nouveau pour charger un nouveau formulaire de paiement.",
+    "paymentFormUnavailable": "Le formulaire de paiement n'a pas pu être chargé. Continuez à nouveau pour réessayer.",
     "enterPaymentDetails": "Saisir les données de paiement",
     "continueToPayment": "Suivant",
     "calculatingPayment": "Calcul…",

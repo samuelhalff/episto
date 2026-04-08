@@ -629,7 +629,7 @@
     "edit": "Modifica",
     "add": "Aggiungi",
     "calculatingPrice": "Calcolo del prezzo…",
-    "proceedToPayment": "Avanti",
+    "proceedToPayment": "Cassa",
     "backToDraft": "Indietro",
     "total": "Totale"
   },
@@ -668,6 +668,8 @@
     "stripeIntegrationPending": "Integrazione pagamento Stripe in sospeso",
     "paymentConfirming": "Elaborazione del pagamento…",
     "paymentError": "Pagamento fallito. Si prega di riprovare.",
+    "paymentSessionExpired": "La sessione di pagamento precedente è scaduta. Continui di nuovo per caricare un nuovo modulo di pagamento.",
+    "paymentFormUnavailable": "Non è stato possibile caricare il modulo di pagamento. Continui di nuovo per riprovare.",
     "enterPaymentDetails": "Inserire i dati di pagamento",
     "continueToPayment": "Avanti",
     "calculatingPayment": "Calcolo…",

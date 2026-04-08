@@ -111,6 +111,7 @@ function createOrderStatusResponse() {
       dispatch: {
         state: "accepted" as const,
         providerRef: "provider-123",
+        providerMode: "live" as const,
         trackingNumber: "99.00.000000.12345678",
         submittedAt: "2026-04-08T12:01:00.000Z",
         acceptedAt: "2026-04-08T12:02:00.000Z",

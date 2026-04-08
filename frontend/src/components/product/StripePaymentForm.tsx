@@ -5,7 +5,7 @@ import type { StripeError } from "@stripe/stripe-js";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Lock, Mail, ShieldCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { captureError } from "../../lib/error-tracking";
+import { captureError, captureMessage } from "../../lib/error-tracking";
 import { ActionButton } from "./ActionButton";
 import { FlowActionDock } from "./FlowActionDock";
 
@@ -28,12 +28,23 @@ interface StripePaymentFormProps {
   /** Button label prefix (e.g. "Send my letter"). */
   buttonLabel: string;
   secondaryAction?: ReactNode;
-  onTerminalPaymentIntent?: () => void;
+  onLoadErrorRecovery?: (reason: StripePaymentFormLoadRecoveryReason) => void;
 }
+
+export type StripePaymentFormLoadRecoveryReason =
+  | "terminal_payment_intent"
+  | "payment_form_unavailable";
 
 interface PaymentElementLoadErrorEvent {
   elementType: "payment";
   error: StripeError;
+}
+
+function isTerminalPaymentIntentLoadError(message: string): boolean {
+  return (
+    /terminal state/i.test(message) ||
+    /cannot be used to initialize elements/i.test(message)
+  );
 }
 
 export function StripePaymentForm({
@@ -42,7 +53,7 @@ export function StripePaymentForm({
   returnUrl,
   buttonLabel,
   secondaryAction,
-  onTerminalPaymentIntent,
+  onLoadErrorRecovery,
 }: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -112,25 +123,41 @@ export function StripePaymentForm({
 
   function handleLoadError(loadErrorEvent: PaymentElementLoadErrorEvent) {
     const message = loadErrorEvent.error.message ?? t("paymentError");
+    const recoveryReason: StripePaymentFormLoadRecoveryReason = isTerminalPaymentIntentLoadError(message)
+      ? "terminal_payment_intent"
+      : "payment_form_unavailable";
+    const context = {
+      component: "StripePaymentForm",
+      route: typeof window !== "undefined" ? window.location.pathname : undefined,
+      extra: {
+        elementType: loadErrorEvent.elementType,
+        stripeCode: loadErrorEvent.error.code ?? "unknown",
+        stripeType: loadErrorEvent.error.type ?? "unknown",
+      },
+    };
 
     setPaymentElementLoadFailed(true);
     setErrorMessage(message);
-    captureError(
-      new Error(message ?? "Stripe PaymentElement failed to load"),
-      {
-        component: "StripePaymentForm",
-        route: typeof window !== "undefined" ? window.location.pathname : undefined,
-        extra: {
-          elementType: loadErrorEvent.elementType,
-          stripeCode: loadErrorEvent.error.code ?? "unknown",
-          stripeType: loadErrorEvent.error.type ?? "unknown",
-        },
-      },
-    );
-
-    if (/terminal state/i.test(message)) {
-      onTerminalPaymentIntent?.();
+    if (recoveryReason === "terminal_payment_intent") {
+      // Stripe emits this when the PaymentIntent has already moved out of a
+      // collectable state before Elements mounts. Clearing the client secret
+      // lets checkout recreate a fresh payment session on the next attempt.
+      captureMessage(
+        "Stripe PaymentElement rejected a terminal PaymentIntent during checkout mount",
+        "warning",
+        context,
+      );
+    } else {
+      captureError(new Error(message), context);
+      captureMessage(
+        "Stripe PaymentElement load error did not match terminal-intent recovery",
+        "warning",
+        context,
+      );
     }
+    // Any PaymentElement load failure leaves the current Elements mount unusable.
+    // Drop back to the checkout step so the user can request a fresh session.
+    onLoadErrorRecovery?.(recoveryReason);
   }
 
   return (

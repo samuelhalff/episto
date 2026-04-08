@@ -629,7 +629,7 @@
     "edit": "Edit",
     "add": "Add",
     "calculatingPrice": "Calculating price…",
-    "proceedToPayment": "Next",
+    "proceedToPayment": "Checkout",
     "backToDraft": "Back",
     "total": "Total"
   },
@@ -668,6 +668,8 @@
     "stripeIntegrationPending": "Stripe payment integration pending",
     "paymentConfirming": "Processing payment…",
     "paymentError": "Payment failed. Please try again.",
+    "paymentSessionExpired": "Your previous payment session expired. Continue again to load a fresh payment form.",
+    "paymentFormUnavailable": "The payment form could not be loaded. Continue again to retry.",
     "enterPaymentDetails": "Enter payment details",
     "continueToPayment": "Next",
     "calculatingPayment": "Calculating…",

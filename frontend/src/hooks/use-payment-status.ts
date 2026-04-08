@@ -19,6 +19,7 @@ export interface PaymentInfo {
 export interface DispatchInfo {
   state: string;
   providerRef: string | null;
+  providerMode: "mock" | "live" | null;
   trackingNumber: string | null;
   submittedAt: string | null;
   trackingAvailable: boolean;

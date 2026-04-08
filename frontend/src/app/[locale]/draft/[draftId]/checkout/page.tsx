@@ -13,7 +13,10 @@ import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
 import { FlowActionDock } from "../../../../../components/product/FlowActionDock";
 import { PriceSummary } from "../../../../../components/product/PriceSummary";
-import { StripePaymentForm } from "../../../../../components/product/StripePaymentForm";
+import {
+  StripePaymentForm,
+  type StripePaymentFormLoadRecoveryReason,
+} from "../../../../../components/product/StripePaymentForm";
 import { ActionButton, ActionLink } from "../../../../../components/product/ActionButton";
 import { captureError } from "../../../../../lib/error-tracking";
 import { normalizeLetterSubject } from "../../../../../lib/letter-content";
@@ -220,9 +223,13 @@ export default function CheckoutPage({
       });
   }
 
-  function handleTerminalPaymentIntent() {
+  function handlePaymentLoadErrorRecovery(reason: StripePaymentFormLoadRecoveryReason) {
     checkout.resetClientSecret();
-    setPaymentRecoveryMessage(t("paymentSessionExpired"));
+    setPaymentRecoveryMessage(
+      reason === "terminal_payment_intent"
+        ? t("paymentSessionExpired")
+        : t("paymentFormUnavailable"),
+    );
   }
 
   return (
@@ -422,10 +429,10 @@ export default function CheckoutPage({
                 billingEmail={billingEmail}
                 returnUrl={returnUrl}
                 buttonLabel={t("sendMyLetter")}
-                onTerminalPaymentIntent={handleTerminalPaymentIntent}
+                onLoadErrorRecovery={handlePaymentLoadErrorRecovery}
                 secondaryAction={
                   <ActionLink
-                    href={`/draft/${draftId}/review`}
+                    href={backToReviewHref}
                     variant="secondary"
                     fullWidth
                     className="sm:w-auto sm:min-w-[10rem]"

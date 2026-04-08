@@ -260,4 +260,68 @@ describe("render.service", () => {
     expect(html).toContain('class="signature-script">Sam Sender</div>');
     expect(html).toContain('class="signature-name">Sam Sender</div>');
   });
+
+  it("renders the current PDF header blocks with right-aligned sender and date", async () => {
+    mockDbWithSelectResults(
+      [
+        {
+          id: "snapshot-3",
+          draftId: "draft-3",
+          version: 1,
+          snapshotData: {
+            schemaVersion: 1,
+            locale: "en-CH",
+            deliveryType: "standard",
+            subject: "Termination notice",
+            body: "Please accept this notice.",
+            enclosureNote: null,
+            signatureMode: null,
+            tone: null,
+            intent: null,
+            sender: {
+              firstName: "Sam",
+              lastName: "Sender",
+              company: null,
+              addressLine1: "Main street 1",
+              addressLine2: null,
+              postalCode: "8000",
+              city: "Zurich",
+              country: "CH",
+            },
+            recipient: {
+              firstName: "Alex",
+              lastName: "Receiver",
+              company: "Receiver AG",
+              department: null,
+              addressLine1: "Market street 2",
+              addressLine2: null,
+              postalCode: "3000",
+              city: "Bern",
+              country: "CH",
+            },
+            attachmentAssetIds: [],
+            signatureAssetId: null,
+            estimatedPages: 1,
+            metadata: null,
+          },
+          renderedPdfAssetId: null,
+        },
+      ],
+      [{ sessionId: "session-3" }],
+    );
+
+    const { renderSnapshotToPdf } =
+      await import("../src/modules/rendering/render.service.js");
+    await renderSnapshotToPdf("snapshot-3");
+
+    const html = String(mocks.page.setContent.mock.calls.at(-1)?.[0] ?? "");
+    expect(html).toContain(".sender-block");
+    expect(html).toContain(".recipient-block");
+    expect(html).toContain(".date-line");
+    expect(html).toContain("width: 80mm");
+    expect(html).toContain("margin-left: auto");
+    expect(html).toContain("text-align: right");
+    expect(html).toContain("Sam Sender");
+    expect(html).toContain("Receiver AG");
+  });
 });

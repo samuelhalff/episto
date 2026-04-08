@@ -35,6 +35,7 @@ const NEW_CHECKOUT_KEYS = [
   "paymentMethodsHelp",
   "calculatingPayment",
   "paymentSessionExpired",
+  "paymentFormUnavailable",
 ] as const;
 
 describe("checkout-payment-contract i18n", () => {
@@ -174,11 +175,14 @@ describe("checkout-payment-contract StripePaymentForm", () => {
   });
 
   it("gives the Stripe-stage back action the same desktop minimum width as the first checkout stage", () => {
-    const stripeBackActionBlock = checkoutPageSource.slice(
-      checkoutPageSource.indexOf('href={`/draft/${draftId}/review`}'),
-      checkoutPageSource.indexOf("</ActionLink>", checkoutPageSource.indexOf('href={`/draft/${draftId}/review`}')),
+    const stripeFormBlockStart = checkoutPageSource.indexOf(
+      "onLoadErrorRecovery={handlePaymentLoadErrorRecovery}",
     );
-    expect(stripeBackActionBlock).toContain('href={`/draft/${draftId}/review`}');
+    const stripeBackActionBlock = checkoutPageSource.slice(
+      stripeFormBlockStart,
+      checkoutPageSource.indexOf("</ActionLink>", stripeFormBlockStart),
+    );
+    expect(stripeBackActionBlock).toContain("href={backToReviewHref}");
     expect(stripeBackActionBlock).not.toContain('className="sm:flex-1"');
     expect(stripeBackActionBlock).toContain('className="sm:w-auto sm:min-w-[10rem]"');
   });

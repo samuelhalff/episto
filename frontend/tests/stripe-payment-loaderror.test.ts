@@ -29,11 +29,18 @@ describe("stripe payment loaderror handling", () => {
     expect(stripePaymentFormSource).toContain("setPaymentElementLoadFailed(true)");
   });
 
-  it("treats terminal PaymentIntent load errors as recoverable and clears the stale checkout client secret", () => {
-    expect(stripePaymentFormSource).toContain("onTerminalPaymentIntent");
+  it("records a warning when Stripe load errors do not match the terminal-intent recovery path", () => {
+    expect(stripePaymentFormSource).toContain("captureMessage(");
+    expect(stripePaymentFormSource).toContain('"warning"');
+  });
+
+  it("routes Stripe load errors back into a retryable checkout state", () => {
+    expect(stripePaymentFormSource).toContain("onLoadErrorRecovery");
     expect(stripePaymentFormSource).toContain("terminal state");
-    expect(checkoutPageSource).toContain("onTerminalPaymentIntent={");
+    expect(stripePaymentFormSource).toContain("cannot be used to initialize elements");
+    expect(checkoutPageSource).toContain("onLoadErrorRecovery={");
     expect(checkoutPageSource).toContain('t("paymentSessionExpired")');
+    expect(checkoutPageSource).toContain('t("paymentFormUnavailable")');
     expect(checkoutHookSource).toContain("resetClientSecret");
   });
 });

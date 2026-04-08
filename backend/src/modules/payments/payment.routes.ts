@@ -379,7 +379,10 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         result = await createOrResumeCheckout();
       }
 
-      async function enqueueDispatchIfSnapshotReady(paymentId: string): Promise<void> {
+      async function enqueueDispatchIfSnapshotReady(
+        paymentId: string,
+        options: { suppressFailure?: boolean } = {},
+      ): Promise<void> {
         try {
           const snapshot = await getLatestSnapshot(db, draftId);
           if (snapshot?.renderedPdfAssetId) {
@@ -394,6 +397,9 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
             { err, draftId, paymentId },
             "Failed to enqueue dispatch after checkout payment reconciliation",
           );
+          if (!options.suppressFailure) {
+            throw err;
+          }
         }
       }
 
@@ -450,7 +456,9 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
                 stripeChargeId: stripeIntent.latestChargeId ?? undefined,
               },
             );
-            await enqueueDispatchIfSnapshotReady(payment.id);
+            await enqueueDispatchIfSnapshotReady(payment.id, {
+              suppressFailure: true,
+            });
             if (rawOrderAccessToken) {
               try {
                 await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
@@ -477,6 +485,16 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
           throw error;
         }
+      }
+
+      if (result.isExisting && result.paymentState === "authorized") {
+        await enqueueDispatchIfSnapshotReady(result.paymentAttemptId);
+      }
+
+      if (result.isExisting && result.paymentState === "captured") {
+        await enqueueDispatchIfSnapshotReady(result.paymentAttemptId, {
+          suppressFailure: true,
+        });
       }
 
       if (result.isExisting && result.paymentState !== "pending") {
