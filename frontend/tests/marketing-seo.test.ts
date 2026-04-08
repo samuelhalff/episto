@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import * as React from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("next-intl/server", async () => {
@@ -84,6 +85,22 @@ vi.mock("../src/i18n/navigation", async () => {
         { href: typeof href === "string" ? href : String(href ?? "#"), ...props },
         children,
       ),
+  };
+});
+
+vi.mock("../src/components/marketing/Header", async () => {
+  const React = await import("react");
+
+  return {
+    Header: () => React.createElement("header", null, "Header"),
+  };
+});
+
+vi.mock("../src/components/marketing/Footer", async () => {
+  const React = await import("react");
+
+  return {
+    Footer: () => React.createElement("footer", null, "Footer"),
   };
 });
 
@@ -317,6 +334,15 @@ describe("marketing seo plumbing", () => {
     expect(getJsonLdNode(privacyPage)).toBeUndefined();
     expect(getJsonLdNode(termsPage)).toBeUndefined();
     expect(getJsonLdNode(imprintPage)).toBeUndefined();
+  });
+
+  it("renders the privacy page with geo.admin source disclosure", async () => {
+    const { default: PrivacyPage } = await marketingRouteModules.privacy();
+    const privacyPage = await PrivacyPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const markup = renderToStaticMarkup(privacyPage);
+
+    expect(markup).toContain("Source: Federal Office of Topography");
+    expect(markup).toContain("geo.admin.ch");
   });
 
   it("includes only marketing routes in the sitemap", async () => {

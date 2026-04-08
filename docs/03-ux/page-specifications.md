@@ -2000,7 +2000,7 @@ The header stays compact. This is not a marketing hero.
 - Purpose of processing
 - Storage location and processing regions, exactly as approved in the final privacy text
 - Retention
-- Third parties: Stripe, Swiss Post, Google Places API
+- Third parties: Stripe, Swiss Post, Federal Office of Topography (geo.admin.ch / swisstopo)
 - User rights
 - Contact
 

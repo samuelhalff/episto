@@ -37,6 +37,7 @@ describe("address autocomplete UI", () => {
     expect(messagesSource).toContain('"addressSearchLabel"');
     expect(messagesSource).toContain('"addressSearchPlaceholder"');
     expect(messagesSource).toContain('"addressSearchHint"');
+    expect(messagesSource).toContain('"addressSearchSourceNote"');
     expect(messagesSource).toContain('"searchingAddresses"');
     expect(messagesSource).toContain('"addressSearchUnavailable"');
     expect(messagesSource).toContain('"addressSearchNoResults"');

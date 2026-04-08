@@ -685,8 +685,8 @@ const AddressSearchResponse = z.object({
 
 **Behavior notes:**
 - used for sender and recipient address assist, not company identity lookup
-- current provider is Google Places behind a backend adapter
-- restricted to Swiss, address-like Google place predictions only
+- current provider is geo.admin / Federal Office of Topography behind a backend adapter
+- restricted to Swiss official address search results only
 - result identifiers are opaque lookup tokens; the frontend must only pass them back to `/address-details`
 - selecting a result is a shortcut to prefill structured fields; users can still edit street, PLZ, and city manually
 - this is not postal-grade validation and must not be treated as dispatch acceptance
@@ -731,7 +731,7 @@ const AddressDetailsResponse = z.object({
 - invalid or stale address identifiers are rejected as client errors before or during provider lookup
 - non-Swiss address details are rejected even if someone calls the endpoint directly with an arbitrary provider ID
 - fields may still require user correction; this endpoint improves prefill, it does not replace review
-- wire response stays provider-opaque so the backend can swap providers without changing the frontend contract
+- wire response stays provider-opaque so the backend can change address-search providers without changing the frontend contract
 
 **Error responses:**
 

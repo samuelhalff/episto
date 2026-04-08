@@ -73,7 +73,12 @@ describe("EnvSchema — valid minimal env", () => {
 
   it("applies default ADDRESS_SEARCH_PROVIDER", () => {
     const result = EnvSchema.parse(validEnv());
-    expect(result.ADDRESS_SEARCH_PROVIDER).toBe("none");
+    expect(result.ADDRESS_SEARCH_PROVIDER).toBe("geo_admin");
+  });
+
+  it("applies default GEO_ADMIN_API_BASE_URL", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.GEO_ADMIN_API_BASE_URL).toBe("https://api3.geo.admin.ch");
   });
 });
 
@@ -237,13 +242,12 @@ describe("EnvSchema — validation constraints", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects google_places address search without GOOGLE_PLACES_API_KEY", () => {
+  it("accepts geo_admin address search without any extra secret", () => {
     const result = EnvSchema.safeParse({
       ...validEnv(),
-      ADDRESS_SEARCH_PROVIDER: "google_places",
-      GOOGLE_PLACES_API_KEY: undefined,
+      ADDRESS_SEARCH_PROVIDER: "geo_admin",
     });
-    expect(result.success).toBe(false);
+    expect(result.success).toBe(true);
   });
 
   it("rejects mismatched Azure project endpoints when both are set", () => {

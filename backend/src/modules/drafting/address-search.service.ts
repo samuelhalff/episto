@@ -8,9 +8,9 @@ import type {
 import { env } from "../../shared/config/index.js";
 import { providerOutageError, validationError } from "../../shared/errors/index.js";
 import {
-  GooglePlacesAddressSearchAdapter,
+  GeoAdminAddressSearchAdapter,
   type AddressSearchAdapter,
-} from "./adapters/google-places-address-search.adapter.js";
+} from "./adapters/geo-admin-address-search.adapter.js";
 import {
   ZefixCompanySearchAdapter,
   type CompanySearchAdapter,
@@ -48,10 +48,9 @@ function getAddressSearchAdapter(): AddressSearchAdapter {
   const config = env();
 
   switch (config.ADDRESS_SEARCH_PROVIDER) {
-    case "google_places":
-      addressSearchAdapter = new GooglePlacesAddressSearchAdapter({
-        apiBaseUrl: config.GOOGLE_PLACES_API_BASE_URL,
-        apiKey: config.GOOGLE_PLACES_API_KEY!,
+    case "geo_admin":
+      addressSearchAdapter = new GeoAdminAddressSearchAdapter({
+        apiBaseUrl: config.GEO_ADMIN_API_BASE_URL,
         timeoutMs: config.ADDRESS_SEARCH_TIMEOUT_MS,
       });
       return addressSearchAdapter;
@@ -107,11 +106,11 @@ export async function searchAddresses(query: string): Promise<AddressSearchResul
 export async function getAddressDetails(id: string): Promise<AddressDetailsType> {
   const normalizedId = id.trim();
 
-  if (!/^google_places:[^/?#\s]+$/.test(normalizedId)) {
+  if (!/^addr:[A-Za-z0-9_-]+$/.test(normalizedId)) {
     throw validationError("Select a valid address suggestion before loading its details.", [
       {
         field: "id",
-        message: "Address details require a valid google_places address identifier.",
+        message: "Address details require a valid address lookup identifier.",
       },
     ]);
   }

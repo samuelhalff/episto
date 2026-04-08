@@ -146,7 +146,12 @@ export function AddressAutocompleteField({
         </div>
       </div>
 
-      <p className="text-sm text-zinc-500 dark:text-zinc-300">{t("addressSearchHint")}</p>
+      <div className="space-y-1">
+        <p className="text-sm text-zinc-500 dark:text-zinc-300">{t("addressSearchHint")}</p>
+        <p className="text-[11px] leading-5 text-zinc-400 dark:text-zinc-500">
+          {t("addressSearchSourceNote")}
+        </p>
+      </div>
 
       {errorMessage ? (
         <p className="text-sm text-amber-700 dark:text-amber-300">

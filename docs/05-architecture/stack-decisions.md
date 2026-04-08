@@ -177,7 +177,7 @@ These are the recommended npm packages for each locked technology decision. Use 
 | JSON-LD structured data | `next-seo` or hand-rolled `<script type="application/ld+json">` | Keep it simple |
 | Icons | `lucide-react` | Ships with shadcn/ui — do not add a second icon library |
 | Scroll animations (marketing) | `IntersectionObserver` (built-in) | Zero-dependency; no animation library needed for marketing page reveals |
-| Address autocomplete | None on the frontend; backend Google Places adapter | Frontend stays on normalized `/api` contracts while backend owns Google Places integration |
+| Address autocomplete | None on the frontend; backend geo.admin adapter | Frontend stays on normalized `/api` contracts while backend owns Swiss federal address-search integration |
 | Stripe | `@stripe/stripe-js` + `@stripe/react-stripe-js` | Locked — Stripe Elements for checkout |
 
 ### Backend

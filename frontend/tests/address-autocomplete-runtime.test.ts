@@ -8,6 +8,7 @@ const messages = {
   addressSearchLabel: "Address search",
   addressSearchPlaceholder: "Search for an address",
   addressSearchHint: "Start typing to search.",
+  addressSearchSourceNote: "Source: Federal Office of Topography (swisstopo) via geo.admin.ch.",
   addressSearchUnavailable:
     "Address search is temporarily unavailable. You can still enter the address manually below.",
   addressSearchNoResults: "No addresses found.",
@@ -94,6 +95,12 @@ describe("address autocomplete runtime behavior", () => {
     expect(
       screen.queryByText("An external service is temporarily unavailable. Please try again shortly."),
     ).toBeNull();
+  });
+
+  it("renders the geo.admin source note below the address-search hint", () => {
+    renderField();
+
+    expect(screen.getByText(messages.addressSearchSourceNote)).toBeTruthy();
   });
 
   it("keeps other API error messages unchanged", () => {

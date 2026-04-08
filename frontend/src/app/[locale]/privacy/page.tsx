@@ -48,6 +48,7 @@ export default async function PrivacyPage({
           <div className="space-y-6">
             <LegalSection title={t("dataCollectionTitle")} note={t("legalReviewNote")} />
             <LegalSection title={t("dataUsageTitle")} note={t("legalReviewNote")} />
+            <LegalSection title={t("addressAssistTitle")} body={t("addressAssistBody")} />
             <LegalSection title={t("dataStorageTitle")} note={t("legalReviewNote")} />
             <LegalSection title={t("dataRetentionTitle")} note={t("legalReviewNote")} />
             <LegalSection title={t("yourRightsTitle")} note={t("legalReviewNote")} />
@@ -60,11 +61,25 @@ export default async function PrivacyPage({
   );
 }
 
-function LegalSection({ title, note }: { title: string; note: string }) {
+function LegalSection({
+  title,
+  note,
+  body,
+}: {
+  title: string;
+  note?: string;
+  body?: string;
+}) {
   return (
     <section className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6">
       <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">{title}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-zinc-500 italic dark:text-zinc-400">{note}</p>
+      {body ? (
+        <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{body}</p>
+      ) : (
+        <p className="mt-2 text-sm leading-relaxed text-zinc-500 italic dark:text-zinc-400">
+          {note}
+        </p>
+      )}
     </section>
   );
 }

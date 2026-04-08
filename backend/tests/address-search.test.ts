@@ -13,12 +13,50 @@ vi.mock("../src/shared/config/index.js", () => ({
     COMPANY_SEARCH_PROVIDER: "zefix",
     COMPANY_SEARCH_TIMEOUT_MS: 5000,
     ZEFIX_PROXY_BASE_URL: "http://zefix-proxy:8081",
-    ADDRESS_SEARCH_PROVIDER: "google_places",
+    ADDRESS_SEARCH_PROVIDER: "geo_admin",
     ADDRESS_SEARCH_TIMEOUT_MS: 5000,
-    GOOGLE_PLACES_API_BASE_URL: "https://places.googleapis.com",
-    GOOGLE_PLACES_API_KEY: "test-google-places-key",
+    GEO_ADMIN_API_BASE_URL: "https://api3.geo.admin.ch",
   }),
 }));
+
+function createGeoAdminSearchResponse(label: string, officialFeatureId: string) {
+  return {
+    results: [
+      {
+        attrs: {
+          label,
+          origin: "address",
+          links: [
+            {
+              rel: "related",
+              title: "ch.swisstopo.amtliches-gebaeudeadressverzeichnis",
+              href: `/rest/services/ech/MapServer/ch.swisstopo.amtliches-gebaeudeadressverzeichnis/${officialFeatureId}`,
+            },
+          ],
+        },
+      },
+    ],
+  };
+}
+
+function createOfficialAddressDetailResponse(
+  overrides: Partial<{
+    stn_label: string;
+    adr_number: string;
+    zip_label: string;
+  }> = {},
+) {
+  return {
+    feature: {
+      attributes: {
+        stn_label: "Bahnhofstrasse",
+        adr_number: "1",
+        zip_label: "8001 Zürich",
+        ...overrides,
+      },
+    },
+  };
+}
 
 describe("searchRecipientCompanies", () => {
   beforeEach(() => {
@@ -100,102 +138,81 @@ describe("address autocomplete", () => {
     });
   });
 
-  it("normalizes Google Places suggestions into the app contract", async () => {
+  it("normalizes geo.admin suggestions into the app contract", async () => {
     expect(addressSearchExports.searchAddresses).toBeTypeOf("function");
 
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: true,
-      json: async () => ({
-        suggestions: [
-          {
-            placePrediction: {
-              place: "places/abc123",
-              placeId: "abc123",
-              text: {
-                text: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
-              },
-              structuredFormat: {
-                mainText: {
-                  text: "Bahnhofstrasse 1",
-                },
-                secondaryText: {
-                  text: "8001 Zurich, Switzerland",
-                },
-              },
-            },
-          },
-        ],
-      }),
+      json: async () => createGeoAdminSearchResponse(
+        "Bahnhofstrasse 1 <b>8001 Zürich</b>",
+        "102358038",
+      ),
     } as Response);
 
-    await expect(addressSearchExports.searchAddresses!("Bahnhofstrasse")).resolves.toEqual([
-      {
-        id: "google_places:abc123",
-        label: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
-        primaryText: "Bahnhofstrasse 1",
-        secondaryText: "8001 Zurich, Switzerland",
-      },
-    ]);
+    const results = (await addressSearchExports.searchAddresses!("Bahnhofstrasse")) as Array<{
+      id: string;
+      label: string;
+      primaryText: string;
+      secondaryText: string | null;
+    }>;
+
+    expect(results).toHaveLength(1);
+    expect(results[0]).toMatchObject({
+      label: "Bahnhofstrasse 1, 8001 Zürich",
+      primaryText: "Bahnhofstrasse 1",
+      secondaryText: "8001 Zürich",
+    });
+    expect(results[0]?.id).toMatch(/^addr:[A-Za-z0-9_-]+$/);
+    expect(results[0]?.id).not.toContain("google");
 
     expect(fetchSpy).toHaveBeenCalledTimes(1);
-    expect(fetchSpy.mock.calls[0]?.[1]).toMatchObject({
-      method: "POST",
-    });
-    expect(JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body))).toMatchObject({
-      includedPrimaryTypes: ["street_address", "premise", "subpremise", "route"],
-      includedRegionCodes: ["ch"],
-      regionCode: "CH",
-    });
+    const searchUrl = new URL(String(fetchSpy.mock.calls[0]?.[0]));
+    expect(searchUrl.origin + searchUrl.pathname).toBe(
+      "https://api3.geo.admin.ch/rest/services/ech/SearchServer",
+    );
+    expect(searchUrl.searchParams.get("type")).toBe("locations");
+    expect(searchUrl.searchParams.get("origins")).toBe("address");
+    expect(searchUrl.searchParams.get("limit")).toBe("5");
+    expect(searchUrl.searchParams.get("searchText")).toBe("Bahnhofstrasse");
   });
 
-  it("normalizes Google Places details into canonical mailing fields", async () => {
+  it("loads geo.admin official address details into canonical mailing fields", async () => {
     expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
 
-    vi.spyOn(globalThis, "fetch").mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        id: "abc123",
-        formattedAddress: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
-        addressComponents: [
-          {
-            longText: "1",
-            shortText: "1",
-            types: ["street_number"],
-          },
-          {
-            longText: "Bahnhofstrasse",
-            shortText: "Bahnhofstr.",
-            types: ["route"],
-          },
-          {
-            longText: "8001",
-            shortText: "8001",
-            types: ["postal_code"],
-          },
-          {
-            longText: "Zurich",
-            shortText: "Zurich",
-            types: ["locality", "political"],
-          },
-          {
-            longText: "Switzerland",
-            shortText: "CH",
-            types: ["country", "political"],
-          },
-        ],
-      }),
-    } as Response);
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => createGeoAdminSearchResponse(
+          "Bahnhofstrasse 1 <b>8001 Zürich</b>",
+          "102358038",
+        ),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => createOfficialAddressDetailResponse(),
+      } as Response);
 
-    await expect(addressSearchExports.getAddressDetails!("google_places:abc123")).resolves.toEqual({
-      id: "google_places:abc123",
-      label: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
+    const [result] = (await addressSearchExports.searchAddresses!("Bahnhofstrasse")) as Array<{
+      id: string;
+    }>;
+
+    await expect(addressSearchExports.getAddressDetails!(result!.id)).resolves.toEqual({
+      id: result!.id,
+      label: "Bahnhofstrasse 1, 8001 Zürich",
       addressLine1: "Bahnhofstrasse 1",
       postalCode: "8001",
-      city: "Zurich",
+      city: "Zürich",
     });
+
+    const detailsUrl = new URL(String(fetchSpy.mock.calls[1]?.[0]));
+    expect(detailsUrl.origin + detailsUrl.pathname).toBe(
+      "https://api3.geo.admin.ch/rest/services/ech/MapServer/ch.swisstopo.amtliches-gebaeudeadressverzeichnis/102358038",
+    );
+    expect(detailsUrl.searchParams.get("returnGeometry")).toBe("false");
   });
 
-  it("rejects invalid address identifiers before calling Google", async () => {
+  it("rejects invalid address identifiers before calling geo.admin", async () => {
     expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
     const fetchSpy = vi.spyOn(globalThis, "fetch");
 
@@ -205,83 +222,64 @@ describe("address autocomplete", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("rejects non-Swiss address details", async () => {
+  it("strips placeholder house numbers from official detail records", async () => {
     expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
 
-    vi.spyOn(globalThis, "fetch").mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        id: "abc123",
-        formattedAddress: "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA",
-        addressComponents: [
-          {
-            longText: "1600",
-            shortText: "1600",
-            types: ["street_number"],
-          },
-          {
-            longText: "Amphitheatre Parkway",
-            shortText: "Amphitheatre Pkwy",
-            types: ["route"],
-          },
-          {
-            longText: "94043",
-            shortText: "94043",
-            types: ["postal_code"],
-          },
-          {
-            longText: "Mountain View",
-            shortText: "Mountain View",
-            types: ["locality", "political"],
-          },
-          {
-            longText: "United States",
-            shortText: "US",
-            types: ["country", "political"],
-          },
-        ],
-      }),
-    } as Response);
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => createGeoAdminSearchResponse(
+          "Bahnhofstrasse # <b>7323 Wangs</b>",
+          "103676173",
+        ),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () =>
+          createOfficialAddressDetailResponse({
+            stn_label: "Bahnhofstrasse",
+            adr_number: "#",
+            zip_label: "7323 Wangs",
+          }),
+      } as Response);
 
-    await expect(addressSearchExports.getAddressDetails!("google_places:abc123")).rejects.toMatchObject({
-      code: "VALIDATION_ERROR",
+    const [result] = (await addressSearchExports.searchAddresses!("Bahnhofstr")) as Array<{
+      id: string;
+    }>;
+
+    await expect(addressSearchExports.getAddressDetails!(result!.id)).resolves.toEqual({
+      id: result!.id,
+      label: "Bahnhofstrasse, 7323 Wangs",
+      addressLine1: "Bahnhofstrasse",
+      postalCode: "7323",
+      city: "Wangs",
     });
   });
 
-  it("treats missing country data as a provider outage", async () => {
+  it("treats malformed geo.admin detail data as a provider outage", async () => {
     expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
 
-    vi.spyOn(globalThis, "fetch").mockResolvedValue({
-      ok: true,
-      json: async () => ({
-        id: "abc123",
-        formattedAddress: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
-        addressComponents: [
-          {
-            longText: "1",
-            shortText: "1",
-            types: ["street_number"],
-          },
-          {
-            longText: "Bahnhofstrasse",
-            shortText: "Bahnhofstr.",
-            types: ["route"],
-          },
-          {
-            longText: "8001",
-            shortText: "8001",
-            types: ["postal_code"],
-          },
-          {
-            longText: "Zurich",
-            shortText: "Zurich",
-            types: ["locality", "political"],
-          },
-        ],
-      }),
-    } as Response);
+    vi.spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => createGeoAdminSearchResponse(
+          "Bahnhofstrasse 1 <b>8001 Zürich</b>",
+          "102358038",
+        ),
+      } as Response)
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () =>
+          createOfficialAddressDetailResponse({
+            zip_label: "Zürich",
+          }),
+      } as Response);
 
-    await expect(addressSearchExports.getAddressDetails!("google_places:abc123")).rejects.toMatchObject({
+    const [result] = (await addressSearchExports.searchAddresses!("Bahnhofstrasse")) as Array<{
+      id: string;
+    }>;
+
+    await expect(addressSearchExports.getAddressDetails!(result!.id)).rejects.toMatchObject({
       code: "PROVIDER_OUTAGE",
     });
   });
