@@ -624,6 +624,22 @@ describe("PaymentBreakdownSchema", () => {
     ).toThrow();
   });
 
+  it("rejects negative line item amounts", () => {
+    expect(() =>
+      PaymentBreakdownSchema.parse({
+        deliveryType: "standard",
+        providerQuotedCents: 100,
+        swissMailMarkupCents: 20,
+        totalCents: 120,
+        providerQuoteReference: null,
+        attachmentHandling: "excluded",
+        lineItems: [
+          { label: "Provider fee", amountCents: -100, source: "provider" },
+        ],
+      }),
+    ).toThrow();
+  });
+
   it("rejects non-integer values", () => {
     expect(() =>
       PaymentBreakdownSchema.parse({

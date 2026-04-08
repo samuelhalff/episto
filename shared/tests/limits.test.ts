@@ -14,7 +14,7 @@ describe("shared upload limits", () => {
   it("exposes the doc-backed attachment and signature limits", () => {
     expect(FILE_LIMITS.attachment.maxBytes).toBe(5 * 1024 * 1024);
     expect(FILE_LIMITS.signature.maxBytes).toBe(2 * 1024 * 1024);
-    expect(FILE_LIMITS.totalDraftUploadBytes).toBe(20 * 1024 * 1024);
+    expect(FILE_LIMITS.totalDraftUploadBytes).toBe(27 * 1024 * 1024);
     expect(FILE_LIMITS.maxAttachmentsPerDraft).toBe(5);
     expect(FILE_LIMITS.maxSignaturesPerDraft).toBe(1);
   });

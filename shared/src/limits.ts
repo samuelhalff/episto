@@ -7,7 +7,7 @@ export const FILE_LIMITS = {
     maxBytes: 2 * 1024 * 1024,
     allowedMimeTypes: ["image/png", "image/jpeg"] as const,
   },
-  totalDraftUploadBytes: 20 * 1024 * 1024,
+  totalDraftUploadBytes: 27 * 1024 * 1024,
   maxAttachmentsPerDraft: 5,
   maxSignaturesPerDraft: 1,
 } as const;

@@ -10,7 +10,7 @@ import { PostalPostageSchema } from "@swiss-mail/shared";
  * All values are loaded from process.env and validated at startup.
  * The app refuses to start if required values are missing.
  */
-const EnvSchema = z
+export const EnvSchema = z
   .object({
     // Server
     NODE_ENV: z.enum(["development", "production", "test"]).default("development"),

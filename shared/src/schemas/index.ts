@@ -239,7 +239,7 @@ export const PaymentBreakdownSchema = z.object({
   lineItems: z.array(
     z.object({
       label: z.string().min(1),
-      amountCents: z.number().int(),
+      amountCents: z.number().int().nonnegative(),
       source: z.enum(["provider", "swiss_mail"]),
     }),
   ),
