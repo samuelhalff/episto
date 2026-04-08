@@ -107,9 +107,12 @@ export async function searchAddresses(query: string): Promise<AddressSearchResul
 export async function getAddressDetails(id: string): Promise<AddressDetailsType> {
   const normalizedId = id.trim();
 
-  if (normalizedId.length === 0) {
-    throw validationError("Select an address before loading its details.", [
-      { field: "id", message: "Address details require an address identifier." },
+  if (!/^google_places:[^/?#\s]+$/.test(normalizedId)) {
+    throw validationError("Select a valid address suggestion before loading its details.", [
+      {
+        field: "id",
+        message: "Address details require a valid google_places address identifier.",
+      },
     ]);
   }
 

@@ -687,7 +687,7 @@ const AddressSearchResponse = z.object({
 **Behavior notes:**
 - used for sender and recipient address assist, not company identity lookup
 - current provider is Google Places behind a backend adapter
-- restricted to Swiss results only
+- restricted to Swiss, address-like Google place predictions only
 - selecting a result is a shortcut to prefill structured fields; users can still edit street, PLZ, and city manually
 - this is not postal-grade validation and must not be treated as dispatch acceptance
 
@@ -730,6 +730,8 @@ const AddressDetailsResponse = z.object({
 
 **Behavior notes:**
 - returned fields are normalized into Swiss Mail's sender/recipient form shape
+- invalid or stale address identifiers are rejected as client errors before or during provider lookup
+- non-Swiss address details are rejected even if someone calls the endpoint directly with an arbitrary provider ID
 - fields may still require user correction; this endpoint improves prefill, it does not replace review
 - adapter-backed so the provider can change without changing the frontend contract
 

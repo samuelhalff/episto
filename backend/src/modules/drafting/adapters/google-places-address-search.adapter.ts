@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { AddressDetailsType, AddressSearchResultType } from "@swiss-mail/shared";
 
-import { providerOutageError } from "../../../shared/errors/index.js";
+import { providerOutageError, validationError } from "../../../shared/errors/index.js";
 
 const GooglePlacesAutocompleteResponseSchema = z.object({
   suggestions: z
@@ -73,6 +73,7 @@ export class GooglePlacesAddressSearchAdapter implements AddressSearchAdapter {
         },
         body: JSON.stringify({
           input: query,
+          includedPrimaryTypes: ["street_address", "premise", "subpremise", "route"],
           includedRegionCodes: ["ch"],
           regionCode: "CH",
         }),
@@ -131,6 +132,15 @@ export class GooglePlacesAddressSearchAdapter implements AddressSearchAdapter {
     }
 
     if (!response.ok) {
+      if (response.status === 400 || response.status === 404) {
+        throw validationError("Select a valid address suggestion before loading its details.", [
+          {
+            field: "id",
+            message: "Address details request used an invalid google_places identifier.",
+          },
+        ]);
+      }
+
       throw providerOutageError("Address details");
     }
 
@@ -170,6 +180,15 @@ function normalizeGooglePlaceDetails(
     null;
   const countryCode = getAddressComponent(details.addressComponents, "country")?.shortText ?? null;
   const addressLine1 = [route, streetNumber].filter(Boolean).join(" ").trim() || null;
+
+  if (countryCode !== "CH") {
+    throw validationError("Select a Swiss address suggestion before loading its details.", [
+      {
+        field: "id",
+        message: "Address details must resolve to a Swiss address.",
+      },
+    ]);
+  }
 
   return {
     id: addressId,

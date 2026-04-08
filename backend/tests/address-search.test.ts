@@ -103,7 +103,7 @@ describe("address autocomplete", () => {
   it("normalizes Google Places suggestions into the app contract", async () => {
     expect(addressSearchExports.searchAddresses).toBeTypeOf("function");
 
-    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+    const fetchSpy = vi.spyOn(globalThis, "fetch").mockResolvedValue({
       ok: true,
       json: async () => ({
         suggestions: [
@@ -137,6 +137,16 @@ describe("address autocomplete", () => {
         source: "google_places",
       },
     ]);
+
+    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(fetchSpy.mock.calls[0]?.[1]).toMatchObject({
+      method: "POST",
+    });
+    expect(JSON.parse(String(fetchSpy.mock.calls[0]?.[1]?.body))).toMatchObject({
+      includedPrimaryTypes: ["street_address", "premise", "subpremise", "route"],
+      includedRegionCodes: ["ch"],
+      regionCode: "CH",
+    });
   });
 
   it("normalizes Google Places details into canonical mailing fields", async () => {
@@ -185,6 +195,59 @@ describe("address autocomplete", () => {
       city: "Zurich",
       countryCode: "CH",
       source: "google_places",
+    });
+  });
+
+  it("rejects invalid address identifiers before calling Google", async () => {
+    expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+
+    await expect(addressSearchExports.getAddressDetails!("abc123")).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("rejects non-Swiss address details", async () => {
+    expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        id: "abc123",
+        formattedAddress: "1600 Amphitheatre Parkway, Mountain View, CA 94043, USA",
+        addressComponents: [
+          {
+            longText: "1600",
+            shortText: "1600",
+            types: ["street_number"],
+          },
+          {
+            longText: "Amphitheatre Parkway",
+            shortText: "Amphitheatre Pkwy",
+            types: ["route"],
+          },
+          {
+            longText: "94043",
+            shortText: "94043",
+            types: ["postal_code"],
+          },
+          {
+            longText: "Mountain View",
+            shortText: "Mountain View",
+            types: ["locality", "political"],
+          },
+          {
+            longText: "United States",
+            shortText: "US",
+            types: ["country", "political"],
+          },
+        ],
+      }),
+    } as Response);
+
+    await expect(addressSearchExports.getAddressDetails!("google_places:abc123")).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
     });
   });
 });
