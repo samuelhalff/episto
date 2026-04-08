@@ -18,6 +18,7 @@ import { analyzeIntake } from "./ai.service.js";
 import { streamDraftGeneration, streamRevision } from "./ai.streaming.js";
 import { createMessage } from "../messages/message.service.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
+import { acquireRedisLock } from "../../shared/redis-lock.js";
 import {
   buildComposeInstructions,
   buildExistingFieldsContext,
@@ -28,7 +29,7 @@ import {
 } from "./draft-context.js";
 
 const logger = createLogger("ai-handler");
-const activeComposeDrafts = new Set<string>();
+const COMPOSE_LOCK_TTL_MS = 10 * 60 * 1000;
 
 export interface HandleMessageInput {
   draftId: string;
@@ -201,12 +202,11 @@ export async function handleComposeFromContext(
 ): Promise<void> {
   const { draftId, sessionId } = input;
 
-  if (activeComposeDrafts.has(draftId)) {
+  const lock = await acquireRedisLock(`ai-compose:${draftId}`, COMPOSE_LOCK_TTL_MS);
+  if (!lock) {
     logger.info({ draftId }, "Skipping duplicate context composition while one is already running");
     return;
   }
-
-  activeComposeDrafts.add(draftId);
 
   try {
     const draft = await loadDraft(draftId, sessionId);
@@ -305,6 +305,10 @@ export async function handleComposeFromContext(
 
     emitDraftEvent(draftId, "error", errorPayload);
   } finally {
-    activeComposeDrafts.delete(draftId);
+    try {
+      await lock.release();
+    } catch (releaseErr) {
+      logger.warn({ err: releaseErr, draftId }, "Failed to release compose lock");
+    }
   }
 }

@@ -17,7 +17,7 @@ const DRAFT_TRANSITIONS: Record<DraftStatusValue, readonly DraftStatusValue[]> =
       DraftStatus.closed,
     ],
     [DraftStatus.reviewed]: [DraftStatus.rendering, DraftStatus.closed],
-    [DraftStatus.rendering]: [DraftStatus.ready, DraftStatus.collecting, DraftStatus.closed],
+    [DraftStatus.rendering]: [DraftStatus.ready, DraftStatus.closed],
     [DraftStatus.ready]: [DraftStatus.submitted, DraftStatus.collecting, DraftStatus.closed],
     [DraftStatus.submitted]: [DraftStatus.dispatched, DraftStatus.closed],
     [DraftStatus.dispatched]: [DraftStatus.closed],
@@ -75,6 +75,7 @@ const DISPATCH_TRANSITIONS: Record<
     DispatchState.reconciled,
     DispatchState.accepted,
     DispatchState.rejected,
+    DispatchState.unknown,
   ],
   [DispatchState.reconciled]: [],
 };

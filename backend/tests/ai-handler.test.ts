@@ -4,6 +4,8 @@ import type { DraftEventHandler } from "../src/modules/drafting/draft-events.js"
 import { subscribeDraft, unsubscribeDraft } from "../src/modules/drafting/draft-events.js";
 import { AppError } from "../src/shared/errors/index.js";
 
+const acquireRedisLock = vi.hoisted(() => vi.fn());
+
 vi.mock("../src/db/index.js", () => ({
   getDb: vi.fn(() => mockDb),
   schema: {
@@ -34,6 +36,10 @@ vi.mock("../src/shared/logging/index.js", () => ({
     warn: vi.fn(),
     error: vi.fn(),
   }),
+}));
+
+vi.mock("../src/shared/redis-lock.js", () => ({
+  acquireRedisLock,
 }));
 
 import { handleAiMessage, handleComposeFromContext } from "../src/modules/ai/ai.handler.js";
@@ -110,6 +116,9 @@ describe("handleAiMessage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resetDbChain();
+    acquireRedisLock.mockResolvedValue({
+      release: vi.fn().mockResolvedValue(undefined),
+    });
     events = [];
     handler = (event, payload) => events.push([event, payload]);
     subscribeDraft("draft-1", handler);
@@ -562,6 +571,20 @@ describe("handleAiMessage", () => {
 
     expect(analyzeIntake).not.toHaveBeenCalled();
     expect(draftLetter).toHaveBeenCalledOnce();
+  });
+
+  it("skips duplicate context composition when another worker already holds the distributed lock", async () => {
+    acquireRedisLock.mockResolvedValueOnce(null);
+
+    await handleComposeFromContext({
+      draftId: "draft-1",
+      sessionId: "session-1",
+    });
+
+    expect(acquireRedisLock).toHaveBeenCalledWith("ai-compose:draft-1", expect.any(Number));
+    expect(analyzeIntake).not.toHaveBeenCalled();
+    expect(draftLetter).not.toHaveBeenCalled();
+    expect(createMessage).not.toHaveBeenCalled();
   });
 
   it("skips intake analysis for revision turns", async () => {

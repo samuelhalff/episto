@@ -29,7 +29,6 @@ describe("DraftStatus transitions", () => {
 
   it("allows only the documented backtracking paths", () => {
     expect(canTransitionDraft(DraftStatus.fields_complete, DraftStatus.collecting)).toBe(true);
-    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.collecting)).toBe(true);
     expect(canTransitionDraft(DraftStatus.ready, DraftStatus.collecting)).toBe(true);
   });
 
@@ -41,11 +40,11 @@ describe("DraftStatus transitions", () => {
     ]);
   });
 
-  it("routes rendering failures back to collecting only", () => {
+  it("keeps rendering immutable until it either succeeds or closes", () => {
     expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(false);
+    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.collecting)).toBe(false);
     expect(getAllowedDraftTransitions(DraftStatus.rendering)).toEqual([
       DraftStatus.ready,
-      DraftStatus.collecting,
       DraftStatus.closed,
     ]);
   });
@@ -155,7 +154,12 @@ describe("DispatchState transitions", () => {
       DispatchState.reconciled,
       DispatchState.accepted,
       DispatchState.rejected,
+      DispatchState.unknown,
     ]);
+  });
+
+  it("allows polling to remain in unknown while the provider stays ambiguous", () => {
+    expect(canTransitionDispatch(DispatchState.unknown, DispatchState.unknown)).toBe(true);
   });
 
   it("keeps accepted, rejected, and reconciled terminal", () => {
