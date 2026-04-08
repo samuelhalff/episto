@@ -15,7 +15,7 @@ import { enqueuePaymentReceiptEmail } from "./payment-notifications.js";
 import {
   createPaymentIntent,
   constructWebhookEvent,
-  getPaymentIntentClientSecret,
+  getPaymentIntentForCheckout,
 } from "./adapters/stripe.adapter.js";
 import { recordEvent } from "../analytics/index.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
@@ -278,6 +278,12 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       // Use a transaction to prevent concurrent checkout race conditions.
       // Re-check for existing non-terminal payment inside the transaction.
       const NON_TERMINAL_STATES = ["pending", "authorized", "captured", "refund_pending"];
+      const RESUMABLE_STRIPE_INTENT_STATUSES = new Set([
+        "requires_payment_method",
+        "requires_confirmation",
+        "requires_action",
+        "processing",
+      ]);
       const createOrResumeCheckout = async () =>
         db.transaction(async (tx) => {
           if (body.email) {
@@ -336,73 +342,111 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       let result = await createOrResumeCheckout();
 
-      if (result.isExisting) {
-        try {
-          const clientSecret =
-            result.paymentState === "pending" && result.stripePaymentIntentId
-              ? await getPaymentIntentClientSecret(result.stripePaymentIntentId)
-              : null;
-
-          return reply.send({
+      async function recreateCheckoutFromStaleStripeIntent(stripeError: string): Promise<void> {
+        request.log.warn(
+          {
+            draftId,
             paymentAttemptId: result.paymentAttemptId,
-            clientSecret,
-            priceCents: result.priceCents,
-            currency: "CHF" as const,
-            quote: result.quote,
-          });
-        } catch (error) {
-          if (
-            error instanceof AppError &&
-            error.code === "PAYMENT_INVALID_REQUEST" &&
-            result.paymentState === "pending" &&
-            result.stripePaymentIntentId
-          ) {
-            request.log.warn(
-              {
-                draftId,
-                paymentAttemptId: result.paymentAttemptId,
-                stripePaymentIntentId: result.stripePaymentIntentId,
-                stripeError: error.message,
-              },
-              "Cancelling stale pending Stripe payment intent before recreating checkout",
-            );
+            stripePaymentIntentId: result.stripePaymentIntentId,
+            stripeError,
+          },
+          "Cancelling stale pending Stripe payment intent before recreating checkout",
+        );
 
-            await transitionPaymentState(db, result.paymentAttemptId, "cancelled");
-            result = await createOrResumeCheckout();
-          } else {
-            throw error;
+        await transitionPaymentState(db, result.paymentAttemptId, "cancelled");
+        result = await createOrResumeCheckout();
+      }
+
+      while (result.isExisting && result.paymentState === "pending") {
+        if (!result.stripePaymentIntentId) {
+          await recreateCheckoutFromStaleStripeIntent(
+            "Pending payment attempt is missing a Stripe payment intent ID",
+          );
+          continue;
+        }
+
+        try {
+          const stripeIntent = await getPaymentIntentForCheckout(result.stripePaymentIntentId);
+
+          if (RESUMABLE_STRIPE_INTENT_STATUSES.has(stripeIntent.status)) {
+            if (!stripeIntent.clientSecret) {
+              throw new AppError({
+                family: "payment_failure",
+                statusCode: 400,
+                code: "PAYMENT_INVALID_REQUEST",
+                message: `Stripe PaymentIntent ${result.stripePaymentIntentId} is missing a client_secret`,
+                userMessage: "The payment request was invalid.",
+                userAction: "Please try again or use a different payment method.",
+              });
+            }
+
+            result = {
+              ...result,
+              clientSecret: stripeIntent.clientSecret,
+            };
+            break;
           }
+
+          if (stripeIntent.status === "requires_capture") {
+            await transitionPaymentState(db, result.paymentAttemptId, "authorized", {
+              stripePaymentIntentId: result.stripePaymentIntentId,
+            });
+            result = {
+              ...result,
+              paymentState: "authorized",
+              clientSecret: null,
+            };
+            break;
+          }
+
+          if (stripeIntent.status === "succeeded") {
+            await transitionPaymentState(db, result.paymentAttemptId, "captured", {
+              stripePaymentIntentId: result.stripePaymentIntentId,
+              stripeChargeId: stripeIntent.latestChargeId ?? undefined,
+            });
+            result = {
+              ...result,
+              paymentState: "captured",
+              clientSecret: null,
+            };
+            break;
+          }
+
+          await recreateCheckoutFromStaleStripeIntent(
+            `Stripe PaymentIntent ${result.stripePaymentIntentId} is ${stripeIntent.status}`,
+          );
+        } catch (error) {
+          if (error instanceof AppError && error.code === "PAYMENT_INVALID_REQUEST") {
+            await recreateCheckoutFromStaleStripeIntent(error.message);
+            continue;
+          }
+
+          throw error;
         }
       }
 
-      if (result.isExisting) {
-        const clientSecret =
-          result.paymentState === "pending" && result.stripePaymentIntentId
-            ? await getPaymentIntentClientSecret(result.stripePaymentIntentId)
-            : null;
+      if (result.isExisting && result.paymentState !== "pending") {
+        result = {
+          ...result,
+          clientSecret: null,
+        };
+      }
 
-        return reply.send({
-          paymentAttemptId: result.paymentAttemptId,
-          clientSecret,
+      if (!result.isExisting) {
+        recordEvent({
+          event: "checkout_started",
+          draftId,
+          deliveryType: draft.deliveryType,
           priceCents: result.priceCents,
-          currency: "CHF" as const,
-          quote: result.quote,
+        });
+        recordEvent({
+          event: "payment_intent_created",
+          draftId,
+          paymentAttemptId: result.paymentAttemptId,
         });
       }
 
-      recordEvent({
-        event: "checkout_started",
-        draftId,
-        deliveryType: draft.deliveryType,
-        priceCents: result.priceCents,
-      });
-      recordEvent({
-        event: "payment_intent_created",
-        draftId,
-        paymentAttemptId: result.paymentAttemptId,
-      });
-
-      reply.send({
+      return reply.send({
         paymentAttemptId: result.paymentAttemptId,
         clientSecret: result.clientSecret,
         priceCents: result.priceCents,

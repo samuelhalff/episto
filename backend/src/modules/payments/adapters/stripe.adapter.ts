@@ -97,12 +97,22 @@ export async function createPaymentIntent(
   }
 }
 
-export async function getPaymentIntentClientSecret(
+export interface CheckoutPaymentIntent {
+  status: Stripe.PaymentIntent.Status;
+  clientSecret: string | null;
+  latestChargeId: string | null;
+}
+
+export async function getPaymentIntentForCheckout(
   paymentIntentId: string,
-): Promise<string | null> {
+): Promise<CheckoutPaymentIntent> {
   try {
     const intent = await getStripe().paymentIntents.retrieve(paymentIntentId);
-    return intent.client_secret ?? null;
+    return {
+      status: intent.status,
+      clientSecret: intent.client_secret ?? null,
+      latestChargeId: typeof intent.latest_charge === "string" ? intent.latest_charge : null,
+    };
   } catch (err) {
     if (err instanceof AppError) {
       throw err;
