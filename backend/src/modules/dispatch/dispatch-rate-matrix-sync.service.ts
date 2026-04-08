@@ -32,32 +32,6 @@ export function buildCanonicalRateMatrixInputs(config = env()): DispatchPricingI
   );
 }
 
-async function insertBuildingVersion(db: Db, versionId: string, now: Date, sourceEndpoint: string) {
-  await db.transaction(async (tx) => {
-    await tx.insert(schema.providerRateMatrixVersions).values({
-      id: versionId,
-      providerName: "epost",
-      status: "building",
-      sourceEndpoint,
-      createdAt: now,
-      updatedAt: now,
-    });
-  });
-}
-
-async function markFailedVersion(db: Db, versionId: string, failureReason: string, now: Date) {
-  await db.transaction(async (tx) => {
-    await tx
-      .update(schema.providerRateMatrixVersions)
-      .set({
-        status: "failed",
-        failureReason,
-        updatedAt: now,
-      })
-      .where(eq(schema.providerRateMatrixVersions.id, versionId));
-  });
-}
-
 export async function syncDispatchRateMatrix(args: {
   db: Db;
   adapter?: DispatchAdapter;
@@ -72,7 +46,14 @@ export async function syncDispatchRateMatrix(args: {
   const inputs = buildCanonicalRateMatrixInputs(config);
   const sourceEndpoint = `${config.EPOST_API_BASE_URL.replace(/\/$/, "")}/epost/preview/delivery-prices`;
 
-  await insertBuildingVersion(db, versionId, now, sourceEndpoint);
+  await db.insert(schema.providerRateMatrixVersions).values({
+    id: versionId,
+    providerName: "epost",
+    status: "building",
+    sourceEndpoint,
+    createdAt: now,
+    updatedAt: now,
+  });
 
   try {
     const entries: Array<{
@@ -141,12 +122,14 @@ export async function syncDispatchRateMatrix(args: {
 
     return { versionId, entryCount: entries.length, expiresAt };
   } catch (error) {
-    await markFailedVersion(
-      db,
-      versionId,
-      error instanceof Error ? error.message : String(error),
-      now,
-    );
+    await db
+      .update(schema.providerRateMatrixVersions)
+      .set({
+        status: "failed",
+        failureReason: error instanceof Error ? error.message : String(error),
+        updatedAt: now,
+      })
+      .where(eq(schema.providerRateMatrixVersions.id, versionId));
 
     throw error;
   }

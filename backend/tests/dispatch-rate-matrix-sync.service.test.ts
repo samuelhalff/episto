@@ -15,11 +15,11 @@ import { syncDispatchRateMatrix } from "../src/modules/dispatch/dispatch-rate-ma
 type SyncDbTx = {
   insert: ReturnType<typeof vi.fn>;
   update: ReturnType<typeof vi.fn>;
-  select: ReturnType<typeof vi.fn>;
 };
 
 function createSyncDbHarness() {
   const state = {
+    insertedBuildingVersions: [] as Array<{ status: string; sourceEndpoint: string }>,
     insertedEntries: [] as Array<{
       postage: string;
       numberOfPage: number;
@@ -29,7 +29,34 @@ function createSyncDbHarness() {
     failedVersionUpdates: [] as Array<{ failureReason: string }>,
   };
 
+  const rootInsertValues = vi.fn(async (value: unknown) => {
+    if (!Array.isArray(value) && value && typeof value === "object") {
+      state.insertedBuildingVersions.push(
+        value as (typeof state.insertedBuildingVersions)[number],
+      );
+    }
+
+    return value;
+  });
+
+  const rootUpdateWhere = vi.fn(async () => undefined);
+  const rootUpdateSet = vi.fn((value: Record<string, unknown>) => ({
+    where: rootUpdateWhere.mockImplementation(async () => {
+      if (value.status === "failed") {
+        state.failedVersionUpdates.push({
+          failureReason: String(value.failureReason ?? ""),
+        });
+      }
+    }),
+  }));
+
   const db = {
+    insert: vi.fn(() => ({
+      values: rootInsertValues,
+    })),
+    update: vi.fn(() => ({
+      set: rootUpdateSet,
+    })),
     transaction: vi.fn(async (callback: (tx: SyncDbTx) => Promise<unknown>) =>
       callback({
         insert: vi.fn(() => ({
@@ -47,17 +74,7 @@ function createSyncDbHarness() {
               if (value.status === "retired") {
                 state.retiredVersionIds.push("old-active");
               }
-              if (value.status === "failed") {
-                state.failedVersionUpdates.push({
-                  failureReason: String(value.failureReason ?? ""),
-                });
-              }
             }),
-          })),
-        })),
-        select: vi.fn(() => ({
-          from: vi.fn(() => ({
-            where: vi.fn(async () => [{ id: "old-active", status: "active" }]),
           })),
         })),
       }),
@@ -83,6 +100,7 @@ describe("syncDispatchRateMatrix", () => {
     });
 
     expect(quoteReferencePrice).toHaveBeenCalledTimes(20);
+    expect(state.insertedBuildingVersions).toHaveLength(1);
     expect(state.insertedEntries).toHaveLength(20);
     expect(state.retiredVersionIds).toEqual(["old-active"]);
     expect(result.entryCount).toBe(20);

@@ -90,35 +90,13 @@ class StubDispatchAdapter implements DispatchAdapter {
 // Factory
 // ---------------------------------------------------------------------------
 
-function createEpostDispatchAdapter(): DispatchAdapter {
-  const adapter = new EpostDispatchAdapter(getEpostDispatchCapabilities());
-
-  return {
-    getCapabilities: () => adapter.getCapabilities(),
-    quoteReferencePrice: async () => {
-      throw new AppError({
-        family: "provider_outage",
-        statusCode: 503,
-        code: "EPOST_REFERENCE_PRICING_UNAVAILABLE",
-        message:
-          "Postal reference pricing is unavailable because the ePost reference-pricing probe is not implemented in this task.",
-        userMessage: "Stored postal pricing is unavailable in this environment.",
-        userAction: "Complete the ePost reference-pricing implementation before running pricing sync.",
-      });
-    },
-    quotePrice: (dispatchPackage) => adapter.quotePrice(dispatchPackage),
-    submit: (dispatchPackage) => adapter.submit(dispatchPackage),
-    checkStatus: (providerReference) => adapter.checkStatus(providerReference),
-  };
-}
-
 let _adapter: DispatchAdapter | undefined;
 
 export function getDispatchAdapter(): DispatchAdapter {
   if (_adapter) return _adapter;
   _adapter =
     env().POSTAL_DISPATCH_PROVIDER === "epost"
-      ? createEpostDispatchAdapter()
+      ? new EpostDispatchAdapter(getEpostDispatchCapabilities())
       : new StubDispatchAdapter();
   return _adapter;
 }
