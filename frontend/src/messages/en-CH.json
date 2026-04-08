@@ -914,3 +914,147 @@
     "contactResponseTime": "We aim to respond within one business day."
   }
 }
+  "admin": {
+    "login": {
+      "title": "Admin access",
+      "description": "Sign in to access the admin dashboard.",
+      "microsoft": "Sign in with Microsoft",
+      "unavailable": "Admin sign-in is not available. Contact your system administrator.",
+      "errors": {
+        "accessDenied": "Your Microsoft account is not allowed to access the admin dashboard.",
+        "invalidState": "Your Microsoft sign-in expired. Please try again.",
+        "authFailed": "Microsoft sign-in failed. Please try again."
+      }
+    },
+    "shell": {
+      "search": "Search",
+      "account": "Account",
+      "role": "Admin operator",
+      "operatorFallback": "Operator",
+      "defaultTitle": "Admin dashboard",
+      "defaultDescription": "Metadata-first tools for support, dispatch review, and system monitoring."
+    },
+    "overview": {
+      "title": "Overview",
+      "description": "Check priority queues first, then move into sessions, search, and health.",
+      "generatedAt": "Updated {time}",
+      "quickActions": {
+        "title": "Quick actions",
+        "search": "Search records",
+        "searchBody": "Look up a session, draft, payment, or provider reference without opening raw provider payloads.",
+        "flags": "Review flags",
+        "flagsBody": "Work through ambiguous dispatches, suspicious sessions, and recent refunds.",
+        "sessions": "Inspect sessions",
+        "sessionsBody": "Open current or expired sessions and jump straight to the affected case.",
+        "retention": "Retention",
+        "retentionBody": "Open retention status, pending expirations, and recent cleanup activity."
+      },
+      "priority": {
+        "title": "Priority queues",
+        "ambiguous": "Ambiguous dispatches",
+        "suspicious": "Suspicious sessions"
+      },
+      "retention": {
+        "title": "Retention follow-up",
+        "expiredSessions": "Expired sessions",
+        "expiredContent": "Expired content",
+        "expiredPdfs": "Expired PDFs"
+      },
+      "signals": {
+        "title": "Operational signals",
+        "recentRefunds": "Recent refunds (7d)"
+      },
+      "dispatchStates": "Dispatch states",
+      "paymentStates": "Payment states (30d)",
+      "summary": {
+        "activeSessions": "Active sessions",
+        "lettersSent": "Letters sent",
+        "revenue": "Revenue",
+        "errorRate": "Error rate",
+        "errorRateAlert": "Above threshold"
+      },
+      "active": {
+        "title": "Active sessions by stage",
+        "total": "Total active"
+      },
+      "locale": {
+        "title": "Locale distribution",
+        "empty": "No locale data in the recent window."
+      },
+      "ai": {
+        "title": "AI quality",
+        "requests": "Total requests",
+        "latency": "Avg latency",
+        "latencyAlert": "High latency",
+        "regen": "Regen rate",
+        "regenAlert": "High regen rate",
+        "refusal": "Refusal rate",
+        "refusalAlert": "High refusal rate"
+      },
+      "errors": {
+        "priority": "Failed to load priority queues.",
+        "retention": "Failed to load retention follow-up.",
+        "signals": "Failed to load operational signals."
+      }
+    },
+    "search": {
+      "title": "Search",
+      "description": "Find a session, draft, payment, or provider reference from one place."
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Review active and expired sessions, then drill into the linked case."
+    },
+    "flags": {
+      "title": "Flags & queue",
+      "description": "Work through suspicious activity, ambiguity, and queue-driven review tasks."
+    },
+    "health": {
+      "title": "Health",
+      "description": "Check service status, queue pressure, and recent payment or dispatch activity."
+    },
+    "funnel": {
+      "title": "Funnel analysis",
+      "description": "Understand conversion drop-off and error concentration before changing the product flow."
+    },
+    "account": {
+      "title": "Account",
+      "description": "Review the operator identity and authentication details backing this admin session.",
+      "identity": "Identity",
+      "name": "Display name",
+      "accountEmail": "Account email",
+      "actor": "Actor",
+      "role": "Role",
+      "authMethod": "Authentication method",
+      "authMethodMicrosoft": "Microsoft",
+      "managedBy": "Managed by",
+      "managedByValue": "Microsoft SSO",
+      "notAvailable": "Not available",
+      "securityTitle": "Session and security",
+      "securityBody": "Admin sessions use backend-managed Microsoft sign-in with signed cookies. Role checks stay on the server; this page is informational only.",
+      "supportTitle": "Next steps",
+      "supportOverview": "Return to overview",
+      "supportSearch": "Search a case",
+      "signOut": "Sign out",
+      "signingOut": "Signing out...",
+      "signOutFailed": "Sign-out failed. Please try again."
+    },
+    "states": {
+      "browsing": "Browsing",
+      "drafting": "Drafting",
+      "review": "Review",
+      "checkout": "Checkout",
+      "confirmation": "Confirmation",
+      "queued": "Queued",
+      "submitted": "Submitted",
+      "accepted": "Accepted",
+      "rejected": "Rejected",
+      "unknown": "Unknown",
+      "reconciled": "Reconciled",
+      "pending": "Pending",
+      "captured": "Captured",
+      "failed": "Failed",
+      "refundPending": "Refund pending",
+      "refunded": "Refunded"
+    }
+  },

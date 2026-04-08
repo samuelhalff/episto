@@ -914,3 +914,147 @@
     "contactResponseTime": "Nous répondons généralement sous un jour ouvrable."
   }
 }
+  "admin": {
+    "login": {
+      "title": "Accès admin",
+      "description": "Connectez-vous pour accéder au tableau de bord admin.",
+      "microsoft": "Se connecter avec Microsoft",
+      "unavailable": "La connexion admin n'est pas disponible. Contactez votre administration système.",
+      "errors": {
+        "accessDenied": "Votre compte Microsoft n'est pas autorisé à accéder au tableau de bord admin.",
+        "invalidState": "Votre connexion Microsoft a expiré. Veuillez réessayer.",
+        "authFailed": "La connexion Microsoft a échoué. Veuillez réessayer."
+      }
+    },
+    "shell": {
+      "search": "Recherche",
+      "account": "Compte",
+      "role": "Opérateur admin",
+      "operatorFallback": "Opérateur",
+      "defaultTitle": "Tableau de bord admin",
+      "defaultDescription": "Outils centrés sur les métadonnées pour le support, la revue de l'envoi et la surveillance système."
+    },
+    "overview": {
+      "title": "Vue d'ensemble",
+      "description": "Commencez par les files prioritaires, puis passez aux sessions, à la recherche et à l'état système.",
+      "generatedAt": "Mis à jour {time}",
+      "quickActions": {
+        "title": "Actions rapides",
+        "search": "Rechercher des dossiers",
+        "searchBody": "Retrouvez une session, un brouillon, un paiement ou une référence fournisseur sans ouvrir de payload brut.",
+        "flags": "Traiter les alertes",
+        "flagsBody": "Passez en revue les envois ambigus, les sessions suspectes et les remboursements récents.",
+        "sessions": "Examiner les sessions",
+        "sessionsBody": "Ouvrez une session active ou expirée et allez directement au cas concerné.",
+        "retention": "Conservation",
+        "retentionBody": "Ouvrez l'état de conservation, les expirations en attente et l'activité récente de nettoyage."
+      },
+      "priority": {
+        "title": "Files prioritaires",
+        "ambiguous": "Envois ambigus",
+        "suspicious": "Sessions suspectes"
+      },
+      "retention": {
+        "title": "Suivi de rétention",
+        "expiredSessions": "Sessions expirées",
+        "expiredContent": "Contenus expirés",
+        "expiredPdfs": "PDF expirés"
+      },
+      "signals": {
+        "title": "Signaux opérationnels",
+        "recentRefunds": "Remboursements récents (7j)"
+      },
+      "dispatchStates": "États d'envoi",
+      "paymentStates": "États de paiement (30j)",
+      "summary": {
+        "activeSessions": "Sessions actives",
+        "lettersSent": "Lettres envoyées",
+        "revenue": "Revenu",
+        "errorRate": "Taux d'erreur",
+        "errorRateAlert": "Au-dessus du seuil"
+[32m      },
+      "active": {
+        "title": "Sessions actives par étape",
+        "total": "Total actif"
+      },
+      "locale": {
+        "title": "Répartition des langues",
+        "empty": "Aucune donnée de langue sur la fenêtre récente."
+      },
+      "ai": {
+        "title": "Qualité AI",
+        "requests": "Demandes totales",
+        "latency": "Latence moy.",
+        "latencyAlert": "Latence élevée",
+        "regen": "Taux de regénération",
+        "regenAlert": "Taux de regénération élevé",
+        "refusal": "Taux de refus",
+        "refusalAlert": "Taux de refus élevé"
+      },
+      "errors": {
+        "priority": "Impossible de charger les files prioritaires.",
+        "retention": "Impossible de charger le suivi de rétention.",
+        "signals": "Impossible de charger les signaux opérationnels."
+      }
+    },
+    "search": {
+      "title": "Recherche",
+      "description": "Retrouvez une session, un brouillon, un paiement ou une référence fournisseur depuis un seul endroit."
+    },
+    "sessions": {
+      "title": "Sessions",
+      "description": "Examinez les sessions actives et expirées puis ouvrez le cas lié."
+    },
+    "flags": {
+      "title": "Alertes & file",
+      "description": "Traitez l'activité suspecte, les ambiguïtés et les tâches de revue pilotées par file."
+    },
+    "health": {
+      "title": "État système",
+      "description": "Vérifiez l'état des services, la pression sur les files et l'activité récente de paiement ou d'envoi."
+    },
+    "funnel": {
+      "title": "Analyse du funnel",
+      "description": "Comprenez les abandons et la concentration des erreurs avant de modifier le parcours produit."
+    },
+    "account": {
+      "title": "Compte",
+      "description": "Vérifiez l'identité opérateur et les détails d'authentification associés à cette session admin.",
+      "identity": "Identité",
+      "name": "Nom affiché",
+      "accountEmail": "E-mail du compte",
+      "actor": "Acteur",
+      "role": "Rôle",
+      "authMethod": "Méthode d'authentification",
+      "authMethodMicrosoft": "Microsoft",
+      "managedBy": "Géré par",
+      "managedByValue": "Microsoft SSO",
+      "notAvailable": "Indisponible",
+      "securityTitle": "Session et sécurité",
+      "securityBody": "Les sessions admin utilisent une connexion Microsoft gérée par le backend avec des cookies signés. Les contrôles de rôle restent côté serveur; cette page est purement informative.",
+      "supportTitle": "Étapes suivantes",
+      "supportOverview": "Retour à la vue d'ensemble",
+      "supportSearch": "Rechercher un cas",
+      "signOut": "Se déconnecter",
+      "signingOut": "Déconnexion...",
+      "signOutFailed": "La déconnexion a échoué. Veuillez réessayer."
+    },
+    "states": {
+      "browsing": "Entrée",
+      "drafting": "Brouillon",
+      "review": "Relecture",
+      "checkout": "Paiement",
+      "confirmation": "Confirmation",
+      "queued": "En file",
+      "submitted": "Soumis",
+      "accepted": "Accepté",
+      "rejected": "Rejeté",
+      "unknown": "Inconnu",
+      "reconciled": "Rapproché",
+      "pending": "En attente",
+      "captured": "Capturé",
+      "failed": "Échoué",
+      "refundPending": "Remboursement en attente",
+      "refunded": "Remboursé"
+    }
+  },

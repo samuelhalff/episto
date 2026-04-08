@@ -914,3 +914,147 @@
     "contactResponseTime": "Wir antworten in der Regel innerhalb eines Werktags."
   }
 }
+  "admin": {
+    "login": {
+      "title": "Admin-Zugang",
+      "description": "Melden Sie sich an, um auf das Admin-Dashboard zuzugreifen.",
+      "microsoft": "Mit Microsoft anmelden",
+      "unavailable": "Die Admin-Anmeldung ist nicht verfügbar. Kontaktieren Sie Ihre Systemadministration.",
+      "errors": {
+        "accessDenied": "Ihr Microsoft-Konto ist für das Admin-Dashboard nicht freigeschaltet.",
+        "invalidState": "Ihre Microsoft-Anmeldung ist abgelaufen. Bitte versuchen Sie es erneut.",
+        "authFailed": "Die Microsoft-Anmeldung ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+      }
+    },
+    "shell": {
+      "search": "Suche",
+      "account": "Konto",
+      "role": "Admin-Operator",
+      "operatorFallback": "Operator",
+      "defaultTitle": "Admin-Dashboard",
+      "defaultDescription": "Metadatenorientierte Werkzeuge für Support, Versandprüfung und Systemüberwachung."
+    },
+    "overview": {
+      "title": "Übersicht",
+      "description": "Prüfen Sie zuerst die prioritären Warteschlangen und wechseln Sie dann zu Sitzungen, Suche und Systemstatus.",
+      "generatedAt": "Aktualisiert {time}",
+      "quickActions": {
+        "title": "Schnellaktionen",
+        "search": "Datensätze suchen",
+        "searchBody": "Suchen Sie eine Sitzung, einen Entwurf, eine Zahlung oder eine Provider-Referenz, ohne Rohpayloads zu öffnen.",
+        "flags": "Flags prüfen",
+        "flagsBody": "Bearbeiten Sie unklare Versandfälle, verdächtige Sitzungen und aktuelle Rückerstattungen.",
+        "sessions": "Sitzungen prüfen",
+        "sessionsBody": "Öffnen Sie aktuelle oder abgelaufene Sitzungen und springen Sie direkt in den betroffenen Fall.",
+        "retention": "Aufbewahrung",
+        "retentionBody": "Öffnen Sie Aufbewahrungsstatus, anstehende Abläufe und aktuelle Bereinigungen."
+      },
+      "priority": {
+        "title": "Prioritäre Warteschlangen",
+        "ambiguous": "Unklare Versandfälle",
+        "suspicious": "Verdächtige Sitzungen"
+      },
+      "retention": {
+        "title": "Retention-Follow-up",
+        "expiredSessions": "Abgelaufene Sitzungen",
+        "expiredContent": "Abgelaufene Inhalte",
+        "expiredPdfs": "Abgelaufene PDFs"
+      },
+      "signals": {
+        "title": "Operative Signale",
+        "recentRefunds": "Aktuelle Rückerstattungen (7d)"
+      },
+      "dispatchStates": "Versandstatus",
+      "paymentStates": "Zahlungsstatus (30d)",
+      "summary": {
+        "activeSessions": "Aktive Sitzungen",
+        "lettersSent": "Versendete Briefe",
+        "revenue": "Umsatz",
+        "errorRate": "Fehlerquote",
+        "errorRateAlert": "Über Schwellwert"
+      },
+      "active": {
+        "title": "Aktive Sitzungen nach Stufe",
+        "total": "Total aktiv"
+      },
+      "locale": {
+        "title": "Sprachverteilung",
+        "empty": "Im aktuellen Zeitraum sind keine Sprachdaten vorhanden."
+      },
+      "ai": {
+        "title": "AI-Qualität",
+        "requests": "Gesamtanfragen",
+        "latency": "Ø Latenz",
+        "latencyAlert": "Hohe Latenz",
+        "regen": "Regenerationsquote",
+        "regenAlert": "Hohe Regenerationsquote",
+        "refusal": "Ablehnungsquote",
+        "refusalAlert": "Hohe Ablehnungsquote"
+      },
+      "errors": {
+        "priority": "Die prioritären Warteschlangen konnten nicht geladen werden.",
+        "retention": "Das Retention-Follow-up konnte nicht geladen werden.",
+        "signals": "Die operativen Signale konnten nicht geladen werden."
+      }
+    },
+    "search": {
+      "title": "Suche",
+      "description": "Finden Sie Sitzungen, Entwürfe, Zahlungen oder Provider-Referenzen an einem Ort."
+    },
+    "sessions": {
+      "title": "Sitzungen",
+      "description": "Prüfen Sie aktive und abgelaufene Sitzungen und öffnen Sie dann den verknüpften Fall."
+    },
+    "flags": {
+      "title": "Flags & Queue",
+      "description": "Bearbeiten Sie verdächtige Aktivitäten, Unklarheiten und queuebasierte Prüffälle."
+    },
+    "health": {
+      "title": "Systemstatus",
+      "description": "Prüfen Sie Dienstestatus, Queue-Druck sowie letzte Zahlungs- und Versandaktivitäten."
+    },
+    "funnel": {
+      "title": "Funnel-Analyse",
+      "description": "Verstehen Sie Abbrüche und Fehlerhäufungen, bevor Sie den Produktfluss ändern."
+    },
+    "account": {
+      "title": "Konto",
+      "description": "Prüfen Sie die Operator-Identität und die Authentifizierungsdetails dieser Admin-Sitzung.",
+      "identity": "Identität",
+      "name": "Anzeigename",
+      "accountEmail": "Konto-E-Mail",
+      "actor": "Actor",
+      "role": "Rolle",
+      "authMethod": "Authentifizierungsmethode",
+      "authMethodMicrosoft": "Microsoft",
+      "managedBy": "Verwaltet durch",
+      "managedByValue": "Microsoft SSO",
+      "notAvailable": "Nicht verfügbar",
+      "securityTitle": "Sitzung und Sicherheit",
+      "securityBody": "Admin-Sitzungen verwenden backendverwaltete Microsoft-Anmeldung mit signierten Cookies. Rollenprüfungen bleiben serverseitig; diese Seite dient nur zur Information.",
+      "supportTitle": "Nächste Schritte",
+      "supportOverview": "Zur Übersicht zurück",
+      "supportSearch": "Einen Fall suchen",
+      "signOut": "Abmelden",
+      "signingOut": "Abmeldung...",
+      "signOutFailed": "Die Abmeldung ist fehlgeschlagen. Bitte versuchen Sie es erneut."
+    },
+    "states": {
+      "browsing": "Einstieg",
+      "drafting": "Entwurf",
+      "review": "Prüfung",
+      "checkout": "Checkout",
+      "confirmation": "Bestätigung",
+      "queued": "In Warteschlange",
+      "submitted": "Eingereicht",
+      "accepted": "Akzeptiert",
+      "rejected": "Abgelehnt",
+      "unknown": "Unklar",
+      "reconciled": "Abgeglichen",
+      "pending": "Ausstehend",
+      "captured": "Erfasst",
+      "failed": "Fehlgeschlagen",
+      "refundPending": "Rückerstattung ausstehend",
+      "refunded": "Rückerstattet"
+    }
+  },

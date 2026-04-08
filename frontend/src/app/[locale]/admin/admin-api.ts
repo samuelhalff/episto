@@ -161,6 +161,10 @@ export async function fetchAdminAi(period = "7d") {
   return adminFetch<AdminAiResponse>(`/admin/metrics/ai?period=${period}`);
 }
 
+export async function fetchAdminOverview() {
+  return adminFetch<OverviewResponse>("/admin/overview");
+}
+
 export async function fetchAdminSessions(params = "") {
   return adminFetch<AdminSessionListResponse>(`/admin/sessions?${params}`);
 }

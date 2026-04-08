@@ -3,15 +3,18 @@
 import type { ReactNode } from "react";
 import { useMemo, useState, useCallback } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useAdminAuth } from "./admin-auth-context";
 import { AdminSidebar } from "./admin-sidebar";
+import { AdminTopBar } from "./admin-top-bar";
 import {
   buildAdminMicrosoftLoginUrl,
   getAdminAuthErrorMessage,
 } from "./admin-auth-client";
 
 export function AdminShell({ children }: { children: ReactNode }) {
+  const t = useTranslations("admin");
   const { ready, authenticated, microsoftSsoEnabled } = useAdminAuth();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -24,7 +27,8 @@ export function AdminShell({ children }: { children: ReactNode }) {
     return nextSearch.length > 0 ? `${pathname}?${nextSearch}` : pathname;
   }, [pathname, searchParams]);
 
-  const authErrorMessage = getAdminAuthErrorMessage(searchParams.get("authError"));
+  const authErrorMessageKey = getAdminAuthErrorMessage(searchParams.get("authError"));
+  const authErrorMessage = authErrorMessageKey ? t(authErrorMessageKey) : null;
 
   const handleMicrosoftLogin = useCallback(() => {
     setLoading(true);
@@ -62,10 +66,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
               <ShieldCheck className="h-7 w-7" style={{ color: "var(--app-bg)" }} />
             </div>
             <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--app-fg)" }}>
-              Admin Access
+              {t("login.title")}
             </h1>
             <p className="mt-2 text-sm" style={{ color: "var(--app-muted)" }}>
-              Sign in to access the admin dashboard.
+              {t("login.description")}
             </p>
           </div>
 
@@ -85,7 +89,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
                 {loading ? (
                   <Loader2 className="h-5 w-5 animate-spin" />
                 ) : (
-                  "Sign in with Microsoft"
+                  t("login.microsoft")
                 )}
               </button>
 
@@ -95,7 +99,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
             </div>
           ) : (
             <p className="text-center text-sm" style={{ color: "var(--app-muted)" }}>
-              Admin sign-in is not available. Contact your system administrator.
+              {t("login.unavailable")}
             </p>
           )}
         </div>
@@ -106,7 +110,12 @@ export function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen" style={{ background: "var(--app-bg)" }}>
       <AdminSidebar />
-      <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
+        <AdminTopBar />
+        <main id="main-content" className="flex-1 overflow-y-auto p-6 sm:p-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

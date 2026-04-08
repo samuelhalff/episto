@@ -7,13 +7,13 @@ import {
 describe("admin-auth-client", () => {
   it("maps admin auth error codes to user-facing messages", () => {
     expect(getAdminAuthErrorMessage("access_denied")).toBe(
-      "Your Microsoft account is not allowed to access the admin dashboard.",
+      "login.errors.accessDenied",
     );
     expect(getAdminAuthErrorMessage("invalid_state")).toBe(
-      "Your Microsoft sign-in expired. Please try again.",
+      "login.errors.invalidState",
     );
     expect(getAdminAuthErrorMessage("auth_failed")).toBe(
-      "Microsoft sign-in failed. Please try again.",
+      "login.errors.authFailed",
     );
     expect(getAdminAuthErrorMessage("other")).toBeNull();
   });

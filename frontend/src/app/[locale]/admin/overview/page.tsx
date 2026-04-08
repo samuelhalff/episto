@@ -1,180 +1,190 @@
 "use client";
 
-import { useState } from "react";
+import { Search, ShieldAlert, Trash2, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
+import { useTranslations } from "next-intl";
+import { usePathname } from "next/navigation";
+
+import { getAdminPagePath } from "../../../../lib/admin-paths";
 import { useAdminAuth } from "../admin-auth-context";
+import { fetchAdminOverview, fetchAdminRetention } from "../admin-api";
+import { PanelError, PanelLoading } from "../admin-metric-panels";
 import {
-  fetchAdminSummary,
-  fetchAdminActive,
-  fetchAdminLocale,
-  fetchAdminAi,
-} from "../admin-api";
-import {
-  MetricCard,
-  BarRow,
-  SectionPanel,
-  PeriodSelector,
-  PanelLoading,
-  PanelError,
-} from "../admin-metric-panels";
+  AdminPriorityQueuesPanel,
+  AdminQuickActionPanel,
+  AdminStateBreakdownPanel,
+} from "../admin-overview-panels";
 
 const REFETCH_MS = 15_000;
 
-function formatCHF(cents: number): string {
-  return `CHF ${(cents / 100).toFixed(2)}`;
-}
-
-function formatPercent(rate: number): string {
-  return `${Math.round(rate)}%`;
-}
-
 export default function OverviewPage() {
+  const t = useTranslations("admin");
+  const pathname = usePathname();
   const { authenticated } = useAdminAuth();
-  const [period, setPeriod] = useState("7d");
 
-  const summary = useQuery({
-    queryKey: queryKeys.admin.summary(period),
-    queryFn: () => fetchAdminSummary(period),
+  const overview = useQuery({
+    queryKey: queryKeys.admin.overview(),
+    queryFn: () => fetchAdminOverview(),
     refetchInterval: REFETCH_MS,
     enabled: authenticated,
   });
 
-  const active = useQuery({
-    queryKey: queryKeys.admin.active(),
-    queryFn: () => fetchAdminActive(),
-    refetchInterval: REFETCH_MS,
+  const retention = useQuery({
+    queryKey: queryKeys.admin.retention(),
+    queryFn: () => fetchAdminRetention(),
+    refetchInterval: 30_000,
     enabled: authenticated,
   });
 
-  const locale = useQuery({
-    queryKey: queryKeys.admin.locale(),
-    queryFn: () => fetchAdminLocale(),
-    refetchInterval: REFETCH_MS,
-    enabled: authenticated,
-  });
+  const generatedAt =
+    overview.data?.generatedAt ??
+    retention.data?.generatedAt ??
+    null;
 
-  const ai = useQuery({
-    queryKey: queryKeys.admin.ai(period),
-    queryFn: () => fetchAdminAi(period),
-    refetchInterval: REFETCH_MS,
-    enabled: authenticated,
-  });
+  const quickActions = [
+    {
+      href: getAdminPagePath(pathname, "search"),
+      label: t("overview.quickActions.search"),
+      description: t("overview.quickActions.searchBody"),
+      icon: Search,
+    },
+    {
+      href: getAdminPagePath(pathname, "flags"),
+      label: t("overview.quickActions.flags"),
+      description: t("overview.quickActions.flagsBody"),
+      icon: ShieldAlert,
+    },
+    {
+      href: getAdminPagePath(pathname, "sessions"),
+      label: t("overview.quickActions.sessions"),
+      description: t("overview.quickActions.sessionsBody"),
+      icon: Users,
+    },
+    {
+      href: getAdminPagePath(pathname, "retention"),
+      label: t("overview.quickActions.retention"),
+      description: t("overview.quickActions.retentionBody"),
+      icon: Trash2,
+    },
+  ];
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
-          Overview
-        </h1>
-        <PeriodSelector value={period} onChange={setPeriod} />
+      <div className="space-y-2">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
+            {t("overview.title")}
+          </h2>
+          {generatedAt ? (
+            <span className="text-xs" style={{ color: "var(--app-muted)" }}>
+              {t("overview.generatedAt", {
+                time: new Date(generatedAt).toLocaleString(),
+              })}
+            </span>
+          ) : null}
+        </div>
+        <p className="max-w-3xl text-sm" style={{ color: "var(--app-muted)" }}>
+          {t("overview.description")}
+        </p>
       </div>
 
-      {/* Summary metrics row */}
-      {summary.isLoading ? (
-        <PanelLoading />
-      ) : summary.error ? (
-        <PanelError message="Failed to load summary" />
-      ) : summary.data ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <MetricCard label="Active Sessions" value={summary.data.activeSessions} />
-          <MetricCard label="Letters Sent" value={summary.data.lettersSent} />
-          <MetricCard label="Revenue" value={formatCHF(summary.data.revenueCents)} />
-          <MetricCard
-            label="Error Rate"
-            value={formatPercent(summary.data.errorRate)}
-            alert={summary.data.errorRate > 5}
-            sub={summary.data.errorRate > 5 ? "Above threshold" : undefined}
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.95fr)]">
+        {overview.isLoading ? (
+          <PanelLoading />
+        ) : overview.error ? (
+          <PanelError message={t("overview.errors.priority")} />
+        ) : overview.data ? (
+          <AdminPriorityQueuesPanel
+            title={t("overview.priority.title")}
+            metrics={[
+              {
+                label: t("overview.priority.ambiguous"),
+                value: overview.data.ambiguousDispatchQueue,
+                alert: overview.data.ambiguousDispatchQueue > 0,
+              },
+              {
+                label: t("overview.priority.suspicious"),
+                value: overview.data.suspiciousActivityQueue,
+                alert: overview.data.suspiciousActivityQueue > 0,
+              },
+            ]}
           />
-        </div>
-      ) : null}
+        ) : null}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Active sessions by stage */}
-        <SectionPanel title="Active Sessions by Stage">
-          {active.isLoading ? (
-            <PanelLoading />
-          ) : active.error ? (
-            <PanelError message="Failed to load active sessions" />
-          ) : active.data ? (
-            <div className="space-y-3">
-              <MetricCard label="Total Active" value={active.data.total} />
-              <div className="space-y-2 pt-2">
-                {Object.entries(active.data.byStage).map(([stage, count]) => (
-                  <BarRow
-                    key={stage}
-                    label={stage}
-                    value={count}
-                    max={active.data!.total}
-                  />
-                ))}
-              </div>
-            </div>
-          ) : null}
-        </SectionPanel>
+        <AdminQuickActionPanel title={t("overview.quickActions.title")} actions={quickActions} />
+      </div>
 
-        {/* Locale distribution panel */}
-        <SectionPanel title="Locale Distribution">
-          {locale.isLoading ? (
-            <PanelLoading />
-          ) : locale.error ? (
-            <PanelError message="Failed to load locale data" />
-          ) : locale.data ? (
-            <div className="space-y-2">
-              {locale.data.entries.length > 0 ? (
-                locale.data.entries.map((entry) => {
-                  const maxVal = Math.max(
-                    ...locale.data!.entries.map((e) => e.count),
-                  );
-                  return (
-                    <BarRow
-                      key={entry.locale}
-                      label={entry.locale}
-                      value={entry.count}
-                      max={maxVal}
-                      formatValue={(v) => `${v} (${entry.percent}%)`}
-                    />
-                  );
-                })
-              ) : (
-                <p className="text-xs" style={{ color: "var(--app-muted)" }}>
-                  No data
-                </p>
-              )}
-            </div>
-          ) : null}
-        </SectionPanel>
+      <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
+        {overview.isLoading ? (
+          <PanelLoading />
+        ) : overview.error ? (
+          <PanelError message={t("overview.errors.priority")} />
+        ) : overview.data ? (
+          <>
+            <AdminStateBreakdownPanel
+              title={t("overview.dispatchStates")}
+              entries={[
+                { label: t("states.queued"), value: overview.data.dispatch.queued ?? 0 },
+                { label: t("states.submitted"), value: overview.data.dispatch.submitted ?? 0 },
+                { label: t("states.accepted"), value: overview.data.dispatch.accepted ?? 0 },
+                { label: t("states.rejected"), value: overview.data.dispatch.rejected ?? 0 },
+                { label: t("states.unknown"), value: overview.data.dispatch.unknown ?? 0 },
+                { label: t("states.reconciled"), value: overview.data.dispatch.reconciled ?? 0 },
+              ]}
+            />
+            <AdminStateBreakdownPanel
+              title={t("overview.paymentStates")}
+              entries={[
+                { label: t("states.pending"), value: overview.data.payments.pending ?? 0 },
+                { label: t("states.captured"), value: overview.data.payments.captured ?? 0 },
+                { label: t("states.failed"), value: overview.data.payments.failed ?? 0 },
+                {
+                  label: t("states.refundPending"),
+                  value: overview.data.payments.refund_pending ?? 0,
+                },
+                { label: t("states.refunded"), value: overview.data.payments.refunded ?? 0 },
+              ]}
+            />
+            <AdminPriorityQueuesPanel
+              title={t("overview.signals.title")}
+              metrics={[
+                {
+                  label: t("overview.signals.recentRefunds"),
+                  value: overview.data.recentRefunds,
+                  alert: overview.data.recentRefunds > 0,
+                },
+              ]}
+            />
+          </>
+        ) : null}
 
-        {/* AI quality panel */}
-        <SectionPanel title="AI Quality">
-          {ai.isLoading ? (
-            <PanelLoading />
-          ) : ai.error ? (
-            <PanelError message="Failed to load AI data" />
-          ) : ai.data ? (
-            <div className="grid gap-3 sm:grid-cols-2">
-              <MetricCard label="Total Requests" value={ai.data.totalRequests} />
-              <MetricCard
-                label="Avg Latency"
-                value={`${Math.round(ai.data.avgLatencyMs)} ms`}
-                alert={ai.data.avgLatencyMs > 5000}
-                sub={ai.data.avgLatencyMs > 5000 ? "High latency" : undefined}
-              />
-              <MetricCard
-                label="Regen Rate"
-                value={formatPercent(ai.data.regenerationRate)}
-                alert={ai.data.regenerationRate > 30}
-                sub={ai.data.regenerationRate > 30 ? "High regen rate" : undefined}
-              />
-              <MetricCard
-                label="Refusal Rate"
-                value={formatPercent(ai.data.refusalRate)}
-                alert={ai.data.refusalRate > 10}
-                sub={ai.data.refusalRate > 10 ? "High refusal rate" : undefined}
-              />
-            </div>
-          ) : null}
-        </SectionPanel>
+        {retention.isLoading ? (
+          <PanelLoading />
+        ) : retention.error ? (
+          <PanelError message={t("overview.errors.retention")} />
+        ) : retention.data ? (
+          <AdminPriorityQueuesPanel
+            title={t("overview.retention.title")}
+            metrics={[
+              {
+                label: t("overview.retention.expiredSessions"),
+                value: retention.data.pendingExpirations.expiredSessions,
+                alert: retention.data.pendingExpirations.expiredSessions > 0,
+              },
+              {
+                label: t("overview.retention.expiredContent"),
+                value: retention.data.pendingExpirations.expiredContent,
+                alert: retention.data.pendingExpirations.expiredContent > 0,
+              },
+              {
+                label: t("overview.retention.expiredPdfs"),
+                value: retention.data.pendingExpirations.expiredPdfs,
+                alert: retention.data.pendingExpirations.expiredPdfs > 0,
+              },
+            ]}
+          />
+        ) : null}
       </div>
     </div>
   );

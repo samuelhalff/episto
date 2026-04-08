@@ -14,11 +14,11 @@ export interface AdminSessionStatus {
 export function getAdminAuthErrorMessage(authError: string | null): string | null {
   switch (authError) {
     case "access_denied":
-      return "Your Microsoft account is not allowed to access the admin dashboard.";
+      return "login.errors.accessDenied";
     case "invalid_state":
-      return "Your Microsoft sign-in expired. Please try again.";
+      return "login.errors.invalidState";
     case "auth_failed":
-      return "Microsoft sign-in failed. Please try again.";
+      return "login.errors.authFailed";
     default:
       return null;
   }

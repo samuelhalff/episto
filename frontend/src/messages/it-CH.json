@@ -914,3 +914,147 @@
     "contactResponseTime": "Rispondiamo generalmente entro un giorno lavorativo."
   }
 }
+  "admin": {
+    "login": {
+      "title": "Accesso admin",
+      "description": "Acceda per entrare nel dashboard admin.",
+      "microsoft": "Accedere con Microsoft",
+      "unavailable": "L'accesso admin non è disponibile. Contatti l'amministrazione di sistema.",
+      "errors": {
+        "accessDenied": "Il Suo account Microsoft non è autorizzato ad accedere al dashboard admin.",
+        "invalidState": "L'accesso Microsoft è scaduto. Riprovi.",
+        "authFailed": "L'accesso Microsoft non è riuscito. Riprovi."
+      }
+    },
+    "shell": {
+      "search": "Ricerca",
+      "account": "Account",
+      "role": "Operatore admin",
+      "operatorFallback": "Operatore",
+      "defaultTitle": "Dashboard admin",
+      "defaultDescription": "Strumenti orientati ai metadati per supporto, revisione dell'invio e monitoraggio del sistema."
+    },
+    "overview": {
+      "title": "Panoramica",
+      "description": "Controlli prima le code prioritarie, poi passi a sessioni, ricerca e stato del sistema.",
+      "generatedAt": "Aggiornato {time}",
+      "quickActions": {
+        "title": "Azioni rapide",
+        "search": "Cercare record",
+        "searchBody": "Trovi una sessione, una bozza, un pagamento o una referenza del fornitore senza aprire payload grezzi.",
+        "flags": "Gestire i flag",
+        "flagsBody": "Riveda invii ambigui, sessioni sospette e rimborsi recenti.",
+        "sessions": "Controllare le sessioni",
+        "sessionsBody": "Apra sessioni attive o scadute e arrivi subito al caso coinvolto.",
+        "retention": "Conservazione",
+        "retentionBody": "Apra stato di conservazione, scadenze in attesa e attività recenti di pulizia."
+      },
+      "priority": {
+        "title": "Code prioritarie",
+        "ambiguous": "Invii ambigui",
+        "suspicious": "Sessioni sospette"
+      },
+      "retention": {
+        "title": "Follow-up retention",
+        "expiredSessions": "Sessioni scadute",
+        "expiredContent": "Contenuti scaduti",
+        "expiredPdfs": "PDF scaduti"
+      },
+      "signals": {
+        "title": "Segnali operativi",
+        "recentRefunds": "Rimborsi recenti (7g)"
+      },
+      "dispatchStates": "Stati di invio",
+      "paymentStates": "Stati di pagamento (30g)",
+      "summary": {
+        "activeSessions": "Sessioni attive",
+        "lettersSent": "Lettere inviate",
+        "revenue": "Ricavi",
+        "errorRate": "Tasso di errore",
+        "errorRateAlert": "Sopra soglia"
+      },
+      "active": {
+        "title": "Sessioni attive per fase",
+        "total": "Totale attivo"
+      },
+      "locale": {
+        "title": "Distribuzione delle lingue",
+        "empty": "Nessun dato lingua nella finestra recente."
+      },
+      "ai": {
+        "title": "Qualità AI",
+        "requests": "Richieste totali",
+        "latency": "Latenza media",
+        "latencyAlert": "Latenza alta",
+        "regen": "Tasso di rigenerazione",
+        "regenAlert": "Tasso di rigenerazione alto",
+        "refusal": "Tasso di rifiuto",
+        "refusalAlert": "Tasso di rifiuto alto"
+      },
+      "errors": {
+        "priority": "Impossibile caricare le code prioritarie.",
+        "retention": "Impossibile caricare il follow-up retention.",
+        "signals": "Impossibile caricare i segnali operativi."
+      }
+    },
+    "search": {
+      "title": "Ricerca",
+      "description": "Trovi sessioni, bozze, pagamenti o referenze del fornitore da un solo punto."
+    },
+    "sessions": {
+      "title": "Sessioni",
+      "description": "Controlli le sessioni attive e scadute, poi apra il caso collegato."
+    },
+    "flags": {
+      "title": "Flag e coda",
+      "description": "Gestisca attività sospette, ambiguità e attività di revisione guidate dalla coda."
+    },
+    "health": {
+      "title": "Stato sistema",
+      "description": "Controlli lo stato dei servizi, la pressione sulle code e l'attività recente di pagamenti o invii."
+    },
+    "funnel": {
+      "title": "Analisi funnel",
+      "description": "Capisca abbandoni e concentrazione degli errori prima di cambiare il flusso del prodotto."
+    },
+    "account": {
+      "title": "Account",
+      "description": "Controlli l'identità operatore e i dettagli di autenticazione che sostengono questa sessione admin.",
+      "identity": "Identità",
+      "name": "Nome visualizzato",
+      "accountEmail": "E-mail account",
+      "actor": "Actor",
+      "role": "Ruolo",
+      "authMethod": "Metodo di autenticazione",
+      "authMethodMicrosoft": "Microsoft",
+      "managedBy": "Gestito da",
+      "managedByValue": "Microsoft SSO",
+      "notAvailable": "Non disponibile",
+      "securityTitle": "Sessione e sicurezza",
+      "securityBody": "Le sessioni admin usano accesso Microsoft gestito dal backend con cookie firmati. I controlli di ruolo restano sul server; questa pagina è solo informativa.",
+      "supportTitle": "Prossimi passi",
+      "supportOverview": "Tornare alla panoramica",
+      "supportSearch": "Cercare un caso",
+      "signOut": "Disconnettersi",
+      "signingOut": "Disconnessione...",
+      "signOutFailed": "Disconnessione non riuscita. Riprovi."
+    },
+    "states": {
+      "browsing": "Ingresso",
+      "drafting": "Bozza",
+      "review": "Revisione",
+      "checkout": "Pagamento",
+      "confirmation": "Conferma",
+      "queued": "In coda",
+      "submitted": "Inviato",
+      "accepted": "Accettato",
+      "rejected": "Rifiutato",
+      "unknown": "Sconosciuto",
+      "reconciled": "Riconciliato",
+      "pending": "In attesa",
+      "captured": "Catturato",
+      "failed": "Fallito",
+      "refundPending": "Rimborso in attesa",
+      "refunded": "Rimborsato"
+    }
+  },
