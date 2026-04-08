@@ -638,7 +638,7 @@
     "orderSummary": "Votre commande",
     "checkoutIntro": "Vérifiez et payez sereinement",
     "email": "Adresse e-mail",
-    "emailHelp": "Nous enverrons d'abord votre reçu à cette adresse, puis les mises à jour d'envoi et un lien sécurisé vers le statut de la commande, où le PDF final reste disponible pendant la période de conservation. Aucun marketing.",
+    "emailHelp": "Nous enverrons d'abord votre reçu à cette adresse, puis les mises à jour d'envoi et un lien sécurisé vers le statut de la commande, où le document de confirmation signé reste disponible pendant la période de conservation. Aucun marketing.",
     "paymentMethod": "Moyen de paiement",
     "paymentPending": "Chargement du formulaire de paiement…",
     "paymentConfigError": "Le système de paiement n'est pas configuré. Veuillez réessayer plus tard.",
@@ -734,13 +734,13 @@
     "stepPayment": "Paiement confirmé",
     "stepPaymentDetail": "Votre paiement a bien été capturé en toute sécurité.",
     "stepSubmitted": "Lettre soumise à l'envoi",
-    "stepSubmittedDetail": "Nous avons préparé le PDF final et transmis le dossier à l'envoi.",
+    "stepSubmittedDetail": "Nous avons préparé le document de confirmation signé et transmis le paquet de lettres à l'envoi.",
     "stepProcessing": "Traitement par le prestataire",
     "stepProcessingDetail": "Le prestataire peut mettre un peu de temps à confirmer la prise en charge.",
     "stepUpdates": "Les mises à jour ultérieures dépendent de la confirmation du prestataire",
     "stepUpdatesDetail": "Si le statut change, nous mettrons cette page à jour et nous vous écrirons.",
     "downloadReceipt": "Télécharger le reçu",
-    "viewLetter": "Voir le PDF final",
+    "viewLetter": "Voir le document de confirmation signé",
     "sendAnother": "Envoyer une autre lettre",
     "stateQueued": "Votre lettre est en attente d'envoi",
     "stateSubmitted": "Soumise à l'envoi",
@@ -750,8 +750,8 @@
     "emailNotice": "Un reçu de paiement a été envoyé à votre adresse e-mail",
     "emailNoticeDetail": "Vous recevrez une autre mise à jour si le statut d'envoi évolue.",
     "stickyCtaLabel": "Envoyer une autre lettre",
-    "downloadLetter": "Télécharger le PDF final",
-    "downloadUnavailable": "Le PDF final n'est plus disponible."
+    "downloadLetter": "Télécharger le document de confirmation signé",
+    "downloadUnavailable": "Le document de confirmation n'est plus disponible."
   },
   "resume": {
     "loading": "Reprise de votre brouillon…",
@@ -775,8 +775,8 @@
     "recipient": "Destinataire",
     "paymentAmount": "Montant payé",
     "paidAt": "Date de paiement",
-    "downloadLetter": "Télécharger le PDF final",
-    "downloadUnavailable": "Le PDF final n'est plus disponible."
+    "downloadLetter": "Télécharger le document de confirmation signé",
+    "downloadUnavailable": "Le document de confirmation n'est plus disponible."
   },
   "files": {
     "addMore": "Ajouter des fichiers",
@@ -844,7 +844,7 @@
     },
     "subtitle": {
       "queued": "Votre lettre est en cours de préparation.",
-      "submitted": "Le PDF final est prêt et remis au prestataire d'envoi.",
+      "submitted": "Le document de confirmation est prêt et le PDF exact de la lettre a été remis au prestataire d'envoi.",
       "accepted": "Le prestataire a confirmé la prise en charge de votre lettre pour l'envoi.",
       "rejected": "Un problème est survenu. Notre équipe a été informée.",
       "unknown": "Nous avons soumis votre lettre, mais le prestataire n'a pas encore confirmé le résultat."
@@ -853,7 +853,9 @@
       "label": "Référence du prestataire",
       "trackingAvailable": "Suivi disponible",
       "noTracking": "Aucun suivi disponible",
-      "pending": "Une référence prestataire apparaîtra ici si elle devient disponible."
+      "pending": "Une référence prestataire apparaîtra ici si elle devient disponible.",
+      "mockLabel": "Confirmation prestataire simulée",
+      "mockBody": "L'envoi ePost réel est désactivé dans cet environnement. Aucun envoi facturable n'a été effectué."
     },
     "step": {
       "submitted": "Soumis à l'impression",
@@ -889,33 +891,6 @@
       "description": "Informations sur l’exploitant et coordonnées de contact de Swiss Mail."
     }
   },
-  "help": {
-    "title": "Aide & Support",
-    "subtitle": "Réponses et contact",
-    "faqTitle": "Questions fréquentes",
-    "faq1q": "Comment écrire une lettre ?",
-    "faq1a": "Cliquez sur « Écrire une lettre ». Décrivez votre situation, relisez le brouillon, puis envoyez-le quand tout est prêt.",
-    "faq2q": "Combien de temps prend la livraison ?",
-    "faq2a": "Les lettres standard sont généralement distribuées sous 1 à 3 jours ouvrables en Suisse.",
-    "faq3q": "Puis-je suivre ma lettre ?",
-    "faq3a": "Les lettres recommandées incluent le suivi. Les lettres standard ne disposent pas de suivi, mais la distribution par La Poste suisse est fiable.",
-    "faq4q": "Que se passe-t-il en cas de problème de paiement ?",
-    "faq4a": "En cas d'échec de paiement, vous pouvez réessayer au moment du paiement. Si vous avez été débité mais qu'un problème est survenu, contactez-nous — nous enquêterons immédiatement.",
-    "faq5q": "Puis-je modifier ma lettre après le paiement ?",
-    "faq5a": "Une fois le paiement confirmé et la lettre soumise à l'expédition, elle ne peut plus être modifiée. Vérifiez soigneusement votre lettre avant de payer.",
-    "faq6q": "Quels formats de fichiers puis-je joindre ?",
-    "faq6a": "Vous pouvez ajouter des pièces justificatives pendant la rédaction. Les formats exacts et le nombre de pièces jointes dépendent du canal postal actif affiché dans l'application.",
-    "faq7q": "Ai-je besoin d'un compte ?",
-    "faq7a": "Non. Vous pouvez rédiger et envoyer une lettre en tant qu'invité. Nous vous donnons un lien pour reprendre votre brouillon.",
-    "faq8q": "Quels moyens de paiement acceptez-vous ?",
-    "faq8a": "Nous acceptons toutes les principales cartes de crédit, cartes de débit et TWINT.",
-    "contactTitle": "Besoin d'aide supplémentaire ?",
-    "contactDescription": "Si votre question n'est pas traitée ci-dessus, contactez-nous.",
-    "contactEmailLabel": "E-mail",
-    "contactEmail": "support@swissmail.ch",
-    "contactResponseTime": "Nous répondons généralement sous un jour ouvrable."
-  }
-}
   "admin": {
     "login": {
       "title": "Accès admin",
@@ -974,7 +949,7 @@
         "revenue": "Revenu",
         "errorRate": "Taux d'erreur",
         "errorRateAlert": "Au-dessus du seuil"
-[32m      },
+      },
       "active": {
         "title": "Sessions actives par étape",
         "total": "Total actif"
@@ -1060,3 +1035,30 @@
       "refunded": "Remboursé"
     }
   },
+  "help": {
+    "title": "Aide & Support",
+    "subtitle": "Réponses et contact",
+    "faqTitle": "Questions fréquentes",
+    "faq1q": "Comment écrire une lettre ?",
+    "faq1a": "Cliquez sur « Écrire une lettre ». Décrivez votre situation, relisez le brouillon, puis envoyez-le quand tout est prêt.",
+    "faq2q": "Combien de temps prend la livraison ?",
+    "faq2a": "Les lettres standard sont généralement distribuées sous 1 à 3 jours ouvrables en Suisse.",
+    "faq3q": "Puis-je suivre ma lettre ?",
+    "faq3a": "Les lettres recommandées incluent le suivi. Les lettres standard ne disposent pas de suivi, mais la distribution par La Poste suisse est fiable.",
+    "faq4q": "Que se passe-t-il en cas de problème de paiement ?",
+    "faq4a": "En cas d'échec de paiement, vous pouvez réessayer au moment du paiement. Si vous avez été débité mais qu'un problème est survenu, contactez-nous — nous enquêterons immédiatement.",
+    "faq5q": "Puis-je modifier ma lettre après le paiement ?",
+    "faq5a": "Une fois le paiement confirmé et la lettre soumise à l'expédition, elle ne peut plus être modifiée. Vérifiez soigneusement votre lettre avant de payer.",
+    "faq6q": "Quels formats de fichiers puis-je joindre ?",
+    "faq6a": "Vous pouvez ajouter des pièces justificatives pendant la rédaction. Les formats exacts et le nombre de pièces jointes dépendent du canal postal actif affiché dans l'application.",
+    "faq7q": "Ai-je besoin d'un compte ?",
+    "faq7a": "Non. Vous pouvez rédiger et envoyer une lettre en tant qu'invité. Nous vous donnons un lien pour reprendre votre brouillon.",
+    "faq8q": "Quels moyens de paiement acceptez-vous ?",
+    "faq8a": "Nous acceptons toutes les principales cartes de crédit, cartes de débit et TWINT.",
+    "contactTitle": "Besoin d'aide supplémentaire ?",
+    "contactDescription": "Si votre question n'est pas traitée ci-dessus, contactez-nous.",
+    "contactEmailLabel": "E-mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Nous répondons généralement sous un jour ouvrable."
+  }
+}

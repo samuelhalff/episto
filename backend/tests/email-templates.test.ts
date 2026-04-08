@@ -30,10 +30,16 @@ describe("Email template rendering", () => {
   it("renders dispatch-accepted (en-CH)", () => {
     const result = renderTemplate("dispatch-accepted", "en-CH", {
       orderRef: "ORD-ABC",
+      providerReference: "mock-epost-registered-1234",
+      trackingNumber: "98.40.541881.00002354",
+      statusUrl: "https://swissmail.ch/status/token-123",
     });
 
     expect(result.subject).toContain("accepted");
     expect(result.text).toContain("confirmed acceptance");
+    expect(result.text).toContain("mock-epost-registered-1234");
+    expect(result.text).toContain("98.40.541881.00002354");
+    expect(result.text).toContain("https://swissmail.ch/status/token-123");
   });
 
   it("renders resume-link with URL", () => {

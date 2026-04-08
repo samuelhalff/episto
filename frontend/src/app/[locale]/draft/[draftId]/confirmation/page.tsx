@@ -276,6 +276,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
               dispatchState as Parameters<typeof DispatchConfirmation>[0]["dispatchState"]
             }
             providerReference={dispatch.data?.providerRef ?? null}
+            providerMode={dispatch.data?.providerMode ?? null}
             isTrackable={dispatch.data?.trackingAvailable ?? false}
             submittedAt={dispatch.data?.submittedAt ?? null}
             lastCheckedAt={dispatch.data?.lastCheckedAt ?? null}

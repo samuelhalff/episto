@@ -162,6 +162,7 @@ export type OrderStatusPayment = z.infer<typeof OrderStatusPaymentSchema>;
 export const OrderStatusDispatchSchema = z.object({
   state: DispatchStateSchema,
   providerRef: z.string().nullable(),
+  providerMode: z.enum(["mock", "live"]).nullable(),
   trackingNumber: z.string().nullable(),
   submittedAt: z.string().datetime().nullable(),
   acceptedAt: z.string().datetime().nullable(),

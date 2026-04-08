@@ -4,6 +4,7 @@ import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { getDispatchForDraft } from "./dispatch.service.js";
+import { isMockEpostProviderName } from "./adapters/epost-submission-mode.js";
 
 export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
   // GET /drafts/:id/dispatch — get canonical dispatch state for a draft
@@ -48,6 +49,7 @@ export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
           dispatchAttemptId: dispatch.id,
           state: dispatch.state,
           providerRef: dispatch.providerReference ?? null,
+          providerMode: isMockEpostProviderName(dispatch.providerName) ? "mock" : "live",
           trackingNumber: dispatch.trackingNumber ?? null,
           submittedAt: dispatch.submittedAt?.toISOString() ?? null,
           acceptedAt:

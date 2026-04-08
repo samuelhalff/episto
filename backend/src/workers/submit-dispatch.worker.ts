@@ -15,6 +15,7 @@ import {
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs.js";
+import { enqueueDispatchAcceptedEmail } from "../modules/dispatch/dispatch-notifications.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { recordEvent } from "../modules/analytics/index.js";
 import { buildDispatchPackage } from "../modules/dispatch/dispatch-package.service.js";
@@ -150,6 +151,30 @@ export async function processSubmitDispatchJob(
           );
         }
       }
+
+      if (result.state === "accepted") {
+        try {
+          await enqueueDispatchAcceptedEmail(db, {
+            dispatchAttemptId: attempt.id,
+            draftId,
+            providerReference: result.providerReference ?? null,
+            trackingNumber: result.trackingNumber ?? null,
+            rawOrderAccessToken: settlement.rawOrderAccessToken,
+          });
+        } catch (acceptedEmailErr) {
+          logger.error(
+            {
+              draftId,
+              dispatchId: attempt.id,
+              err:
+                acceptedEmailErr instanceof Error
+                  ? acceptedEmailErr.message
+                  : "Unknown error",
+            },
+            "Failed to enqueue accepted dispatch email",
+          );
+        }
+      }
     } catch (err) {
       logger.error(
         {
@@ -191,6 +216,19 @@ export async function processSubmitDispatchJob(
     }
   } else {
     await updateDraftStatusForDispatchSubmission(db, draftId, "submitted");
+
+    try {
+      await enqueueDispatchReconciliation({ dispatchAttemptId: attempt.id });
+    } catch (reconcileErr) {
+      logger.error(
+        {
+          draftId,
+          dispatchId: attempt.id,
+          err: reconcileErr instanceof Error ? reconcileErr.message : "Unknown error",
+        },
+        "Failed to enqueue dispatch reconciliation after non-terminal submission",
+      );
+    }
   }
 
   try {

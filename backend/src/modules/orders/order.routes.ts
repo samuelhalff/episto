@@ -6,6 +6,7 @@ import { notFoundError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { recordEvent } from "../analytics/index.js";
+import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-mode.js";
 
 /**
  * Resolve an order access token to its payment attempt.
@@ -106,6 +107,11 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
           dispatch: {
             state: dispatch?.state ?? "queued",
             providerRef: dispatch?.providerReference ?? null,
+            providerMode: dispatch
+              ? isMockEpostProviderName(dispatch.providerName)
+                ? "mock"
+                : "live"
+              : null,
             trackingNumber: dispatch?.trackingNumber ?? null,
             submittedAt: dispatch?.submittedAt?.toISOString() ?? null,
             acceptedAt:

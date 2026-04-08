@@ -9,6 +9,7 @@ import {
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
+import { enqueueDispatchAcceptedEmail } from "../modules/dispatch/dispatch-notifications.js";
 import { enqueuePaymentReceiptEmail } from "../modules/payments/payment-notifications.js";
 import { acquireRedisLock } from "../shared/redis-lock.js";
 import {
@@ -122,6 +123,29 @@ export async function processReconcileDispatchJob(
               err: receiptErr instanceof Error ? receiptErr.message : "Unknown error",
             },
             "Failed to enqueue payment receipt email after reconciliation",
+          );
+        }
+      }
+
+      if (status.state === "accepted") {
+        try {
+          await enqueueDispatchAcceptedEmail(db, {
+            dispatchAttemptId,
+            draftId: attempt.draftId,
+            providerReference: status.providerReference ?? null,
+            trackingNumber: status.trackingNumber ?? null,
+            rawOrderAccessToken: settlement.rawOrderAccessToken,
+          });
+        } catch (acceptedEmailErr) {
+          logger.error(
+            {
+              dispatchAttemptId,
+              err:
+                acceptedEmailErr instanceof Error
+                  ? acceptedEmailErr.message
+                  : "Unknown error",
+            },
+            "Failed to enqueue accepted dispatch email after reconciliation",
           );
         }
       }

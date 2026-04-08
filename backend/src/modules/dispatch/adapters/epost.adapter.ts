@@ -21,6 +21,12 @@ import {
   getEpostDispatchCapabilities,
   getAttachmentHandling,
 } from "./provider-capabilities.js";
+import {
+  lookupMockEpostStatus,
+  submitMockEpostDelivery,
+  isMockEpostProviderReference,
+} from "./mock-epost-submission.js";
+import { type EpostSubmissionMode } from "./epost-submission-mode.js";
 
 const PER_DOCUMENT_LIMIT_BYTES = 200 * 1024 * 1024;
 const TOTAL_DELIVERY_LIMIT_BYTES = 2 * 1024 * 1024 * 1024;
@@ -421,10 +427,20 @@ function mapHttpError(operation: string, status: number, payload: unknown): AppE
   });
 }
 
+interface EpostDispatchAdapterOptions {
+  capabilities?: DispatchProviderCapabilities;
+  submissionMode?: EpostSubmissionMode;
+}
+
 export class EpostDispatchAdapter {
-  constructor(
-    private readonly capabilities: DispatchProviderCapabilities = getEpostDispatchCapabilities(),
-  ) {}
+  private readonly capabilities: DispatchProviderCapabilities;
+  private readonly submissionMode: EpostSubmissionMode;
+
+  constructor(options: EpostDispatchAdapterOptions = {}) {
+    this.submissionMode = options.submissionMode ?? env().EPOST_SUBMISSION_MODE;
+    this.capabilities =
+      options.capabilities ?? getEpostDispatchCapabilities(this.submissionMode);
+  }
 
   private readonly baseUrl = env().EPOST_API_BASE_URL.replace(/\/$/, "");
   private readonly apiKey = env().EPOST_API_KEY;
@@ -701,6 +717,10 @@ export class EpostDispatchAdapter {
     const capabilities = this.getCapabilities();
     validatePackage(dispatchPackage, capabilities);
 
+    if (this.submissionMode === "mock") {
+      return submitMockEpostDelivery(dispatchPackage);
+    }
+
     const form = createJsonFormData({
       fileMetadata: [
         buildDocumentMetadata(dispatchPackage, { preview: false }, capabilities),
@@ -761,6 +781,10 @@ export class EpostDispatchAdapter {
   }
 
   async checkStatus(providerReference: string): Promise<DispatchStatusLookup> {
+    if (isMockEpostProviderReference(providerReference)) {
+      return lookupMockEpostStatus(providerReference);
+    }
+
     const response = (await this.requestJson(
       `/epost/v2/deliveries/${providerReference}/status`,
       { method: "GET" },

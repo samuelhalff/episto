@@ -80,6 +80,11 @@ describe("EnvSchema — valid minimal env", () => {
     const result = EnvSchema.parse(validEnv());
     expect(result.GEO_ADMIN_API_BASE_URL).toBe("https://api3.geo.admin.ch");
   });
+
+  it("defaults ePost submission mode to mock to avoid fee-bearing sends before production", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.EPOST_SUBMISSION_MODE).toBe("mock");
+  });
 });
 
 // ---------------------------------------------------------------------------
@@ -272,6 +277,27 @@ describe("EnvSchema — validation constraints", () => {
       AZURE_EXISTING_AGENT_ID: "swiss-mail:2",
       AZURE_AI_AGENT_NAME: "swiss-mail",
       AZURE_AI_AGENT_VERSION: "3",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects live ePost submission outside production", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      POSTAL_DISPATCH_PROVIDER: "epost",
+      EPOST_API_KEY: "epost-test-key",
+      EPOST_SUBMISSION_MODE: "live",
+      NODE_ENV: "development",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects live ePost submission when the provider is not ePost", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      NODE_ENV: "production",
+      POSTAL_DISPATCH_PROVIDER: "stub",
+      EPOST_SUBMISSION_MODE: "live",
     });
     expect(result.success).toBe(false);
   });

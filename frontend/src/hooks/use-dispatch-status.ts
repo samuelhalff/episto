@@ -17,6 +17,7 @@ interface DispatchResponse {
     dispatchAttemptId: string;
     state: string;
     providerRef: string | null;
+    providerMode: "mock" | "live" | null;
     submittedAt: string | null;
     acceptedAt: string | null;
     rejectedAt: string | null;
@@ -36,6 +37,7 @@ export interface UseDispatchStatusReturn {
   /** Current canonical dispatch state from server; null while loading */
   dispatchState: (typeof DispatchState)[keyof typeof DispatchState] | null;
   providerReference: string | null;
+  providerMode: "mock" | "live" | null;
   /** True only when the provider has confirmed tracking is available */
   isTrackable: boolean;
   /** Timeline of state transitions observed via SSE during this session */
@@ -86,6 +88,7 @@ export function useDispatchStatus(draftId: string): UseDispatchStatusReturn {
   return {
     dispatchState: (dispatch?.state as (typeof DispatchState)[keyof typeof DispatchState]) ?? null,
     providerReference: dispatch?.providerRef ?? null,
+    providerMode: dispatch?.providerMode ?? null,
     // Never label a reference as trackable unless backend confirms it
     isTrackable: dispatch?.trackingAvailable === true,
     events,

@@ -638,7 +638,7 @@
     "orderSummary": "Your order",
     "checkoutIntro": "Review and pay securely",
     "email": "Email address",
-    "emailHelp": "We'll send your receipt here first, then dispatch updates and a secure order-status link where the final PDF stays available while retained. We won't use this address for marketing.",
+    "emailHelp": "We'll send your receipt here first, then dispatch updates and a secure order-status link where the signed confirmation document stays available while retained. We won't use this address for marketing.",
     "paymentMethod": "Payment method",
     "paymentPending": "Payment form loading…",
     "paymentConfigError": "Payment system is not configured. Please try again later.",
@@ -734,13 +734,13 @@
     "stepPayment": "Payment confirmed",
     "stepPaymentDetail": "Your payment has been captured securely.",
     "stepSubmitted": "Letter submitted for dispatch",
-    "stepSubmittedDetail": "We prepared the final PDF and handed the job to dispatch.",
+    "stepSubmittedDetail": "We prepared the signed confirmation document bundle and handed the letter package to dispatch.",
     "stepProcessing": "Provider processing",
     "stepProcessingDetail": "The provider may take a little time to confirm the handoff.",
     "stepUpdates": "Further updates depend on provider confirmation",
     "stepUpdatesDetail": "If the status changes, we will update this page and email you.",
     "downloadReceipt": "Download receipt",
-    "viewLetter": "View final PDF",
+    "viewLetter": "View signed confirmation document",
     "sendAnother": "Send another letter",
     "stateQueued": "Your letter is queued for dispatch",
     "stateSubmitted": "Submitted for dispatch",
@@ -750,8 +750,8 @@
     "emailNotice": "A payment receipt has been sent to your email",
     "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
     "stickyCtaLabel": "Send another letter",
-    "downloadLetter": "Download final PDF",
-    "downloadUnavailable": "The final PDF is no longer available."
+    "downloadLetter": "Download signed confirmation document",
+    "downloadUnavailable": "The confirmation document is no longer available."
   },
   "resume": {
     "loading": "Resuming your draft…",
@@ -775,8 +775,8 @@
     "recipient": "Recipient",
     "paymentAmount": "Amount paid",
     "paidAt": "Payment date",
-    "downloadLetter": "Download final PDF",
-    "downloadUnavailable": "The final PDF is no longer available."
+    "downloadLetter": "Download signed confirmation document",
+    "downloadUnavailable": "The confirmation document is no longer available."
   },
   "files": {
     "addMore": "Add files",
@@ -844,7 +844,7 @@
     },
     "subtitle": {
       "queued": "Your letter is being prepared for dispatch.",
-      "submitted": "The final PDF is ready and queued with the dispatch provider.",
+      "submitted": "The confirmation document is ready and the exact letter PDF is queued with the dispatch provider.",
       "accepted": "The provider has confirmed receipt of your letter for dispatch.",
       "rejected": "There was a problem dispatching your letter. Our team has been notified.",
       "unknown": "We submitted your letter, but the provider has not confirmed the outcome yet."
@@ -853,7 +853,9 @@
       "label": "Provider reference",
       "trackingAvailable": "Tracking available for this shipment",
       "noTracking": "No tracking available for this shipment",
-      "pending": "A provider reference will appear here if one becomes available."
+      "pending": "A provider reference will appear here if one becomes available.",
+      "mockLabel": "Mock provider confirmation",
+      "mockBody": "Live ePost delivery is disabled in this environment. No fee-bearing submission was made."
     },
     "step": {
       "submitted": "Submitted to printing",
@@ -889,33 +891,6 @@
       "description": "Operator details and contact information for Swiss Mail."
     }
   },
-  "help": {
-    "title": "Help & Support",
-    "subtitle": "Answers and contact",
-    "faqTitle": "Frequently asked questions",
-    "faq1q": "How do I write a letter?",
-    "faq1a": "Start by clicking 'Write a letter'. Describe your situation, review the draft, and send it when it is ready.",
-    "faq2q": "How long does delivery take?",
-    "faq2a": "Standard letters are typically delivered within 1–3 business days within Switzerland.",
-    "faq3q": "Can I track my letter?",
-    "faq3a": "Registered letters include tracking. Standard letters do not include tracking, but delivery is reliable through Swiss Post.",
-    "faq4q": "What if something goes wrong with my payment?",
-    "faq4a": "If a payment fails, you can retry at checkout. If you were charged but something went wrong, contact us and we'll investigate immediately.",
-    "faq5q": "Can I edit my letter after paying?",
-    "faq5a": "Once payment is confirmed and the letter is submitted for dispatch, it cannot be edited. Review your letter carefully before checkout.",
-    "faq6q": "What file formats can I attach?",
-    "faq6a": "You can add supporting files during drafting. The exact formats and attachment count depend on the active postal dispatch path shown in the app.",
-    "faq7q": "Do I need an account?",
-    "faq7a": "No. You can draft and send a letter as a guest. We give you a link to resume your draft if you leave.",
-    "faq8q": "What payment methods do you accept?",
-    "faq8a": "We accept all major credit cards, debit cards, and TWINT.",
-    "contactTitle": "Need more help?",
-    "contactDescription": "If your question isn't answered above, reach out to us.",
-    "contactEmailLabel": "Email",
-    "contactEmail": "support@swissmail.ch",
-    "contactResponseTime": "We aim to respond within one business day."
-  }
-}
   "admin": {
     "login": {
       "title": "Admin access",
@@ -1060,3 +1035,30 @@
       "refunded": "Refunded"
     }
   },
+  "help": {
+    "title": "Help & Support",
+    "subtitle": "Answers and contact",
+    "faqTitle": "Frequently asked questions",
+    "faq1q": "How do I write a letter?",
+    "faq1a": "Start by clicking 'Write a letter'. Describe your situation, review the draft, and send it when it is ready.",
+    "faq2q": "How long does delivery take?",
+    "faq2a": "Standard letters are typically delivered within 1–3 business days within Switzerland.",
+    "faq3q": "Can I track my letter?",
+    "faq3a": "Registered letters include tracking. Standard letters do not include tracking, but delivery is reliable through Swiss Post.",
+    "faq4q": "What if something goes wrong with my payment?",
+    "faq4a": "If a payment fails, you can retry at checkout. If you were charged but something went wrong, contact us and we'll investigate immediately.",
+    "faq5q": "Can I edit my letter after paying?",
+    "faq5a": "Once payment is confirmed and the letter is submitted for dispatch, it cannot be edited. Review your letter carefully before checkout.",
+    "faq6q": "What file formats can I attach?",
+    "faq6a": "You can add supporting files during drafting. The exact formats and attachment count depend on the active postal dispatch path shown in the app.",
+    "faq7q": "Do I need an account?",
+    "faq7a": "No. You can draft and send a letter as a guest. We give you a link to resume your draft if you leave.",
+    "faq8q": "What payment methods do you accept?",
+    "faq8a": "We accept all major credit cards, debit cards, and TWINT.",
+    "contactTitle": "Need more help?",
+    "contactDescription": "If your question isn't answered above, reach out to us.",
+    "contactEmailLabel": "Email",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "We aim to respond within one business day."
+  }
+}

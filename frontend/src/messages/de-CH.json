@@ -638,7 +638,7 @@
     "orderSummary": "Ihre Bestellung",
     "checkoutIntro": "Prüfen und sicher zahlen",
     "email": "E-Mail-Adresse",
-    "emailHelp": "Wir senden Ihre Quittung zuerst an diese Adresse und danach Versand-Updates sowie einen sicheren Bestellstatus-Link, über den das finale PDF verfügbar bleibt, solange es aufbewahrt wird. Keine Werbung.",
+    "emailHelp": "Wir senden Ihre Quittung zuerst an diese Adresse und danach Versand-Updates sowie einen sicheren Bestellstatus-Link, über den das signierte Bestätigungsdokument verfügbar bleibt, solange es aufbewahrt wird. Keine Werbung.",
     "paymentMethod": "Zahlungsmethode",
     "paymentPending": "Zahlungsformular wird geladen…",
     "paymentConfigError": "Das Zahlungssystem ist nicht konfiguriert. Bitte versuchen Sie es später erneut.",
@@ -734,13 +734,13 @@
     "stepPayment": "Zahlung bestätigt",
     "stepPaymentDetail": "Ihre Zahlung wurde sicher erfasst.",
     "stepSubmitted": "Brief zum Versand übermittelt",
-    "stepSubmittedDetail": "Wir haben das endgültige PDF vorbereitet und an den Versand übergeben.",
+    "stepSubmittedDetail": "Wir haben das signierte Bestätigungsdokument vorbereitet und das Briefpaket an den Versand übergeben.",
     "stepProcessing": "Anbieterverarbeitung",
     "stepProcessingDetail": "Der Anbieter kann etwas Zeit benötigen, um die Übergabe zu bestätigen.",
     "stepUpdates": "Weitere Aktualisierungen hängen von der Bestätigung des Anbieters ab",
     "stepUpdatesDetail": "Wenn sich der Status ändert, aktualisieren wir diese Seite und senden eine E-Mail.",
     "downloadReceipt": "Quittung herunterladen",
-    "viewLetter": "Finales PDF ansehen",
+    "viewLetter": "Signiertes Bestätigungsdokument ansehen",
     "sendAnother": "Weiteren Brief senden",
     "stateQueued": "Ihr Brief ist in der Warteschlange für den Versand",
     "stateSubmitted": "Zum Versand übermittelt",
@@ -750,8 +750,8 @@
     "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
     "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
     "stickyCtaLabel": "Weiteren Brief senden",
-    "downloadLetter": "Finales PDF herunterladen",
-    "downloadUnavailable": "Das finale PDF ist nicht mehr verfügbar."
+    "downloadLetter": "Signiertes Bestätigungsdokument herunterladen",
+    "downloadUnavailable": "Das Bestätigungsdokument ist nicht mehr verfügbar."
   },
   "resume": {
     "loading": "Entwurf wird geladen…",
@@ -775,8 +775,8 @@
     "recipient": "Empfänger",
     "paymentAmount": "Bezahlter Betrag",
     "paidAt": "Zahlungsdatum",
-    "downloadLetter": "Finales PDF herunterladen",
-    "downloadUnavailable": "Das finale PDF ist nicht mehr verfügbar."
+    "downloadLetter": "Signiertes Bestätigungsdokument herunterladen",
+    "downloadUnavailable": "Das Bestätigungsdokument ist nicht mehr verfügbar."
   },
   "files": {
     "addMore": "Dateien hinzufügen",
@@ -844,7 +844,7 @@
     },
     "subtitle": {
       "queued": "Ihr Brief wird für den Versand vorbereitet.",
-      "submitted": "Das endgültige PDF ist bereit und an den Versandanbieter übergeben.",
+      "submitted": "Das Bestätigungsdokument ist bereit und das exakte Brief-PDF ist an den Versandanbieter übergeben.",
       "accepted": "Der Anbieter hat den Brief für den Versand bestätigt.",
       "rejected": "Es gab ein Problem beim Versand. Unser Team wurde informiert.",
       "unknown": "Wir haben Ihren Brief übermittelt, aber der Anbieter hat das Ergebnis noch nicht bestätigt."
@@ -853,7 +853,9 @@
       "label": "Anbieterreferenz",
       "trackingAvailable": "Tracking für diese Sendung verfügbar",
       "noTracking": "Kein Tracking für diese Sendung verfügbar",
-      "pending": "Eine Anbieterreferenz erscheint hier, falls sie verfügbar wird."
+      "pending": "Eine Anbieterreferenz erscheint hier, falls sie verfügbar wird.",
+      "mockLabel": "Simulierte Anbieterbestätigung",
+      "mockBody": "Die Live-ePost-Zustellung ist in dieser Umgebung deaktiviert. Es wurde keine kostenpflichtige Sendung ausgelöst."
     },
     "step": {
       "submitted": "An den Druck übergeben",
@@ -889,33 +891,6 @@
       "description": "Betreiberangaben und Kontaktinformationen von Swiss Mail."
     }
   },
-  "help": {
-    "title": "Hilfe & Support",
-    "subtitle": "Antworten und Kontakt",
-    "faqTitle": "Häufig gestellte Fragen",
-    "faq1q": "Wie schreibe ich einen Brief?",
-    "faq1a": "Klicken Sie auf «Brief schreiben». Beschreiben Sie Ihr Anliegen, prüfen Sie den Entwurf und senden Sie den Brief, wenn alles passt.",
-    "faq2q": "Wie lange dauert die Zustellung?",
-    "faq2a": "Standardbriefe werden in der Regel innerhalb von 1–3 Werktagen innerhalb der Schweiz zugestellt.",
-    "faq3q": "Kann ich meinen Brief verfolgen?",
-    "faq3a": "Eingeschriebene Briefe beinhalten eine Sendungsverfolgung. Standardbriefe haben keine Sendungsverfolgung, die Zustellung durch die Schweizerische Post ist jedoch zuverlässig.",
-    "faq4q": "Was passiert bei einem Zahlungsproblem?",
-    "faq4a": "Falls eine Zahlung fehlschlägt, können Sie es beim Checkout erneut versuchen. Falls Sie belastet wurden und etwas schiefging, kontaktieren Sie uns — wir klären das sofort.",
-    "faq5q": "Kann ich meinen Brief nach der Bezahlung bearbeiten?",
-    "faq5a": "Sobald die Zahlung bestätigt und der Brief zum Versand übermittelt wurde, kann er nicht mehr bearbeitet werden. Überprüfen Sie Ihren Brief sorgfältig vor dem Checkout.",
-    "faq6q": "Welche Dateiformate kann ich anhängen?",
-    "faq6a": "Sie können während des Entwurfs unterstützende Dateien hinzufügen. Die genauen Formate und die Anzahl der Anhänge hängen vom aktuell aktiven Versandpfad in der App ab.",
-    "faq7q": "Brauche ich ein Konto?",
-    "faq7a": "Nein. Sie können einen Brief als Gast verfassen und versenden. Wir geben Ihnen einen Link, um Ihren Entwurf fortzusetzen.",
-    "faq8q": "Welche Zahlungsmethoden akzeptieren Sie?",
-    "faq8a": "Wir akzeptieren alle gängigen Kredit- und Debitkarten sowie TWINT.",
-    "contactTitle": "Weitere Hilfe?",
-    "contactDescription": "Wenn Ihre Frage oben nicht beantwortet wird, kontaktieren Sie uns.",
-    "contactEmailLabel": "E-Mail",
-    "contactEmail": "support@swissmail.ch",
-    "contactResponseTime": "Wir antworten in der Regel innerhalb eines Werktags."
-  }
-}
   "admin": {
     "login": {
       "title": "Admin-Zugang",
@@ -1060,3 +1035,30 @@
       "refunded": "Rückerstattet"
     }
   },
+  "help": {
+    "title": "Hilfe & Support",
+    "subtitle": "Antworten und Kontakt",
+    "faqTitle": "Häufig gestellte Fragen",
+    "faq1q": "Wie schreibe ich einen Brief?",
+    "faq1a": "Klicken Sie auf «Brief schreiben». Beschreiben Sie Ihr Anliegen, prüfen Sie den Entwurf und senden Sie den Brief, wenn alles passt.",
+    "faq2q": "Wie lange dauert die Zustellung?",
+    "faq2a": "Standardbriefe werden in der Regel innerhalb von 1–3 Werktagen innerhalb der Schweiz zugestellt.",
+    "faq3q": "Kann ich meinen Brief verfolgen?",
+    "faq3a": "Eingeschriebene Briefe beinhalten eine Sendungsverfolgung. Standardbriefe haben keine Sendungsverfolgung, die Zustellung durch die Schweizerische Post ist jedoch zuverlässig.",
+    "faq4q": "Was passiert bei einem Zahlungsproblem?",
+    "faq4a": "Falls eine Zahlung fehlschlägt, können Sie es beim Checkout erneut versuchen. Falls Sie belastet wurden und etwas schiefging, kontaktieren Sie uns — wir klären das sofort.",
+    "faq5q": "Kann ich meinen Brief nach der Bezahlung bearbeiten?",
+    "faq5a": "Sobald die Zahlung bestätigt und der Brief zum Versand übermittelt wurde, kann er nicht mehr bearbeitet werden. Überprüfen Sie Ihren Brief sorgfältig vor dem Checkout.",
+    "faq6q": "Welche Dateiformate kann ich anhängen?",
+    "faq6a": "Sie können während des Entwurfs unterstützende Dateien hinzufügen. Die genauen Formate und die Anzahl der Anhänge hängen vom aktuell aktiven Versandpfad in der App ab.",
+    "faq7q": "Brauche ich ein Konto?",
+    "faq7a": "Nein. Sie können einen Brief als Gast verfassen und versenden. Wir geben Ihnen einen Link, um Ihren Entwurf fortzusetzen.",
+    "faq8q": "Welche Zahlungsmethoden akzeptieren Sie?",
+    "faq8a": "Wir akzeptieren alle gängigen Kredit- und Debitkarten sowie TWINT.",
+    "contactTitle": "Weitere Hilfe?",
+    "contactDescription": "Wenn Ihre Frage oben nicht beantwortet wird, kontaktieren Sie uns.",
+    "contactEmailLabel": "E-Mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Wir antworten in der Regel innerhalb eines Werktags."
+  }
+}

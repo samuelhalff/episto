@@ -76,6 +76,7 @@ export const EnvSchema = z
 
     // Postal dispatch
     POSTAL_DISPATCH_PROVIDER: z.enum(["stub", "epost"]).default("stub"),
+    EPOST_SUBMISSION_MODE: z.enum(["mock", "live"]).default("mock"),
     EPOST_API_BASE_URL: z.string().url().default("https://api.epost.ch"),
     EPOST_API_KEY: z.string().min(1).optional(),
     EPOST_TIMEOUT_MS: z.coerce.number().int().positive().default(20000),
@@ -152,6 +153,30 @@ export const EnvSchema = z
       return true;
     },
     { message: "EPOST_API_KEY is required when POSTAL_DISPATCH_PROVIDER=epost" },
+  )
+  .refine(
+    (data) => {
+      if (data.EPOST_SUBMISSION_MODE === "live") {
+        return data.POSTAL_DISPATCH_PROVIDER === "epost";
+      }
+
+      return true;
+    },
+    {
+      message: "EPOST_SUBMISSION_MODE=live requires POSTAL_DISPATCH_PROVIDER=epost",
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.EPOST_SUBMISSION_MODE === "live") {
+        return data.NODE_ENV === "production";
+      }
+
+      return true;
+    },
+    {
+      message: "EPOST_SUBMISSION_MODE=live is only allowed when NODE_ENV=production",
+    },
   )
   .refine(
     (data) => {

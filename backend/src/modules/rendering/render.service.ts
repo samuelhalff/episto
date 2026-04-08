@@ -49,6 +49,18 @@ export interface RenderResult {
   pageCount: number;
 }
 
+export interface PdfRenderMargins {
+  top: string;
+  right: string;
+  bottom: string;
+  left: string;
+}
+
+export interface RenderPdfBufferResult {
+  pdfBuffer: Buffer;
+  pageCount: number;
+}
+
 let signatureFontFaceCss: string | null = null;
 
 // ---------------------------------------------------------------------------
@@ -147,7 +159,7 @@ function getSenderSignatureName(sender: SnapshotData["sender"]): string {
 // HTML letter template (Swiss DIN 5008 / SN 010 130 inspired)
 // ---------------------------------------------------------------------------
 
-function renderLetterHtml(data: SnapshotData): string {
+export function renderLetterHtml(data: SnapshotData): string {
   const sender = data.sender;
   const recipient = data.recipient;
   const formattedDate = new Date().toLocaleDateString(data.locale, {
@@ -218,22 +230,33 @@ function renderLetterHtml(data: SnapshotData): string {
       line-height: 1.5;
       color: #1a1a1a;
     }
+    .letter-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12mm;
+      margin-bottom: 16mm;
+    }
     .sender-block {
+      width: 80mm;
+      flex: 0 0 80mm;
       font-size: 9pt;
       color: #666;
-      width: 80mm;
+      text-align: left;
+    }
+    .recipient-date-block {
+      width: 85mm;
       margin-left: auto;
-      margin-bottom: 20mm;
+      padding-top: 14mm;
       text-align: right;
     }
     .recipient-block {
-      width: 85mm;
       min-height: 30mm;
-      margin-bottom: 10mm;
+      margin-bottom: 6mm;
     }
     .date-line {
       text-align: right;
-      margin-bottom: 15mm;
+      margin-bottom: 0;
     }
     .subject-line {
       font-weight: bold;
@@ -319,9 +342,13 @@ function renderLetterHtml(data: SnapshotData): string {
   </style>
 </head>
 <body>
-  <div class="sender-block">${senderBlock}</div>
-  <div class="recipient-block">${recipientBlock}</div>
-  <div class="date-line">${escapeHtml(placeAndDate)}</div>
+  <div class="letter-header">
+    <div class="sender-block">${senderBlock}</div>
+    <div class="recipient-date-block">
+      <div class="recipient-block">${recipientBlock}</div>
+      <div class="date-line">${escapeHtml(placeAndDate)}</div>
+    </div>
+  </div>
   ${data.subject ? `<div class="subject-line">${escapeHtml(data.subject)}</div>` : ""}
   ${hasLetterContent ? `<div class="salutation-line">${escapeHtml(salutation)}</div>` : ""}
   <div class="letter-body">${renderDocumentHtml(document)}</div>
@@ -460,6 +487,46 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
+export function countPdfPages(pdfBuffer: Buffer | Uint8Array): number {
+  const pdfString = Buffer.from(pdfBuffer).toString("latin1");
+  return Math.max(1, (pdfString.match(/\/Type\s*\/Page[^s]/g) || []).length);
+}
+
+export async function renderPdfBufferFromHtml(
+  html: string,
+  options?: {
+    margins?: PdfRenderMargins;
+  },
+): Promise<RenderPdfBufferResult> {
+  const browser = await getBrowser();
+  const page = await browser.newPage();
+  const margins = options?.margins ?? {
+    top: "25mm",
+    right: "25mm",
+    bottom: "30mm",
+    left: "25mm",
+  };
+
+  try {
+    await page.setContent(html, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = Buffer.from(
+      await page.pdf({
+        format: "A4",
+        printBackground: true,
+        margin: margins,
+      }),
+    );
+
+    return {
+      pdfBuffer,
+      pageCount: countPdfPages(pdfBuffer),
+    };
+  } finally {
+    await page.close();
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main render function
 // ---------------------------------------------------------------------------
@@ -488,74 +555,51 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
   const html = renderLetterHtml(snapshotData);
 
   // 3. Generate PDF via Puppeteer
-  const browser = await getBrowser();
-  const page = await browser.newPage();
+  const { pdfBuffer, pageCount } = await renderPdfBufferFromHtml(html);
 
-  try {
-    await page.setContent(html, { waitUntil: "networkidle0" });
+  // 4. Upload to storage
+  const storageKey = renderStorageKey(snapshot.draftId, snapshot.version);
+  await uploadObject(storageKey, pdfBuffer, "application/pdf");
 
-    const pdfBuffer = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: {
-        top: "25mm",
-        right: "25mm",
-        bottom: "30mm",
-        left: "25mm",
-      },
-    });
+  // 5. Get session ID for file asset
+  const [draft] = await db
+    .select({ sessionId: schema.draftLetters.sessionId })
+    .from(schema.draftLetters)
+    .where(eq(schema.draftLetters.id, snapshot.draftId))
+    .limit(1);
 
-    // Estimate page count from PDF byte boundaries
-    // A rough heuristic: count /Type /Page occurrences in the PDF
-    const pdfStr = Buffer.from(pdfBuffer).toString("latin1");
-    const pageCount = Math.max(1, (pdfStr.match(/\/Type\s*\/Page[^s]/g) || []).length);
-
-    // 4. Upload to storage
-    const storageKey = renderStorageKey(snapshot.draftId, snapshot.version);
-    await uploadObject(storageKey, Buffer.from(pdfBuffer), "application/pdf");
-
-    // 5. Get session ID for file asset
-    const [draft] = await db
-      .select({ sessionId: schema.draftLetters.sessionId })
-      .from(schema.draftLetters)
-      .where(eq(schema.draftLetters.id, snapshot.draftId))
-      .limit(1);
-
-    if (!draft) {
-      throw new Error(`Draft not found: ${snapshot.draftId}`);
-    }
-
-    const fileAsset = await createFileAsset(db, {
-      sessionId: draft.sessionId,
-      draftId: snapshot.draftId,
-      kind: "rendered_pdf",
-      storageKey,
-      originalFilename: `letter-v${snapshot.version}.pdf`,
-      mimeType: "application/pdf",
-      sizeBytes: pdfBuffer.byteLength,
-    });
-
-    // 6. Link PDF to snapshot
-    await setSnapshotPdfAsset(db, snapshotId, fileAsset.id, pageCount);
-
-    logger.info(
-      {
-        snapshotId,
-        draftId: snapshot.draftId,
-        version: snapshot.version,
-        pageCount,
-        sizeBytes: pdfBuffer.byteLength,
-      },
-      "PDF rendered successfully",
-    );
-
-    return {
-      pdfAssetId: fileAsset.id,
-      storageKey,
-      sizeBytes: pdfBuffer.byteLength,
-      pageCount,
-    };
-  } finally {
-    await page.close();
+  if (!draft) {
+    throw new Error(`Draft not found: ${snapshot.draftId}`);
   }
+
+  const fileAsset = await createFileAsset(db, {
+    sessionId: draft.sessionId,
+    draftId: snapshot.draftId,
+    kind: "rendered_pdf",
+    storageKey,
+    originalFilename: `letter-v${snapshot.version}.pdf`,
+    mimeType: "application/pdf",
+    sizeBytes: pdfBuffer.byteLength,
+  });
+
+  // 6. Link PDF to snapshot
+  await setSnapshotPdfAsset(db, snapshotId, fileAsset.id, pageCount);
+
+  logger.info(
+    {
+      snapshotId,
+      draftId: snapshot.draftId,
+      version: snapshot.version,
+      pageCount,
+      sizeBytes: pdfBuffer.byteLength,
+    },
+    "PDF rendered successfully",
+  );
+
+  return {
+    pdfAssetId: fileAsset.id,
+    storageKey,
+    sizeBytes: pdfBuffer.byteLength,
+    pageCount,
+  };
 }

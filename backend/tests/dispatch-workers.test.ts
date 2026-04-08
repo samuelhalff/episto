@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   updateDraftStatusForDispatchSubmission: vi.fn(),
   enqueueDispatchReconciliation: vi.fn(),
   enqueuePaymentReceiptEmail: vi.fn(),
+  enqueueDispatchAcceptedEmail: vi.fn(),
   acquireRedisLock: vi.fn(),
   logger: {
     info: vi.fn(),
@@ -117,6 +118,10 @@ vi.mock("../src/modules/payments/payment-notifications.js", () => ({
   enqueuePaymentReceiptEmail: mocks.enqueuePaymentReceiptEmail,
 }));
 
+vi.mock("../src/modules/dispatch/dispatch-notifications.js", () => ({
+  enqueueDispatchAcceptedEmail: mocks.enqueueDispatchAcceptedEmail,
+}));
+
 vi.mock("../src/workers/dispatch-settlement.js", () => ({
   settlePaymentForDispatchResolution: mocks.settlePaymentForDispatchResolution,
   canFinalizeDispatchResolution: mocks.canFinalizeDispatchResolution,
@@ -143,6 +148,7 @@ describe("dispatch workers", () => {
     mocks.updateDraftStatusForDispatchSubmission.mockReset();
     mocks.enqueueDispatchReconciliation.mockReset();
     mocks.enqueuePaymentReceiptEmail.mockReset();
+    mocks.enqueueDispatchAcceptedEmail.mockReset();
     mocks.acquireRedisLock.mockReset().mockResolvedValue({
       release: vi.fn().mockResolvedValue(undefined),
     });
@@ -349,6 +355,46 @@ describe("dispatch workers", () => {
       }),
       "order-token-2a",
     );
+    expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(mocks.currentDb, {
+      dispatchAttemptId: "dispatch-2a",
+      draftId: "draft-2a",
+      providerReference: "provider-2a",
+      trackingNumber: null,
+      rawOrderAccessToken: "order-token-2a",
+    });
+  });
+
+  it("enqueues reconciliation after a non-terminal submission so provider confirmation can continue", async () => {
+    mocks.currentDb = createDbMock([
+      [{ sessionId: "session-queued" }],
+      [{ email: "user@example.com" }],
+    ]);
+    mocks.createDispatchAttempt.mockResolvedValue({ id: "dispatch-queued" });
+    mocks.buildDispatchPackage.mockResolvedValue({ deliveryType: "standard" });
+    mocks.adapterSubmit.mockResolvedValue({
+      state: "submitted",
+      providerReference: "provider-queued",
+      trackingNumber: null,
+      failureReason: null,
+    });
+
+    const { processSubmitDispatchJob } =
+      await import("../src/workers/submit-dispatch.worker.js");
+
+    const job = {
+      data: {
+        draftId: "draft-queued",
+        snapshotId: "snapshot-queued",
+        paymentId: "payment-queued",
+      },
+      log: vi.fn(),
+    };
+
+    await expect(processSubmitDispatchJob(job as never)).resolves.toBeUndefined();
+
+    expect(mocks.enqueueDispatchReconciliation).toHaveBeenCalledWith({
+      dispatchAttemptId: "dispatch-queued",
+    });
   });
 
   it("retries reconciliation when payment settlement fails before terminal dispatch state is written", async () => {
@@ -512,5 +558,12 @@ describe("dispatch workers", () => {
       }),
       "order-token-5",
     );
+    expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(mocks.currentDb, {
+      dispatchAttemptId: "dispatch-5",
+      draftId: "draft-5",
+      providerReference: "provider-5",
+      trackingNumber: "track-5",
+      rawOrderAccessToken: "order-token-5",
+    });
   });
 });

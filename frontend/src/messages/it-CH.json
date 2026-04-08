@@ -638,7 +638,7 @@
     "orderSummary": "Il tuo ordine",
     "checkoutIntro": "Controlla e paga serenamente",
     "email": "Indirizzo e-mail",
-    "emailHelp": "Invieremo prima la ricevuta a questo indirizzo, poi gli aggiornamenti di spedizione e un link sicuro allo stato dell'ordine, dove il PDF finale resta disponibile finché viene conservato. Nessun marketing.",
+    "emailHelp": "Invieremo prima la ricevuta a questo indirizzo, poi gli aggiornamenti di spedizione e un link sicuro allo stato dell'ordine, dove il documento di conferma firmato resta disponibile finché viene conservato. Nessun marketing.",
     "paymentMethod": "Metodo di pagamento",
     "paymentPending": "Caricamento del modulo di pagamento…",
     "paymentConfigError": "Il sistema di pagamento non è configurato. Si prega di riprovare più tardi.",
@@ -734,13 +734,13 @@
     "stepPayment": "Pagamento confermato",
     "stepPaymentDetail": "Il pagamento è stato acquisito in modo sicuro.",
     "stepSubmitted": "Lettera inoltrata per la spedizione",
-    "stepSubmittedDetail": "Abbiamo preparato il PDF finale e consegnato il lavoro alla spedizione.",
+    "stepSubmittedDetail": "Abbiamo preparato il documento di conferma firmato e consegnato il pacchetto lettera alla spedizione.",
     "stepProcessing": "Elaborazione del fornitore",
     "stepProcessingDetail": "Il fornitore potrebbe impiegare un po' di tempo per confermare la presa in carico.",
     "stepUpdates": "Ulteriori aggiornamenti dipendono dalla conferma del fornitore",
     "stepUpdatesDetail": "Se lo stato cambia, aggiorneremo questa pagina e ti invieremo un'e-mail.",
     "downloadReceipt": "Scarica la ricevuta",
-    "viewLetter": "Visualizza il PDF finale",
+    "viewLetter": "Visualizza il documento di conferma firmato",
     "sendAnother": "Invia un'altra lettera",
     "stateQueued": "La tua lettera è in coda per la spedizione",
     "stateSubmitted": "Inoltrata per la spedizione",
@@ -750,8 +750,8 @@
     "emailNotice": "Una ricevuta di pagamento è stata inviata alla tua e-mail",
     "emailNoticeDetail": "Riceverai un altro aggiornamento se lo stato della spedizione cambia.",
     "stickyCtaLabel": "Invia un'altra lettera",
-    "downloadLetter": "Scarica il PDF finale",
-    "downloadUnavailable": "Il PDF finale non è più disponibile."
+    "downloadLetter": "Scarica il documento di conferma firmato",
+    "downloadUnavailable": "Il documento di conferma non è più disponibile."
   },
   "resume": {
     "loading": "Ripresa della bozza…",
@@ -775,8 +775,8 @@
     "recipient": "Destinatario",
     "paymentAmount": "Importo pagato",
     "paidAt": "Data di pagamento",
-    "downloadLetter": "Scarica il PDF finale",
-    "downloadUnavailable": "Il PDF finale non è più disponibile."
+    "downloadLetter": "Scarica il documento di conferma firmato",
+    "downloadUnavailable": "Il documento di conferma non è più disponibile."
   },
   "files": {
     "addMore": "Aggiungi file",
@@ -844,7 +844,7 @@
     },
     "subtitle": {
       "queued": "La lettera è in preparazione per la spedizione.",
-      "submitted": "Il PDF finale è pronto ed è stato consegnato al fornitore di spedizione.",
+      "submitted": "Il documento di conferma è pronto e il PDF esatto della lettera è stato consegnato al fornitore di spedizione.",
       "accepted": "Il fornitore ha confermato la presa in carico della lettera per la spedizione.",
       "rejected": "Si è verificato un problema. Il nostro team è stato informato.",
       "unknown": "Abbiamo inoltrato la lettera, ma il fornitore non ha ancora confermato l'esito."
@@ -853,7 +853,9 @@
       "label": "Riferimento fornitore",
       "trackingAvailable": "Tracciamento disponibile",
       "noTracking": "Nessun tracciamento disponibile",
-      "pending": "Un riferimento del fornitore comparirà qui se diventa disponibile."
+      "pending": "Un riferimento del fornitore comparirà qui se diventa disponibile.",
+      "mockLabel": "Conferma fornitore simulata",
+      "mockBody": "L'invio ePost reale è disattivato in questo ambiente. Non è stato effettuato alcun invio con addebito."
     },
     "step": {
       "submitted": "Inviato alla stampa",
@@ -889,33 +891,6 @@
       "description": "Dati dell’operatore e informazioni di contatto di Swiss Mail."
     }
   },
-  "help": {
-    "title": "Aiuto & Supporto",
-    "subtitle": "Risposte e contatto",
-    "faqTitle": "Domande frequenti",
-    "faq1q": "Come scrivo una lettera?",
-    "faq1a": "Clicca su «Scrivi una lettera». Descrivi la tua situazione, controlla la bozza e inviala quando tutto è pronto.",
-    "faq2q": "Quanto tempo richiede la consegna?",
-    "faq2a": "Le lettere standard vengono generalmente consegnate entro 1–3 giorni lavorativi in Svizzera.",
-    "faq3q": "Posso tracciare la mia lettera?",
-    "faq3a": "Le lettere raccomandate includono il tracciamento. Le lettere standard non includono il tracciamento, ma la consegna tramite la Posta Svizzera è affidabile.",
-    "faq4q": "Cosa succede in caso di problemi con il pagamento?",
-    "faq4a": "Se un pagamento non va a buon fine, puoi riprovare al momento del pagamento. Se sei stato addebitato ma qualcosa è andato storto, contattaci — indagheremo immediatamente.",
-    "faq5q": "Posso modificare la mia lettera dopo il pagamento?",
-    "faq5a": "Una volta confermato il pagamento e inviata la lettera per la spedizione, non può più essere modificata. Controlla attentamente la tua lettera prima del pagamento.",
-    "faq6q": "Quali formati di file posso allegare?",
-    "faq6a": "Puoi aggiungere documenti di supporto durante la stesura. I formati esatti e il numero di allegati dipendono dal canale postale attivo mostrato nell'app.",
-    "faq7q": "Ho bisogno di un account?",
-    "faq7a": "No. Puoi scrivere e inviare una lettera come ospite. Ti diamo un link per riprendere la tua bozza.",
-    "faq8q": "Quali metodi di pagamento accettate?",
-    "faq8a": "Accettiamo tutte le principali carte di credito, carte di debito e TWINT.",
-    "contactTitle": "Hai bisogno di ulteriore aiuto?",
-    "contactDescription": "Se la tua domanda non ha trovato risposta sopra, contattaci.",
-    "contactEmailLabel": "E-mail",
-    "contactEmail": "support@swissmail.ch",
-    "contactResponseTime": "Rispondiamo generalmente entro un giorno lavorativo."
-  }
-}
   "admin": {
     "login": {
       "title": "Accesso admin",
@@ -1060,3 +1035,30 @@
       "refunded": "Rimborsato"
     }
   },
+  "help": {
+    "title": "Aiuto & Supporto",
+    "subtitle": "Risposte e contatto",
+    "faqTitle": "Domande frequenti",
+    "faq1q": "Come scrivo una lettera?",
+    "faq1a": "Clicca su «Scrivi una lettera». Descrivi la tua situazione, controlla la bozza e inviala quando tutto è pronto.",
+    "faq2q": "Quanto tempo richiede la consegna?",
+    "faq2a": "Le lettere standard vengono generalmente consegnate entro 1–3 giorni lavorativi in Svizzera.",
+    "faq3q": "Posso tracciare la mia lettera?",
+    "faq3a": "Le lettere raccomandate includono il tracciamento. Le lettere standard non includono il tracciamento, ma la consegna tramite la Posta Svizzera è affidabile.",
+    "faq4q": "Cosa succede in caso di problemi con il pagamento?",
+    "faq4a": "Se un pagamento non va a buon fine, puoi riprovare al momento del pagamento. Se sei stato addebitato ma qualcosa è andato storto, contattaci — indagheremo immediatamente.",
+    "faq5q": "Posso modificare la mia lettera dopo il pagamento?",
+    "faq5a": "Una volta confermato il pagamento e inviata la lettera per la spedizione, non può più essere modificata. Controlla attentamente la tua lettera prima del pagamento.",
+    "faq6q": "Quali formati di file posso allegare?",
+    "faq6a": "Puoi aggiungere documenti di supporto durante la stesura. I formati esatti e il numero di allegati dipendono dal canale postale attivo mostrato nell'app.",
+    "faq7q": "Ho bisogno di un account?",
+    "faq7a": "No. Puoi scrivere e inviare una lettera come ospite. Ti diamo un link per riprendere la tua bozza.",
+    "faq8q": "Quali metodi di pagamento accettate?",
+    "faq8a": "Accettiamo tutte le principali carte di credito, carte di debito e TWINT.",
+    "contactTitle": "Hai bisogno di ulteriore aiuto?",
+    "contactDescription": "Se la tua domanda non ha trovato risposta sopra, contattaci.",
+    "contactEmailLabel": "E-mail",
+    "contactEmail": "support@swissmail.ch",
+    "contactResponseTime": "Rispondiamo generalmente entro un giorno lavorativo."
+  }
+}

@@ -11,7 +11,6 @@ import { env } from "../../../shared/config/index.js";
 import type { DispatchPricingInput } from "../dispatch-pricing-input.service.js";
 import { EpostDispatchAdapter } from "./epost.adapter.js";
 import {
-  getEpostDispatchCapabilities,
   getStubDispatchCapabilities,
 } from "./provider-capabilities.js";
 
@@ -96,7 +95,9 @@ export function getDispatchAdapter(): DispatchAdapter {
   if (_adapter) return _adapter;
   _adapter =
     env().POSTAL_DISPATCH_PROVIDER === "epost"
-      ? new EpostDispatchAdapter(getEpostDispatchCapabilities())
+      ? new EpostDispatchAdapter({
+          submissionMode: env().EPOST_SUBMISSION_MODE,
+        })
       : new StubDispatchAdapter();
   return _adapter;
 }

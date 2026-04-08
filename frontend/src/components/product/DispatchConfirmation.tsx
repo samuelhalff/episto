@@ -18,6 +18,7 @@ import type { DispatchState } from "@swiss-mail/shared";
 interface DispatchConfirmationProps {
   dispatchState: (typeof DispatchState)[keyof typeof DispatchState] | null;
   providerReference: string | null;
+  providerMode: "mock" | "live" | null;
   isTrackable: boolean;
   submittedAt: string | null;
   lastCheckedAt: string | null;
@@ -70,6 +71,7 @@ function getStepStatus(step: TimelineStep, state: string | null): StepStatus {
 export function DispatchConfirmation({
   dispatchState,
   providerReference,
+  providerMode,
   isTrackable,
   submittedAt,
   lastCheckedAt,
@@ -139,6 +141,12 @@ export function DispatchConfirmation({
             <p className="mt-1 text-xs text-muted-foreground">
               {t("reference.noTracking")}
             </p>
+          )}
+          {providerMode === "mock" && (
+            <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950">
+              <p className="font-medium">{t("reference.mockLabel")}</p>
+              <p className="mt-1">{t("reference.mockBody")}</p>
+            </div>
           )}
         </div>
       )}

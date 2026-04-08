@@ -19,6 +19,16 @@ describe("dispatch provider capabilities", () => {
     });
   });
 
+  it("marks mock submission mode in the provider name without changing the attachment policy", () => {
+    expect(getEpostDispatchCapabilities("mock")).toEqual({
+      providerName: "epost-oneapi-mock",
+      attachmentPolicy: {
+        maxAttachmentsPerDraft: 1,
+        allowedMimeTypes: ["application/pdf"],
+      },
+    });
+  });
+
   it("falls back to the shared default attachment policy for non-ePost providers", () => {
     expect(getStubDispatchCapabilities()).toEqual({
       providerName: "stub",

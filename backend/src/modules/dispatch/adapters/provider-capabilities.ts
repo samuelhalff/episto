@@ -7,6 +7,10 @@ import {
 } from "@swiss-mail/shared";
 
 import { AppError } from "../../../shared/errors/index.js";
+import {
+  getEpostProviderName,
+  type EpostSubmissionMode,
+} from "./epost-submission-mode.js";
 
 const EPOST_ATTACHMENT_POLICY = DispatchAttachmentPolicySchema.parse({
   maxAttachmentsPerDraft: 1,
@@ -18,9 +22,11 @@ const DEFAULT_ATTACHMENT_POLICY = DispatchAttachmentPolicySchema.parse({
   allowedMimeTypes: [...FILE_LIMITS.attachment.allowedMimeTypes],
 });
 
-export function getEpostDispatchCapabilities(): DispatchProviderCapabilities {
+export function getEpostDispatchCapabilities(
+  submissionMode: EpostSubmissionMode = "live",
+): DispatchProviderCapabilities {
   return DispatchProviderCapabilitiesSchema.parse({
-    providerName: "epost-oneapi",
+    providerName: getEpostProviderName(submissionMode),
     attachmentPolicy: EPOST_ATTACHMENT_POLICY,
   });
 }

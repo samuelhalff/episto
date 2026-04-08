@@ -67,6 +67,9 @@ interface DispatchAcceptedStrings {
   subject: string;
   body: string;
   orderLabel: string;
+  providerReferenceLabel: string;
+  trackingNumberLabel: string;
+  viewStatusLabel: string;
 }
 
 interface ResumeLinkStrings {
@@ -163,21 +166,33 @@ const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAcceptedStrings
     subject: "Swiss Mail – Your letter has been accepted by Swiss Post",
     body: "Swiss Post has confirmed acceptance of your letter.",
     orderLabel: "Order",
+    providerReferenceLabel: "Provider reference",
+    trackingNumberLabel: "Reference number",
+    viewStatusLabel: "Track your letter",
   },
   "de-CH": {
     subject: "Swiss Mail – Ihr Brief wurde von der Post akzeptiert",
     body: "Die Schweizerische Post hat den Eingang Ihres Briefes bestätigt.",
     orderLabel: "Bestellung",
+    providerReferenceLabel: "Anbieterreferenz",
+    trackingNumberLabel: "Referenznummer",
+    viewStatusLabel: "Brief verfolgen",
   },
   "fr-CH": {
     subject: "Swiss Mail – Votre lettre a été acceptée par La Poste",
     body: "La Poste Suisse a confirmé la réception de votre lettre.",
     orderLabel: "Commande",
+    providerReferenceLabel: "Référence du prestataire",
+    trackingNumberLabel: "Numéro de référence",
+    viewStatusLabel: "Suivre votre lettre",
   },
   "it-CH": {
     subject: "Swiss Mail – La sua lettera è stata accettata dalla Posta",
     body: "La Posta Svizzera ha confermato l'accettazione della sua lettera.",
     orderLabel: "Ordine",
+    providerReferenceLabel: "Riferimento fornitore",
+    trackingNumberLabel: "Numero di riferimento",
+    viewStatusLabel: "Traccia la sua lettera",
   },
 };
 
@@ -287,10 +302,39 @@ const TEMPLATES: Record<
   "dispatch-accepted": (locale, data) => {
     const s = DISPATCH_ACCEPTED_STRINGS[resolveLocale(locale)];
     const orderRef = String(data.orderRef ?? "");
+    const providerReference =
+      typeof data.providerReference === "string" ? data.providerReference : "";
+    const trackingNumber =
+      typeof data.trackingNumber === "string" ? data.trackingNumber : "";
+    const statusUrl = typeof data.statusUrl === "string" ? data.statusUrl : null;
+    const textLines = [s.body, `${s.orderLabel}: ${orderRef}`];
+
+    if (providerReference) {
+      textLines.push(`${s.providerReferenceLabel}: ${providerReference}`);
+    }
+    if (trackingNumber) {
+      textLines.push(`${s.trackingNumberLabel}: ${trackingNumber}`);
+    }
+    if (statusUrl) {
+      textLines.push("", `${s.viewStatusLabel}: ${statusUrl}`);
+    }
+
     return {
       subject: s.subject,
-      text: [s.body, `${s.orderLabel}: ${orderRef}`].join("\n"),
-      html: `<p>${s.body}</p><p>${s.orderLabel}: <strong>${orderRef}</strong></p>`,
+      text: textLines.join("\n"),
+      html: [
+        `<p>${s.body}</p>`,
+        `<p>${s.orderLabel}: <strong>${orderRef}</strong></p>`,
+        providerReference
+          ? `<p>${s.providerReferenceLabel}: <strong>${providerReference}</strong></p>`
+          : "",
+        trackingNumber
+          ? `<p>${s.trackingNumberLabel}: <strong>${trackingNumber}</strong></p>`
+          : "",
+        statusUrl ? `<p><a href="${statusUrl}">${s.viewStatusLabel}</a></p>` : "",
+      ]
+        .filter(Boolean)
+        .join("\n"),
     };
   },
 
