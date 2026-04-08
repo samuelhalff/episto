@@ -96,15 +96,6 @@ describe("draft preview route", () => {
         meta: { source: "matrix", quotedAt: null, expiresAt: null },
       }),
     }));
-    vi.doMock("../src/modules/pricing/index.js", () => ({
-      calculatePrice: vi.fn().mockReturnValue({
-        baseCents: 110,
-        deliverySurchargeCents: 340,
-        pageSurchargeCents: 0,
-        attachmentSurchargeCents: 0,
-        totalCents: 450,
-      }),
-    }));
 
     // Stubs for modules imported by draft.routes.ts but not invoked on preview
     vi.doMock("../src/modules/drafting/profile.service.js", () => ({
@@ -167,10 +158,9 @@ describe("draft preview route", () => {
     expect(response.json().preview.priceCents).toBeGreaterThan(0);
   });
 
-  it("falls back to the base reference price before the first draft exists", async () => {
+  it("uses the stored quote resolver even before the first snapshot exists", async () => {
     const draftService = await import("../src/modules/drafting/draft.service.js");
     const dispatchQuoteService = await import("../src/modules/dispatch/dispatch-quote.service.js");
-    const pricing = await import("../src/modules/pricing/index.js");
 
     vi.mocked(draftService.getDraftById).mockResolvedValueOnce({
       id: "preview-draft",
@@ -199,9 +189,8 @@ describe("draft preview route", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().preview.priceCents).toBe(450);
-    expect(pricing.calculatePrice).toHaveBeenCalledWith("registered");
-    expect(dispatchQuoteService.resolveDisplayDispatchQuoteForDraft).not.toHaveBeenCalled();
+    expect(response.json().preview.priceCents).toBe(918);
+    expect(dispatchQuoteService.resolveDisplayDispatchQuoteForDraft).toHaveBeenCalledTimes(1);
   });
 });
 

@@ -81,7 +81,6 @@ export const DispatchSubmitResultSchema = z.object({
   state: DispatchStateSchema,
   providerReference: z.string().nullable(),
   trackingNumber: z.string().nullable(),
-  providerPayload: z.unknown().nullable(),
   failureReason: z.string().nullable(),
 });
 
@@ -89,7 +88,6 @@ export const DispatchStatusLookupSchema = z.object({
   state: DispatchStateSchema,
   providerReference: z.string().nullable(),
   trackingNumber: z.string().nullable(),
-  providerPayload: z.unknown().nullable(),
   failureReason: z.string().nullable(),
   checkedAt: z.coerce.date(),
 });

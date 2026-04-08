@@ -131,7 +131,7 @@ export async function registerScheduledJobs(): Promise<void> {
     "scheduled-rate-refresh-sentinel",
     { reason: "stale_matrix" } satisfies RefreshDispatchRatesJob,
     {
-      repeat: { pattern: "5 * * * *" }, // every hour at :05
+      repeat: { pattern: env().DISPATCH_RATE_MATRIX_REFRESH_CRON },
       jobId: "scheduled-rate-refresh-sentinel",
     },
   );

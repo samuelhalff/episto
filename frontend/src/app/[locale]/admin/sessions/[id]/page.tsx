@@ -1,100 +1,146 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { adminPost } from "../../admin-api";
-import { SectionPanel, PanelError } from "../../admin-metric-panels";
-import { Loader2 } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import { useParams, usePathname } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
+import { queryKeys } from "@swiss-mail/shared";
+import { adminPost, fetchAdminSession } from "../../admin-api";
+import { PanelError, PanelLoading, SectionPanel } from "../../admin-metric-panels";
+import { getAdminPagePath } from "../../../../../lib/admin-paths";
 
 export default function SessionDetailPage() {
+  const pathname = usePathname();
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [clearing, setClearing] = useState(false);
   const [cleared, setCleared] = useState(false);
   const [error, setError] = useState("");
-  const [confirmOpen, setConfirmOpen] = useState(false);
   const [reason, setReason] = useState("");
 
-  const handleClear = useCallback(async () => {
-    if (reason.length < 5) {
+  const session = useQuery({
+    queryKey: queryKeys.admin.session(id),
+    queryFn: () => fetchAdminSession(id),
+  });
+
+  async function handleClear() {
+    if (reason.trim().length < 5) {
       setError("Reason must be at least 5 characters");
       return;
     }
+
     setClearing(true);
     setError("");
     try {
-      await adminPost(`/admin/sessions/${id}/clear`, { reason });
+      await adminPost(`/admin/sessions/${id}/clear`, { reason: reason.trim() });
       setCleared(true);
-      setConfirmOpen(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Clear failed");
+      await session.refetch();
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : "Clear failed");
     } finally {
       setClearing(false);
     }
-  }, [id, reason]);
+  }
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => router.back()}
+      <div className="space-y-2">
+        <Link
+          href={getAdminPagePath(pathname, "sessions")}
           className="text-xs"
           style={{ color: "var(--app-muted)" }}
         >
           ← Sessions
-        </button>
+        </Link>
         <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
           Session
         </h1>
       </div>
 
-      <SectionPanel title="Session Info">
-        <div className="space-y-3">
-          <div>
-            <span className="text-xs" style={{ color: "var(--app-muted)" }}>ID</span>
-            <p className="mt-0.5 font-mono text-sm" style={{ color: "var(--app-fg)" }}>
-              {id}
-            </p>
-          </div>
-
-          {cleared && (
-            <div
-              className="rounded-lg border px-4 py-3 text-sm"
-              style={{
-                borderColor: "rgba(34,197,94,0.3)",
-                background: "rgba(34,197,94,0.06)",
-                color: "#16a34a",
-              }}
-            >
-              Session data has been cleared (GDPR).
+      {session.isLoading ? (
+        <PanelLoading />
+      ) : session.error ? (
+        <PanelError message={session.error.message || "Failed to load session"} />
+      ) : session.data ? (
+        <>
+          <SectionPanel title="Session Info">
+            <div className="grid gap-3 text-sm sm:grid-cols-2" style={{ color: "var(--app-fg)" }}>
+              <p>ID: {session.data.session.id}</p>
+              <p>Locale: {session.data.session.locale}</p>
+              <p>Email: {session.data.session.email ?? "None"}</p>
+              <p>IP address: {session.data.session.ipAddress ?? "Not retained"}</p>
+              <p>Created: {new Date(session.data.session.createdAt).toLocaleString()}</p>
+              <p>Expires: {new Date(session.data.session.expiresAt).toLocaleString()}</p>
             </div>
-          )}
+          </SectionPanel>
 
-          {error && <PanelError message={error} />}
-        </div>
-      </SectionPanel>
+          <SectionPanel title="Drafts">
+            {session.data.drafts.length > 0 ? (
+              <div className="divide-y" style={{ borderColor: "var(--app-border)" }}>
+                {session.data.drafts.map((draft) => (
+                  <Link
+                    key={draft.id}
+                    href={getAdminPagePath(pathname, `drafts/${draft.id}`)}
+                    className="block space-y-1 py-3 transition-opacity hover:opacity-80"
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-sm font-medium" style={{ color: "var(--app-fg)" }}>
+                        Draft {draft.id.slice(0, 8)}
+                      </p>
+                      <span className="text-xs" style={{ color: "var(--app-muted)" }}>
+                        {new Date(draft.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-xs" style={{ color: "var(--app-muted)" }}>
+                      Status {draft.status} · Payment {draft.paymentState ?? "none"} · Dispatch{" "}
+                      {draft.dispatchState ?? "none"}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                No drafts linked to this session.
+              </p>
+            )}
+          </SectionPanel>
 
-      {!cleared && (
-        <SectionPanel title="Data Management">
-          {!confirmOpen ? (
-            <button
-              onClick={() => setConfirmOpen(true)}
-              className="rounded-lg border px-4 py-2 text-xs font-medium text-destructive transition hover:bg-destructive/5"
-              style={{ borderColor: "var(--app-border)" }}
-            >
-              Clear Session Data (GDPR)
-            </button>
-          ) : (
+          <SectionPanel title="Support Events">
+            {session.data.supportEvents.length > 0 ? (
+              <div className="divide-y" style={{ borderColor: "var(--app-border)" }}>
+                {session.data.supportEvents.map((event) => (
+                  <div key={event.id} className="space-y-1 py-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-sm font-medium" style={{ color: "var(--app-fg)" }}>
+                        {event.eventType}
+                      </p>
+                      <span className="text-xs" style={{ color: "var(--app-muted)" }}>
+                        {new Date(event.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                    <p className="text-xs" style={{ color: "var(--app-muted)" }}>
+                      {event.actor}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm" style={{ color: "var(--app-muted)" }}>
+                No support events recorded.
+              </p>
+            )}
+          </SectionPanel>
+
+          <SectionPanel title="Data Management">
             <div className="space-y-3">
               <p className="text-sm" style={{ color: "var(--app-fg)" }}>
-                This will redact draft subject and body for this session.
-                Metadata (timestamps, states) is preserved. This action cannot be undone.
+                This redacts retained draft subject and body fields while preserving operational
+                metadata.
               </p>
               <textarea
-                placeholder="Reason for clearing (required, min 5 chars)"
                 value={reason}
-                onChange={(e) => setReason(e.target.value)}
-                rows={2}
+                onChange={(event) => setReason(event.target.value)}
+                rows={3}
+                placeholder="Reason for clearing retained content"
                 className="w-full rounded-lg border px-3 py-2 text-sm outline-none"
                 style={{
                   background: "var(--app-surface-muted)",
@@ -102,27 +148,29 @@ export default function SessionDetailPage() {
                   color: "var(--app-fg)",
                 }}
               />
-              <div className="flex gap-3">
+              {error ? <PanelError message={error} /> : null}
+              {cleared ? (
+                <p className="text-xs" style={{ color: "var(--app-muted)" }}>
+                  Session content cleared. Metadata remains available for support and audit.
+                </p>
+              ) : null}
+              <div className="flex justify-end">
                 <button
                   onClick={() => void handleClear()}
-                  disabled={clearing || reason.length < 5}
-                  className="flex items-center gap-2 rounded-lg bg-destructive px-4 py-2 text-xs font-medium text-white transition disabled:opacity-50"
+                  disabled={clearing || reason.trim().length < 5}
+                  className="rounded-lg px-4 py-2 text-xs font-medium transition disabled:opacity-40"
+                  style={{
+                    background: "var(--app-fg)",
+                    color: "var(--app-bg)",
+                  }}
                 >
-                  {clearing && <Loader2 className="h-3 w-3 animate-spin" />}
-                  Confirm Clear
-                </button>
-                <button
-                  onClick={() => setConfirmOpen(false)}
-                  className="rounded-lg border px-4 py-2 text-xs"
-                  style={{ borderColor: "var(--app-border)", color: "var(--app-muted)" }}
-                >
-                  Cancel
+                  {clearing ? "Clearing..." : "Clear retained content"}
                 </button>
               </div>
             </div>
-          )}
-        </SectionPanel>
-      )}
+          </SectionPanel>
+        </>
+      ) : null}
     </div>
   );
 }

@@ -174,6 +174,15 @@ describe("dispatch workers", () => {
     expect(mocks.transitionDispatchState.mock.calls.map(([, , state]) => state)).toEqual([
       "submitted",
     ]);
+    expect(mocks.transitionDispatchState).toHaveBeenNthCalledWith(
+      1,
+      mocks.currentDb,
+      "dispatch-1",
+      "submitted",
+      expect.not.objectContaining({
+        providerPayload: expect.anything(),
+      }),
+    );
     expect(mocks.updateDraftStatusForDispatchSubmission).toHaveBeenCalledWith(
       mocks.currentDb,
       "draft-1",
@@ -256,6 +265,24 @@ describe("dispatch workers", () => {
       "submitted",
       "rejected",
     ]);
+    expect(mocks.transitionDispatchState).toHaveBeenNthCalledWith(
+      1,
+      mocks.currentDb,
+      "dispatch-2",
+      "submitted",
+      expect.not.objectContaining({
+        providerPayload: expect.anything(),
+      }),
+    );
+    expect(mocks.transitionDispatchState).toHaveBeenNthCalledWith(
+      2,
+      mocks.currentDb,
+      "dispatch-2",
+      "rejected",
+      expect.not.objectContaining({
+        providerPayload: expect.anything(),
+      }),
+    );
     expect(mocks.updateDraftStatusForDispatchResolution).toHaveBeenCalledWith(
       mocks.currentDb,
       "draft-2",
@@ -398,6 +425,14 @@ describe("dispatch workers", () => {
     expect(mocks.transitionDispatchState.mock.calls.map(([, , state]) => state)).toEqual([
       "rejected",
     ]);
+    expect(mocks.transitionDispatchState).toHaveBeenCalledWith(
+      mocks.currentDb,
+      "dispatch-4",
+      "rejected",
+      expect.not.objectContaining({
+        providerPayload: expect.anything(),
+      }),
+    );
   });
 
   it("queues the payment receipt email after reconciliation when capture first happens there", async () => {

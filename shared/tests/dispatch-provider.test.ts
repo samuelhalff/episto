@@ -4,6 +4,7 @@ import {
   DispatchProviderCapabilitiesSchema,
   DispatchPackageSchema,
   DispatchQuoteSchema,
+  DispatchSubmitResultSchema,
   DispatchStatusLookupSchema,
   PostalPostageSchema,
 } from "../src/dispatch-provider.ts";
@@ -97,11 +98,15 @@ describe("dispatch provider contracts", () => {
       state: "accepted",
       providerReference: "delivery-5",
       trackingNumber: "98.40.541881.00002354",
-      providerPayload: { status: "DELIVERED" },
       failureReason: null,
       checkedAt: new Date(),
     });
 
     expect(result.trackingNumber).toBe("98.40.541881.00002354");
+  });
+
+  it("does not expose raw provider payload fields in normalized dispatch schemas", () => {
+    expect("providerPayload" in DispatchSubmitResultSchema.shape).toBe(false);
+    expect("providerPayload" in DispatchStatusLookupSchema.shape).toBe(false);
   });
 });

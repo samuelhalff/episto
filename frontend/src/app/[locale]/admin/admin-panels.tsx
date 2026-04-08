@@ -89,7 +89,7 @@ export function OverviewPanel({ overview }: { overview: OverviewResponse }) {
       <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
         Operational Overview
       </h2>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard
           label="Ambiguous Dispatches"
           value={overview.ambiguousDispatchQueue}
@@ -108,6 +108,11 @@ export function OverviewPanel({ overview }: { overview: OverviewResponse }) {
           label="Payments Failed (30d)"
           value={overview.payments.failed ?? 0}
           alert={(overview.payments.failed ?? 0) > 0}
+        />
+        <StatCard
+          label="Suspicious Queue"
+          value={overview.suspiciousActivityQueue}
+          alert={overview.suspiciousActivityQueue > 0}
         />
       </div>
 

@@ -37,6 +37,14 @@ Config keys:
 Public pricing surfaces may show reference totals from the latest stored synced provider snapshot,
 but checkout must use the draft-specific provider quote.
 
+Display-pricing source rules:
+
+- public pricing and blank-draft display pricing read the stored provider rate matrix only
+- the stored matrix is refreshed on a daily schedule and may continue to show the last successful
+  matrix while a refresh is stale or temporarily failing
+- checkout and payment creation must never charge from the stored matrix; they must keep using the
+  live draft-specific provider quote
+
 ---
 
 ## Checkout price model

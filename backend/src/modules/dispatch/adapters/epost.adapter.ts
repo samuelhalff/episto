@@ -14,6 +14,7 @@ import {
 import { AppError, providerOutageError } from "../../../shared/errors/index.js";
 import { env } from "../../../shared/config/index.js";
 import { downloadObjectBuffer } from "../../files/adapters/s3.adapter.js";
+import type { DispatchPricingInput } from "../dispatch-pricing-input.service.js";
 import {
   createAttachmentLimitError,
   createAttachmentMimeTypeError,
@@ -26,6 +27,30 @@ const TOTAL_DELIVERY_LIMIT_BYTES = 2 * 1024 * 1024 * 1024;
 const DEFAULT_POLL_INTERVAL_MS = 1000;
 
 type JsonRecord = Record<string, unknown>;
+
+const REFERENCE_PROBE_SENDER = {
+  firstName: "Swiss",
+  lastName: "Mail",
+  company: "Swiss Mail",
+  addressLine1: "Bahnhofstrasse 1",
+  postalCode: "8001",
+  city: "Zurich",
+  country: "CH",
+  email: null,
+  phone: null,
+} as const satisfies DispatchParty;
+
+const REFERENCE_PROBE_RECIPIENT = {
+  firstName: "Pricing",
+  lastName: "Probe",
+  company: null,
+  addressLine1: "Rue du Rhone 1",
+  postalCode: "1204",
+  city: "Geneva",
+  country: "CH",
+  email: null,
+  phone: null,
+} as const satisfies DispatchParty;
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -185,6 +210,26 @@ function buildSenderAddress(sender: DispatchParty): JsonRecord {
   };
 }
 
+function buildReferencePricingRecipient(): JsonRecord {
+  const { street, streetNumber } = splitStreetAddress(
+    REFERENCE_PROBE_RECIPIENT.addressLine1,
+  );
+
+  return {
+    senderUserId: "pricing-reference-probe",
+    allCredentialShouldMatch: true,
+    unhashedCredentials: {
+      firstName: REFERENCE_PROBE_RECIPIENT.firstName,
+      lastName: REFERENCE_PROBE_RECIPIENT.lastName,
+      companyName: REFERENCE_PROBE_RECIPIENT.company ?? undefined,
+      street,
+      streetNumber: streetNumber || undefined,
+      zipCode: REFERENCE_PROBE_RECIPIENT.postalCode,
+      city: REFERENCE_PROBE_RECIPIENT.city,
+    },
+  };
+}
+
 function buildDocumentMetadata(
   dispatchPackage: DispatchPackage,
   options: { preview: boolean },
@@ -231,6 +276,33 @@ function createJsonFormData(metadata: JsonRecord): FormData {
   const form = new FormData();
   form.append("metadata", JSON.stringify(metadata));
   return form;
+}
+
+function extractPhysicalPreviewPrice(preview: JsonRecord): {
+  pricePreview: JsonRecord | undefined;
+  physicalPrice: JsonRecord | undefined;
+  providerQuotedCents: number | null;
+} {
+  const pricePreview = Array.isArray(preview.pricePreview)
+    ? (preview.pricePreview[0] as JsonRecord | undefined)
+    : undefined;
+  const potentialPrices = Array.isArray(pricePreview?.potentialPrices)
+    ? pricePreview.potentialPrices
+    : [];
+  const physicalPrice = potentialPrices.find(
+    (candidate) =>
+      candidate &&
+      typeof candidate === "object" &&
+      (candidate as JsonRecord).channel === "PHYSICAL",
+  ) as JsonRecord | undefined;
+  const providerPriceRaw = physicalPrice?.price;
+
+  return {
+    pricePreview,
+    physicalPrice,
+    providerQuotedCents:
+      typeof providerPriceRaw === "number" ? Math.round(providerPriceRaw * 100) : null,
+  };
 }
 
 function findFirstTrackingNumber(value: unknown): string | null {
@@ -462,20 +534,10 @@ export class EpostDispatchAdapter {
     });
   }
 
-  async quotePrice(dispatchPackage: DispatchPackage): Promise<DispatchQuote> {
-    const capabilities = this.getCapabilities();
-    validatePackage(dispatchPackage, capabilities);
-
-    const attachmentHandling = getAttachmentHandling(
-      dispatchPackage.attachments.length,
-      capabilities.attachmentPolicy,
-    );
-    const request = createJsonFormData({
-      fileMetadata: [
-        buildDocumentMetadata(dispatchPackage, { preview: true }, capabilities),
-      ],
-    });
-
+  private async createPricingPreview(request: FormData): Promise<{
+    previewId: string;
+    preview: JsonRecord;
+  }> {
     const created = (await this.requestJson(
       "/epost/preview/delivery-prices",
       {
@@ -497,23 +559,98 @@ export class EpostDispatchAdapter {
       });
     }
 
-    const preview = await this.pollPreviewResult(previewId);
-    const pricePreview = Array.isArray(preview.pricePreview)
-      ? (preview.pricePreview[0] as JsonRecord | undefined)
-      : undefined;
-    const potentialPrices = Array.isArray(pricePreview?.potentialPrices)
-      ? pricePreview.potentialPrices
-      : [];
-    const physicalPrice = potentialPrices.find(
-      (candidate) =>
-        candidate &&
-        typeof candidate === "object" &&
-        (candidate as JsonRecord).channel === "PHYSICAL",
-    ) as JsonRecord | undefined;
+    return {
+      previewId,
+      preview: await this.pollPreviewResult(previewId),
+    };
+  }
 
-    const providerPriceRaw = physicalPrice?.price;
-    const providerQuotedCents =
-      typeof providerPriceRaw === "number" ? Math.round(providerPriceRaw * 100) : null;
+  async quoteReferencePrice(input: DispatchPricingInput): Promise<{
+    providerQuotedCents: number;
+    providerQuoteReference: string | null;
+    quotedAt: Date | null;
+  }> {
+    const attachmentHandling = getAttachmentHandling(
+      input.attachmentMode === "single_hint" ? 1 : 0,
+      this.capabilities.attachmentPolicy,
+    );
+
+    if (attachmentHandling === "unverified") {
+      throw createAttachmentLimitError(this.capabilities.attachmentPolicy);
+    }
+
+    const physicalAdditionalInfo: JsonRecord = {
+      shippingCountry: input.shippingCountry,
+      envelopeSize: input.envelopeSize,
+      postage: input.postage,
+      windowLocation: input.windowLocation,
+      duplex: input.duplex,
+      numberOfPage: input.numberOfPage,
+      senderAddress: buildSenderAddress(REFERENCE_PROBE_SENDER),
+    };
+
+    if (input.attachmentMode === "single_hint") {
+      physicalAdditionalInfo.attachment = "reference-attachment.pdf";
+    }
+
+    const request = createJsonFormData({
+      fileMetadata: [
+        {
+          fileName: "reference-pricing.pdf",
+          deliveryChannelPreferences: ["PHYSICAL"],
+          recipients: [buildReferencePricingRecipient()],
+          senderName: getPartyDisplayName(REFERENCE_PROBE_SENDER),
+          senderEndToEndId: "pricing-reference-probe",
+          senderCaseId: "pricing-reference-probe",
+          documentTitle: "reference-pricing",
+          documentTypes: ["message"],
+          physicalAdditionalInfo,
+        },
+      ],
+    });
+
+    const { previewId, preview } = await this.createPricingPreview(request);
+    const { pricePreview, physicalPrice, providerQuotedCents } =
+      extractPhysicalPreviewPrice(preview);
+
+    if (providerQuotedCents === null) {
+      throw new AppError({
+        family: "provider_outage",
+        statusCode: 503,
+        code: "EPOST_REFERENCE_PRICING_UNAVAILABLE",
+        message:
+          extractErrorMessage(physicalPrice) ??
+          extractErrorMessage(pricePreview) ??
+          "ePost preview did not return a usable stored reference price.",
+        userMessage: "Stored postal pricing could not be refreshed.",
+        userAction: "Retry the pricing sync after the provider is available again.",
+      });
+    }
+
+    return {
+      providerQuotedCents,
+      providerQuoteReference: previewId,
+      quotedAt: null,
+    };
+  }
+
+  async quotePrice(dispatchPackage: DispatchPackage): Promise<DispatchQuote> {
+    const capabilities = this.getCapabilities();
+    validatePackage(dispatchPackage, capabilities);
+
+    const attachmentHandling = getAttachmentHandling(
+      dispatchPackage.attachments.length,
+      capabilities.attachmentPolicy,
+    );
+    const request = createJsonFormData({
+      fileMetadata: [
+        buildDocumentMetadata(dispatchPackage, { preview: true }, capabilities),
+      ],
+    });
+
+    const { previewId, preview } = await this.createPricingPreview(request);
+    const { pricePreview, physicalPrice, providerQuotedCents } =
+      extractPhysicalPreviewPrice(preview);
 
     if (providerQuotedCents === null) {
       throw new AppError({
@@ -619,7 +756,6 @@ export class EpostDispatchAdapter {
             ? String(response.deliveryId)
             : null,
       trackingNumber: findFirstTrackingNumber(response),
-      providerPayload: response,
       failureReason: extractErrorMessage(response),
     });
   }
@@ -635,7 +771,6 @@ export class EpostDispatchAdapter {
       state: mapStatusLookup(response.status),
       providerReference,
       trackingNumber: findFirstTrackingNumber(response),
-      providerPayload: response,
       failureReason: extractErrorMessage(response),
       checkedAt: new Date(),
     });

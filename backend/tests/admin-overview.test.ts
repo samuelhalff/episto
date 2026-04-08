@@ -56,7 +56,8 @@ describe("adminOverviewRoutes", () => {
       .mockResolvedValueOnce(makeDispatchResult([]))   // dispatch state counts
       .mockResolvedValueOnce(makeDispatchResult([]))   // payment state counts
       .mockResolvedValueOnce(makeCountResult("0"))     // ambiguous dispatch queue
-      .mockResolvedValueOnce(makeCountResult("0"));    // recent refunds
+      .mockResolvedValueOnce(makeCountResult("0"))     // recent refunds
+      .mockResolvedValueOnce(makeCountResult("0"));    // suspicious queue
   });
 
   it("is a function (Fastify plugin)", () => {
@@ -97,6 +98,7 @@ describe("adminOverviewRoutes", () => {
     expect(body).toHaveProperty("payments");
     expect(body).toHaveProperty("ambiguousDispatchQueue");
     expect(body).toHaveProperty("recentRefunds");
+    expect(body).toHaveProperty("suspiciousActivityQueue");
     expect(body).toHaveProperty("generatedAt");
   });
 
@@ -137,6 +139,7 @@ describe("adminOverviewRoutes", () => {
       ]))
       .mockResolvedValueOnce(makeDispatchResult([]))
       .mockResolvedValueOnce(makeCountResult("0"))
+      .mockResolvedValueOnce(makeCountResult("0"))
       .mockResolvedValueOnce(makeCountResult("0"));
 
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
@@ -167,7 +170,8 @@ describe("adminOverviewRoutes", () => {
       .mockResolvedValueOnce(makeDispatchResult([]))
       .mockResolvedValueOnce(makeDispatchResult([]))
       .mockResolvedValueOnce(makeCountResult("7"))
-      .mockResolvedValueOnce(makeCountResult("3"));
+      .mockResolvedValueOnce(makeCountResult("3"))
+      .mockResolvedValueOnce(makeCountResult("2"));
 
     let capturedHandler: (req: unknown, reply: MockReply) => Promise<void>;
     const mockApp = {
@@ -184,6 +188,7 @@ describe("adminOverviewRoutes", () => {
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
     expect(body.ambiguousDispatchQueue).toBe(7);
     expect(body.recentRefunds).toBe(3);
+    expect(body.suspiciousActivityQueue).toBe(2);
   });
 
   it("returns 500 with OVERVIEW_QUERY_FAILED when DB throws", async () => {

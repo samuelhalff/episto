@@ -17,6 +17,7 @@ const NAV_SECTIONS = [
   {
     label: "Operations",
     items: [
+      { href: "search", label: "Search" },
       { href: "sessions", label: "Sessions" },
       { href: "flags", label: "Flags & Queue" },
     ],

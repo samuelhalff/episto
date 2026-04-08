@@ -21,8 +21,10 @@ export const queryKeys = {
     overview: () => ["admin", "overview"] as const,
     sessions: (page: number, filters: string) => ["admin", "sessions", page, filters] as const,
     session: (id: string) => ["admin", "sessions", id] as const,
+    draftCase: (id: string) => ["admin", "drafts", id, "case"] as const,
     timeline: (draftId: string) => ["admin", "drafts", draftId, "timeline"] as const,
     retention: () => ["admin", "retention"] as const,
     search: (q: string) => ["admin", "search", q] as const,
+    suspicious: () => ["admin", "suspicious"] as const,
   },
 } as const;

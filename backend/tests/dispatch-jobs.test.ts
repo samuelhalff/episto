@@ -30,7 +30,10 @@ vi.mock("bullmq", () => {
 });
 
 vi.mock("../src/shared/config/index.js", () => ({
-  env: () => ({ REDIS_URL: "redis://localhost:6379" }),
+  env: () => ({
+    REDIS_URL: "redis://localhost:6379",
+    DISPATCH_RATE_MATRIX_REFRESH_CRON: "5 6 * * *",
+  }),
 }));
 
 describe("dispatch job helpers", () => {
@@ -87,7 +90,7 @@ describe("dispatch job helpers", () => {
     );
   });
 
-  it("registers an hourly pricing refresh sentinel job", async () => {
+  it("registers the configured daily pricing refresh sentinel job", async () => {
     const { registerScheduledJobs } = await import("../src/queue/index.js");
 
     await registerScheduledJobs();
@@ -97,9 +100,8 @@ describe("dispatch job helpers", () => {
       { reason: "stale_matrix" },
       expect.objectContaining({
         jobId: "scheduled-rate-refresh-sentinel",
-        repeat: { pattern: "5 * * * *" },
+        repeat: { pattern: "5 6 * * *" },
       }),
     );
   });
 });
-

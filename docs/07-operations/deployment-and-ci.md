@@ -226,6 +226,7 @@ All secrets and environment-specific values are injected as environment variable
 | `ADMIN_MICROSOFT_CLIENT_SECRET` | Microsoft app registration client secret for admin login | *(secret)* |
 | `ADMIN_MICROSOFT_TENANT_ID` | WestBay tenant ID — must be an explicit tenant, never `"common"` | *(secret / env-specific)* |
 | `ADMIN_MICROSOFT_REDIRECT_URI` | Fallback backend callback URL for admin Microsoft login. Runtime prefers the current request origin when constructing the OAuth callback, but the Azure app registration must still allow the public and local callback URLs you use. | `https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback` |
+| `DISPATCH_RATE_MATRIX_REFRESH_CRON` | Daily cron for refreshing the stored dispatch rate matrix used by non-checkout pricing displays | `5 6 * * *` |
 | `NODE_ENV` | Runtime environment | `production` / `development` / `test` |
 | `PORT` | HTTP port (backend) | `4000` |
 | `LOG_LEVEL` | Pino log level | `info` |
@@ -245,6 +246,31 @@ All secrets and environment-specific values are injected as environment variable
 - `NEXT_PUBLIC_*` variables are embedded at build time. They must not contain secrets.
 - `DATABASE_URL`, `STRIPE_SECRET_KEY`, and `SESSION_SECRET` are the highest-sensitivity variables. Rotate immediately if compromised.
 - Use separate values for staging and production for every variable.
+
+### Stored pricing refresh operations
+
+- `DISPATCH_RATE_MATRIX_REFRESH_CRON` controls the daily BullMQ sentinel that refreshes the stored
+  dispatch rate matrix for public and draft display pricing.
+- Production and staging should run the API and worker with the same cron value so the stored
+  matrix refresh path stays predictable.
+- After deployment, repair, or matrix-loss recovery, seed the stored matrix manually with:
+
+```bash
+npm run dispatch:refresh-rates --workspace=backend
+```
+
+- For the dev Docker stack used behind the `:5000` local proxy handoff, run the same seed path inside
+  the backend container:
+
+```bash
+docker compose exec -T backend npm run dispatch:refresh-rates -w backend
+```
+
+- The manual seed command uses the same backend sync service as the scheduled worker and prints the
+  resulting matrix version metadata for operator confirmation.
+- A healthy seed leaves exactly one active `provider_rate_matrix_versions` row for `epost` and 20
+  `provider_rate_matrix_entries` rows for that version. Public pricing should then report `sync`
+  metadata instead of `PRICING_UNAVAILABLE`.
 
 ---
 

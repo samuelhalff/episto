@@ -287,7 +287,6 @@ export const DispatchStatusEventSchema = z.object({
   previousState: DispatchStateSchema.nullable(),
   newState: DispatchStateSchema,
   source: z.enum(["webhook", "polling", "manual", "system"]),
-  providerEventData: z.unknown().nullable(),
   createdAt: z.coerce.date(),
 });
 

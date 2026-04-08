@@ -5,7 +5,6 @@ import { requireAdmin } from "../../shared/middleware/require-admin.js";
 import {
   recordSupportEvent,
   listSupportEventsForDraft,
-  listSupportEventsForSession,
 } from "./index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { adminActionRoutes } from "./admin-actions.routes.js";
@@ -14,6 +13,8 @@ import { adminOverviewRoutes } from "./admin-overview.routes.js";
 import { adminMetricsRoutes } from "./admin-metrics.routes.js";
 import { adminSessionsRoutes } from "./admin-sessions.routes.js";
 import { adminRetentionRoutes } from "./admin-retention.routes.js";
+import { adminCaseRoutes } from "./admin-case.routes.js";
+import { adminFlagsRoutes } from "./admin-flags.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin read-only routes (timeline, session details, content access)
@@ -120,52 +121,6 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // GET /admin/sessions/:id — session details with drafts
-  app.get<{ Params: { id: string } }>(
-    "/admin/sessions/:id",
-    async (request, reply) => {
-      const db = getDb();
-      const { id } = request.params;
-
-      const [session] = await db
-        .select()
-        .from(schema.sessions)
-        .where(eq(schema.sessions.id, id))
-        .limit(1);
-
-      if (!session) {
-        throw notFoundError("session");
-      }
-
-      const drafts = await db
-        .select({
-          id: schema.draftLetters.id,
-          status: schema.draftLetters.status,
-          createdAt: schema.draftLetters.createdAt,
-        })
-        .from(schema.draftLetters)
-        .where(eq(schema.draftLetters.sessionId, id))
-        .orderBy(desc(schema.draftLetters.createdAt));
-
-      const supportEvents = await listSupportEventsForSession(db, id);
-
-      // Metadata only — no content access without explicit support event
-      reply.send({
-        session: {
-          id: session.id,
-          type: session.type,
-          locale: session.locale,
-          email: session.email,
-          ipAddress: session.ipAddress,
-          createdAt: session.createdAt,
-          expiresAt: session.expiresAt,
-        },
-        drafts,
-        supportEvents,
-      });
-    },
-  );
-
   // POST /admin/drafts/:id/view-content — privileged content access (audited)
   app.post<{ Params: { id: string } }>(
     "/admin/drafts/:id/view-content",
@@ -220,6 +175,9 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
   // Register admin overview/dashboard counters endpoint
   await app.register(adminOverviewRoutes);
+
+  await app.register(adminCaseRoutes);
+  await app.register(adminFlagsRoutes);
 
   // Register analytics dashboard endpoints
   await app.register(adminMetricsRoutes);

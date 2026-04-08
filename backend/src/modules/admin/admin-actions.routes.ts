@@ -5,10 +5,39 @@ import { AppError } from "../../shared/errors/index.js";
 import { recordSupportEvent } from "./index.js";
 import { createRefund } from "../payments/adapters/stripe.adapter.js";
 import { transitionPaymentState } from "../payments/payment.service.js";
+import type { AdminSearchResponse, AdminSearchResultItem } from "@swiss-mail/shared";
 
 // ---------------------------------------------------------------------------
 // Admin action & search routes (split from admin.routes.ts per file-size rules)
 // ---------------------------------------------------------------------------
+
+type SearchTargetInput = Pick<
+  AdminSearchResultItem,
+  "kind" | "id" | "draftId" | "sessionId"
+>;
+
+export function getAdminSearchResultTarget(
+  input: SearchTargetInput,
+): { draftId: string | null; sessionId: string | null } {
+  if (input.kind === "session") {
+    return {
+      draftId: null,
+      sessionId: input.sessionId ?? input.id,
+    };
+  }
+
+  return {
+    draftId: input.draftId,
+    sessionId: input.sessionId,
+  };
+}
+
+export function canManuallyReconcileDispatch(
+  state: string,
+  providerReference: string | null,
+): boolean {
+  return ["submitted", "unknown"].includes(state) && Boolean(providerReference?.trim());
+}
 
 export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
   // GET /admin/search?q=... — search sessions/drafts by email or ID
@@ -25,14 +54,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         return;
       }
 
-      interface SearchResultItem {
-        kind: "draft" | "session" | "payment_attempt" | "dispatch_attempt";
-        id: string;
-        label: string;
-        matchedOn: string;
-        createdAt: string;
-      }
-      const data: SearchResultItem[] = [];
+      const data: AdminSearchResultItem[] = [];
 
       const pattern = `%${q}%`;
 
@@ -60,6 +82,8 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
           label: s.email ?? `Session ${s.id.slice(0, 8)}`,
           matchedOn: s.id === q ? "id" : "email",
           createdAt: s.createdAt.toISOString(),
+          draftId: null,
+          sessionId: s.id,
         });
       }
 
@@ -82,6 +106,8 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
           label: `Draft ${d.id.slice(0, 8)} (${d.status})`,
           matchedOn: "id",
           createdAt: d.createdAt.toISOString(),
+          draftId: d.id,
+          sessionId: d.sessionId,
         });
       }
 
@@ -90,6 +116,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         .select({
           id: schema.paymentAttempts.id,
           draftId: schema.paymentAttempts.draftId,
+          sessionId: schema.paymentAttempts.sessionId,
           state: schema.paymentAttempts.state,
           stripePaymentIntentId: schema.paymentAttempts.stripePaymentIntentId,
           createdAt: schema.paymentAttempts.createdAt,
@@ -110,6 +137,8 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
           label: `Payment ${p.id.slice(0, 8)} (${p.state})`,
           matchedOn: p.id === q ? "id" : "stripePaymentIntentId",
           createdAt: p.createdAt.toISOString(),
+          draftId: p.draftId,
+          sessionId: p.sessionId,
         });
       }
 
@@ -138,6 +167,8 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
           label: `Dispatch ${d.id.slice(0, 8)} (${d.state})`,
           matchedOn: d.id === q ? "id" : "providerReference",
           createdAt: d.createdAt.toISOString(),
+          draftId: d.draftId,
+          sessionId: null,
         });
       }
 
@@ -147,10 +178,12 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
       // Truncate to limit
       const truncated = data.slice(0, limit);
 
-      reply.send({
+      const response: AdminSearchResponse = {
         data: truncated,
         hasMore: data.length > limit,
-      });
+      };
+
+      reply.send(response);
     },
   );
 

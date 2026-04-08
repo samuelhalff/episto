@@ -10,6 +10,9 @@ This file defines the support operating posture that the admin build pack must i
 
 Support for Swiss Mail is **metadata-first and API-submission aware**.
 
+This is strict for provider data: admin may use the minimum provider references needed to re-query
+or reconcile ePost, but admin must not become a raw provider payload archive.
+
 Support is not answering "did we print it yet?" Support is answering questions such as:
 
 - did payment authorize or capture?
@@ -26,6 +29,7 @@ Support is not answering "did we print it yet?" Support is answering questions s
 - provider reference when a real one exists
 - refund / manual-review state
 - retention status for letter content and file assets
+- whether a provider-backed dispatch can be safely re-queried using the retained reference only
 
 ## Support must not do
 
@@ -33,6 +37,7 @@ Support is not answering "did we print it yet?" Support is answering questions s
 - expose raw provider error payloads directly to users
 - imply delivery when the state is only `submitted` or `accepted`
 - rely on retained letter content when metadata already explains the case
+- retain or display raw ePost payloads in admin as a support shortcut
 
 ## Launch service posture
 

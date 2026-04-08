@@ -12,6 +12,7 @@ its own.
 - Separate letter-content retention from transactional metadata retention
 - Keep admin access narrow, authenticated, and auditable
 - Treat AI output as suggestion, never as authority
+- Retain only the minimum provider metadata needed to re-query or reconcile dispatch state
 
 ## Security rules
 
@@ -21,6 +22,7 @@ its own.
 - Use short-lived signed tokens for guest resume flows
 - Log all privileged support and admin actions as `support_event` records
 - Isolate raw provider payloads from user-facing rendering — normalize before exposing
+- Do not persist raw ePost request or response payloads for admin inspection or convenience
 
 ## Security headers — LOCKED (IMPROV-7)
 
@@ -76,6 +78,8 @@ with nonces in production when the rendering pipeline is stable.
 - Do not keep attachments or rendered PDFs "just in case" — delete on policy expiry
 - Do not create hidden permanent archives from application logs
 - Content retention and transactional metadata retention use separate, configurable TTLs
+- Provider retention must stay metadata-first: keep references, normalized state, timestamps, and
+  failure categories only
 
 ## Data access and deletion operations
 
@@ -169,6 +173,21 @@ deliberately removed.
 
 When processing a deletion request, document which providers were contacted or acknowledged and
 which retain data outside our control.
+
+### ePost minimal-retention rule
+
+For ePost-backed dispatches, application storage may retain only the minimum provider metadata
+needed to support reconciliation and support operations:
+
+- provider name
+- provider reference
+- tracking number when a real one exists
+- normalized dispatch state
+- normalized failure reason
+- submission and last-check timestamps
+
+Application storage must **not** retain raw ePost request payloads, raw ePost response payloads, or
+raw status-event blobs as an admin convenience feature.
 
 ### Audit record for access and deletion actions
 

@@ -5,6 +5,10 @@
 Keep operations minimal, auditable, and useful. The admin area exists to support operations — not
 to become a content warehouse or a shadow editor.
 
+Provider integrations follow the same rule: admin may keep only the minimum provider references and
+normalized state needed to reconcile or re-query a dispatch. Raw provider payload retention is out
+of scope.
+
 ## Admin authentication — LOCKED (IMPROV-8)
 
 **Operator auth uses backend-managed Microsoft SSO over TLS. Only signed admin session cookies are accepted; no Basic Auth fallback exists.**

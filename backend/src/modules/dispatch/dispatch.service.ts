@@ -22,7 +22,6 @@ export interface DispatchAttemptRow {
   providerName: string;
   providerReference: string | null;
   trackingNumber: string | null;
-  providerPayload: unknown;
   submittedAt: Date | null;
   lastCheckedAt: Date | null;
   failureReason: string | null;
@@ -36,7 +35,6 @@ export interface DispatchStatusEventRow {
   previousState: string | null;
   newState: string;
   source: string;
-  providerEventData: unknown;
   createdAt: Date;
 }
 
@@ -52,7 +50,6 @@ function toDispatchRow(
     providerName: row.providerName,
     providerReference: row.providerReference,
     trackingNumber: row.trackingNumber ?? null,
-    providerPayload: row.providerPayload,
     submittedAt: row.submittedAt,
     lastCheckedAt: row.lastCheckedAt,
     failureReason: row.failureReason,
@@ -70,7 +67,6 @@ function toEventRow(
     previousState: row.previousState,
     newState: row.newState,
     source: row.source,
-    providerEventData: row.providerEventData,
     createdAt: row.createdAt,
   };
 }
@@ -163,7 +159,6 @@ export async function transitionDispatchState(
   extra?: {
     providerReference?: string | undefined;
     trackingNumber?: string | undefined | null;
-    providerPayload?: unknown | undefined;
     failureReason?: string | undefined;
   } | undefined,
 ): Promise<DispatchAttemptRow> {
@@ -202,9 +197,6 @@ export async function transitionDispatchState(
   if (extra?.trackingNumber !== undefined) {
     values.trackingNumber = extra.trackingNumber;
   }
-  if (extra?.providerPayload !== undefined) {
-    values.providerPayload = extra.providerPayload;
-  }
   if (extra?.failureReason !== undefined) {
     values.failureReason = extra.failureReason;
   }
@@ -242,7 +234,6 @@ export async function recordDispatchEvent(
     previousState: string | null;
     newState: string;
     source: string;
-    providerEventData?: unknown | undefined;
   },
 ): Promise<DispatchStatusEventRow> {
   const [row] = await db
@@ -252,7 +243,6 @@ export async function recordDispatchEvent(
       previousState: data.previousState as DispatchStateValue | null,
       newState: data.newState as DispatchStateValue,
       source: data.source,
-      providerEventData: data.providerEventData ?? null,
     })
     .returning();
 

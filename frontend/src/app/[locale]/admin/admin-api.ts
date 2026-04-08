@@ -42,7 +42,33 @@ export interface OverviewResponse {
   payments: Record<string, number>;
   ambiguousDispatchQueue: number;
   recentRefunds: number;
+  suspiciousActivityQueue: number;
   generatedAt: string;
+}
+
+async function readApiError(res: Response): Promise<string> {
+  try {
+    const body = (await res.json()) as
+      | { error?: string | { message?: string } }
+      | undefined;
+
+    if (typeof body?.error === "string" && body.error.trim()) {
+      return body.error;
+    }
+
+    if (
+      body?.error &&
+      typeof body.error === "object" &&
+      typeof body.error.message === "string" &&
+      body.error.message.trim()
+    ) {
+      return body.error.message;
+    }
+  } catch {
+    // Ignore JSON parse errors and fall back to the status code.
+  }
+
+  return `API error ${res.status}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -57,7 +83,7 @@ export async function adminFetch<T>(path: string): Promise<T> {
     },
   });
   if (!res.ok) {
-    throw new Error(`API error ${res.status}`);
+    throw new Error(await readApiError(res));
   }
   return res.json() as Promise<T>;
 }
@@ -71,7 +97,7 @@ export async function fetchAdminAuthSession(): Promise<AdminSessionStatus> {
   });
 
   if (!res.ok) {
-    throw new Error(`API error ${res.status}`);
+    throw new Error(await readApiError(res));
   }
 
   return res.json() as Promise<AdminSessionStatus>;
@@ -87,7 +113,7 @@ export async function adminLogout(): Promise<void> {
   });
 
   if (!res.ok) {
-    throw new Error(`API error ${res.status}`);
+    throw new Error(await readApiError(res));
   }
 }
 
@@ -103,6 +129,11 @@ import type {
   AdminLocaleResponse,
   AdminAiResponse,
   AdminSessionListResponse,
+  AdminSessionDetailResponse,
+  AdminSearchResponse,
+  AdminDraftCaseResponse,
+  AdminDraftTimelineResponse,
+  AdminSuspiciousQueueResponse,
   AdminRetentionInfo,
 } from "@swiss-mail/shared";
 
@@ -134,6 +165,26 @@ export async function fetchAdminSessions(params = "") {
   return adminFetch<AdminSessionListResponse>(`/admin/sessions?${params}`);
 }
 
+export async function fetchAdminSession(id: string) {
+  return adminFetch<AdminSessionDetailResponse>(`/admin/sessions/${id}`);
+}
+
+export async function fetchAdminSearch(q: string) {
+  return adminFetch<AdminSearchResponse>(`/admin/search?q=${encodeURIComponent(q)}`);
+}
+
+export async function fetchAdminDraftCase(id: string) {
+  return adminFetch<AdminDraftCaseResponse>(`/admin/drafts/${id}`);
+}
+
+export async function fetchAdminDraftTimeline(id: string) {
+  return adminFetch<AdminDraftTimelineResponse>(`/admin/drafts/${id}/timeline`);
+}
+
+export async function fetchAdminSuspiciousQueue() {
+  return adminFetch<AdminSuspiciousQueueResponse>("/admin/flags/suspicious");
+}
+
 export async function fetchAdminRetention() {
   return adminFetch<AdminRetentionInfo>("/admin/retention");
 }
@@ -148,6 +199,6 @@ export async function adminPost<T>(path: string, body?: unknown): Promise<T> {
     },
     ...(body !== undefined && { body: JSON.stringify(body) }),
   });
-  if (!res.ok) throw new Error(`API error ${res.status}`);
+  if (!res.ok) throw new Error(await readApiError(res));
   return res.json() as Promise<T>;
 }

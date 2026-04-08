@@ -365,7 +365,6 @@ export const dispatchAttempts = pgTable(
     providerName: text("provider_name").notNull(),
     providerReference: text("provider_reference"),
     trackingNumber: text("tracking_number"),
-    providerPayload: jsonb("provider_payload"),
     submittedAt: ts("submitted_at"),
     lastCheckedAt: ts("last_checked_at"),
     failureReason: text("failure_reason"),
@@ -397,7 +396,6 @@ export const dispatchStatusEvents = pgTable(
     previousState: dispatchStateEnum("previous_state"),
     newState: dispatchStateEnum("new_state").notNull(),
     source: text("source").notNull(),
-    providerEventData: jsonb("provider_event_data"),
     createdAt: createdAt(),
   },
   (t) => ({

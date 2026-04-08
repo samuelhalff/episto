@@ -12,7 +12,7 @@ import {
   hashDispatchPricingInput,
   type DispatchPricingInput,
 } from "./dispatch-pricing-input.service.js";
-import { getActiveMatrixQuote } from "./dispatch-rate-matrix.service.js";
+import { getStoredMatrixQuote } from "./dispatch-rate-matrix.service.js";
 import {
   getFreshLiveQuoteByHash,
   storeResolvedQuote,
@@ -86,12 +86,11 @@ export interface ResolvedDispatchQuote {
   };
 }
 
-async function resolveDispatchQuoteFromCacheOrMatrix(
+async function resolveDispatchQuoteFromStoredMatrix(
   db: Db,
   source: PricingSource,
-  _options: { purpose: "display" },
 ): Promise<ResolvedDispatchQuote> {
-  const matrixRow = await getActiveMatrixQuote(db, source.pricingInput);
+  const matrixRow = await getStoredMatrixQuote(db, source.pricingInput);
 
   if (!matrixRow) {
     throw validationError(
@@ -164,7 +163,7 @@ export async function resolveDisplayDispatchQuoteForDraft(
   draftId: string,
 ): Promise<ResolvedDispatchQuote> {
   const source = await buildPricingSourceForDraft(db, draftId);
-  return resolveDispatchQuoteFromCacheOrMatrix(db, source, { purpose: "display" });
+  return resolveDispatchQuoteFromStoredMatrix(db, source);
 }
 
 async function resolveDispatchQuoteFromCacheOrLiveProvider(

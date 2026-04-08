@@ -94,7 +94,6 @@ export async function processReconcileDispatchJob(
       await transitionDispatchState(db, dispatchAttemptId, status.state, {
         providerReference: status.providerReference ?? undefined,
         trackingNumber: status.trackingNumber,
-        providerPayload: status.providerPayload,
         failureReason: status.failureReason ?? undefined,
       });
 
@@ -124,7 +123,6 @@ export async function processReconcileDispatchJob(
       await transitionDispatchState(db, dispatchAttemptId, status.state, {
         providerReference: status.providerReference ?? undefined,
         trackingNumber: status.trackingNumber,
-        providerPayload: status.providerPayload,
         failureReason: status.failureReason ?? undefined,
       });
     }
@@ -133,7 +131,6 @@ export async function processReconcileDispatchJob(
       .update(schema.dispatchAttempts)
       .set({
         lastCheckedAt: new Date(),
-        providerPayload: status.providerPayload,
         trackingNumber: status.trackingNumber,
       })
       .where(eq(schema.dispatchAttempts.id, dispatchAttemptId));

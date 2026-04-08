@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
 import { getDb } from "../../db/index.js";
+import { countSuspiciousSessions } from "./admin-flags.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin overview/dashboard endpoint
@@ -32,6 +33,7 @@ interface OverviewResponse {
   payments: PaymentStateCounts;
   ambiguousDispatchQueue: number;
   recentRefunds: number;
+  suspiciousActivityQueue: number;
   generatedAt: string;
 }
 
@@ -106,12 +108,14 @@ export async function adminOverviewRoutes(app: FastifyInstance): Promise<void> {
           AND updated_at > NOW() - INTERVAL '7 days'
       `);
       const recentRefunds = Number(refundResult.rows[0]?.count ?? 0);
+      const suspiciousActivityQueue = await countSuspiciousSessions();
 
       const overview: OverviewResponse = {
         dispatch,
         payments,
         ambiguousDispatchQueue,
         recentRefunds,
+        suspiciousActivityQueue,
         generatedAt: new Date().toISOString(),
       };
 

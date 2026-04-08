@@ -43,6 +43,7 @@ vi.mock("../src/shared/config/index.js", () => ({
     REDIS_URL: "redis://localhost:6379",
     DATABASE_URL: "postgresql://localhost/test",
     CONTENT_RETENTION_DAYS: 7,
+    DISPATCH_RATE_MATRIX_REFRESH_CRON: "5 6 * * *",
   }),
 }));
 
@@ -154,6 +155,18 @@ describe("registerScheduledJobs", () => {
       expect.objectContaining({
         repeat: { pattern: "0 * * * *" },
         jobId: "scheduled-cleanup",
+      }),
+    );
+  });
+
+  it("registers a repeatable pricing refresh job with the configured cron pattern", async () => {
+    await registerScheduledJobs();
+    expect(addSpy).toHaveBeenCalledWith(
+      "scheduled-rate-refresh-sentinel",
+      { reason: "stale_matrix" },
+      expect.objectContaining({
+        repeat: { pattern: "5 6 * * *" },
+        jobId: "scheduled-rate-refresh-sentinel",
       }),
     );
   });

@@ -95,7 +95,6 @@ export async function processSubmitDispatchJob(
   await transitionDispatchState(db, attempt.id, "submitted", {
     providerReference: result.providerReference ?? undefined,
     trackingNumber: result.trackingNumber ?? undefined,
-    providerPayload: result.providerPayload,
   });
 
   recordEvent({
@@ -130,7 +129,6 @@ export async function processSubmitDispatchJob(
       await transitionDispatchState(db, attempt.id, result.state, {
         providerReference: result.providerReference ?? undefined,
         trackingNumber: result.trackingNumber ?? undefined,
-        providerPayload: result.providerPayload,
         failureReason: result.failureReason ?? undefined,
       });
 
