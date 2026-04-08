@@ -3,7 +3,7 @@ import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
-import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
 import {
   createPaymentAttempt,
   getPaymentAttemptById,
@@ -278,60 +278,102 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       // Use a transaction to prevent concurrent checkout race conditions.
       // Re-check for existing non-terminal payment inside the transaction.
       const NON_TERMINAL_STATES = ["pending", "authorized", "captured", "refund_pending"];
-      const result = await db.transaction(async (tx) => {
-        if (body.email) {
-          await tx
-            .update(schema.sessions)
-            .set({ email: body.email, updatedAt: new Date() })
-            .where(eq(schema.sessions.id, session.id));
-        }
+      const createOrResumeCheckout = async () =>
+        db.transaction(async (tx) => {
+          if (body.email) {
+            await tx
+              .update(schema.sessions)
+              .set({ email: body.email, updatedAt: new Date() })
+              .where(eq(schema.sessions.id, session.id));
+          }
 
-        const existing = await getPaymentForDraft(tx, draftId);
-        if (existing && NON_TERMINAL_STATES.includes(existing.state)) {
+          const existing = await getPaymentForDraft(tx, draftId);
+          if (existing && NON_TERMINAL_STATES.includes(existing.state)) {
+            return {
+              isExisting: true as const,
+              paymentAttemptId: existing.id,
+              paymentState: existing.state,
+              stripePaymentIntentId: existing.stripePaymentIntentId,
+              clientSecret: null as string | null,
+              priceCents: existing.amountCents,
+              quote: existing.breakdown,
+            };
+          }
+
+          const payment = await createPaymentAttempt(tx, {
+            draftId,
+            sessionId: session.id,
+            amountCents,
+            breakdown: {
+              deliveryType: resolvedPaymentQuote.quote.deliveryType,
+              providerQuotedCents: resolvedPaymentQuote.quote.providerQuotedCents,
+              swissMailMarkupCents: resolvedPaymentQuote.quote.swissMailMarkupCents,
+              totalCents: resolvedPaymentQuote.quote.totalCents,
+              providerQuoteReference: resolvedPaymentQuote.quote.providerQuoteReference,
+              attachmentHandling: resolvedPaymentQuote.quote.attachmentHandling,
+              lineItems: resolvedPaymentQuote.quote.lineItems,
+            },
+          });
+
+          const stripeResult = await createPaymentIntent(amountCents, {
+            draftId,
+            sessionId: session.id,
+            paymentAttemptId: payment.id,
+          });
+
+          await setPaymentIntentId(tx, payment.id, stripeResult.paymentIntentId);
+
           return {
-            isExisting: true as const,
-            paymentAttemptId: existing.id,
-            paymentState: existing.state,
-            stripePaymentIntentId: existing.stripePaymentIntentId,
-            clientSecret: null as string | null,
-            priceCents: existing.amountCents,
-            quote: existing.breakdown,
+            isExisting: false as const,
+            paymentAttemptId: payment.id,
+            paymentState: payment.state,
+            stripePaymentIntentId: stripeResult.paymentIntentId,
+            clientSecret: stripeResult.clientSecret,
+            priceCents: amountCents,
+            quote: resolvedPaymentQuote.quote,
           };
+        });
+
+      let result = await createOrResumeCheckout();
+
+      if (result.isExisting) {
+        try {
+          const clientSecret =
+            result.paymentState === "pending" && result.stripePaymentIntentId
+              ? await getPaymentIntentClientSecret(result.stripePaymentIntentId)
+              : null;
+
+          return reply.send({
+            paymentAttemptId: result.paymentAttemptId,
+            clientSecret,
+            priceCents: result.priceCents,
+            currency: "CHF" as const,
+            quote: result.quote,
+          });
+        } catch (error) {
+          if (
+            error instanceof AppError &&
+            error.code === "PAYMENT_INVALID_REQUEST" &&
+            result.paymentState === "pending" &&
+            result.stripePaymentIntentId
+          ) {
+            request.log.warn(
+              {
+                draftId,
+                paymentAttemptId: result.paymentAttemptId,
+                stripePaymentIntentId: result.stripePaymentIntentId,
+                stripeError: error.message,
+              },
+              "Cancelling stale pending Stripe payment intent before recreating checkout",
+            );
+
+            await transitionPaymentState(db, result.paymentAttemptId, "cancelled");
+            result = await createOrResumeCheckout();
+          } else {
+            throw error;
+          }
         }
-
-        const payment = await createPaymentAttempt(tx, {
-          draftId,
-          sessionId: session.id,
-          amountCents,
-          breakdown: {
-            deliveryType: resolvedPaymentQuote.quote.deliveryType,
-            providerQuotedCents: resolvedPaymentQuote.quote.providerQuotedCents,
-            swissMailMarkupCents: resolvedPaymentQuote.quote.swissMailMarkupCents,
-            totalCents: resolvedPaymentQuote.quote.totalCents,
-            providerQuoteReference: resolvedPaymentQuote.quote.providerQuoteReference,
-            attachmentHandling: resolvedPaymentQuote.quote.attachmentHandling,
-            lineItems: resolvedPaymentQuote.quote.lineItems,
-          },
-        });
-
-        const stripeResult = await createPaymentIntent(amountCents, {
-          draftId,
-          sessionId: session.id,
-          paymentAttemptId: payment.id,
-        });
-
-        await setPaymentIntentId(tx, payment.id, stripeResult.paymentIntentId);
-
-        return {
-          isExisting: false as const,
-          paymentAttemptId: payment.id,
-          paymentState: payment.state,
-          stripePaymentIntentId: stripeResult.paymentIntentId,
-          clientSecret: stripeResult.clientSecret,
-          priceCents: amountCents,
-          quote: resolvedPaymentQuote.quote,
-        };
-      });
+      }
 
       if (result.isExisting) {
         const clientSecret =

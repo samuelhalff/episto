@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
     update: vi.fn(),
   },
   getPaymentForDraft: vi.fn(),
+  transitionPaymentState: vi.fn(),
   createPaymentAttempt: vi.fn(),
   setPaymentIntentId: vi.fn(),
   createPaymentIntent: vi.fn(),
@@ -47,7 +48,7 @@ vi.mock("../src/modules/payments/payment.service.js", () => ({
   getPaymentAttemptById: vi.fn(),
   getPaymentForDraft: mocks.getPaymentForDraft,
   setPaymentIntentId: mocks.setPaymentIntentId,
-  transitionPaymentState: vi.fn(),
+  transitionPaymentState: mocks.transitionPaymentState,
 }));
 
 vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
@@ -131,6 +132,13 @@ describe("payment checkout routes", () => {
       clientSecret: "cs_test_1",
     });
     mocks.setPaymentIntentId.mockResolvedValue(undefined);
+    mocks.transitionPaymentState.mockResolvedValue({
+      payment: {
+        id: "payment-old",
+        state: "cancelled",
+      },
+      rawOrderAccessToken: null,
+    });
 
     app = Fastify();
     app.setErrorHandler((error, request, reply) => {
@@ -159,5 +167,54 @@ describe("payment checkout routes", () => {
     expect(mocks.db.transaction).toHaveBeenCalledTimes(1);
     expect(mocks.tx.update).toHaveBeenCalledWith({ id: "session_id" });
     expect(mocks.db.update).not.toHaveBeenCalled();
+  });
+
+  it("cancels a stale pending payment intent and creates a fresh one when Stripe can no longer find it", async () => {
+    mocks.getPaymentForDraft
+      .mockResolvedValueOnce({
+        id: "payment-old",
+        state: "pending",
+        stripePaymentIntentId: "pi_stale",
+        amountCents: 625,
+        breakdown: {
+          deliveryType: "standard",
+          providerQuotedCents: 290,
+          swissMailMarkupCents: 335,
+          totalCents: 625,
+          providerQuoteReference: "quote-old",
+          attachmentHandling: "excluded",
+          lineItems: [],
+        },
+      })
+      .mockResolvedValueOnce(null);
+    mocks.getPaymentIntentClientSecret.mockRejectedValueOnce(
+      new AppError({
+        family: "payment_failure",
+        statusCode: 400,
+        code: "PAYMENT_INVALID_REQUEST",
+        message: "No such payment_intent: 'pi_stale'",
+        userMessage: "The payment request was invalid.",
+        userAction: "Please try again or use a different payment method.",
+      }),
+    );
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.transitionPaymentState).toHaveBeenCalledWith(
+      mocks.db,
+      "payment-old",
+      "cancelled",
+    );
+    expect(mocks.createPaymentAttempt).toHaveBeenCalledTimes(1);
+    expect(mocks.createPaymentIntent).toHaveBeenCalledTimes(1);
+    expect(response.json()).toMatchObject({
+      paymentAttemptId: "payment-1",
+      clientSecret: "cs_test_1",
+    });
   });
 });
