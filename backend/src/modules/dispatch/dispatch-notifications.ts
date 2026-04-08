@@ -60,6 +60,6 @@ export async function enqueueDispatchAcceptedEmail(
   };
 
   await getQueue(QUEUE_NAMES.SEND_EMAIL).add("dispatch-accepted", job, {
-    jobId: `dispatch-accepted:${args.dispatchAttemptId}`,
+    jobId: `dispatch-accepted-${args.dispatchAttemptId}`,
   });
 }

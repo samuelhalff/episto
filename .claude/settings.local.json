@@ -14,7 +14,9 @@
       "WebFetch(domain:euro-stack.com)",
       "WebFetch(domain:docs.infomaniak.cloud)",
       "WebFetch(domain:news.infomaniak.com)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "Bash(ls:*)",
+      "WebFetch(domain:claude.ai)"
     ]
   }
 }

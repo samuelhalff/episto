@@ -44,6 +44,8 @@ describe("deployment topology", () => {
     expect(proxyBlock).toContain("./nginx/ark-fid-proxy.conf:/etc/nginx/conf.d/default.conf:ro");
     expect(frontendBlock).toContain("restart: unless-stopped");
     expect(backendBlock).toContain("restart: unless-stopped");
+    expect(backendBlock).toContain("npm run db:migrate:dev -w backend");
+    expect(backendBlock).toContain("/api/readiness");
     expect(postgresBlock).toContain("restart: unless-stopped");
     expect(redisBlock).toContain("restart: unless-stopped");
     expect(minioBlock).toContain("restart: unless-stopped");
@@ -66,6 +68,7 @@ describe("deployment topology", () => {
     expect(frontendBlock).toContain("NEXT_PUBLIC_APP_ENV: production");
     expect(frontendBlock).not.toContain('- "3000:3000"');
     expect(backendBlock).toContain("CORS_ORIGIN: https://swissmail.ch,https://www.swissmail.ch");
+    expect(backendBlock).toContain("/api/readiness");
     expect(backendBlock).not.toContain('- "4000:4000"');
     expect(postgresBlock).toContain("restart: unless-stopped");
     expect(redisBlock).toContain("restart: unless-stopped");

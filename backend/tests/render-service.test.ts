@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { PDFDocument } from "pdf-lib";
 
 import { AppError } from "../src/shared/errors/index.js";
 
@@ -105,12 +106,22 @@ function mockDbWithSelectResults(...results: unknown[][]) {
   return select;
 }
 
+async function createPdfBuffer(pageCount = 1): Promise<Buffer> {
+  const pdf = await PDFDocument.create();
+
+  for (let pageIndex = 0; pageIndex < pageCount; pageIndex += 1) {
+    pdf.addPage([595, 842]);
+  }
+
+  return Buffer.from(await pdf.save());
+}
+
 describe("render.service", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
     mocks.launch.mockResolvedValue(mocks.browser);
     mocks.page.setContent.mockResolvedValue(undefined);
-    mocks.page.pdf.mockResolvedValue(Buffer.from("%PDF-1.7\n1 0 obj\n/Type /Page\n"));
+    mocks.page.pdf.mockResolvedValue(await createPdfBuffer());
     mocks.page.close.mockResolvedValue(undefined);
     mocks.createFileAsset.mockResolvedValue({ id: "rendered-asset-1" });
     mocks.uploadObject.mockResolvedValue(undefined);
@@ -323,5 +334,69 @@ describe("render.service", () => {
     expect(html).toContain("text-align: right");
     expect(html).toContain("Sam Sender");
     expect(html).toContain("Receiver AG");
+  });
+
+  it("counts every page in a generated multi-page pdf buffer", async () => {
+    mocks.page.pdf.mockResolvedValueOnce(await createPdfBuffer(6));
+
+    mockDbWithSelectResults(
+      [
+        {
+          id: "snapshot-4",
+          draftId: "draft-4",
+          version: 1,
+          snapshotData: {
+            schemaVersion: 1,
+            locale: "en-CH",
+            deliveryType: "standard",
+            subject: "Long letter",
+            body: "This body expands to several pages in production.",
+            enclosureNote: null,
+            signatureMode: null,
+            tone: null,
+            intent: null,
+            sender: {
+              firstName: "Sam",
+              lastName: "Sender",
+              company: null,
+              addressLine1: "Main street 1",
+              addressLine2: null,
+              postalCode: "8000",
+              city: "Zurich",
+              country: "CH",
+            },
+            recipient: {
+              firstName: "Alex",
+              lastName: "Receiver",
+              company: null,
+              department: null,
+              addressLine1: "Market street 2",
+              addressLine2: null,
+              postalCode: "3000",
+              city: "Bern",
+              country: "CH",
+            },
+            attachmentAssetIds: [],
+            signatureAssetId: null,
+            estimatedPages: 6,
+            metadata: null,
+          },
+          renderedPdfAssetId: null,
+        },
+      ],
+      [{ sessionId: "session-4" }],
+    );
+
+    const { renderSnapshotToPdf } =
+      await import("../src/modules/rendering/render.service.js");
+    const result = await renderSnapshotToPdf("snapshot-4");
+
+    expect(result.pageCount).toBe(6);
+    expect(mocks.setSnapshotPdfAsset).toHaveBeenCalledWith(
+      expect.anything(),
+      "snapshot-4",
+      "rendered-asset-1",
+      6,
+    );
   });
 });

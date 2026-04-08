@@ -383,8 +383,9 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       background: #edf2f7;
     }
     .confirmation-page {
-      min-height: 297mm;
-      padding: 18mm 18mm 16mm;
+      height: 297mm;
+      padding: 16mm 16mm 14mm;
+      overflow: hidden;
       background:
         radial-gradient(circle at top right, rgba(212, 190, 137, 0.18), transparent 32%),
         linear-gradient(180deg, #f9fbfd 0%, #fffdf8 100%);
@@ -400,7 +401,7 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       display: flex;
       justify-content: space-between;
       gap: 14mm;
-      padding: 14mm 14mm 10mm;
+      padding: 12mm 12mm 8mm;
       background: linear-gradient(135deg, #17324d 0%, #244c72 78%, #2b5f89 100%);
       color: #f7f8fa;
     }
@@ -427,7 +428,7 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       margin: 7px 0 0;
       max-width: 110mm;
       font-size: 10pt;
-      line-height: 1.55;
+      line-height: 1.45;
       color: rgba(247, 248, 250, 0.86);
     }
     .status-pill {
@@ -443,13 +444,13 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       white-space: nowrap;
     }
     .hero-body {
-      padding: 12mm 14mm 14mm;
+      padding: 10mm 12mm 12mm;
     }
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
-      margin-bottom: 12mm;
+      margin-bottom: 9mm;
     }
     .summary-card {
       padding: 10px 12px;
@@ -481,7 +482,7 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       display: grid;
       grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
       gap: 12px;
-      margin-bottom: 12mm;
+      margin-bottom: 9mm;
     }
     .detail-card,
     .address-card {
@@ -505,6 +506,12 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       line-height: 1.45;
       color: #152535;
       word-break: break-word;
+    }
+    .detail-row .value.content-summary-value {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      overflow: hidden;
     }
     .address-grid {
       display: grid;
@@ -530,7 +537,7 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
     .notes-card p {
       margin: 0 0 8px;
       font-size: 10pt;
-      line-height: 1.6;
+      line-height: 1.45;
       color: #49371d;
     }
     .tag-list {
@@ -626,7 +633,7 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
               </div>
               <div class="detail-row" style="grid-column: 1 / -1;">
                 <div class="label">${escapeHtml(copy.contentSummary)}</div>
-                <div class="value">${escapeHtml(contentSummary)}</div>
+                <div class="value content-summary-value">${escapeHtml(contentSummary)}</div>
               </div>
               <div class="detail-row" style="grid-column: 1 / -1;">
                 <div class="label">${escapeHtml(copy.attachments)}</div>

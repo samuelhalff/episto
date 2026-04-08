@@ -45,7 +45,8 @@ describe("dispatch job helpers", () => {
     const { buildDispatchJobId } =
       await import("../src/modules/dispatch/dispatch.jobs.js");
 
-    expect(buildDispatchJobId("pay_123")).toBe("dispatch:pay_123");
+    expect(buildDispatchJobId("pay_123")).toBe("dispatch-pay_123");
+    expect(buildDispatchJobId("pay_123")).not.toContain(":");
   });
 
   it("enqueueDispatchSubmission uses the payment-based job id for idempotency", async () => {
@@ -66,7 +67,7 @@ describe("dispatch job helpers", () => {
         paymentId: "payment-1",
       },
       {
-        jobId: "dispatch:payment-1",
+        jobId: "dispatch-payment-1",
       },
     );
   });
@@ -85,7 +86,7 @@ describe("dispatch job helpers", () => {
         dispatchAttemptId: "dispatch-1",
       },
       {
-        jobId: "dispatch-reconcile:dispatch-1",
+        jobId: "dispatch-reconcile-dispatch-1",
       },
     );
   });

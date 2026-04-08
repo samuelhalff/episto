@@ -7,6 +7,7 @@ import fastifyRateLimit from "@fastify/rate-limit";
 import { randomUUID } from "node:crypto";
 import type { FastifyRequest, FastifyReply } from "fastify";
 import type pino from "pino";
+import { ZodError } from "zod";
 
 import { env } from "./shared/config/index.js";
 import { AppError } from "./shared/errors/index.js";
@@ -131,6 +132,27 @@ export async function buildApp(logger: pino.Logger) {
             userMessage: "The request contains invalid data.",
             userAction: "Please correct the input and try again.",
             requestId,
+          },
+        });
+        return;
+      }
+
+      if (error instanceof ZodError) {
+        const fields = error.issues.map((issue) => ({
+          field: issue.path.length > 0 ? issue.path.join(".") : "body",
+          message: issue.message,
+        }));
+        const message = fields[0]?.message ?? "The request contains invalid data.";
+
+        reply.status(400).send({
+          error: {
+            code: "VALIDATION_ERROR",
+            family: "validation_error",
+            message,
+            userMessage: "The request contains invalid data.",
+            userAction: "Please correct the input and try again.",
+            requestId,
+            fields,
           },
         });
         return;

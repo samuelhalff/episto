@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { env } from "../../shared/config/index.js";
+import { assertDispatchPolicyConstraints } from "./dispatch-policy.js";
 
 export interface DispatchPricingInput {
   deliveryType: "standard" | "registered";
@@ -18,14 +19,20 @@ export function buildDispatchPricingInput(args: {
   deliveryType: "standard" | "registered";
   estimatedPages: number;
   attachmentCount: number;
+  recipientCountry?: string | null;
 }): DispatchPricingInput {
+  assertDispatchPolicyConstraints({
+    recipientCountry: args.recipientCountry,
+    estimatedPages: args.estimatedPages,
+  });
+
   return {
     deliveryType: args.deliveryType,
     postage:
       args.deliveryType === "registered"
         ? env().EPOST_REGISTERED_POSTAGE
         : env().EPOST_STANDARD_POSTAGE,
-    numberOfPage: Math.max(1, Math.min(5, args.estimatedPages)),
+    numberOfPage: Math.max(1, args.estimatedPages),
     attachmentMode: args.attachmentCount > 0 ? "single_hint" : "none",
     shippingCountry: "CH",
     envelopeSize: "C5",

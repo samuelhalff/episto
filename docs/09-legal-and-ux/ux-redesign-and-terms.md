@@ -35,14 +35,14 @@ The core legal challenge is threefold:
 
 ### Governing Design/Legal Principles
 
-| Principle | Implication |
-|---|---|
-| **Single-column focus is the premium pattern** | Narrow the layout as the user progresses toward commitment. Never split attention unnecessarily. |
-| **Layout consistency across the flow** | Draft → Review → Checkout → Confirmation should feel like one product with one visual language. |
-| **Preview is not a sidebar — it is a moment** | Show the letter preview as a full-width, immersive experience when the user wants to see it, not as a permanently competing panel. |
-| **Platform, not operator** | Every touchpoint (UX copy, Terms, emails) must reinforce that West Bay SA provides the service layer; Swiss Post handles physical execution. |
-| **Honest status, honest language** | Never claim more than what is verifiable. "Submitted" ≠ "delivered." "Confirmation" ≠ "guarantee." |
-| **10-day signed summary** | The post-transaction confirmation and signed PDF are the commercial trust anchor. They deserve a premium presentation. |
+| Principle                                      | Implication                                                                                                                                  |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Single-column focus is the premium pattern** | Narrow the layout as the user progresses toward commitment. Never split attention unnecessarily.                                             |
+| **Layout consistency across the flow**         | Draft → Review → Checkout → Confirmation should feel like one product with one visual language.                                              |
+| **Preview is not a sidebar — it is a moment**  | Show the letter preview as a full-width, immersive experience when the user wants to see it, not as a permanently competing panel.           |
+| **Platform, not operator**                     | Every touchpoint (UX copy, Terms, emails) must reinforce that West Bay SA provides the service layer; Swiss Post handles physical execution. |
+| **Honest status, honest language**             | Never claim more than what is verifiable. "Submitted" ≠ "delivered." "Confirmation" ≠ "guarantee."                                           |
+| **10-day signed summary**                      | The post-transaction confirmation and signed PDF are the commercial trust anchor. They deserve a premium presentation.                       |
 
 ---
 
@@ -64,25 +64,25 @@ The core legal challenge is threefold:
 
 ### Patterns to Adopt
 
-| Pattern | Source | Application |
-|---|---|---|
-| **Consistent single-column with max-width constraint** | Apple, GOV.UK, Typeform | All draft steps, review, checkout, and confirmation |
-| **Sticky bottom dock for primary action** | Swiss Mail mobile (already implemented) | Extend to desktop with a full-width bottom bar |
-| **Full-width immersive preview** | Canva presentation mode, Figma Present | Letter preview as a full-screen overlay or dedicated view, not a sidebar |
-| **Summary-before-commit review** | GOV.UK "Check your answers" | Review page as a single-column summary with edit links |
-| **Narrowing visual complexity** | Apple, Stripe, Aesop | Transition from `<AppLayout>` to `<MinimalLayout>` should be seamless, not jarring |
-| **Confirmation hero + primary download CTA** | DocuSign, Swiss Air, Wise | Signed summary PDF download as the hero CTA on confirmation |
-| **Download redundancy** | DocuSign, Adobe Sign | In-app download + email link + attached receipt |
+| Pattern                                                | Source                                  | Application                                                                        |
+| ------------------------------------------------------ | --------------------------------------- | ---------------------------------------------------------------------------------- |
+| **Consistent single-column with max-width constraint** | Apple, GOV.UK, Typeform                 | All draft steps, review, checkout, and confirmation                                |
+| **Sticky bottom dock for primary action**              | Swiss Mail mobile (already implemented) | Extend to desktop with a full-width bottom bar                                     |
+| **Full-width immersive preview**                       | Canva presentation mode, Figma Present  | Letter preview as a full-screen overlay or dedicated view, not a sidebar           |
+| **Summary-before-commit review**                       | GOV.UK "Check your answers"             | Review page as a single-column summary with edit links                             |
+| **Narrowing visual complexity**                        | Apple, Stripe, Aesop                    | Transition from `<AppLayout>` to `<MinimalLayout>` should be seamless, not jarring |
+| **Confirmation hero + primary download CTA**           | DocuSign, Swiss Air, Wise               | Signed summary PDF download as the hero CTA on confirmation                        |
+| **Download redundancy**                                | DocuSign, Adobe Sign                    | In-app download + email link + attached receipt                                    |
 
 ### Patterns to Avoid
 
-| Anti-Pattern | Why |
-|---|---|
-| Two independently scrolling columns | Creates cognitive split; user loses orientation |
-| Different grid layouts per flow step | Breaks product coherence; feels like four products |
-| Sidebar that repeats header information | Wastes 320px for information already available elsewhere |
+| Anti-Pattern                                                     | Why                                                             |
+| ---------------------------------------------------------------- | --------------------------------------------------------------- |
+| Two independently scrolling columns                              | Creates cognitive split; user loses orientation                 |
+| Different grid layouts per flow step                             | Breaks product coherence; feels like four products              |
+| Sidebar that repeats header information                          | Wastes 320px for information already available elsewhere        |
 | Preview as a permanent side panel when it is not WYSIWYG editing | Creates expectation of synchronized editing that does not exist |
-| Confetti/celebration on confirmation | Tone-deaf for a formal letter product |
+| Confetti/celebration on confirmation                             | Tone-deaf for a formal letter product                           |
 
 ---
 
@@ -135,18 +135,18 @@ Marketing → Draft Entry → Draft Workspace → Review → Checkout → Confir
 
 ### Step Flow
 
-| # | Step | Route | Content |
-|---|---|---|---|
-| 1 | Intake | `/draft/:id` | Natural language input, use-case selection, dictation |
-| 2 | Sender | `/draft/:id/sender` | Sender name + address form |
-| 3 | Recipient | `/draft/:id/recipient` | Recipient name + address form, company search |
-| 4 | Body | `/draft/:id/body` | AI-assisted body generation, refinement, inline preview trigger |
-| 5 | Attachments | `/draft/:id/attachments` | Upload, manage, signature |
-| 6 | Subject | `/draft/:id/subject` | Subject line, delivery type selection |
-| 7 | Logistics | `/draft/:id/logistics` | Final summary, delivery confirmation |
-| — | Review | `/draft/:id/review` | Full letter preview, completion checklist, edit links |
-| — | Checkout | `/draft/:id/checkout` | Email, legal consent, payment |
-| — | Confirmation | `/draft/:id/confirmation` | Success hero, signed PDF download, next steps |
+| #   | Step         | Route                     | Content                                                         |
+| --- | ------------ | ------------------------- | --------------------------------------------------------------- |
+| 1   | Intake       | `/draft/:id`              | Natural language input, use-case selection, dictation           |
+| 2   | Sender       | `/draft/:id/sender`       | Sender name + address form                                      |
+| 3   | Recipient    | `/draft/:id/recipient`    | Recipient name + address form, company search                   |
+| 4   | Body         | `/draft/:id/body`         | AI-assisted body generation, refinement, inline preview trigger |
+| 5   | Attachments  | `/draft/:id/attachments`  | Upload, manage, signature                                       |
+| 6   | Subject      | `/draft/:id/subject`      | Subject line, delivery type selection                           |
+| 7   | Logistics    | `/draft/:id/logistics`    | Final summary, delivery confirmation                            |
+| —   | Review       | `/draft/:id/review`       | Full letter preview, completion checklist, edit links           |
+| —   | Checkout     | `/draft/:id/checkout`     | Email, legal consent, payment                                   |
+| —   | Confirmation | `/draft/:id/confirmation` | Success hero, signed PDF download, next steps                   |
 
 ### Desktop Layout — Detailed
 
@@ -391,6 +391,7 @@ The PDF issued by West Bay SA contains:
 **Part B — Document Bundle**
 
 Following the confirmation record page(s):
+
 - Full copy of the sent letter PDF (all pages)
 - All uploaded attachments that were included in the sent package
 
@@ -413,6 +414,7 @@ Following the confirmation record page(s):
   - Support contact
 
 **What the email does NOT contain:**
+
 - Full letter content
 - Full recipient address
 - The signed summary PDF itself (too large with attachments; user downloads from link)
@@ -460,9 +462,10 @@ Mobile uses the exact same layout framework — the only difference is that the 
 **Confirmation page:**
 
 1. Build the signed PDF download hero card as a new component (`<SignedConfirmationCard>`).
-2. Implement a backend endpoint to generate and serve the signed summary PDF.
+2. Implement the backend download so `GET /v1/drafts/:id/pdf` and `GET /v1/orders/:orderToken/pdf` generate and serve the signed confirmation bundle. Page 1 must be the branded Swiss Mail confirmation record with logo, submission mode, provider reference, tracking number when present, and the other operational metadata required for support/email follow-up. The remaining pages must be the exact rendered letter PDF prepared for dispatch.
 3. Track 10-day expiry and show appropriate states (available, expiring soon, expired).
-4. The download triggers a `GET /v1/drafts/:id/confirmation-pdf` with session authentication.
+4. If submission mode is `mock`, the card and the PDF must explicitly state that no fee-bearing ePost submission occurred. Mock mode must still surface the same provider-shaped fields expected from live ePost responses.
+5. The current download trigger is `GET /v1/drafts/:id/pdf` with session authentication. The public order-status route uses `GET /v1/orders/:orderToken/pdf`.
 
 **State management for preview:**
 
@@ -538,12 +541,12 @@ Before you read the full terms, here is what matters most:
 
 1.1. Swiss Mail is a web-based platform operated by West Bay SA ("**we**", "**us**", "**our**") that enables users ("**you**", "**your**") to:
 
-   (a) prepare formal letters using AI-assisted drafting tools;  
-   (b) review and edit letters in a structured workflow;  
-   (c) generate a final print-ready PDF document;  
-   (d) optionally attach supporting documents to be included with the letter;  
-   (e) submit the completed letter package for physical postal dispatch in Switzerland; and  
-   (f) receive transaction confirmations and, where available, dispatch status updates.
+(a) prepare formal letters using AI-assisted drafting tools;  
+ (b) review and edit letters in a structured workflow;  
+ (c) generate a final print-ready PDF document;  
+ (d) optionally attach supporting documents to be included with the letter;  
+ (e) submit the completed letter package for physical postal dispatch in Switzerland; and  
+ (f) receive transaction confirmations and, where available, dispatch status updates.
 
 1.2. The service is currently available for postal dispatch within Switzerland only.
 
@@ -583,11 +586,11 @@ Before you read the full terms, here is what matters most:
 
 4.1. The typical workflow consists of:
 
-   (a) **Drafting**: You describe or compose your letter using our platform tools. AI-assisted drafting is available to help you prepare your letter.  
-   (b) **Review**: You review the complete letter, verify all details, and confirm the content.  
-   (c) **Checkout**: You provide your email address for confirmations, select a delivery type, review the price, accept these Terms, and authorise payment.  
-   (d) **Payment**: You pay the applicable fee through our payment processor (currently Stripe).  
-   (e) **Dispatch submission**: Upon confirmed payment, we generate the final print-ready PDF, prepare the dispatch metadata, and submit the letter package for physical dispatch through our provider infrastructure.
+(a) **Drafting**: You describe or compose your letter using our platform tools. AI-assisted drafting is available to help you prepare your letter.  
+ (b) **Review**: You review the complete letter, verify all details, and confirm the content.  
+ (c) **Checkout**: You provide your email address for confirmations, select a delivery type, review the price, accept these Terms, and authorise payment.  
+ (d) **Payment**: You pay the applicable fee through our payment processor (currently Stripe).  
+ (e) **Dispatch submission**: Upon confirmed payment, we generate the final print-ready PDF, prepare the dispatch metadata, and submit the letter package for physical dispatch through our provider infrastructure.
 
 4.2. **A binding contract between you and West Bay SA is formed when your payment is successfully authorised or captured.** Prior to that point, your drafting session does not constitute a binding order, and either party may discontinue without obligation.
 
@@ -701,14 +704,14 @@ Before you read the full terms, here is what matters most:
 
 13.1. You may not use Swiss Mail for any of the following purposes:
 
-   (a) **Fraud or impersonation**: sending letters under a false identity, impersonating another person or entity, or using fabricated sender details without authorisation;  
-   (b) **Harassment, threats, or intimidation**: sending letters whose primary purpose is to threaten, harass, intimidate, or cause distress to the recipient;  
-   (c) **Defamation**: sending letters containing statements that you know to be false and that are intended to harm the reputation of another person or entity;  
-   (d) **Deceptive or misleading communications**: sending letters that fraudulently misrepresent facts, fabricate claims, or simulate official or governmental correspondence;  
-   (e) **Unlawful debt collection practices**: sending letters that simulate legal proceedings, fabricate legal authority, or misrepresent the legal status of a claim;  
-   (f) **Distribution of unlawful content**: sending letters containing content that violates applicable Swiss or European law, including but not limited to content that incites violence, promotes hatred, or violates privacy rights;  
-   (g) **Bulk or automated misuse**: using the platform for mass mailings, spam, unsolicited commercial communications, or automated submission of letters without genuine individual intent;  
-   (h) **Any other unlawful purpose** under applicable Swiss or European law.
+(a) **Fraud or impersonation**: sending letters under a false identity, impersonating another person or entity, or using fabricated sender details without authorisation;  
+ (b) **Harassment, threats, or intimidation**: sending letters whose primary purpose is to threaten, harass, intimidate, or cause distress to the recipient;  
+ (c) **Defamation**: sending letters containing statements that you know to be false and that are intended to harm the reputation of another person or entity;  
+ (d) **Deceptive or misleading communications**: sending letters that fraudulently misrepresent facts, fabricate claims, or simulate official or governmental correspondence;  
+ (e) **Unlawful debt collection practices**: sending letters that simulate legal proceedings, fabricate legal authority, or misrepresent the legal status of a claim;  
+ (f) **Distribution of unlawful content**: sending letters containing content that violates applicable Swiss or European law, including but not limited to content that incites violence, promotes hatred, or violates privacy rights;  
+ (g) **Bulk or automated misuse**: using the platform for mass mailings, spam, unsolicited commercial communications, or automated submission of letters without genuine individual intent;  
+ (h) **Any other unlawful purpose** under applicable Swiss or European law.
 
 13.2. We do not proactively review or screen the content of every letter submitted through our platform. We are not responsible for verifying the factual accuracy, legal correctness, or appropriateness of user-submitted content.
 
@@ -720,19 +723,19 @@ Before you read the full terms, here is what matters most:
 
 14.1. We reserve the right, at our reasonable discretion, to:
 
-   (a) refuse to process a submission before dispatch;  
-   (b) suspend dispatch of a letter pending investigation;  
-   (c) cancel a submission and issue a refund; or  
-   (d) suspend or terminate your access to the platform,
+(a) refuse to process a submission before dispatch;  
+ (b) suspend dispatch of a letter pending investigation;  
+ (c) cancel a submission and issue a refund; or  
+ (d) suspend or terminate your access to the platform,
 
-   in any of the following circumstances:
+in any of the following circumstances:
 
-   (i) we reasonably suspect a violation of Section 13 (Prohibited Uses);  
-   (ii) we receive a credible complaint or legal demand regarding a submission;  
-   (iii) the submission is technically defective or incompatible with dispatch requirements;  
-   (iv) payment is not confirmed, is reversed, or is suspected of being fraudulent;  
-   (v) we are required to act by applicable law, regulatory authority, or court order; or  
-   (vi) continued processing would pose a material risk to the platform, other users, or third parties.
+(i) we reasonably suspect a violation of Section 13 (Prohibited Uses);  
+ (ii) we receive a credible complaint or legal demand regarding a submission;  
+ (iii) the submission is technically defective or incompatible with dispatch requirements;  
+ (iv) payment is not confirmed, is reversed, or is suspected of being fraudulent;  
+ (v) we are required to act by applicable law, regulatory authority, or court order; or  
+ (vi) continued processing would pose a material risk to the platform, other users, or third parties.
 
 14.2. Where we refuse or cancel a submission after payment, we will issue a refund of the amount paid in accordance with Section 16, unless the refusal is due to your breach of these Terms.
 
@@ -780,15 +783,15 @@ Before you read the full terms, here is what matters most:
 
 17.2. We are **not** liable for:
 
-   (a) indirect, consequential, incidental, or punitive damages;  
-   (b) loss of business, revenue, contracts, or anticipated savings;  
-   (c) delays, failures, or errors in postal delivery by Swiss Post, ePost, or any other provider;  
-   (d) consequences of inaccurate, incomplete, or unlawful content submitted by you;  
-   (e) consequences of incorrect sender or recipient information provided by you;  
-   (f) failure to meet statutory, contractual, or regulatory deadlines;  
-   (g) legal effects or lack thereof of letters sent through our platform;  
-   (h) actions or omissions of third-party providers, including but not limited to Swiss Post, ePost, Stripe, and hosting providers; or  
-   (i) service interruptions, technical failures, or data loss, except to the extent caused by our intentional misconduct or gross negligence.
+(a) indirect, consequential, incidental, or punitive damages;  
+ (b) loss of business, revenue, contracts, or anticipated savings;  
+ (c) delays, failures, or errors in postal delivery by Swiss Post, ePost, or any other provider;  
+ (d) consequences of inaccurate, incomplete, or unlawful content submitted by you;  
+ (e) consequences of incorrect sender or recipient information provided by you;  
+ (f) failure to meet statutory, contractual, or regulatory deadlines;  
+ (g) legal effects or lack thereof of letters sent through our platform;  
+ (h) actions or omissions of third-party providers, including but not limited to Swiss Post, ePost, Stripe, and hosting providers; or  
+ (i) service interruptions, technical failures, or data loss, except to the extent caused by our intentional misconduct or gross negligence.
 
 17.3. Nothing in these Terms excludes or limits our liability for damages caused by intentional misconduct (Vorsatz) or gross negligence (grobe Fahrlässigkeit) on the part of West Bay SA or its officers, as required by Swiss law (Art. 100 OR).
 
@@ -800,10 +803,10 @@ Before you read the full terms, here is what matters most:
 
 18.1. You agree to indemnify and hold harmless West Bay SA, its officers, employees, and agents from and against any claims, losses, costs, or damages (including reasonable legal fees) arising from:
 
-   (a) your breach of these Terms;  
-   (b) your use of a sender identity without proper authorisation;  
-   (c) unlawful, fraudulent, or defamatory content submitted by you; or  
-   (d) your violation of any applicable law in connection with your use of the service.
+(a) your breach of these Terms;  
+ (b) your use of a sender identity without proper authorisation;  
+ (c) unlawful, fraudulent, or defamatory content submitted by you; or  
+ (d) your violation of any applicable law in connection with your use of the service.
 
 18.2. This indemnity does not apply to the extent that the claim results from our own intentional misconduct or gross negligence.
 
@@ -813,11 +816,11 @@ Before you read the full terms, here is what matters most:
 
 19.1. We use the following categories of third-party providers to deliver our service:
 
-   (a) **Postal dispatch providers** (currently Swiss Post / ePost): for physical production, enveloping, transport, and delivery of letters;  
-   (b) **Payment processor** (currently Stripe): for payment handling;  
-   (c) **Hosting and infrastructure providers**: for platform hosting, data storage, and processing;  
-   (d) **AI service providers**: for AI-assisted drafting capabilities;  
-   (e) **Email delivery providers**: for transactional email delivery.
+(a) **Postal dispatch providers** (currently Swiss Post / ePost): for physical production, enveloping, transport, and delivery of letters;  
+ (b) **Payment processor** (currently Stripe): for payment handling;  
+ (c) **Hosting and infrastructure providers**: for platform hosting, data storage, and processing;  
+ (d) **AI service providers**: for AI-assisted drafting capabilities;  
+ (e) **Email delivery providers**: for transactional email delivery.
 
 19.2. We select our providers with care and require them to meet appropriate standards of security, reliability, and data protection. However, we are not liable for the acts or omissions of third-party providers beyond our reasonable control.
 
@@ -853,8 +856,8 @@ Before you read the full terms, here is what matters most:
 
 22.1. Upon successful dispatch submission, we generate a **signed confirmation document** ("Confirmation PDF") issued by West Bay SA. This document contains:
 
-   (a) a confirmation record including: transaction reference, submission timestamp, dispatch status, sender and recipient information, delivery type, and a summary of the submitted content; and  
-   (b) a copy of the final sent letter PDF and any attachments that were included in the dispatch package.
+(a) a confirmation record including: transaction reference, submission timestamp, dispatch status, sender and recipient information, delivery type, and a summary of the submitted content; and  
+ (b) a copy of the final sent letter PDF and any attachments that were included in the dispatch package.
 
 22.2. The Confirmation PDF is available for download through your confirmation page for a period of **10 days** from the date of transaction completion. After this period, the document is deleted from our systems and is no longer available for download.
 
@@ -914,12 +917,12 @@ Before you read the full terms, here is what matters most:
 
 27.1. For questions, support requests, or complaints regarding Swiss Mail:
 
-   **West Bay SA**  
-   [Registered address]  
-   [City, postal code], Switzerland  
+**West Bay SA**  
+ [Registered address]  
+ [City, postal code], Switzerland
 
-   **Email:** support@swissmail.ch  
-   **Website:** swissmail.ch
+**Email:** support@swissmail.ch  
+ **Website:** swissmail.ch
 
 27.2. We aim to respond to support requests within 2 business days. Complaints regarding dispatch issues will be investigated in coordination with our dispatch provider where necessary.
 
@@ -927,7 +930,7 @@ Before you read the full terms, here is what matters most:
 
 ---
 
-*These Terms and Conditions are provided in English. In the event of a discrepancy between language versions, [specify controlling language version once multilingual versions are published].*
+_These Terms and Conditions are provided in English. In the event of a discrepancy between language versions, [specify controlling language version once multilingual versions are published]._
 
 ---
 
@@ -973,14 +976,14 @@ Before you read the full terms, here is what matters most:
 
 ### Product/UX Wording That Should Match the Terms
 
-| UX Element | Terms Clause | Alignment Needed |
-|---|---|---|
-| Checkout legal checkbox text | Section 4.2 + Section 9 | The checkbox wording must accurately reference the Terms and the non-legal-service disclaimer |
-| "Submitted for dispatch" confirmation copy | Section 4.3 | Never say "sent" or "delivered" — use "submitted for dispatch" consistently |
-| Signed PDF download card heading | Section 22 | Use "Signed confirmation document" in both UX and Terms |
-| 10-day expiry notice | Section 22.2 | The UX must show both relative and absolute expiry dates, matching the Terms commitment |
-| Email receipt subject line | Section 23 | The transaction reference format (SM-XXXXXXXX) must match between receipt, Confirmation PDF, and Terms |
-| Dispatch status labels | Section 8.4, Section 9 | All status labels must align with the canonical `DispatchState` values and the honest-language rules in the Terms |
-| "Not a legal service" disclaimer | Section 9.3 | The drafting workspace and checkout should include calm informational copy that mirrors Section 9.3 |
-| Refund policy reference | Section 16 | The checkout flow should include a visible link or reference to the refund policy |
-| Sender identity warning | Section 7.2 | If the user enters sender details that differ from their session identity, the UX should show a calm reminder consistent with Section 7 |
+| UX Element                                 | Terms Clause            | Alignment Needed                                                                                                                        |
+| ------------------------------------------ | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Checkout legal checkbox text               | Section 4.2 + Section 9 | The checkbox wording must accurately reference the Terms and the non-legal-service disclaimer                                           |
+| "Submitted for dispatch" confirmation copy | Section 4.3             | Never say "sent" or "delivered" — use "submitted for dispatch" consistently                                                             |
+| Signed PDF download card heading           | Section 22              | Use "Signed confirmation document" in both UX and Terms                                                                                 |
+| 10-day expiry notice                       | Section 22.2            | The UX must show both relative and absolute expiry dates, matching the Terms commitment                                                 |
+| Email receipt subject line                 | Section 23              | The transaction reference format (SM-XXXXXXXX) must match between receipt, Confirmation PDF, and Terms                                  |
+| Dispatch status labels                     | Section 8.4, Section 9  | All status labels must align with the canonical `DispatchState` values and the honest-language rules in the Terms                       |
+| "Not a legal service" disclaimer           | Section 9.3             | The drafting workspace and checkout should include calm informational copy that mirrors Section 9.3                                     |
+| Refund policy reference                    | Section 16              | The checkout flow should include a visible link or reference to the refund policy                                                       |
+| Sender identity warning                    | Section 7.2             | If the user enters sender details that differ from their session identity, the UX should show a calm reminder consistent with Section 7 |

@@ -153,7 +153,9 @@ for (const { name, messages } of LOCALES) {
   describe(`${name} locale messages`, () => {
     for (const key of REQUIRED_KEYS) {
       it(`defines confirmation.${key}`, () => {
-        const confirmation = (messages as Record<string, Record<string, string>>)["confirmation"];
+        const confirmation = (messages as Record<string, Record<string, string>>)[
+          "confirmation"
+        ];
         expect(confirmation).toBeDefined();
         expect(confirmation[key]).toBeTruthy();
       });
@@ -176,18 +178,22 @@ describe("en-CH exact copy values", () => {
   const status = (enCH as Record<string, Record<string, string>>)["status"];
 
   it("confirmation.downloadLetter matches approved copy", () => {
-    expect(confirmation["downloadLetter"]).toBe("Download final PDF");
+    expect(confirmation["downloadLetter"]).toBe("Download signed confirmation document");
   });
 
   it("confirmation.downloadUnavailable matches approved copy", () => {
-    expect(confirmation["downloadUnavailable"]).toBe("The final PDF is no longer available.");
+    expect(confirmation["downloadUnavailable"]).toBe(
+      "The confirmation document is no longer available.",
+    );
   });
 
   it("status.downloadLetter matches approved copy", () => {
-    expect(status["downloadLetter"]).toBe("Download final PDF");
+    expect(status["downloadLetter"]).toBe("Download signed confirmation document");
   });
 
   it("status.downloadUnavailable matches approved copy", () => {
-    expect(status["downloadUnavailable"]).toBe("The final PDF is no longer available.");
+    expect(status["downloadUnavailable"]).toBe(
+      "The confirmation document is no longer available.",
+    );
   });
 });

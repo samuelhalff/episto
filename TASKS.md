@@ -8,7 +8,8 @@
 ---
 
 ## 1. Foundation & Shared Core ✅
-*Typesafe boundaries before any logic.*
+
+_Typesafe boundaries before any logic._
 
 - [x] Scaffold Monorepo (frontend, backend, shared — npm workspaces)
 - [x] Shared Enums & Constants (`DraftStatus`, `PaymentState`, `DispatchState`, `Locale`, etc.)
@@ -18,7 +19,8 @@
 - [x] Env Validation (Zod schema, 26 vars with typed defaults)
 
 ## 2. Backend Core ✅
-*Functional API and state machines.*
+
+_Functional API and state machines._
 
 - [x] Database Layer (Drizzle schema — 11 tables, 9 enums, all indexes)
 - [x] Session Module (guest sessions, cookie auth, resume tokens)
@@ -39,7 +41,8 @@
 - [x] All routes match `docs/05-architecture/api-contracts.md`
 
 ## 3. Frontend Core ✅
-*Guided drafting and checkout flows.*
+
+_Guided drafting and checkout flows._
 
 - [x] Next.js App Router + i18n (4 Swiss locales)
 - [x] Tailwind + shadcn/ui primitives
@@ -54,7 +57,8 @@
 - [x] Full i18n translations for de-CH, fr-CH, it-CH, en-CH
 
 ## 4. Quality & Ops ✅
-*CI-ready quality gates.*
+
+_CI-ready quality gates._
 
 - [x] TypeScript strict mode (all 3 workspaces clean)
 - [x] ESLint (0 warnings, 0 errors)
@@ -71,10 +75,12 @@
 ## 5. Remaining Work (blocked or deferred)
 
 ### Blocked on provider/design:
+
 - [ ] Postal dispatch adapter (Swiss Post API credentials + contract)
 - [ ] Tracking adapter (Swiss Post tracking API — capabilities unconfirmed)
 
 ### Recently completed:
+
 - [x] AI chat integration (Azure OpenAI adapter, prompt pipeline, streaming)
 - [x] AI → SSE wiring (event bus, message handler, SSE relay)
 - [x] PDF rendering pipeline (Puppeteer HTML→PDF, A4 template, storage upload)
@@ -86,7 +92,7 @@
 - [x] Admin overview route (GET /admin/overview — active queue, payment stats, ambiguous dispatches, recent refunds)
 - [x] Distinct order access token (90-day TTL, generated on payment capture, separate from session resume token)
 - [x] Order status page aligned with real backend response shape (OrderStatusResponse shared contract)
-- [x] Centralized query key registry (queryKeys.* in shared package, all hooks migrated)
+- [x] Centralized query key registry (queryKeys.\* in shared package, all hooks migrated)
 - [x] Checkout form validation with React Hook Form + Zod (email + legal consent, proper aria attributes)
 - [x] Frontend product hooks (use-session, use-conversation, use-dictation, use-draft-files, use-checkout, use-dispatch-status, use-letter-preview)
 - [x] Frontend product components (AttachmentUploader, SignaturePicker, ZoneEditor, DispatchConfirmation)
@@ -100,6 +106,7 @@
 - [x] Backend route instrumentation (session_created, resume_link_opened, draft_created, review_reached, checkout_started, payment_intent_created, payment_captured, payment_failed, dispatch_submitted, order_status_viewed)
 
 ### Pending (not blocked):
+
 - [x] UX documentation audit findings resolved (all 12 findings verified — see `AUDIT_FINDINGS.md`)
 - [x] Security headers audit (Helmet + CSP in frontend + custom headers all verified)
 - [x] Unused `@fastify/csrf-protection` dependency removed (custom X-Requested-With validation used instead)
@@ -107,12 +114,14 @@
 - [x] Product analytics event taxonomy and instrumentation
 
 ### Phase 6A — Frontend Quality & Completeness:
+
 - [x] Help & Support page (FAQ + contact section, all 4 locales — `/help`)
 - [x] Global loading skeleton (locale-level `loading.tsx` with pulse animation)
 - [x] Skip-to-content accessibility link + ARIA landmarks (layout, header, footer, nav)
 - [x] Help link added to Header (desktop + mobile) and Footer navigation
 
 ### Phase 6B — Operational Readiness:
+
 - [x] Error tracking adapter — backend (replaceable sink pattern matching analytics, Pino-based MVP)
 - [x] Error tracking adapter — frontend (replaceable sink pattern matching analytics, console-based MVP)
 - [x] Error boundary integration (error.tsx now reports to error tracking sink)
@@ -120,17 +129,20 @@
 - [x] Readiness probe enhanced with Redis health check (via BullMQ queue ping)
 
 ### Phase 7A — Build & CI Fix:
+
 - [x] Next.js build fix: webpack `extensionAlias` for `.js` → `.ts`/`.tsx` module resolution
 - [x] ESLint config: ignore auto-generated `next-env.d.ts` (Next 15.5 routes.d.ts reference)
 - [x] Full CI pipeline now passes: lint ✅ typecheck ✅ tests ✅ build ✅
 
 ### Phase 7B — SEO & Web Basics:
+
 - [x] `robots.txt` (Disallow /api/ and /admin/)
 - [x] Dynamic `sitemap.xml` (all static pages × 4 locales via Next.js app router)
 - [x] Web app manifest (`manifest.json` with Swiss Mail branding)
 - [x] HTML metadata (title, description, manifest link in locale layout)
 
 ### Phase 7C — Admin Dashboard UI:
+
 - [x] Admin login page (Microsoft SSO redirect with backend session bootstrap)
 - [x] Service health panel (API, database, Redis, object storage status with green/red indicators)
 - [x] Operational overview panel (ambiguous dispatches, recent refunds, payment/dispatch state counts)
@@ -138,7 +150,9 @@
 - [x] Files split for file-size compliance: `page.tsx` (176 lines) + `admin-panels.tsx` (206 lines) + `admin-api.ts` (56 lines)
 
 ### Pre-launch:
+
 - [ ] Swiss Post sandbox onboarding
+- [ ] Production dispatch cutover review: confirm `EPOST_SUBMISSION_MODE` stays `mock` until go-live, then verify the live switch, confirmation-document first page, and preview/PDF layout lock still match before enabling fee-bearing ePost submission
 - [ ] Stripe live-mode verification
 - [ ] Bank account setup
 - [ ] Native speaker locale review

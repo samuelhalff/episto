@@ -38,6 +38,7 @@ interface PricingSource {
   draftId: string;
   snapshotId: string | null;
   deliveryType: "standard" | "registered";
+  recipientCountry: string | null;
   pricingInput: DispatchPricingInput;
   pricingInputHash: string;
 }
@@ -55,12 +56,14 @@ async function buildPricingSourceForDraft(
     deliveryType: inputs.deliveryType,
     estimatedPages: inputs.estimatedPages,
     attachmentCount: inputs.attachmentCount,
+    recipientCountry: inputs.recipientCountry,
   });
 
   return {
     draftId,
     snapshotId: snapshot?.id ?? null,
     deliveryType: inputs.deliveryType,
+    recipientCountry: inputs.recipientCountry,
     pricingInput,
     pricingInputHash: hashDispatchPricingInput(pricingInput),
   };

@@ -6,7 +6,7 @@ import {
 } from "../../queue/index.js";
 
 export function buildDispatchJobId(paymentId: string): string {
-  return `dispatch:${paymentId}`;
+  return `dispatch-${paymentId}`;
 }
 
 export async function enqueueDispatchSubmission(job: SubmitDispatchJob): Promise<void> {
@@ -16,7 +16,7 @@ export async function enqueueDispatchSubmission(job: SubmitDispatchJob): Promise
 }
 
 export function buildDispatchReconcileJobId(dispatchAttemptId: string): string {
-  return `dispatch-reconcile:${dispatchAttemptId}`;
+  return `dispatch-reconcile-${dispatchAttemptId}`;
 }
 
 export async function enqueueDispatchReconciliation(

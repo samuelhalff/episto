@@ -12,6 +12,7 @@ import {
 import { createSenderProfile, createRecipientProfile } from "./profile.service.js";
 import { createSnapshot } from "../rendering/snapshot.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
+import { renderSnapshotToPdf } from "../rendering/render.service.js";
 import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
 import { cancelPendingDraftPayment } from "../payments/payment-cancellation.service.js";
 import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
@@ -407,22 +408,89 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       // Create immutable snapshot
       const snapshot = await createSnapshot(db, draftId, snapshotData);
 
-      // Transition to reviewed, then rendering once the PDF job is queued.
+      // Transition to reviewed, then rendering while the final PDF is validated.
       await transitionDraftStatus(db, draftId, session.id, "reviewed");
-      await getQueue(QUEUE_NAMES.RENDER_PDF).add(
-        "render-pdf",
-        {
-          snapshotId: snapshot.id,
-          draftId,
-        } satisfies RenderPdfJob,
-        { jobId: `snapshot-${snapshot.id}` },
-      );
       await transitionDraftStatus(db, draftId, session.id, "rendering");
+
+      const renderJob = {
+        snapshotId: snapshot.id,
+        draftId,
+      } satisfies RenderPdfJob;
+
+      let renderedPageCount: number | null = null;
+
+      try {
+        const renderResult = await renderSnapshotToPdf(snapshot.id);
+        renderedPageCount = renderResult.pageCount;
+
+        await db
+          .update(schema.draftLetters)
+          .set({
+            estimatedPages: renderResult.pageCount,
+            updatedAt: new Date(),
+          })
+          .where(
+            and(
+              eq(schema.draftLetters.id, draftId),
+              eq(schema.draftLetters.sessionId, session.id),
+            ),
+          );
+      } catch (err) {
+        logger.warn(
+          { draftId, snapshotId: snapshot.id, err },
+          "Synchronous review render failed; falling back to queued render",
+        );
+
+        await getQueue(QUEUE_NAMES.RENDER_PDF).add("render-pdf", renderJob, {
+          jobId: `snapshot-${snapshot.id}`,
+        });
+
+        recordEvent({
+          event: "review_reached",
+          draftId,
+          pageCountEstimate: draft.estimatedPages ?? 1,
+          attachmentCount: attachmentFileIds.length,
+        });
+
+        reply.status(201).send({
+          snapshot: {
+            id: snapshot.id,
+            draftId: snapshot.draftId,
+            schemaVersion: snapshotData.schemaVersion,
+            locale: snapshotData.locale,
+            deliveryType: snapshotData.deliveryType,
+            subject: snapshotData.subject,
+            body: snapshotData.body,
+            enclosureNote: snapshotData.enclosureNote,
+            signatureMode: snapshotData.signatureMode,
+            sender: snapshotData.sender,
+            recipient: snapshotData.recipient,
+            attachmentFileIds,
+            signatureFileId: signatureFile?.id ?? null,
+            priceCents: resolvedDisplayQuoteForReview.quote.totalCents,
+            createdAt: snapshot.createdAt.toISOString(),
+          },
+        });
+        return;
+      }
+
+      if (renderedPageCount > 5) {
+        await transitionDraftStatus(db, draftId, session.id, "fields_complete");
+
+        throw validationError("Letters are limited to 5 pages.", [
+          {
+            field: "estimatedPages",
+            message: "Shorten the letter to 5 pages or fewer before continuing.",
+          },
+        ]);
+      }
+
+      await transitionDraftStatus(db, draftId, session.id, "ready");
 
       recordEvent({
         event: "review_reached",
         draftId,
-        pageCountEstimate: draft.estimatedPages ?? 1,
+        pageCountEstimate: renderedPageCount ?? draft.estimatedPages ?? 1,
         attachmentCount: attachmentFileIds.length,
       });
 

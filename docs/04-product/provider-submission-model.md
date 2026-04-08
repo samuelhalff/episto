@@ -69,13 +69,13 @@ submission. It must always come from backend-owned canonical records.
 
 ## Responsibility split
 
-| Layer | Swiss Mail owns | Provider owns |
-|---|---|---|
-| Drafting | intent capture, AI drafting, structured editing, review flow | none |
-| Artifact creation | canonical server-side PDF generation from reviewed data | none |
-| Metadata | sender/recipient capture, validation, normalization, delivery-type selection | provider-side schema requirements |
-| Submission | provider adapter, idempotency, audit log, normalized state mapping | request intake and provider-side acceptance/refusal |
-| Downstream handling | truthful status communication only | physical production, postal handling, downstream delivery events |
+| Layer               | Swiss Mail owns                                                              | Provider owns                                                    |
+| ------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Drafting            | intent capture, AI drafting, structured editing, review flow                 | none                                                             |
+| Artifact creation   | canonical server-side PDF generation from reviewed data                      | none                                                             |
+| Metadata            | sender/recipient capture, validation, normalization, delivery-type selection | provider-side schema requirements                                |
+| Submission          | provider adapter, idempotency, audit log, normalized state mapping           | request intake and provider-side acceptance/refusal              |
+| Downstream handling | truthful status communication only                                           | physical production, postal handling, downstream delivery events |
 
 ---
 
@@ -83,11 +83,22 @@ submission. It must always come from backend-owned canonical records.
 
 - The **provider-bound letter PDF** is a server-generated artifact derived from the immutable
   reviewed snapshot.
+- The **downloadable confirmation document** is a separate, download-only bundle: page 1 is the
+  Swiss Mail confirmation record, and the remaining pages are the exact provider-bound letter PDF.
+  Do not submit the confirmation cover page to the provider.
 - Client preview exists for UX confidence. It is not the source of truth for provider submission.
 - Swiss Mail does not accept an arbitrary user-uploaded final letter PDF as the MVP send path.
 - A successful preview does not by itself prove provider acceptance.
 - Any provider-specific artifact validation must happen before or during adapter submission, not in
   ad hoc UI logic.
+
+Pre-production guardrail:
+
+- ePost submission stays in explicit `mock` mode until production cutover.
+- Mock mode must surface provider-shaped references, tracking fields, emails, and confirmation-PDF
+  metadata so operations can validate the full flow without fee-bearing live submissions.
+- Turning on live ePost submission is a production-only switch, not a convenience toggle for dev or
+  staging.
 
 ---
 
@@ -96,14 +107,14 @@ submission. It must always come from backend-owned canonical records.
 These meanings must remain stable across product copy, API responses, support tooling, and internal
 docs.
 
-| State | Meaning | Must not be collapsed into |
-|---|---|---|
-| `queued` | Backend work is preparing or scheduling provider submission | `submitted` |
-| `submitted` | Swiss Mail created and sent the provider-facing submission attempt | `accepted`, `delivered` |
-| `accepted` | The provider accepted the submission into its downstream workflow | `delivered` |
-| `rejected` | The provider deterministically refused the submission | `unknown` |
-| `unknown` | The outcome is ambiguous or unconfirmed | `submitted`, `accepted` |
-| `reconciled` | Swiss Mail resolved a previously ambiguous case | `accepted` unless reconciliation actually proved acceptance |
+| State        | Meaning                                                            | Must not be collapsed into                                  |
+| ------------ | ------------------------------------------------------------------ | ----------------------------------------------------------- |
+| `queued`     | Backend work is preparing or scheduling provider submission        | `submitted`                                                 |
+| `submitted`  | Swiss Mail created and sent the provider-facing submission attempt | `accepted`, `delivered`                                     |
+| `accepted`   | The provider accepted the submission into its downstream workflow  | `delivered`                                                 |
+| `rejected`   | The provider deterministically refused the submission              | `unknown`                                                   |
+| `unknown`    | The outcome is ambiguous or unconfirmed                            | `submitted`, `accepted`                                     |
+| `reconciled` | Swiss Mail resolved a previously ambiguous case                    | `accepted` unless reconciliation actually proved acceptance |
 
 Canonical language rules:
 

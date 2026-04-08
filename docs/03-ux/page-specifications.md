@@ -13,12 +13,14 @@
 ## Table of Contents
 
 ### Marketing Pages
+
 1. [Homepage (`/`)](#1-homepage-)
 2. [How It Works (`/how-it-works`)](#2-how-it-works-how-it-works)
 3. [Pricing (`/pricing`)](#3-pricing-pricing)
 4. [Use-Case Landing Pages (`/use-cases/:slug`)](#4-use-case-landing-pages-use-casesslug)
 
 ### Application Pages
+
 5. [Draft Entry (`/draft/new`)](#5-draft-entry-draftnew)
 6. [Draft Workspace (`/draft/:id`)](#6-draft-workspace-draftid)
 7. [Review (`/draft/:id/review`)](#7-review-draftidreview)
@@ -27,13 +29,16 @@
 10. [Guest Resume and Order Status Entry Points](#10-guest-resume-and-order-status-entry-points)
 
 ### Discovery Pages
+
 11. [Templates Gallery (`/templates`)](#11-templates-gallery-templates)
 
 ### Utility Pages
+
 12. [Error Pages (404, 500)](#12-error-pages-404-500)
 13. [Legal Pages (`/privacy`, `/terms`, `/imprint`)](#13-legal-pages-privacy-terms-imprint)
 
 ### Admin
+
 14. [Admin Dashboard (`/{locale}/admin/*`)](#14-admin-dashboard-localeadmin)
 
 ---
@@ -57,21 +62,25 @@ Global requirements for every core route:
 - **Dark mode is in MVP scope.** The product ships with an explicit user theme toggle and class-based dark mode. The toggle appears in the primary site chrome and in the draft workspace menu, persists per user on the current device, and respects system preference only as the first-load default. The letter preview remains visually light even when the rest of the UI is dark.
 
 ### Layout components
-| Key | Description |
-|-----|-------------|
+
+| Key                 | Description                                                           |
+| ------------------- | --------------------------------------------------------------------- |
 | `<MarketingLayout>` | Full-width marketing shell: `<SiteHeader>` + content + `<SiteFooter>` |
-| `<AppLayout>` | Application shell: minimal sticky header, no marketing footer |
-| `<MinimalLayout>` | Stripped shell for checkout and confirmation — reduces distraction |
-| `<AdminLayout>` | Sidebar + top bar, restricted to admin role |
+| `<AppLayout>`       | Application shell: minimal sticky header, no marketing footer         |
+| `<MinimalLayout>`   | Stripped shell for checkout and confirmation — reduces distraction    |
+| `<AdminLayout>`     | Sidebar + top bar, restricted to admin role                           |
 
 ### Component naming
+
 Follows the conventions from `../05-architecture/frontend-architecture.md`:
+
 - `components/ui/` — shadcn-derived primitives: `Button`, `Input`, `Textarea`, `Badge`, `Accordion`, `Card`, `Sheet`, `Dialog`, `Separator`, `Progress`, `Skeleton`, `Tooltip`
 - `components/product/` — product flows: `DraftWorkspace`, `ConversationPanel`, `LetterPreview`, `ZoneEditor`, `DeliverySelector`, `PriceSummary`, `AttachmentUploader`, `SignaturePicker`, `DispatchStatusCard`, `DispatchConfirmation`, `StepIndicator`, `FieldExtractionCard`, `QuickReplyChips`
 - `components/marketing/` — marketing: `HeroBlock`, `TrustStrip`, `HowItWorksSteps`, `UseCaseGrid`, `EntryCard`, `PricingCard`, `FAQAccordion`, `ConfidenceBlock`, `FinalCTABand`, `SiteHeader`, `SiteFooter`
 - `components/icons/` — custom: `<LetterIcon>`, `<SwissCrossIcon>`
 
 ### Emotional intent shorthand
+
 Each page documents the **emotional intent** — the feeling the user should have, not just the information they see.
 
 ---
@@ -79,9 +88,11 @@ Each page documents the **emotional intent** — the feeling the user should hav
 ## 1. Homepage (`/`)
 
 ### Route
+
 `/`
 
 ### SEO
+
 - **Title:** `Swiss Mail — Send formal Swiss letters from your phone`
 - **Meta description:** `Draft, review, and send formal letters in Switzerland — in minutes. AI-assisted drafting, postal delivery, and careful data handling.`
 - **OG image:** Hero mockup, navy background, product screenshot
@@ -89,9 +100,11 @@ Each page documents the **emotional intent** — the feeling the user should hav
 - **Canonical:** `https://swissmail.ch/`
 
 ### Layout
+
 `<MarketingLayout>` — `<SiteHeader>` with transparent overlay on hero, transitions to solid on scroll.
 
 ### Emotional intent
+
 **Wow, this is exactly what I needed.** First-time visitor must immediately understand the product, trust it, and feel an impulse to start. The page should feel premium and calm — not a startup pitch deck. The letter metaphor is present but not costume.
 
 ---
@@ -99,6 +112,7 @@ Each page documents the **emotional intent** — the feeling the user should hav
 ### Sections (top to bottom)
 
 #### 1.1 `<SiteHeader>`
+
 - Logo (`<LetterIcon>` + `Swiss Mail` wordmark) — left
 - Nav links: "How it works", "Pricing", "Use cases" — desktop only, hidden mobile
 - Right: Language selector (`de`, `fr`, `it`, `en`) + "Start writing" Button (primary, small)
@@ -107,11 +121,13 @@ Each page documents the **emotional intent** — the feeling the user should hav
 - **Accessibility:** `role="banner"`, skip-to-main link hidden until focused
 
 #### 1.2 Hero — `<HeroBlock>`
+
 Full-viewport section (`min-h-screen`).
 
 **Background:** Radial gradient — `primary` (#1E3A5F) at bottom-left, slate-900 at top-right. Subtle grid overlay (2px lines, 5% opacity white). No photography.
 
 **Content — left column (desktop) / stacked (mobile):**
+
 - Pre-headline badge: `<Badge variant="outline">` "New — AI-assisted drafting" in `accent-light` background
 - Headline: `text-4xl md:text-6xl font-bold text-inverse` — "Send formal letters  
   from your phone — in minutes."
@@ -123,11 +139,13 @@ Full-viewport section (`min-h-screen`).
 - Trust micro-line: `text-sm text-inverse/60` — "No account required · Transparent pricing before payment"
 
 **Content — right column (desktop only):**
+
 - Floating `<LetterPreview>` mockup — static screenshot of a formatted letter card
 - Slight rotation (-2deg), `shadow-paper` elevation, gentle float animation (`translateY` ±8px, 4s ease-in-out loop)
 - Masked at bottom edge by gradient fade
 
 **Mobile behaviour:**
+
 - Right column (mockup) appears below CTA row, cropped to ~50% height
 - Headline font: `text-4xl` (not 6xl)
 - Both buttons stack vertically, full width
@@ -136,9 +154,11 @@ Full-viewport section (`min-h-screen`).
 **Error state:** Not applicable
 
 #### 1.3 Trust Strip — `<TrustStrip>`
+
 Horizontal bar, `surface` background, `border` top/bottom, `py-4`.
 
 Items (left to right, `gap-8`, centered):
+
 1. `<SwissCrossIcon>` + "Privacy-conscious infrastructure"
 2. Envelope icon + "Postal delivery"
 3. Lock icon + "Encrypted in transit and at rest"
@@ -147,27 +167,30 @@ Items (left to right, `gap-8`, centered):
 **Tone:** Muted `text-secondary`, not flashy. Reassurance, not celebration.
 
 #### 1.4 How It Works — `<HowItWorksSteps>`
+
 Section heading: `text-3xl font-semibold text-primary` "How it works"  
 Subheading: `text-secondary` "Three steps. No paperwork knowledge required."
 
 3-step cards in a horizontal row (desktop) / vertical stack (mobile):
 
-| Step | Icon | Title | Body |
-|------|------|-------|------|
-| 1 | `MessageCircle` (Lucide) | "Describe your letter" | "Type or dictate what you need. Swiss Mail asks only what's missing." |
-| 2 | `FileText` | "Review and customise" | "See your letter take shape in real time. Edit any section directly." |
-| 3 | `Send` | "Pay and send" | "Choose standard or registered post. Pay by card. We handle the rest." |
+| Step | Icon                     | Title                  | Body                                                                   |
+| ---- | ------------------------ | ---------------------- | ---------------------------------------------------------------------- |
+| 1    | `MessageCircle` (Lucide) | "Describe your letter" | "Type or dictate what you need. Swiss Mail asks only what's missing."  |
+| 2    | `FileText`               | "Review and customise" | "See your letter take shape in real time. Edit any section directly."  |
+| 3    | `Send`                   | "Pay and send"         | "Choose standard or registered post. Pay by card. We handle the rest." |
 
 Each card: `<Card>` with icon in `primary-light` circle, step number badge (`accent`), title `font-semibold`, body `text-secondary text-sm`.
 
 **Connector line:** Dashed line between cards on desktop, hidden on mobile.
 
 #### 1.5 Differentiator — `<ConfidenceBlock>`
+
 Section heading: "Not just another mailing service"  
 Two-column layout (desktop) / stacked (mobile).
 
 Left: prose block explaining AI drafting, dictation input, guided process, and Swiss-standard formatting.  
 Right: 3–4 feature highlights with checkmark icons:
+
 - "Understands Swiss formal letter conventions"
 - "Drafts from a sentence — not a blank page"
 - "Dictate on the go, edit on desktop"
@@ -176,25 +199,27 @@ Right: 3–4 feature highlights with checkmark icons:
 **Tone:** Calm confidence. No competitor naming. No superlatives.
 
 #### 1.6 Use Cases — `<UseCaseGrid>`
+
 Section heading: "What people send"
 
 Grid: 3 columns (desktop) / 2 columns (tablet) / 1 column (mobile)
 
 `<EntryCard>` for each use case:
 
-| Slug | Icon | Title | Subtext |
-|------|------|-------|---------|
-| `lease-cancellation` | `Home` | "Lease cancellation" | "End your rental agreement on the right legal footing" |
-| `insurance-cancellation` | `Shield` | "Insurance cancellation" | "Cancel any policy with a compliant written notice" |
-| `contract-termination` | `FileX` | "Contract termination" | "Terminate service contracts, subscriptions, or agreements" |
-| `formal-complaint` | `Megaphone` | "Formal complaint" | "Lodge a complaint that gets taken seriously" |
-| `official-correspondence` | `Stamp` | "Official correspondence" | "Write to authorities, municipalities, or government offices" |
-| `demand-letter` | `AlertCircle` | "Demand letter" | "Request what you're owed — clearly, formally, in writing" |
+| Slug                      | Icon          | Title                     | Subtext                                                       |
+| ------------------------- | ------------- | ------------------------- | ------------------------------------------------------------- |
+| `lease-cancellation`      | `Home`        | "Lease cancellation"      | "End your rental agreement on the right legal footing"        |
+| `insurance-cancellation`  | `Shield`      | "Insurance cancellation"  | "Cancel any policy with a compliant written notice"           |
+| `contract-termination`    | `FileX`       | "Contract termination"    | "Terminate service contracts, subscriptions, or agreements"   |
+| `formal-complaint`        | `Megaphone`   | "Formal complaint"        | "Lodge a complaint that gets taken seriously"                 |
+| `official-correspondence` | `Stamp`       | "Official correspondence" | "Write to authorities, municipalities, or government offices" |
+| `demand-letter`           | `AlertCircle` | "Demand letter"           | "Request what you're owed — clearly, formally, in writing"    |
 
 Each card: icon in `accent-light` circle, title `font-medium`, subtext `text-secondary text-sm`, subtle "Write this letter →" link (`text-primary`).  
 Clicking card → `/use-cases/{slug}`.
 
 #### 1.7 Pricing — `<PricingCard>`
+
 Section heading: "Simple, transparent pricing"  
 Single card (max-width `lg`, centred):
 
@@ -210,8 +235,10 @@ Single card (max-width `lg`, centred):
 > **Implementation note:** Do not hardcode prices. Read them from the backend pricing config and format them through the shared CHF formatter.
 
 #### 1.8 Trust & Security — `<ConfidenceBlock variant="trust">`
+
 Section heading: "Your documents. Your data."  
 3-column icon+text blocks (desktop) / stacked (mobile):
+
 1. Server icon — "Privacy-conscious infrastructure" — `text-secondary text-sm`
 2. Lock icon — "Encrypted in transit and at rest"
 3. Trash2 icon — "Automatically deleted after the approved retention period" — do not hardcode duration
@@ -219,6 +246,7 @@ Section heading: "Your documents. Your data."
 Calm, reassuring. No fear language. `surface-subtle` background, `border` top/bottom.
 
 #### 1.9 FAQ — `<FAQAccordion>`
+
 Section heading: "Common questions"
 
 6–8 questions. Suggested starters (final copy via i18n layer — see `../05-architecture/i18n-rules.md`):
@@ -235,6 +263,7 @@ Section heading: "Common questions"
 Structured data: `FAQPage` schema wrapping all items. Each `AccordionItem` maps to one `Question`/`Answer` pair.
 
 #### 1.10 Final CTA Band — `<FinalCTABand>`
+
 Full-width section, `primary` background, `text-inverse`.
 
 - Headline: `text-3xl font-bold` — "Ready to send your letter?"
@@ -244,14 +273,15 @@ Full-width section, `primary` background, `text-inverse`.
 **Mobile:** Stacked, button full width.
 
 #### 1.11 `<SiteFooter>`
+
 Multi-column grid (desktop) / stacked accordion (mobile):
 
-| Column | Links |
-|--------|-------|
-| Product | How it works, Pricing, Use cases |
-| Legal | Privacy policy, Terms of service, Imprint |
-| Support | FAQ, Contact |
-| Languages | de · fr · it · en |
+| Column    | Links                                     |
+| --------- | ----------------------------------------- |
+| Product   | How it works, Pricing, Use cases          |
+| Legal     | Privacy policy, Terms of service, Imprint |
+| Support   | FAQ, Contact                              |
+| Languages | de · fr · it · en                         |
 
 Bottom row: Copyright line, `<SwissCrossIcon>` "Built for Switzerland" note, social links (if applicable).  
 Background: `surface-subtle`, `border-strong` top border.
@@ -260,15 +290,16 @@ Background: `surface-subtle`, `border-strong` top border.
 
 ### Responsive Summary — Homepage
 
-| Breakpoint | Hero | Steps | Use Cases | Pricing |
-|------------|------|-------|-----------|---------|
-| mobile (<768px) | Stacked, mockup below CTA | Vertical stack | 1 col | Full-width card |
-| tablet (768–1024px) | 50/50 split | 3-col horizontal | 2 col | Centred card |
-| desktop (>1024px) | 55/45 split + float mockup | 3-col with connectors | 3 col | Centred card |
+| Breakpoint          | Hero                       | Steps                 | Use Cases | Pricing         |
+| ------------------- | -------------------------- | --------------------- | --------- | --------------- |
+| mobile (<768px)     | Stacked, mockup below CTA  | Vertical stack        | 1 col     | Full-width card |
+| tablet (768–1024px) | 50/50 split                | 3-col horizontal      | 2 col     | Centred card    |
+| desktop (>1024px)   | 55/45 split + float mockup | 3-col with connectors | 3 col     | Centred card    |
 
 ---
 
 ### Accessibility — Homepage
+
 - Skip-to-main link at top of `<body>`
 - Hero headline is `<h1>`; all section headings follow logical `<h2>` / `<h3>` hierarchy
 - Trust strip items: `aria-label` on each icon+text pair
@@ -282,17 +313,21 @@ Background: `surface-subtle`, `border-strong` top border.
 ## 2. How It Works (`/how-it-works`)
 
 ### Route
+
 `/how-it-works`
 
 ### SEO
+
 - **Title:** `How Swiss Mail works — AI-assisted formal letters`
 - **Meta description:** `See exactly how Swiss Mail drafts, formats, and sends your Swiss formal letters — step by step.`
 - **Structured data:** `HowTo` schema
 
 ### Layout
+
 `<MarketingLayout>`
 
 ### Emotional intent
+
 **I understand exactly what happens — I'm ready to try it.** This page converts the curious into the committed. It should be more detailed than the homepage strip, but still light and readable.
 
 ---
@@ -302,38 +337,46 @@ Background: `surface-subtle`, `border-strong` top border.
 #### 2.1 `<SiteHeader>` (same as homepage, solid from the start)
 
 #### 2.2 Page Hero
+
 Narrower hero, no full-viewport. `py-20`.
+
 - Breadcrumb: `Home > How it works`
 - Heading `<h1>`: "How Swiss Mail works"
 - Subheading: "From first word to letterbox — here's what happens at every step."
 
 #### 2.3 Detailed Steps
+
 Alternating two-column rows (icon/illustration left + text right, then flip):
 
 **Step 1 — Start your letter**
+
 - User types or dictates their intent ("I need to cancel my gym membership")
 - Swiss Mail recognises the letter type and surfaces the right template logic
 - System asks only for what's missing (recipient details, dates, contract reference)
 - Illustration: chat-like interface mockup
 
 **Step 2 — Review in real time**
+
 - Letter preview updates as the user provides information
 - User can click any zone to edit directly
 - Attachments can be added (PDF pages, signature)
 - Illustration: split-panel workspace mockup
 
 **Step 3 — Choose delivery**
+
 - Standard post or registered mail (brief explanation of each)
 - Price shown clearly
 - Illustration: delivery selector UI
 
 **Step 4 — Pay**
+
 - Stripe payment form
 - Email provided for receipt and tracking updates
 - No account required
 - Illustration: checkout card
 
 **Step 5 — We handle the rest**
+
 - Swiss Mail renders the final PDF
 - Submits to postal dispatch
 - User receives reference number
@@ -341,9 +384,11 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 - Illustration: confirmation screen
 
 #### 2.4 FAQ Strip
+
 3–4 questions most relevant to the "how it works" context.
 
 #### 2.5 CTA Band
+
 "Start your first letter — takes about 5 minutes."  
 `<Button>` → `/draft/new`
 
@@ -352,10 +397,12 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 ---
 
 ### Loading / Error / Empty States
+
 - Page is fully static (SSG). No dynamic loading states.
 - If illustrations fail to load: `alt` text describes the step clearly.
 
 ### Accessibility
+
 - `<h1>` on page title, `<h2>` on each step number/title
 - Illustrations: `role="img"` with descriptive `aria-label`
 - Alternating layout does not break reading order in DOM — visual alternation is CSS-only
@@ -365,17 +412,21 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 ## 3. Pricing (`/pricing`)
 
 ### Route
+
 `/pricing`
 
 ### SEO
+
 - **Title:** `Pricing — Swiss Mail`
 - **Meta description:** `Transparent public reference pricing from the stored Swiss Mail pricing source, with freshness status and standard vs registered totals.`
 - **Structured data:** Could include `Offer` / pricing schema when prices are locked
 
 ### Layout
+
 `<MarketingLayout>`
 
 ### Emotional intent
+
 **No tricks. I know exactly what I'll pay.** Pricing anxiety is high in postal services. The page must preempt every question about cost.
 
 ---
@@ -383,11 +434,13 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 ### Sections
 
 #### 3.1 Hero
+
 - `<h1>` "Simple, honest pricing"
 - Subheading: "Public reference totals from the same stored pricing source Swiss Mail uses in the app, with the key assumptions shown plainly."
 - Hero panel may show the current "from" price, but the detail work belongs below the fold.
 
 #### 3.2 Sync-status banner
+
 - Dedicated banner immediately under the hero
 - Must show:
   - pricing source / provider label
@@ -396,6 +449,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 - If stale, keep the prices visible but show a prominent warning that the figures come from the last successful provider sync and may be outdated until the next refresh.
 
 #### 3.3 Primary totals card
+
 - Show only the decision-making totals:
   - standard total
   - registered add-on
@@ -404,6 +458,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 - Add one short note that checkout recalculates the exact total from the user’s real draft, pages, attachments, and delivery choice.
 
 #### 3.4 Pricing detail area
+
 Two cards / tables:
 
 1. **What makes up the price**
@@ -421,17 +476,19 @@ Do **not** show synthetic raw provider component rows if the active stored matri
 
 #### 3.5 Comparison table — Standard vs Registered
 
-| Feature | Standard | Registered |
-|---------|----------|------------|
-| Service level wording | Standard postal delivery | Registered postal delivery |
-| Provider reference / tracking | Only if the provider supplies it | Only if the provider supplies it |
-| Confirmation language | Never imply tracking by default | Stronger wording only when the provider confirms it |
-| Price | {formattedStandardPrice} | {formattedRegisteredPrice} |
+| Feature                       | Standard                         | Registered                                          |
+| ----------------------------- | -------------------------------- | --------------------------------------------------- |
+| Service level wording         | Standard postal delivery         | Registered postal delivery                          |
+| Provider reference / tracking | Only if the provider supplies it | Only if the provider supplies it                    |
+| Confirmation language         | Never imply tracking by default  | Stronger wording only when the provider confirms it |
+| Price                         | {formattedStandardPrice}         | {formattedRegisteredPrice}                          |
 
 > **Note:** Delivery estimates and tracking capability must not be fabricated. See `../08-guardrails/provider-certainties.md`. If the provider cannot supply deterministic wording, omit it.
 
 #### 3.6 What's Included / What's Not Included
+
 Icon+text list:
+
 - Drafting assistance and structured review
 - Swiss-standard letter formatting
 - PDF render
@@ -439,17 +496,20 @@ Icon+text list:
 - Receipt and confirmation handling
 
 Honest counter-list:
+
 - Legal advice or review
 - Guaranteed delivery outcomes
 - Translation (letters drafted in the language you write in)
 
 #### 3.7 FAQ (Pricing-specific)
+
 - "Do I pay if my letter is rejected?" (dispatch rejection scenario — honest answer)
 - "Can I get a refund?"
 - "Are there volume discounts?"
 - "Is VAT included in the prices shown?"
 
 #### 3.8 CTA Band
+
 "Try it — you only pay when you're ready to send."  
 → `/draft/new`
 
@@ -458,12 +518,15 @@ Honest counter-list:
 ---
 
 ### Loading State
+
 Prices fetched from config/API: show `<Skeleton>` blocks in place of CHF amounts until loaded. Do not show CHF 0.00 as a fallback.
 
 ### Error State
+
 If no stored pricing snapshot is available: show one muted notice "Pricing information is temporarily unavailable. Please try again shortly." Do not fabricate prices.
 
 ### Stale State
+
 If a stored snapshot exists but is stale, still show the last successful prices, timestamp, and an explicit stale warning in the sync banner.
 
 ---
@@ -471,19 +534,23 @@ If a stored snapshot exists but is stale, still show the last successful prices,
 ## 4. Use-Case Landing Pages (`/use-cases/:slug`)
 
 ### Route
+
 `/use-cases/:slug`  
 Valid slugs: `lease-cancellation`, `insurance-cancellation`, `contract-termination`, `formal-complaint`, `official-correspondence`, `demand-letter`
 
 ### SEO (template — populated per slug)
+
 - **Title:** `{useCaseTitle} — Swiss Mail`
 - **Meta description:** `Draft and send {useCaseDescription} in minutes with Swiss Mail. AI-assisted and ready for postal dispatch.`
 - **Structured data:** `HowTo`, `FAQPage`
 - **Canonical:** `https://swissmail.ch/use-cases/{slug}`
 
 ### Layout
+
 `<MarketingLayout>`
 
 ### Emotional intent
+
 **This is exactly my situation. I'm in the right place.** The user arrived from search or a specific link. The page must affirm their context and make the first step frictionless.
 
 ---
@@ -491,19 +558,24 @@ Valid slugs: `lease-cancellation`, `insurance-cancellation`, `contract-terminati
 ### Sections
 
 #### 4.1 Hero (use-case specific)
+
 - `<h1>` — e.g. "Cancel a subscription — fast, formal, correct."
 - Subheading specific to this letter type
 - Primary CTA: "Draft my {useCaseCtaLabel}" → `/draft/new?useCase={slug}`
 - Illustration or mockup of a relevant letter (anonymised, no real data)
 
 #### 4.2 "How this works for {useCaseTitle}"
+
 Adapted step sequence with use-case-specific language:
+
 - Step 1: "Tell us who you're cancelling with and when"
 - Step 2: "Review your letter — formatted to Swiss standards"
 - Step 3: "Send for postal dispatch in one flow"
 
 #### 4.3 Sample Letter Snippet
+
 A truncated, clearly anonymised excerpt of the type of letter produced.
+
 - `<Card>` styled like `<LetterPreview>` — `paper` background, serif font
 - Redacted fields shown as `████████` or `[Recipient Name]`
 - Caption: `text-xs text-secondary` "Example only — your letter will be personalised."
@@ -512,11 +584,13 @@ A truncated, clearly anonymised excerpt of the type of letter produced.
 #### 4.4 Pricing (same card as `/pricing`)
 
 #### 4.5 FAQ (use-case specific)
+
 3–5 questions specific to the letter type.
 
 #### 4.6 CTA Band
 
 #### 4.7 Related Use Cases
+
 Horizontal scroll of `<EntryCard>` components linking to other slugs.
 
 #### 4.8 `<SiteFooter>`
@@ -524,10 +598,12 @@ Horizontal scroll of `<EntryCard>` components linking to other slugs.
 ---
 
 ### Empty / Error States
+
 - 404 for unknown slugs: redirect to `/` or custom 404 page with "Use case not found" and link to use-case grid
 - If slug is valid but content not yet written: show generic use-case template, not a broken page
 
 ### Accessibility
+
 - `<h1>` matches use-case name
 - Sample letter snippet: `aria-label="Example letter — anonymised"`, `role="region"`
 
@@ -536,17 +612,21 @@ Horizontal scroll of `<EntryCard>` components linking to other slugs.
 ## 5. Draft Entry (`/draft/new`)
 
 ### Route
+
 `/draft/new`  
 Optional query param: `?useCase={slug}` — pre-fills context
 
 ### SEO
+
 - `noindex` — application page, not for search indexing
 - **Title:** `Draft a new letter — Swiss Mail`
 
 ### Layout
+
 `<AppLayout>` — minimal. No marketing footer. Sticky header with logo and language selector only.
 
 ### Emotional intent
+
 **This is easy. I know exactly what to do.** The user has committed to starting. The entry screen must be clear, focused, and low-friction. One primary action. No decision paralysis.
 
 ---
@@ -554,12 +634,14 @@ Optional query param: `?useCase={slug}` — pre-fills context
 ### Sections
 
 #### 5.1 App Header
+
 Logo left. Language selector right. No nav links.  
 On mobile: same, compact.
 
 #### 5.2 Entry Screen (full-screen, centred content)
 
 If an unfinished guest draft exists within the current session TTL, this section switches to a recovery card before any new draft is created:
+
 - Heading: "You have an unfinished letter"
 - Supporting copy explains the user can continue where they left off or begin again without losing the older draft
 - Primary CTA: "Continue draft" → `/draft/:id`
@@ -569,6 +651,7 @@ If an unfinished guest draft exists within the current session TTL, this section
 The product must not silently redirect returning users into an old draft from `/draft/new`. Recovery is explicit and reversible.
 
 **Primary path — text input:**
+
 - Heading: `text-2xl font-semibold` "What kind of letter do you need?"
 - Large `<Textarea>` or styled `<Input>` — placeholder: "e.g. I need to cancel my gym membership at Migros Sport from next month"
 - `<Button size="lg">` "Start drafting" → submits, creates session, navigates to `/draft/:id`
@@ -586,6 +669,7 @@ Helper text only: `text-sm text-secondary` "Need to include supporting files? Yo
 Do not offer a competing "upload a PDF instead" path here. The consumer MVP starts from guided drafting, not from document upload.
 
 #### 5.3 Guest notice (if applicable)
+
 `text-xs text-tertiary` at bottom: "No account needed. Your session is saved for {configuredSessionRetentionLabel}."  
 `configuredSessionRetentionLabel` is a localized duration string derived from `SESSION_TTL_HOURS`
 (locked default: 72 → displays as "72 hours" or equivalent locale form). Do not hardcode the
@@ -595,20 +679,25 @@ display string — compute from config. See [`open-decisions.md`](../08-guardrai
 ---
 
 ### Loading State
+
 After "Start drafting" submit:
+
 - Button shows spinner, disabled
 - Navigates to `/draft/:id` once session created
 - If session creation fails: inline error below button (validation error family)
 
 ### Error States
+
 - Session creation failure: `<ErrorBanner>` "We couldn't start your draft. Please try again."
 - Speech-to-text unavailable: keep the microphone affordance visible but disabled or explanatory, with clear copy such as "Voice input unavailable in this browser"
 - Network offline: `<ErrorBanner>` "No connection. Please check your internet and try again."
 
 ### Empty State
+
 The textarea starts empty and focused. Placeholder text provides guidance. No skeleton needed.
 
 ### Accessibility
+
 - `<h1>` "Start your letter"
 - `<Textarea>` has `aria-label="Describe the letter you need"`
 - Dictation button: `aria-label="Start voice input"`, `aria-pressed` for active state
@@ -621,17 +710,21 @@ The textarea starts empty and focused. Placeholder text provides guidance. No sk
 ## 6. Draft Workspace (`/draft/:id`)
 
 ### Route
+
 `/draft/:id`  
 `:id` — session/draft UUID
 
 ### SEO
+
 - `noindex, nofollow`
 - **Title:** `Drafting your letter — Swiss Mail`
 
 ### Layout
+
 `<AppLayout>` — modified for workspace. No footer. Sticky header with step indicator and price summary.
 
 ### Emotional intent
+
 **I'm in control. This is going exactly where I want.** The workspace is the core product experience. It must feel fluid, intelligent, and responsive. The user should feel guided without feeling railroaded. The letter preview must feel like the real thing.
 
 ---
@@ -642,17 +735,17 @@ This is the most critical UX window in the entire product. The user has committe
 
 **Timeline:**
 
-| Time | What happens | What the user sees |
-|------|-------------|-------------------|
-| 0s | Navigation starts | Instant route change. No full-page loading screen. |
-| 0–0.3s | Layout renders | Skeleton conversation panel (left) + blank letter template outline (right). On mobile: skeleton conversation panel only. The letter template outline shows faint zone placeholders (sender, recipient, body) — it looks like an empty page waiting to be filled, not a loading state. |
-| 0.3–1s | Session context loaded | If `?useCase=` param present: system message appears — `"Letter type: Lease cancellation"` — centered, `text-tertiary text-xs`. The AI's typing indicator starts (3-dot pulse). |
-| 1–2.5s | AI first message arrives | The AI's welcome message fades in (200ms). The typing indicator is replaced. See "First AI Message" below. |
-| 2.5–4s | Quick-reply chips appear | `<QuickReplyChips>` stagger in (50ms per chip, 200ms fade) below the AI message. These are contextual — see "First Quick Replies" below. |
-| 4–8s | User responds (typical) | User either types, taps a chip, or uses voice. The moment user input is submitted, the AI typing indicator appears within 100ms. |
-| 8–15s | First field extraction | `<FieldExtractionCard>` appears in conversation, showing what the AI understood. Fields animate in as key-value pairs. |
-| 15–25s | **First draft appears in preview** | This is THE wow moment. See "First Draft Reveal" below. The letter preview transitions from blank template to populated content. On mobile, the Preview toggle gains a visible update signal so the user notices the letter is ready to inspect. |
-| 25–30s | Refinement begins | AI sends a follow-up: "I've drafted your letter. Take a look — anything you'd like to change?" Quick-reply chips: "Looks good", "Make it more formal", "Change the tone", "I want to edit the [section]" |
+| Time   | What happens                       | What the user sees                                                                                                                                                                                                                                                                    |
+| ------ | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0s     | Navigation starts                  | Instant route change. No full-page loading screen.                                                                                                                                                                                                                                    |
+| 0–0.3s | Layout renders                     | Skeleton conversation panel (left) + blank letter template outline (right). On mobile: skeleton conversation panel only. The letter template outline shows faint zone placeholders (sender, recipient, body) — it looks like an empty page waiting to be filled, not a loading state. |
+| 0.3–1s | Session context loaded             | If `?useCase=` param present: system message appears — `"Letter type: Lease cancellation"` — centered, `text-tertiary text-xs`. The AI's typing indicator starts (3-dot pulse).                                                                                                       |
+| 1–2.5s | AI first message arrives           | The AI's welcome message fades in (200ms). The typing indicator is replaced. See "First AI Message" below.                                                                                                                                                                            |
+| 2.5–4s | Quick-reply chips appear           | `<QuickReplyChips>` stagger in (50ms per chip, 200ms fade) below the AI message. These are contextual — see "First Quick Replies" below.                                                                                                                                              |
+| 4–8s   | User responds (typical)            | User either types, taps a chip, or uses voice. The moment user input is submitted, the AI typing indicator appears within 100ms.                                                                                                                                                      |
+| 8–15s  | First field extraction             | `<FieldExtractionCard>` appears in conversation, showing what the AI understood. Fields animate in as key-value pairs.                                                                                                                                                                |
+| 15–25s | **First draft appears in preview** | This is THE wow moment. See "First Draft Reveal" below. The letter preview transitions from blank template to populated content. On mobile, the Preview toggle gains a visible update signal so the user notices the letter is ready to inspect.                                      |
+| 25–30s | Refinement begins                  | AI sends a follow-up: "I've drafted your letter. Take a look — anything you'd like to change?" Quick-reply chips: "Looks good", "Make it more formal", "Change the tone", "I want to edit the [section]"                                                                              |
 
 **Perceived latency rule:** The user must never stare at an empty screen for more than 300ms. Skeletons appear instantly. The AI typing indicator must appear within 100ms of the user sending a message. If the AI response takes longer than 3 seconds, show a contextual "thinking" label below the typing indicator (e.g., "Drafting your letter…" or "Researching the right format…").
 
@@ -661,15 +754,19 @@ This is the most critical UX window in the entire product. The user has committe
 The AI's first message varies by entry path:
 
 **Path A — Free-text entry** (user typed "I need to cancel my gym membership"):
+
 > "Got it — a cancellation letter for your gym membership. I'll need a few details to get this right. First: **what's the name and address of the gym?**"
 
 **Path B — Use-case entry** (user came from `/use-cases/lease-cancellation`):
+
 > "Let's draft your lease cancellation letter. To get started: **what's the landlord's name and address?**"
 
 **Path C — Empty entry** (user arrived at `/draft/new` without context, typed nothing specific):
+
 > "What kind of letter do you need to send? Describe the situation in your own words — I'll take it from there."
 
 Key rules for the AI's first message:
+
 - **One question at a time.** Never ask for multiple unrelated fields in the first message. Exception: name + address can be grouped because they form a logical unit.
 - **Bold the question.** The primary question in each AI message is wrapped in `**bold**` so it's visually scannable.
 - **No preamble.** Don't start with "Hello! I'm here to help you..." — get to the point.
@@ -681,11 +778,13 @@ Key rules for the AI's first message:
 Contextual chips that appear after the AI's first message:
 
 **After Path A/B** (context known):
+
 - "I have the address ready" (pre-fill signal — opens address input inline)
 - "I'm not sure of the address" (AI pivots to ask for the company/recipient name only)
 - "I need something different" (resets context)
 
 **After Path C** (no context):
+
 - Quick-start chips matching the top use cases: "Cancel a subscription", "End a lease", "Send a formal complaint", "Write to an authority", "Something else"
 
 Chip visual: `<Badge variant="outline" className="cursor-pointer hover:bg-primary-light">` — see component-library.md `QuickReplyChips` for full spec.
@@ -695,6 +794,7 @@ Chip visual: `<Badge variant="outline" className="cursor-pointer hover:bg-primar
 This is the emotional climax of the drafting flow. When the AI has gathered enough information (typically after 2–3 exchanges), it generates a full letter draft. The reveal must feel like a moment of delight:
 
 **Desktop:**
+
 1. The LetterPreview panel, which has been showing a blank template outline, receives the content.
 2. Content appears zone-by-zone from top to bottom: sender block → recipient block → date → subject → body → closing → signature placeholder.
 3. Each zone fades in (200ms, ease-out) with a 100ms stagger between zones.
@@ -703,6 +803,7 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 6. System message in conversation: `"Your letter is ready to review"` — centered, `text-tertiary`.
 
 **Mobile:**
+
 1. The Preview toggle receives a badge/update signal.
 2. The user switches from `Write` to `Preview` using the segmented workspace toggle directly below the step strip.
 3. The preview panel replaces the conversation panel, where content is already fully populated.
@@ -714,6 +815,7 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 ### Layout Structure
 
 #### Desktop (`>=1024px`)
+
 ```
 ┌────────────────────────────────────────────────────────────┐
 │ <AppHeader>   Swiss Mail   Step 1 ●──○──○──○   {formattedEstimatedTotal}│
@@ -733,6 +835,7 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 ```
 
 #### Mobile (`<768px`)
+
 ```
 ┌────────────────────────┐
 │ <AppHeader> minimal    │
@@ -748,6 +851,7 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 │                        │
 └────────────────────────┘
 ```
+
 The workspace toggle swaps between `<ConversationPanel>` and `<LetterPreview>` in-place on mobile.
 
 ---
@@ -755,6 +859,7 @@ The workspace toggle swaps between `<ConversationPanel>` and `<LetterPreview>` i
 ### Components
 
 #### 6.1 `<AppHeader>` (workspace)
+
 - Logo (small, left) — tap to confirm/discard dialog if unsaved work
 - `<StepIndicator>` — centre: step dots with labels ("Draft · Review · Pay · Done")
 - Price estimate — right: `text-sm` `{formattedEstimatedTotal}` (muted, updates as content changes)
@@ -767,6 +872,7 @@ The workspace toggle swaps between `<ConversationPanel>` and `<LetterPreview>` i
 Draft state auto-saves on every meaningful change (message sent, field edited, zone updated). The user must feel confident their work is safe without being interrupted by save confirmations.
 
 **Visual:** A small save status indicator in the header, right-aligned, `text-xs text-tertiary`:
+
 - Default (saved): `"Saved"` with a subtle `Check` icon (12px). Appears 1s after the last change, fades in 200ms.
 - Saving: `"Saving…"` with a `Loader2` icon (12px, `animate-spin`). Appears immediately when a save is triggered.
 - Save failed: `"Not saved"` with `AlertCircle` icon in `text-warning`. Persists until save succeeds or user retries.
@@ -781,26 +887,31 @@ Draft state auto-saves on every meaningful change (message sent, field edited, z
 See [`chat-ui-audit.md` § Step Indicator — Locked Design](chat-ui-audit.md#step-indicator--locked-design) for the canonical specification. The indicator appears in FlowHeader across all draft flow pages, using compact mode on mobile and the full connected rail on desktop.
 
 #### 6.2 `<ConversationPanel>`
+
 Scrollable, fills available height.
 
 **Message types:**
+
 - AI message: avatar dot (`primary` colour), message in `<Card>` rounded, `text-sm`
 - User message: right-aligned, `primary-light` bg
 - System message: centred, `text-tertiary text-xs` (e.g. "Letter type detected: Cancellation")
 - Field extraction card: `<FieldExtractionCard>` — shows extracted fields as key-value pairs with edit icons
 
 **Scroll model:**
+
 - The conversation thread is the only scroll container in the drafting workspace.
 - The header, step strip, preview trigger, and composer remain fixed in place while the thread is shorter than the viewport.
 - Auto-scroll-to-bottom is allowed only while the user is already near the bottom. Once the user scrolls upward, new AI output must not steal scroll position.
 - Do not make the entire workspace column scroll as one page. That creates dead movement and makes the composer feel unstable.
 
 **Empty-thread layout:**
+
 - The empty state sits in the lower half of the workspace, visually tied to the composer.
 - Do not vertically centre the empty state in the full viewport with a large dead zone above and below.
 - The empty state is a compact starter card: icon, short title, short prompt, one supporting hint. It introduces the task; it does not compete with the composer.
 
 **Input area** (pinned at bottom):
+
 - `<Textarea>` auto-resize, `min-h-[48px] max-h-[120px]`
 - Send button `<Button variant="ghost" size="icon">` with `Send` icon, or `Ctrl+Enter` / `Cmd+Enter`
 - Microphone button `<Button variant="ghost" size="icon">` with `Mic` icon
@@ -814,6 +925,7 @@ Scrollable, fills available height.
 - Drafting headings, labels, helper text, and buttons follow sentence case per `docs/02-brand/voice-and-tone.md`; avoid title case and all-caps UI copy
 
 **Composer rules:**
+
 - The composer is a single surface. Voice encouragement, textarea, mic affordance, and send action belong to one visual object.
 - On an empty draft, voice gets the strongest emphasis, but typing is immediately available in the same composer without a separate mode-selection screen.
 - Do not stack a separate dictation promo/banner above the textarea once the composer is visible. That reads like an ad bolted onto the chat input.
@@ -821,12 +933,14 @@ Scrollable, fills available height.
 - Placeholder copy should explicitly support both paths, for example "Type or dictate…", so the voice path stays mentally available.
 
 **Preview separation:**
+
 - On mobile, preview is a separate top-level toggle beside "Write", not a floating control inside or around the composer.
 - The preview toggle must remain visually distinct from the composer and from the step indicator.
 - Preview access should not compete for space with dictation copy, the textarea, or the send button.
 - This separation is required to avoid turning the composer into a crowded toolbar.
 
 **`<QuickReplyChips>`:**
+
 - Row of `<Badge variant="outline">` chips with suggested responses
 - Appear after AI asks a question
 - Clicking a chip fills the input and auto-submits
@@ -837,17 +951,18 @@ The AI conversation follows a structured state machine — not free-form chat. E
 
 **States:**
 
-| State | AI's Goal | Typical AI Message Pattern | Quick-Reply Chips |
-|-------|-----------|---------------------------|-------------------|
-| `intent_detection` | Understand what kind of letter | "Got it — [mirror user input]. I'll need a few details." | Use-case chips if intent unclear |
-| `recipient_collection` | Get recipient name + address | "Who is this letter addressed to? **Name and address?**" | "I have it ready", "I'm not sure" |
-| `sender_collection` | Get sender name + address | "And your details — **your name and address?**" | "Same as last time" (if returning user), "Enter manually" |
-| `context_gathering` | Get letter-specific details | Varies by use case: dates, reference numbers, specifics | Contextual suggestions |
-| `draft_generation` | AI produces first draft | "I've drafted your letter. Take a look — anything you'd like to change?" | "Looks good", "More formal", "Change the tone", "Edit [section]" |
-| `refinement` | User requests changes | "I've updated [section]. Here's the revised version." | "Looks good now", "Change something else" |
-| `ready` | Draft is complete | "Your letter is ready to review when you are." | "Continue to review" |
+| State                  | AI's Goal                      | Typical AI Message Pattern                                               | Quick-Reply Chips                                                |
+| ---------------------- | ------------------------------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `intent_detection`     | Understand what kind of letter | "Got it — [mirror user input]. I'll need a few details."                 | Use-case chips if intent unclear                                 |
+| `recipient_collection` | Get recipient name + address   | "Who is this letter addressed to? **Name and address?**"                 | "I have it ready", "I'm not sure"                                |
+| `sender_collection`    | Get sender name + address      | "And your details — **your name and address?**"                          | "Same as last time" (if returning user), "Enter manually"        |
+| `context_gathering`    | Get letter-specific details    | Varies by use case: dates, reference numbers, specifics                  | Contextual suggestions                                           |
+| `draft_generation`     | AI produces first draft        | "I've drafted your letter. Take a look — anything you'd like to change?" | "Looks good", "More formal", "Change the tone", "Edit [section]" |
+| `refinement`           | User requests changes          | "I've updated [section]. Here's the revised version."                    | "Looks good now", "Change something else"                        |
+| `ready`                | Draft is complete              | "Your letter is ready to review when you are."                           | "Continue to review"                                             |
 
 **Transition rules:**
+
 - States progress linearly but can loop (`refinement` → `refinement`).
 - The AI never skips `recipient_collection` — a letter always has a recipient.
 - `sender_collection` can be auto-filled if the user has sent a letter before (account context).
@@ -910,11 +1025,13 @@ AI:     Your letter is ready to review. I've included:
 The product should feel like it already knows you. Every default should feel like a shortcut, not a guess.
 
 **Date auto-fill:**
+
 - The letter date defaults to today's date, formatted per the active locale (e.g., "15. März 2026" for de-CH, "15 mars 2026" for fr-CH).
 - The date appears pre-filled in the preview from the moment the first draft is generated.
 - User can change the date via ZoneEditor at any time. The AI does NOT ask for the date in conversation unless the use case requires a specific date (e.g., "effective as of…").
 
 **Locale-aware defaults:**
+
 - The UI locale determines default letter language. A user browsing in `de-CH` gets a German letter draft by default.
 - The AI should confirm the language if the user's input language doesn't match their locale: "You wrote in English, but your locale is set to German. Should I draft the letter in English or German?"
 - Salutation and closing conventions follow Swiss norms per locale:
@@ -924,6 +1041,7 @@ The product should feel like it already knows you. Every default should feel lik
   - `en-CH`: "Dear Sir or Madam" / "Yours faithfully"
 
 **Returning session prefilling (same guest session only):**
+
 - If the user resumes the same guest session by cookie or resume link:
   - Sender name + address already captured in that session are pre-filled in the `<FieldExtractionCard>`.
   - The AI offers: "I still have your sender details — **Anna Meier, Seestrasse 15, 8002 Zürich**. Is that still correct?"
@@ -932,6 +1050,7 @@ The product should feel like it already knows you. Every default should feel lik
 - **Implementation note:** Prefilling from prior sessions requires a server-side lookup. Do not store sender details in `localStorage` or cookies — this is PII.
 
 **Recipient search assistance:**
+
 - Assisted search is for **companies / registered organizations only**.
 - For company recipients, the UI may prefill the organization name from the AI step and offer an
   official registry-backed lookup before the user falls back to manual address entry.
@@ -946,6 +1065,7 @@ The product should feel like it already knows you. Every default should feel lik
   destinations do not always match perfectly.
 
 **Use-case context pre-loading:**
+
 - When a user arrives via a use-case landing page (e.g., `/use-cases/lease-cancellation`), the conversation starts with that context pre-loaded.
 - The AI's first message references the use case: "Let's draft your lease cancellation letter…" (not a generic "How can I help?").
 - Use-case context also pre-selects relevant quick-reply chips and adjusts the conversation state machine's question ordering (e.g., for lease cancellation, asking for the landlord first makes more sense than asking for a generic "recipient").
@@ -955,22 +1075,26 @@ The product should feel like it already knows you. Every default should feel lik
 The AI will sometimes not understand the user's intent. This must not be a dead end.
 
 **Detection heuristics (backend-defined, UX-visible):**
+
 - AI confidence score below threshold → fallback path
 - User repeats the same message twice → AI wasn't helpful
 - User sends "?" or "help" or "I don't understand" → explicit confusion signal
 
 **Fallback UX — "I'm not sure I understood":**
 When the AI can't parse intent or the request is outside scope:
+
 ```
 AI:     I'm not sure I understood that. Let me try a different approach.
 
         What kind of letter do you need?
         [Cancel a contract] [Send a formal complaint] [Write a notice] [Something else]
 ```
+
 The quick-reply chips provide structured recovery. "Something else" opens a free-text clarification prompt.
 
 **Fallback UX — "This is outside what I can help with":**
 If the user requests something genuinely outside scope (e.g., "Write me a wedding speech"):
+
 ```
 AI:     I'm designed to help with formal Swiss correspondence —
         things like contract cancellations, formal notices, and official complaints.
@@ -978,15 +1102,18 @@ AI:     I'm designed to help with formal Swiss correspondence —
         Would you like to start one of these instead?
         [Cancel a contract] [Send a formal complaint] [Write a notice]
 ```
+
 No "Sorry, I can't do that" without an alternative. Always offer a constructive next step.
 
 **Fallback UX — repeated AI failures:**
 If the AI fails to respond 3 times in a row (backend errors):
+
 - Show `<ErrorBanner>` with: "We're having trouble connecting. Your draft is saved."
 - Switch conversation input to a simple form mode: structured fields for sender, recipient, subject, body — a manual fallback that lets the user complete the letter without AI assistance.
 - Show this gracefully: "While we reconnect, you can continue filling in your letter details manually."
 
 **Critical rules:**
+
 - NEVER show a blank conversation with no explanation.
 - NEVER say "An error occurred" without saying what the user can do.
 - NEVER block the entire workspace because the AI is down — the manual fallback ensures the user can always finish.
@@ -996,12 +1123,14 @@ If the AI fails to respond 3 times in a row (backend errors):
 After the first draft, users often want to refine. This is where the "effortless" bar is set — revisions must feel as natural as the initial drafting.
 
 **Revision via conversation:**
+
 - User types: "Make it more formal" or "The tone is too aggressive" or "Add a paragraph about the deposit"
 - AI responds with a brief acknowledgment + the change: "I've made the tone more formal. Here's the updated version."
 - The letter preview updates in real-time as the AI generates the revision.
 - Changed sections in the preview briefly highlight with a `primary-light` background pulse (300ms fade-in, 1s hold, 300ms fade-out) so the user can see what changed.
 
 **Revision via ZoneEditor:**
+
 - User clicks/taps a zone in the letter preview (e.g., the body paragraph).
 - ZoneEditor opens (popover on desktop, Sheet on mobile) with an editable text field pre-filled with the current content.
 - User edits directly and confirms.
@@ -1009,6 +1138,7 @@ After the first draft, users often want to refine. This is where the "effortless
 - The AI acknowledges: "Noted — I'll keep your changes to the body."
 
 **Undo for AI revisions:**
+
 - Each AI revision creates a draft version (stored as a lightweight snapshot — not full document copies).
 - `Cmd/Ctrl + Z` in the workspace reverts to the previous version.
 - A `<Toast>` appears: "Revision undone" with an "Redo" action link.
@@ -1016,20 +1146,24 @@ After the first draft, users often want to refine. This is where the "effortless
 - Mobile: undo is available via a small "↩ Undo" button in the conversation panel after each AI revision.
 
 **What NOT to do:**
+
 - Do not show a diff view by default — it's cognitive overhead. The highlight pulse is sufficient.
 - Do not require the user to "accept" changes in a merge-conflict style UI.
 - Do not lose the conversation context when the user edits via ZoneEditor — the AI maintains awareness.
 
 **`<FieldExtractionCard>`:**
+
 - Shows what the system has understood so far
 - Fields: Sender, Recipient, Subject, Date, etc.
 - Each field: label + value + pencil icon (opens inline edit or jumps to ZoneEditor)
 - Missing fields: shown as `text-tertiary` "[not yet provided]" with `AlertCircle` icon
 
 #### 6.3 `<LetterPreview>`
+
 `paper` background (`#FAFAF7`), `shadow-paper` elevation, A4 proportions (desktop: actual width constrained to ~680px; mobile: full-width in sheet).
 
 **Layout within preview:**
+
 - Sender block (top-left, above the recipient block, matching Swiss window-envelope conventions)
 - Recipient block (right-aligned in the preview)
 - Date
@@ -1040,6 +1174,7 @@ After the first draft, users often want to refine. This is where the "effortless
 - Attachment list (bottom, `text-xs text-secondary`)
 
 **Page count indicator:**
+
 - Bottom-right of the preview area, outside the paper card: `text-xs text-tertiary` "Page 1 of 1" (or "Page 1 of N").
 - Updates in real-time as content changes (e.g., body text grows past one page).
 - On desktop: visible at all times below the paper card.
@@ -1049,12 +1184,14 @@ After the first draft, users often want to refine. This is where the "effortless
 
 **Blank template outline (pre-draft):**
 Before the AI generates the first draft, the preview shows a blank template outline rather than an empty white rectangle. This communicates "your letter will go here" and reinforces the paper metaphor:
+
 - Faint dotted zone outlines where sender, recipient, date, subject, body, and signature will appear.
 - Zone labels in `text-tertiary text-xs`: "Sender", "Recipient", "Date", "Subject", "Body", "Signature" — positioned at the top-left of each zone.
 - Same `paper` background and `shadow-paper` elevation as the populated state.
 - No animation — this is a static placeholder. The animation happens when content fills in (see "First Draft Reveal Choreography" in `micro-interactions.md`).
 
 **`<ZoneEditor>` interaction:**
+
 - Each zone (sender, recipient, body, etc.) is hoverable on desktop
 - Hover: subtle `primary-light` highlight + pencil icon overlay
 - Click: opens inline edit popover or Sheet with field inputs
@@ -1067,6 +1204,7 @@ Before the AI generates the first draft, the preview shows a blank template outl
 Address validation is critical for dispatch — an invalid Swiss address means a wasted letter and wasted money. But validation must not feel like a bureaucratic checkpoint.
 
 **When validation triggers:**
+
 - Postal code (PLZ) validation fires on `blur` of the postal code field, NOT on every keystroke.
 - Full address validation fires when the user finishes editing an address zone (closes the ZoneEditor popover/sheet), NOT during typing.
 - For company search results, the same validation still runs after selection or confirmation. Search
@@ -1074,6 +1212,7 @@ Address validation is critical for dispatch — an invalid Swiss address means a
 - The AI conversation collects addresses organically. When the AI parses a complete address from conversation, it validates in the background before confirming to the user.
 
 **PLZ soft validation:**
+
 - Valid Swiss PLZ: 1000–9999 (4 digits). If the entered value is outside this range or non-numeric, show immediately on blur: `text-error text-xs` "Swiss postal codes are 4 digits (e.g. 8001)" below the field.
 - PLZ-to-city lookup: When a valid 4-digit PLZ is entered, the city field auto-fills if empty. If the city field already has a value that doesn't match, show a soft warning: `text-warning text-xs` "Postal code {plz} is usually associated with {expectedCity}" — but allow the user to keep their value. Some PLZ codes map to multiple cities.
 - PLZ-to-city lookup comes from a static dataset (Swiss Post PLZ directory), NOT an API call. This means it works offline and is instant.
@@ -1081,6 +1220,7 @@ Address validation is critical for dispatch — an invalid Swiss address means a
 
 **Address completeness in the AI conversation:**
 When the AI collects an address via conversation, it should confirm what it understood:
+
 > "Got it — the recipient is:\n**Muster AG**\n**Bahnhofstrasse 10**\n**8001 Zürich**\nDoes that look right?"
 
 This confirmation gives the user a chance to catch typos before they reach the review page. The AI should NOT silently swallow addresses.
@@ -1090,12 +1230,14 @@ Swiss Mail dispatches physical letters within Switzerland. If the AI detects a n
 
 **Address formatting in preview:**
 Swiss letter formatting follows specific conventions. The preview must render addresses as:
+
 ```
 Herr / Frau [FirstName] [LastName]     (salutation line — optional)
 [Company name]                         (optional, for business letters)
 [Street] [Number]
 [PLZ] [City]
 ```
+
 No "Switzerland" line for domestic mail. No comma between street and number. PLZ always before city, no separator.
 
 #### Session Save-via-Email Flow
@@ -1103,12 +1245,14 @@ No "Switzerland" line for domestic mail. No comma between street and number. PLZ
 Guest sessions expire (duration configurable, see `open-decisions.md`). The `<SessionExpiryBanner>` warns users and offers the option to save their session via email. This is the ONLY guest persistence mechanism — there is no account, no password.
 
 **Banner appearance timeline:**
+
 1. **Warning state** (configurable threshold, e.g. 1 hour remaining): `<SessionExpiryBanner>` slides in below the app header. Single line: "⏱ Your session expires in {timeRemaining}. [Save via email]". Dismissible (`X` button). `bg-warning/10`, `border-warning/20`.
 2. **Critical state** (configurable threshold, e.g. 5 minutes remaining): Banner becomes non-dismissible, two lines:
    - Line 1: "⚠️ Your session expires soon."
    - Line 2: Email input + "Save" button, stacked full-width.
 
 **The email save flow:**
+
 1. User enters email address in the banner's inline input field.
 2. User taps "Save" → button shows spinner (loading state).
 3. Backend creates a `resume_token` and sends an email with a link: `{baseUrl}/resume/{token}`.
@@ -1116,12 +1260,14 @@ Guest sessions expire (duration configurable, see `open-decisions.md`). The `<Se
 5. On failure (invalid email, send failure): banner stays, shows error below input: "Couldn't send the link — check your email address and try again."
 
 **What the resume email contains:**
+
 - Subject: "Your Swiss Mail letter draft — resume link"
 - Body: brief explanation + prominent "Resume your letter" CTA button linking to `/resume/{token}`
 - Expiry note: "This link expires when your session expires ({expiryDate})."
 - NOT a full copy of the draft — just a link. Draft data stays server-side.
 
 **Resume page (`/resume/:token`) behavior:**
+
 - Token valid + session active: redirect to `/draft/:id` (the original workspace) silently.
 - Token valid + session expired but restorable: show "Welcome back! We've restored your draft." and redirect.
 - Token valid + session expired and unrestorable: show "This session has expired and can't be restored. [Start a new letter]".
@@ -1129,13 +1275,16 @@ Guest sessions expire (duration configurable, see `open-decisions.md`). The `<Se
 - Token already used for a completed letter: redirect to `/status/:orderToken` when an order-access token exists.
 
 **Critical rules:**
+
 - The email input must NOT be repurposed to create an account. This is explicitly a session-save mechanism.
 - The resume link must work on a different device (tablet → phone → desktop).
 - No "sign up" nudge appears in the session save flow.
 - The token is session-scoped and time-limited, not single-use. It always restores the same active draft while the guest session remains valid.
 
 #### 6.4 `<StatusStrip>` (desktop)
+
 Pinned at bottom:
+
 - Left: current step label
 - Centre: `<DeliverySelector>` — toggle between Standard / Registered with price delta
 - Right: `<PriceSummary>` — running total `{formattedEstimatedTotal}` + "Continue to Review" → `/draft/:id/review`
@@ -1147,16 +1296,19 @@ Mobile: `<StatusStrip>` collapses to a minimal bar. "Continue" becomes a FAB or 
 The price estimate in the header and `<StatusStrip>` is one of the most trust-critical UI elements. It must appear early, update transparently, and never surprise the user at checkout.
 
 **When the price first appears:**
+
 - The price estimate appears in the `<AppHeader>` as soon as the session is created — even before the first draft. At this point, it shows the base price: `"From {formattedBasePrice}"` in `text-tertiary text-xs`.
 - The "From" prefix communicates that the final price depends on page count, delivery type, and attachments.
 
 **How the price updates:**
+
 - When the first draft is generated and page count is known: the price updates to `"{formattedEstimatedTotal}"` (dropping the "From" prefix). The number animates with a brief crossfade (opacity 0→1, 150ms) — see `micro-interactions.md` §4.8 for pricing animation.
 - When the user toggles delivery type (Standard ↔ Registered): the price updates immediately with the same crossfade.
 - When attachments are added/removed: the price updates to reflect the per-page attachment cost.
 - When the body changes significantly (page count changes): the price updates on next auto-save.
 
 **Price formatting rules:**
+
 - Always format prices like `CHF 6.90` — never rounded, never without decimals.
 - Use `{formattedEstimatedTotal}` from the pricing service — never compute in the UI.
 - If the pricing service is unavailable: show `"Price unavailable"` in `text-warning` — never show CHF 0.00 or a stale cached price.
@@ -1168,17 +1320,20 @@ The price estimate in the header and `<StatusStrip>` is one of the most trust-cr
 The "Continue to Review" button in `<StatusStrip>` (or sticky bottom button on mobile) is the gateway to the review step. Its availability communicates "your letter is ready enough."
 
 **Enabled conditions** (ALL must be true):
+
 1. Letter body has content (AI has generated at least one draft)
 2. Recipient name is present (may be incomplete — address can be partial)
 3. Sender name is present (may be incomplete — address can be partial)
 4. No rendering failure is currently active
 
 **Visual states:**
+
 - **Disabled** (conditions not met): Muted appearance (`opacity-50`, `cursor-not-allowed`). Tooltip on hover/focus: "Complete your letter details to continue" — never just "Disabled" or no explanation.
 - **Enabled** (conditions met): Full `primary` appearance. Subtle entrance animation — the button transitions from disabled to enabled with a 300ms ease-out opacity + color change, so the user notices it becoming available without being startled.
 - **Ready + nudge** (enabled for >5s with no user action): A single gentle pulse animation (scale 1→1.02→1, 600ms, once) to draw attention without being aggressive. Only triggers once per session.
 
 **What "Continue to Review" does:**
+
 1. Triggers a final render of the current draft content.
 2. Shows a brief loading state (button spinner, 0.5–2s typically).
 3. Navigates to `/draft/:id/review`.
@@ -1189,23 +1344,27 @@ The "Continue to Review" button in `<StatusStrip>` (or sticky bottom button on m
 ---
 
 ### Loading States
+
 - Initial load: `<Skeleton>` blocks in conversation panel and preview panel
 - AI response pending: typing indicator (3-dot animation) in conversation panel
 - Preview re-render: subtle shimmer on preview card, no full skeleton re-render
 - Field extraction: individual field slots show `<Skeleton>` while updating
 
 ### Error States
-| Error family | Display |
-|---|---|
-| AI response failure | `<ErrorBanner>` in conversation panel: "Couldn't get a response. Try again." with retry button |
-| Session expired | `<Dialog>` "Your session has expired. Start a new letter or use your resume link." No post-expiry save flow |
-| Network offline | `<ErrorBanner>` (top of page): "You're offline. Recent changes are not saved yet." |
-| Rendering failure | Warning in preview area: "Preview unavailable — your content is saved." |
+
+| Error family        | Display                                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------- |
+| AI response failure | `<ErrorBanner>` in conversation panel: "Couldn't get a response. Try again." with retry button              |
+| Session expired     | `<Dialog>` "Your session has expired. Start a new letter or use your resume link." No post-expiry save flow |
+| Network offline     | `<ErrorBanner>` (top of page): "You're offline. Recent changes are not saved yet."                          |
+| Rendering failure   | Warning in preview area: "Preview unavailable — your content is saved."                                     |
 
 ### Empty State
+
 First load with no content: ConversationPanel shows a welcome message from the AI assistant and the first prompt question. LetterPreview shows a blank letter template outline with zone placeholders.
 
 ### Accessibility
+
 - Conversation panel: `role="log"`, `aria-live="polite"` for new messages
 - Letter preview: `role="region"`, `aria-label="Letter preview"`, `aria-live="polite"` for updates
 - ZoneEditor triggers: `aria-label="Edit [field name]"`, keyboard activatable
@@ -1217,17 +1376,18 @@ First load with no content: ConversationPanel shows a welcome message from the A
 
 Power users who send multiple letters should be able to work without touching the mouse. These shortcuts are active only in the draft workspace (`/draft/:id`).
 
-| Shortcut | Action |
-|----------|--------|
-| `Enter` | Send message (in conversation input) |
-| `Shift + Enter` | New line in message input |
-| `Cmd/Ctrl + Enter` | Continue to Review (when enabled) |
-| `Cmd/Ctrl + P` | Toggle letter preview (mobile: open/close sheet; desktop: focus preview panel) |
-| `Escape` | Close any open ZoneEditor, Sheet, or Dialog |
-| `Cmd/Ctrl + Z` | Undo last AI edit in preview (reverts to previous draft version) |
-| `Tab` | Move focus through interactive zones in the letter preview |
+| Shortcut           | Action                                                                         |
+| ------------------ | ------------------------------------------------------------------------------ |
+| `Enter`            | Send message (in conversation input)                                           |
+| `Shift + Enter`    | New line in message input                                                      |
+| `Cmd/Ctrl + Enter` | Continue to Review (when enabled)                                              |
+| `Cmd/Ctrl + P`     | Toggle letter preview (mobile: open/close sheet; desktop: focus preview panel) |
+| `Escape`           | Close any open ZoneEditor, Sheet, or Dialog                                    |
+| `Cmd/Ctrl + Z`     | Undo last AI edit in preview (reverts to previous draft version)               |
+| `Tab`              | Move focus through interactive zones in the letter preview                     |
 
 **Implementation rules:**
+
 - Shortcuts must not conflict with browser defaults. `Cmd/Ctrl + P` must be intercepted to prevent the browser print dialog — use `preventDefault()`.
 - All shortcuts must have visible hints in tooltips or a discoverable help overlay (`?` key opens shortcut cheat sheet).
 - Shortcuts are desktop-only and should not be registered on touch devices.
@@ -1238,16 +1398,20 @@ Power users who send multiple letters should be able to work without touching th
 ## 7. Review (`/draft/:id/review`)
 
 ### Route
+
 `/draft/:id/review`
 
 ### SEO
+
 - `noindex, nofollow`
 - **Title:** `Review your letter — Swiss Mail`
 
 ### Layout
+
 `<AppLayout>` — header with StepIndicator. No workspace split.
 
 ### Emotional intent
+
 **I'm confident this is right. I'm ready to send it.** The review page is the last checkpoint before money changes hands. It must build confidence, not create anxiety. Everything must be scannable. Edit paths must be obvious but not prominent enough to create doubt.
 
 ### Entrance choreography (Draft → Review transition)
@@ -1271,19 +1435,23 @@ The transition from the drafting workspace to the review page is an emotional ge
 #### 7.1 `<AppHeader>` with StepIndicator (step 2 active)
 
 #### 7.2 Page Heading
+
 `<h1>` "Review your letter before sending"  
 `text-secondary text-sm` "Check everything looks correct. You can edit any section."
 
 #### 7.3 `<LetterPreview>` (full, centred)
+
 - Larger than workspace: max-width `720px`, centred, `shadow-paper`
 - No ZoneEditors on hover — read-only by default
 - "Edit" buttons positioned beside each major section (sender, recipient, body, signature)
 - Clicking "Edit" → navigates back to `/draft/:id` with that zone in focus
 
 #### 7.4 Completion Checklist
+
 `<Card>` to the right (desktop) or below (mobile):
 
 Checklist items:
+
 - ✅ Sender details
 - ✅ Recipient details
 - ✅ Letter body
@@ -1295,6 +1463,7 @@ Each item: `Check` or `AlertTriangle` icon + label + optional "Add" / "Edit" lin
 Incomplete required fields: item shown with `error` colour + blocking message "Required before sending".
 
 **Signature warning spec:** When no signature has been added, the signature checklist item shows:
+
 - `AlertTriangle` icon in `warning` colour
 - "No signature added" in `text-warning`
 - "Add signature" link → opens `<SignaturePicker>` (Sheet on mobile, Popover on desktop)
@@ -1302,16 +1471,19 @@ Incomplete required fields: item shown with `error` colour + blocking message "R
 - This is a **soft warning** — it does NOT prevent the user from proceeding. The CTA remains enabled.
 
 **Attachment optional item spec:** When no attachments are present:
+
 - Grey `Check` icon (not red or yellow — attachments are genuinely optional)
 - "No attachments" in `text-secondary`
 - "Add attachment" link → opens `<AttachmentUploader>`
 - No warning copy — adding attachments is not even recommended for most letters
 
 #### 7.5 Address Warning Card
+
 Shown only when recipient-address validation is incomplete or suspicious. This is a deliberate
 friction moment for irreversible mailings, not a generic inline hint.
 
 `<Card>` with `warning` treatment:
+
 - Heading: "Please confirm this delivery address"
 - Body copy: "We could not fully verify this address. Please make sure it is correct before you pay."
 - Full recipient block rendered exactly as it will be sent
@@ -1322,18 +1494,22 @@ friction moment for irreversible mailings, not a generic inline hint.
 - Primary edit action: "Edit recipient details" → returns to `/draft/:id` with recipient zone focused
 
 Rules:
+
 - Do not block purely because a provider or heuristic could not confirm the address.
 - Do not hide the warning inside a tooltip, collapsed accordion, or generic error banner.
 - Do not use blame language such as "You entered an invalid address."
 
 #### 7.6 Delivery Selection — `<DeliverySelector>`
+
 Card showing both options side by side (desktop) / stacked (mobile):
 
 **Standard delivery card:**
+
 - Label, estimated delivery, price
 - `Badge` "Most common"
 
 **Registered delivery card:**
+
 - Label, "Proof of delivery", price
 - `Badge accent` "Recommended for formal notices"
 - `<Tooltip>` explaining what registered mail provides (and its limitations — see `../08-guardrails/provider-certainties.md`)
@@ -1341,7 +1517,9 @@ Card showing both options side by side (desktop) / stacked (mobile):
 Selected option: highlighted with `border-primary` + `primary-light` background.
 
 #### 7.7 Attachment Summary
+
 `<Card>` listing all attached files:
+
 - File name, page count, type
 - Remove link (with confirmation)
 - "Add attachment" link → opens `<AttachmentUploader>`
@@ -1352,37 +1530,45 @@ only after a draft exists and remains available on review; checkout is read-only
 If no attachments: `text-secondary text-sm` "No attachments" + "Add attachment" link.
 
 #### 7.8 Price Summary — `<PriceSummary>`
+
 Itemised:
+
 - Letter (N pages): {formattedLetterPrice}
 - Delivery: {formattedDeliveryPrice}
 - Attachments (N pages): {formattedAttachmentPrice} — show only if attachment-related pricing is enabled at launch
 - **Total: {formattedTotal}** (`font-bold text-lg`)
 
 **Pricing row display rules (from `docs/04-product/pricing-structure.md`):**
+
 - Only show pricing rows that are **enabled in the pricing configuration**. If attachment pricing is not enabled at launch, do not show an "Attachments: CHF 0.00" row — omit it entirely.
 - Never show CHF 0.00 for a line item. If a line item has no cost, either omit the row or show "Included" instead of a zero price.
 - All prices come from the pricing service/config. Never compute prices in the frontend — always use `{formatted*}` values returned by the API.
 
 #### 7.9 CTA
+
 - Primary: `<Button size="lg" className="w-full md:w-auto">` "Proceed to payment — {formattedTotal}" → `/draft/:id/checkout`
 - Back link: "← Back to editing"
 
 ---
 
 ### Loading States
+
 - Page load: preview card shows `<Skeleton>` while fetching latest draft render
 - If render in progress: spinner within preview card area + "Preparing your letter preview…"
 
 ### Error States
+
 - Required field incomplete: CTA disabled + inline warning in checklist
 - Recipient address ambiguous: warning card shown with exact address + explicit confirmation checkbox before checkout
 - Render failure: `<ErrorBanner>` "We couldn't generate your preview. Your content is saved — please try again."
 - Session expired: `<Dialog>` (same as workspace)
 
 ### Empty State
+
 No empty state — user cannot reach this page without a draft in progress.
 
 ### Accessibility
+
 - Checklist items: `role="list"` + `role="listitem"`
 - Incomplete fields: `aria-invalid` on related sections, `aria-describedby` pointing to error message
 - Delivery selector: `role="radiogroup"`, each option `role="radio"` with `aria-checked`
@@ -1393,16 +1579,20 @@ No empty state — user cannot reach this page without a draft in progress.
 ## 8. Checkout (`/draft/:id/checkout`)
 
 ### Route
+
 `/draft/:id/checkout`
 
 ### SEO
+
 - `noindex, nofollow`
 - **Title:** `Checkout — Swiss Mail`
 
 ### Layout
+
 `<MinimalLayout>` — logo only, no nav, no footer links. Reduces abandonment. Single-column, centred.
 
 ### Emotional intent
+
 **This is safe. I trust this.** Payment screens carry the highest anxiety in any flow. The layout must be uncluttered, the price unmistakable, and the trust signals credible. No distractions.
 
 ---
@@ -1410,12 +1600,14 @@ No empty state — user cannot reach this page without a draft in progress.
 ### Sections
 
 #### 8.1 Minimal Header
+
 Logo (centred or left). `<StepIndicator>` showing step 3 "Pay". No navigation.
 
 #### 8.2 Two-Column Layout (desktop) / Single-column (mobile)
 
 **Left / Top: Order Summary Card**
 `<Card>` — `surface` background, `border`, `rounded-lg`:
+
 - `<h2>` "Your order"
 - Letter type (e.g. "Cancellation letter")
 - Pages: N
@@ -1428,23 +1620,27 @@ Logo (centred or left). `<StepIndicator>` showing step 3 "Pay". No navigation.
 **Right / Below: Payment Form**
 
 Email field:
+
 - `<Input type="email">` labelled "Email address" — for receipt and status updates
 - `text-xs text-secondary` "We'll send your receipt and letter status to this address."
 - No account creation. Guest checkout.
 - **Validation rule (from `docs/04-product/email-flows.md`):** Format check only (RFC 5322 simplified). Do NOT perform DNS/MX lookups or deliverability pings. Validate on blur, not on every keystroke. Error message: "Please enter a valid email address."
 
 Stripe embedded payment element:
+
 - Rendered by Stripe.js `<PaymentElement>` component
 - Do not build a custom card form — use Stripe's embedded UI
 - Stripe handles PCI compliance; do not handle raw card data
 - Loading state: `<Skeleton>` while Stripe loads (typically <1s)
 
 Legal checkbox:
+
 - `<Checkbox>` + label: "I have read and agree to the [Terms of Service] and understand that Swiss Mail is not a legal service."
 - Link to `/terms` opens in new tab
 - CTA disabled until checked
 
 Disclaimer prominence rule:
+
 - Drafting and review may include calm informational reminders or FAQ copy.
 - The explicit legal-boundary acknowledgment happens here at checkout, once, before payment.
 
@@ -1453,6 +1649,7 @@ Disclaimer prominence rule:
 Price embedded in button. `Send` icon left. Disabled until form valid + checkbox checked.
 
 Trust row below CTA:
+
 - `Lock` icon + "Secured by Stripe"
 - 🇨🇭 Swiss cross icon + "Swiss postal delivery via licensed provider"
 - `Shield` icon + "Your data stays in Europe"
@@ -1464,6 +1661,7 @@ These are NOT generic trust badges — they are Swiss-specific and product-speci
 On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment option (Switzerland-specific). TWINT redirects the user to the TWINT app for approval, then returns them to Swiss Mail.
 
 **Flow:**
+
 1. User selects TWINT in Stripe's payment method selector.
 2. User taps "Send my letter" CTA.
 3. Stripe redirects to the TWINT app (or TWINT web flow on tablets without the app).
@@ -1472,6 +1670,7 @@ On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment op
 6. Swiss Mail receives Stripe webhook confirmation → navigates to `/draft/:id/confirmation`.
 
 **Edge cases:**
+
 - **User doesn't return from TWINT:** The checkout page shows a polling state: "Waiting for payment confirmation from TWINT…" with a spinner. After 60s without confirmation, show: "We haven't received payment confirmation yet. If you completed payment in TWINT, please wait a moment. Otherwise, try again." with a retry button.
 - **TWINT app not installed:** Stripe handles this gracefully with a web fallback. Do not build a custom detection mechanism.
 - **Payment succeeds but redirect fails:** Stripe webhook still fires. If the user returns to the checkout page manually, detect the completed payment and redirect to confirmation.
@@ -1483,16 +1682,19 @@ On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment op
 Users may accidentally navigate away during payment processing:
 
 **Scenario: User taps browser back during Stripe processing:**
+
 - Intercept with `beforeunload` event: browser shows standard "Leave site?" confirmation.
 - If user confirms leaving: payment may still succeed via Stripe webhook. The confirmation email serves as the fallback receipt.
 - If user stays: processing continues normally.
 
 **Scenario: User closes tab during processing:**
+
 - Payment may complete in the background (Stripe processes server-side).
 - If payment succeeds: confirmation email is sent. User can return via order-status link.
 - If payment fails: no charge. Draft remains available.
 
 **Scenario: User's internet drops mid-payment:**
+
 - Stripe retries internally. If the connection recovers within Stripe's retry window, payment may succeed.
 - Show `<ErrorBanner>` on reconnect: "Your connection was interrupted. Checking payment status…" + automatic status check.
 - If payment succeeded: redirect to confirmation.
@@ -1503,22 +1705,26 @@ Users may accidentally navigate away during payment processing:
 ---
 
 ### Loading States
+
 - Stripe element loading: `<Skeleton>` rectangle placeholder
 - Payment submission: button spinner + disabled, status message "Processing payment…"
 - Do not show "Sending your letter" until dispatch is confirmed — payment and dispatch are separate states
 
 ### Error States
-| Error | Display |
-|---|---|
-| Card declined | Stripe surfaces inline within `<PaymentElement>` + `<ErrorBanner>` below: "Payment was not completed. No letter has been sent." |
-| Payment failed (network/other) | `<ErrorBanner>` + retry option |
-| Checkout expired / draft changed | `<Dialog>` "Your session has changed. Please review your letter again." → back to review |
-| Email invalid | Inline field error |
+
+| Error                            | Display                                                                                                                         |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Card declined                    | Stripe surfaces inline within `<PaymentElement>` + `<ErrorBanner>` below: "Payment was not completed. No letter has been sent." |
+| Payment failed (network/other)   | `<ErrorBanner>` + retry option                                                                                                  |
+| Checkout expired / draft changed | `<Dialog>` "Your session has changed. Please review your letter again." → back to review                                        |
+| Email invalid                    | Inline field error                                                                                                              |
 
 ### Empty State
+
 No empty state — requires a valid draft and review completion to reach.
 
 ### Accessibility
+
 - Email field: `<label>` associated with input, `aria-required="true"`
 - Legal checkbox: `aria-required="true"`, `aria-describedby` pointing to terms link
 - CTA disabled state: `aria-disabled="true"` with tooltip "Please complete all required fields"
@@ -1530,16 +1736,20 @@ No empty state — requires a valid draft and review completion to reach.
 ## 9. Confirmation (`/draft/:id/confirmation`)
 
 ### Route
+
 `/draft/:id/confirmation`
 
 ### SEO
+
 - `noindex, nofollow`
 - **Title:** `Payment received — Swiss Mail`
 
 ### Layout
+
 `<MinimalLayout>` — same as checkout. Centred content.
 
 ### Emotional intent
+
 **I know what happened, and I know what happens next.** The confirmation screen must deliver calm closure, not celebration theater. It should feel like a receipt, not a dashboard. Status must be honest — do not claim delivery if only dispatch has been submitted. Reference numbers are real.
 
 ### Emotional pacing and entrance choreography
@@ -1561,6 +1771,7 @@ The confirmation page is the emotional payoff of the entire flow. It must feel l
 ### Mobile confirmation priority order
 
 On mobile, screen space is limited. Content must prioritize:
+
 1. Success icon + "Payment received" — visible without scrolling
 2. Reference number — visible without scrolling, tap-to-copy
 3. Dispatch status — visible without scrolling
@@ -1577,6 +1788,7 @@ The "Send another letter" CTA is sticky at the bottom on mobile (`sticky bottom-
 #### 9.1 Minimal Header (same as checkout)
 
 #### 9.2 `<ConfirmationCard>`
+
 Centred card (`max-width lg`), `surface` background, `shadow-sm`:
 
 - `CheckCircle` icon — `success` colour, large (48px)
@@ -1585,30 +1797,34 @@ Centred card (`max-width lg`), `surface` background, `shadow-sm`:
 - Reference number: `<Badge variant="outline" className="font-mono">` REF-XXXXXX
 - Copy-to-clipboard button beside reference number
 
-**Important wording rule (from `../05-architecture/system-contracts.md` and `../08-guardrails/non-goals.md`):**  
-- "Payment received" ✅ — we know this is true  
-- "Submitted for dispatch" ✅ — we know this is true after submission  
-- "Your letter is on its way" ❌ — we do not know this  
-- "Delivered" ❌ — never show this on the confirmation screen  
+**Important wording rule (from `../05-architecture/system-contracts.md` and `../08-guardrails/non-goals.md`):**
+
+- "Payment received" ✅ — we know this is true
+- "Submitted for dispatch" ✅ — we know this is true after submission
+- "Your letter is on its way" ❌ — we do not know this
+- "Delivered" ❌ — never show this on the confirmation screen
 
 #### 9.3 `<DispatchStatusCard>`
+
 Shows the current `DispatchState` with honest language:
 
-| DispatchState | Display | Icon |
-|---|---|---|
-| `queued` | "Your letter is queued for dispatch" | `Clock` |
-| `submitted` | "Submitted for dispatch" | `Send` |
-| `accepted` | "Accepted for dispatch" | `Check` |
-| `rejected` | "Dispatch was rejected — we're investigating" | `AlertCircle` (error) |
-| `unknown` | "Status is being confirmed — we'll update you by email" | `HelpCircle` (warning) |
-| `reconciled` | "Status confirmed: [outcome]" | Depends on outcome |
+| DispatchState | Display                                                 | Icon                   |
+| ------------- | ------------------------------------------------------- | ---------------------- |
+| `queued`      | "Your letter is queued for dispatch"                    | `Clock`                |
+| `submitted`   | "Submitted for dispatch"                                | `Send`                 |
+| `accepted`    | "Accepted for dispatch"                                 | `Check`                |
+| `rejected`    | "Dispatch was rejected — we're investigating"           | `AlertCircle` (error)  |
+| `unknown`     | "Status is being confirmed — we'll update you by email" | `HelpCircle` (warning) |
+| `reconciled`  | "Status confirmed: [outcome]"                           | Depends on outcome     |
 
 Do not show a tracking number unless the provider has returned one.  
 If a tracking reference is available: show it with a `<Tooltip>` noting when tracking may update.  
 If no tracking is available: `text-secondary text-sm` "Tracking information is not available for this delivery type." — never show a fake reference.
 
 #### 9.4 "What happens next" Timeline
+
 `<ol>` vertical timeline, 3–4 steps:
+
 1. ✅ "Payment confirmed"
 2. ✅ / `pending` "Letter submitted for dispatch"
 3. `pending` "Provider processing"
@@ -1618,23 +1834,35 @@ Each step: icon, title, `text-xs text-secondary` description.
 Pending steps: muted, `text-tertiary`.
 
 #### 9.5 Action Row
+
 - `<Button variant="outline">` "Download receipt (PDF)" — generates/downloads payment receipt
-- `<Button variant="ghost">` "View letter (PDF)" — opens rendered letter PDF in new tab (if available)
+- `<Button variant="ghost">` "Download signed confirmation document" — downloads the confirmation bundle from `/v1/drafts/:id/pdf` (or `/v1/orders/:orderToken/pdf` on the public status route)
+
+Download bundle rules:
+
+- Page 1 is the branded Swiss Mail confirmation record with the app logo, dispatch status, submission mode, provider reference, tracking number when available, and the operational fields needed for support and email follow-up.
+- Remaining pages are the exact rendered letter PDF prepared for dispatch. The download artifact must not diverge from the mailed letter asset.
+- If submission mode is `mock`, the UI copy and the PDF must state that no fee-bearing ePost submission occurred.
 
 #### 9.6 QR Code (optional — secondary access mechanism)
+
 `<Card>` "Access this letter on another device":
+
 - QR code encoding `/status/{orderToken}` URL (the paid-order status route, not the draft resume route)
 - Caption: `text-xs text-secondary` "Scan to view your order status on another device"
 - Not required for MVP if token-based access is not in first release
 - **Important:** The QR code is a **secondary** convenience mechanism. The primary access path is the order-status link in the receipt email (see §9.7). Do not build the QR code as the sole or primary way to access order status.
 
 #### 9.7 Email Notice — Multiple Emails
+
 `<Card variant="info">`:
+
 - Mail icon + "A payment receipt has been sent to {email}"
 - `text-xs text-secondary` "You'll also receive a dispatch update when your letter is processed."
 
 **Multiple email timeline (defined in `docs/04-product/email-flows.md`):**
 The system sends up to 3 separate emails, NOT a single "confirmation":
+
 1. **Payment receipt** — sent immediately when `PaymentState` → `captured`. Contains: amount, reference number, order-status link.
 2. **Dispatch accepted** — sent when `DispatchState` → `accepted` (if the provider supplies an acceptance signal). Contains: updated status, tracking reference if available.
 3. **Dispatch rejected** (error case) — sent when `DispatchState` → `rejected`. Contains: explanation, next steps, support contact.
@@ -1642,24 +1870,28 @@ The system sends up to 3 separate emails, NOT a single "confirmation":
 The confirmation page copy must reflect this: say "A payment receipt has been sent" (specific), NOT "A confirmation has been sent" (vague). The word "confirmation" implies dispatch success, which we cannot guarantee at this point.
 
 #### 9.8 "Send another letter" CTA
+
 `<Button variant="outline" className="w-full md:w-auto">` "Send another letter" → `/draft/new`
 
 ---
 
 ### Loading States
+
 - Initial load: `<DispatchStatusCard>` shows `queued` state if dispatch is in progress
 - Polling (if implemented): card updates without full page reload; subtle badge pulse
 - Receipt download: button spinner while PDF generates
 
 ### Error States
-| Error | Display |
-|---|---|
-| Dispatch rejected | `<DispatchStatusCard>` error state + `<ErrorBanner>` "Dispatch failed. We are reviewing your case and will contact you at {email}." |
-| Dispatch unknown | `<DispatchStatusCard>` warning state — honest language, no false certainty |
-| Receipt unavailable | Download button: "Receipt unavailable — contact support" |
-| PDF unavailable | View button hidden or shows "Preview not yet available" |
+
+| Error               | Display                                                                                                                             |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Dispatch rejected   | `<DispatchStatusCard>` error state + `<ErrorBanner>` "Dispatch failed. We are reviewing your case and will contact you at {email}." |
+| Dispatch unknown    | `<DispatchStatusCard>` warning state — honest language, no false certainty                                                          |
+| Receipt unavailable | Download button: "Receipt unavailable — contact support"                                                                            |
+| PDF unavailable     | View button hidden or shows "Preview not yet available"                                                                             |
 
 ### Accessibility
+
 - `<h1>` "Payment received"
 - Status card: `aria-live="polite"` for status updates
 - Timeline: `role="list"`, pending items visually distinct from completed
@@ -1670,17 +1902,21 @@ The confirmation page copy must reflect this: say "A payment receipt has been se
 ## 10. Guest Resume and Order Status Entry Points
 
 ### Resume route
+
 `/resume/:token`  
 `:token` — opaque guest-resume token (not a UUID, not guessable)
 
 ### SEO
+
 - `noindex, nofollow`
 - **Title:** `Resume your letter — Swiss Mail`
 
 ### Layout
+
 `<AppLayout>` or `<MinimalLayout>` — depends on state (see below)
 
 ### Emotional intent
+
 **My letter is exactly where I left it.** This page must resolve anxiety ("did I lose my work?") within seconds.
 
 ---
@@ -1690,20 +1926,24 @@ The confirmation page copy must reflect this: say "A payment receipt has been se
 The page behaviour depends on what the token resolves to:
 
 #### 10.1 Token valid — draft in progress
+
 - If draft not yet paid → redirect to `/draft/:id` (workspace)
 - Show brief notice: `<Toast>` "Welcome back — continuing your letter."
 
 #### 10.2 Token valid — draft paid, dispatch in progress or complete
+
 - Redirect to `/status/:orderToken` when the paid order has an order-access token
 - Do not reopen the editable draft workspace
 - Do not render paid-order status directly from `/resume/:token`
 
 #### 10.3 Token valid — draft expired
+
 - `<Card>` centred: "This session has expired."
 - `text-secondary` "Sessions are kept for a limited time after your last activity."
 - `<Button>` "Start a new letter" → `/draft/new`
 
 #### 10.4 Token invalid / not found
+
 - `<Card>` centred: "This link is invalid or has expired."
 - Do not expose whether the token ever existed (security)
 - `<Button>` "Go to homepage" → `/`
@@ -1713,6 +1953,7 @@ The page behaviour depends on what the token resolves to:
 ### 10.5 Order Status (`/status/:orderToken`)
 
 #### Route
+
 `/status/:orderToken`  
 `:orderToken` — opaque paid-order access token, separate from the guest resume token
 
@@ -1740,10 +1981,12 @@ The page must stay honest about ambiguity:
 - `unknown` stays unknown until reconciliation confirms otherwise
 
 ### Loading State
+
 - Token validation: full-page `<Skeleton>` or centred spinner for <500ms
 - Then resolves to one of the four states above
 
 ### Accessibility
+
 - All states have a clear `<h1>`
 - Error / expired states: not alarming; calm, factual language
 
@@ -1752,9 +1995,11 @@ The page must stay honest about ambiguity:
 ## 11. Templates Gallery (`/templates`)
 
 ### Route
+
 `/templates`
 
 ### SEO
+
 - **Title:** `Letter templates for Switzerland — Swiss Mail`
 - **Meta description:** `Browse formal Swiss letter templates by category, filter by topic, and start from the right structure in minutes.`
 - **Structured data:** `ItemList` for visible template cards, `BreadcrumbList`
@@ -1762,9 +2007,11 @@ The page must stay honest about ambiguity:
 - Indexed. Search/filter state must not create alternate canonicals.
 
 ### Layout
+
 `<MarketingLayout>` — standard marketing shell with `<SiteHeader>` and `<SiteFooter>`.
 
 ### Emotional intent
+
 **There is clearly a template for my situation.** This page should feel like an organised catalogue, not a document dump. The user should be able to scan fast, narrow the list without friction, and trust that each entry maps to a real Swiss-style letter flow.
 
 ---
@@ -1772,13 +2019,16 @@ The page must stay honest about ambiguity:
 ### Sections
 
 #### 11.1 Page Intro
+
 - `<h1>` "Letter templates for common situations in Switzerland"
 - Supporting copy: `text-secondary max-w-2xl` explaining that templates are starting points, not legal advice (align with `../01-vision/product-scope.md`)
 - Optional eyebrow `<Badge variant="outline">` "SEO template library"
 - Background stays light: `surface` with subtle `border` bottom divider, not hero-like
 
 #### 11.2 Search + Filter Bar
+
 `<Card>` or sticky inline toolbar under the intro:
+
 - Left: `<Input type="search">` with placeholder "Search templates, topics, or recipients"
 - Right / below on mobile: category chips using `<Badge>` or chip-style `<Button variant="outline">`
 - Categories, in this order:
@@ -1794,11 +2044,13 @@ The page must stay honest about ambiguity:
 - Filter interactions are instant; do not full-page reload for local filtering
 
 **Behaviour:**
+
 - If a dedicated SEO landing page exists for a template, card click goes to `/use-cases/:slug`
 - If no editorial landing page exists yet, primary CTA goes directly to `/draft/new?useCase=:slug`
 - Search/filter state may live in the query string for shareability, but canonical remains `/templates`
 
 #### 11.3 Templates Grid
+
 - Use `<EntryCard>` pattern adapted for a larger catalogue
 - Grid: 1 column on mobile, 2 columns on tablet, 3 columns on desktop
 - `gap-4 md:gap-6`, equal-height cards, no masonry
@@ -1808,7 +2060,9 @@ The page must stay honest about ambiguity:
   - Right: sort stays fixed to "Recommended" for MVP; no user-facing sort dropdown yet
 
 #### 11.4 Template Card Anatomy
+
 Each card contains:
+
 - Category chip in `accent-light` or `surface-subtle`
 - Template title
 - One-sentence description in `text-secondary text-sm`
@@ -1819,12 +2073,15 @@ Each card contains:
   - Primary text: "Start with this template" when destination is `/draft/new?useCase=:slug`
 
 Visual rules:
+
 - Card background: `surface`
 - Hover: `border-primary/40`, subtle lift, no aggressive animation
 - Entire card is clickable, but CTA remains explicit for accessibility and clarity
 
 #### 11.5 Supporting Trust Band
+
 Slim reassurance row below the grid:
+
 - "Swiss-style formal formatting"
 - "Mobile-first drafting"
 - "Pay only when you send"
@@ -1834,18 +2091,22 @@ This is a lightweight `<ConfidenceBlock>` treatment, not a second sales page.
 ---
 
 ### Loading States
+
 - Initial page render should be fully server-rendered / statically generated where possible; no blocking spinner for the shell
 - If templates are hydrated client-side for filtering, show 6–9 `<Skeleton>` cards only inside the results grid
 - On active search/filter changes, prefer immediate result swap over loading chrome
 
 ### Error States
-| Error | Display |
-|---|---|
+
+| Error                          | Display                                                                                                                                |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Template catalogue unavailable | Inline `<ErrorBanner>` above grid: "Templates are temporarily unavailable. You can still start a blank draft." + Button → `/draft/new` |
-| Search index failure | Fall back to unfiltered grid + non-blocking notice; do not blank the page |
+| Search index failure           | Fall back to unfiltered grid + non-blocking notice; do not blank the page                                                              |
 
 ### Empty State
+
 If search/filter returns no results:
+
 - Centred `<Card>` with `surface-subtle` background
 - `<h2>` "No templates match that search"
 - `text-secondary` "Try a different keyword or browse all categories."
@@ -1854,6 +2115,7 @@ If search/filter returns no results:
   - `<Button>` "Start a blank letter" → `/draft/new`
 
 ### Accessibility
+
 - Search input has a persistent `<label>`; placeholder is not the only instruction
 - Category chips expose pressed state via `aria-pressed`
 - Results region uses `aria-live="polite"` so result count updates are announced
@@ -1865,17 +2127,21 @@ If search/filter returns no results:
 ## 12. Error Pages (404, 500)
 
 ### Routes
+
 - 404: catch-all route
 - 500: server error route / framework error boundary with a static HTML fallback
 
 ### SEO
+
 - `noindex, nofollow` for both
 - No canonical tags that compete with real content pages
 
 ### Layout
+
 `<MinimalLayout>` for both states.
 
 ### Emotional intent
+
 **Even when something fails, the product still feels calm and usable.** These pages must absorb frustration, not amplify it. Friendly language beats technical detail.
 
 ---
@@ -1883,7 +2149,9 @@ If search/filter returns no results:
 ### Sections
 
 #### 12.1 404 Page
+
 Centred `<Card>`:
+
 - Optional illustration (simple, low-contrast, decorative)
 - `<h1>` "Page not found"
 - Body copy: "The page you're looking for doesn't exist or has moved."
@@ -1892,11 +2160,14 @@ Centred `<Card>`:
   - `<Button variant="outline">` "Draft a letter" → `/draft/new`
 
 Rules:
+
 - No visible "404" code in the UI
 - Tone stays friendly, not jokey
 
 #### 12.2 500 Page
+
 Centred `<Card>` in the same layout:
+
 - `<h1>` "Something went wrong on our end"
 - Body copy: "We're looking into it. Please try again in a few minutes."
 - CTA row:
@@ -1905,10 +2176,12 @@ Centred `<Card>` in the same layout:
 - Support line in `text-sm text-secondary` with `mailto:support@swissmail.ch`
 
 Implementation note:
+
 - The 500 page must exist as a static HTML fallback so it still renders if the app shell fails
 - Keep dependencies minimal; no fragile client-only widgets
 
 #### 12.3 Shared Styling Rules
+
 - Centre content vertically on taller screens; top-align slightly on very small mobile screens
 - Card width: comfortable on mobile first, max-width `md`
 - Background stays neutral `surface-subtle`; no alarming red wash
@@ -1917,15 +2190,19 @@ Implementation note:
 ---
 
 ### Loading States
+
 None. Error pages should render immediately from server/static output without waiting on client data.
 
 ### Error States
+
 These pages are the terminal error states. They must not trigger another layer of complex error UI or expose raw stack traces, request IDs, or provider codes to the user.
 
 ### Empty State
+
 No empty state.
 
 ### Accessibility
+
 - Each page has a clear `<h1>`
 - CTA row remains keyboard reachable in logical order
 - Decorative illustration uses empty `alt=""`
@@ -1936,11 +2213,13 @@ No empty state.
 ## 13. Legal Pages (`/privacy`, `/terms`, `/imprint`)
 
 ### Routes
+
 - `/privacy`
 - `/terms`
 - `/imprint`
 
 ### SEO
+
 - Indexed with unique titles per page
 - Suggested titles:
   - `/privacy` → `Privacy policy — Swiss Mail`
@@ -1949,9 +2228,11 @@ No empty state.
 - Each page includes locale-specific canonical + `hreflang` tags for `de-CH`, `fr-CH`, `it-CH`, `en-CH`
 
 ### Layout
+
 `<MarketingLayout>` with a single content column (`max-w-prose`) and normal header/footer.
 
 ### Emotional intent
+
 **This is serious, readable, and transparent.** Legal pages should feel calm and professionally maintained. Users should be able to find the right section fast without parsing walls of text.
 
 ---
@@ -1959,7 +2240,9 @@ No empty state.
 ### Sections
 
 #### 13.1 Shared Page Header
+
 At the top of each page:
+
 - `<h1>` page title
 - `text-secondary text-sm` short description of the document purpose
 - "Last updated" date shown near the title
@@ -1968,25 +2251,30 @@ At the top of each page:
 The header stays compact. This is not a marketing hero.
 
 #### 13.2 Auto-Generated Table of Contents
+
 - Generated from visible `<h2>` headings on the page
 - Desktop: sticky sidebar or inline block above the content column
 - Mobile: collapsible `<Accordion>` labeled "On this page"
 - Anchors scroll to the relevant section with consistent heading offsets below sticky header
 
 #### 13.3 Prose Body
+
 - Long-form rich text only; no calculators, forms, or promotional modules
 - Use a readable prose rhythm with generous spacing and clear `h2` / `h3` hierarchy
 - Links styled with `primary` colour and visible underline on hover/focus
 - Body copy width constrained to reading measure; avoid full-width paragraphs
 
 #### 13.4 Route-Specific Content Requirements
+
 `/imprint`
+
 - Company name
 - Postal address
 - Contact details
 - Registration details required for a Swiss `.ch` presence
 
 `/terms`
+
 - Service description
 - User obligations
 - Payment
@@ -1996,6 +2284,7 @@ The header stays compact. This is not a marketing hero.
 - Governing law (Swiss)
 
 `/privacy`
+
 - Data collected
 - Purpose of processing
 - Storage location and processing regions, exactly as approved in the final privacy text
@@ -2005,6 +2294,7 @@ The header stays compact. This is not a marketing hero.
 - Contact
 
 #### 13.5 Locale Availability
+
 - All three pages are available in all four locales
 - Language switching keeps users on the equivalent legal page when translation exists
 - Last-updated date format follows locale rules from `../05-architecture/i18n-rules.md`
@@ -2012,19 +2302,23 @@ The header stays compact. This is not a marketing hero.
 ---
 
 ### Loading States
+
 - Prefer static rendering; no loading skeletons on normal navigation
 - If PDF generation is asynchronous, the download button may show a spinner after click only
 
 ### Error States
-| Error | Display |
-|---|---|
-| PDF unavailable | Inline text: "PDF version unavailable right now" while HTML page remains usable |
+
+| Error                  | Display                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| PDF unavailable        | Inline text: "PDF version unavailable right now" while HTML page remains usable            |
 | Missing locale variant | Fallback to default locale with clear language notice; do not 404 if source content exists |
 
 ### Empty State
+
 No empty state. If legal content is unavailable, show a route-level `<ErrorPage>` rather than an empty shell.
 
 ### Accessibility
+
 - Proper heading hierarchy: one `<h1>`, nested `<h2>` / `<h3>` only as needed
 - Table of contents is a real list of anchor links
 - PDF link text names the document, e.g. "Download Privacy Policy PDF"
@@ -2035,44 +2329,52 @@ No empty state. If legal content is unavailable, show a route-level `<ErrorPage>
 ## 14. Admin Dashboard (`/{locale}/admin/*`)
 
 ### Route
+
 `/{locale}/admin/*` — protected, internal only
 
 ### SEO
+
 - `noindex, nofollow` on all admin routes
 - Not publicly accessible. Authentication required.
 
 ### Layout
+
 `<AdminLayout>` — sidebar navigation + top bar.
 
 ### Emotional intent
+
 **I can see everything I need and act quickly.** Admin users are internal operators handling support, dispatch issues, and system health. Density is acceptable; consumer-style polish is not required.
 
 ---
 
 ### Route Map
-| Route | Purpose |
-|---|---|
-| `/{locale}/admin/overview` | Overview dashboard |
-| `/{locale}/admin/letters` | Letter queue and status list |
+
+| Route                         | Purpose                                                     |
+| ----------------------------- | ----------------------------------------------------------- |
+| `/{locale}/admin/overview`    | Overview dashboard                                          |
+| `/{locale}/admin/letters`     | Letter queue and status list                                |
 | `/{locale}/admin/letters/:id` | Letter detail — full draft, dispatch events, payment events |
-| `/{locale}/admin/dispatch` | Dispatch queue, failed/ambiguous states |
-| `/{locale}/admin/payments` | Payment list, refund actions |
-| `/{locale}/admin/sessions` | Active and expired sessions |
-| `/{locale}/admin/files` | File asset browser, retention status |
-| `/{locale}/admin/risk` | Suspicious activity flags and escalation queue |
+| `/{locale}/admin/dispatch`    | Dispatch queue, failed/ambiguous states                     |
+| `/{locale}/admin/payments`    | Payment list, refund actions                                |
+| `/{locale}/admin/sessions`    | Active and expired sessions                                 |
+| `/{locale}/admin/files`       | File asset browser, retention status                        |
+| `/{locale}/admin/risk`        | Suspicious activity flags and escalation queue              |
 
 ### Overview Dashboard (`/{locale}/admin/overview`)
+
 - Metric cards: letters today, pending dispatch, failed dispatch, payments today, refunds pending
 - Recent activity feed: last N events (dispatch state changes, payment events, support flags)
 - No fake real-time unless WebSocket connection is confirmed
 
 ### Letter Detail (`/{locale}/admin/letters/:id`)
+
 - Full draft content
 - Timeline of state transitions (payment → dispatch → status events)
 - Raw provider references (for support, not exposed to frontend users)
 - Refund / re-dispatch actions (approval-gated in UI)
 
 ### Admin Accessibility
+
 - Full keyboard navigation
 - Table sorting and filtering keyboard-accessible
 - Admin tools do not need to match consumer polish but must be functional and accessible
@@ -2080,32 +2382,33 @@ No empty state. If legal content is unavailable, show a route-level `<ErrorPage>
 ---
 
 ### Security Note
+
 Admin routes must be protected at both the middleware and API level. Do not rely on frontend routing alone. See `../07-operations/security-and-privacy.md`.
 
 ---
 
 ## Appendix A: Route Summary
 
-| Route | Layout | Auth | SEO | Notes |
-|-------|--------|------|-----|-------|
-| `/` | `MarketingLayout` | None | Yes | SSG preferred |
-| `/how-it-works` | `MarketingLayout` | None | Yes | SSG |
-| `/pricing` | `MarketingLayout` | None | Yes | Prices from config |
-| `/use-cases/:slug` | `MarketingLayout` | None | Yes | SSG per slug |
-| `/templates` | `MarketingLayout` | None | Yes | Searchable template catalogue; `ItemList` structured data |
-| `/draft/new` | `AppLayout` | None (guest) | No | Guest-first |
-| `/draft/:id` | `AppLayout` | Session token | No | Core product |
-| `/draft/:id/review` | `AppLayout` | Session token | No | |
-| `/draft/:id/checkout` | `MinimalLayout` | Session token | No | Stripe embedded |
-| `/draft/:id/confirmation` | `MinimalLayout` | Session token | No | Honest status only |
-| `/resume/:token` | `AppLayout` / `MinimalLayout` | Resume token | No | Guest-draft recovery only |
-| `/status/:orderToken` | `MinimalLayout` | Order-access token | No | Paid-order status, receipt, final artifact access |
-| `404 catch-all` | `MinimalLayout` | None | No | Friendly not-found page |
-| `/500` | `MinimalLayout` | None | No | Static fallback for server errors |
-| `/privacy` | `MarketingLayout` | None | Yes | Legal prose, PDF download, all locales |
-| `/terms` | `MarketingLayout` | None | Yes | Legal prose, PDF download, all locales |
-| `/imprint` | `MarketingLayout` | None | Yes | Swiss-required company details |
-| `/{locale}/admin/*` | `AdminLayout` | Admin auth | No | Internal only |
+| Route                     | Layout                        | Auth               | SEO | Notes                                                     |
+| ------------------------- | ----------------------------- | ------------------ | --- | --------------------------------------------------------- |
+| `/`                       | `MarketingLayout`             | None               | Yes | SSG preferred                                             |
+| `/how-it-works`           | `MarketingLayout`             | None               | Yes | SSG                                                       |
+| `/pricing`                | `MarketingLayout`             | None               | Yes | Prices from config                                        |
+| `/use-cases/:slug`        | `MarketingLayout`             | None               | Yes | SSG per slug                                              |
+| `/templates`              | `MarketingLayout`             | None               | Yes | Searchable template catalogue; `ItemList` structured data |
+| `/draft/new`              | `AppLayout`                   | None (guest)       | No  | Guest-first                                               |
+| `/draft/:id`              | `AppLayout`                   | Session token      | No  | Core product                                              |
+| `/draft/:id/review`       | `AppLayout`                   | Session token      | No  |                                                           |
+| `/draft/:id/checkout`     | `MinimalLayout`               | Session token      | No  | Stripe embedded                                           |
+| `/draft/:id/confirmation` | `MinimalLayout`               | Session token      | No  | Honest status only                                        |
+| `/resume/:token`          | `AppLayout` / `MinimalLayout` | Resume token       | No  | Guest-draft recovery only                                 |
+| `/status/:orderToken`     | `MinimalLayout`               | Order-access token | No  | Paid-order status, receipt, final artifact access         |
+| `404 catch-all`           | `MinimalLayout`               | None               | No  | Friendly not-found page                                   |
+| `/500`                    | `MinimalLayout`               | None               | No  | Static fallback for server errors                         |
+| `/privacy`                | `MarketingLayout`             | None               | Yes | Legal prose, PDF download, all locales                    |
+| `/terms`                  | `MarketingLayout`             | None               | Yes | Legal prose, PDF download, all locales                    |
+| `/imprint`                | `MarketingLayout`             | None               | Yes | Swiss-required company details                            |
+| `/{locale}/admin/*`       | `AdminLayout`                 | Admin auth         | No  | Internal only                                             |
 
 ---
 
@@ -2113,12 +2416,12 @@ Admin routes must be protected at both the middleware and API level. Do not rely
 
 All pages use the same error component hierarchy:
 
-| Severity | Component | When to use |
-|----------|-----------|-------------|
-| Field-level | Inline `text-error text-sm` below field | Form validation |
-| Inline notice | `<ErrorBanner>` (dismissable) | Non-blocking failures |
-| Full-screen | `<ErrorPage>` centred card | Route-level failures |
-| Modal | `<Dialog>` | Session expiry, destructive confirmation |
+| Severity      | Component                               | When to use                              |
+| ------------- | --------------------------------------- | ---------------------------------------- |
+| Field-level   | Inline `text-error text-sm` below field | Form validation                          |
+| Inline notice | `<ErrorBanner>` (dismissable)           | Non-blocking failures                    |
+| Full-screen   | `<ErrorPage>` centred card              | Route-level failures                     |
+| Modal         | `<Dialog>`                              | Session expiry, destructive confirmation |
 
 Error messages follow the taxonomy in `../05-architecture/error-taxonomy.md`. Never expose raw provider error codes to users.
 
@@ -2127,6 +2430,7 @@ Error messages follow the taxonomy in `../05-architecture/error-taxonomy.md`. Ne
 ## Appendix C: i18n Notes
 
 All user-facing strings are in the i18n layer. This document uses English as the reference language. See `../05-architecture/i18n-rules.md` for:
+
 - Locale routing uses `/[locale]/...` prefixes (`/de`, `/fr`, `/it`, `/en`)
 - String key conventions
 - Formal vs informal register per locale (Swiss German: formal `Sie`)
@@ -2134,7 +2438,7 @@ All user-facing strings are in the i18n layer. This document uses English as the
 
 ---
 
-*This document covers wireframe-level specifications. Visual polish, exact copy, and illustration assets are specified separately in `02-brand/design-system.md`, `02-brand/voice-and-tone.md`, and assets to be produced.*
+_This document covers wireframe-level specifications. Visual polish, exact copy, and illustration assets are specified separately in `02-brand/design-system.md`, `02-brand/voice-and-tone.md`, and assets to be produced._
 
 ---
 
@@ -2145,6 +2449,7 @@ All user-facing strings are in the i18n layer. This document uses English as the
 ### DZ-1: Do not build a generic chatbot
 
 The `<ConversationPanel>` is a **guided workspace**, not a free-form chat interface. The AI follows a structured state machine (§6.2 "Conversation Flow State Machine") with defined states, transitions, and quick-reply chips. Implementation must not:
+
 - Allow the AI to discuss topics unrelated to the current letter
 - Implement a general-purpose conversation history that persists across sessions
 - Use a generic "chat UI" component library without adapting it to the state machine model
@@ -2186,6 +2491,7 @@ Mobile is not "desktop but smaller." The mobile workspace (§6 mobile layout) ha
 ### DZ-9: Do not fake the typing indicator
 
 The AI typing indicator (3-dot animation) in the conversation panel must represent real server-side processing. It must not:
+
 - Start before the request is sent to the backend
 - Continue after the response is received (stop within 100ms of response arrival)
 - Loop indefinitely without a timeout (max 30s, then show "Taking longer than expected…")

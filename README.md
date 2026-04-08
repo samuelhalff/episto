@@ -10,6 +10,13 @@ workflow.
 
 ---
 
+## Current Guardrails
+
+- `EPOST_SUBMISSION_MODE=mock` is the default. Keep it that way until explicit production cutover.
+- `EPOST_SUBMISSION_MODE=live` is accepted only when `NODE_ENV=production` and `POSTAL_DISPATCH_PROVIDER=epost`, which prevents accidental pre-production ePost fees.
+- Mock mode still emits provider-shaped references and tracking fields so the UI, emails, and downloadable confirmation PDF can be validated without live submission.
+- `GET /v1/drafts/:id/pdf` and `GET /v1/orders/:orderToken/pdf` return a download-only confirmation bundle: page 1 is the branded confirmation record, and the remaining pages are the exact rendered letter PDF prepared for dispatch. That bundle is separate from the raw PDF asset submitted to the provider.
+
 ## Documentation
 
 Start here → **[docs/index.md](docs/index.md)** — navigation hub with reading paths by role.

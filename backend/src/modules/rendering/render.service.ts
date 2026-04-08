@@ -16,6 +16,7 @@ import { readFileSync } from "node:fs";
 import puppeteer from "puppeteer-core";
 import type { Browser } from "puppeteer-core";
 import { eq } from "drizzle-orm";
+import { PDFDocument } from "pdf-lib";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { createFileAsset, renderStorageKey } from "../files/file.service.js";
@@ -487,9 +488,9 @@ function escapeHtml(str: string): string {
     .replace(/"/g, "&quot;");
 }
 
-export function countPdfPages(pdfBuffer: Buffer | Uint8Array): number {
-  const pdfString = Buffer.from(pdfBuffer).toString("latin1");
-  return Math.max(1, (pdfString.match(/\/Type\s*\/Page[^s]/g) || []).length);
+export async function countPdfPages(pdfBuffer: Buffer | Uint8Array): Promise<number> {
+  const pdf = await PDFDocument.load(pdfBuffer);
+  return pdf.getPageCount();
 }
 
 export async function renderPdfBufferFromHtml(
@@ -520,7 +521,7 @@ export async function renderPdfBufferFromHtml(
 
     return {
       pdfBuffer,
-      pageCount: countPdfPages(pdfBuffer),
+      pageCount: await countPdfPages(pdfBuffer),
     };
   } finally {
     await page.close();

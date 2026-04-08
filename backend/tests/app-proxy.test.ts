@@ -1,5 +1,6 @@
 import pino from "pino";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { z } from "zod";
 
 async function loadBuildApp(trustProxy: boolean) {
   vi.resetModules();
@@ -99,6 +100,45 @@ describe("proxy-aware request IP handling", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ ip: "198.51.100.10" });
+
+    await app.close();
+  });
+
+  it("turns thrown Zod errors into 400 validation responses", async () => {
+    const { buildApp } = await loadBuildApp(false);
+    const app = await buildApp(pino({ level: "silent" }));
+    app.post("/debug/zod", async (request) => {
+      z
+        .object({
+          company: z.string().min(1, "Provide a recipient name or company."),
+        })
+        .parse(request.body);
+      return { ok: true };
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/debug/zod",
+      payload: { company: "" },
+      headers: {
+        "x-requested-with": "XMLHttpRequest",
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toMatchObject({
+      error: {
+        code: "VALIDATION_ERROR",
+        family: "validation_error",
+        message: "Provide a recipient name or company.",
+        fields: [
+          {
+            field: "company",
+            message: "Provide a recipient name or company.",
+          },
+        ],
+      },
+    });
 
     await app.close();
   });

@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
-import { getDb } from "../db/index.js";
+import { getDb, schema } from "../db/index.js";
 import { getQueue, QUEUE_NAMES } from "../queue/index.js";
 
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
@@ -11,14 +11,28 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
   app.get("/readiness", async (_req, reply) => {
     const checks: Record<string, "ok" | "fail"> = {};
     let allOk = true;
+    const db = getDb();
 
     // Database connectivity
     try {
-      const db = getDb();
       await db.execute(sql`SELECT 1`);
       checks.database = "ok";
     } catch {
       checks.database = "fail";
+      allOk = false;
+    }
+
+    try {
+      await db
+        .select({
+          paymentAttemptId: schema.dispatchAttempts.paymentAttemptId,
+          trackingNumber: schema.dispatchAttempts.trackingNumber,
+        })
+        .from(schema.dispatchAttempts)
+        .limit(0);
+      checks.schema = "ok";
+    } catch {
+      checks.schema = "fail";
       allOk = false;
     }
 

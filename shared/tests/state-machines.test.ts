@@ -40,10 +40,11 @@ describe("DraftStatus transitions", () => {
     ]);
   });
 
-  it("keeps rendering immutable until it either succeeds or closes", () => {
-    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(false);
+  it("allows rendering to return to fields_complete when render-time validation fails", () => {
+    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(true);
     expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.collecting)).toBe(false);
     expect(getAllowedDraftTransitions(DraftStatus.rendering)).toEqual([
+      DraftStatus.fields_complete,
       DraftStatus.ready,
       DraftStatus.closed,
     ]);

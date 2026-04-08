@@ -9,6 +9,7 @@ import {
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { assertDispatchPolicyConstraints } from "./dispatch-policy.js";
 
 function toDispatchFileAsset(
   asset: typeof schema.fileAssets.$inferSelect,
@@ -97,6 +98,11 @@ export async function buildDispatchPackage(
     ]);
   }
 
+  assertDispatchPolicyConstraints({
+    recipientCountry: snapshotData.recipient.country,
+    estimatedPages,
+  });
+
   const assetIds = [
     ...(snapshot.renderedPdfAssetId ? [snapshot.renderedPdfAssetId] : []),
     ...snapshotData.attachmentAssetIds,
@@ -163,6 +169,7 @@ export interface DraftPricingInputs {
   deliveryType: "standard" | "registered";
   estimatedPages: number;
   attachmentCount: number;
+  recipientCountry: string | null;
 }
 
 /**
@@ -178,6 +185,7 @@ export async function getDraftPricingInputs(
     .select({
       deliveryType: schema.draftLetters.deliveryType,
       estimatedPages: schema.draftLetters.estimatedPages,
+      recipientProfileId: schema.draftLetters.recipientProfileId,
     })
     .from(schema.draftLetters)
     .where(eq(schema.draftLetters.id, draftId))
@@ -198,9 +206,18 @@ export async function getDraftPricingInputs(
       ),
     );
 
+  const [recipient] = draft.recipientProfileId
+    ? await db
+        .select({ country: schema.recipientProfiles.country })
+        .from(schema.recipientProfiles)
+        .where(eq(schema.recipientProfiles.id, draft.recipientProfileId))
+        .limit(1)
+    : [null];
+
   return {
     deliveryType: draft.deliveryType,
     estimatedPages: draft.estimatedPages ?? 1,
     attachmentCount: Number(attachmentResult?.total ?? 0),
+    recipientCountry: recipient?.country ?? null,
   };
 }
