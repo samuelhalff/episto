@@ -10,6 +10,7 @@ import {
 } from "../modules/dispatch/dispatch.service.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { enqueuePaymentReceiptEmail } from "../modules/payments/payment-notifications.js";
+import { acquireRedisLock } from "../shared/redis-lock.js";
 import {
   canFinalizeDispatchResolution,
   settlePaymentForDispatchResolution,
@@ -17,6 +18,7 @@ import {
 } from "./dispatch-settlement.js";
 
 const logger = createLogger("reconcile-dispatch-worker");
+const RECONCILE_LOCK_TTL_MS = 5 * 60 * 1000;
 
 /**
  * Reconcile-ambiguous-dispatch worker — resolves dispatch attempts stuck in
@@ -33,41 +35,50 @@ export async function processReconcileDispatchJob(
   job: Job<ReconcileDispatchJob>,
 ): Promise<void> {
   const { dispatchAttemptId } = job.data;
+  const lock = await acquireRedisLock(
+    `dispatch-reconcile:${dispatchAttemptId}`,
+    RECONCILE_LOCK_TTL_MS,
+  );
+  if (!lock) {
+    logger.info({ dispatchAttemptId }, "Skipping duplicate dispatch reconciliation");
+    return;
+  }
+
   const db = getDb();
   const adapter = getDispatchAdapter();
 
   logger.info({ dispatchAttemptId }, "Reconciling dispatch attempt");
 
-  const attempt = await getDispatchAttempt(db, dispatchAttemptId);
-  if (!attempt) {
-    logger.warn({ dispatchAttemptId }, "Dispatch attempt not found, skipping");
-    return;
-  }
-
-  // Only reconcile if in a non-terminal state
-  if (!["submitted", "unknown"].includes(attempt.state)) {
-    logger.info(
-      { dispatchAttemptId, state: attempt.state },
-      "Dispatch already in terminal state, skipping reconciliation",
-    );
-    return;
-  }
-
-  if (!attempt.providerReference) {
-    logger.warn(
-      { dispatchAttemptId },
-      "No provider reference available, cannot reconcile",
-    );
-    // Transition to unknown if still in submitted
-    if (attempt.state === "submitted") {
-      await transitionDispatchState(db, dispatchAttemptId, "unknown", {
-        failureReason: "No provider reference available for reconciliation",
-      });
-    }
-    return;
-  }
-
   try {
+    const attempt = await getDispatchAttempt(db, dispatchAttemptId);
+    if (!attempt) {
+      logger.warn({ dispatchAttemptId }, "Dispatch attempt not found, skipping");
+      return;
+    }
+
+    // Only reconcile if in a non-terminal state
+    if (!["submitted", "unknown"].includes(attempt.state)) {
+      logger.info(
+        { dispatchAttemptId, state: attempt.state },
+        "Dispatch already in terminal state, skipping reconciliation",
+      );
+      return;
+    }
+
+    if (!attempt.providerReference) {
+      logger.warn(
+        { dispatchAttemptId },
+        "No provider reference available, cannot reconcile",
+      );
+      // Transition to unknown if still in submitted
+      if (attempt.state === "submitted") {
+        await transitionDispatchState(db, dispatchAttemptId, "unknown", {
+          failureReason: "No provider reference available for reconciliation",
+        });
+      }
+      return;
+    }
+
     const status = await adapter.checkStatus(attempt.providerReference);
 
     if (status.state === "accepted" || status.state === "rejected") {
@@ -147,6 +158,12 @@ export async function processReconcileDispatchJob(
       .where(eq(schema.dispatchAttempts.id, dispatchAttemptId));
 
     throw err; // Re-throw for BullMQ retry
+  } finally {
+    try {
+      await lock.release();
+    } catch (releaseErr) {
+      logger.warn({ dispatchAttemptId, err: releaseErr }, "Failed to release reconcile lock");
+    }
   }
 }
 

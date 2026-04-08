@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   updateDraftStatusForDispatchSubmission: vi.fn(),
   enqueueDispatchReconciliation: vi.fn(),
   enqueuePaymentReceiptEmail: vi.fn(),
+  acquireRedisLock: vi.fn(),
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -57,6 +58,10 @@ vi.mock("../src/queue/index.js", () => ({
 
 vi.mock("../src/shared/logging/index.js", () => ({
   createLogger: () => mocks.logger,
+}));
+
+vi.mock("../src/shared/redis-lock.js", () => ({
+  acquireRedisLock: mocks.acquireRedisLock,
 }));
 
 vi.mock("../src/shared/config/index.js", () => ({
@@ -138,6 +143,9 @@ describe("dispatch workers", () => {
     mocks.updateDraftStatusForDispatchSubmission.mockReset();
     mocks.enqueueDispatchReconciliation.mockReset();
     mocks.enqueuePaymentReceiptEmail.mockReset();
+    mocks.acquireRedisLock.mockReset().mockResolvedValue({
+      release: vi.fn().mockResolvedValue(undefined),
+    });
     mocks.logger.info.mockReset();
     mocks.logger.warn.mockReset();
     mocks.logger.error.mockReset();
@@ -378,6 +386,28 @@ describe("dispatch workers", () => {
 
     expect(mocks.transitionDispatchState).not.toHaveBeenCalled();
     expect(mocks.currentDb?.update).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips reconciliation when another worker already holds the distributed lock", async () => {
+    mocks.currentDb = createDbMock([[]]);
+    mocks.acquireRedisLock.mockResolvedValueOnce(null);
+
+    const { processReconcileDispatchJob } =
+      await import("../src/workers/reconcile-dispatch.worker.js");
+
+    const job = {
+      data: { dispatchAttemptId: "dispatch-locked" },
+      log: vi.fn(),
+    };
+
+    await expect(processReconcileDispatchJob(job as never)).resolves.toBeUndefined();
+
+    expect(mocks.acquireRedisLock).toHaveBeenCalledWith(
+      "dispatch-reconcile:dispatch-locked",
+      expect.any(Number),
+    );
+    expect(mocks.getDispatchAttempt).not.toHaveBeenCalled();
+    expect(mocks.adapterCheckStatus).not.toHaveBeenCalled();
   });
 
   it("updates draft state before terminal reconciliation writes the dispatch outcome", async () => {
