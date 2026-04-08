@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import { MenuTriggerButton } from "../../layout/MenuTriggerButton";
 import { SiteMenuPanel } from "../../layout/SiteMenuPanel";
@@ -29,31 +29,21 @@ export function WorkspaceSiteMenu({ isCompactViewport = false }: WorkspaceSiteMe
     ? "px-6 pb-[calc(env(safe-area-inset-bottom,0px)+1rem)] sm:px-8"
     : "px-6 pb-5 sm:px-8 lg:px-10";
   const triggerSlotClassName = "flex h-11 w-11 shrink-0 items-start justify-end";
-  const fixedTriggerClassName = useMemo(
-    () =>
-      [
-        triggerSlotClassName,
-        "fixed right-6 sm:right-8 lg:right-10 z-[70]",
-        isCompactViewport ? "top-5" : "top-3",
-      ].join(" "),
-    [isCompactViewport],
-  );
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   const openMenu = useCallback(() => setMenuOpen(true), []);
 
   return (
     <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
-      <div className={triggerSlotClassName} aria-hidden="true" />
-      {!menuOpen ? (
-        <div className={fixedTriggerClassName}>
+      <div className={triggerSlotClassName}>
+        {!menuOpen ? (
           <MenuTriggerButton
             compact
             aria-label={tc("openMenu")}
             aria-expanded={menuOpen}
             onClick={openMenu}
           />
-        </div>
-      ) : null}
+        ) : null}
+      </div>
       <SheetContent
         side="right"
         className={getSheetSurfaceClassName("navigation")}

@@ -42,6 +42,18 @@ describe("frontend dev hot reload configuration", () => {
     expect(nextConfigSource).toContain('output: "standalone"');
   });
 
+  it("only forwards frontend-safe repo root env keys into Next", () => {
+    expect(nextConfigSource).toContain(
+      'const REPO_ROOT_FRONTEND_ENV_KEYS = new Set(["API_URL", "NEXT_DIST_DIR"]);',
+    );
+    expect(nextConfigSource).toContain(
+      'return key.startsWith("NEXT_PUBLIC_") || REPO_ROOT_FRONTEND_ENV_KEYS.has(key);',
+    );
+    expect(nextConfigSource).toContain(
+      "if (isRepoRootEnv && !isAllowedRootEnvKey(key)) continue;",
+    );
+  });
+
   it("Docker compose has no webpack-specific polling vars", () => {
     expect(dockerComposeSource).not.toContain("WATCHPACK_POLLING");
     expect(dockerComposeSource).not.toContain("CHOKIDAR_USEPOLLING");

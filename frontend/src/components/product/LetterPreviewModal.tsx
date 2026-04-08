@@ -1,12 +1,15 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { X } from "lucide-react";
 import { useLetterPreview } from "../../hooks/use-letter-preview";
 import { useDraft } from "../../hooks/use-api";
+import { getAppButtonClassName } from "../ui/app-button";
 import {
   getSheetSurfaceClassName,
   Sheet,
   SheetBody,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetFooter,
@@ -42,13 +45,29 @@ export function LetterPreviewModal({
         <SheetHandle className="pt-[calc(env(safe-area-inset-top,0px)+0.5rem)] md:hidden" />
 
         <header className="flex shrink-0 flex-col gap-3 border-b border-[var(--app-border)] px-4 py-3 sm:px-6 md:py-4">
-          <div className="min-w-0">
-            <SheetTitle className="text-sm font-semibold text-[var(--app-fg)] sm:text-base">
-              {t("professionalPreview")}
-            </SheetTitle>
-            <SheetDescription className="mt-1 text-sm text-[var(--app-muted)]">
-              {t("previewSheetHint")}
-            </SheetDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <SheetTitle className="text-sm font-semibold text-[var(--app-fg)] sm:text-base">
+                {t("professionalPreview")}
+              </SheetTitle>
+              <SheetDescription className="mt-1 text-sm text-[var(--app-muted)]">
+                {t("previewSheetHint")}
+              </SheetDescription>
+            </div>
+            <SheetClose asChild>
+              <button
+                type="button"
+                aria-label={t("closePreview")}
+                className={getAppButtonClassName({
+                  variant: "secondary",
+                  size: "sm",
+                  className:
+                    "app-toolbar-button h-11 w-11 shrink-0 rounded-2xl p-0 shadow-none",
+                })}
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </SheetClose>
           </div>
         </header>
 

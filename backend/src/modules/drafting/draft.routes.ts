@@ -13,6 +13,7 @@ import { createSenderProfile, createRecipientProfile } from "./profile.service.j
 import { createSnapshot } from "../rendering/snapshot.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
+import { calculatePrice } from "../pricing/index.js";
 import { getPaymentForDraft, transitionPaymentState } from "../payments/payment.service.js";
 import { cancelPaymentIntent } from "../payments/adapters/stripe.adapter.js";
 import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
@@ -541,11 +542,17 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           null;
       }
 
-      // Resolve display price through shared quote resolver
       const deliveryType = (snapshotData?.deliveryType ?? draft.deliveryType) as
         | "standard"
         | "registered";
-      const resolvedDisplayQuote = await resolveDisplayDispatchQuoteForDraft(db, draftId);
+      const shouldUseReferencePrice = !snapshotData && draft.estimatedPages == null;
+      const resolvedDisplayQuote = shouldUseReferencePrice
+        ? {
+            quote: {
+              totalCents: calculatePrice(deliveryType).totalCents,
+            },
+          }
+        : await resolveDisplayDispatchQuoteForDraft(db, draftId);
 
       reply.send({
         preview: {

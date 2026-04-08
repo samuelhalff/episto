@@ -48,10 +48,11 @@ describe("shared action spacing regressions", () => {
     expect(draftShellSource).toContain("flex min-w-0 items-center gap-3");
   });
 
-  it("anchors the workspace menu trigger to the same viewport slot as the sheet close action", () => {
-    expect(workspaceMenuSource).toContain("fixed right-6");
-    expect(workspaceMenuSource).toContain("sm:right-8");
-    expect(workspaceMenuSource).toContain("lg:right-10");
+  it("keeps the workspace menu trigger in the header flow so preview sheets own the top-right chrome", () => {
+    expect(workspaceMenuSource).not.toContain("fixed right-6");
+    expect(workspaceMenuSource).not.toContain("sm:right-8");
+    expect(workspaceMenuSource).not.toContain("lg:right-10");
+    expect(workspaceMenuSource).toContain("className={triggerSlotClassName}");
     expect(workspaceMenuSource).toContain("SheetClose asChild");
   });
 });

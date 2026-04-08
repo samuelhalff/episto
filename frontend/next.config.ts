@@ -6,8 +6,15 @@ import dotenv from "dotenv";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+const REPO_ROOT_FRONTEND_ENV_KEYS = new Set(["API_URL", "NEXT_DIST_DIR"]);
+
+function isAllowedRootEnvKey(key: string): boolean {
+  return key.startsWith("NEXT_PUBLIC_") || REPO_ROOT_FRONTEND_ENV_KEYS.has(key);
+}
+
 function loadLocalEnvFiles() {
   const cwd = process.cwd();
+  const repoRoot = path.resolve(cwd, "..");
   const originalKeys = new Set(Object.keys(process.env));
   const candidates = [
     path.resolve(cwd, "../.env"),
@@ -19,9 +26,11 @@ function loadLocalEnvFiles() {
   for (const file of candidates) {
     if (!fs.existsSync(file)) continue;
 
+    const isRepoRootEnv = path.dirname(file) === repoRoot;
     const parsed = dotenv.parse(fs.readFileSync(file));
     for (const [key, value] of Object.entries(parsed)) {
       if (originalKeys.has(key)) continue;
+      if (isRepoRootEnv && !isAllowedRootEnvKey(key)) continue;
       process.env[key] = value;
     }
   }

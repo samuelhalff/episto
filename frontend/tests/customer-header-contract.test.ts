@@ -43,7 +43,8 @@ describe("customer header contract", () => {
     expect(flowHeaderSource).toContain('<div className="mt-3 min-w-0">');
     expect(workspaceMenuSource).toContain('from "../../layout/MenuTriggerButton"');
     expect(workspaceMenuSource).toContain("SheetClose asChild");
-    expect(workspaceMenuSource).toContain("fixed right-6");
+    expect(workspaceMenuSource).not.toContain("fixed right-6");
+    expect(workspaceMenuSource).toContain("className={triggerSlotClassName}");
     expect(draftShellSource).toContain("<HeaderLanguageMenu");
     expect(entryPageSource).toContain("<HeaderLanguageMenu");
     expect(entryPageSource.match(/<CustomerSiteMenu/g)?.length).toBe(2);

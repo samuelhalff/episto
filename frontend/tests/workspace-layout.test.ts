@@ -20,6 +20,11 @@ const letterPreviewModalSource = readFileSync(
   "utf8",
 );
 
+const workspacePreviewPaneSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/WorkspacePreviewPane.tsx"),
+  "utf8",
+);
+
 const draftShellSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/draft-shell.tsx"),
   "utf8",
@@ -55,10 +60,24 @@ describe("workspace layout regressions", () => {
     expect(letterPreviewModalSource).toContain("h-[100dvh] max-h-[100dvh] min-h-[100dvh]");
     expect(letterPreviewModalSource).toContain("rounded-none");
     expect(letterPreviewModalSource).toContain("flex-col gap-3");
+    expect(letterPreviewModalSource).toContain("SheetClose asChild");
+    expect(letterPreviewModalSource).toContain("getAppButtonClassName");
+    expect(letterPreviewModalSource).toContain('{t("closePreview")}');
     expect(letterPreviewModalSource).toContain('{t("confirmContent")}');
     expect(letterPreviewModalSource).toContain('{t("hidePreview")}');
     expect(letterPreviewModalSource).not.toContain("editBodyManuallyBadge");
     expect(letterPreviewModalSource).toContain('variant="immersive"');
+  });
+
+  it("keeps the pre-draft preview visible instead of replacing it with a retry state", () => {
+    expect(workspacePreviewPaneSource).toContain(
+      "const shouldShowBlockingError = Boolean(error) && !draft.data;",
+    );
+    expect(workspacePreviewPaneSource).toContain(
+      "const shouldShowInlinePreviewWarning = Boolean(error) && Boolean(draft.data);",
+    );
+    expect(workspacePreviewPaneSource).toContain('{t("previewUnavailableRetry")}');
+    expect(workspacePreviewPaneSource).not.toContain("error || (!previewData && !draft.data)");
   });
 
   it("keeps the draft shell overflow-safe on narrow screens", () => {

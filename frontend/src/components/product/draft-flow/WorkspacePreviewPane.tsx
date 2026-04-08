@@ -20,6 +20,9 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
   const draft = useDraft(draftId);
   const { previewData, isStale, isLoading, error, refreshPreview, isRefreshing } =
     useLetterPreview(draftId);
+  const shouldShowBlockingError = Boolean(error) && !draft.data;
+  const shouldShowInlinePreviewWarning = Boolean(error) && Boolean(draft.data);
+  const shouldShowPreviewContent = Boolean(draft.data) || Boolean(previewData);
 
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   useEffect(() => {
@@ -69,11 +72,11 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
       </div>
 
       <ScrollShadowViewport surface="muted" className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
-        {isLoading ? (
+        {isLoading && !draft.data ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
           </div>
-        ) : error || (!previewData && !draft.data) ? (
+        ) : shouldShowBlockingError || !shouldShowPreviewContent ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("previewUnavailableRetry")}</p>
             <button
@@ -86,13 +89,32 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
             </button>
           </div>
         ) : (
-          <LetterPreview
-            draft={draft.data}
-            senderProfile={previewData?.sender}
-            recipientProfile={previewData?.recipient}
-            variant="default"
-            showHeader={false}
-          />
+          <div className="space-y-4">
+            {shouldShowInlinePreviewWarning ? (
+              <div className="rounded-2xl border border-amber-200/80 bg-amber-50/70 px-4 py-3 text-left dark:border-amber-400/20 dark:bg-amber-400/10">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="text-sm text-amber-800 dark:text-amber-200">
+                    {t("previewUnavailableRetry")}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={refreshPreview}
+                    className="inline-flex shrink-0 items-center gap-1 rounded-md bg-white/80 px-3 py-1.5 text-xs font-medium text-amber-800 transition-colors hover:bg-white dark:bg-zinc-950/40 dark:text-amber-200 dark:hover:bg-zinc-950/60"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                    {tc("refresh")}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            <LetterPreview
+              draft={draft.data}
+              senderProfile={previewData?.sender}
+              recipientProfile={previewData?.recipient}
+              variant="default"
+              showHeader={false}
+            />
+          </div>
         )}
       </ScrollShadowViewport>
     </div>
