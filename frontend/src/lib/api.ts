@@ -77,8 +77,20 @@ export function isApiErrorWithStatus(error: unknown, status: number): error is A
   return error instanceof ApiError && error.status === status;
 }
 
-export function getApiErrorUserMessage(error: unknown): string | null {
-  return error instanceof ApiError ? error.getUserMessage() : null;
+export function getApiErrorUserMessage(
+  error: unknown,
+  options?: { byCode?: Record<string, string> },
+): string | null {
+  if (!(error instanceof ApiError)) {
+    return null;
+  }
+
+  const code = error.getCode();
+  if (code && options?.byCode?.[code]) {
+    return options.byCode[code];
+  }
+
+  return error.getUserMessage();
 }
 
 export function getApiErrorCode(error: unknown): string | null {

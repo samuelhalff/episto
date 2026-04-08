@@ -27,6 +27,31 @@ describe("API error helpers", () => {
     expect(getApiErrorCode(error)).toBe("DISPATCH_ADAPTER_NOT_CONFIGURED");
   });
 
+  it("allows product-specific fallback copy for selected API error codes", () => {
+    const error = new ApiError(503, {
+      error: {
+        code: "PROVIDER_OUTAGE",
+        userMessage: "An external service is temporarily unavailable. Please try again shortly.",
+      },
+    });
+
+    const getMessageWithOverrides = getApiErrorUserMessage as (
+      error: unknown,
+      options?: { byCode?: Record<string, string> },
+    ) => string | null;
+
+    expect(
+      getMessageWithOverrides(error, {
+        byCode: {
+          PROVIDER_OUTAGE:
+            "Address search is temporarily unavailable. You can still enter the address manually below.",
+        },
+      }),
+    ).toBe(
+      "Address search is temporarily unavailable. You can still enter the address manually below.",
+    );
+  });
+
   it("matches ApiError values by status", () => {
     const error = new ApiError(404, { error: { userMessage: "Missing" } });
 

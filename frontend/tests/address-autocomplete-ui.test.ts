@@ -21,6 +21,10 @@ const messagesSource = readFileSync(
   path.join(repoRoot, "frontend/src/messages/en-CH.json"),
   "utf8",
 );
+const addressAutocompleteSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/AddressAutocompleteField.tsx"),
+  "utf8",
+);
 
 describe("address autocomplete UI", () => {
   it("wires a shared address autocomplete field into sender and recipient flows", () => {
@@ -40,5 +44,10 @@ describe("address autocomplete UI", () => {
     expect(messagesSource).toContain('"searchingAddresses"');
     expect(messagesSource).toContain('"addressSearchUnavailable"');
     expect(messagesSource).toContain('"addressSearchNoResults"');
+  });
+
+  it("uses the local manual-entry fallback copy for provider outages", () => {
+    expect(addressAutocompleteSource).toContain("PROVIDER_OUTAGE");
+    expect(addressAutocompleteSource).toContain('t("addressSearchUnavailable")');
   });
 });

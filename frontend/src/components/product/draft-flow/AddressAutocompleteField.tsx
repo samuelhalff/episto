@@ -80,9 +80,14 @@ export function AddressAutocompleteField({
     addressSearch.isFetching ||
     addressDetails.isLoading ||
     addressDetails.isFetching;
+  const addressErrorMessageOverrides = {
+    byCode: {
+      PROVIDER_OUTAGE: t("addressSearchUnavailable"),
+    },
+  } as const;
   const errorMessage =
-    getApiErrorUserMessage(addressSearch.error) ??
-    getApiErrorUserMessage(addressDetails.error) ??
+    getApiErrorUserMessage(addressSearch.error, addressErrorMessageOverrides) ??
+    getApiErrorUserMessage(addressDetails.error, addressErrorMessageOverrides) ??
     null;
   const results = addressSearch.data ?? [];
   const shouldShowResults =
@@ -145,7 +150,7 @@ export function AddressAutocompleteField({
 
       {errorMessage ? (
         <p className="text-sm text-amber-700 dark:text-amber-300">
-          {errorMessage || t("addressSearchUnavailable")}
+          {errorMessage}
         </p>
       ) : null}
 
