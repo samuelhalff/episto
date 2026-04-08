@@ -58,6 +58,7 @@ These are the most critical rules for AI-assisted development:
 - No rich-text editor by default; keep MVP editing simple
 - All user-facing strings go through a message/i18n layer, never hardcoded in components
 - Mobile-first; no desktop-only affordances in payment or confirmation flows
+- Model async UI explicitly: keep pending selections separate from committed values, and when one control triggers sibling data loading, render a pending boundary in the dependent region instead of stale success-shaped content
 
 ## Backend conventions
 

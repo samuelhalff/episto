@@ -20,6 +20,14 @@ Non-negotiable product qualities:
 - The preview/edit loop must feel direct: one interaction from intent to visible result on desktop, and at most two simple interactions on mobile.
 - Repeated logic is not only a maintenance risk; it creates inconsistent UX. Centralize it.
 
+## Async rendering rules
+
+- Separate last committed data from pending user selections or in-flight replacements. Do not overwrite committed form state with placeholder values just to make a loading state appear.
+- When one control triggers async data for a sibling or downstream surface, the dependent region must render its own pending boundary. A tiny spinner only in the initiating control is not enough.
+- Do not keep showing stale success-shaped content for a newer unresolved selection. Use a status row, skeleton, disabled placeholder, or equivalent truthful pending UI until the new data resolves.
+- Preserve existing content during background refresh only when it is still truthful for the same entity or query. If the pending request refers to a different entity, withhold the old dependent content.
+- Pending surfaces should keep layout stable and use both visible feedback and accessibility cues such as `aria-busy` / `role="status"` where appropriate.
+
 ## UI consistency guardrails
 
 These implementation rules are mandatory. They exist to stop visual drift when multiple engineers or AI agents touch the frontend.

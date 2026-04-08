@@ -114,6 +114,14 @@ They are mandatory alongside the product and provider guardrails.
 - `shared/` owns canonical contracts, schemas, enums, and shared API types; do not duplicate them elsewhere
 - If a file combines rendering, data fetching, normalization, error mapping, and state transitions, split it
 
+### Frontend async-state guardrails
+
+- Separate committed form data from pending UI selections or in-flight replacements
+- When one control triggers async data for sibling UI, lift or centralize the pending state so the trigger and dependent surface render from the same truth source
+- Never render stale dependent values or other success-shaped content for a newer unresolved selection
+- Use explicit pending boundaries (`aria-busy`, status text, skeletons, disabled placeholders) instead of only a tiny spinner in the initiating control
+- Keep previous content visible during `isFetching` only when it is still truthful for the same entity or query
+
 ## Required implementation pattern
 
 Every feature must follow this order:

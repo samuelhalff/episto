@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -9,6 +9,7 @@ const messages = {
   addressSearchPlaceholder: "Search for an address",
   addressSearchHint: "Start typing to search.",
   addressSearchSourceNote: "Source: Federal Office of Topography (swisstopo) via geo.admin.ch.",
+  addressSearchApplyingSelection: "Applying the selected address...",
   addressSearchUnavailable:
     "Address search is temporarily unavailable. You can still enter the address manually below.",
   addressSearchNoResults: "No addresses found.",
@@ -95,12 +96,43 @@ describe("address autocomplete runtime behavior", () => {
     expect(
       screen.queryByText("An external service is temporarily unavailable. Please try again shortly."),
     ).toBeNull();
+    expect(screen.queryByText(messages.addressSearchSourceNote)).toBeNull();
   });
 
   it("renders the geo.admin source note below the address-search hint", () => {
     renderField();
 
     expect(screen.getByText(messages.addressSearchSourceNote)).toBeTruthy();
+  });
+
+  it("shows an applying state while the selected address details are still loading", () => {
+    mocks.useAddressSearch.mockReturnValue(
+      createQueryState({
+        data: [
+          {
+            id: "addr:test-token",
+            label: "Bahnhofstrasse 1, 8001 Zürich",
+            primaryText: "Bahnhofstrasse 1",
+            secondaryText: "8001 Zürich",
+          },
+        ],
+      }),
+    );
+    mocks.useAddressDetails.mockReturnValue(
+      createQueryState({
+        isLoading: true,
+      }),
+    );
+
+    renderField();
+
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "Bahnhofstrasse" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Bahnhofstrasse 1/i }));
+
+    expect(screen.getByText(messages.addressSearchApplyingSelection)).toBeTruthy();
+    expect(screen.getByText("Bahnhofstrasse 1, 8001 Zürich")).toBeTruthy();
   });
 
   it("keeps other API error messages unchanged", () => {

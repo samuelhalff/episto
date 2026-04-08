@@ -6,7 +6,12 @@ import { useTranslations } from "next-intl";
 import { Loader2, Search } from "lucide-react";
 
 import { useAddressDetails, useAddressSearch } from "../../../hooks/use-api";
-import { getApiErrorUserMessage } from "../../../lib/api";
+import { getApiErrorCode, getApiErrorUserMessage } from "../../../lib/api";
+
+export interface AddressResolutionState {
+  isResolving: boolean;
+  selectedLabel: string | null;
+}
 
 interface AddressAutocompleteFieldProps {
   draftId: string;
@@ -21,6 +26,7 @@ interface AddressAutocompleteFieldProps {
     postalCode: string;
     city: string;
   }) => void;
+  onResolutionStateChange?: (state: AddressResolutionState) => void;
   onFocusChange?: (focused: boolean) => void;
 }
 
@@ -29,6 +35,7 @@ export function AddressAutocompleteField({
   inputName,
   currentAddress,
   onResolvedAddress,
+  onResolutionStateChange,
   onFocusChange,
 }: AddressAutocompleteFieldProps) {
   const t = useTranslations("draft");
@@ -57,6 +64,10 @@ export function AddressAutocompleteField({
     selectedSuggestion?.id ?? "",
     Boolean(selectedSuggestion?.id),
   );
+  const isResolvingSelection =
+    Boolean(selectedSuggestion) &&
+    !addressDetails.data &&
+    (addressDetails.isLoading || addressDetails.isFetching);
 
   useEffect(() => {
     if (!selectedSuggestion || !addressDetails.data) {
@@ -75,6 +86,13 @@ export function AddressAutocompleteField({
     lastAppliedSuggestionIdRef.current = selectedSuggestion.id;
   }, [addressDetails.data, onResolvedAddress, selectedSuggestion]);
 
+  useEffect(() => {
+    onResolutionStateChange?.({
+      isResolving: isResolvingSelection,
+      selectedLabel: isResolvingSelection ? selectedSuggestion?.label ?? null : null,
+    });
+  }, [isResolvingSelection, onResolutionStateChange, selectedSuggestion?.label]);
+
   const isLoading =
     addressSearch.isLoading ||
     addressSearch.isFetching ||
@@ -85,6 +103,9 @@ export function AddressAutocompleteField({
       PROVIDER_OUTAGE: t("addressSearchUnavailable"),
     },
   } as const;
+  const hasProviderOutage =
+    getApiErrorCode(addressSearch.error) === "PROVIDER_OUTAGE" ||
+    getApiErrorCode(addressDetails.error) === "PROVIDER_OUTAGE";
   const errorMessage =
     getApiErrorUserMessage(addressSearch.error, addressErrorMessageOverrides) ??
     getApiErrorUserMessage(addressDetails.error, addressErrorMessageOverrides) ??
@@ -148,10 +169,28 @@ export function AddressAutocompleteField({
 
       <div className="space-y-1">
         <p className="text-sm text-zinc-500 dark:text-zinc-300">{t("addressSearchHint")}</p>
-        <p className="text-[11px] leading-5 text-zinc-400 dark:text-zinc-500">
-          {t("addressSearchSourceNote")}
-        </p>
+        {!hasProviderOutage ? (
+          <p className="text-[11px] leading-5 text-zinc-400 dark:text-zinc-500">
+            {t("addressSearchSourceNote")}
+          </p>
+        ) : null}
       </div>
+
+      {isResolvingSelection && selectedSuggestion ? (
+        <div
+          role="status"
+          aria-live="polite"
+          className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3"
+        >
+          <div className="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-300">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            <span>{t("addressSearchApplyingSelection")}</span>
+          </div>
+          <p className="mt-2 break-words text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+            {selectedSuggestion.label}
+          </p>
+        </div>
+      ) : null}
 
       {errorMessage ? (
         <p className="text-sm text-amber-700 dark:text-amber-300">

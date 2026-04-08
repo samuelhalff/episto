@@ -16,7 +16,10 @@ import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
 import { ApiError } from "../../../lib/api";
 import { captureError } from "../../../lib/error-tracking";
 import { DraftShell, Card, FieldIconBadge, PrimaryButton, SegmentedControl } from "./ui";
-import { AddressAutocompleteField } from "./AddressAutocompleteField";
+import {
+  AddressAutocompleteField,
+  type AddressResolutionState,
+} from "./AddressAutocompleteField";
 import { AddressFields } from "./AddressFields";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { CompanySearchResults } from "./company-search-results";
@@ -73,6 +76,9 @@ export function RecipientStep({
   const [addressLine1, setAddressLine1] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
+  const [pendingAddressSelectionLabel, setPendingAddressSelectionLabel] = useState<string | null>(
+    null,
+  );
   const [areCompanyResultsVisible, setAreCompanyResultsVisible] = useState(false);
   const hasHydratedRef = useRef(false);
   const lastAutofilledCompanyIdRef = useRef<string | null>(null);
@@ -296,6 +302,7 @@ export function RecipientStep({
     !city.trim() ? t("city") : null,
   ].filter((value): value is string => Boolean(value));
   const canProceed = missingItems.length === 0;
+  const isResolvingSelection = pendingAddressSelectionLabel !== null;
 
   function handleFocusChange(focused: boolean) {
     setIsFormFocused(focused);
@@ -310,9 +317,12 @@ export function RecipientStep({
     },
     [],
   );
+  const handleResolutionStateChange = useCallback((state: AddressResolutionState) => {
+    setPendingAddressSelectionLabel(state.isResolving ? state.selectedLabel : null);
+  }, []);
 
   async function handleNext() {
-    if (!canProceed || setRecipient.isPending) return;
+    if (!canProceed || setRecipient.isPending || isResolvingSelection) return;
 
     recipientAutosave.cancelPending();
 
@@ -372,8 +382,8 @@ export function RecipientStep({
       primaryAction={
         <PrimaryButton
           onClick={canProceed ? handleNext : handleBlockedNext}
-          disabled={setRecipient.isPending}
-          loading={setRecipient.isPending || Boolean(isNavigating)}
+          disabled={setRecipient.isPending || isResolvingSelection}
+          loading={setRecipient.isPending || Boolean(isNavigating) || isResolvingSelection}
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}
         >
@@ -548,6 +558,7 @@ export function RecipientStep({
                         inputName="recipientAddressSearch"
                         currentAddress={{ addressLine1, postalCode, city }}
                         onResolvedAddress={handleResolvedAddress}
+                        onResolutionStateChange={handleResolutionStateChange}
                         onFocusChange={handleFocusChange}
                       />
                       <AddressFields
@@ -558,6 +569,8 @@ export function RecipientStep({
                         onAddressLine1Change={setAddressLine1}
                         onPostalCodeChange={setPostalCode}
                         onCityChange={setCity}
+                        isResolvingSelection={isResolvingSelection}
+                        pendingSelectionLabel={pendingAddressSelectionLabel}
                         onFocusChange={handleFocusChange}
                       />
                     </div>
