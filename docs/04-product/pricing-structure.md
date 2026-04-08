@@ -17,7 +17,8 @@ Define what checkout must be truthful about with provider-quoted pricing plus Sw
 - Currency is **CHF only**.
 - Checkout must show an **itemized breakdown** before redirecting to Stripe.
 - The charged amount must be persisted on the `PaymentAttempt`; never recompute historical orders from current config.
-- Exact price amounts are **configuration**, not code constants.
+- Exact price amounts are **stored snapshot / configuration inputs**, not code constants.
+- The public pricing page and in-product public price display must read the same stored synced provider source.
 - Provider economics must still be re-validated against real commercial terms before public launch.
 
 ### Locked MVP price model
@@ -33,8 +34,8 @@ Config keys:
 - `PRICE_STANDARD_MARKUP_CENTS`
 - `PRICE_REGISTERED_MARKUP_CENTS`
 
-Public generic pricing surfaces may show indicative starting prices, but checkout must use the
-draft-specific provider quote.
+Public pricing surfaces may show reference totals from the latest stored synced provider snapshot,
+but checkout must use the draft-specific provider quote.
 
 ---
 
@@ -71,10 +72,10 @@ It may cover:
 - AI-assisted drafting
 - structured review and editing
 - final PDF generation
-- dispatch metadata preparation
-- provider submission and reconciliation overhead
+- dispatch preparation
+- postal submission handling
 - payment processing overhead
-- support and refund-handling overhead
+- receipt, support, and refund-handling overhead
 - provider-side dispatch cost
 
 **Note on operational cost:** The launch price must cover not just the provider fee, but the cost of

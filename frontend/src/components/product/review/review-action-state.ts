@@ -1,7 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
-
 export interface ReviewPrimaryActionStateInput {
   allComplete: boolean;
   alreadyPrepared: boolean;
@@ -45,15 +43,5 @@ export function getReviewPrimaryActionState({
 export function useReviewPrimaryActionState(
   input: ReviewPrimaryActionStateInput,
 ): ReviewPrimaryActionState {
-  return useMemo(
-    () => getReviewPrimaryActionState(input),
-    [
-      input.allComplete,
-      input.alreadyPrepared,
-      input.hasQuote,
-      input.hasQuoteError,
-      input.isQuoteLoading,
-      input.isSubmitting,
-    ],
-  );
+  return getReviewPrimaryActionState(input);
 }

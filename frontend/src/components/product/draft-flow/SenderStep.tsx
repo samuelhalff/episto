@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { User, MapPin } from "lucide-react";
 import {
@@ -68,7 +68,6 @@ export function SenderStep({
   );
   const senderAutosave = useQueuedAutosave({
     value: senderForm,
-    enabled: hasHydratedRef.current,
     component: "SenderStep",
     save: async (nextForm) => {
       await updateDraft.mutateAsync({
@@ -86,10 +85,12 @@ export function SenderStep({
     const savedSenderForm = workspaceState.senderForm;
 
     if (savedSenderForm) {
-      setFullName(savedSenderForm.fullName);
-      setAddressLine1(savedSenderForm.addressLine1);
-      setPostalCode(savedSenderForm.postalCode);
-      setCity(savedSenderForm.city);
+      startTransition(() => {
+        setFullName(savedSenderForm.fullName);
+        setAddressLine1(savedSenderForm.addressLine1);
+        setPostalCode(savedSenderForm.postalCode);
+        setCity(savedSenderForm.city);
+      });
       senderAutosave.markPersisted(savedSenderForm);
       hasHydratedRef.current = true;
       return;
@@ -103,10 +104,12 @@ export function SenderStep({
         city: preview.previewData.sender.city ?? "",
       } satisfies SenderDraftFormState;
 
-      setFullName(senderPreview.fullName);
-      setAddressLine1(senderPreview.addressLine1);
-      setPostalCode(senderPreview.postalCode);
-      setCity(senderPreview.city);
+      startTransition(() => {
+        setFullName(senderPreview.fullName);
+        setAddressLine1(senderPreview.addressLine1);
+        setPostalCode(senderPreview.postalCode);
+        setCity(senderPreview.city);
+      });
       senderAutosave.markPersisted(senderPreview);
       hasHydratedRef.current = true;
       return;

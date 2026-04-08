@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
 import { User, Building2, MapPin, Plus, Search, Loader2, PencilLine } from "lucide-react";
@@ -100,7 +100,6 @@ export function RecipientStep({
   );
   const recipientAutosave = useQueuedAutosave({
     value: recipientForm,
-    enabled: hasHydratedRef.current,
     component: "RecipientStep",
     save: async (nextForm) => {
       await updateDraft.mutateAsync({
@@ -164,14 +163,16 @@ export function RecipientStep({
     const savedRecipientForm = workspaceState.recipientForm;
 
     if (savedRecipientForm) {
-      setIsCompany(savedRecipientForm.isCompany);
-      setShowManual(savedRecipientForm.showManual);
-      setFullName(savedRecipientForm.fullName);
-      setCompanyName(savedRecipientForm.companyName);
-      setSelectedCompany(savedRecipientForm.selectedCompany ?? null);
-      setAddressLine1(savedRecipientForm.addressLine1);
-      setPostalCode(savedRecipientForm.postalCode);
-      setCity(savedRecipientForm.city);
+      startTransition(() => {
+        setIsCompany(savedRecipientForm.isCompany);
+        setShowManual(savedRecipientForm.showManual);
+        setFullName(savedRecipientForm.fullName);
+        setCompanyName(savedRecipientForm.companyName);
+        setSelectedCompany(savedRecipientForm.selectedCompany ?? null);
+        setAddressLine1(savedRecipientForm.addressLine1);
+        setPostalCode(savedRecipientForm.postalCode);
+        setCity(savedRecipientForm.city);
+      });
       recipientAutosave.markPersisted(savedRecipientForm);
       hasHydratedRef.current = true;
       return;
@@ -197,13 +198,15 @@ export function RecipientStep({
         city: preview.previewData.recipient.city ?? "",
       } satisfies RecipientDraftFormState;
 
-      setIsCompany(recipientPreview.isCompany);
-      setShowManual(recipientPreview.showManual);
-      setFullName(recipientPreview.fullName);
-      setCompanyName(recipientPreview.companyName);
-      setAddressLine1(recipientPreview.addressLine1);
-      setPostalCode(recipientPreview.postalCode);
-      setCity(recipientPreview.city);
+      startTransition(() => {
+        setIsCompany(recipientPreview.isCompany);
+        setShowManual(recipientPreview.showManual);
+        setFullName(recipientPreview.fullName);
+        setCompanyName(recipientPreview.companyName);
+        setAddressLine1(recipientPreview.addressLine1);
+        setPostalCode(recipientPreview.postalCode);
+        setCity(recipientPreview.city);
+      });
       recipientAutosave.markPersisted(recipientPreview);
       hasHydratedRef.current = true;
       return;
@@ -231,10 +234,12 @@ export function RecipientStep({
       return;
     }
 
-    setCompanyName(companyDetails.data.name);
-    setAddressLine1(companyDetails.data.addressLine1 ?? "");
-    setPostalCode(companyDetails.data.postalCode ?? "");
-    setCity(companyDetails.data.city ?? selectedCompany.legalSeat ?? "");
+    startTransition(() => {
+      setCompanyName(companyDetails.data.name);
+      setAddressLine1(companyDetails.data.addressLine1 ?? "");
+      setPostalCode(companyDetails.data.postalCode ?? "");
+      setCity(companyDetails.data.city ?? selectedCompany.legalSeat ?? "");
+    });
     lastAutofilledCompanyIdRef.current = selectedCompany.id;
   }, [companyDetails.data, selectedCompany]);
 
@@ -245,16 +250,22 @@ export function RecipientStep({
       companySearch.isFetching ||
       displayedCompanySearchResults.length === 0
     ) {
-      setAreCompanyResultsVisible(false);
+      startTransition(() => {
+        setAreCompanyResultsVisible(false);
+      });
       return;
     }
 
     let cancelled = false;
-    setAreCompanyResultsVisible(false);
+    startTransition(() => {
+      setAreCompanyResultsVisible(false);
+    });
 
     const frameId = window.requestAnimationFrame(() => {
       if (!cancelled) {
-        setAreCompanyResultsVisible(true);
+        startTransition(() => {
+          setAreCompanyResultsVisible(true);
+        });
       }
     });
 

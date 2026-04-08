@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { ChevronDown, Eye, MessageSquareText, Pencil, Sparkles } from "lucide-react";
 import { getLetterFraming } from "@swiss-mail/shared";
@@ -92,6 +99,15 @@ export function BodyStep({
   const composeFromContext = useComposeDraftFromContext(draftId);
   const conversation = useConversation(draftId);
   const dictation = useDictation();
+  const {
+    isPending: isComposePending,
+    isError: isComposeError,
+    mutateAsync: composeDraftFromContext,
+  } = composeFromContext;
+  const {
+    finalText: dictatedRefineText,
+    resetText: resetDictationText,
+  } = dictation;
 
   const [showPreview, setShowPreview] = useState(false);
   const [showRefinementThread, setShowRefinementThread] = useState(false);
@@ -113,7 +129,6 @@ export function BodyStep({
   const initialFirstDraftMessageIdRef = useRef<string | null | undefined>(undefined);
   const refineAutosave = useQueuedAutosave({
     value: refineText,
-    enabled: hasHydratedRef.current,
     component: "BodyStep",
     save: async (nextValue) => {
       await updateDraft.mutateAsync({
@@ -132,8 +147,10 @@ export function BodyStep({
       draft.data?.body ?? "",
       draft.data?.locale ?? locale,
     );
-    setBodyText(initialBody);
-    setRefineText(workspaceState.bodyRefineInput ?? "");
+    startTransition(() => {
+      setBodyText(initialBody);
+      setRefineText(workspaceState.bodyRefineInput ?? "");
+    });
     lastSavedBodyRef.current = initialBody;
     refineAutosave.markPersisted(workspaceState.bodyRefineInput ?? "");
     hasHydratedRef.current = true;
@@ -151,20 +168,24 @@ export function BodyStep({
       draft.data?.locale ?? locale,
     );
     if (!userEdited) {
-      setBodyText(syncedBody);
+      startTransition(() => {
+        setBodyText(syncedBody);
+      });
       lastSavedBodyRef.current = syncedBody;
     }
   }, [draft.data?.body, draft.data?.locale, locale, userEdited]);
 
   useEffect(() => {
-    const spokenText = dictation.finalText.trim();
+    const spokenText = dictatedRefineText.trim();
     if (!spokenText) return;
 
-    setRefineText(
-      (current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`,
-    );
-    dictation.resetText();
-  }, [dictation.finalText, dictation.resetText]);
+    startTransition(() => {
+      setRefineText(
+        (current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`,
+      );
+    });
+    resetDictationText();
+  }, [dictatedRefineText, resetDictationText]);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
@@ -181,16 +202,16 @@ export function BodyStep({
   }, [bodyText, updateDraft, userEdited]);
 
   const requestInitialCompose = useCallback(async () => {
-    if (composeFromContext.isPending) return;
-    await composeFromContext.mutateAsync();
-  }, [composeFromContext.isPending, composeFromContext.mutateAsync]);
+    if (isComposePending) return;
+    await composeDraftFromContext();
+  }, [composeDraftFromContext, isComposePending]);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
     if (editMode !== "ai") return;
     if (hasRequestedInitialComposeRef.current) return;
     if (draft.data?.body?.trim() || bodyText.trim()) return;
-    if (composeFromContext.isPending) return;
+    if (isComposePending) return;
     if (
       conversation.isSending ||
       conversation.isStreaming ||
@@ -205,8 +226,10 @@ export function BodyStep({
 
     hasRequestedInitialComposeRef.current = true;
     completionCountAtComposeRef.current = conversation.completionCount;
-    setIsAutoComposing(true);
-    setInitialComposeStatus("loading");
+    startTransition(() => {
+      setIsAutoComposing(true);
+      setInitialComposeStatus("loading");
+    });
 
     void requestInitialCompose().catch(() => {
       setIsAutoComposing(false);
@@ -214,7 +237,7 @@ export function BodyStep({
     });
   }, [
     bodyText,
-    composeFromContext.isPending,
+    isComposePending,
     conversation.completionCount,
     conversation.isAwaitingResponse,
     conversation.isSending,
@@ -227,15 +250,17 @@ export function BodyStep({
 
   useEffect(() => {
     if (draft.data?.body?.trim()) {
-      setIsAutoComposing(false);
-      setInitialComposeStatus("idle");
+      startTransition(() => {
+        setIsAutoComposing(false);
+        setInitialComposeStatus("idle");
+      });
       return;
     }
 
     if (!isAutoComposing) return;
 
     if (conversation.completionCount > completionCountAtComposeRef.current) {
-      if (draft.isFetching || composeFromContext.isPending) {
+      if (draft.isFetching || isComposePending) {
         return;
       }
 
@@ -247,13 +272,15 @@ export function BodyStep({
       return () => window.clearTimeout(completionGraceTimeoutId);
     }
 
-    if (composeFromContext.isError || conversation.error) {
-      setIsAutoComposing(false);
-      setInitialComposeStatus("error");
+    if (isComposeError || conversation.error) {
+      startTransition(() => {
+        setIsAutoComposing(false);
+        setInitialComposeStatus("error");
+      });
     }
   }, [
-    composeFromContext.isPending,
-    composeFromContext.isError,
+    isComposeError,
+    isComposePending,
     conversation.completionCount,
     conversation.error,
     draft.data?.body,
@@ -438,7 +465,9 @@ export function BodyStep({
     }
 
     initialFirstDraftMessageIdRef.current = firstDraftMessageId;
-    setShowFirstDraftReadyDialog(true);
+    startTransition(() => {
+      setShowFirstDraftReadyDialog(true);
+    });
   }, [bodyText, draft.data?.metadata, shouldShowBodyGenerationDialog]);
 
   function dismissFirstDraftReadyDialog() {

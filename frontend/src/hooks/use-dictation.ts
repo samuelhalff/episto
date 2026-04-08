@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import {
+  useState,
+  useRef,
+  useCallback,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -69,20 +75,26 @@ function getSpeechRecognitionConstructor(): (new () => SpeechRecognition) | null
   return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null;
 }
 
+function subscribeToStaticBrowserCapability() {
+  return () => {};
+}
+
+function getSpeechRecognitionSupportSnapshot(): boolean {
+  return getSpeechRecognitionConstructor() !== null;
+}
+
 export function useDictation(): UseDictationReturn {
-  // Start false to match server render; detect browser support in useEffect to avoid hydration mismatch
-  const [isSupported, setIsSupported] = useState(false);
+  const isSupported = useSyncExternalStore(
+    subscribeToStaticBrowserCapability,
+    getSpeechRecognitionSupportSnapshot,
+    () => false,
+  );
   const [isRecording, setIsRecording] = useState(false);
   const [interimText, setInterimText] = useState("");
   const [finalText, setFinalText] = useState("");
   const [error, setError] = useState<DictationError | null>(null);
 
   const recognitionRef = useRef<SpeechRecognition | null>(null);
-
-  // Detect browser support after mount (client-only)
-  useEffect(() => {
-    setIsSupported(getSpeechRecognitionConstructor() !== null);
-  }, []);
 
   // Cleanup on unmount
   useEffect(() => {

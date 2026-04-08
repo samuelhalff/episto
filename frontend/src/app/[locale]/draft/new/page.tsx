@@ -116,6 +116,10 @@ export default function NewDraftPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const dictation = useDictation();
+  const {
+    finalText: dictatedComposerText,
+    resetText: resetDictationText,
+  } = dictation;
   const sessionLocale = routing.locales.includes(
     locale as (typeof routing.locales)[number],
   )
@@ -191,7 +195,7 @@ export default function NewDraftPage() {
   }, [suggestedPrompt]);
 
   useEffect(() => {
-    const spokenText = dictation.finalText.trim();
+    const spokenText = dictatedComposerText.trim();
     if (!spokenText) {
       return;
     }
@@ -199,8 +203,8 @@ export default function NewDraftPage() {
     setComposerValue(
       (current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`,
     );
-    dictation.resetText();
-  }, [dictation.finalText, dictation.resetText]);
+    resetDictationText();
+  }, [dictatedComposerText, resetDictationText]);
 
   useEffect(() => {
     const runId = ++runIdRef.current;

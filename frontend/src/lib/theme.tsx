@@ -42,17 +42,34 @@ function applyTheme(theme: Theme) {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
+  const [hasResolvedTheme, setHasResolvedTheme] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     const nextTheme = getPreferredTheme();
-    setThemeState(nextTheme);
-    applyTheme(nextTheme);
+
+    queueMicrotask(() => {
+      if (cancelled) {
+        return;
+      }
+
+      setThemeState(nextTheme);
+      setHasResolvedTheme(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
+    if (!hasResolvedTheme) {
+      return;
+    }
+
     applyTheme(theme);
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-  }, [theme]);
+  }, [hasResolvedTheme, theme]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({

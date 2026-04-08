@@ -45,6 +45,7 @@ const DEFAULT_ATTACHMENT_CONSTRAINTS: DraftAttachmentConstraints = {
   maxTotalBytes: FILE_LIMITS.totalDraftUploadBytes,
   allowedMimeTypes: [...FILE_LIMITS.attachment.allowedMimeTypes],
 };
+const EMPTY_FILES: FileAsset[] = [];
 
 function formatAllowedAttachmentFormats(allowedMimeTypes: readonly string[]): string {
   return allowedMimeTypes
@@ -127,7 +128,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
     staleTime: 30_000,
   });
 
-  const files = filesQuery.data?.files ?? [];
+  const files = filesQuery.data?.files ?? EMPTY_FILES;
   const attachmentConstraints =
     filesQuery.data?.attachmentConstraints ?? DEFAULT_ATTACHMENT_CONSTRAINTS;
   const attachments = useMemo(

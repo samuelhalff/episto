@@ -5,7 +5,6 @@ import { captureError } from "../lib/error-tracking";
 
 interface UseQueuedAutosaveOptions<T> {
   value: T;
-  enabled: boolean;
   save: (value: T) => Promise<void>;
   component: string;
   delayMs?: number;
@@ -21,12 +20,12 @@ interface UseQueuedAutosaveResult<T> {
 
 export function useQueuedAutosave<T>({
   value,
-  enabled,
   save,
   component,
   delayMs = 1200,
   serialize = JSON.stringify,
 }: UseQueuedAutosaveOptions<T>): UseQueuedAutosaveResult<T> {
+  const isInitializedRef = useRef(false);
   const lastSavedRef = useRef<string | null>(null);
   const timeoutRef = useRef<number | null>(null);
   const queueRef = useRef<Promise<void>>(Promise.resolve());
@@ -42,6 +41,7 @@ export function useQueuedAutosave<T>({
 
   const markPersisted = useCallback(
     (nextValue: T = value) => {
+      isInitializedRef.current = true;
       lastSavedRef.current = serialize(nextValue);
     },
     [serialize, value],
@@ -50,6 +50,7 @@ export function useQueuedAutosave<T>({
   const persistValue = useCallback(
     async (nextValue: T) => {
       const serializedNextValue = serialize(nextValue);
+      isInitializedRef.current = true;
       if (serializedNextValue === lastSavedRef.current) {
         return;
       }
@@ -92,7 +93,7 @@ export function useQueuedAutosave<T>({
   );
 
   useEffect(() => {
-    if (!enabled) {
+    if (!isInitializedRef.current) {
       cancelPending();
       return;
     }
@@ -107,7 +108,7 @@ export function useQueuedAutosave<T>({
     }, delayMs);
 
     return cancelPending;
-  }, [cancelPending, delayMs, enabled, persistValue, serializedValue, value]);
+  }, [cancelPending, delayMs, persistValue, serializedValue, value]);
 
   return {
     markPersisted,

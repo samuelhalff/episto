@@ -1,21 +1,30 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useSyncExternalStore } from "react";
+
+function getMediaQuerySnapshot(query: string): boolean {
+  if (typeof window === "undefined") {
+    return false;
+  }
+
+  return window.matchMedia(query).matches;
+}
+
+function subscribeToMediaQuery(query: string, onStoreChange: () => void) {
+  if (typeof window === "undefined") {
+    return () => {};
+  }
+
+  const mediaQueryList = window.matchMedia(query);
+  const handleChange = () => onStoreChange();
+  mediaQueryList.addEventListener("change", handleChange);
+  return () => mediaQueryList.removeEventListener("change", handleChange);
+}
 
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
-
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    setMatches(mql.matches);
-
-    function handleChange(e: MediaQueryListEvent) {
-      setMatches(e.matches);
-    }
-
-    mql.addEventListener("change", handleChange);
-    return () => mql.removeEventListener("change", handleChange);
-  }, [query]);
-
-  return matches;
+  return useSyncExternalStore(
+    (onStoreChange) => subscribeToMediaQuery(query, onStoreChange),
+    () => getMediaQuerySnapshot(query),
+    () => false,
+  );
 }

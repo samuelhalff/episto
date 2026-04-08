@@ -330,7 +330,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 └─────────────────────────────────────┘
 ```
 
-> **Note:** All displayed prices must come from approved pricing config. Do not fabricate or hardcode launch amounts. See `docs/04-product/pricing-structure.md` and `docs/08-guardrails/open-decisions.md`.
+> **Note:** All displayed prices must come from the stored synced pricing source used by the app. Do not fabricate or hardcode launch amounts. See `docs/04-product/pricing-structure.md` and `docs/08-guardrails/open-decisions.md`.
 
 > **VAT display rule:** VAT is included in all displayed prices. If a component price is CHF 0.00, show as "included" rather than displaying the zero amount.
 
@@ -646,41 +646,46 @@ URL: `/pricing`
 
 | Section | Content |
 |---------|---------|
-| **Hero** | "Simple, honest pricing" — no hero image needed |
-| **Pricing table** | Full breakdown of launch-enabled line items only |
-| **Add-ons** | Registered mail only at launch |
-| **Comparison** | Effort comparison, framed as illustrative rather than statistical proof |
+| **Hero** | "Simple, honest pricing" with one sentence explaining that the page uses the same stored pricing source as the app |
+| **Sync banner** | Fresh/stale status, source label, and last synced timestamp |
+| **Primary totals card** | Standard total, registered add-on, registered total |
+| **Detail area** | Composition card plus matrix-backed assumptions and page-count examples |
+| **Comparison** | Standard vs registered, framed factually |
 | **FAQ** | Billing, refunds, receipts, CHF-only |
 | **CTA** | Final CTA band |
 
 ### 5.2 Pricing Table
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│  Base service fee                                       {formattedBasePrice}    │
-│  Standard delivery                                      Included               │
-│─────────────────────────────────────────────────────────────────────│
-│  ADD-ONS                                                            │
-│  Registered mail (Einschreiben)                         {formattedRegisteredSurcharge}    │
-│─────────────────────────────────────────────────────────────────────│
-│  All prices in CHF, inclusive of Swiss VAT              🇨🇭          │
-└─────────────────────────────────────────────────────────────────────┘
-```
+The `/pricing` route must no longer present itself as a static launch-fee card.
+
+It should show:
+
+1. a sync-status banner
+2. one primary totals card with standard total, registered add-on, and registered total
+3. one composition card with:
+   - Swiss Mail service fee (standard)
+   - Swiss Mail service fee (registered)
+   - provider standard reference total
+   - provider registered reference total
+4. one matrix-backed assumptions/examples area with:
+   - fixed provider-side assumptions currently proven by the stored matrix
+   - page-count examples for standard and registered dispatch
+   - source link / verified-date support copy
+
+Do not show raw provider component rows that the stored matrix cannot actually prove.
 
 ### 5.3 Comparison Block
 
-**Layout:** Two-column table. Left: "Traditional do-it-yourself flow". Right: "Swiss Mail".
+**Layout:** Two-column table. Left: "Standard". Right: "Registered".
 
-| | Traditional | Swiss Mail |
-|--|-------------|---------------|
-| Getting started | Blank page or template hunt | Guided drafting |
-| Formatting | Manual | Included |
-| Final print-ready PDF | Manual | Included |
-| Postal submission | Separate step | Integrated |
-| Price clarity | Fragmented | Shown before payment |
-| **Starting price shown** | Varies by steps you handle yourself | **From {formattedBasePrice}** |
+| | Standard | Registered |
+|--|----------|------------|
+| Service level wording | Standard postal delivery | Registered postal delivery |
+| Provider reference / tracking | Only if the provider supplies it | Only if the provider supplies it |
+| Confirmation wording | Never implies tracking by default | Stronger wording only after provider confirmation |
+| Reference price | Stored standard total | Stored registered total |
 
-> **Note:** Keep this comparison factual and qualitative. Do not fabricate competitor prices, postal fees, or statistical time savings.
+> **Note:** Keep this comparison factual. Do not fabricate competitor pricing, tracking promises, postal guarantees, or time-savings claims.
 
 ### 5.4 Pricing FAQ
 
@@ -692,6 +697,12 @@ URL: `/pricing`
 | What if my payment fails? | Your draft is preserved. You can retry payment without re-drafting. |
 | Do you offer refunds? | Letters already dispatched cannot be reversed. Contact support for issues before dispatch. |
 | Is there a subscription? | No. Pay-per-letter, no commitments. |
+
+### 5.5 State behavior
+
+- **Fresh:** show the stored prices normally with the sync timestamp.
+- **Stale:** keep showing the last successful stored prices, but mark them clearly as stale.
+- **Missing:** if no stored pricing snapshot exists at all, show the page-level unavailable notice and do not fabricate prices.
 
 ---
 

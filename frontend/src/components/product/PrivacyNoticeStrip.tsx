@@ -1,25 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { isPrivacyAcknowledged, acknowledgePrivacy } from "../../lib/consent";
 
+function subscribeToPrivacyAcknowledgement() {
+  return () => {};
+}
+
 export function PrivacyNoticeStrip() {
   const t = useTranslations("common");
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    if (!isPrivacyAcknowledged()) {
-      setVisible(true);
-    }
-  }, []);
+  const [dismissed, setDismissed] = useState(false);
+  const visible =
+    useSyncExternalStore(
+      subscribeToPrivacyAcknowledgement,
+      () => !isPrivacyAcknowledged(),
+      () => false,
+    ) && !dismissed;
 
   if (!visible) return null;
 
   const handleDismiss = () => {
     acknowledgePrivacy();
-    setVisible(false);
+    setDismissed(true);
   };
 
   return (

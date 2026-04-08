@@ -9,12 +9,12 @@ import { apiFetch } from "../lib/api";
 /**
  * Fetch canonical pricing from the backend.
  *
- * The frontend never hardcodes prices. Marketing pages receive a verified
- * public reference scenario, while checkout still relies on the live
- * draft-specific provider quote.
+ * The frontend never hardcodes prices. Marketing pages receive matrix-backed
+ * public reference pricing from the same stored provider snapshot used by the
+ * app, while checkout still relies on the live draft-specific provider quote.
  *
- * Data is treated as stable (5-minute stale time) since pricing
- * only changes with a backend redeploy.
+ * The query stays warm for 5 minutes because pricing is served from stored
+ * synced data rather than recalculated from the provider on every page view.
  */
 export function usePricing() {
   return useQuery<PublicPricingResponse>({

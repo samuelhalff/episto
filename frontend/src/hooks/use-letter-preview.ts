@@ -82,7 +82,7 @@ function estimatePageCount(body: string | null | undefined): number {
 export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
   const queryClient = useQueryClient();
   const { subscribe } = useDraftStream(draftId);
-  const [isStale, setIsStale] = useState(false);
+  const [staleSince, setStaleSince] = useState<number | null>(null);
 
   const previewQuery = useQuery({
     queryKey: queryKeys.draftPreview(draftId),
@@ -97,23 +97,20 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
   useEffect(() => {
     return subscribe((event) => {
       if (event.type === "field_update") {
-        setIsStale(true);
+        setStaleSince(Date.now());
       }
     });
   }, [subscribe]);
 
-  // When the query refreshes, clear stale marker
-  useEffect(() => {
-    if (!previewQuery.isFetching) {
-      setIsStale(false);
-    }
-  }, [previewQuery.isFetching]);
-
   const refreshPreview = useCallback(() => {
-    setIsStale(false);
+    setStaleSince(null);
     void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
   }, [queryClient, draftId]);
   const isRefreshing = previewQuery.isFetching && Boolean(previewQuery.data);
+  const isStale =
+    staleSince !== null &&
+    Boolean(previewQuery.data) &&
+    previewQuery.dataUpdatedAt < staleSince;
 
   return {
     previewData: previewQuery.data ?? null,

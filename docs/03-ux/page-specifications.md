@@ -369,7 +369,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 
 ### SEO
 - **Title:** `Pricing — Swiss Mail`
-- **Meta description:** `Transparent per-letter pricing. No subscription, no surprise fees. Standard and registered postal delivery options.`
+- **Meta description:** `Transparent public reference pricing from the stored Swiss Mail pricing source, with freshness status and standard vs registered totals.`
 - **Structured data:** Could include `Offer` / pricing schema when prices are locked
 
 ### Layout
@@ -384,19 +384,42 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 
 #### 3.1 Hero
 - `<h1>` "Simple, honest pricing"
-- Subheading: "One letter. One clear price. No surprise line items."
-- Primary price badge: "From {formattedBasePrice}" — large, `accent` colour
+- Subheading: "Public reference totals from the same stored pricing source Swiss Mail uses in the app, with the key assumptions shown plainly."
+- Hero panel may show the current "from" price, but the detail work belongs below the fold.
 
-#### 3.2 Pricing Breakdown Card
-Full pricing card (same as homepage pricing section but expanded):
+#### 3.2 Sync-status banner
+- Dedicated banner immediately under the hero
+- Must show:
+  - pricing source / provider label
+  - last synced timestamp
+  - freshness badge (`fresh` or `stale`)
+- If stale, keep the prices visible but show a prominent warning that the figures come from the last successful provider sync and may be outdated until the next refresh.
 
-**Line items with explanatory tooltips:**
-- Base service fee: {formattedBasePrice} — `<Tooltip>` "Includes drafting assistance, formatting, PDF generation, and standard delivery"
-- Standard delivery: included
-- Registered mail (Einschreiben / Recommandé): + {formattedRegisteredSurcharge} — `<Tooltip>` "Requires recipient signature. Show a reference only if the chosen provider supports it."
-- VAT note
+#### 3.3 Primary totals card
+- Show only the decision-making totals:
+  - standard total
+  - registered add-on
+  - registered total
+- Add one short note that the page uses the same stored pricing source as the app.
+- Add one short note that checkout recalculates the exact total from the user’s real draft, pages, attachments, and delivery choice.
 
-**Comparison table — Standard vs Registered:**
+#### 3.4 Pricing detail area
+Two cards / tables:
+
+1. **What makes up the price**
+   - Swiss Mail service fee (standard)
+   - Swiss Mail service fee (registered)
+   - provider standard reference total
+   - provider registered reference total
+
+2. **Matrix-backed assumptions and examples**
+   - fixed provider-side assumptions currently proven by the stored matrix
+   - matrix-backed page-count examples for standard and registered dispatch
+   - source link and verified-date support copy
+
+Do **not** show synthetic raw provider component rows if the active stored matrix cannot prove them.
+
+#### 3.5 Comparison table — Standard vs Registered
 
 | Feature | Standard | Registered |
 |---------|----------|------------|
@@ -407,32 +430,30 @@ Full pricing card (same as homepage pricing section but expanded):
 
 > **Note:** Delivery estimates and tracking capability must not be fabricated. See `../08-guardrails/provider-certainties.md`. If the provider cannot supply deterministic wording, omit it.
 
-#### 3.3 What's Included
+#### 3.6 What's Included / What's Not Included
 Icon+text list:
-- AI drafting assistance
+- Drafting assistance and structured review
 - Swiss-standard letter formatting
 - PDF render
-- Printing and postal dispatch
-- Reference number for your records
-- Email confirmation
+- Postal submission handling
+- Receipt and confirmation handling
 
-#### 3.4 What's Not Included
-Honest section — builds trust:
+Honest counter-list:
 - Legal advice or review
 - Guaranteed delivery outcomes
 - Translation (letters drafted in the language you write in)
 
-#### 3.5 FAQ (Pricing-specific)
+#### 3.7 FAQ (Pricing-specific)
 - "Do I pay if my letter is rejected?" (dispatch rejection scenario — honest answer)
 - "Can I get a refund?"
 - "Are there volume discounts?"
 - "Is VAT included in the prices shown?"
 
-#### 3.6 CTA Band
+#### 3.8 CTA Band
 "Try it — you only pay when you're ready to send."  
 → `/draft/new`
 
-#### 3.7 `<SiteFooter>`
+#### 3.9 `<SiteFooter>`
 
 ---
 
@@ -440,7 +461,10 @@ Honest section — builds trust:
 Prices fetched from config/API: show `<Skeleton>` blocks in place of CHF amounts until loaded. Do not show CHF 0.00 as a fallback.
 
 ### Error State
-If pricing data unavailable: show a muted notice "Pricing information is temporarily unavailable. Please try again shortly." Do not fabricate prices.
+If no stored pricing snapshot is available: show one muted notice "Pricing information is temporarily unavailable. Please try again shortly." Do not fabricate prices.
+
+### Stale State
+If a stored snapshot exists but is stale, still show the last successful prices, timestamp, and an explicit stale warning in the sync banner.
 
 ---
 

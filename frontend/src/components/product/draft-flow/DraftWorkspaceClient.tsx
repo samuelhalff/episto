@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { startTransition, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useDraft, useSession } from "../../../hooks/use-api";
 import { useMediaQuery } from "../../../hooks/use-media-query";
@@ -110,8 +110,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     draftApiError?.status === 403;
   const isBootstrappingWorkspace =
     (!draft.data && draft.isLoading) || (!draft.data && session.isLoading);
-  const furthestUnlockedStepIndex = getDraftWorkspaceUnlockedStepIndex(draft.data);
-  const unlockedStepIndex = furthestUnlockedStepIndex;
+  const unlockedStepIndex = getDraftWorkspaceUnlockedStepIndex(draft.data);
   const currentStep = Math.min(requestedStepIndex, unlockedStepIndex);
   const currentStepSlug = getDraftWorkspaceStepSlugByIndex(currentStep);
   const nextStepSlug = getNextDraftWorkspaceStep(currentStep);
@@ -133,11 +132,15 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
                 : undefined;
 
   useEffect(() => {
-    setIsNavigating(false);
+    startTransition(() => {
+      setIsNavigating(false);
+    });
   }, [resolvedStepSlug]);
 
   useEffect(() => {
-    setIsPreviewPanelOpen(readPreviewPanelPreference(draftId) ?? true);
+    startTransition(() => {
+      setIsPreviewPanelOpen(readPreviewPanelPreference(draftId) ?? true);
+    });
   }, [draftId]);
 
   useEffect(() => {
@@ -146,15 +149,19 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     }
 
     if (PREPARED_REVIEW_STATUSES.has(draft.data.status)) {
-      setShowSteps(false);
-      setIsNavigating(false);
+      startTransition(() => {
+        setShowSteps(false);
+        setIsNavigating(false);
+      });
       router.replace(`/draft/${draftId}/review`);
       return;
     }
 
     if (POST_SUBMISSION_STATUSES.has(draft.data.status)) {
-      setShowSteps(false);
-      setIsNavigating(false);
+      startTransition(() => {
+        setShowSteps(false);
+        setIsNavigating(false);
+      });
       router.replace(`/draft/${draftId}/confirmation`);
       return;
     }
@@ -164,16 +171,17 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     }
 
     router.replace(getDraftWorkspacePath(draftId, currentStepSlug));
-    setShowSteps(false);
-    setIsNavigating(false);
+    startTransition(() => {
+      setShowSteps(false);
+      setIsNavigating(false);
+    });
   }, [
     currentStepSlug,
     draft.data,
-    draft.isLoading,
     draftId,
     resolvedStepSlug,
     router,
-    furthestUnlockedStepIndex
+    unlockedStepIndex,
   ]);
 
   const navigateToStep = useCallback(
@@ -191,7 +199,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       setIsNavigating(true);
       router.push(getDraftWorkspacePath(draftId, targetStepSlug));
     },
-    [currentStepSlug, draftId, router, furthestUnlockedStepIndex],
+    [currentStepSlug, draftId, router, unlockedStepIndex],
   );
 
   const beginNavigation = useCallback(() => {
@@ -343,7 +351,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
     <StepNavProvider
       steps={translatedSteps}
       currentStep={currentStep}
-      furthestUnlockedStepIndex={furthestUnlockedStepIndex}
+      furthestUnlockedStepIndex={unlockedStepIndex}
       onStepSelect={handleStepSelect}
     >
       <div
@@ -370,7 +378,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
         {showSteps && isCompactViewport ? (
           <StepOverlay
             currentStep={currentStep}
-            furthestUnlockedStepIndex={furthestUnlockedStepIndex}
+            furthestUnlockedStepIndex={unlockedStepIndex}
             steps={translatedSteps}
             onClose={() => setShowSteps(false)}
             onSelect={handleStepSelect}

@@ -1,6 +1,13 @@
 "use client";
 
-import { useState, useCallback, useMemo, useRef, useEffect } from "react";
+import {
+  startTransition,
+  useState,
+  useCallback,
+  useMemo,
+  useRef,
+  useEffect,
+} from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api";
 import type { ConversationMessage } from "@swiss-mail/shared";
@@ -126,10 +133,12 @@ export function useConversation(draftId: string): UseConversationReturn {
     }
 
     pendingAssistantMessageIdRef.current = pendingTurn.messageId;
-    setPendingAssistantPlaceholder(true);
-    setIsAwaitingResponse(true);
-    setIsStreaming(false);
-    setStreamingText("");
+    startTransition(() => {
+      setPendingAssistantPlaceholder(true);
+      setIsAwaitingResponse(true);
+      setIsStreaming(false);
+      setStreamingText("");
+    });
   }, [draftId]);
 
   // Subscribe to SSE events for real-time streaming
@@ -180,7 +189,11 @@ export function useConversation(draftId: string): UseConversationReturn {
     const persistedIds = new Set((messagesQuery.data ?? []).map((message) => message.id));
     if (persistedIds.size === 0) return;
 
-    setOptimisticMessages((current) => current.filter((message) => !persistedIds.has(message.id)));
+    startTransition(() => {
+      setOptimisticMessages((current) =>
+        current.filter((message) => !persistedIds.has(message.id)),
+      );
+    });
   }, [messagesQuery.data]);
 
   useEffect(() => {
@@ -188,7 +201,9 @@ export function useConversation(draftId: string): UseConversationReturn {
       pendingAssistantMessageIdRef.current &&
       hasAssistantReplyAfterMessage(messagesQuery.data ?? [], pendingAssistantMessageIdRef.current)
     ) {
-      clearPendingAssistantState();
+      startTransition(() => {
+        clearPendingAssistantState();
+      });
     }
   }, [messagesQuery.data, clearPendingAssistantState]);
 
@@ -197,9 +212,11 @@ export function useConversation(draftId: string): UseConversationReturn {
 
     const assistantCount = (messagesQuery.data ?? []).filter((message) => message.role === "assistant").length;
     if (assistantCount > assistantCountAtRequestRef.current) {
-      setIsAwaitingResponse(false);
-      setIsStreaming(false);
-      setStreamingText("");
+      startTransition(() => {
+        setIsAwaitingResponse(false);
+        setIsStreaming(false);
+        setStreamingText("");
+      });
     }
   }, [isAwaitingResponse, messagesQuery.data]);
 

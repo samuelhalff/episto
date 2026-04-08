@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Calendar, FileText, Hash, Lightbulb, Mail, RotateCcw } from "lucide-react";
 import { useConversation } from "../../../hooks/use-conversation";
@@ -61,6 +61,10 @@ export function IntakeStep({
   const conversation = useConversation(draftId);
   const files = useDraftFiles(draftId);
   const dictation = useDictation();
+  const {
+    finalText: dictatedIntakeText,
+    resetText: resetDictationText,
+  } = dictation;
   const attachmentInputRef = useRef<HTMLInputElement>(null);
   const threadContainerRef = useRef<HTMLElement>(null);
   const threadEndRef = useRef<HTMLDivElement>(null);
@@ -70,7 +74,6 @@ export function IntakeStep({
   const hasAutoScrolledThreadRef = useRef(false);
   const intakeAutosave = useQueuedAutosave({
     value: intakeText,
-    enabled: hasHydratedRef.current,
     component: "IntakeStep",
     save: async (nextValue) => {
       await updateDraft.mutateAsync({
@@ -103,18 +106,22 @@ export function IntakeStep({
 
     const workspaceState = getDraftWorkspaceState(draft.data?.metadata);
     const initialInput = workspaceState.intakeInput ?? "";
-    setIntakeText(initialInput);
+    startTransition(() => {
+      setIntakeText(initialInput);
+    });
     intakeAutosave.markPersisted(initialInput);
     hasHydratedRef.current = true;
   }, [draft.data?.metadata, intakeAutosave]);
 
   useEffect(() => {
-    const spokenText = dictation.finalText.trim();
+    const spokenText = dictatedIntakeText.trim();
     if (!spokenText) return;
 
-    setIntakeText((current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`);
-    dictation.resetText();
-  }, [dictation.finalText, dictation.resetText]);
+    startTransition(() => {
+      setIntakeText((current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`);
+    });
+    resetDictationText();
+  }, [dictatedIntakeText, resetDictationText]);
 
   async function handleGenerate() {
     if (!intakeText.trim() || conversation.isSending) return;

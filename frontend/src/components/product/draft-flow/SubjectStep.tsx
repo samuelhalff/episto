@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { startTransition, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useDraft, useUpdateDraft } from "../../../hooks/use-api";
 import { normalizeLetterSubject } from "../../../lib/letter-content";
@@ -41,7 +41,9 @@ export function SubjectStep({
 
     const initialSubject =
       normalizeLetterSubject(draft.data?.subject, draft.data?.locale ?? "de-CH") ?? "";
-    setSubject(initialSubject);
+    startTransition(() => {
+      setSubject(initialSubject);
+    });
     lastSavedSubjectRef.current = initialSubject;
     hasHydratedRef.current = true;
   }, [draft.data?.locale, draft.data?.subject]);
