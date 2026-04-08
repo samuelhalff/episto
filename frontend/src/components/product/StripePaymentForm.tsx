@@ -1,9 +1,11 @@
 "use client";
 
 import { type ReactNode, useEffect, useState } from "react";
+import type { StripeError } from "@stripe/stripe-js";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Lock, Mail, ShieldCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { captureError } from "../../lib/error-tracking";
 import { ActionButton } from "./ActionButton";
 import { FlowActionDock } from "./FlowActionDock";
 
@@ -28,6 +30,11 @@ interface StripePaymentFormProps {
   secondaryAction?: ReactNode;
 }
 
+interface PaymentElementLoadErrorEvent {
+  elementType: "payment";
+  error: StripeError;
+}
+
 export function StripePaymentForm({
   priceCents: _priceCents,
   billingEmail,
@@ -38,9 +45,11 @@ export function StripePaymentForm({
   const stripe = useStripe();
   const elements = useElements();
   const t = useTranslations("checkout");
+  const normalizedBillingEmail = billingEmail.trim();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [paymentElementLoadFailed, setPaymentElementLoadFailed] = useState(false);
 
   useEffect(() => {
     if (!isSubmitting) return;
@@ -56,7 +65,8 @@ export function StripePaymentForm({
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!stripe || !elements || isSubmitting) return;
+    if (!stripe || !elements || isSubmitting || paymentElementLoadFailed) return;
+    if (!normalizedBillingEmail) return;
 
     setIsSubmitting(true);
     setErrorMessage(null);
@@ -76,7 +86,7 @@ export function StripePaymentForm({
         return_url: returnUrl,
         payment_method_data: {
           billing_details: {
-            email: billingEmail,
+            email: normalizedBillingEmail,
           },
         },
       },
@@ -98,32 +108,61 @@ export function StripePaymentForm({
     }
   }
 
+  function handleLoadError(loadErrorEvent: PaymentElementLoadErrorEvent) {
+    setPaymentElementLoadFailed(true);
+    setErrorMessage(loadErrorEvent.error.message ?? t("paymentError"));
+    captureError(
+      new Error(loadErrorEvent.error.message ?? "Stripe PaymentElement failed to load"),
+      {
+        component: "StripePaymentForm",
+        route: typeof window !== "undefined" ? window.location.pathname : undefined,
+        extra: {
+          elementType: loadErrorEvent.elementType,
+          stripeCode: loadErrorEvent.error.code ?? "unknown",
+          stripeType: loadErrorEvent.error.type ?? "unknown",
+        },
+      },
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="app-panel-muted rounded-[2rem] p-4 sm:p-5">
-        <div className="mb-4 flex flex-wrap items-center gap-3">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="app-panel-muted overflow-hidden rounded-[2.25rem] border border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.98),rgba(250,247,241,0.96))] p-4 shadow-[0_32px_90px_rgba(15,23,42,0.08)] sm:p-6 dark:border-white/5 dark:bg-[linear-gradient(160deg,rgba(22,27,34,0.98),rgba(17,22,29,0.96))]">
+        <div className="mb-5 flex flex-wrap items-center gap-3">
           <span className="app-list-item-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs text-[var(--app-muted)]">
             <Lock className="h-3.5 w-3.5 text-[var(--app-muted-strong)]" />
             {t("secureCheckout")}
           </span>
-          <p className="text-sm text-[var(--app-muted)]">{t("paymentHelp")}</p>
+          <p className="max-w-2xl text-sm leading-6 text-[var(--app-muted)]">
+            {t("paymentHelp")}
+          </p>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-          <div className="space-y-4">
+          <div className="rounded-[1.85rem] border border-white/70 bg-[var(--app-surface-strong)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] dark:border-white/6 dark:bg-[var(--app-surface-soft)] sm:p-4">
             <div>
               <p className="section-label">{t("enterPaymentDetails")}</p>
-              <p className="mb-3 text-xs text-[var(--app-muted)] sm:text-sm">
+              <p className="mb-4 mt-2 text-sm leading-6 text-[var(--app-muted)]">
                 {t("paymentMethodsHelp")}
               </p>
             </div>
 
-            <div className="app-list-item-muted rounded-[28px] p-3 sm:p-4">
+            <div className="rounded-[1.6rem] border border-[var(--app-border)] bg-white/90 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:bg-[rgba(13,17,23,0.58)] sm:p-3">
               {/* Stripe's PaymentElement renders card fields, TWINT, and other supported methods. */}
               <PaymentElement
+                key={normalizedBillingEmail || "checkout-payment"}
                 options={{
                   business: { name: "Swiss Mail" },
-                  layout: { type: "tabs", defaultCollapsed: false },
+                  defaultValues: {
+                    billingDetails: {
+                      email: normalizedBillingEmail,
+                    },
+                  },
+                  layout: {
+                    type: "accordion",
+                    defaultCollapsed: false,
+                    spacedAccordionItems: true,
+                  },
                   paymentMethodOrder: ["twint", "card"],
                   fields: {
                     billingDetails: {
@@ -132,6 +171,7 @@ export function StripePaymentForm({
                     },
                   },
                 }}
+                onLoadError={handleLoadError}
               />
             </div>
           </div>
@@ -145,7 +185,7 @@ export function StripePaymentForm({
                 <div className="min-w-0">
                   <p className="section-label">{t("email")}</p>
                   <p className="mt-2 break-all text-sm font-medium text-[var(--app-fg)]">
-                    {billingEmail}
+                    {normalizedBillingEmail}
                   </p>
                   <p className="mt-2 text-xs leading-5 text-[var(--app-muted)]">
                     {t("emailHelp")}
@@ -192,7 +232,9 @@ export function StripePaymentForm({
             type="submit"
             fullWidth
             className="sm:flex-1"
-            disabled={!stripe || !elements || !billingEmail.trim()}
+            disabled={
+              !stripe || !elements || !normalizedBillingEmail || paymentElementLoadFailed
+            }
             loading={isSubmitting}
             contentClassName="w-full"
           >
