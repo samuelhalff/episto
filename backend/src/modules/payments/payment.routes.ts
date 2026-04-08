@@ -146,13 +146,11 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
         });
 
         if (rawOrderAccessToken) {
-          void (async () => {
-            try {
-              await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
-            } catch (err) {
-              request.log.error({ err }, "Failed to enqueue payment receipt email");
-            }
-          })();
+          try {
+            await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
+          } catch (err) {
+            request.log.error({ err }, "Failed to enqueue payment receipt email");
+          }
         }
         break;
       }

@@ -170,4 +170,66 @@ describe("payment webhook routes", () => {
 
     await tamperedApp.close();
   });
+
+  it("waits for receipt email queueing before completing the webhook response", async () => {
+    let resolveReceiptQueue: (() => void) | undefined;
+
+    mocks.constructWebhookEvent.mockReturnValue({
+      type: "payment_intent.succeeded",
+      data: {
+        object: {
+          id: "pi_2",
+          metadata: {
+            draftId: "draft-2",
+            paymentAttemptId: "payment-2",
+          },
+          latest_charge: "ch_2",
+        },
+      },
+    });
+    mocks.getPaymentAttemptById.mockResolvedValue({
+      id: "payment-2",
+      draftId: "draft-2",
+      amountCents: 625,
+      state: "pending",
+    });
+    mocks.transitionPaymentState.mockResolvedValue({
+      payment: { id: "payment-2", state: "captured" },
+      rawOrderAccessToken: "order-token-2",
+    });
+    mocks.getLatestSnapshot.mockResolvedValue({
+      id: "snapshot-2",
+      renderedPdfAssetId: "pdf-2",
+    });
+    mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
+    mocks.enqueuePaymentReceiptEmail.mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveReceiptQueue = resolve;
+      }),
+    );
+
+    let settled = false;
+    const responsePromise = app.inject({
+      method: "POST",
+      url: "/webhooks/stripe",
+      payload: { ok: true },
+      headers: {
+        "content-type": "application/json",
+        "stripe-signature": "signature",
+      },
+    });
+    responsePromise.then(() => {
+      settled = true;
+    });
+
+    await vi.waitFor(() => {
+      expect(mocks.enqueuePaymentReceiptEmail).toHaveBeenCalledOnce();
+    });
+    expect(settled).toBe(false);
+
+    resolveReceiptQueue?.();
+
+    const response = await responsePromise;
+    expect(response.statusCode).toBe(200);
+  });
 });
