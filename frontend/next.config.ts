@@ -52,8 +52,8 @@ const securityHeaders = [
       // In production, remove 'unsafe-eval' and use nonces instead.
       "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com",
       "frame-src https://js.stripe.com https://hooks.stripe.com",
-      // ws:/wss: needed for HMR WebSocket in dev; EventSource SSE is same-origin.
-      "connect-src 'self' https://api.stripe.com ws: wss:",
+      // ws:/wss: needed for HMR WebSocket in dev; production also calls api.swissmail.ch.
+      "connect-src 'self' https://api.stripe.com https://api.swissmail.ch ws: wss:",
       "img-src 'self' data: https:",
       "style-src 'self' 'unsafe-inline'",
       "font-src 'self'",

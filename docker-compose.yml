@@ -24,6 +24,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
@@ -36,6 +37,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
 
   minio:
     image: minio/minio:latest
@@ -53,6 +55,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    restart: unless-stopped
 
   minio-setup:
     image: minio/mc:latest
@@ -105,6 +108,7 @@ services:
       timeout: 3s
       retries: 10
       start_period: 15s
+    restart: unless-stopped
 
   worker:
     build:
@@ -129,6 +133,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    restart: unless-stopped
 
   zefix-proxy:
     image: node:20-alpine
@@ -154,6 +159,7 @@ services:
       timeout: 3s
       retries: 10
       start_period: 5s
+    restart: unless-stopped
 
   frontend:
     image: node:20
@@ -188,6 +194,7 @@ services:
     depends_on:
       backend:
         condition: service_healthy
+    restart: unless-stopped
 
   proxy:
     image: nginx:1.27-alpine

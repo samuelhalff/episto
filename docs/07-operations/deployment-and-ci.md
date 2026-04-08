@@ -89,8 +89,10 @@ services:
     build: ./frontend
     ports: ["3000:3000"]
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:4000
+      - NEXT_PUBLIC_API_URL=/api
+      - API_URL=http://backend:4000
     depends_on: [backend]
+    restart: unless-stopped
 
   backend:
     build: ./backend
@@ -101,6 +103,7 @@ services:
       - S3_ENDPOINT=http://minio:9000
       # ... (see Section 3 for all env vars)
     depends_on: [postgres, redis, minio]
+    restart: unless-stopped
 
   worker:
     build: ./backend
@@ -110,6 +113,15 @@ services:
       - REDIS_URL=redis://redis:6379
       - S3_ENDPOINT=http://minio:9000
     depends_on: [postgres, redis, minio]
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:alpine
+    ports: ["5000:5000"]
+    volumes:
+      - ./nginx/ark-fid-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on: [frontend, backend]
+    restart: unless-stopped
 
   postgres:
     image: postgres:16-alpine
@@ -118,10 +130,12 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes: [postgres_data:/var/lib/postgresql/data]
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     volumes: [redis_data:/data]
+    restart: unless-stopped
 
   minio:
     image: minio/minio
@@ -131,6 +145,7 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     volumes: [minio_data:/data]
+    restart: unless-stopped
 
 volumes:
   postgres_data:
@@ -138,34 +153,29 @@ volumes:
   minio_data:
 ```
 
+Long-lived local services should use `restart: unless-stopped` so the dev `5000` handoff never comes
+back without its upstream `frontend`, `backend`, and infrastructure containers after a host restart.
+
 ### Production hosting
 
-Locked: **Infomaniak-centered production topology**.
+Current deployment target: **standalone VPS + `docker-compose.prod.yml`**.
 
-- Compute: Infomaniak Public Cloud Managed Kubernetes for `frontend`, `backend`, and `worker`
-- Database: PostgreSQL on Infomaniak-hosted private-network compute
-- Redis: Redis on Infomaniak-hosted private-network compute
-- Object storage: Infomaniak S3-compatible object storage for uploads and rendered PDFs
-- CDN / TLS / ingress: Infomaniak-managed ingress/TLS first; add Cloudflare only by later explicit decision
-
-> **Operational validation item:** Exact Infomaniak SKU names and whether a managed DB offering is
-> mature enough for launch must be validated during provisioning. If not, run PostgreSQL and Redis
-> on dedicated Infomaniak compute without changing application code.
-
-### Infomaniak provisioning checklist
+- Public HTTPS terminates in the `proxy` container on `80`/`443`
+- `swissmail.ch` and `www.swissmail.ch` route to `frontend:3000`
+- `api.swissmail.ch` routes to `backend:4000`
+- `5000` is dev-only and must not be exposed in production
+- `docker-compose.prod.yml` mounts `nginx/swissmail-proxy.conf` and expects a certificate in
+  `/etc/letsencrypt/live/swissmail.ch/` that covers `swissmail.ch`, `www.swissmail.ch`, and
+  `api.swissmail.ch`
 
 Before calling production infrastructure ready, verify:
 
-1. Managed Kubernetes cluster exists with separate namespaces for staging and production
-2. Ingress/TLS is configured for `swissmail.ch` and `api.swissmail.ch`
-3. Object storage bucket exists with lifecycle/access policy suitable for short-lived content
-4. PostgreSQL and Redis are reachable only on the intended private network path
-5. Backup/restore path is documented and tested for the chosen PostgreSQL setup
-6. Secrets injection path is decided and working end-to-end
-7. Health checks, readiness probes, and rolling update behavior are validated in staging
-
-If any of the above fails because a specific Infomaniak managed SKU is immature or missing, fall
-back to dedicated Infomaniak compute for that service without reopening the hosting decision.
+1. The VPS has valid DNS for `swissmail.ch`, `www.swissmail.ch`, and `api.swissmail.ch`
+2. TLS files exist under `/etc/letsencrypt/live/swissmail.ch/`
+3. `docker compose -f docker-compose.prod.yml up -d --build` brings up healthy `frontend`,
+   `backend`, `worker`, and `proxy` containers
+4. Public `443` serves the frontend and `api.swissmail.ch` serves backend `/api/*` routes
+5. `frontend:3000` and `backend:4000` stay internal-only and are not exposed as public entry points
 
 ---
 
@@ -794,7 +804,7 @@ Frontend Next.js adds headers via `next.config.js` for static/SSR responses.
 
 ### CORS policy
 
-Frontend and backend are served on the same domain in production (`swissmail.ch` and
+Frontend and backend are served on sibling public origins in production (`swissmail.ch` and
 `api.swissmail.ch`). CORS is configured via `@fastify/cors`:
 
 ```ts
