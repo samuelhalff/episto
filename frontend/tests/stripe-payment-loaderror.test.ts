@@ -9,6 +9,14 @@ const stripePaymentFormSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/StripePaymentForm.tsx"),
   "utf8",
 );
+const checkoutPageSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx"),
+  "utf8",
+);
+const checkoutHookSource = readFileSync(
+  path.join(repoRoot, "frontend/src/hooks/use-checkout.ts"),
+  "utf8",
+);
 
 describe("stripe payment loaderror handling", () => {
   it("handles PaymentElement loaderror events instead of leaving Stripe to log them as unhandled", () => {
@@ -19,5 +27,13 @@ describe("stripe payment loaderror handling", () => {
     expect(stripePaymentFormSource).toContain("captureError(");
     expect(stripePaymentFormSource).toContain("loadErrorEvent.error.message");
     expect(stripePaymentFormSource).toContain("setPaymentElementLoadFailed(true)");
+  });
+
+  it("treats terminal PaymentIntent load errors as recoverable and clears the stale checkout client secret", () => {
+    expect(stripePaymentFormSource).toContain("onTerminalPaymentIntent");
+    expect(stripePaymentFormSource).toContain("terminal state");
+    expect(checkoutPageSource).toContain("onTerminalPaymentIntent={");
+    expect(checkoutPageSource).toContain('t("paymentSessionExpired")');
+    expect(checkoutHookSource).toContain("resetClientSecret");
   });
 });

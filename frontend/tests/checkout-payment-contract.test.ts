@@ -30,7 +30,12 @@ const locales = [
 // i18n key coverage
 // ---------------------------------------------------------------------------
 
-const NEW_CHECKOUT_KEYS = ["emailHelp", "paymentMethodsHelp", "calculatingPayment"] as const;
+const NEW_CHECKOUT_KEYS = [
+  "emailHelp",
+  "paymentMethodsHelp",
+  "calculatingPayment",
+  "paymentSessionExpired",
+] as const;
 
 describe("checkout-payment-contract i18n", () => {
   for (const locale of locales) {
@@ -134,8 +139,8 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     expect(stripePaymentFormSource).toContain('t("paymentMethodsHelp")');
   });
 
-  it("styles the paymentMethodsHelp paragraph as a subtle helper (mb-3 text-xs)", () => {
-    expect(stripePaymentFormSource).toContain('mb-3 text-xs');
+  it("styles the paymentMethodsHelp paragraph as a subtle helper inside the secure checkout panel", () => {
+    expect(stripePaymentFormSource).toContain("mb-4 mt-2 text-sm leading-6");
   });
 
   it("paymentMethodOrder contract: first twint, second card, length 2", () => {
@@ -159,12 +164,13 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     expect(stripePaymentFormSource).toContain('email: "never"');
     expect(stripePaymentFormSource).toContain("payment_method_data");
     expect(stripePaymentFormSource).toContain("billing_details");
-    expect(stripePaymentFormSource).toContain("email: billingEmail");
+    expect(stripePaymentFormSource).toContain("email: normalizedBillingEmail");
   });
 
-  it("shows Swiss Mail as the business name in the PaymentElement and keeps tabs expanded", () => {
+  it("shows Swiss Mail as the business name in the PaymentElement and keeps the accordion expanded", () => {
     expect(stripePaymentFormSource).toContain('business: { name: "Swiss Mail" }');
-    expect(stripePaymentFormSource).toContain('layout: { type: "tabs", defaultCollapsed: false }');
+    expect(stripePaymentFormSource).toContain('type: "accordion"');
+    expect(stripePaymentFormSource).toContain("defaultCollapsed: false");
   });
 
   it("gives the Stripe-stage back action the same desktop minimum width as the first checkout stage", () => {

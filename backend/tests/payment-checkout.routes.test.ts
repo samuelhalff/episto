@@ -20,6 +20,9 @@ const mocks = vi.hoisted(() => ({
   getPaymentIntentForCheckout: vi.fn(),
   resolvePaymentDispatchQuoteForDraft: vi.fn(),
   resolveDisplayDispatchQuoteForDraft: vi.fn(),
+  getLatestSnapshot: vi.fn(),
+  enqueueDispatchSubmission: vi.fn(),
+  enqueuePaymentReceiptEmail: vi.fn(),
   recordEvent: vi.fn(),
 }));
 
@@ -58,15 +61,15 @@ vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
 }));
 
 vi.mock("../src/modules/rendering/snapshot.service.js", () => ({
-  getLatestSnapshot: vi.fn(),
+  getLatestSnapshot: mocks.getLatestSnapshot,
 }));
 
 vi.mock("../src/modules/dispatch/dispatch.jobs.js", () => ({
-  enqueueDispatchSubmission: vi.fn(),
+  enqueueDispatchSubmission: mocks.enqueueDispatchSubmission,
 }));
 
 vi.mock("../src/modules/payments/payment-notifications.js", () => ({
-  enqueuePaymentReceiptEmail: vi.fn(),
+  enqueuePaymentReceiptEmail: mocks.enqueuePaymentReceiptEmail,
 }));
 
 vi.mock("../src/modules/dispatch/dispatch-quote.service.js", () => ({
@@ -136,6 +139,9 @@ describe("payment checkout routes", () => {
       clientSecret: "cs_test_1",
       latestChargeId: null,
     });
+    mocks.getLatestSnapshot.mockResolvedValue(null);
+    mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
+    mocks.enqueuePaymentReceiptEmail.mockResolvedValue(undefined);
     mocks.setPaymentIntentId.mockResolvedValue(undefined);
     mocks.transitionPaymentState.mockResolvedValue({
       payment: {
@@ -172,6 +178,44 @@ describe("payment checkout routes", () => {
     expect(mocks.db.transaction).toHaveBeenCalledTimes(1);
     expect(mocks.tx.update).toHaveBeenCalledWith({ id: "session_id" });
     expect(mocks.db.update).not.toHaveBeenCalled();
+  });
+
+  it("reuses a resumable existing pending payment intent without creating a new attempt", async () => {
+    mocks.getPaymentForDraft.mockResolvedValueOnce({
+      id: "payment-existing",
+      state: "pending",
+      stripePaymentIntentId: "pi_existing",
+      amountCents: 625,
+      breakdown: {
+        deliveryType: "standard",
+        providerQuotedCents: 290,
+        swissMailMarkupCents: 335,
+        totalCents: 625,
+        providerQuoteReference: "quote-existing",
+        attachmentHandling: "excluded",
+        lineItems: [],
+      },
+    });
+    mocks.getPaymentIntentForCheckout.mockResolvedValueOnce({
+      status: "requires_payment_method",
+      clientSecret: "cs_existing",
+      latestChargeId: null,
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.getPaymentIntentForCheckout).toHaveBeenCalledWith("pi_existing");
+    expect(mocks.transitionPaymentState).not.toHaveBeenCalled();
+    expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
+    expect(response.json()).toMatchObject({
+      paymentAttemptId: "payment-existing",
+      clientSecret: "cs_existing",
+    });
   });
 
   it("cancels a stale pending payment intent and creates a fresh one when Stripe can no longer find it", async () => {
@@ -267,6 +311,65 @@ describe("payment checkout routes", () => {
     });
   });
 
+  it("reconciles a requires_capture pending Stripe intent as authorized and enqueues dispatch", async () => {
+    mocks.getPaymentForDraft.mockResolvedValueOnce({
+      id: "payment-authorized",
+      state: "pending",
+      stripePaymentIntentId: "pi_authorized",
+      amountCents: 625,
+      breakdown: {
+        deliveryType: "standard",
+        providerQuotedCents: 290,
+        swissMailMarkupCents: 335,
+        totalCents: 625,
+        providerQuoteReference: "quote-old",
+        attachmentHandling: "excluded",
+        lineItems: [],
+      },
+    });
+    mocks.getPaymentIntentForCheckout.mockResolvedValueOnce({
+      status: "requires_capture",
+      clientSecret: "cs_authorized",
+      latestChargeId: null,
+    });
+    mocks.getLatestSnapshot.mockResolvedValueOnce({
+      id: "snapshot-1",
+      renderedPdfAssetId: "asset-1",
+    });
+    mocks.transitionPaymentState.mockResolvedValueOnce({
+      payment: {
+        id: "payment-authorized",
+        state: "authorized",
+      },
+      rawOrderAccessToken: null,
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.transitionPaymentState).toHaveBeenCalledWith(
+      mocks.db,
+      "payment-authorized",
+      "authorized",
+      {
+        stripePaymentIntentId: "pi_authorized",
+      },
+    );
+    expect(mocks.enqueueDispatchSubmission).toHaveBeenCalledWith({
+      draftId: "draft-1",
+      snapshotId: "snapshot-1",
+      paymentId: "payment-authorized",
+    });
+    expect(response.json()).toMatchObject({
+      paymentAttemptId: "payment-authorized",
+      clientSecret: null,
+    });
+  });
+
   it("reconciles a succeeded pending Stripe intent as captured instead of returning it to Elements", async () => {
     mocks.getPaymentForDraft.mockResolvedValueOnce({
       id: "payment-old",
@@ -288,6 +391,20 @@ describe("payment checkout routes", () => {
       clientSecret: "cs_paid",
       latestChargeId: "ch_paid",
     });
+    mocks.getLatestSnapshot.mockResolvedValueOnce({
+      id: "snapshot-2",
+      renderedPdfAssetId: "asset-2",
+    });
+    mocks.transitionPaymentState.mockResolvedValueOnce({
+      payment: {
+        id: "payment-old",
+        draftId: "draft-1",
+        sessionId: "session-1",
+        state: "captured",
+        amountCents: 625,
+      },
+      rawOrderAccessToken: "order-token",
+    });
 
     const response = await app.inject({
       method: "POST",
@@ -306,10 +423,162 @@ describe("payment checkout routes", () => {
         stripeChargeId: "ch_paid",
       },
     );
+    expect(mocks.enqueueDispatchSubmission).toHaveBeenCalledWith({
+      draftId: "draft-1",
+      snapshotId: "snapshot-2",
+      paymentId: "payment-old",
+    });
+    expect(mocks.enqueuePaymentReceiptEmail).toHaveBeenCalledWith(
+      mocks.db,
+      expect.objectContaining({
+        id: "payment-old",
+        draftId: "draft-1",
+        sessionId: "session-1",
+        state: "captured",
+        amountCents: 625,
+      }),
+      "order-token",
+    );
     expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({
       paymentAttemptId: "payment-old",
       clientSecret: null,
     });
+  });
+
+  it("still returns checkout success when dispatch enqueue fails after captured reconciliation", async () => {
+    mocks.getPaymentForDraft.mockResolvedValueOnce({
+      id: "payment-old",
+      state: "pending",
+      stripePaymentIntentId: "pi_succeeded",
+      amountCents: 625,
+      breakdown: {
+        deliveryType: "standard",
+        providerQuotedCents: 290,
+        swissMailMarkupCents: 335,
+        totalCents: 625,
+        providerQuoteReference: "quote-old",
+        attachmentHandling: "excluded",
+        lineItems: [],
+      },
+    });
+    mocks.getPaymentIntentForCheckout.mockResolvedValueOnce({
+      status: "succeeded",
+      clientSecret: "cs_paid",
+      latestChargeId: "ch_paid",
+    });
+    mocks.getLatestSnapshot.mockResolvedValueOnce({
+      id: "snapshot-3",
+      renderedPdfAssetId: "asset-3",
+    });
+    mocks.transitionPaymentState.mockResolvedValueOnce({
+      payment: {
+        id: "payment-old",
+        draftId: "draft-1",
+        sessionId: "session-1",
+        state: "captured",
+        amountCents: 625,
+      },
+      rawOrderAccessToken: "order-token",
+    });
+    mocks.enqueueDispatchSubmission.mockRejectedValueOnce(new Error("queue unavailable"));
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.enqueueDispatchSubmission).toHaveBeenCalledWith({
+      draftId: "draft-1",
+      snapshotId: "snapshot-3",
+      paymentId: "payment-old",
+    });
+    expect(mocks.enqueuePaymentReceiptEmail).toHaveBeenCalledWith(
+      mocks.db,
+      expect.objectContaining({
+        id: "payment-old",
+      }),
+      "order-token",
+    );
+    expect(response.json()).toMatchObject({
+      paymentAttemptId: "payment-old",
+      clientSecret: null,
+    });
+  });
+
+  it("fails after repeated stale pending checkout retries instead of looping through every raced payment", async () => {
+    const staleBreakdown = {
+      deliveryType: "standard",
+      providerQuotedCents: 290,
+      swissMailMarkupCents: 335,
+      totalCents: 625,
+      providerQuoteReference: "quote-stale",
+      attachmentHandling: "excluded",
+      lineItems: [],
+    };
+
+    mocks.getPaymentForDraft
+      .mockResolvedValueOnce({
+        id: "payment-stale-1",
+        state: "pending",
+        stripePaymentIntentId: "pi_stale_1",
+        amountCents: 625,
+        breakdown: staleBreakdown,
+      })
+      .mockResolvedValueOnce({
+        id: "payment-stale-2",
+        state: "pending",
+        stripePaymentIntentId: "pi_stale_2",
+        amountCents: 625,
+        breakdown: staleBreakdown,
+      })
+      .mockResolvedValueOnce({
+        id: "payment-stale-3",
+        state: "pending",
+        stripePaymentIntentId: "pi_stale_3",
+        amountCents: 625,
+        breakdown: staleBreakdown,
+      })
+      .mockResolvedValueOnce({
+        id: "payment-stale-4",
+        state: "pending",
+        stripePaymentIntentId: "pi_stale_4",
+        amountCents: 625,
+        breakdown: staleBreakdown,
+      });
+    mocks.getPaymentIntentForCheckout
+      .mockResolvedValueOnce({
+        status: "canceled",
+        clientSecret: null,
+        latestChargeId: null,
+      })
+      .mockResolvedValueOnce({
+        status: "canceled",
+        clientSecret: null,
+        latestChargeId: null,
+      })
+      .mockResolvedValueOnce({
+        status: "canceled",
+        clientSecret: null,
+        latestChargeId: null,
+      });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json()).toMatchObject({
+      error: {
+        family: "provider_outage",
+        code: "CHECKOUT_RECONCILIATION_EXCEEDED",
+      },
+    });
+    expect(mocks.transitionPaymentState).toHaveBeenCalledTimes(3);
+    expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
   });
 });

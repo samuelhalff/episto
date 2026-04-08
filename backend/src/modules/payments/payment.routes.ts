@@ -278,6 +278,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       // Use a transaction to prevent concurrent checkout race conditions.
       // Re-check for existing non-terminal payment inside the transaction.
       const NON_TERMINAL_STATES = ["pending", "authorized", "captured", "refund_pending"];
+      const MAX_CHECKOUT_RECONCILIATION_ATTEMPTS = 3;
       const RESUMABLE_STRIPE_INTENT_STATUSES = new Set([
         "requires_payment_method",
         "requires_confirmation",
@@ -341,6 +342,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         });
 
       let result = await createOrResumeCheckout();
+      let reconciliationAttempts = 0;
 
       async function recreateCheckoutFromStaleStripeIntent(stripeError: string): Promise<void> {
         request.log.warn(
@@ -354,7 +356,45 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         );
 
         await transitionPaymentState(db, result.paymentAttemptId, "cancelled");
+        reconciliationAttempts += 1;
+        if (reconciliationAttempts >= MAX_CHECKOUT_RECONCILIATION_ATTEMPTS) {
+          request.log.error(
+            {
+              draftId,
+              paymentAttemptId: result.paymentAttemptId,
+              stripePaymentIntentId: result.stripePaymentIntentId,
+              attempts: reconciliationAttempts,
+            },
+            "Checkout reconciliation exceeded the maximum number of stale payment retries",
+          );
+          throw new AppError({
+            family: "provider_outage",
+            statusCode: 503,
+            code: "CHECKOUT_RECONCILIATION_EXCEEDED",
+            message: `Checkout could not stabilize after ${MAX_CHECKOUT_RECONCILIATION_ATTEMPTS} stale payment retries`,
+            userMessage: "Payment is temporarily unavailable. Please try again shortly.",
+            userAction: "Wait a moment and retry.",
+          });
+        }
         result = await createOrResumeCheckout();
+      }
+
+      async function enqueueDispatchIfSnapshotReady(paymentId: string): Promise<void> {
+        try {
+          const snapshot = await getLatestSnapshot(db, draftId);
+          if (snapshot?.renderedPdfAssetId) {
+            await enqueueDispatchSubmission({
+              draftId,
+              snapshotId: snapshot.id,
+              paymentId,
+            });
+          }
+        } catch (err) {
+          request.log.error(
+            { err, draftId, paymentId },
+            "Failed to enqueue dispatch after checkout payment reconciliation",
+          );
+        }
       }
 
       while (result.isExisting && result.paymentState === "pending") {
@@ -388,25 +428,39 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           }
 
           if (stripeIntent.status === "requires_capture") {
-            await transitionPaymentState(db, result.paymentAttemptId, "authorized", {
+            const { payment } = await transitionPaymentState(db, result.paymentAttemptId, "authorized", {
               stripePaymentIntentId: result.stripePaymentIntentId,
             });
+            await enqueueDispatchIfSnapshotReady(payment.id);
             result = {
               ...result,
-              paymentState: "authorized",
+              paymentState: payment.state,
               clientSecret: null,
             };
             break;
           }
 
           if (stripeIntent.status === "succeeded") {
-            await transitionPaymentState(db, result.paymentAttemptId, "captured", {
-              stripePaymentIntentId: result.stripePaymentIntentId,
-              stripeChargeId: stripeIntent.latestChargeId ?? undefined,
-            });
+            const { payment, rawOrderAccessToken } = await transitionPaymentState(
+              db,
+              result.paymentAttemptId,
+              "captured",
+              {
+                stripePaymentIntentId: result.stripePaymentIntentId,
+                stripeChargeId: stripeIntent.latestChargeId ?? undefined,
+              },
+            );
+            await enqueueDispatchIfSnapshotReady(payment.id);
+            if (rawOrderAccessToken) {
+              try {
+                await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
+              } catch (err) {
+                request.log.error({ err }, "Failed to enqueue payment receipt email");
+              }
+            }
             result = {
               ...result,
-              paymentState: "captured",
+              paymentState: payment.state,
               clientSecret: null,
             };
             break;

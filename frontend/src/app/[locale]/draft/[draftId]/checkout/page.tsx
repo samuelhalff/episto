@@ -41,24 +41,25 @@ function hasConfiguredStripePublishableKey(value: string): boolean {
 
 function getStripeAppearance(theme: "light" | "dark") {
   return {
-    theme: (theme === "dark" ? "night" : "flat") as "night" | "flat",
+    theme: (theme === "dark" ? "night" : "stripe") as "night" | "stripe",
     labels: "floating" as const,
     variables: {
       // Must match --action-primary-bg in globals.css. Stripe requires literal values here.
       colorPrimary: "#f6c54a",
-      colorBackground: theme === "dark" ? "#161b22" : "#fcfaf6",
+      colorBackground: theme === "dark" ? "#10161f" : "#f7f4ee",
       colorText: theme === "dark" ? "#e6edf3" : "#18181b",
-      colorTextSecondary: theme === "dark" ? "#9ea7b3" : "#71717a",
-      colorTextPlaceholder: theme === "dark" ? "#6e7681" : "#a1a1aa",
+      colorTextSecondary: theme === "dark" ? "#9ea7b3" : "#5f5f67",
+      colorTextPlaceholder: theme === "dark" ? "#6e7681" : "#8a8a93",
       colorDanger: theme === "dark" ? "#f87171" : "#dc2626",
-      borderRadius: "16px",
+      borderRadius: "18px",
       fontSizeBase: "16px",
-      fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
-      fontWeightMedium: "500",
-      fontWeightBold: "600",
-      spacingUnit: "4px",
-      gridRowSpacing: "16px",
-      tabSpacing: "8px",
+      fontFamily:
+        "\"Ideal Sans\", \"Inter\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      fontWeightMedium: "600",
+      fontWeightBold: "700",
+      spacingUnit: "6px",
+      gridRowSpacing: "18px",
+      tabSpacing: "10px",
       focusBoxShadow:
         theme === "dark"
           ? "0 0 0 4px rgba(246, 197, 74, 0.18)"
@@ -69,21 +70,27 @@ function getStripeAppearance(theme: "light" | "dark") {
     },
     rules: {
       ".Block": {
-        backgroundColor: theme === "dark" ? "#11161d" : "#ffffff",
-        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(24, 24, 27, 0.08)"}`,
-        boxShadow: "none",
+        backgroundColor: theme === "dark" ? "#111822" : "#fffdf9",
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(15, 23, 42, 0.08)"}`,
+        boxShadow:
+          theme === "dark"
+            ? "0 1px 0 rgba(255,255,255,0.04)"
+            : "0 1px 0 rgba(255,255,255,0.75)",
       },
       ".Input": {
-        backgroundColor: theme === "dark" ? "#11161d" : "#ffffff",
-        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(24, 24, 27, 0.08)"}`,
+        backgroundColor: theme === "dark" ? "#111822" : "#ffffff",
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(15, 23, 42, 0.08)"}`,
         boxShadow: "none",
       },
-      ".Tab": {
-        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.18)" : "rgba(24, 24, 27, 0.08)"}`,
+      ".AccordionItem": {
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.14)" : "rgba(15, 23, 42, 0.08)"}`,
         boxShadow: "none",
       },
-      ".Tab:hover": {
+      ".AccordionItem:hover": {
         color: theme === "dark" ? "#e6edf3" : "#18181b",
+      },
+      ".Label": {
+        fontWeight: "600",
       },
     },
   };
@@ -114,6 +121,7 @@ export default function CheckoutPage({
   const hasConfiguredStripeFrontend =
     hasConfiguredStripePublishableKey(stripePublishableKey);
   const [submittedCheckoutEmail, setSubmittedCheckoutEmail] = useState<string | null>(null);
+  const [paymentRecoveryMessage, setPaymentRecoveryMessage] = useState<string | null>(null);
 
   const draft = useDraft(draftId);
   const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
@@ -195,6 +203,7 @@ export default function CheckoutPage({
 
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
+    setPaymentRecoveryMessage(null);
     setSubmittedCheckoutEmail(values.email);
     void checkout
       .createPaymentIntent(values.email)
@@ -209,6 +218,11 @@ export default function CheckoutPage({
           route: `/draft/${draftId}/checkout`,
         });
       });
+  }
+
+  function handleTerminalPaymentIntent() {
+    checkout.resetClientSecret();
+    setPaymentRecoveryMessage(t("paymentSessionExpired"));
   }
 
   return (
@@ -323,6 +337,12 @@ export default function CheckoutPage({
                 </p>
               ) : null}
 
+              {paymentRecoveryMessage && (
+                <p role="alert" className="text-sm text-destructive">
+                  {paymentRecoveryMessage}
+                </p>
+              )}
+
               {checkoutErrorMessage && (
                 <p role="alert" className="text-sm text-destructive">
                   {checkoutErrorMessage}
@@ -402,6 +422,7 @@ export default function CheckoutPage({
                 billingEmail={billingEmail}
                 returnUrl={returnUrl}
                 buttonLabel={t("sendMyLetter")}
+                onTerminalPaymentIntent={handleTerminalPaymentIntent}
                 secondaryAction={
                   <ActionLink
                     href={`/draft/${draftId}/review`}

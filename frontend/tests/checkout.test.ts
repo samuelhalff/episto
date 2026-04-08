@@ -165,17 +165,34 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).not.toContain('colorPrimary: "#18181b"');
   });
 
-  it("uses the flat Stripe theme in light mode and night in dark mode", () => {
+  it("uses the Stripe theme in light mode and night in dark mode", () => {
     expect(checkoutPageSource).toContain("useTheme");
-    expect(checkoutPageSource).toContain('theme === "dark" ? "night" : "flat"');
+    expect(checkoutPageSource).toContain('theme === "dark" ? "night" : "stripe"');
     expect(checkoutPageSource).toContain("colorBackground");
     expect(checkoutPageSource).toContain("colorText");
   });
 
-  it("gives Stripe an explicit sans font stack and floating labels instead of inheriting a serif fallback", () => {
-    expect(checkoutPageSource).toContain('fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", sans-serif"');
+  it("gives Stripe a deliberate Stripe-style sans stack and floating labels instead of inheriting a serif fallback", () => {
+    expect(checkoutPageSource).toContain("fontFamily:");
+    expect(checkoutPageSource).toContain('\\"Ideal Sans\\", \\"Inter\\", system-ui');
     expect(checkoutPageSource).toContain('labels: "floating"');
     expect(checkoutPageSource).not.toContain('fontFamily: "inherit"');
+  });
+
+  it("prefills the billing email into the PaymentElement when email collection is hidden inside Stripe", () => {
+    expect(stripePaymentFormSource).toContain("defaultValues:");
+    expect(stripePaymentFormSource).toContain("billingDetails: {");
+    expect(stripePaymentFormSource).toContain("email: normalizedBillingEmail");
+    expect(stripePaymentFormSource).toContain("payment_method_data");
+    expect(stripePaymentFormSource).toContain("email: normalizedBillingEmail");
+    expect(stripePaymentFormSource).toContain('email: "never"');
+  });
+
+  it("uses an accordion PaymentElement layout for cleaner multi-method checkout", () => {
+    expect(stripePaymentFormSource).toContain("layout: {");
+    expect(stripePaymentFormSource).toContain('type: "accordion"');
+    expect(stripePaymentFormSource).toContain("spacedAccordionItems: true");
+    expect(stripePaymentFormSource).not.toContain('layout: { type: "tabs"');
   });
 
   it("reuses the shared section label and muted surfaces on the payment step", () => {
@@ -187,7 +204,7 @@ describe("checkout footer actions", () => {
   it("surfaces secure checkout context and the confirmed billing email inside the Stripe payment stage", () => {
     expect(stripePaymentFormSource).toContain('t("secureCheckout")');
     expect(stripePaymentFormSource).toContain('t("email")');
-    expect(stripePaymentFormSource).toContain("{billingEmail}");
+    expect(stripePaymentFormSource).toContain("{normalizedBillingEmail}");
     expect(stripePaymentFormSource).toContain("lg:grid-cols-[minmax(0,1fr)_18rem]");
   });
 

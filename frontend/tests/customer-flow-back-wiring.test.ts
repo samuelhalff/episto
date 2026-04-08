@@ -43,9 +43,8 @@ describe("customer flow back wiring", () => {
     expect(reviewReadySource).toContain('router.push(getCustomerFlowPath(draftId, "logistics"))');
     expect(reviewSource).not.toContain("router.push(`/draft/${draftId}`)");
 
-    expect(checkoutSource).toContain(
-      'const backToReviewHref = getCustomerFlowBackPath(draftId, "checkout")',
-    );
+    expect(checkoutSource).toContain("const backToReviewHref =");
+    expect(checkoutSource).toContain('getCustomerFlowBackPath(draftId, "checkout")');
     expect(confirmationSource).toContain('getCustomerFlowPath(draftId, "checkout")');
   });
 });

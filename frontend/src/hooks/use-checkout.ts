@@ -54,6 +54,7 @@ export interface UseCheckoutReturn {
   clientSecret: string | null;
   /** Initiates or resumes a payment intent and returns the latest checkout payload. */
   createPaymentIntent: (email: string) => Promise<CheckoutResponse>;
+  resetClientSecret: () => void;
   isProcessing: boolean;
   isBootstrapping: boolean;
   isRefreshing: boolean;
@@ -110,6 +111,9 @@ export function useCheckout(
       checkoutMutation.mutateAsync(email),
     [checkoutMutation],
   );
+  const resetClientSecret = useCallback(() => {
+    setClientSecret(null);
+  }, []);
 
   const paymentData = paymentQuery.data;
 
@@ -150,6 +154,7 @@ export function useCheckout(
     paymentState,
     clientSecret,
     createPaymentIntent,
+    resetClientSecret,
     isProcessing: checkoutMutation.isPending,
     isBootstrapping,
     isRefreshing,

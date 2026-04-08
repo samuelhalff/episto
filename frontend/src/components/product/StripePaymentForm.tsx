@@ -28,6 +28,7 @@ interface StripePaymentFormProps {
   /** Button label prefix (e.g. "Send my letter"). */
   buttonLabel: string;
   secondaryAction?: ReactNode;
+  onTerminalPaymentIntent?: () => void;
 }
 
 interface PaymentElementLoadErrorEvent {
@@ -41,6 +42,7 @@ export function StripePaymentForm({
   returnUrl,
   buttonLabel,
   secondaryAction,
+  onTerminalPaymentIntent,
 }: StripePaymentFormProps) {
   const stripe = useStripe();
   const elements = useElements();
@@ -109,10 +111,12 @@ export function StripePaymentForm({
   }
 
   function handleLoadError(loadErrorEvent: PaymentElementLoadErrorEvent) {
+    const message = loadErrorEvent.error.message ?? t("paymentError");
+
     setPaymentElementLoadFailed(true);
-    setErrorMessage(loadErrorEvent.error.message ?? t("paymentError"));
+    setErrorMessage(message);
     captureError(
-      new Error(loadErrorEvent.error.message ?? "Stripe PaymentElement failed to load"),
+      new Error(message ?? "Stripe PaymentElement failed to load"),
       {
         component: "StripePaymentForm",
         route: typeof window !== "undefined" ? window.location.pathname : undefined,
@@ -123,6 +127,10 @@ export function StripePaymentForm({
         },
       },
     );
+
+    if (/terminal state/i.test(message)) {
+      onTerminalPaymentIntent?.();
+    }
   }
 
   return (

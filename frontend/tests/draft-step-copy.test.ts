@@ -75,21 +75,20 @@ describe("draft step CTA copy", () => {
   });
 
   it("keeps the primary flow actions compact", () => {
-    expect(en.review.proceedToPayment).toBe("Next");
+    expect(en.review.proceedToPayment).toBe("Checkout");
     expect(en.checkout.continueToPayment).toBe("Next");
     expect(en.checkout.sendMyLetter).toBe("Pay");
 
-    expect(de.review.proceedToPayment).toBe("Weiter");
+    expect(de.review.proceedToPayment).toBe("Kasse");
     expect(de.checkout.continueToPayment).toBe("Weiter");
     expect(de.checkout.sendMyLetter).toBe("Bezahlen");
 
-    expect(fr.review.proceedToPayment).toBe("Suivant");
+    expect(fr.review.proceedToPayment).toBe("Paiement");
     expect(fr.checkout.continueToPayment).toBe("Suivant");
     expect(fr.checkout.sendMyLetter).toBe("Payer");
 
-    expect(itLocale.review.proceedToPayment).toBe("Avanti");
+    expect(itLocale.review.proceedToPayment).toBe("Cassa");
     expect(itLocale.checkout.continueToPayment).toBe("Avanti");
     expect(itLocale.checkout.sendMyLetter).toBe("Paga");
   });
 });
-
