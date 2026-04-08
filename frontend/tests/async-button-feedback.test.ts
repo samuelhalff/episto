@@ -19,10 +19,11 @@ const draftFilesHookSource = readFileSync(
 );
 
 describe("async button feedback", () => {
-  it("tracks loading state for delivery and signature controls that write over the network", () => {
+  it("tracks loading state for delivery controls without keeping the removed signature upload state", () => {
     expect(logisticsStepSource).toContain("pendingDeliveryType");
-    expect(logisticsStepSource).toContain("pendingSignatureMode");
-    expect(logisticsStepSource).toContain("pendingSignatureRemoval");
+    expect(logisticsStepSource).not.toContain("pendingSignatureMode");
+    expect(logisticsStepSource).not.toContain("pendingSignatureRemoval");
+    expect(logisticsStepSource).not.toContain("signatureUploadPrompt");
   });
 
   it("exposes attachment removal state so destructive file actions can show progress", () => {

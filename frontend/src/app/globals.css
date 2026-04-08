@@ -2,6 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: "Allura Signature";
+  src: url("/fonts/allura/Allura-Regular.ttf") format("truetype");
+  font-display: swap;
+}
+
 @layer base {
   :root {
     color-scheme: light;
@@ -79,6 +85,20 @@
       background-color 220ms ease,
       color 220ms ease,
       border-color 220ms ease;
+  }
+
+  .signature-script {
+    display: inline-block;
+    font-family: "Allura Signature", "Snell Roundhand", "Brush Script MT", cursive;
+    font-size: clamp(2.2rem, 3.5vw, 2.9rem);
+    letter-spacing: 0.01em;
+    line-height: 0.92;
+    transform: rotate(-2deg);
+    transform-origin: left center;
+  }
+
+  .signature-name {
+    letter-spacing: 0.02em;
   }
 }
 

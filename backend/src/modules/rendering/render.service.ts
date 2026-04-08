@@ -12,6 +12,7 @@
  * 6. Link PDF to snapshot
  */
 
+import { readFileSync } from "node:fs";
 import puppeteer from "puppeteer-core";
 import type { Browser } from "puppeteer-core";
 import { eq } from "drizzle-orm";
@@ -47,6 +48,8 @@ export interface RenderResult {
   sizeBytes: number;
   pageCount: number;
 }
+
+let signatureFontFaceCss: string | null = null;
 
 // ---------------------------------------------------------------------------
 // Browser management — lazy singleton
@@ -116,6 +119,30 @@ function parseSnapshotData(
   });
 }
 
+function getSignatureFontFaceCss(): string {
+  if (signatureFontFaceCss) {
+    return signatureFontFaceCss;
+  }
+
+  const fontPath = new URL(
+    "../../../../frontend/public/fonts/allura/Allura-Regular.ttf",
+    import.meta.url,
+  );
+  const fontBase64 = readFileSync(fontPath).toString("base64");
+
+  signatureFontFaceCss = `@font-face {
+      font-family: "Allura Signature";
+      src: url(data:font/ttf;base64,${fontBase64}) format("truetype");
+      font-display: swap;
+    }`;
+
+  return signatureFontFaceCss;
+}
+
+function getSenderSignatureName(sender: SnapshotData["sender"]): string {
+  return [sender.firstName, sender.lastName].filter(Boolean).join(" ").trim();
+}
+
 // ---------------------------------------------------------------------------
 // HTML letter template (Swiss DIN 5008 / SN 010 130 inspired)
 // ---------------------------------------------------------------------------
@@ -138,6 +165,14 @@ function renderLetterHtml(data: SnapshotData): string {
   );
   const hasLetterContent = flattenDocumentModel(document).trim().length > 0;
   const { salutation, closing } = getLetterFraming(data.locale);
+  const signatureName = getSenderSignatureName(sender);
+  const signatureBlock =
+    data.signatureMode && signatureName
+      ? `<div class="signature-block">
+  <div class="signature-script">${escapeHtml(signatureName)}</div>
+  <div class="signature-name">${escapeHtml(signatureName)}</div>
+</div>`
+      : "";
 
   const senderBlock = sender
     ? [
@@ -171,6 +206,7 @@ function renderLetterHtml(data: SnapshotData): string {
 <head>
   <meta charset="UTF-8">
   <style>
+    ${getSignatureFontFaceCss()}
     @page {
       size: A4;
       margin: 25mm 25mm 30mm 25mm;
@@ -211,6 +247,26 @@ function renderLetterHtml(data: SnapshotData): string {
     }
     .closing-line {
       margin-top: 10mm;
+    }
+    .signature-block {
+      margin-top: 12mm;
+      page-break-inside: avoid;
+    }
+    .signature-script {
+      display: inline-block;
+      font-family: "Allura Signature", "Snell Roundhand", "Brush Script MT", cursive;
+      font-size: 28pt;
+      letter-spacing: 0.01em;
+      line-height: 0.9;
+      color: #222;
+      transform: rotate(-2deg);
+      transform-origin: left center;
+    }
+    .signature-name {
+      margin-top: 2.5mm;
+      font-size: 10pt;
+      letter-spacing: 0.02em;
+      color: #666;
     }
     .letter-paragraph {
       margin: 0 0 6mm 0;
@@ -270,6 +326,7 @@ function renderLetterHtml(data: SnapshotData): string {
   ${hasLetterContent ? `<div class="salutation-line">${escapeHtml(salutation)}</div>` : ""}
   <div class="letter-body">${renderDocumentHtml(document)}</div>
   ${hasLetterContent ? `<div class="closing-line">${escapeHtml(closing)}</div>` : ""}
+  ${signatureBlock}
   ${data.enclosureNote ? `<div class="enclosure-note">${escapeHtml(data.enclosureNote)}</div>` : ""}
 </body>
 </html>`;

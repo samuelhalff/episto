@@ -15,4 +15,10 @@ describe("letter preview layout", () => {
   it("keeps the paper surface on an A4 aspect ratio before content overflow expands it", () => {
     expect(letterPreviewSource).toContain("aspect-[210/297]");
   });
+
+  it("renders signatures as a handwritten block with a typed name underneath", () => {
+    expect(letterPreviewSource).toContain("signature-script");
+    expect(letterPreviewSource).toContain("signature-name");
+    expect(letterPreviewSource).not.toContain('{t("signatureLabel")}');
+  });
 });

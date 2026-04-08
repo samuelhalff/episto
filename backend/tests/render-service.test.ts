@@ -98,7 +98,9 @@ function makeSelectChain(result: unknown[]) {
 
 function mockDbWithSelectResults(...results: unknown[][]) {
   const remaining = [...results];
-  const select = vi.fn().mockImplementation(() => makeSelectChain(remaining.shift() ?? []));
+  const select = vi
+    .fn()
+    .mockImplementation(() => makeSelectChain(remaining.shift() ?? []));
   mocks.getDb.mockReturnValue({ select });
   return select;
 }
@@ -127,9 +129,7 @@ describe("render.service", () => {
   });
 
   it("renderStorageKey generates correct path", async () => {
-    const { renderStorageKey } = await import(
-      "../src/modules/files/file.service.js"
-    );
+    const { renderStorageKey } = await import("../src/modules/files/file.service.js");
     expect(renderStorageKey("draft-123", 1)).toBe("renders/draft-123/1.pdf");
   });
 
@@ -179,7 +179,8 @@ describe("render.service", () => {
       },
     ]);
 
-    const { renderSnapshotToPdf } = await import("../src/modules/rendering/render.service.js");
+    const { renderSnapshotToPdf } =
+      await import("../src/modules/rendering/render.service.js");
     let thrown: unknown;
     try {
       await renderSnapshotToPdf("snapshot-1");
@@ -193,5 +194,70 @@ describe("render.service", () => {
     });
     expect(mocks.launch).not.toHaveBeenCalled();
     expect(mocks.uploadObject).not.toHaveBeenCalled();
+  });
+
+  it("renders a generated signature block into the final PDF HTML", async () => {
+    mockDbWithSelectResults(
+      [
+        {
+          id: "snapshot-2",
+          draftId: "draft-2",
+          version: 1,
+          snapshotData: {
+            schemaVersion: 1,
+            locale: "en-CH",
+            deliveryType: "standard",
+            subject: "Account closure",
+            body: "Please close the account by the end of the month.",
+            enclosureNote: null,
+            signatureMode: "typed",
+            tone: null,
+            intent: null,
+            sender: {
+              firstName: "Sam",
+              lastName: "Sender",
+              company: null,
+              addressLine1: "Main street 1",
+              addressLine2: null,
+              postalCode: "8000",
+              city: "Zurich",
+              country: "CH",
+            },
+            recipient: {
+              firstName: "Alex",
+              lastName: "Receiver",
+              company: null,
+              department: null,
+              addressLine1: "Market street 2",
+              addressLine2: null,
+              postalCode: "3000",
+              city: "Bern",
+              country: "CH",
+            },
+            attachmentAssetIds: [],
+            signatureAssetId: null,
+            estimatedPages: 1,
+            metadata: null,
+          },
+          renderedPdfAssetId: null,
+        },
+      ],
+      [
+        {
+          sessionId: "session-2",
+        },
+      ],
+    );
+
+    const { renderSnapshotToPdf } =
+      await import("../src/modules/rendering/render.service.js");
+    await renderSnapshotToPdf("snapshot-2");
+
+    expect(mocks.page.setContent).toHaveBeenCalledTimes(1);
+    const html = mocks.page.setContent.mock.calls[0]?.[0];
+    expect(typeof html).toBe("string");
+    expect(html).toContain('class="signature-block"');
+    expect(html).toContain('class="signature-script">Sam Sender</div>');
+    expect(html).toContain('class="signature-name">Sam Sender</div>');
   });
 });

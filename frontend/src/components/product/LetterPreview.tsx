@@ -57,7 +57,6 @@ export function LetterPreview({
   senderProfile,
   recipientProfile,
   signatureMode,
-  signatureUrl,
   editingZone,
   onZoneClick,
   onZoneSave,
@@ -91,6 +90,8 @@ export function LetterPreview({
   });
   const resolvedSignatureMode = signatureMode ?? draft.signatureMode;
   const typedSignatureName = getSenderDisplayName(senderProfile);
+  const signatureDisplayName = typedSignatureName || t("signatureFallbackName");
+  const shouldShowGeneratedSignature = Boolean(resolvedSignatureMode);
   const placeAndDate = senderProfile?.city?.trim()
     ? `${senderProfile.city.trim()}, ${formattedDate}`
     : formattedDate;
@@ -268,30 +269,14 @@ export function LetterPreview({
               </div>
             )}
 
-            {resolvedSignatureMode === "typed" ? (
-              <div className="pt-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
-                  {t("signatureLabel")}
+            {shouldShowGeneratedSignature ? (
+              <div className="pt-8">
+                <p className="signature-script text-zinc-700 dark:text-zinc-100">
+                  {signatureDisplayName}
                 </p>
-                <p
-                  className="mt-3 text-2xl italic text-zinc-700 dark:text-zinc-100"
-                  style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-                >
-                  {typedSignatureName || t("signatureFallbackName")}
+                <p className="signature-name mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                  {signatureDisplayName}
                 </p>
-              </div>
-            ) : null}
-
-            {resolvedSignatureMode === "image" && signatureUrl ? (
-              <div className="pt-6">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-zinc-400 dark:text-zinc-500">
-                  {t("signatureLabel")}
-                </p>
-                <img
-                  src={signatureUrl}
-                  alt={t("signatureImageAlt")}
-                  className="mt-3 h-16 max-w-[220px] object-contain object-left"
-                />
               </div>
             ) : null}
           </div>

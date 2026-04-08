@@ -2,16 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import {
-  Check,
-  CheckCircle2,
-  Image as ImageIcon,
-  Loader2,
-  Mail,
-  Plus,
-  Send,
-  Type,
-} from "lucide-react";
+import { Check, CheckCircle2, Loader2, Mail, Send } from "lucide-react";
 import {
   useDraft,
   useUpdateDraft,
@@ -25,18 +16,10 @@ import {
   normalizeLetterSubject,
   getRecipientDisplayName,
   getSenderDisplayName,
-  getSignatureFileUrl,
 } from "../../../lib/letter-content";
 import { useTheme } from "../../../lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
-import {
-  ActionCard,
-  Card,
-  DashedCard,
-  DraftShell,
-  PrimaryButton,
-  SegmentedControl,
-} from "./ui";
+import { ActionCard, Card, DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 
@@ -61,23 +44,19 @@ export function LogisticsStep({
   const reviewDraft = useReviewDraft(draftId);
   const preview = useLetterPreview(draftId);
   const pricing = usePricing();
-  const sigInputRef = useRef<HTMLInputElement>(null);
   const signatureBootstrapRef = useRef(false);
-  const [signatureMode, setSignatureMode] = useState<"typed" | "image">("typed");
   const [showAttachmentManager, setShowAttachmentManager] = useState(false);
-  const [pendingDeliveryType, setPendingDeliveryType] = useState<"standard" | "registered" | null>(null);
-  const [pendingSignatureMode, setPendingSignatureMode] = useState<"typed" | "image" | null>(null);
-  const [pendingSignatureRemoval, setPendingSignatureRemoval] = useState(false);
+  const [pendingDeliveryType, setPendingDeliveryType] = useState<
+    "standard" | "registered" | null
+  >(null);
 
   const deliveryType = draft.data?.deliveryType ?? "standard";
   const senderName = getSenderDisplayName(preview.previewData?.sender);
+  const signatureDisplayName = senderName || t("signatureFallbackName");
   const recipientName = getRecipientDisplayName(preview.previewData?.recipient);
   const normalizedSubject = normalizeLetterSubject(
     draft.data?.subject,
     draft.data?.locale ?? preview.previewData?.locale ?? "de-CH",
-  );
-  const signatureUrl = getSignatureFileUrl(
-    files.signature?.id ?? draft.data?.signatureAssetId ?? null,
   );
   const hasSubject = Boolean(draft.data?.subject?.trim());
   const hasBody = Boolean(draft.data?.body?.trim());
@@ -94,7 +73,6 @@ export function LogisticsStep({
   const registeredPrice = pricing.data?.registered?.displayPrice ?? t("priceUnavailable");
   const standardPrice = pricing.data?.standard?.displayPrice ?? t("priceUnavailable");
   const isDeliverySelectionPending = pendingDeliveryType !== null;
-  const isSignatureSelectionPending = pendingSignatureMode !== null || pendingSignatureRemoval;
 
   useEffect(() => {
     if (attachmentCount > 0) {
@@ -103,23 +81,23 @@ export function LogisticsStep({
   }, [attachmentCount]);
 
   useEffect(() => {
-    const persistedMode = draft.data?.signatureMode;
-    const nextMode = persistedMode ?? (files.signature ? "image" : "typed");
-    setSignatureMode(nextMode);
-
-    if (signatureBootstrapRef.current || !draft.data || persistedMode) {
+    if (signatureBootstrapRef.current || !draft.data) {
       return;
     }
 
     signatureBootstrapRef.current = true;
+    if (draft.data.signatureMode === "typed" && draft.data.signatureAssetId === null) {
+      return;
+    }
+
     void updateDraft.mutateAsync({
-      signatureMode: nextMode,
-      signatureAssetId: nextMode === "image" ? (files.signature?.id ?? null) : null,
+      signatureMode: "typed",
+      signatureAssetId: null,
     });
-  }, [draft.data, files.signature, updateDraft]);
+  }, [draft.data, updateDraft]);
 
   async function handleSelectDelivery(type: "standard" | "registered") {
-    if (type === deliveryType || isDeliverySelectionPending || isSignatureSelectionPending) {
+    if (type === deliveryType || isDeliverySelectionPending) {
       return;
     }
 
@@ -136,7 +114,7 @@ export function LogisticsStep({
     try {
       const reviewUpdates: {
         subject?: string;
-        signatureMode?: "typed" | "image";
+        signatureMode?: "typed";
         signatureAssetId?: string | null;
       } = {};
 
@@ -144,14 +122,12 @@ export function LogisticsStep({
         reviewUpdates.subject = normalizedSubject;
       }
 
-      if (draft.data?.signatureMode !== signatureMode) {
-        reviewUpdates.signatureMode = signatureMode;
+      if (draft.data?.signatureMode !== "typed") {
+        reviewUpdates.signatureMode = "typed";
       }
 
-      const nextSignatureAssetId =
-        signatureMode === "image" ? (files.signature?.id ?? null) : null;
-      if ((draft.data?.signatureAssetId ?? null) !== nextSignatureAssetId) {
-        reviewUpdates.signatureAssetId = nextSignatureAssetId;
+      if ((draft.data?.signatureAssetId ?? null) !== null) {
+        reviewUpdates.signatureAssetId = null;
       }
 
       if (Object.keys(reviewUpdates).length > 0) {
@@ -175,69 +151,6 @@ export function LogisticsStep({
       title: t("stepNeedsAttentionTitle"),
       items: missingItems,
     });
-  }
-
-  async function handleSignatureModeChange(nextMode: "typed" | "image") {
-    if (nextMode === signatureMode || isSignatureSelectionPending || isDeliverySelectionPending) {
-      return;
-    }
-
-    setSignatureMode(nextMode);
-    setPendingSignatureMode(nextMode);
-
-    try {
-      await updateDraft.mutateAsync({
-        signatureMode: nextMode,
-        signatureAssetId: nextMode === "image" ? (files.signature?.id ?? null) : null,
-      });
-    } catch {
-      setSignatureMode(draft.data?.signatureMode === "image" ? "image" : "typed");
-      showStepErrorToast({
-        id: "signature-mode-save-error",
-        title: t("stepSaveFailed"),
-      });
-    } finally {
-      setPendingSignatureMode(null);
-    }
-  }
-
-  async function handleRemoveSignature() {
-    if (!files.signature || isSignatureSelectionPending || isDeliverySelectionPending) {
-      return;
-    }
-
-    setPendingSignatureRemoval(true);
-    try {
-      await files.removeFile(files.signature.id);
-      setSignatureMode("typed");
-      await updateDraft.mutateAsync({
-        signatureMode: "typed",
-        signatureAssetId: null,
-      });
-    } catch {
-      showStepErrorToast({
-        id: "signature-remove-error",
-        title: t("stepSaveFailed"),
-      });
-    } finally {
-      setPendingSignatureRemoval(false);
-    }
-  }
-
-  async function handleUploadSignature(file: File) {
-    try {
-      const uploaded = await files.uploadFile(file, "signature");
-      setSignatureMode("image");
-      await updateDraft.mutateAsync({
-        signatureMode: "image",
-        signatureAssetId: uploaded.id,
-      });
-    } catch {
-      showStepErrorToast({
-        id: "signature-upload-error",
-        title: t("stepSaveFailed"),
-      });
-    }
   }
 
   const selectedDeliveryCardClass =
@@ -289,7 +202,7 @@ export function LogisticsStep({
             <ActionCard
               onClick={() => void handleSelectDelivery("registered")}
               isCompactViewport={isCompactViewport}
-              disabled={isDeliverySelectionPending || isSignatureSelectionPending}
+              disabled={isDeliverySelectionPending}
               selected={deliveryType === "registered"}
               selectedClassName={selectedDeliveryCardClass}
               unselectedClassName={unselectedDeliveryCardClass}
@@ -350,7 +263,7 @@ export function LogisticsStep({
             <ActionCard
               onClick={() => void handleSelectDelivery("standard")}
               isCompactViewport={isCompactViewport}
-              disabled={isDeliverySelectionPending || isSignatureSelectionPending}
+              disabled={isDeliverySelectionPending}
               selected={deliveryType === "standard"}
               selectedClassName={selectedDeliveryCardClass}
               unselectedClassName={unselectedDeliveryCardClass}
@@ -409,105 +322,28 @@ export function LogisticsStep({
         </section>
 
         <section className="space-y-5">
-          <div className={isCompactViewport ? "flex items-center gap-4 px-2" : "sticky top-0 z-10 -mx-4 flex items-center gap-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"}>
+          <div
+            className={
+              isCompactViewport
+                ? "flex items-center gap-4 px-2"
+                : "sticky top-0 z-10 -mx-4 flex items-center gap-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"
+            }
+          >
             <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
               {t("signatureLabel")}
             </h3>
-            <SegmentedControl
-              options={[
-                {
-                  value: "typed" as const,
-                  label: t("signatureTyped"),
-                  icon:
-                    pendingSignatureMode === "typed" ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Type className="h-3 w-3" />
-                    ),
-                },
-                {
-                  value: "image" as const,
-                  label: t("signatureImage"),
-                  icon:
-                    pendingSignatureMode === "image" ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <ImageIcon className="h-3 w-3" />
-                    ),
-                },
-              ]}
-              value={signatureMode}
-              onChange={(v) => void handleSignatureModeChange(v)}
-            />
           </div>
 
-          {signatureMode === "typed" ? (
-            <Card isCompactViewport={isCompactViewport} density="thin">
-              <div className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                {t("signatureTypedPreview")}
-              </div>
-              <p
-                className="text-xl italic text-zinc-700 dark:text-zinc-200"
-                style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}
-              >
-                {senderName || t("signatureFallbackName")}
+          <Card isCompactViewport={isCompactViewport} density="thin">
+            <div className="rounded-[28px] border border-[var(--app-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,249,240,0.92)_100%)] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] dark:bg-[linear-gradient(180deg,rgba(21,28,37,0.96)_0%,rgba(16,22,31,0.92)_100%)]">
+              <p className="signature-script text-zinc-700 dark:text-zinc-100">
+                {signatureDisplayName}
               </p>
-            </Card>
-          ) : (
-            <div>
-              {files.signature ? (
-                <Card
-                  isCompactViewport={isCompactViewport}
-                  density="thin"
-                  className="flex items-center gap-3"
-                >
-                  <img
-                    src={signatureUrl ?? ""}
-                    alt={t("signatureImageAlt")}
-                    className="h-12 max-w-[200px] object-contain"
-                  />
-                  <div className="flex-1" />
-                  <button
-                    type="button"
-                    onClick={() => void handleRemoveSignature()}
-                    disabled={pendingSignatureRemoval}
-                    className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-zinc-400 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    {pendingSignatureRemoval ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : null}
-                    {t("remove")}
-                  </button>
-                </Card>
-              ) : (
-                <DashedCard
-                  onClick={() => sigInputRef.current?.click()}
-                  disabled={files.isUploading}
-                  isCompactViewport={isCompactViewport}
-                  className="flex-col gap-2"
-                >
-                  <Plus className="h-5 w-5 text-zinc-400" />
-                  <span className="text-xs font-semibold text-zinc-500">
-                    {t("signatureUploadPrompt")}
-                  </span>
-                  <span className="text-[10px] text-zinc-400">
-                    {t("signatureUploadHint")}
-                  </span>
-                </DashedCard>
-              )}
-              <input
-                ref={sigInputRef}
-                type="file"
-                accept=".png,.jpg,.jpeg"
-                className="hidden"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) void handleUploadSignature(file);
-                  e.target.value = "";
-                }}
-              />
+              <p className="signature-name mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                {signatureDisplayName}
+              </p>
             </div>
-          )}
+          </Card>
         </section>
 
         <section className="space-y-5">
