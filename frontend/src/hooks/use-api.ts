@@ -14,6 +14,8 @@ export {
   useComposeDraftFromContext,
 } from "./use-draft";
 export { useSetSender, useSetRecipient } from "./use-profiles";
+export { useAddressSearch } from "./use-address-search";
+export { useAddressDetails } from "./use-address-details";
 export { useRecipientCompanySearch } from "./use-recipient-company-search";
 export { useRecipientCompanyDetails } from "./use-recipient-company-details";
 export { useConversation } from "./use-conversation";

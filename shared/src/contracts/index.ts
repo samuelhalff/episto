@@ -100,6 +100,40 @@ export const RecipientCompanyDetailsResponse = z.object({
   company: RecipientCompanyDetails,
 });
 
+export const AddressSearchQueryInput = z.object({
+  query: z.string().trim().min(3).max(160),
+});
+
+export const AddressDetailsQueryInput = z.object({
+  id: z.string().trim().min(1).max(200),
+});
+
+export const AddressSearchResult = z.object({
+  id: z.string(),
+  label: z.string().min(1),
+  primaryText: z.string().min(1),
+  secondaryText: z.string().nullable(),
+  source: z.literal("google_places"),
+});
+
+export const AddressSearchResponse = z.object({
+  results: z.array(AddressSearchResult),
+});
+
+export const AddressDetails = z.object({
+  id: z.string(),
+  label: z.string().min(1),
+  addressLine1: z.string().nullable(),
+  postalCode: z.string().nullable(),
+  city: z.string().nullable(),
+  countryCode: z.string().length(2).nullable(),
+  source: z.literal("google_places"),
+});
+
+export const AddressDetailsResponse = z.object({
+  address: AddressDetails,
+});
+
 // ---------------------------------------------------------------------------
 // API response types (what the server sends back)
 // ---------------------------------------------------------------------------
@@ -262,6 +296,12 @@ export type RecipientCompanyDetailsType = z.infer<typeof RecipientCompanyDetails
 export type RecipientCompanyDetailsResponseType = z.infer<
   typeof RecipientCompanyDetailsResponse
 >;
+export type AddressSearchQueryInputType = z.infer<typeof AddressSearchQueryInput>;
+export type AddressDetailsQueryInputType = z.infer<typeof AddressDetailsQueryInput>;
+export type AddressSearchResultType = z.infer<typeof AddressSearchResult>;
+export type AddressSearchResponseType = z.infer<typeof AddressSearchResponse>;
+export type AddressDetailsType = z.infer<typeof AddressDetails>;
+export type AddressDetailsResponseType = z.infer<typeof AddressDetailsResponse>;
 export type DraftAttachmentConstraints = z.infer<typeof DraftAttachmentConstraintsSchema>;
 export type DraftFilesResponse = z.infer<typeof DraftFilesResponseSchema>;
 export type PublicPricingTier = z.infer<typeof PublicPricingTierSchema>;

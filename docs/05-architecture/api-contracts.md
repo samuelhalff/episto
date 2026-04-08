@@ -658,6 +658,93 @@ const SetRecipientResponse = z.object({
 
 ---
 
+#### `GET /api/v1/drafts/:id/address-search`
+Search Swiss mailing addresses while the user is filling sender or recipient details. This is an
+assistive lookup only; the structured fields remain editable and authoritative.
+
+**Query params:**
+```ts
+const AddressSearchQuery = z.object({
+  query: z.string().trim().min(3).max(160),
+});
+```
+
+**Response `200 OK`:**
+```ts
+const AddressSearchResponse = z.object({
+  results: z.array(
+    z.object({
+      id: z.string(),
+      label: z.string(),
+      primaryText: z.string(),
+      secondaryText: z.string().nullable(),
+      source: z.literal("google_places"),
+    }),
+  ),
+});
+```
+
+**Behavior notes:**
+- used for sender and recipient address assist, not company identity lookup
+- current provider is Google Places behind a backend adapter
+- restricted to Swiss results only
+- selecting a result is a shortcut to prefill structured fields; users can still edit street, PLZ, and city manually
+- this is not postal-grade validation and must not be treated as dispatch acceptance
+
+**Error responses:**
+
+| Code | HTTP | When |
+|------|------|------|
+| `VALIDATION_ERROR` | 400 | Query shorter than 3 characters |
+| `NOT_FOUND` | 404 | Draft not found or not owned by the session |
+| `PROVIDER_OUTAGE` | 503 | Address search provider is temporarily unavailable |
+
+**Rate limit:** 60 req/session/min
+
+---
+
+#### `GET /api/v1/drafts/:id/address-details`
+Fetch canonical mailing fields for a previously selected address-search result.
+
+**Query params:**
+```ts
+const AddressDetailsQuery = z.object({
+  id: z.string().trim().min(1).max(200),
+});
+```
+
+**Response `200 OK`:**
+```ts
+const AddressDetailsResponse = z.object({
+  address: z.object({
+    id: z.string(),
+    label: z.string(),
+    addressLine1: z.string().nullable(),
+    postalCode: z.string().nullable(),
+    city: z.string().nullable(),
+    countryCode: z.string().length(2).nullable(),
+    source: z.literal("google_places"),
+  }),
+});
+```
+
+**Behavior notes:**
+- returned fields are normalized into Swiss Mail's sender/recipient form shape
+- fields may still require user correction; this endpoint improves prefill, it does not replace review
+- adapter-backed so the provider can change without changing the frontend contract
+
+**Error responses:**
+
+| Code | HTTP | When |
+|------|------|------|
+| `VALIDATION_ERROR` | 400 | Missing or invalid address identifier |
+| `NOT_FOUND` | 404 | Draft not found or not owned by the session |
+| `PROVIDER_OUTAGE` | 503 | Address details provider is temporarily unavailable |
+
+**Rate limit:** 60 req/session/min
+
+---
+
 #### `GET /api/v1/drafts/:id/recipient/company-search`
 Search the official company registry for a business recipient while the user is filling the
 recipient step. This is a synchronous request/response endpoint, not a queue job.

@@ -209,6 +209,10 @@ All secrets and environment-specific values are injected as environment variable
 | `AZURE_TENANT_ID` | Optional Entra tenant for service-principal auth | *(secret / env-specific)* |
 | `AZURE_CLIENT_ID` | Optional Entra client/application ID for service-principal auth | *(secret / env-specific)* |
 | `AZURE_CLIENT_SECRET` | Optional Entra client secret for service-principal auth | *(secret)* |
+| `ADDRESS_SEARCH_PROVIDER` | Address autocomplete backend provider | `none` or `google_places` |
+| `ADDRESS_SEARCH_TIMEOUT_MS` | Timeout for backend address autocomplete calls | `8000` |
+| `GOOGLE_PLACES_API_BASE_URL` | Google Places API base URL | `https://places.googleapis.com` |
+| `GOOGLE_PLACES_API_KEY` | Google Places API key used by backend address search | *(secret)* |
 | `SWISS_POST_API_BASE_URL` | Swiss Post API base URL | `https://api.post.ch/...` |
 | `SWISS_POST_CLIENT_ID` | Swiss Post OAuth client ID | *(secret)* |
 | `SWISS_POST_CLIENT_SECRET` | Swiss Post OAuth client secret | *(secret)* |

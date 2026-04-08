@@ -120,6 +120,15 @@
     line-height: 1.5rem;
   }
 
+  .app-form-control:-webkit-autofill,
+  .app-form-control:-webkit-autofill:hover,
+  .app-form-control:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--app-fg);
+    caret-color: var(--app-fg);
+    -webkit-box-shadow: 0 0 0 1000px var(--app-surface-strong) inset;
+    transition: background-color 9999s ease-out 0s;
+  }
+
   .app-list-item {
     background-color: var(--app-surface-strong);
     box-shadow: 0 1px 0 rgba(15, 23, 42, 0.03);

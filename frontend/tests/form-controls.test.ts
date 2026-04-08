@@ -40,6 +40,8 @@ describe("shared form controls", () => {
     expect(globalsCssSource).toContain(".app-form-control");
     expect(globalsCssSource).toContain("font-size: 16px");
     expect(globalsCssSource).toContain("max-width: 100%");
+    expect(globalsCssSource).toContain(".app-form-control:-webkit-autofill");
+    expect(globalsCssSource).toContain("-webkit-text-fill-color");
   });
 
   it("applies the reusable form-control utility to draft and preview text entry", () => {

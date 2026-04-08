@@ -1,15 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import {
-  getRecipientCompanyDetails,
-  searchRecipientCompanies,
-} from "../src/modules/drafting/address-search.service.js";
+import * as addressSearchService from "../src/modules/drafting/address-search.service.js";
+
+const { getRecipientCompanyDetails, searchRecipientCompanies } = addressSearchService;
+const addressSearchExports = addressSearchService as typeof addressSearchService & {
+  searchAddresses?: (query: string) => Promise<unknown>;
+  getAddressDetails?: (id: string) => Promise<unknown>;
+};
 
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
     COMPANY_SEARCH_PROVIDER: "zefix",
     COMPANY_SEARCH_TIMEOUT_MS: 5000,
     ZEFIX_PROXY_BASE_URL: "http://zefix-proxy:8081",
+    ADDRESS_SEARCH_PROVIDER: "google_places",
+    ADDRESS_SEARCH_TIMEOUT_MS: 5000,
+    GOOGLE_PLACES_API_BASE_URL: "https://places.googleapis.com",
+    GOOGLE_PLACES_API_KEY: "test-google-places-key",
   }),
 }));
 
@@ -76,6 +83,108 @@ describe("searchRecipientCompanies", () => {
       postalCode: "3050",
       city: "Ittigen",
       source: "zefix",
+    });
+  });
+});
+
+describe("address autocomplete", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("rejects too-short address queries", async () => {
+    expect(addressSearchExports.searchAddresses).toBeTypeOf("function");
+
+    await expect(addressSearchExports.searchAddresses!("Ba")).rejects.toMatchObject({
+      code: "VALIDATION_ERROR",
+    });
+  });
+
+  it("normalizes Google Places suggestions into the app contract", async () => {
+    expect(addressSearchExports.searchAddresses).toBeTypeOf("function");
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        suggestions: [
+          {
+            placePrediction: {
+              place: "places/abc123",
+              placeId: "abc123",
+              text: {
+                text: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
+              },
+              structuredFormat: {
+                mainText: {
+                  text: "Bahnhofstrasse 1",
+                },
+                secondaryText: {
+                  text: "8001 Zurich, Switzerland",
+                },
+              },
+            },
+          },
+        ],
+      }),
+    } as Response);
+
+    await expect(addressSearchExports.searchAddresses!("Bahnhofstrasse")).resolves.toEqual([
+      {
+        id: "google_places:abc123",
+        label: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
+        primaryText: "Bahnhofstrasse 1",
+        secondaryText: "8001 Zurich, Switzerland",
+        source: "google_places",
+      },
+    ]);
+  });
+
+  it("normalizes Google Places details into canonical mailing fields", async () => {
+    expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        id: "abc123",
+        formattedAddress: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
+        addressComponents: [
+          {
+            longText: "1",
+            shortText: "1",
+            types: ["street_number"],
+          },
+          {
+            longText: "Bahnhofstrasse",
+            shortText: "Bahnhofstr.",
+            types: ["route"],
+          },
+          {
+            longText: "8001",
+            shortText: "8001",
+            types: ["postal_code"],
+          },
+          {
+            longText: "Zurich",
+            shortText: "Zurich",
+            types: ["locality", "political"],
+          },
+          {
+            longText: "Switzerland",
+            shortText: "CH",
+            types: ["country", "political"],
+          },
+        ],
+      }),
+    } as Response);
+
+    await expect(addressSearchExports.getAddressDetails!("google_places:abc123")).resolves.toEqual({
+      id: "google_places:abc123",
+      label: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
+      addressLine1: "Bahnhofstrasse 1",
+      postalCode: "8001",
+      city: "Zurich",
+      countryCode: "CH",
+      source: "google_places",
     });
   });
 });

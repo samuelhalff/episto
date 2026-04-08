@@ -92,6 +92,10 @@ services:
       CORS_ORIGIN: https://ark-fid.ddns.net,http://localhost:5000
       NODE_ENV: development
       PORT: "4000"
+      ADDRESS_SEARCH_PROVIDER: ${ADDRESS_SEARCH_PROVIDER:-none}
+      ADDRESS_SEARCH_TIMEOUT_MS: ${ADDRESS_SEARCH_TIMEOUT_MS:-8000}
+      GOOGLE_PLACES_API_BASE_URL: ${GOOGLE_PLACES_API_BASE_URL:-https://places.googleapis.com}
+      GOOGLE_PLACES_API_KEY: ${GOOGLE_PLACES_API_KEY:-}
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
     command: sh -c "npm run build -w shared 2>/dev/null; npm run dev -w backend"

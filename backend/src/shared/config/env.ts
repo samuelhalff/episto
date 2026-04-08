@@ -91,6 +91,13 @@ const EnvSchema = z
       .default("/ZefixPublicREST/api/v1/company/search"),
     ZEFIX_COMPANY_SEARCH_METHOD: z.enum(["GET", "POST"]).default("POST"),
     ZEFIX_PROXY_PORT: z.coerce.number().int().positive().default(8081),
+    ADDRESS_SEARCH_PROVIDER: z.enum(["none", "google_places"]).default("none"),
+    ADDRESS_SEARCH_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
+    GOOGLE_PLACES_API_BASE_URL: z
+      .string()
+      .url()
+      .default("https://places.googleapis.com"),
+    GOOGLE_PLACES_API_KEY: z.string().min(1).optional(),
     ADDRESS_VALIDATION_PROVIDER: z.enum(["none", "swiss_post"]).default("none"),
     SWISS_POST_ADDRESS_API_BASE_URL: z.string().url().optional(),
     SWISS_POST_ADDRESS_API_SCOPE: z.string().min(1).optional(),
@@ -180,6 +187,19 @@ const EnvSchema = z
     {
       message:
         "AZURE_EXISTING_AGENT_ID must match AZURE_AI_AGENT_NAME:AZURE_AI_AGENT_VERSION when both are set",
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.ADDRESS_SEARCH_PROVIDER === "google_places") {
+        return Boolean(data.GOOGLE_PLACES_API_KEY);
+      }
+
+      return true;
+    },
+    {
+      message:
+        "GOOGLE_PLACES_API_KEY is required when ADDRESS_SEARCH_PROVIDER=google_places",
     },
   )
   .refine(

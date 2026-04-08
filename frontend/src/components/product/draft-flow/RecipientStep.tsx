@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
 import { User, Building2, MapPin, Plus, Search, Loader2, PencilLine } from "lucide-react";
@@ -16,6 +16,8 @@ import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
 import { ApiError } from "../../../lib/api";
 import { captureError } from "../../../lib/error-tracking";
 import { DraftShell, Card, FieldIconBadge, PrimaryButton, SegmentedControl } from "./ui";
+import { AddressAutocompleteField } from "./AddressAutocompleteField";
+import { AddressFields } from "./AddressFields";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
 import { CompanySearchResults } from "./company-search-results";
 import {
@@ -295,6 +297,20 @@ export function RecipientStep({
   ].filter((value): value is string => Boolean(value));
   const canProceed = missingItems.length === 0;
 
+  function handleFocusChange(focused: boolean) {
+    setIsFormFocused(focused);
+    onInputFocusChange?.(focused);
+  }
+
+  const handleResolvedAddress = useCallback(
+    (nextAddress: { addressLine1: string; postalCode: string; city: string }) => {
+      setAddressLine1(nextAddress.addressLine1);
+      setPostalCode(nextAddress.postalCode);
+      setCity(nextAddress.city);
+    },
+    [],
+  );
+
   async function handleNext() {
     if (!canProceed || setRecipient.isPending) return;
 
@@ -450,14 +466,8 @@ export function RecipientStep({
                           autoComplete="organization"
                           value={companyName}
                           onChange={(e) => handleCompanySearchChange(e.target.value)}
-                          onFocus={() => {
-                            setIsFormFocused(true);
-                            onInputFocusChange?.(true);
-                          }}
-                          onBlur={() => {
-                            setIsFormFocused(false);
-                            onInputFocusChange?.(false);
-                          }}
+                          onFocus={() => handleFocusChange(true)}
+                          onBlur={() => handleFocusChange(false)}
                           onInput={(e) => {
                             const target = e.target as HTMLTextAreaElement;
                             target.style.height = "auto";
@@ -479,14 +489,8 @@ export function RecipientStep({
                         autoComplete="organization"
                         value={companyName}
                         onChange={(e) => handleCompanySearchChange(e.target.value)}
-                        onFocus={() => {
-                          setIsFormFocused(true);
-                          onInputFocusChange?.(true);
-                        }}
-                        onBlur={() => {
-                          setIsFormFocused(false);
-                          onInputFocusChange?.(false);
-                        }}
+                        onFocus={() => handleFocusChange(true)}
+                        onBlur={() => handleFocusChange(false)}
                         onInput={(e) => {
                           const target = e.target as HTMLTextAreaElement;
                           target.style.height = "auto";
@@ -502,14 +506,8 @@ export function RecipientStep({
                         autoComplete="name"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        onFocus={() => {
-                          setIsFormFocused(true);
-                          onInputFocusChange?.(true);
-                        }}
-                        onBlur={() => {
-                          setIsFormFocused(false);
-                          onInputFocusChange?.(false);
-                        }}
+                        onFocus={() => handleFocusChange(true)}
+                        onBlur={() => handleFocusChange(false)}
                         onInput={(e) => {
                           const target = e.target as HTMLTextAreaElement;
                           target.style.height = "auto";
@@ -539,78 +537,29 @@ export function RecipientStep({
                     <FieldIconBadge>
                       <MapPin className="h-6 w-6" />
                     </FieldIconBadge>
-                    <div className="flex-1 space-y-3">
+                    <div className="flex-1 space-y-4">
                       {companySelectionHint ? (
                         <p className="text-sm text-zinc-500 dark:text-zinc-300">
                           {companySelectionHint}
                         </p>
                       ) : null}
-                      <div className="space-y-1">
-                        <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                          {t("streetAddress")}
-                        </div>
-                        <input
-                          name="recipientAddressLine1"
-                          autoComplete="address-line1"
-                          value={addressLine1}
-                          onChange={(e) => setAddressLine1(e.target.value)}
-                          onFocus={() => {
-                            setIsFormFocused(true);
-                            onInputFocusChange?.(true);
-                          }}
-                          onBlur={() => {
-                            setIsFormFocused(false);
-                            onInputFocusChange?.(false);
-                          }}
-                          placeholder={t("streetPlaceholder")}
-                          className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
-                        />
-                      </div>
-                      <div className="flex gap-4">
-                        <div className="w-24 space-y-1">
-                          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                            {t("zipCode")}
-                          </div>
-                          <input
-                            name="recipientPostalCode"
-                            autoComplete="postal-code"
-                            inputMode="numeric"
-                            value={postalCode}
-                            onChange={(e) => setPostalCode(e.target.value)}
-                            onFocus={() => {
-                              setIsFormFocused(true);
-                              onInputFocusChange?.(true);
-                            }}
-                            onBlur={() => {
-                              setIsFormFocused(false);
-                              onInputFocusChange?.(false);
-                            }}
-                            placeholder={t("zipPlaceholder")}
-                            className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-700 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
-                          />
-                        </div>
-                        <div className="flex-1 space-y-1">
-                          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                            {t("cityLabel")}
-                          </div>
-                          <input
-                            name="recipientCity"
-                            autoComplete="address-level2"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            onFocus={() => {
-                              setIsFormFocused(true);
-                              onInputFocusChange?.(true);
-                            }}
-                            onBlur={() => {
-                              setIsFormFocused(false);
-                              onInputFocusChange?.(false);
-                            }}
-                            placeholder={t("cityPlaceholder")}
-                            className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 font-medium text-zinc-600 placeholder:text-zinc-200 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
-                          />
-                        </div>
-                      </div>
+                      <AddressAutocompleteField
+                        draftId={draftId}
+                        inputName="recipientAddressSearch"
+                        currentAddress={{ addressLine1, postalCode, city }}
+                        onResolvedAddress={handleResolvedAddress}
+                        onFocusChange={handleFocusChange}
+                      />
+                      <AddressFields
+                        namePrefix="recipient"
+                        addressLine1={addressLine1}
+                        postalCode={postalCode}
+                        city={city}
+                        onAddressLine1Change={setAddressLine1}
+                        onPostalCodeChange={setPostalCode}
+                        onCityChange={setCity}
+                        onFocusChange={handleFocusChange}
+                      />
                     </div>
                   </div>
                 )}
