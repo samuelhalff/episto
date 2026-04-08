@@ -1,13 +1,13 @@
 "use client";
 
-import { use, useEffect, useMemo } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { useDraft, useCheckout } from "../../../../../hooks/use-api";
+import { useDraft, useCheckout, useSession } from "../../../../../hooks/use-api";
 import { Link, useRouter } from "../../../../../i18n/navigation";
 import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
@@ -19,6 +19,7 @@ import { captureError } from "../../../../../lib/error-tracking";
 import { normalizeLetterSubject } from "../../../../../lib/letter-content";
 import { getApiErrorCode, getApiErrorUserMessage } from "../../../../../lib/api";
 import { getCustomerFlowBackPath } from "../../../../../lib/customer-flow";
+import { useTheme } from "../../../../../lib/theme";
 
 const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
 const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
@@ -36,6 +37,56 @@ function toStripeLocale(locale: string): "de" | "fr" | "it" | "en" {
 
 function hasConfiguredStripePublishableKey(value: string): boolean {
   return /^pk_(test|live)_/.test(value) && !/replace_me|placeholder/i.test(value);
+}
+
+function getStripeAppearance(theme: "light" | "dark") {
+  return {
+    theme: (theme === "dark" ? "night" : "flat") as "night" | "flat",
+    labels: "floating" as const,
+    variables: {
+      // Must match --action-primary-bg in globals.css. Stripe requires literal values here.
+      colorPrimary: "#f6c54a",
+      colorBackground: theme === "dark" ? "#161b22" : "#fcfaf6",
+      colorText: theme === "dark" ? "#e6edf3" : "#18181b",
+      colorTextSecondary: theme === "dark" ? "#9ea7b3" : "#71717a",
+      colorTextPlaceholder: theme === "dark" ? "#6e7681" : "#a1a1aa",
+      colorDanger: theme === "dark" ? "#f87171" : "#dc2626",
+      borderRadius: "16px",
+      fontSizeBase: "16px",
+      fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+      fontWeightMedium: "500",
+      fontWeightBold: "600",
+      spacingUnit: "4px",
+      gridRowSpacing: "16px",
+      tabSpacing: "8px",
+      focusBoxShadow:
+        theme === "dark"
+          ? "0 0 0 4px rgba(246, 197, 74, 0.18)"
+          : "0 0 0 4px rgba(246, 197, 74, 0.22)",
+      logoColor: theme === "dark" ? "light" : "dark",
+      tabLogoColor: theme === "dark" ? "light" : "dark",
+      tabLogoSelectedColor: theme === "dark" ? "light" : "dark",
+    },
+    rules: {
+      ".Block": {
+        backgroundColor: theme === "dark" ? "#11161d" : "#ffffff",
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(24, 24, 27, 0.08)"}`,
+        boxShadow: "none",
+      },
+      ".Input": {
+        backgroundColor: theme === "dark" ? "#11161d" : "#ffffff",
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(24, 24, 27, 0.08)"}`,
+        boxShadow: "none",
+      },
+      ".Tab": {
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.18)" : "rgba(24, 24, 27, 0.08)"}`,
+        boxShadow: "none",
+      },
+      ".Tab:hover": {
+        color: theme === "dark" ? "#e6edf3" : "#18181b",
+      },
+    },
+  };
 }
 
 function createCheckoutSchema(consentMessage: string) {
@@ -58,8 +109,11 @@ export default function CheckoutPage({
   const t = useTranslations("checkout");
   const tc = useTranslations("common");
   const router = useRouter();
+  const { theme } = useTheme();
+  const session = useSession();
   const hasConfiguredStripeFrontend =
     hasConfiguredStripePublishableKey(stripePublishableKey);
+  const [submittedCheckoutEmail, setSubmittedCheckoutEmail] = useState<string | null>(null);
 
   const draft = useDraft(draftId);
   const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
@@ -77,7 +131,9 @@ export default function CheckoutPage({
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
-  const backToReviewHref = getCustomerFlowBackPath(draftId, "checkout") ?? `/draft/${draftId}/review`;
+  const backToReviewHref =
+    getCustomerFlowBackPath(draftId, "checkout") ?? `/draft/${draftId}/review`;
+  const billingEmail = submittedCheckoutEmail ?? session.session?.email ?? "";
 
   const isSubmitting = checkout.isProcessing;
 
@@ -87,19 +143,10 @@ export default function CheckoutPage({
         ? {
             clientSecret: checkout.clientSecret,
             locale: toStripeLocale(locale),
-            appearance: {
-              theme: "stripe" as const,
-              variables: {
-                // Must match --action-primary-bg in globals.css. Stripe requires a literal hex.
-                colorPrimary: "#f6c54a",
-                borderRadius: "12px",
-                fontSizeBase: "16px",
-                fontFamily: "inherit",
-              },
-            },
+            appearance: getStripeAppearance(theme),
           }
         : null,
-    [checkout.clientSecret, locale],
+    [checkout.clientSecret, locale, theme],
   );
 
   useEffect(() => {
@@ -148,6 +195,7 @@ export default function CheckoutPage({
 
   function onSubmit(values: CheckoutFormValues) {
     if (isSubmitting) return;
+    setSubmittedCheckoutEmail(values.email);
     void checkout
       .createPaymentIntent(values.email)
       .then((result) => {
@@ -184,13 +232,11 @@ export default function CheckoutPage({
 
         <div className="space-y-6">
           <div className="w-full max-w-none">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-              {t("orderSummary")}
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
+            <p className="section-label">{t("orderSummary")}</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[var(--app-fg)] md:text-4xl">
               {t("title")}
             </h1>
-            <p className="mt-3 text-sm leading-6 text-zinc-500 dark:text-zinc-400 md:text-base">
+            <p className="mt-3 text-sm leading-6 text-[var(--app-muted)] md:text-base">
               {t("checkoutIntro")}
             </p>
           </div>
@@ -200,13 +246,11 @@ export default function CheckoutPage({
               <div className="app-panel rounded-3xl p-6">
                 <label
                   htmlFor="email"
-                  className="block text-sm font-semibold text-zinc-900 dark:text-zinc-50"
+                  className="block text-sm font-semibold text-[var(--app-fg)]"
                 >
                   {t("email")}
                 </label>
-                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                  {t("emailHelp")}
-                </p>
+                <p className="mt-1 text-xs text-[var(--app-muted)]">{t("emailHelp")}</p>
                 <input
                   id="email"
                   type="email"
@@ -217,10 +261,10 @@ export default function CheckoutPage({
                   aria-describedby={errors.email ? "email-error" : undefined}
                   aria-invalid={errors.email ? "true" : undefined}
                   className={[
-                    "app-form-control mt-3 w-full rounded-xl border px-4 py-3 placeholder:text-zinc-400 focus:outline-none focus:ring-2 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500",
+                    "app-form-control mt-3 w-full rounded-xl border bg-[var(--app-surface-strong)] px-4 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-muted)] transition-[border-color,box-shadow,background-color,color] focus:outline-none focus:ring-2",
                     errors.email
-                      ? "border-destructive focus:border-destructive focus:ring-destructive"
-                      : "border-zinc-200 focus:border-zinc-400 focus:ring-zinc-200 dark:border-zinc-700 dark:focus:border-zinc-500 dark:focus:ring-zinc-700",
+                      ? "border-destructive focus:border-destructive focus:ring-destructive/20"
+                      : "border-[var(--app-border)] focus:border-[var(--app-border-strong)] focus:ring-amber-200/60 dark:focus:ring-amber-300/20",
                   ].join(" ")}
                 />
                 {errors.email && (
@@ -236,7 +280,7 @@ export default function CheckoutPage({
 
               <div
                 className={[
-                  "app-panel rounded-3xl p-5",
+                  "app-list-item-muted rounded-2xl p-4 sm:p-5",
                   errors.legalConsent ? "ring-1 ring-destructive" : "",
                 ].join(" ")}
               >
@@ -246,9 +290,9 @@ export default function CheckoutPage({
                     {...register("legalConsent")}
                     aria-describedby={errors.legalConsent ? "consent-error" : undefined}
                     aria-invalid={errors.legalConsent ? "true" : undefined}
-                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 text-zinc-950 focus:ring-zinc-400 dark:border-zinc-700 dark:bg-zinc-950 dark:text-amber-400 dark:focus:ring-zinc-600"
+                    className="mt-0.5 h-4 w-4 shrink-0 rounded border-[var(--app-border-strong)] bg-[var(--app-surface-strong)] text-primary focus:ring-amber-200/60 dark:focus:ring-amber-300/20"
                   />
-                  <span className="text-zinc-600 dark:text-zinc-300">
+                  <span className="text-[var(--app-muted-strong)]">
                     {t.rich("legalConsent", {
                       terms: (chunks) => (
                         <Link
@@ -274,7 +318,7 @@ export default function CheckoutPage({
               </div>
 
               {pricingPendingMessage ? (
-                <p role="status" className="text-sm text-zinc-500 dark:text-zinc-400">
+                <p role="status" className="text-sm text-[var(--app-muted)]">
                   {pricingPendingMessage}
                 </p>
               ) : null}
@@ -311,7 +355,9 @@ export default function CheckoutPage({
                     }
                     loading={isSubmitting || isPricingPending}
                     trailingIcon={
-                      isPricingPending ? undefined : <ArrowRight className="h-4 w-4 shrink-0" />
+                      isPricingPending ? undefined : (
+                        <ArrowRight className="h-4 w-4 shrink-0" />
+                      )
                     }
                     contentClassName="w-full"
                   >
@@ -323,14 +369,12 @@ export default function CheckoutPage({
           )}
 
           {!checkout.clientSecret && showCheckoutBlockedState && (
-            <div className="app-panel rounded-3xl p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                {t("livePricingTitle")}
-              </p>
-              <h2 className="mt-3 text-xl font-semibold text-zinc-950 dark:text-zinc-50">
+            <div className="app-panel-muted rounded-[2rem] p-4 sm:p-5">
+              <p className="section-label">{t("livePricingTitle")}</p>
+              <h2 className="mt-3 text-xl font-semibold text-[var(--app-fg)]">
                 {checkoutBlockedTitle}
               </h2>
-              <p className="mt-3 text-sm leading-6 text-zinc-500 dark:text-zinc-400">
+              <p className="mt-3 text-sm leading-6 text-[var(--app-muted)]">
                 {checkoutErrorCode === "DISPATCH_ADAPTER_NOT_CONFIGURED" ||
                 checkoutErrorCode === "EPOST_API_KEY_MISSING"
                   ? t("pricingBlockedEnvironmentBody")
@@ -352,32 +396,25 @@ export default function CheckoutPage({
           )}
 
           {stripeOptions && stripePromise && (
-            <div className="app-panel rounded-3xl p-6">
-              <h2 className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                {t("enterPaymentDetails")}
-              </h2>
-              <p className="mb-5 text-sm text-zinc-500 dark:text-zinc-400">
-                {t("paymentHelp")}
-              </p>
-              <Elements stripe={stripePromise} options={stripeOptions}>
-                <StripePaymentForm
-                  priceCents={checkout.pricing?.totalCents ?? 0}
-                  returnUrl={returnUrl}
-                  buttonLabel={t("sendMyLetter")}
-                  secondaryAction={
-                    <ActionLink
-                      href={`/draft/${draftId}/review`}
-                      variant="secondary"
-                      fullWidth
-                      className="sm:flex-1"
-                      leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
-                    >
-                      {t("backToReview")}
-                    </ActionLink>
-                  }
-                />
-              </Elements>
-            </div>
+            <Elements stripe={stripePromise} options={stripeOptions}>
+              <StripePaymentForm
+                priceCents={checkout.pricing?.totalCents ?? 0}
+                billingEmail={billingEmail}
+                returnUrl={returnUrl}
+                buttonLabel={t("sendMyLetter")}
+                secondaryAction={
+                  <ActionLink
+                    href={`/draft/${draftId}/review`}
+                    variant="secondary"
+                    fullWidth
+                    className="sm:w-auto sm:min-w-[10rem]"
+                    leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
+                  >
+                    {t("backToReview")}
+                  </ActionLink>
+                }
+              />
+            </Elements>
           )}
 
           {checkout.clientSecret && !stripePromise && (
@@ -387,17 +424,17 @@ export default function CheckoutPage({
           )}
 
           {!showCheckoutBlockedState ? (
-            <div className="flex flex-wrap items-center gap-6 pt-2 text-xs text-zinc-500">
-              <span className="flex items-center gap-1.5">
-                <Lock className="h-3.5 w-3.5" />
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <span className="app-list-item-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs text-[var(--app-muted)]">
+                <Lock className="h-3.5 w-3.5 text-[var(--app-muted-strong)]" />
                 {t("securedByStripe")}
               </span>
-              <span className="flex items-center gap-1.5">
-                <Truck className="h-3.5 w-3.5" />
+              <span className="app-list-item-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs text-[var(--app-muted)]">
+                <Truck className="h-3.5 w-3.5 text-[var(--app-muted-strong)]" />
                 {t("swissDelivery")}
               </span>
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5" />
+              <span className="app-list-item-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs text-[var(--app-muted)]">
+                <ShieldCheck className="h-3.5 w-3.5 text-[var(--app-muted-strong)]" />
                 {t("dataProtection")}
               </span>
             </div>

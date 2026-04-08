@@ -154,4 +154,32 @@ describe("checkout-payment-contract StripePaymentForm", () => {
       '{isSubmitting ? t("paymentConfirming") : buttonLabel}',
     );
   });
+
+  it("passes the checkout billing email to confirmPayment when Stripe does not collect it in the element", () => {
+    expect(stripePaymentFormSource).toContain('email: "never"');
+    expect(stripePaymentFormSource).toContain("payment_method_data");
+    expect(stripePaymentFormSource).toContain("billing_details");
+    expect(stripePaymentFormSource).toContain("email: billingEmail");
+  });
+
+  it("shows Swiss Mail as the business name in the PaymentElement and keeps tabs expanded", () => {
+    expect(stripePaymentFormSource).toContain('business: { name: "Swiss Mail" }');
+    expect(stripePaymentFormSource).toContain('layout: { type: "tabs", defaultCollapsed: false }');
+  });
+
+  it("gives the Stripe-stage back action the same desktop minimum width as the first checkout stage", () => {
+    const stripeBackActionBlock = checkoutPageSource.slice(
+      checkoutPageSource.indexOf('href={`/draft/${draftId}/review`}'),
+      checkoutPageSource.indexOf("</ActionLink>", checkoutPageSource.indexOf('href={`/draft/${draftId}/review`}')),
+    );
+    expect(stripeBackActionBlock).toContain('href={`/draft/${draftId}/review`}');
+    expect(stripeBackActionBlock).not.toContain('className="sm:flex-1"');
+    expect(stripeBackActionBlock).toContain('className="sm:w-auto sm:min-w-[10rem]"');
+  });
+
+  it("hydrates the Stripe payment step with the submitted or session email", () => {
+    expect(checkoutPageSource).toContain("useSession");
+    expect(checkoutPageSource).toContain('submittedCheckoutEmail ?? session.session?.email ?? ""');
+    expect(checkoutPageSource).toContain("billingEmail={billingEmail}");
+  });
 });

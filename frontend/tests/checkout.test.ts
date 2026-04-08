@@ -147,7 +147,9 @@ describe("checkout footer actions", () => {
   it("presents Twint as the first payment method in the PaymentElement", () => {
     const match = stripePaymentFormSource.match(/paymentMethodOrder:\s*\[([^\]]+)\]/);
     expect(match).not.toBeNull();
-    const methods = match![1].split(",").map((s: string) => s.trim().replace(/['"]/g, ""));
+    const methods = match![1]
+      .split(",")
+      .map((s: string) => s.trim().replace(/['"]/g, ""));
     expect(methods[0]).toBe("twint");
   });
 
@@ -161,6 +163,32 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).toContain('colorPrimary: "#f6c54a"');
     expect(checkoutPageSource).toContain("Must match --action-primary-bg in globals.css");
     expect(checkoutPageSource).not.toContain('colorPrimary: "#18181b"');
+  });
+
+  it("uses the flat Stripe theme in light mode and night in dark mode", () => {
+    expect(checkoutPageSource).toContain("useTheme");
+    expect(checkoutPageSource).toContain('theme === "dark" ? "night" : "flat"');
+    expect(checkoutPageSource).toContain("colorBackground");
+    expect(checkoutPageSource).toContain("colorText");
+  });
+
+  it("gives Stripe an explicit sans font stack and floating labels instead of inheriting a serif fallback", () => {
+    expect(checkoutPageSource).toContain('fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, \\"Segoe UI\\", sans-serif"');
+    expect(checkoutPageSource).toContain('labels: "floating"');
+    expect(checkoutPageSource).not.toContain('fontFamily: "inherit"');
+  });
+
+  it("reuses the shared section label and muted surfaces on the payment step", () => {
+    expect(checkoutPageSource).toContain("section-label");
+    expect(stripePaymentFormSource).toContain("app-panel-muted");
+    expect(stripePaymentFormSource).toContain("app-list-item-muted");
+  });
+
+  it("surfaces secure checkout context and the confirmed billing email inside the Stripe payment stage", () => {
+    expect(stripePaymentFormSource).toContain('t("secureCheckout")');
+    expect(stripePaymentFormSource).toContain('t("email")');
+    expect(stripePaymentFormSource).toContain("{billingEmail}");
+    expect(stripePaymentFormSource).toContain("lg:grid-cols-[minmax(0,1fr)_18rem]");
   });
 
   it("uses shared status and delivery badges in the order summary", () => {
