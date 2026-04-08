@@ -12,6 +12,11 @@ function isPlaceholderStripeValue(value: string): boolean {
   return /replace_me|placeholder/i.test(value);
 }
 
+/** Returns true when the key belongs to Stripe's live (non-test) environment. */
+export function isLiveStripeKey(key: string): boolean {
+  return key.startsWith("sk_live_") || key.startsWith("rk_live_");
+}
+
 function createStripeNotConfiguredError(message: string, cause?: unknown): AppError {
   return new AppError({
     family: "provider_outage",
@@ -33,6 +38,26 @@ function assertStripeSecretConfigured(): void {
   }
 }
 
+/**
+ * SAFETY GATE: Prevent live Stripe keys from being used outside production.
+ * This is a hard requirement — accidental live charges in dev/test are a critical incident.
+ */
+export function assertStripeEnvironmentSafety(): void {
+  const secretKey = env().STRIPE_SECRET_KEY;
+  const nodeEnv = env().NODE_ENV;
+
+  if (isLiveStripeKey(secretKey) && nodeEnv !== "production") {
+    throw new AppError({
+      family: "policy_refusal",
+      statusCode: 503,
+      code: "STRIPE_LIVE_KEY_IN_NON_PRODUCTION",
+      message: `Live Stripe key detected in NODE_ENV=${nodeEnv}. This is a critical safety violation.`,
+      userMessage: "Payment is unavailable in this environment.",
+      userAction: "Use a test Stripe key (sk_test_*) outside of production.",
+    });
+  }
+}
+
 function assertStripeWebhookConfigured(): void {
   const webhookSecret = env().STRIPE_WEBHOOK_SECRET;
   if (isPlaceholderStripeValue(webhookSecret)) {
@@ -45,6 +70,7 @@ function assertStripeWebhookConfigured(): void {
 function getStripe(): Stripe {
   if (_stripe) return _stripe;
   assertStripeSecretConfigured();
+  assertStripeEnvironmentSafety();
   _stripe = new Stripe(env().STRIPE_SECRET_KEY, {
     apiVersion: "2024-06-20",
     typescript: true,

@@ -170,6 +170,11 @@ export async function transitionDispatchState(
 
   if (!existing) throw notFoundError("dispatch attempt");
 
+  // Idempotency: if already in the target state, return as-is (retries, reconciliation)
+  if (existing.state === newState) {
+    return toDispatchRow(existing);
+  }
+
   try {
     assertTransitionDispatch(
       existing.state as DispatchStateValue,

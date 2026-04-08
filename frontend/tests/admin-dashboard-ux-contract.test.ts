@@ -87,7 +87,7 @@ describe("admin dashboard ux contract", () => {
     expect(adminTopBarSource).toContain('getAdminPagePath(pathname, "account")');
     expect(adminTopBarSource).toContain('getAdminPagePath(pathname, "search")');
     expect(adminShellSource).toContain('import { AdminTopBar } from "./admin-top-bar"');
-    expect(adminShellSource).toContain("<AdminTopBar />");
+    expect(adminShellSource).toContain("<AdminTopBar");
   });
 
   it("rebuilds the overview page around operator queues and quick actions", () => {

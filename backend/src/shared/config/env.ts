@@ -217,6 +217,22 @@ export const EnvSchema = z
   )
   .refine(
     (data) => {
+      // Prevent live Stripe keys outside production — accidental live charges are a critical incident
+      if (data.NODE_ENV !== "production") {
+        return !(
+          data.STRIPE_SECRET_KEY.startsWith("sk_live_") ||
+          data.STRIPE_SECRET_KEY.startsWith("rk_live_")
+        );
+      }
+      return true;
+    },
+    {
+      message:
+        "Live Stripe keys (sk_live_*, rk_live_*) are forbidden outside NODE_ENV=production",
+    },
+  )
+  .refine(
+    (data) => {
       if (data.NODE_ENV === "production") {
         return data.CORS_ORIGIN.split(",").every((o) => o.trim().startsWith("https://"));
       }

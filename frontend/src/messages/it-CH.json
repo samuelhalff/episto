@@ -990,6 +990,10 @@
       "title": "Stato sistema",
       "description": "Controlli lo stato dei servizi, la pressione sulle code e l'attività recente di pagamenti o invii."
     },
+    "retention": {
+      "title": "Conservazione",
+      "description": "Stato della conservazione dei dati, scadenze in sospeso e attività di pulizia."
+    },
     "funnel": {
       "title": "Analisi funnel",
       "description": "Capisca abbandoni e concentrazione degli errori prima di cambiare il flusso del prodotto."

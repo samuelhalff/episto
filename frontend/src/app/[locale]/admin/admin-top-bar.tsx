@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search } from "lucide-react";
+import { Menu, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "./admin-auth-context";
@@ -81,13 +81,24 @@ function getRouteMeta(pathname: string, t: ReturnType<typeof useTranslations>) {
     };
   }
 
+  if (pathname.includes("/admin/retention")) {
+    return {
+      title: t("retention.title"),
+      description: t("retention.description"),
+    };
+  }
+
   return {
     title: t("shell.defaultTitle"),
     description: t("shell.defaultDescription"),
   };
 }
 
-export function AdminTopBar() {
+interface AdminTopBarProps {
+  onMenuToggle: () => void;
+}
+
+export function AdminTopBar({ onMenuToggle }: AdminTopBarProps) {
   const t = useTranslations("admin");
   const pathname = usePathname();
   const { admin } = useAdminAuth();
@@ -107,27 +118,46 @@ export function AdminTopBar() {
         background: "color-mix(in srgb, var(--app-bg) 92%, transparent)",
       }}
     >
-      <div className="flex flex-col gap-4 px-4 py-4 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-        <div className="min-w-0">
+      <div className="flex items-center gap-3 px-4 py-3 sm:px-6 lg:gap-4 lg:py-4">
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          onClick={onMenuToggle}
+          className="rounded-md p-2 lg:hidden"
+          style={{ color: "var(--app-muted)" }}
+          aria-label="Toggle menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Title area */}
+        <div className="min-w-0 flex-1">
           <p
-            className="text-[11px] font-semibold uppercase tracking-[0.2em]"
+            className="hidden text-[11px] font-semibold uppercase tracking-[0.2em] sm:block"
             style={{ color: "var(--app-muted)" }}
           >
             {t("shell.role")}
           </p>
-          <h1 className="mt-1 text-xl font-semibold" style={{ color: "var(--app-fg)" }}>
+          <h1
+            className="truncate text-lg font-semibold sm:mt-1 sm:text-xl"
+            style={{ color: "var(--app-fg)" }}
+          >
             {routeMeta.title}
           </h1>
-          <p className="mt-1 max-w-3xl text-sm" style={{ color: "var(--app-muted)" }}>
+          <p
+            className="mt-0.5 hidden max-w-3xl text-sm sm:block"
+            style={{ color: "var(--app-muted)" }}
+          >
             {routeMeta.description}
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        {/* Actions */}
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <Link
             href={searchHref}
             aria-label={t("shell.search")}
-            className="inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition hover:opacity-90"
+            className="inline-flex items-center justify-center gap-2 rounded-full border p-2.5 text-sm font-medium transition hover:opacity-90 sm:px-4 sm:py-2"
             style={{
               borderColor: "var(--app-border)",
               background: "var(--app-surface-strong)",
@@ -135,20 +165,20 @@ export function AdminTopBar() {
             }}
           >
             <Search className="h-4 w-4" />
-            {t("shell.search")}
+            <span className="hidden sm:inline">{t("shell.search")}</span>
           </Link>
 
           <Link
             href={accountHref}
             aria-label={t("shell.account")}
-            className="flex min-w-0 items-center gap-3 rounded-full border px-2 py-2 pr-4 transition hover:opacity-90"
+            className="flex min-w-0 items-center gap-2 rounded-full border p-1 pr-1 transition hover:opacity-90 sm:gap-3 sm:pr-4"
             style={{
               borderColor: "var(--app-border)",
               background: "var(--app-surface-strong)",
             }}
           >
             <span
-              className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold"
+              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold sm:h-10 sm:w-10 sm:text-sm"
               style={{
                 background: "var(--app-fg)",
                 color: "var(--app-bg)",
@@ -156,7 +186,7 @@ export function AdminTopBar() {
             >
               {initials}
             </span>
-            <span className="min-w-0">
+            <span className="hidden min-w-0 sm:block">
               <span className="block truncate text-sm font-medium" style={{ color: "var(--app-fg)" }}>
                 {displayName}
               </span>
