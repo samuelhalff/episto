@@ -134,7 +134,6 @@ describe("address autocomplete", () => {
         label: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
         primaryText: "Bahnhofstrasse 1",
         secondaryText: "8001 Zurich, Switzerland",
-        source: "google_places",
       },
     ]);
 
@@ -193,8 +192,6 @@ describe("address autocomplete", () => {
       addressLine1: "Bahnhofstrasse 1",
       postalCode: "8001",
       city: "Zurich",
-      countryCode: "CH",
-      source: "google_places",
     });
   });
 
@@ -248,6 +245,44 @@ describe("address autocomplete", () => {
 
     await expect(addressSearchExports.getAddressDetails!("google_places:abc123")).rejects.toMatchObject({
       code: "VALIDATION_ERROR",
+    });
+  });
+
+  it("treats missing country data as a provider outage", async () => {
+    expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
+
+    vi.spyOn(globalThis, "fetch").mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        id: "abc123",
+        formattedAddress: "Bahnhofstrasse 1, 8001 Zurich, Switzerland",
+        addressComponents: [
+          {
+            longText: "1",
+            shortText: "1",
+            types: ["street_number"],
+          },
+          {
+            longText: "Bahnhofstrasse",
+            shortText: "Bahnhofstr.",
+            types: ["route"],
+          },
+          {
+            longText: "8001",
+            shortText: "8001",
+            types: ["postal_code"],
+          },
+          {
+            longText: "Zurich",
+            shortText: "Zurich",
+            types: ["locality", "political"],
+          },
+        ],
+      }),
+    } as Response);
+
+    await expect(addressSearchExports.getAddressDetails!("google_places:abc123")).rejects.toMatchObject({
+      code: "PROVIDER_OUTAGE",
     });
   });
 });

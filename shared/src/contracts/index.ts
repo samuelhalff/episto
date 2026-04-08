@@ -113,7 +113,6 @@ export const AddressSearchResult = z.object({
   label: z.string().min(1),
   primaryText: z.string().min(1),
   secondaryText: z.string().nullable(),
-  source: z.literal("google_places"),
 });
 
 export const AddressSearchResponse = z.object({
@@ -126,8 +125,6 @@ export const AddressDetails = z.object({
   addressLine1: z.string().nullable(),
   postalCode: z.string().nullable(),
   city: z.string().nullable(),
-  countryCode: z.string().length(2).nullable(),
-  source: z.literal("google_places"),
 });
 
 export const AddressDetailsResponse = z.object({
@@ -405,6 +402,141 @@ export interface AdminSessionListResponse {
   total: number;
   page: number;
   pageSize: number;
+}
+
+export interface AdminSearchResultItem {
+  kind: "draft" | "session" | "payment_attempt" | "dispatch_attempt";
+  id: string;
+  label: string;
+  matchedOn: string;
+  createdAt: string;
+  draftId: string | null;
+  sessionId: string | null;
+}
+
+export interface AdminSearchResponse {
+  data: AdminSearchResultItem[];
+  hasMore: boolean;
+}
+
+export interface AdminSupportEventRecord {
+  id: string;
+  eventType: string;
+  actor: string;
+  details: unknown;
+  createdAt: string;
+}
+
+export interface AdminSessionDetailDraft {
+  id: string;
+  status: string;
+  createdAt: string;
+  paymentState: string | null;
+  dispatchState: string | null;
+}
+
+export interface AdminSessionDetailResponse {
+  session: {
+    id: string;
+    type: string;
+    locale: string;
+    email: string | null;
+    ipAddress: string | null;
+    createdAt: string;
+    expiresAt: string;
+  };
+  drafts: AdminSessionDetailDraft[];
+  supportEvents: AdminSupportEventRecord[];
+}
+
+export interface AdminTimelineEvent {
+  id: string;
+  eventType: string;
+  from: string | null;
+  to: string | null;
+  actor: "system" | "user" | "admin" | "webhook" | "provider";
+  meta: Record<string, unknown> | null;
+  occurredAt: string;
+}
+
+export interface AdminDraftTimelineResponse {
+  draftId: string;
+  events: AdminTimelineEvent[];
+}
+
+export interface AdminDraftCaseResponse {
+  draft: {
+    id: string;
+    sessionId: string;
+    status: string;
+    locale: string;
+    deliveryType: string;
+    createdAt: string;
+    updatedAt: string;
+    contentRetained: boolean;
+    actions: {
+      canRefund: boolean;
+      canViewContent: boolean;
+      canReconcile: boolean;
+    };
+  };
+  session: {
+    id: string;
+    email: string | null;
+    locale: string;
+    createdAt: string;
+    expiresAt: string;
+  };
+  payment: {
+    id: string;
+    state: string;
+    amountCents: number;
+    currency: string;
+    updatedAt: string;
+    stripePaymentIntentId: string | null;
+  } | null;
+  dispatch: {
+    id: string;
+    state: string;
+    providerName: string;
+    providerReference: string | null;
+    trackingNumber: string | null;
+    submittedAt: string | null;
+    lastCheckedAt: string | null;
+    failureReason: string | null;
+  } | null;
+}
+
+export type AdminEscalationLevel =
+  | "observe"
+  | "review"
+  | "manual_review"
+  | "incident";
+
+export interface AdminSuspiciousCase {
+  sessionId: string;
+  draftId: string | null;
+  email: string | null;
+  locale: string;
+  latestDraftStatus: string | null;
+  categories: string[];
+  firstSeenAt: string;
+  lastSeenAt: string;
+  escalationLevel: AdminEscalationLevel;
+  escalationNote: string | null;
+  escalationUpdatedAt: string | null;
+  signals: {
+    failedPayments: number;
+    refunds: number;
+    rejectedDispatches: number;
+    ambiguousDispatches: number;
+  };
+}
+
+export interface AdminSuspiciousQueueResponse {
+  cases: AdminSuspiciousCase[];
+  total: number;
+  generatedAt: string;
 }
 
 export interface AdminRetentionInfo {

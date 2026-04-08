@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AddressDetails,
+  AddressSearchResult,
   DraftDispatchQuoteResponseSchema,
   DraftFilesResponseSchema,
   PublicPricingResponseSchema,
@@ -191,5 +193,11 @@ describe("shared contract schemas", () => {
 
     expect(result.meta.source).toBe("matrix");
     expect(result.quote.totalCents).toBe(965);
+  });
+
+  it("keeps address autocomplete contracts provider-opaque", () => {
+    expect("source" in AddressSearchResult.shape).toBe(false);
+    expect("source" in AddressDetails.shape).toBe(false);
+    expect("countryCode" in AddressDetails.shape).toBe(false);
   });
 });

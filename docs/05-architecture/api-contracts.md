@@ -678,7 +678,6 @@ const AddressSearchResponse = z.object({
       label: z.string(),
       primaryText: z.string(),
       secondaryText: z.string().nullable(),
-      source: z.literal("google_places"),
     }),
   ),
 });
@@ -688,6 +687,7 @@ const AddressSearchResponse = z.object({
 - used for sender and recipient address assist, not company identity lookup
 - current provider is Google Places behind a backend adapter
 - restricted to Swiss, address-like Google place predictions only
+- result identifiers are opaque lookup tokens; the frontend must only pass them back to `/address-details`
 - selecting a result is a shortcut to prefill structured fields; users can still edit street, PLZ, and city manually
 - this is not postal-grade validation and must not be treated as dispatch acceptance
 
@@ -722,8 +722,6 @@ const AddressDetailsResponse = z.object({
     addressLine1: z.string().nullable(),
     postalCode: z.string().nullable(),
     city: z.string().nullable(),
-    countryCode: z.string().length(2).nullable(),
-    source: z.literal("google_places"),
   }),
 });
 ```
@@ -733,7 +731,7 @@ const AddressDetailsResponse = z.object({
 - invalid or stale address identifiers are rejected as client errors before or during provider lookup
 - non-Swiss address details are rejected even if someone calls the endpoint directly with an arbitrary provider ID
 - fields may still require user correction; this endpoint improves prefill, it does not replace review
-- adapter-backed so the provider can change without changing the frontend contract
+- wire response stays provider-opaque so the backend can swap providers without changing the frontend contract
 
 **Error responses:**
 
@@ -741,7 +739,7 @@ const AddressDetailsResponse = z.object({
 |------|------|------|
 | `VALIDATION_ERROR` | 400 | Missing or invalid address identifier |
 | `NOT_FOUND` | 404 | Draft not found or not owned by the session |
-| `PROVIDER_OUTAGE` | 503 | Address details provider is temporarily unavailable |
+| `PROVIDER_OUTAGE` | 503 | Address details provider is temporarily unavailable or returns unusable detail data |
 
 **Rate limit:** 60 req/session/min
 

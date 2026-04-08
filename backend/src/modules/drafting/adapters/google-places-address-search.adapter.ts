@@ -110,7 +110,6 @@ export class GooglePlacesAddressSearchAdapter implements AddressSearchAdapter {
         label: prediction.text.text,
         primaryText: prediction.structuredFormat?.mainText.text ?? prediction.text.text,
         secondaryText: prediction.structuredFormat?.secondaryText?.text ?? null,
-        source: "google_places",
       }));
   }
 
@@ -181,6 +180,10 @@ function normalizeGooglePlaceDetails(
   const countryCode = getAddressComponent(details.addressComponents, "country")?.shortText ?? null;
   const addressLine1 = [route, streetNumber].filter(Boolean).join(" ").trim() || null;
 
+  if (countryCode === null) {
+    throw providerOutageError("Address details");
+  }
+
   if (countryCode !== "CH") {
     throw validationError("Select a Swiss address suggestion before loading its details.", [
       {
@@ -196,8 +199,6 @@ function normalizeGooglePlaceDetails(
     addressLine1,
     postalCode,
     city: locality,
-    countryCode,
-    source: "google_places",
   };
 }
 
