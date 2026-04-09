@@ -171,7 +171,7 @@ export function AdminTopBar({ onMenuToggle }: AdminTopBarProps) {
           <Link
             href={accountHref}
             aria-label={t("shell.account")}
-            className="flex min-w-0 items-center gap-2 rounded-full border p-1 pr-1 transition hover:opacity-90 sm:gap-3 sm:pr-4"
+            className="flex min-w-0 items-center gap-2 rounded-full border p-1 pr-3 transition hover:opacity-90 sm:gap-3 sm:pr-4"
             style={{
               borderColor: "var(--app-border)",
               background: "var(--app-surface-strong)",

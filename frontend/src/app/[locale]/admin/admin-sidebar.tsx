@@ -59,7 +59,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
           className="text-sm font-semibold tracking-wide"
           style={{ color: "var(--app-fg)" }}
         >
-          SWISS MAIL
+          ◆ SWISS MAIL ADMIN
         </span>
         {/* Close button visible only on mobile */}
         <button
