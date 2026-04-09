@@ -1,4 +1,5 @@
 import type { SnapshotData } from "@swiss-mail/shared";
+import { BRAND_NAME, BRAND_COLOR, renderBrandMarkSvg } from "../../shared/brand.js";
 
 type ConfirmationLocale = SnapshotData["locale"];
 type ConfirmationAddress = SnapshotData["sender"] | SnapshotData["recipient"];
@@ -45,7 +46,7 @@ interface ConfirmationCopy {
 
 const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
   "en-CH": {
-    eyebrow: "Sendly",
+    eyebrow: BRAND_NAME,
     title: "Dispatch statement",
     issuedOn: "Issued on",
     orderRef: "Order reference",
@@ -76,7 +77,7 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
     noteBundle: "The exact letter PDF follows on the next page.",
   },
   "de-CH": {
-    eyebrow: "Sendly",
+    eyebrow: BRAND_NAME,
     title: "Versandnachweis",
     issuedOn: "Ausgestellt am",
     orderRef: "Bestellreferenz",
@@ -107,7 +108,7 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
     noteBundle: "Das exakte Brief-PDF beginnt auf der naechsten Seite.",
   },
   "fr-CH": {
-    eyebrow: "Sendly",
+    eyebrow: BRAND_NAME,
     title: "Justificatif d'envoi",
     issuedOn: "Etabli le",
     orderRef: "Reference de commande",
@@ -138,7 +139,7 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
     noteBundle: "Le PDF exact de la lettre commence a la page suivante.",
   },
   "it-CH": {
-    eyebrow: "Sendly",
+    eyebrow: BRAND_NAME,
     title: "Attestazione di spedizione",
     issuedOn: "Emesso il",
     orderRef: "Riferimento ordine",
@@ -233,11 +234,7 @@ function resolveControlNote(
 }
 
 function renderBrandMark(): string {
-  return `<svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" role="img">
-    <rect x="4" y="4" width="48" height="48" rx="18" fill="#f6c54a" />
-    <circle cx="26" cy="30" r="10.5" fill="none" stroke="#18181b" stroke-width="4" />
-    <circle cx="36.5" cy="19.5" r="4.5" fill="#18181b" />
-  </svg>`;
+  return renderBrandMarkSvg(56);
 }
 
 export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput): string {
@@ -309,7 +306,7 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       --pdf-text: #18181b;
       --pdf-muted: #71717a;
       --pdf-muted-strong: #3f3f46;
-      --pdf-accent: #f6c54a;
+      --pdf-accent: ${BRAND_COLOR};
       --pdf-shadow: none;
     }
     * { box-sizing: border-box; }

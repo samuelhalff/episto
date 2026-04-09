@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { routing } from "../i18n/routing";
+import { BRAND_NAME, SITE_URL } from "./brand";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -15,8 +16,6 @@ type FaqItem = {
   answer: string;
 };
 
-const DEFAULT_SITE_URL = "https://swissmail.ch";
-
 export const NO_INDEX_METADATA: Metadata = {
   robots: {
     index: false,
@@ -25,7 +24,7 @@ export const NO_INDEX_METADATA: Metadata = {
 };
 
 export function getSiteUrl() {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? DEFAULT_SITE_URL).replace(/\/+$/, "");
+  return (process.env.NEXT_PUBLIC_SITE_URL ?? SITE_URL).replace(/\/+$/, "");
 }
 
 function normalizePathname(pathname: string) {
@@ -70,7 +69,7 @@ export function buildMarketingMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: "Sendly",
+      siteName: BRAND_NAME,
       locale,
       type: "website",
     },
@@ -86,7 +85,7 @@ export function buildOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Sendly",
+    name: BRAND_NAME,
     url: getSiteUrl(),
     areaServed: "CH",
     availableLanguage: [...routing.locales],
@@ -97,7 +96,7 @@ export function buildWebsiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Sendly",
+    name: BRAND_NAME,
     url: getSiteUrl(),
     inLanguage: [...routing.locales],
   };
@@ -124,7 +123,7 @@ export function buildServiceJsonLd({
     availableLanguage: locale,
     provider: {
       "@type": "Organization",
-      name: "Sendly",
+      name: BRAND_NAME,
       url: getSiteUrl(),
     },
   };

@@ -21,6 +21,7 @@ import {
   getEpostDispatchCapabilities,
   getAttachmentHandling,
 } from "./provider-capabilities.js";
+import { BRAND_NAME } from "../../../shared/brand.js";
 import {
   lookupMockEpostStatus,
   submitMockEpostDelivery,
@@ -37,7 +38,7 @@ type JsonRecord = Record<string, unknown>;
 const REFERENCE_PROBE_SENDER = {
   firstName: "Swiss",
   lastName: "Mail",
-  company: "Swiss Mail",
+  company: BRAND_NAME,
   addressLine1: "Bahnhofstrasse 1",
   postalCode: "8001",
   city: "Zurich",

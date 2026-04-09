@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
   constructWebhookEvent: vi.fn(),
   getLatestSnapshot: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
-  enqueuePaymentReceiptEmail: vi.fn(),
+  enqueueDispatchConfirmationEmail: vi.fn(),
   recordEvent: vi.fn(),
 }));
 
@@ -50,8 +50,8 @@ vi.mock("../src/modules/dispatch/dispatch.jobs.js", () => ({
   enqueueDispatchSubmission: mocks.enqueueDispatchSubmission,
 }));
 
-vi.mock("../src/modules/payments/payment-notifications.js", () => ({
-  enqueuePaymentReceiptEmail: mocks.enqueuePaymentReceiptEmail,
+vi.mock("../src/modules/dispatch/dispatch-confirmation.js", () => ({
+  enqueueDispatchConfirmationEmail: mocks.enqueueDispatchConfirmationEmail,
 }));
 
 vi.mock("../src/modules/analytics/index.js", () => ({
@@ -108,7 +108,7 @@ describe("payment webhook routes", () => {
       renderedPdfAssetId: "pdf-1",
     });
     mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
-    mocks.enqueuePaymentReceiptEmail.mockResolvedValue(undefined);
+    mocks.enqueueDispatchConfirmationEmail.mockResolvedValue(undefined);
 
     const response = await app.inject({
       method: "POST",
@@ -171,8 +171,8 @@ describe("payment webhook routes", () => {
     await tamperedApp.close();
   });
 
-  it("waits for receipt email queueing before completing the webhook response", async () => {
-    let resolveReceiptQueue: (() => void) | undefined;
+  it("waits for dispatch confirmation email queueing before completing the webhook response", async () => {
+    let resolveConfirmationQueue: (() => void) | undefined;
 
     mocks.constructWebhookEvent.mockReturnValue({
       type: "payment_intent.succeeded",
@@ -202,9 +202,9 @@ describe("payment webhook routes", () => {
       renderedPdfAssetId: "pdf-2",
     });
     mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
-    mocks.enqueuePaymentReceiptEmail.mockReturnValue(
+    mocks.enqueueDispatchConfirmationEmail.mockReturnValue(
       new Promise<void>((resolve) => {
-        resolveReceiptQueue = resolve;
+        resolveConfirmationQueue = resolve;
       }),
     );
 
@@ -223,11 +223,11 @@ describe("payment webhook routes", () => {
     });
 
     await vi.waitFor(() => {
-      expect(mocks.enqueuePaymentReceiptEmail).toHaveBeenCalledOnce();
+      expect(mocks.enqueueDispatchConfirmationEmail).toHaveBeenCalledOnce();
     });
     expect(settled).toBe(false);
 
-    resolveReceiptQueue?.();
+    resolveConfirmationQueue?.();
 
     const response = await responsePromise;
     expect(response.statusCode).toBe(200);

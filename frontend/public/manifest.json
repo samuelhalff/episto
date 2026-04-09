@@ -1,11 +1,11 @@
 {
-  "name": "Swiss Mail",
-  "short_name": "Swiss Mail",
+  "name": "Sendly",
+  "short_name": "Sendly",
   "description": "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
   "start_url": "/de-CH",
   "display": "browser",
   "background_color": "#ffffff",
-  "theme_color": "#F59E0B",
+  "theme_color": "#f6c54a",
   "icons": [
     {
       "src": "/icon-192.png",

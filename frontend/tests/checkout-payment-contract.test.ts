@@ -174,8 +174,8 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     expect(stripePaymentFormSource).toContain("email: normalizedBillingEmail");
   });
 
-  it("shows Sendly as the business name in the PaymentElement and keeps the accordion expanded", () => {
-    expect(stripePaymentFormSource).toContain('business: { name: "Sendly" }');
+  it("shows the brand name in the PaymentElement and keeps the accordion expanded", () => {
+    expect(stripePaymentFormSource).toContain("business: { name: BRAND_NAME }");
     expect(stripePaymentFormSource).toContain('type: "accordion"');
     expect(stripePaymentFormSource).toContain("defaultCollapsed: false");
   });

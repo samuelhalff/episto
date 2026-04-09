@@ -1,22 +1,17 @@
 import { eq } from "drizzle-orm";
-import { PaymentBreakdownSchema } from "@swiss-mail/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
 import { env } from "../../shared/config/index.js";
-import { getOrderIssuedAt } from "../orders/order-access-window.js";
-import type { PaymentAttemptRow } from "./payment.service.js";
+import type { PaymentAttemptRow } from "../payments/payment.service.js";
 
 function resolvePersonName(value: {
   firstName?: string | null;
   lastName?: string | null;
   company?: string | null;
 } | null): string {
-  if (!value) {
-    return "";
-  }
-
+  if (!value) return "";
   return (
     [value.firstName, value.lastName].filter(Boolean).join(" ").trim() ||
     value.company?.trim() ||
@@ -24,7 +19,17 @@ function resolvePersonName(value: {
   );
 }
 
-export async function enqueuePaymentReceiptEmail(
+/**
+ * Enqueue dispatch confirmation email — sent once when payment is captured.
+ *
+ * This is a service email confirming that the order has been received and
+ * dispatch is in progress.  It contains a link to the dispatch statement
+ * (valid for STATEMENT_RETENTION_DAYS).
+ *
+ * Payment receipt responsibility belongs to Stripe — this email must NOT
+ * include receipt wording, attached PDFs, or payment breakdowns.
+ */
+export async function enqueueDispatchConfirmationEmail(
   db: Db,
   payment: PaymentAttemptRow,
   rawOrderAccessToken: string,
@@ -49,15 +54,14 @@ export async function enqueuePaymentReceiptEmail(
       .limit(1),
   ]);
 
-  if (!sessionRow?.email) {
-    return;
-  }
+  if (!sessionRow?.email) return;
 
   const locale = sessionRow.locale ?? "en-CH";
   const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
   const config = env();
   const siteUrl = config.CORS_ORIGIN.split(",")[0]?.trim() ?? config.CORS_ORIGIN;
   const statusUrl = `${siteUrl}/${locale}/status/${rawOrderAccessToken}`;
+
   const senderProfilePromise = draft?.senderProfileId
     ? db
         .select({
@@ -84,48 +88,24 @@ export async function enqueuePaymentReceiptEmail(
     senderProfilePromise,
     recipientProfilePromise,
   ]);
-  const breakdown = PaymentBreakdownSchema.safeParse(payment.breakdown);
-  const issuedAt = getOrderIssuedAt(payment.orderAccessTokenExpiresAt) ?? payment.updatedAt;
 
   const job: SendEmailJob = {
     to: sessionRow.email,
-    template: "payment-receipt",
+    template: "dispatch-confirmation",
     locale,
     data: {
       brandName: config.APP_DISPLAY_NAME,
       supportEmail: config.SUPPORT_EMAIL,
       statementRetentionDays: config.STATEMENT_RETENTION_DAYS,
       orderRef,
-      issuedAt: issuedAt.toISOString(),
-      amount: (payment.amountCents / 100).toFixed(2),
-      amountCents: payment.amountCents,
-      currency: payment.currency,
       deliveryType: draft?.deliveryType ?? "standard",
       statusUrl,
-      customerEmail: sessionRow.email,
       senderName: resolvePersonName(senderProfile ?? null),
       recipientName: resolvePersonName(recipientProfile ?? null),
-      lineItems: breakdown.success
-        ? breakdown.data.lineItems.map((item) => ({
-            label: item.label,
-            amountCents: item.amountCents,
-          }))
-        : [],
-      legalEntity: {
-        name: config.LEGAL_ENTITY_NAME,
-        addressLines: [
-          config.LEGAL_ENTITY_ADDRESS_LINE_1,
-          config.LEGAL_ENTITY_ADDRESS_LINE_2,
-          config.LEGAL_ENTITY_COUNTRY,
-        ].filter(Boolean),
-        uidVat: config.LEGAL_ENTITY_UID_VAT,
-      },
-      stripeReferences: {
-        paymentIntentId: payment.stripePaymentIntentId,
-        chargeId: payment.stripeChargeId,
-      },
     },
   };
 
-  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("payment-receipt", job);
+  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("dispatch-confirmation", job, {
+    jobId: `dispatch-confirmation-${payment.id}`,
+  });
 }
