@@ -102,7 +102,7 @@ function renderDispatchConfirmation(locale: string, data: Record<string, unknown
   const recipientName = readString(data, "recipientName");
   const supportEmail = readString(data, "supportEmail");
   const deliveryType = capitalizeDelivery(readString(data, "deliveryType", "standard"));
-  const statusUrl = readString(data, "statusUrl");
+  const downloadUrl = readString(data, "downloadUrl");
   const statementRetentionDays = readInteger(data, "statementRetentionDays", 10);
   const amountCents = readInteger(data, "amountCents", 0);
 
@@ -118,7 +118,6 @@ function renderDispatchConfirmation(locale: string, data: Record<string, unknown
     heading(s.heading),
     paragraph(escapeHtml(s.greeting)),
     detailTable(rows),
-    statusUrl ? primaryButton(statusUrl, s.statusLabel) : "",
     sectionDivider(),
     `<p style="margin:0 0 12px;font-size:13px;font-weight:600;color:#1a1a1a;text-transform:uppercase;letter-spacing:0.05em;">${escapeHtml(s.nextStepsHeading)}</p>`,
     `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 16px;">
@@ -128,10 +127,10 @@ function renderDispatchConfirmation(locale: string, data: Record<string, unknown
     </table>`,
   ];
 
-  if (statusUrl) {
+  if (downloadUrl) {
     bodyParts.push(sectionDivider());
+    bodyParts.push(primaryButton(downloadUrl, s.downloadLabel));
     bodyParts.push(mutedText(escapeHtml(replaceRetentionDays(s.retentionNotice, statementRetentionDays))));
-    bodyParts.push(`<p style="margin:0 0 8px;">${secondaryLink(statusUrl, s.downloadLabel)}</p>`);
   }
 
   if (supportEmail) {
@@ -154,15 +153,13 @@ function renderDispatchConfirmation(locale: string, data: Record<string, unknown
     `${s.deliveryLabel}: ${deliveryType}`,
     amountCents > 0 ? `${s.totalLabel}: ${formatCHF(amountCents)}` : null,
     "",
-    statusUrl ? `${s.statusLabel}: ${statusUrl}` : null,
-    "",
     s.nextStepsHeading.toUpperCase(),
     `1. ${s.nextStep1}`,
     `2. ${s.nextStep2}`,
     `3. ${s.nextStep3}`,
     "",
-    statusUrl ? replaceRetentionDays(s.retentionNotice, statementRetentionDays) : null,
-    statusUrl ? `${s.downloadLabel}: ${statusUrl}` : null,
+    downloadUrl ? `${s.downloadLabel}: ${downloadUrl}` : null,
+    downloadUrl ? replaceRetentionDays(s.retentionNotice, statementRetentionDays) : null,
     "",
     supportEmail ? `${s.supportLine} ${supportEmail}` : null,
   ].filter((line): line is string => line !== null);
@@ -206,7 +203,8 @@ function renderDispatchAccepted(locale: string, data: Record<string, unknown>): 
   const orderRef = readString(data, "orderRef");
   const providerReference = readString(data, "providerReference");
   const trackingNumber = readString(data, "trackingNumber");
-  const statusUrl = readString(data, "statusUrl");
+  const downloadUrl = readString(data, "downloadUrl");
+  const statementRetentionDays = readInteger(data, "statementRetentionDays", 10);
   const supportEmail = readString(data, "supportEmail");
 
   const rows = [
@@ -226,8 +224,10 @@ function renderDispatchAccepted(locale: string, data: Record<string, unknown>): 
     bodyParts.push(primaryButton(trackUrl, s.trackOnPostLabel));
   }
 
-  if (statusUrl) {
-    bodyParts.push(`<p style="margin:0 0 16px;">${secondaryLink(statusUrl, s.statusLabel)}</p>`);
+  if (downloadUrl) {
+    bodyParts.push(sectionDivider());
+    bodyParts.push(`<p style="margin:0 0 8px;">${secondaryLink(downloadUrl, s.downloadLabel)}</p>`);
+    bodyParts.push(mutedText(escapeHtml(replaceRetentionDays(s.retentionNotice, statementRetentionDays))));
   }
 
   if (supportEmail) {
@@ -247,7 +247,9 @@ function renderDispatchAccepted(locale: string, data: Record<string, unknown>): 
     providerReference ? `${s.referenceLabel}: ${providerReference}` : null,
     trackingNumber ? `${s.trackingLabel}: ${trackingNumber}` : null,
     trackingNumber ? `${s.trackOnPostLabel}: ${swissPostTrackingUrl(trackingNumber)}` : null,
-    statusUrl ? `${s.statusLabel}: ${statusUrl}` : null,
+    "",
+    downloadUrl ? `${s.downloadLabel}: ${downloadUrl}` : null,
+    downloadUrl ? replaceRetentionDays(s.retentionNotice, statementRetentionDays) : null,
     "",
     supportEmail ? `${s.supportLine} ${supportEmail}` : null,
   ].filter((line): line is string => line !== null);

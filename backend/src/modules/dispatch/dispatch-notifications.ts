@@ -46,8 +46,8 @@ export async function enqueueDispatchAcceptedEmail(
   const siteUrl = config.APP_PUBLIC_URL
     ?? config.CORS_ORIGIN.split(",")[0]?.trim()
     ?? config.CORS_ORIGIN;
-  const statusUrl = args.rawOrderAccessToken
-    ? `${siteUrl}/${locale}/status/${args.rawOrderAccessToken}`
+  const downloadUrl = args.rawOrderAccessToken
+    ? `${siteUrl}/api/v1/orders/${args.rawOrderAccessToken}/pdf`
     : null;
 
   const job: SendEmailJob = {
@@ -58,7 +58,8 @@ export async function enqueueDispatchAcceptedEmail(
       orderRef,
       providerReference: args.providerReference,
       trackingNumber: args.trackingNumber,
-      ...(statusUrl ? { statusUrl } : {}),
+      ...(downloadUrl ? { downloadUrl } : {}),
+      statementRetentionDays: config.STATEMENT_RETENTION_DAYS,
       appPublicUrl: siteUrl,
       brandName: config.APP_DISPLAY_NAME,
       supportEmail: config.SUPPORT_EMAIL,

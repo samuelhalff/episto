@@ -62,7 +62,7 @@ export async function enqueueDispatchConfirmationEmail(
   const siteUrl = config.APP_PUBLIC_URL
     ?? config.CORS_ORIGIN.split(",")[0]?.trim()
     ?? config.CORS_ORIGIN;
-  const statusUrl = `${siteUrl}/${locale}/status/${rawOrderAccessToken}`;
+  const downloadUrl = `${siteUrl}/api/v1/orders/${rawOrderAccessToken}/pdf`;
 
   const senderProfilePromise = draft?.senderProfileId
     ? db
@@ -101,7 +101,7 @@ export async function enqueueDispatchConfirmationEmail(
       statementRetentionDays: config.STATEMENT_RETENTION_DAYS,
       orderRef,
       deliveryType: draft?.deliveryType ?? "standard",
-      statusUrl,
+      downloadUrl,
       senderName: resolvePersonName(senderProfile ?? null),
       recipientName: resolvePersonName(recipientProfile ?? null),
       amountCents: payment.amountCents,

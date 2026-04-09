@@ -10,7 +10,7 @@ describe("Email template rendering", () => {
       deliveryType: "Standard",
       brandName: "Sendly",
       supportEmail: "contact@houle.ai",
-      statusUrl: "https://houle.ai/en-CH/status/token-123",
+      downloadUrl: "https://houle.ai/api/v1/orders/token-123/pdf",
       statementRetentionDays: 10,
       recipientName: "Jane Doe",
       amountCents: 965,
@@ -27,13 +27,16 @@ describe("Email template rendering", () => {
     expect(result.text).toContain("Standard");
     expect(result.text).toContain("10 days");
     expect(result.text).toContain("contact@houle.ai");
-    expect(result.text).toContain("https://houle.ai/en-CH/status/token-123");
+    expect(result.text).toContain("https://houle.ai/api/v1/orders/token-123/pdf");
     expect(result.text).toContain("CHF 9.65");
     // HTML structure
     expect(result.html).toContain("ORD-12345");
     expect(result.html).toContain("contact@houle.ai");
     expect(result.html).toContain("Order confirmed");
     expect(result.html).toContain("What happens next");
+    // Download button (primary CTA)
+    expect(result.html).toContain("Download Confirmation");
+    expect(result.html).toContain("https://houle.ai/api/v1/orders/token-123/pdf");
     // Legal footer
     expect(result.html).toContain("West Bay SA");
     expect(result.html).toContain("CHE-107.892.984");
@@ -46,6 +49,8 @@ describe("Email template rendering", () => {
     // Must NOT contain payment receipt language
     expect(result.text).not.toContain("receipt");
     expect(result.text).not.toContain("Receipt");
+    // Must NOT contain status page link
+    expect(result.html).not.toContain("/status/");
   });
 
   it("renders dispatch-confirmation in German (de-CH)", () => {
@@ -119,7 +124,8 @@ describe("Email template rendering", () => {
       orderRef: "ORD-ABC",
       providerReference: "EPR-T-R-0D2D6C40F706",
       trackingNumber: "98.40.541881.00002354",
-      statusUrl: "https://swissmail.ch/status/token-123",
+      downloadUrl: "https://swissmail.ch/api/v1/orders/token-123/pdf",
+      statementRetentionDays: 10,
       supportEmail: "support@test.com",
       appPublicUrl: "https://swissmail.ch",
       legalEntityName: "West Bay SA",
@@ -137,8 +143,14 @@ describe("Email template rendering", () => {
     expect(result.text).toContain("98.40.541881.00002354");
     expect(result.html).toContain("https://www.post.ch/swisspost-tracking");
     expect(result.html).toContain("Track on Swiss Post");
-    // Status link
-    expect(result.text).toContain("https://swissmail.ch/status/token-123");
+    // Download link
+    expect(result.text).toContain("Download Confirmation");
+    expect(result.text).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
+    expect(result.html).toContain("Download Confirmation");
+    expect(result.html).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
+    expect(result.text).toContain("10 days");
+    // Must NOT contain status page link
+    expect(result.html).not.toContain("/status/");
     // Legal footer
     expect(result.html).toContain("West Bay SA");
     expect(result.html).toContain("Privacy Policy");

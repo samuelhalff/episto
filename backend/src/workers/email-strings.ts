@@ -25,7 +25,6 @@ export interface DispatchConfirmationStrings {
   recipientLabel: string;
   deliveryLabel: string;
   totalLabel: string;
-  statusLabel: string;
   downloadLabel: string;
   retentionNotice: string;
   nextStepsHeading: string;
@@ -44,9 +43,8 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Recipient",
     deliveryLabel: "Service",
     totalLabel: "Total",
-    statusLabel: "View Order Status",
     downloadLabel: "Download Confirmation",
-    retentionNotice: "Your confirmation document is available for {days} days.",
+    retentionNotice: "Your confirmation document is available for download for {days} days.",
     nextStepsHeading: "What happens next",
     nextStep1: "Your letter is submitted to Swiss Post for printing and dispatch.",
     nextStep2: "You will receive an email when Swiss Post confirms acceptance.",
@@ -61,9 +59,8 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Empfänger",
     deliveryLabel: "Versandart",
     totalLabel: "Total",
-    statusLabel: "Bestellstatus anzeigen",
     downloadLabel: "Bestätigung herunterladen",
-    retentionNotice: "Ihr Bestätigungsdokument steht {days} Tage zur Verfügung.",
+    retentionNotice: "Ihr Bestätigungsdokument steht {days} Tage zum Download bereit.",
     nextStepsHeading: "Nächste Schritte",
     nextStep1: "Ihr Brief wird der Schweizerischen Post zum Druck und Versand übergeben.",
     nextStep2: "Sie erhalten eine E-Mail, sobald die Schweizerische Post die Annahme bestätigt.",
@@ -78,9 +75,8 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Destinataire",
     deliveryLabel: "Service",
     totalLabel: "Total",
-    statusLabel: "Voir le statut de la commande",
     downloadLabel: "Télécharger la confirmation",
-    retentionNotice: "Votre document de confirmation est disponible pendant {days} jours.",
+    retentionNotice: "Votre document de confirmation est disponible au téléchargement pendant {days} jours.",
     nextStepsHeading: "Prochaines étapes",
     nextStep1: "Votre lettre est transmise à La Poste Suisse pour impression et envoi.",
     nextStep2: "Vous recevrez un e-mail lorsque La Poste Suisse confirmera la réception.",
@@ -95,9 +91,8 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Destinatario",
     deliveryLabel: "Servizio",
     totalLabel: "Totale",
-    statusLabel: "Visualizza lo stato dell'ordine",
     downloadLabel: "Scarica la conferma",
-    retentionNotice: "Il documento di conferma è disponibile per {days} giorni.",
+    retentionNotice: "Il documento di conferma è disponibile per il download per {days} giorni.",
     nextStepsHeading: "Prossimi passi",
     nextStep1: "La sua lettera viene trasmessa alla Posta Svizzera per la stampa e la spedizione.",
     nextStep2: "Riceverà un'e-mail quando la Posta Svizzera confermerà l'accettazione.",
@@ -156,7 +151,8 @@ export interface DispatchAcceptedStrings {
   referenceLabel: string;
   trackingLabel: string;
   trackOnPostLabel: string;
-  statusLabel: string;
+  downloadLabel: string;
+  retentionNotice: string;
   supportLine: string;
 }
 
@@ -169,7 +165,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Reference",
     trackingLabel: "Tracking number",
     trackOnPostLabel: "Track on Swiss Post",
-    statusLabel: "View Order Status",
+    downloadLabel: "Download Confirmation",
+    retentionNotice: "Your confirmation document is available for download for {days} days.",
     supportLine: "Questions? Contact us at",
   },
   "de-CH": {
@@ -180,7 +177,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Referenz",
     trackingLabel: "Sendungsnummer",
     trackOnPostLabel: "Bei der Post verfolgen",
-    statusLabel: "Bestellstatus anzeigen",
+    downloadLabel: "Bestätigung herunterladen",
+    retentionNotice: "Ihr Bestätigungsdokument steht {days} Tage zum Download bereit.",
     supportLine: "Fragen? Kontaktieren Sie uns unter",
   },
   "fr-CH": {
@@ -191,7 +189,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Référence",
     trackingLabel: "Numéro de suivi",
     trackOnPostLabel: "Suivre sur La Poste",
-    statusLabel: "Voir le statut de la commande",
+    downloadLabel: "Télécharger la confirmation",
+    retentionNotice: "Votre document de confirmation est disponible au téléchargement pendant {days} jours.",
     supportLine: "Des questions ? Contactez-nous à",
   },
   "it-CH": {
@@ -202,7 +201,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Riferimento",
     trackingLabel: "Numero di tracciamento",
     trackOnPostLabel: "Traccia su La Posta",
-    statusLabel: "Visualizza lo stato dell'ordine",
+    downloadLabel: "Scarica la conferma",
+    retentionNotice: "Il documento di conferma è disponibile per il download per {days} giorni.",
     supportLine: "Domande? Ci contatti all'indirizzo",
   },
 };
