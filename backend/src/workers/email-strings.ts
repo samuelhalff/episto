@@ -25,6 +25,7 @@ export interface DispatchConfirmationStrings {
   recipientLabel: string;
   deliveryLabel: string;
   totalLabel: string;
+  trackOnPostLabel: string;
   downloadLabel: string;
   retentionNotice: string;
   nextStepsHeading: string;
@@ -43,6 +44,7 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Recipient",
     deliveryLabel: "Service",
     totalLabel: "Total",
+    trackOnPostLabel: "Track on Swiss Post",
     downloadLabel: "Download Confirmation",
     retentionNotice: "Your confirmation document is available for download for {days} days.",
     nextStepsHeading: "What happens next",
@@ -59,6 +61,7 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Empfänger",
     deliveryLabel: "Versandart",
     totalLabel: "Total",
+    trackOnPostLabel: "Bei der Post verfolgen",
     downloadLabel: "Bestätigung herunterladen",
     retentionNotice: "Ihr Bestätigungsdokument steht {days} Tage zum Download bereit.",
     nextStepsHeading: "Nächste Schritte",
@@ -75,6 +78,7 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Destinataire",
     deliveryLabel: "Service",
     totalLabel: "Total",
+    trackOnPostLabel: "Suivre sur La Poste",
     downloadLabel: "Télécharger la confirmation",
     retentionNotice: "Votre document de confirmation est disponible au téléchargement pendant {days} jours.",
     nextStepsHeading: "Prochaines étapes",
@@ -91,6 +95,7 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
     recipientLabel: "Destinatario",
     deliveryLabel: "Servizio",
     totalLabel: "Totale",
+    trackOnPostLabel: "Traccia su La Posta",
     downloadLabel: "Scarica la conferma",
     retentionNotice: "Il documento di conferma è disponibile per il download per {days} giorni.",
     nextStepsHeading: "Prossimi passi",

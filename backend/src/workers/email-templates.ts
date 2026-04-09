@@ -102,6 +102,7 @@ function renderDispatchConfirmation(locale: string, data: Record<string, unknown
   const recipientName = readString(data, "recipientName");
   const supportEmail = readString(data, "supportEmail");
   const deliveryType = capitalizeDelivery(readString(data, "deliveryType", "standard"));
+  const trackingNumber = readString(data, "trackingNumber");
   const downloadUrl = readString(data, "downloadUrl");
   const statementRetentionDays = readInteger(data, "statementRetentionDays", 10);
   const amountCents = readInteger(data, "amountCents", 0);
@@ -127,9 +128,15 @@ function renderDispatchConfirmation(locale: string, data: Record<string, unknown
     </table>`,
   ];
 
+  // Tracking button right after the steps — step 3 leads into it naturally
+  if (trackingNumber) {
+    const trackUrl = swissPostTrackingUrl(trackingNumber);
+    bodyParts.push(primaryButton(trackUrl, s.trackOnPostLabel));
+  }
+
   if (downloadUrl) {
     bodyParts.push(sectionDivider());
-    bodyParts.push(primaryButton(downloadUrl, s.downloadLabel));
+    bodyParts.push(`<p style="margin:0 0 8px;">${secondaryLink(downloadUrl, s.downloadLabel)}</p>`);
     bodyParts.push(mutedText(escapeHtml(replaceRetentionDays(s.retentionNotice, statementRetentionDays))));
   }
 
@@ -157,6 +164,8 @@ function renderDispatchConfirmation(locale: string, data: Record<string, unknown
     `1. ${s.nextStep1}`,
     `2. ${s.nextStep2}`,
     `3. ${s.nextStep3}`,
+    "",
+    trackingNumber ? `${s.trackOnPostLabel}: ${swissPostTrackingUrl(trackingNumber)}` : null,
     "",
     downloadUrl ? `${s.downloadLabel}: ${downloadUrl}` : null,
     downloadUrl ? replaceRetentionDays(s.retentionNotice, statementRetentionDays) : null,

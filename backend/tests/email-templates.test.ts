@@ -11,6 +11,7 @@ describe("Email template rendering", () => {
       brandName: "Sendly",
       supportEmail: "contact@houle.ai",
       downloadUrl: "https://houle.ai/api/v1/orders/token-123/pdf",
+      trackingNumber: "98.40.541881.00002354",
       statementRetentionDays: 10,
       recipientName: "Jane Doe",
       amountCents: 965,
@@ -29,12 +30,16 @@ describe("Email template rendering", () => {
     expect(result.text).toContain("contact@houle.ai");
     expect(result.text).toContain("https://houle.ai/api/v1/orders/token-123/pdf");
     expect(result.text).toContain("CHF 9.65");
+    // Tracking
+    expect(result.html).toContain("Track on Swiss Post");
+    expect(result.html).toContain("https://www.post.ch/swisspost-tracking");
+    expect(result.text).toContain("https://www.post.ch/swisspost-tracking");
     // HTML structure
     expect(result.html).toContain("ORD-12345");
     expect(result.html).toContain("contact@houle.ai");
     expect(result.html).toContain("Order confirmed");
     expect(result.html).toContain("What happens next");
-    // Download button (primary CTA)
+    // Download link (secondary)
     expect(result.html).toContain("Download Confirmation");
     expect(result.html).toContain("https://houle.ai/api/v1/orders/token-123/pdf");
     // Legal footer
@@ -46,11 +51,22 @@ describe("Email template rendering", () => {
     // Policy links use app URL
     expect(result.html).toContain("https://houle.ai/en-CH/privacy");
     expect(result.html).toContain("https://houle.ai/en-CH/terms");
-    // Must NOT contain payment receipt language
+    // Must NOT contain payment receipt language or status page
     expect(result.text).not.toContain("receipt");
     expect(result.text).not.toContain("Receipt");
-    // Must NOT contain status page link
     expect(result.html).not.toContain("/status/");
+  });
+
+  it("renders dispatch-confirmation without tracking when not available", () => {
+    const result = renderTemplate("dispatch-confirmation", "en-CH", {
+      orderRef: "ORD-NO-TRACK",
+      downloadUrl: "https://example.com/api/v1/orders/tok/pdf",
+      appPublicUrl: "https://example.com",
+    });
+
+    expect(result.html).not.toContain("Track on Swiss Post");
+    expect(result.html).not.toContain("post.ch/swisspost-tracking");
+    expect(result.html).toContain("Download Confirmation");
   });
 
   it("renders dispatch-confirmation in German (de-CH)", () => {
