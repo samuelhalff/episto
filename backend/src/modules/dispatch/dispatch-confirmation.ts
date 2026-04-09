@@ -59,7 +59,9 @@ export async function enqueueDispatchConfirmationEmail(
   const locale = sessionRow.locale ?? "en-CH";
   const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
   const config = env();
-  const siteUrl = config.CORS_ORIGIN.split(",")[0]?.trim() ?? config.CORS_ORIGIN;
+  const siteUrl = config.APP_PUBLIC_URL
+    ?? config.CORS_ORIGIN.split(",")[0]?.trim()
+    ?? config.CORS_ORIGIN;
   const statusUrl = `${siteUrl}/${locale}/status/${rawOrderAccessToken}`;
 
   const senderProfilePromise = draft?.senderProfileId
@@ -102,6 +104,13 @@ export async function enqueueDispatchConfirmationEmail(
       statusUrl,
       senderName: resolvePersonName(senderProfile ?? null),
       recipientName: resolvePersonName(recipientProfile ?? null),
+      amountCents: payment.amountCents,
+      currency: payment.currency,
+      appPublicUrl: siteUrl,
+      legalEntityName: config.LEGAL_ENTITY_NAME,
+      legalEntityAddress: `${config.LEGAL_ENTITY_ADDRESS_LINE_1}, ${config.LEGAL_ENTITY_ADDRESS_LINE_2}`,
+      legalEntityCountry: config.LEGAL_ENTITY_COUNTRY,
+      legalEntityUidVat: config.LEGAL_ENTITY_UID_VAT,
     },
   };
 

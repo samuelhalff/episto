@@ -118,6 +118,9 @@ export const EnvSchema = z
     LEGAL_ENTITY_COUNTRY: z.string().min(1).default("Switzerland"),
     LEGAL_ENTITY_UID_VAT: z.string().min(1).default("CHE-107.892.984"),
 
+    // Public URL (customer-facing frontend origin used in emails/links)
+    APP_PUBLIC_URL: z.string().url().optional(),
+
     // CORS
     CORS_ORIGIN: z.string().default("http://localhost:5000"),
 
@@ -250,6 +253,15 @@ export const EnvSchema = z
       return true;
     },
     { message: "CORS_ORIGIN must use HTTPS in production" },
+  )
+  .refine(
+    (data) => {
+      if (data.NODE_ENV === "production") {
+        return Boolean(data.APP_PUBLIC_URL);
+      }
+      return true;
+    },
+    { message: "APP_PUBLIC_URL is required in production" },
   )
   .refine(
     (data) => {

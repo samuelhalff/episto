@@ -74,6 +74,7 @@ describe("Stripe environment safety", () => {
       NODE_ENV: "production",
       STRIPE_SECRET_KEY: "sk_live_abc123",
       CORS_ORIGIN: "https://app.swissmail.ch",
+      APP_PUBLIC_URL: "https://app.swissmail.ch",
     });
     expect(result.success).toBe(true);
   });
@@ -84,6 +85,7 @@ describe("Stripe environment safety", () => {
       NODE_ENV: "production",
       STRIPE_SECRET_KEY: "sk_test_abc123",
       CORS_ORIGIN: "https://staging.swissmail.ch",
+      APP_PUBLIC_URL: "https://staging.swissmail.ch",
     });
     expect(result.success).toBe(true);
   });

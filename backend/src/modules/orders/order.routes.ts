@@ -169,6 +169,17 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
       const payment = await resolveOrderToken(db, orderToken);
       if (!payment) throw notFoundError("order");
 
+      if (!isStatementWithinRetentionWindow(payment.orderAccessTokenExpiresAt)) {
+        throw new AppError({
+          family: "validation_error",
+          statusCode: 410,
+          code: "ORDER_STATEMENT_EXPIRED",
+          message: `Statement download expired for order token ${orderToken}`,
+          userMessage: "This statement is no longer available for download.",
+          userAction: "Contact support if you need a copy.",
+        });
+      }
+
       const [draft] = await db
         .select()
         .from(schema.draftLetters)

@@ -42,7 +42,10 @@ export async function enqueueDispatchAcceptedEmail(
 
   const locale = session.locale ?? "en-CH";
   const orderRef = `SM-${args.draftId.slice(0, 8).toUpperCase()}`;
-  const siteUrl = env().CORS_ORIGIN.split(",")[0]?.trim() ?? env().CORS_ORIGIN;
+  const config = env();
+  const siteUrl = config.APP_PUBLIC_URL
+    ?? config.CORS_ORIGIN.split(",")[0]?.trim()
+    ?? config.CORS_ORIGIN;
   const statusUrl = args.rawOrderAccessToken
     ? `${siteUrl}/${locale}/status/${args.rawOrderAccessToken}`
     : null;
@@ -56,6 +59,13 @@ export async function enqueueDispatchAcceptedEmail(
       providerReference: args.providerReference,
       trackingNumber: args.trackingNumber,
       ...(statusUrl ? { statusUrl } : {}),
+      appPublicUrl: siteUrl,
+      brandName: config.APP_DISPLAY_NAME,
+      supportEmail: config.SUPPORT_EMAIL,
+      legalEntityName: config.LEGAL_ENTITY_NAME,
+      legalEntityAddress: `${config.LEGAL_ENTITY_ADDRESS_LINE_1}, ${config.LEGAL_ENTITY_ADDRESS_LINE_2}`,
+      legalEntityCountry: config.LEGAL_ENTITY_COUNTRY,
+      legalEntityUidVat: config.LEGAL_ENTITY_UID_VAT,
     },
   };
 

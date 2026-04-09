@@ -42,6 +42,7 @@ describe("regression: env validation accepts valid configs", () => {
         NODE_ENV: "production",
         STRIPE_SECRET_KEY: "sk_live_prod_key_123",
         CORS_ORIGIN: "https://swissmail.ch",
+        APP_PUBLIC_URL: "https://swissmail.ch",
       }),
     );
     expect(result.success).toBe(true);
@@ -124,6 +125,7 @@ describe("regression: env validation accepts valid configs", () => {
         NODE_ENV: "production",
         STRIPE_SECRET_KEY: "sk_live_prod",
         CORS_ORIGIN: "http://insecure.example.com",
+        APP_PUBLIC_URL: "https://swissmail.ch",
       }),
     );
     expect(result.success).toBe(false);
