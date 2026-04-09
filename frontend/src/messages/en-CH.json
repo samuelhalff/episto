@@ -752,7 +752,7 @@
     "emailNotice": "A confirmation email has been sent to your email",
     "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
     "stickyCtaLabel": "Send another letter",
-    "downloadLetter": "Download signed confirmation document",
+    "downloadLetter": "Download confirmation",
     "downloadUnavailable": "The confirmation document is no longer available."
   },
   "resume": {
@@ -777,7 +777,7 @@
     "recipient": "Recipient",
     "paymentAmount": "Amount paid",
     "paidAt": "Payment date",
-    "downloadLetter": "Download signed confirmation document",
+    "downloadLetter": "Download confirmation",
     "downloadUnavailable": "The confirmation document is no longer available."
   },
   "files": {

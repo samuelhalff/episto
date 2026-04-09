@@ -178,7 +178,7 @@ describe("en-CH exact copy values", () => {
   const status = (enCH as Record<string, Record<string, string>>)["status"];
 
   it("confirmation.downloadLetter matches approved copy", () => {
-    expect(confirmation["downloadLetter"]).toBe("Download signed confirmation document");
+    expect(confirmation["downloadLetter"]).toBe("Download confirmation");
   });
 
   it("confirmation.downloadUnavailable matches approved copy", () => {
@@ -188,7 +188,7 @@ describe("en-CH exact copy values", () => {
   });
 
   it("status.downloadLetter matches approved copy", () => {
-    expect(status["downloadLetter"]).toBe("Download signed confirmation document");
+    expect(status["downloadLetter"]).toBe("Download confirmation");
   });
 
   it("status.downloadUnavailable matches approved copy", () => {

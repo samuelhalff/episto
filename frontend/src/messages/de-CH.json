@@ -752,7 +752,7 @@
     "emailNotice": "Eine Bestätigungs-E-Mail wurde an Ihre E-Mail-Adresse gesendet",
     "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
     "stickyCtaLabel": "Weiteren Brief senden",
-    "downloadLetter": "Signiertes Bestätigungsdokument herunterladen",
+    "downloadLetter": "Bestätigung herunterladen",
     "downloadUnavailable": "Das Bestätigungsdokument ist nicht mehr verfügbar."
   },
   "resume": {
@@ -777,7 +777,7 @@
     "recipient": "Empfänger",
     "paymentAmount": "Bezahlter Betrag",
     "paidAt": "Zahlungsdatum",
-    "downloadLetter": "Signiertes Bestätigungsdokument herunterladen",
+    "downloadLetter": "Bestätigung herunterladen",
     "downloadUnavailable": "Das Bestätigungsdokument ist nicht mehr verfügbar."
   },
   "files": {

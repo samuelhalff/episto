@@ -752,7 +752,7 @@
     "emailNotice": "Un e-mail de confirmation a été envoyé à votre adresse",
     "emailNoticeDetail": "Vous recevrez une autre mise à jour si le statut d'envoi évolue.",
     "stickyCtaLabel": "Envoyer une autre lettre",
-    "downloadLetter": "Télécharger le document de confirmation signé",
+    "downloadLetter": "Télécharger la confirmation",
     "downloadUnavailable": "Le document de confirmation n'est plus disponible."
   },
   "resume": {
@@ -777,7 +777,7 @@
     "recipient": "Destinataire",
     "paymentAmount": "Montant payé",
     "paidAt": "Date de paiement",
-    "downloadLetter": "Télécharger le document de confirmation signé",
+    "downloadLetter": "Télécharger la confirmation",
     "downloadUnavailable": "Le document de confirmation n'est plus disponible."
   },
   "files": {

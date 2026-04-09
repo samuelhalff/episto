@@ -79,8 +79,9 @@ export function ActionButton({
       variant={variant}
       fullWidth={fullWidth}
       className={[
-        "min-w-0 flex-nowrap whitespace-nowrap",
+        "min-w-0 flex-nowrap",
         desktopMinWidth ? DESKTOP_MIN_WIDTH_CLASS_NAME : "",
+        contentClassName,
         className,
       ]
         .filter(Boolean)
@@ -90,15 +91,7 @@ export function ActionButton({
       trailingMeta={trailingMeta}
       {...props}
     >
-      <span className={["flex min-w-0 items-center justify-center gap-2", contentClassName].filter(Boolean).join(" ")}>
-        <ActionButtonContent
-          leadingIcon={null}
-          trailingIcon={null}
-          trailingMeta={null}
-        >
-          {children}
-        </ActionButtonContent>
-      </span>
+      {children}
     </AppButton>
   );
 }

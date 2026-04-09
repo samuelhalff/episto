@@ -752,7 +752,7 @@
     "emailNotice": "Un'e-mail di conferma è stata inviata al tuo indirizzo",
     "emailNoticeDetail": "Riceverai un altro aggiornamento se lo stato della spedizione cambia.",
     "stickyCtaLabel": "Invia un'altra lettera",
-    "downloadLetter": "Scarica il documento di conferma firmato",
+    "downloadLetter": "Scarica la conferma",
     "downloadUnavailable": "Il documento di conferma non è più disponibile."
   },
   "resume": {
@@ -777,7 +777,7 @@
     "recipient": "Destinatario",
     "paymentAmount": "Importo pagato",
     "paidAt": "Data di pagamento",
-    "downloadLetter": "Scarica il documento di conferma firmato",
+    "downloadLetter": "Scarica la conferma",
     "downloadUnavailable": "Il documento di conferma non è più disponibile."
   },
   "files": {
