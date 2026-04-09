@@ -9,7 +9,7 @@ const baseInput: DispatchPricingInput = {
   attachmentMode: "none",
   shippingCountry: "CH",
   envelopeSize: "C5",
-  windowLocation: "LEFT",
+  windowLocation: "RIGHT",
   duplex: false,
 };
 

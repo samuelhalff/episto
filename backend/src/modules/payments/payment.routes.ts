@@ -554,8 +554,51 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("draft");
 
-      const payment = await getPaymentForDraft(db, draftId);
+      let payment = await getPaymentForDraft(db, draftId);
       if (!payment) throw notFoundError("payment");
+
+      if (payment.state === "pending" && payment.stripePaymentIntentId) {
+        const stripeIntent = await getPaymentIntentForCheckout(payment.stripePaymentIntentId);
+
+        if (stripeIntent.status === "requires_capture") {
+          const result = await transitionPaymentState(db, payment.id, "authorized", {
+            stripePaymentIntentId: payment.stripePaymentIntentId,
+          });
+          payment = result.payment;
+
+          const snapshot = await getLatestSnapshot(db, draftId);
+          if (snapshot?.renderedPdfAssetId) {
+            await enqueueDispatchSubmission({
+              draftId,
+              snapshotId: snapshot.id,
+              paymentId: payment.id,
+            });
+          }
+        } else if (stripeIntent.status === "succeeded") {
+          const result = await transitionPaymentState(db, payment.id, "captured", {
+            stripePaymentIntentId: payment.stripePaymentIntentId,
+            stripeChargeId: stripeIntent.latestChargeId ?? undefined,
+          });
+          payment = result.payment;
+
+          const snapshot = await getLatestSnapshot(db, draftId);
+          if (snapshot?.renderedPdfAssetId) {
+            await enqueueDispatchSubmission({
+              draftId,
+              snapshotId: snapshot.id,
+              paymentId: payment.id,
+            });
+          }
+
+          if (result.rawOrderAccessToken) {
+            try {
+              await enqueuePaymentReceiptEmail(db, payment, result.rawOrderAccessToken);
+            } catch (err) {
+              request.log.error({ err }, "Failed to enqueue payment receipt email");
+            }
+          }
+        }
+      }
 
       reply.send({
         payment: {

@@ -13,7 +13,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Swiss Mail — Send formal letters via Swiss Post",
+  title: "Sendly — Send formal letters via Swiss Post",
   description:
     "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://swissmail.ch"),
@@ -31,7 +31,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const locale = await getLocale();
 
   return (
-    <html lang={locale} className={inter.variable} suppressHydrationWarning>
+    <html
+      lang={locale}
+      className={inter.variable}
+      data-theme-ready="false"
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
       </head>

@@ -1,10 +1,10 @@
-# Swiss Mail — Page Specifications
+# Sendly — Page Specifications
 
 > **Status:** Canonical wireframe-level specs. Implement from this document.  
 > **Scope:** Current launch routes — marketing + guest application + admin. Future account surfaces stay out of this file until they enter scope.  
 > **Stack:** Next.js · TypeScript · Tailwind CSS · shadcn/ui primitives + custom product components  
 > **Last updated:** 2026-03  
-> **Brand identity:** `Swiss Mail` on `swissmail.ch` (see `02-brand/naming-and-identity.md`)
+> **Brand identity:** `Sendly` on `swissmail.ch` (see `02-brand/naming-and-identity.md`)
 > **Provider truth:** For any claim about dispatch timing, tracking, references, or Swiss Post
 > behavior, also consult [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md).
 
@@ -93,7 +93,7 @@ Each page documents the **emotional intent** — the feeling the user should hav
 
 ### SEO
 
-- **Title:** `Swiss Mail — Send formal Swiss letters from your phone`
+- **Title:** `Sendly — Send formal Swiss letters from your phone`
 - **Meta description:** `Draft, review, and send formal letters in Switzerland — in minutes. AI-assisted drafting, postal delivery, and careful data handling.`
 - **OG image:** Hero mockup, navy background, product screenshot
 - **Structured data:** `Organization`, `WebSite` with `SearchAction`, `FAQPage` (for FAQ section)
@@ -113,7 +113,7 @@ Each page documents the **emotional intent** — the feeling the user should hav
 
 #### 1.1 `<SiteHeader>`
 
-- Logo (`<LetterIcon>` + `Swiss Mail` wordmark) — left
+- Logo (`<LetterIcon>` + `Sendly` wordmark) — left
 - Nav links: "How it works", "Pricing", "Use cases" — desktop only, hidden mobile
 - Right: Language selector (`de`, `fr`, `it`, `en`) + "Start writing" Button (primary, small)
 - Mobile: Logo left, hamburger right; nav slides in as Sheet
@@ -132,7 +132,7 @@ Full-viewport section (`min-h-screen`).
 - Headline: `text-4xl md:text-6xl font-bold text-inverse` — "Send formal letters  
   from your phone — in minutes."
   - Line break after "letters" on desktop. Single block on mobile.
-- Subheadline: `text-lg text-inverse/80` — "Describe what you need. Swiss Mail drafts it, formats it to Swiss standards, and prepares it for postal dispatch."
+- Subheadline: `text-lg text-inverse/80` — "Describe what you need. Sendly drafts it, formats it to Swiss standards, and prepares it for postal dispatch."
 - CTA row:
   - Primary: `<Button size="lg">` "Draft your letter" → `/draft/new` — full width on mobile
   - Secondary: `<Button variant="outline" size="lg">` "See how it works" → `/how-it-works` — full width on mobile, ghost treatment on dark bg
@@ -175,7 +175,7 @@ Subheading: `text-secondary` "Three steps. No paperwork knowledge required."
 
 | Step | Icon                     | Title                  | Body                                                                   |
 | ---- | ------------------------ | ---------------------- | ---------------------------------------------------------------------- |
-| 1    | `MessageCircle` (Lucide) | "Describe your letter" | "Type or dictate what you need. Swiss Mail asks only what's missing."  |
+| 1    | `MessageCircle` (Lucide) | "Describe your letter" | "Type or dictate what you need. Sendly asks only what's missing."  |
 | 2    | `FileText`               | "Review and customise" | "See your letter take shape in real time. Edit any section directly."  |
 | 3    | `Send`                   | "Pay and send"         | "Choose standard or registered post. Pay by card. We handle the rest." |
 
@@ -251,7 +251,7 @@ Section heading: "Common questions"
 
 6–8 questions. Suggested starters (final copy via i18n layer — see `../05-architecture/i18n-rules.md`):
 
-1. "Is Swiss Mail legally valid?" — Answer: clarifies formal letter vs. legal service. Non-legal-service disclaimer (see `../01-vision/product-scope.md`).
+1. "Is Sendly legally valid?" — Answer: clarifies formal letter vs. legal service. Non-legal-service disclaimer (see `../01-vision/product-scope.md`).
 2. "What happens after I pay?"
 3. "Can I send registered mail?"
 4. "Are my documents stored permanently?"
@@ -318,8 +318,8 @@ Background: `surface-subtle`, `border-strong` top border.
 
 ### SEO
 
-- **Title:** `How Swiss Mail works — AI-assisted formal letters`
-- **Meta description:** `See exactly how Swiss Mail drafts, formats, and sends your Swiss formal letters — step by step.`
+- **Title:** `How Sendly works — AI-assisted formal letters`
+- **Meta description:** `See exactly how Sendly drafts, formats, and sends your Swiss formal letters — step by step.`
 - **Structured data:** `HowTo` schema
 
 ### Layout
@@ -341,7 +341,7 @@ Background: `surface-subtle`, `border-strong` top border.
 Narrower hero, no full-viewport. `py-20`.
 
 - Breadcrumb: `Home > How it works`
-- Heading `<h1>`: "How Swiss Mail works"
+- Heading `<h1>`: "How Sendly works"
 - Subheading: "From first word to letterbox — here's what happens at every step."
 
 #### 2.3 Detailed Steps
@@ -351,7 +351,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 **Step 1 — Start your letter**
 
 - User types or dictates their intent ("I need to cancel my gym membership")
-- Swiss Mail recognises the letter type and surfaces the right template logic
+- Sendly recognises the letter type and surfaces the right template logic
 - System asks only for what's missing (recipient details, dates, contract reference)
 - Illustration: chat-like interface mockup
 
@@ -377,7 +377,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 
 **Step 5 — We handle the rest**
 
-- Swiss Mail renders the final PDF
+- Sendly renders the final PDF
 - Submits to postal dispatch
 - User receives reference number
 - Status updates as available (honest: "We will show tracking information when the provider makes it available")
@@ -417,8 +417,8 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 
 ### SEO
 
-- **Title:** `Pricing — Swiss Mail`
-- **Meta description:** `Transparent public reference pricing from the stored Swiss Mail pricing source, with freshness status and standard vs registered totals.`
+- **Title:** `Pricing — Sendly`
+- **Meta description:** `Transparent public reference pricing from the stored Sendly pricing source, with freshness status and standard vs registered totals.`
 - **Structured data:** Could include `Offer` / pricing schema when prices are locked
 
 ### Layout
@@ -436,7 +436,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 #### 3.1 Hero
 
 - `<h1>` "Simple, honest pricing"
-- Subheading: "Public reference totals from the same stored pricing source Swiss Mail uses in the app, with the key assumptions shown plainly."
+- Subheading: "Public reference totals from the same stored pricing source Sendly uses in the app, with the key assumptions shown plainly."
 - Hero panel may show the current "from" price, but the detail work belongs below the fold.
 
 #### 3.2 Sync-status banner
@@ -462,8 +462,8 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 Two cards / tables:
 
 1. **What makes up the price**
-   - Swiss Mail service fee (standard)
-   - Swiss Mail service fee (registered)
+   - Sendly service fee (standard)
+   - Sendly service fee (registered)
    - provider standard reference total
    - provider registered reference total
 
@@ -540,8 +540,8 @@ Valid slugs: `lease-cancellation`, `insurance-cancellation`, `contract-terminati
 
 ### SEO (template — populated per slug)
 
-- **Title:** `{useCaseTitle} — Swiss Mail`
-- **Meta description:** `Draft and send {useCaseDescription} in minutes with Swiss Mail. AI-assisted and ready for postal dispatch.`
+- **Title:** `{useCaseTitle} — Sendly`
+- **Meta description:** `Draft and send {useCaseDescription} in minutes with Sendly. AI-assisted and ready for postal dispatch.`
 - **Structured data:** `HowTo`, `FAQPage`
 - **Canonical:** `https://swissmail.ch/use-cases/{slug}`
 
@@ -619,7 +619,7 @@ Optional query param: `?useCase={slug}` — pre-fills context
 ### SEO
 
 - `noindex` — application page, not for search indexing
-- **Title:** `Draft a new letter — Swiss Mail`
+- **Title:** `Draft a new letter — Sendly`
 
 ### Layout
 
@@ -717,7 +717,7 @@ The textarea starts empty and focused. Placeholder text provides guidance. No sk
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Drafting your letter — Swiss Mail`
+- **Title:** `Drafting your letter — Sendly`
 
 ### Layout
 
@@ -818,7 +818,7 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ <AppHeader>   Swiss Mail   Step 1 ●──○──○──○   {formattedEstimatedTotal}│
+│ <AppHeader>   Sendly   Step 1 ●──○──○──○   {formattedEstimatedTotal}│
 ├────────────────────────┬───────────────────────────────────┤
 │                        │                                    │
 │  <ConversationPanel>   │     <LetterPreview>                │
@@ -1056,7 +1056,7 @@ The product should feel like it already knows you. Every default should feel lik
   official registry-backed lookup before the user falls back to manual address entry.
 - Current staging implementation uses the official company registry to find the organization and
   legal seat only; the user must still confirm the mailing address manually before continuing.
-- Official company lookup must run through Swiss Mail server-side infrastructure (adapter + internal
+- Official company lookup must run through Sendly server-side infrastructure (adapter + internal
   proxy where needed). Do not expose registry credentials or make the browser call the registry
   directly.
 - For private-person recipients, do not query consumer directories or general web search. Capture
@@ -1226,7 +1226,7 @@ When the AI collects an address via conversation, it should confirm what it unde
 This confirmation gives the user a chance to catch typos before they reach the review page. The AI should NOT silently swallow addresses.
 
 **Recipient address outside Switzerland:**
-Swiss Mail dispatches physical letters within Switzerland. If the AI detects a non-Swiss address (country ≠ Switzerland, PLZ > 4 digits, or explicit country mention), it should inform the user: "Currently, Swiss Mail can only send letters to Swiss addresses. For international delivery, download the final PDF and use your own international mailing channel." This is a hard block — the system cannot proceed with a non-Swiss recipient.
+Sendly dispatches physical letters within Switzerland. If the AI detects a non-Swiss address (country ≠ Switzerland, PLZ > 4 digits, or explicit country mention), it should inform the user: "Currently, Sendly can only send letters to Swiss addresses. For international delivery, download the final PDF and use your own international mailing channel." This is a hard block — the system cannot proceed with a non-Swiss recipient.
 
 **Address formatting in preview:**
 Swiss letter formatting follows specific conventions. The preview must render addresses as:
@@ -1261,7 +1261,7 @@ Guest sessions expire (duration configurable, see `open-decisions.md`). The `<Se
 
 **What the resume email contains:**
 
-- Subject: "Your Swiss Mail letter draft — resume link"
+- Subject: "Your Sendly letter draft — resume link"
 - Body: brief explanation + prominent "Resume your letter" CTA button linking to `/resume/{token}`
 - Expiry note: "This link expires when your session expires ({expiryDate})."
 - NOT a full copy of the draft — just a link. Draft data stays server-side.
@@ -1404,7 +1404,7 @@ Power users who send multiple letters should be able to work without touching th
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Review your letter — Swiss Mail`
+- **Title:** `Review your letter — Sendly`
 
 ### Layout
 
@@ -1585,7 +1585,7 @@ No empty state — user cannot reach this page without a draft in progress.
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Checkout — Swiss Mail`
+- **Title:** `Checkout — Sendly`
 
 ### Layout
 
@@ -1635,7 +1635,7 @@ Stripe embedded payment element:
 
 Legal checkbox:
 
-- `<Checkbox>` + label: "I have read and agree to the [Terms of Service] and understand that Swiss Mail is not a legal service."
+- `<Checkbox>` + label: "I have read and agree to the [Terms of Service] and understand that Sendly is not a legal service."
 - Link to `/terms` opens in new tab
 - CTA disabled until checked
 
@@ -1658,7 +1658,7 @@ These are NOT generic trust badges — they are Swiss-specific and product-speci
 
 #### 8.3 TWINT Payment (Mobile)
 
-On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment option (Switzerland-specific). TWINT redirects the user to the TWINT app for approval, then returns them to Swiss Mail.
+On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment option (Switzerland-specific). TWINT redirects the user to the TWINT app for approval, then returns them to Sendly.
 
 **Flow:**
 
@@ -1666,8 +1666,8 @@ On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment op
 2. User taps "Send my letter" CTA.
 3. Stripe redirects to the TWINT app (or TWINT web flow on tablets without the app).
 4. User approves payment in TWINT.
-5. TWINT redirects back to Swiss Mail's checkout page.
-6. Swiss Mail receives Stripe webhook confirmation → navigates to `/draft/:id/confirmation`.
+5. TWINT redirects back to Sendly's checkout page.
+6. Sendly receives Stripe webhook confirmation → navigates to `/draft/:id/confirmation`.
 
 **Edge cases:**
 
@@ -1742,7 +1742,7 @@ No empty state — requires a valid draft and review completion to reach.
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Payment received — Swiss Mail`
+- **Title:** `Payment received — Sendly`
 
 ### Layout
 
@@ -1840,7 +1840,7 @@ Pending steps: muted, `text-tertiary`.
 
 Download bundle rules:
 
-- Page 1 is the branded Swiss Mail confirmation record with the app logo, dispatch status, submission mode, provider reference, tracking number when available, and the operational fields needed for support and email follow-up.
+- Page 1 is the branded Sendly confirmation record with the app logo, dispatch status, submission mode, provider reference, tracking number when available, and the operational fields needed for support and email follow-up.
 - Remaining pages are the exact rendered letter PDF prepared for dispatch. The download artifact must not diverge from the mailed letter asset.
 - If submission mode is `mock`, the UI copy and the PDF must state that no fee-bearing ePost submission occurred.
 
@@ -1909,7 +1909,7 @@ The confirmation page copy must reflect this: say "A payment receipt has been se
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Resume your letter — Swiss Mail`
+- **Title:** `Resume your letter — Sendly`
 
 ### Layout
 
@@ -2000,7 +2000,7 @@ The page must stay honest about ambiguity:
 
 ### SEO
 
-- **Title:** `Letter templates for Switzerland — Swiss Mail`
+- **Title:** `Letter templates for Switzerland — Sendly`
 - **Meta description:** `Browse formal Swiss letter templates by category, filter by topic, and start from the right structure in minutes.`
 - **Structured data:** `ItemList` for visible template cards, `BreadcrumbList`
 - **Canonical:** `https://swissmail.ch/templates`
@@ -2222,9 +2222,9 @@ No empty state.
 
 - Indexed with unique titles per page
 - Suggested titles:
-  - `/privacy` → `Privacy policy — Swiss Mail`
-  - `/terms` → `Terms of service — Swiss Mail`
-  - `/imprint` → `Imprint — Swiss Mail`
+  - `/privacy` → `Privacy policy — Sendly`
+  - `/terms` → `Terms of service — Sendly`
+  - `/imprint` → `Imprint — Sendly`
 - Each page includes locale-specific canonical + `hreflang` tags for `de-CH`, `fr-CH`, `it-CH`, `en-CH`
 
 ### Layout

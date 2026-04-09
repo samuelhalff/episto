@@ -585,7 +585,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       attachmentMode: "none",
       shippingCountry: "CH",
       envelopeSize: "C5",
-      windowLocation: "LEFT",
+      windowLocation: "RIGHT",
       duplex: false,
       providerQuotedCents: 578,
       currency: "CHF",

@@ -40,11 +40,11 @@ describe("DraftStatus transitions", () => {
     ]);
   });
 
-  it("allows rendering to return to fields_complete when render-time validation fails", () => {
-    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(true);
-    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.collecting)).toBe(false);
+  it("returns rendering drafts to collecting when review preparation must be redone", () => {
+    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.fields_complete)).toBe(false);
+    expect(canTransitionDraft(DraftStatus.rendering, DraftStatus.collecting)).toBe(true);
     expect(getAllowedDraftTransitions(DraftStatus.rendering)).toEqual([
-      DraftStatus.fields_complete,
+      DraftStatus.collecting,
       DraftStatus.ready,
       DraftStatus.closed,
     ]);

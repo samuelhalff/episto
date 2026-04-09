@@ -15,7 +15,7 @@ import {
   stripLetterFramingText,
 } from "@swiss-mail/shared/letter-framing";
 import { DocumentPreview, fallbackDocument } from "./DocumentPreview";
-import { getSenderDisplayName } from "../../lib/letter-content";
+import { getAddressLines, getSenderDisplayName } from "../../lib/letter-content";
 
 export type ZoneKind =
   | "sender"
@@ -50,6 +50,17 @@ interface LetterPreviewProps {
   onZoneCancel?: (() => void) | undefined;
   variant?: "default" | "immersive" | undefined;
   showHeader?: boolean | undefined;
+}
+
+const LETTER_PAGE_WIDTH_MM = 210;
+const LETTER_PAGE_HEIGHT_MM = 297;
+
+function mmToPreviewWidth(value: number): string {
+  return `${(value / LETTER_PAGE_WIDTH_MM) * 100}%`;
+}
+
+function mmToPreviewHeight(value: number): string {
+  return `${(value / LETTER_PAGE_HEIGHT_MM) * 100}%`;
 }
 
 export function LetterPreview({
@@ -95,6 +106,11 @@ export function LetterPreview({
   const placeAndDate = senderProfile?.city?.trim()
     ? `${senderProfile.city.trim()}, ${formattedDate}`
     : formattedDate;
+  const senderLines = getAddressLines(senderProfile, "sender");
+  const recipientLines = getAddressLines(recipientProfile, "recipient");
+  const deliveryLine = (
+    draft.deliveryType === "registered" ? t("registeredMail") : t("standardMail")
+  ).toUpperCase();
 
   return (
     <div
@@ -133,152 +149,183 @@ export function LetterPreview({
           }`}
         >
           <div
-            className={`space-y-8 text-sm text-zinc-700 ${
+            className={`letter-layout-shell relative w-full text-sm text-zinc-700 ${
               isImmersive ? "flex min-h-[640px] flex-1 flex-col" : "min-h-[560px]"
             }`}
           >
-            <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
-              <div className="max-w-[220px] text-xs">
-                {senderProfile ? (
-                  <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
-                    {(senderProfile.firstName || senderProfile.lastName) && (
-                      <div className="font-medium">
-                        {[senderProfile.firstName, senderProfile.lastName]
-                          .filter(Boolean)
-                          .join(" ")}
-                      </div>
-                    )}
-                    {senderProfile.company && <div>{senderProfile.company}</div>}
-                    <div>{senderProfile.addressLine1}</div>
-                    {senderProfile.addressLine2 && (
-                      <div>{senderProfile.addressLine2}</div>
-                    )}
-                    <div>
-                      {senderProfile.postalCode} {senderProfile.city}
+            <div
+              className="sender-block absolute"
+              style={{
+                top: mmToPreviewHeight(20),
+                left: mmToPreviewWidth(25),
+                width: mmToPreviewWidth(80),
+              }}
+            >
+              <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
+                <div className="text-[0.72rem] leading-[1.45]">
+                  {senderProfile ? (
+                    <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
+                      {senderLines.map((line, index) => (
+                        <div
+                          key={`${line}-${index}`}
+                          className={index === 0 ? "font-semibold" : "font-medium"}
+                        >
+                          {line}
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                ) : draft.senderProfileId ? (
-                  <span className="text-zinc-600 dark:text-zinc-300">
-                    &#x2709; {t("senderLabel")}
-                  </span>
-                ) : (
-                  <span className="italic text-zinc-400 dark:text-zinc-500">
-                    {t("senderPlaceholder")}
-                  </span>
-                )}
-              </div>
-            </ZoneBlock>
-
-            <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
-              <div className="mt-6 ml-auto max-w-[260px] text-right">
-                {recipientProfile ? (
-                  <div className="space-y-0.5 text-sm text-zinc-700 dark:text-zinc-200">
-                    {recipientProfile.company && (
-                      <div className="font-medium">{recipientProfile.company}</div>
-                    )}
-                    {recipientProfile.department && (
-                      <div>{recipientProfile.department}</div>
-                    )}
-                    {(recipientProfile.firstName || recipientProfile.lastName) && (
-                      <div>
-                        {[recipientProfile.firstName, recipientProfile.lastName]
-                          .filter(Boolean)
-                          .join(" ")}
-                      </div>
-                    )}
-                    <div>{recipientProfile.addressLine1}</div>
-                    {recipientProfile.addressLine2 && (
-                      <div>{recipientProfile.addressLine2}</div>
-                    )}
-                    <div>
-                      {recipientProfile.postalCode} {recipientProfile.city}
-                    </div>
-                  </div>
-                ) : draft.recipientProfileId ? (
-                  <span className="text-zinc-600 dark:text-zinc-300">
-                    {t("recipientLabel")}
-                  </span>
-                ) : (
-                  <span className="italic text-zinc-400 dark:text-zinc-500">
-                    {t("recipientPlaceholder")}
-                  </span>
-                )}
-              </div>
-            </ZoneBlock>
-
-            <div className="text-right text-xs text-zinc-400 dark:text-zinc-500">
-              {placeAndDate}
-            </div>
-
-            {editingZone === "subject" ? (
-              <InlineTextEditor
-                zone="subject"
-                initialValue={draft.subject ?? ""}
-                onSave={onZoneSave}
-                onCancel={onZoneCancel}
-              />
-            ) : (
-              <ZoneBlock zone="subject" isEditing={false} onZoneClick={onZoneClick}>
-                <div className="font-semibold text-zinc-900 dark:text-zinc-50">
-                  {draft.subject ?? (
-                    <span className="font-normal italic text-zinc-400 dark:text-zinc-500">
-                      {t("subjectPlaceholder")}
+                  ) : draft.senderProfileId ? (
+                    <span className="text-zinc-600 dark:text-zinc-300">
+                      &#x2709; {t("senderLabel")}
                     </span>
-                  )}
-                </div>
-              </ZoneBlock>
-            )}
-
-            {hasLetterContent ? (
-              <div className="text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
-                {salutation}
-              </div>
-            ) : null}
-
-            {editingZone === "body" ? (
-              <InlineTextEditor
-                zone="body"
-                initialValue={sanitizedBody}
-                onSave={onZoneSave}
-                onCancel={onZoneCancel}
-                multiline
-              />
-            ) : (
-              <ZoneBlock zone="body" isEditing={false} onZoneClick={onZoneClick}>
-                <div className="space-y-4 leading-relaxed">
-                  {hasLetterContent ? (
-                    <DocumentPreview document={document} />
                   ) : (
                     <span className="italic text-zinc-400 dark:text-zinc-500">
-                      {t("bodyPlaceholder")}
+                      {t("senderPlaceholder")}
                     </span>
                   )}
                 </div>
               </ZoneBlock>
-            )}
+            </div>
 
-            {hasLetterContent ? (
-              <div className="pt-2 text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
-                {closing}
+            <div
+              className="dispatch-line absolute"
+              style={{
+                top: mmToPreviewHeight(40),
+                left: mmToPreviewWidth(121),
+                width: mmToPreviewWidth(59),
+              }}
+            >
+              <div className="border-b border-current pb-0.5 text-[0.62rem] font-bold tracking-[0.18em] text-zinc-700 dark:text-zinc-200">
+                {deliveryLine}
               </div>
-            ) : null}
+            </div>
 
-            {draft.enclosureNote && (
-              <div className="border-t border-[var(--app-border)] pt-4 text-xs text-zinc-500 dark:text-zinc-400">
-                {draft.enclosureNote}
-              </div>
-            )}
+            <div
+              className="recipient-block absolute"
+              style={{
+                top: mmToPreviewHeight(52),
+                left: mmToPreviewWidth(121),
+                width: mmToPreviewWidth(59),
+              }}
+            >
+              <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
+                <div className="text-[0.8rem] leading-[1.35] text-left">
+                  {recipientProfile ? (
+                    <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
+                      {recipientLines.map((line, index) => (
+                        <div
+                          key={`${line}-${index}`}
+                          className={index === 0 ? "font-medium" : undefined}
+                        >
+                          {line}
+                        </div>
+                      ))}
+                    </div>
+                  ) : draft.recipientProfileId ? (
+                    <span className="text-zinc-600 dark:text-zinc-300">
+                      {t("recipientLabel")}
+                    </span>
+                  ) : (
+                    <span className="italic text-zinc-400 dark:text-zinc-500">
+                      {t("recipientPlaceholder")}
+                    </span>
+                  )}
+                </div>
+              </ZoneBlock>
+            </div>
 
-            {shouldShowGeneratedSignature ? (
-              <div className="pt-8">
-                <p className="signature-script text-zinc-700 dark:text-zinc-100">
-                  {signatureDisplayName}
-                </p>
-                <p className="signature-name mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                  {signatureDisplayName}
-                </p>
+            <div
+              className="right-meta absolute"
+              style={{
+                top: mmToPreviewHeight(87),
+                left: mmToPreviewWidth(121),
+                width: mmToPreviewWidth(59),
+              }}
+            >
+              <div className="date-line text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+                {placeAndDate}
               </div>
-            ) : null}
+            </div>
+
+            <div
+              className="body-flow flex h-full flex-col"
+              style={{
+                paddingTop: mmToPreviewHeight(114),
+                paddingRight: mmToPreviewWidth(20),
+                paddingBottom: mmToPreviewHeight(20),
+                paddingLeft: mmToPreviewWidth(25),
+              }}
+            >
+              {editingZone === "subject" ? (
+                <InlineTextEditor
+                  zone="subject"
+                  initialValue={draft.subject ?? ""}
+                  onSave={onZoneSave}
+                  onCancel={onZoneCancel}
+                />
+              ) : (
+                <ZoneBlock zone="subject" isEditing={false} onZoneClick={onZoneClick}>
+                  <div className="font-semibold text-zinc-900 dark:text-zinc-50">
+                    {draft.subject ?? (
+                      <span className="font-normal italic text-zinc-400 dark:text-zinc-500">
+                        {t("subjectPlaceholder")}
+                      </span>
+                    )}
+                  </div>
+                </ZoneBlock>
+              )}
+
+              {hasLetterContent ? (
+                <div className="mt-6 text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
+                  {salutation}
+                </div>
+              ) : null}
+
+              {editingZone === "body" ? (
+                <InlineTextEditor
+                  zone="body"
+                  initialValue={sanitizedBody}
+                  onSave={onZoneSave}
+                  onCancel={onZoneCancel}
+                  multiline
+                />
+              ) : (
+                <ZoneBlock zone="body" isEditing={false} onZoneClick={onZoneClick}>
+                  <div className="mt-6 space-y-4 leading-relaxed">
+                    {hasLetterContent ? (
+                      <DocumentPreview document={document} />
+                    ) : (
+                      <span className="italic text-zinc-400 dark:text-zinc-500">
+                        {t("bodyPlaceholder")}
+                      </span>
+                    )}
+                  </div>
+                </ZoneBlock>
+              )}
+
+              {hasLetterContent ? (
+                <div className="pt-6 text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
+                  {closing}
+                </div>
+              ) : null}
+
+              {draft.enclosureNote && (
+                <div className="mt-10 border-t border-[var(--app-border)] pt-4 text-xs italic text-zinc-500 dark:text-zinc-400">
+                  {draft.enclosureNote}
+                </div>
+              )}
+
+              {shouldShowGeneratedSignature ? (
+                <div className="pt-8">
+                  <p className="signature-script text-zinc-700 dark:text-zinc-100">
+                    {signatureDisplayName}
+                  </p>
+                  <p className="signature-name mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                    {signatureDisplayName}
+                  </p>
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
       </div>

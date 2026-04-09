@@ -48,10 +48,18 @@ describe("body generation dialog regressions", () => {
     expect(bodyStepSource).toContain('loadingLabel={t("bodyGenerationLoadingLabel")}');
   });
 
-  it("keeps the generation recovery state non-dismissible with refresh first and support disabled", () => {
-    expect(bodyGenerationDialogSource).toContain("onEscapeKeyDown={(event) => event.preventDefault()}");
-    expect(bodyGenerationDialogSource).toContain("onPointerDownOutside={(event) => event.preventDefault()}");
+  it("keeps loading blocking but exposes an error-state close action", () => {
+    expect(bodyGenerationDialogSource).toContain("onOpenChange={(nextOpen) => {");
+    expect(bodyGenerationDialogSource).toContain("if (!nextOpen && !isLoading)");
+    expect(bodyGenerationDialogSource).toContain("onEscapeKeyDown={handleEscapeKeyDown}");
+    expect(bodyGenerationDialogSource).toContain("onPointerDownOutside={handlePointerDownOutside}");
     expect(bodyGenerationDialogSource).toContain("<PrimaryButton onClick={onRefresh}");
+    expect(bodyGenerationDialogSource).toContain("closeLabel");
+    expect(bodyGenerationDialogSource).toContain("onClose");
+    expect(bodyGenerationDialogSource).toContain("<SecondaryButton onClick={onClose} leadingVisual=\"hide\">");
     expect(bodyGenerationDialogSource).toContain("<SecondaryButton disabled");
+    expect(bodyStepSource).toContain("function handleDismissBodyGenerationDialog()");
+    expect(bodyStepSource).toContain('closeLabel={tc("close")}');
+    expect(bodyStepSource).toContain("onClose={handleDismissBodyGenerationDialog}");
   });
 });

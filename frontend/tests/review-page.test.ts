@@ -94,14 +94,18 @@ describe("review page regressions", () => {
     expect(reviewReadySource).toContain("ActionButton");
   });
 
+  it("opts the review footer actions into the shared desktop minimum width treatment", () => {
+    expect(reviewReadySource).toContain("desktopMinWidth");
+  });
+
   it("labels the footer back action by destination instead of generic editing copy", () => {
     expect(reviewReadySource).toContain('t("backToDraft")');
     expect(reviewReadySource).not.toContain('t("backToEditing")');
   });
 
-  it("transitions draft back to fields_complete before navigating to workspace", () => {
+  it("transitions draft back to collecting before navigating to workspace", () => {
     expect(reviewReadySource).toContain("useTransitionDraft");
-    expect(reviewReadySource).toContain('{ status: "fields_complete" }');
+    expect(reviewReadySource).toContain('{ status: "collecting" }');
     expect(reviewReadySource).toContain("handleBackToDraft");
   });
 

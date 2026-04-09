@@ -33,8 +33,8 @@ export function FlowActionDock({
         .filter(Boolean)
         .join(" ")}
     >
-      <div className="mx-auto flex max-w-7xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:items-center">
+      <div className="mx-auto flex max-w-7xl flex-col gap-3 lg:flex-row lg:items-center lg:justify-end">
+        <div className="flex w-full flex-col gap-3 lg:w-auto lg:flex-row lg:items-center">
           {secondaryAction}
           {primaryAction}
         </div>

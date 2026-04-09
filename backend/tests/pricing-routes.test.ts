@@ -81,7 +81,7 @@ describe("pricing routes", () => {
         referenceScenario: {
           shippingCountry: "CH",
           envelopeSize: "C5",
-          windowLocation: "LEFT",
+          windowLocation: "RIGHT",
           duplex: false,
           attachmentMode: "none",
           standardPostage: "A_POST",

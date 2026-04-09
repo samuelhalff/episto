@@ -25,60 +25,39 @@ export interface ConfirmationDocumentInput {
 interface ConfirmationCopy {
   eyebrow: string;
   title: string;
-  subtitle: string;
-  recordedAt: string;
+  issuedOn: string;
   orderRef: string;
-  submittedAt: string;
   dispatchStatus: string;
   deliveryType: string;
-  submissionMode: string;
   providerReference: string;
   trackingNumber: string;
-  letterPages: string;
   attachments: string;
   sender: string;
   recipient: string;
   subject: string;
-  contentSummary: string;
-  notes: string;
   notAvailable: string;
-  submissionModes: Record<Exclude<SubmissionMode, null>, string>;
   dispatchStates: Record<string, string>;
   deliveryTypes: Record<SnapshotData["deliveryType"], string>;
-  summaryPending: string;
-  summaryLive: string;
-  summaryMock: string;
+  noteCurrent: string;
   noteLive: string;
-  noteMock: string;
   noteBundle: string;
 }
 
 const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
   "en-CH": {
-    eyebrow: "Swiss Mail record",
-    title: "Dispatch confirmation document",
-    subtitle:
-      "Structured confirmation page followed by the exact letter package prepared for dispatch.",
-    recordedAt: "Record generated",
+    eyebrow: "Sendly",
+    title: "Dispatch statement",
+    issuedOn: "Issued on",
     orderRef: "Order reference",
-    submittedAt: "Submitted at",
-    dispatchStatus: "Dispatch status",
+    dispatchStatus: "Status",
     deliveryType: "Delivery type",
-    submissionMode: "Submission mode",
     providerReference: "Provider reference",
     trackingNumber: "Tracking number",
-    letterPages: "Letter pages",
     attachments: "Attachments",
     sender: "Sender",
     recipient: "Recipient",
     subject: "Subject",
-    contentSummary: "Content summary",
-    notes: "Control notes",
     notAvailable: "Not available",
-    submissionModes: {
-      mock: "Mock provider response",
-      live: "Live ePost submission",
-    },
     dispatchStates: {
       queued: "Queued",
       submitted: "Submitted",
@@ -91,44 +70,25 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
       standard: "Standard post",
       registered: "Registered post",
     },
-    summaryPending:
-      "This document records the latest Swiss Mail letter package while provider submission is still pending.",
-    summaryLive:
-      "This document confirms that Swiss Mail submitted the attached letter package to ePost for physical dispatch.",
-    summaryMock:
-      "This document confirms that Swiss Mail processed the attached letter package in mock ePost mode. No fee-bearing provider submission occurred.",
+    noteCurrent: "This statement reflects the current dispatch record.",
     noteLive:
-      "Provider identifiers on this page are recorded exactly as returned by the live dispatch integration.",
-    noteMock:
-      "Mock mode mirrors the response surface expected from ePost so operations can validate references, tracking fields, emails, and PDFs without triggering fees.",
-    noteBundle:
-      "The pages after this confirmation sheet are the exact rendered letter PDF prepared for dispatch. Keep this bundle as the canonical audit copy.",
+      "Provider identifiers are shown exactly as returned by the dispatch integration.",
+    noteBundle: "The exact letter PDF follows on the next page.",
   },
   "de-CH": {
-    eyebrow: "Swiss Mail Protokoll",
-    title: "Versandbestaetigungsdokument",
-    subtitle:
-      "Strukturierte Bestaetigungsseite mit dem anschliessenden, fuer den Versand vorbereiteten Briefpaket.",
-    recordedAt: "Protokoll erstellt",
+    eyebrow: "Sendly",
+    title: "Versandnachweis",
+    issuedOn: "Ausgestellt am",
     orderRef: "Bestellreferenz",
-    submittedAt: "Uebermittelt am",
     dispatchStatus: "Versandstatus",
     deliveryType: "Versandart",
-    submissionMode: "Uebermittlungsmodus",
     providerReference: "Anbieterreferenz",
     trackingNumber: "Sendungsnummer",
-    letterPages: "Briefseiten",
     attachments: "Beilagen",
     sender: "Absender",
     recipient: "Empfaenger",
     subject: "Betreff",
-    contentSummary: "Inhaltszusammenfassung",
-    notes: "Kontrollhinweise",
     notAvailable: "Nicht verfuegbar",
-    submissionModes: {
-      mock: "Mock-Antwort",
-      live: "Live-ePost-Uebermittlung",
-    },
     dispatchStates: {
       queued: "In Warteschlange",
       submitted: "Eingereicht",
@@ -141,44 +101,25 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
       standard: "A-Post",
       registered: "Einschreiben",
     },
-    summaryPending:
-      "Dieses Dokument protokolliert das aktuelle Swiss Mail Briefpaket, waehrend die Anbieteruebermittlung noch aussteht.",
-    summaryLive:
-      "Dieses Dokument bestaetigt, dass Swiss Mail das beigefuegte Briefpaket zur physischen Zustellung an ePost uebermittelt hat.",
-    summaryMock:
-      "Dieses Dokument bestaetigt, dass Swiss Mail das beigefuegte Briefpaket im ePost-Mock-Modus verarbeitet hat. Es wurde keine gebuehrenpflichtige Anbieteruebermittlung ausgeloest.",
+    noteCurrent: "Dieser Versandnachweis zeigt den aktuellen Versandstand.",
     noteLive:
-      "Alle Anbieterkennungen auf dieser Seite sind exakt so erfasst, wie sie von der Live-Integration geliefert wurden.",
-    noteMock:
-      "Der Mock-Modus bildet die erwartete ePost-Antwortoberflaeche nach, damit Referenzen, Tracking-Felder, E-Mails und PDFs ohne Gebuehren validiert werden koennen.",
-    noteBundle:
-      "Die Seiten nach diesem Bestaetigungsblatt sind das exakt gerenderte Brief-PDF, das fuer den Versand vorbereitet wurde. Dieses Paket ist die massgebliche Audit-Kopie.",
+      "Anbieterkennungen werden exakt wie von der Versandintegration geliefert angezeigt.",
+    noteBundle: "Das exakte Brief-PDF beginnt auf der naechsten Seite.",
   },
   "fr-CH": {
-    eyebrow: "Journal Swiss Mail",
-    title: "Document de confirmation d'envoi",
-    subtitle:
-      "Page de confirmation structuree suivie du paquet de lettre prepare pour l'envoi.",
-    recordedAt: "Document genere le",
+    eyebrow: "Sendly",
+    title: "Justificatif d'envoi",
+    issuedOn: "Etabli le",
     orderRef: "Reference de commande",
-    submittedAt: "Transmis le",
     dispatchStatus: "Statut d'envoi",
     deliveryType: "Mode d'envoi",
-    submissionMode: "Mode de soumission",
     providerReference: "Reference prestataire",
     trackingNumber: "Numero de suivi",
-    letterPages: "Pages de lettre",
     attachments: "Pieces jointes",
     sender: "Expediteur",
     recipient: "Destinataire",
     subject: "Objet",
-    contentSummary: "Resume du contenu",
-    notes: "Notes de controle",
     notAvailable: "Non disponible",
-    submissionModes: {
-      mock: "Reponse mock",
-      live: "Soumission ePost en direct",
-    },
     dispatchStates: {
       queued: "En attente",
       submitted: "Soumis",
@@ -191,44 +132,25 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
       standard: "Courrier standard",
       registered: "Courrier recommande",
     },
-    summaryPending:
-      "Ce document consigne le dernier paquet de lettre Swiss Mail pendant que la soumission au prestataire est encore en attente.",
-    summaryLive:
-      "Ce document confirme que Swiss Mail a soumis le paquet de lettre ci-joint a ePost pour l'envoi physique.",
-    summaryMock:
-      "Ce document confirme que Swiss Mail a traite le paquet de lettre ci-joint en mode mock ePost. Aucune soumission payante au prestataire n'a eu lieu.",
+    noteCurrent: "Ce justificatif reflete l'etat actuel de l'envoi.",
     noteLive:
-      "Les identifiants prestataire figurant sur cette page sont enregistres exactement tels qu'ils ont ete renvoyes par l'integration en direct.",
-    noteMock:
-      "Le mode mock reproduit la surface de reponse attendue d'ePost afin de valider references, champs de suivi, e-mails et PDFs sans frais.",
-    noteBundle:
-      "Les pages apres cette feuille de confirmation correspondent au PDF de lettre exact prepare pour l'envoi. Conservez ce bundle comme copie d'audit de reference.",
+      "Les identifiants prestataire sont affiches exactement comme renvoyes par l'integration d'envoi.",
+    noteBundle: "Le PDF exact de la lettre commence a la page suivante.",
   },
   "it-CH": {
-    eyebrow: "Registro Swiss Mail",
-    title: "Documento di conferma spedizione",
-    subtitle:
-      "Pagina di conferma strutturata seguita dal pacchetto lettera preparato per la spedizione.",
-    recordedAt: "Documento generato il",
+    eyebrow: "Sendly",
+    title: "Attestazione di spedizione",
+    issuedOn: "Emesso il",
     orderRef: "Riferimento ordine",
-    submittedAt: "Trasmesso il",
     dispatchStatus: "Stato spedizione",
     deliveryType: "Tipo di invio",
-    submissionMode: "Modalita di invio",
     providerReference: "Riferimento fornitore",
     trackingNumber: "Numero di tracciamento",
-    letterPages: "Pagine lettera",
     attachments: "Allegati",
     sender: "Mittente",
     recipient: "Destinatario",
     subject: "Oggetto",
-    contentSummary: "Sintesi contenuto",
-    notes: "Note di controllo",
     notAvailable: "Non disponibile",
-    submissionModes: {
-      mock: "Risposta mock",
-      live: "Invio ePost live",
-    },
     dispatchStates: {
       queued: "In coda",
       submitted: "Inviato",
@@ -241,18 +163,10 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
       standard: "Posta standard",
       registered: "Raccomandata",
     },
-    summaryPending:
-      "Questo documento registra l'ultimo pacchetto lettera Swiss Mail mentre l'invio al fornitore e ancora in attesa.",
-    summaryLive:
-      "Questo documento conferma che Swiss Mail ha inviato il pacchetto lettera allegato a ePost per la spedizione fisica.",
-    summaryMock:
-      "Questo documento conferma che Swiss Mail ha elaborato il pacchetto lettera allegato in modalita mock ePost. Non e stato eseguito alcun invio a pagamento verso il fornitore.",
+    noteCurrent: "Questa attestazione riflette lo stato corrente della spedizione.",
     noteLive:
-      "Gli identificativi del fornitore riportati in questa pagina sono registrati esattamente come restituiti dall'integrazione live.",
-    noteMock:
-      "La modalita mock replica la superficie di risposta prevista da ePost per validare riferimenti, campi tracking, e-mail e PDF senza costi.",
-    noteBundle:
-      "Le pagine dopo questo foglio di conferma corrispondono al PDF lettera esatto preparato per la spedizione. Conserva questo bundle come copia di audit canonica.",
+      "Gli identificativi del fornitore sono riportati esattamente come restituiti dall'integrazione di spedizione.",
+    noteBundle: "Il PDF esatto della lettera inizia alla pagina successiva.",
   },
 };
 
@@ -307,64 +221,75 @@ function formatList(items: string[], fallback: string): string {
   return items.map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join("");
 }
 
-function resolveSummary(copy: ConfirmationCopy, providerMode: SubmissionMode): string {
-  if (providerMode === "mock") {
-    return copy.summaryMock;
-  }
-
-  if (providerMode === "live") {
-    return copy.summaryLive;
-  }
-
-  return copy.summaryPending;
-}
-
 function resolveControlNote(
   copy: ConfirmationCopy,
   providerMode: SubmissionMode,
 ): string {
-  if (providerMode === "mock") {
-    return copy.noteMock;
-  }
-
   if (providerMode === "live") {
     return copy.noteLive;
   }
 
-  return copy.noteBundle;
+  return copy.noteCurrent;
 }
 
 function renderBrandMark(): string {
   return `<svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true" role="img">
-    <defs>
-      <linearGradient id="brand-shell" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#17324d" />
-        <stop offset="100%" stop-color="#23476a" />
-      </linearGradient>
-    </defs>
-    <rect x="0" y="0" width="56" height="56" rx="16" fill="url(#brand-shell)" />
-    <path d="M12 18h32v20H12z" fill="none" stroke="#f7f8fa" stroke-width="2.4" stroke-linejoin="round"/>
-    <path d="M13 19l15 12 15-12" fill="none" stroke="#f7f8fa" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="36" y="8" width="12" height="12" rx="4" fill="#d64545" />
-    <path d="M42 10.5v7M38.5 14h7" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round"/>
+    <rect x="4" y="4" width="48" height="48" rx="18" fill="#f6c54a" />
+    <circle cx="26" cy="30" r="10.5" fill="none" stroke="#18181b" stroke-width="4" />
+    <circle cx="36.5" cy="19.5" r="4.5" fill="#18181b" />
   </svg>`;
 }
 
 export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput): string {
   const copy = getCopy(input.locale);
-  const providerModeLabel = input.providerMode
-    ? copy.submissionModes[input.providerMode]
-    : copy.notAvailable;
   const dispatchStatusLabel =
     copy.dispatchStates[input.dispatchState] ?? input.dispatchState;
   const deliveryTypeLabel = copy.deliveryTypes[input.deliveryType] ?? input.deliveryType;
-  const summaryText = resolveSummary(copy, input.providerMode ?? null);
   const controlNote = resolveControlNote(copy, input.providerMode ?? null);
-  const contentSummary =
-    input.contentSummary.trim().length > 0 ? input.contentSummary : copy.notAvailable;
-  const renderedAt = formatDateTime(input.locale, new Date(), copy.notAvailable);
-  const submittedAt = formatDateTime(input.locale, input.submittedAt, copy.notAvailable);
+  const issuedAt = formatDateTime(
+    input.locale,
+    input.submittedAt ?? new Date(),
+    copy.notAvailable,
+  );
   const letterHtml = input.letterHtml?.trim() ?? "";
+  const showTracking = Boolean(input.trackingNumber);
+  const showProviderReference = Boolean(
+    input.providerMode === "live" && input.providerReference,
+  );
+  const showReferenceCard = showTracking || showProviderReference;
+  const primaryReferenceLabel = input.trackingNumber
+    ? copy.trackingNumber
+    : copy.providerReference;
+  const primaryReferenceValue =
+    input.trackingNumber ?? input.providerReference ?? copy.notAvailable;
+  const providerReferenceValue = input.providerReference ?? copy.notAvailable;
+  const providerReferenceMeta = showTracking && showProviderReference
+    ? `<p class="reference-meta"><span class="reference-meta-label">${escapeHtml(
+        copy.providerReference,
+      )}</span>${escapeHtml(providerReferenceValue)}</p>`
+    : "";
+  const subjectValue = input.subject
+    ? escapeHtml(input.subject)
+    : `<span class="value-muted">${escapeHtml(copy.notAvailable)}</span>`;
+  const attachmentTags =
+    input.attachmentNames.length > 0
+      ? formatList(input.attachmentNames, copy.notAvailable)
+      : "";
+  const metaItems: string[] = [];
+
+  if (input.subject) {
+    metaItems.push(`<div>
+          <div class="label">${escapeHtml(copy.subject)}</div>
+          <div class="meta-value">${subjectValue}</div>
+        </div>`);
+  }
+
+  if (input.attachmentNames.length > 0) {
+    metaItems.push(`<div>
+          <div class="label">${escapeHtml(copy.attachments)}</div>
+          <div class="tag-list">${attachmentTags}</div>
+        </div>`);
+  }
 
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(input.locale)}">
@@ -375,170 +300,163 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       size: A4;
       margin: 0;
     }
+    :root {
+      --pdf-bg: #fffaf2;
+      --pdf-surface: #ffffff;
+      --pdf-surface-soft: #faf7f1;
+      --pdf-border: rgba(24, 24, 27, 0.08);
+      --pdf-border-strong: rgba(24, 24, 27, 0.14);
+      --pdf-text: #18181b;
+      --pdf-muted: #71717a;
+      --pdf-muted-strong: #3f3f46;
+      --pdf-accent: #f6c54a;
+      --pdf-shadow: none;
+    }
     * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: #152535;
-      background: #edf2f7;
+      color: var(--pdf-text);
+      background: var(--pdf-bg);
     }
     .confirmation-page {
-      height: 297mm;
-      padding: 16mm 16mm 14mm;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at top right, rgba(212, 190, 137, 0.18), transparent 32%),
-        linear-gradient(180deg, #f9fbfd 0%, #fffdf8 100%);
+      min-height: 297mm;
+      padding: 14mm 14mm 12mm;
+      display: flex;
+      flex-direction: column;
+      gap: 8mm;
     }
-    .hero {
-      border: 1px solid rgba(24, 50, 77, 0.08);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.94);
-      box-shadow: 0 18px 36px rgba(20, 37, 53, 0.08);
-      overflow: hidden;
+    .header-card,
+    .hero-card,
+    .section-card,
+    .party-card,
+    .meta-card,
+    .footer-note {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      border: 1px solid var(--pdf-border);
+      border-radius: 16px;
+      background: var(--pdf-surface);
+      box-shadow: var(--pdf-shadow);
     }
-    .hero-top {
+    .header-card {
       display: flex;
       justify-content: space-between;
-      gap: 14mm;
-      padding: 12mm 12mm 8mm;
-      background: linear-gradient(135deg, #17324d 0%, #244c72 78%, #2b5f89 100%);
-      color: #f7f8fa;
+      align-items: flex-end;
+      gap: 12mm;
+      padding: 10mm;
     }
     .brand {
       display: flex;
       align-items: center;
       gap: 14px;
     }
-    .brand-copy small {
+    .brand-copy small,
+    .label,
+    .reference-meta-label,
+    .header-meta-label {
       display: block;
       margin-bottom: 4px;
-      font-size: 9pt;
+      font-size: 8.5pt;
       letter-spacing: 0.14em;
       text-transform: uppercase;
-      color: rgba(247, 248, 250, 0.72);
+      color: var(--pdf-muted);
     }
     .brand-copy h1 {
       margin: 0;
-      font-size: 21pt;
+      font-size: 22pt;
       line-height: 1.05;
-      font-weight: 700;
+      font-weight: 800;
     }
-    .brand-copy p {
-      margin: 7px 0 0;
-      max-width: 110mm;
-      font-size: 10pt;
-      line-height: 1.45;
-      color: rgba(247, 248, 250, 0.86);
+    .header-meta {
+      min-width: 46mm;
+      text-align: right;
     }
-    .status-pill {
-      align-self: flex-start;
-      padding: 8px 12px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.22);
-      font-size: 9pt;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-    .hero-body {
-      padding: 10mm 12mm 12mm;
-    }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 9mm;
-    }
-    .summary-card {
-      padding: 10px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(24, 50, 77, 0.08);
-      background: #f8fafc;
-    }
-    .summary-card .label,
-    .detail-card .label,
-    .address-card .label {
-      margin-bottom: 6px;
-      font-size: 8.5pt;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #637284;
-    }
-    .summary-card .value {
-      font-size: 11.5pt;
-      font-weight: 700;
-      line-height: 1.3;
-      color: #152535;
-    }
-    .summary-card .value-muted,
-    .detail-card .value-muted {
-      color: #7d8794;
-      font-weight: 500;
-    }
-    .details-layout {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-      gap: 12px;
-      margin-bottom: 9mm;
-    }
-    .detail-card,
-    .address-card {
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(24, 50, 77, 0.08);
-      background: #ffffff;
-    }
-    .detail-card h2 {
-      margin: 0 0 12px;
-      font-size: 12.5pt;
-    }
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px 14px;
-    }
-    .detail-row .value {
-      font-size: 10.5pt;
-      font-weight: 600;
-      line-height: 1.45;
-      color: #152535;
+    .header-meta-value,
+    .fact-value,
+    .meta-value,
+    .party-value,
+    .reference-value,
+    .footer-note p {
       word-break: break-word;
     }
-    .detail-row .value.content-summary-value {
-      display: -webkit-box;
-      -webkit-box-orient: vertical;
-      -webkit-line-clamp: 4;
-      overflow: hidden;
+    .header-meta-value {
+      font-size: 11pt;
+      line-height: 1.35;
+      font-weight: 700;
+      color: var(--pdf-text);
     }
-    .address-grid {
+    .fact-card,
+    .reference-card {
+      break-inside: avoid;
+      page-break-inside: avoid;
+      border: 1px solid var(--pdf-border);
+      border-radius: 16px;
+      background: var(--pdf-surface);
+    }
+    .fact-card,
+    .party-card,
+    .meta-card,
+    .reference-card {
+      padding: 8mm;
+    }
+    .facts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px 16px;
+    }
+    .reference-card {
+      background: var(--pdf-surface-soft);
+      border-color: var(--pdf-border-strong);
+    }
+    .reference-value {
+      font-size: 18pt;
+      line-height: 1.15;
+      font-weight: 900;
+      color: var(--pdf-text);
+    }
+    .tracking-value {
+      color: #18181b;
+      font-weight: 900;
+      letter-spacing: 0.02em;
+    }
+    .value-muted {
+      color: var(--pdf-muted);
+      font-weight: 500;
+    }
+    .reference-meta {
+      margin: 10px 0 0;
+      font-size: 9pt;
+      line-height: 1.5;
+      color: var(--pdf-muted-strong);
+    }
+    .fact-value,
+    .meta-value,
+    .party-value {
+      font-size: 10.75pt;
+      line-height: 1.55;
+      font-weight: 700;
+      color: var(--pdf-text);
+    }
+    .parties-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 12mm;
+      gap: 10px;
     }
-    .address-card .value {
-      font-size: 10.5pt;
-      line-height: 1.65;
-      color: #152535;
+    .meta-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px 14px;
     }
-    .notes-card {
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(210, 168, 84, 0.22);
-      background: linear-gradient(180deg, rgba(247, 235, 203, 0.8), rgba(255, 250, 240, 0.95));
+    .footer-note {
+      padding: 6mm 8mm;
+      background: var(--pdf-surface-soft);
     }
-    .notes-card h2 {
-      margin: 0 0 8px;
-      font-size: 12.5pt;
-    }
-    .notes-card p {
-      margin: 0 0 8px;
-      font-size: 10pt;
-      line-height: 1.45;
-      color: #49371d;
+    .footer-note p {
+      margin: 0;
+      font-size: 9.25pt;
+      line-height: 1.55;
+      color: var(--pdf-muted-strong);
     }
     .tag-list {
       display: flex;
@@ -551,11 +469,11 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       min-height: 28px;
       padding: 0 10px;
       border-radius: 999px;
-      background: #eef3f7;
-      border: 1px solid rgba(24, 50, 77, 0.08);
+      background: var(--pdf-surface-soft);
+      border: 1px solid var(--pdf-border);
       font-size: 9pt;
       font-weight: 600;
-      color: #23476a;
+      color: var(--pdf-text);
     }
     .page-break {
       page-break-before: always;
@@ -564,102 +482,69 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
 </head>
 <body>
   <main class="confirmation-page">
-    <section class="hero">
-      <div class="hero-top">
-        <div class="brand">
-          ${renderBrandMark()}
-          <div class="brand-copy">
-            <small>${escapeHtml(copy.eyebrow)}</small>
-            <h1>Swiss Mail</h1>
-            <p>${escapeHtml(copy.subtitle)}</p>
-          </div>
-        </div>
-        <div class="status-pill">${escapeHtml(providerModeLabel)}</div>
-      </div>
-      <div class="hero-body">
-        <div style="margin-bottom: 12mm;">
-          <div class="label">${escapeHtml(copy.title)}</div>
-          <p style="margin: 6px 0 0; font-size: 12pt; line-height: 1.7; color: #324254;">
-            ${escapeHtml(summaryText)}
-          </p>
-        </div>
-
-        <div class="summary-grid">
-          <div class="summary-card">
-            <div class="label">${escapeHtml(copy.orderRef)}</div>
-            <div class="value">${escapeHtml(input.orderRef)}</div>
-          </div>
-          <div class="summary-card">
-            <div class="label">${escapeHtml(copy.dispatchStatus)}</div>
-            <div class="value">${escapeHtml(dispatchStatusLabel)}</div>
-          </div>
-          <div class="summary-card">
-            <div class="label">${escapeHtml(copy.recordedAt)}</div>
-            <div class="value">${escapeHtml(renderedAt)}</div>
-          </div>
-        </div>
-
-        <div class="details-layout">
-          <section class="detail-card">
-            <h2>${escapeHtml(copy.title)}</h2>
-            <div class="detail-grid">
-              <div class="detail-row">
-                <div class="label">${escapeHtml(copy.submittedAt)}</div>
-                <div class="value">${escapeHtml(submittedAt)}</div>
-              </div>
-              <div class="detail-row">
-                <div class="label">${escapeHtml(copy.deliveryType)}</div>
-                <div class="value">${escapeHtml(deliveryTypeLabel)}</div>
-              </div>
-              <div class="detail-row">
-                <div class="label">${escapeHtml(copy.submissionMode)}</div>
-                <div class="value">${escapeHtml(providerModeLabel)}</div>
-              </div>
-              <div class="detail-row">
-                <div class="label">${escapeHtml(copy.letterPages)}</div>
-                <div class="value">${escapeHtml(String(input.pageCount))}</div>
-              </div>
-              <div class="detail-row">
-                <div class="label">${escapeHtml(copy.providerReference)}</div>
-                <div class="value">${input.providerReference ? escapeHtml(input.providerReference) : `<span class="value-muted">${escapeHtml(copy.notAvailable)}</span>`}</div>
-              </div>
-              <div class="detail-row">
-                <div class="label">${escapeHtml(copy.trackingNumber)}</div>
-                <div class="value">${input.trackingNumber ? escapeHtml(input.trackingNumber) : `<span class="value-muted">${escapeHtml(copy.notAvailable)}</span>`}</div>
-              </div>
-              <div class="detail-row" style="grid-column: 1 / -1;">
-                <div class="label">${escapeHtml(copy.subject)}</div>
-                <div class="value">${input.subject ? escapeHtml(input.subject) : `<span class="value-muted">${escapeHtml(copy.notAvailable)}</span>`}</div>
-              </div>
-              <div class="detail-row" style="grid-column: 1 / -1;">
-                <div class="label">${escapeHtml(copy.contentSummary)}</div>
-                <div class="value content-summary-value">${escapeHtml(contentSummary)}</div>
-              </div>
-              <div class="detail-row" style="grid-column: 1 / -1;">
-                <div class="label">${escapeHtml(copy.attachments)}</div>
-                <div class="tag-list">${formatList(input.attachmentNames, copy.notAvailable)}</div>
-              </div>
-            </div>
-          </section>
-
-          <section class="notes-card">
-            <h2>${escapeHtml(copy.notes)}</h2>
-            <p>${escapeHtml(controlNote)}</p>
-            <p>${escapeHtml(copy.noteBundle)}</p>
-          </section>
-        </div>
-
-        <div class="address-grid">
-          <section class="address-card">
-            <div class="label">${escapeHtml(copy.sender)}</div>
-            <div class="value">${formatAddress(input.sender)}</div>
-          </section>
-          <section class="address-card">
-            <div class="label">${escapeHtml(copy.recipient)}</div>
-            <div class="value">${formatAddress(input.recipient)}</div>
-          </section>
+    <section class="header-card">
+      <div class="brand">
+        ${renderBrandMark()}
+        <div class="brand-copy">
+          <small>${escapeHtml(copy.eyebrow)}</small>
+          <h1>${escapeHtml(copy.title)}</h1>
         </div>
       </div>
+      <div class="header-meta">
+        <div class="header-meta-label">${escapeHtml(copy.issuedOn)}</div>
+        <div class="header-meta-value">${escapeHtml(issuedAt)}</div>
+      </div>
+    </section>
+
+    ${
+      showReferenceCard
+        ? `<section class="reference-card">
+        <div class="label">${escapeHtml(primaryReferenceLabel)}</div>
+        <div class="reference-value${showTracking ? " tracking-value" : ""}">${escapeHtml(primaryReferenceValue)}</div>
+        ${providerReferenceMeta}
+      </section>`
+        : ""
+    }
+
+    <section class="fact-card">
+      <div class="facts-grid">
+        <div>
+          <div class="label">${escapeHtml(copy.orderRef)}</div>
+          <div class="fact-value">${escapeHtml(input.orderRef)}</div>
+        </div>
+        <div>
+          <div class="label">${escapeHtml(copy.dispatchStatus)}</div>
+          <div class="fact-value">${escapeHtml(dispatchStatusLabel)}</div>
+        </div>
+        <div>
+          <div class="label">${escapeHtml(copy.deliveryType)}</div>
+          <div class="fact-value">${escapeHtml(deliveryTypeLabel)}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="parties-grid">
+      <article class="party-card">
+        <div class="label">${escapeHtml(copy.sender)}</div>
+        <div class="party-value">${formatAddress(input.sender)}</div>
+      </article>
+      <article class="party-card">
+        <div class="label">${escapeHtml(copy.recipient)}</div>
+        <div class="party-value">${formatAddress(input.recipient)}</div>
+      </article>
+    </section>
+
+    ${
+      metaItems.length > 0
+        ? `<section class="meta-card">
+      <div class="meta-grid">${metaItems.join("")}</div>
+    </section>`
+        : ""
+    }
+
+    <section class="footer-note">
+      <p>${escapeHtml(controlNote)}</p>
+      <p>${escapeHtml(copy.noteBundle)}</p>
     </section>
   </main>
   ${letterHtml ? `<section class="page-break">${letterHtml}</section>` : ""}

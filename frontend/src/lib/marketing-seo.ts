@@ -70,7 +70,7 @@ export function buildMarketingMetadata({
       title,
       description,
       url: canonicalUrl,
-      siteName: "Swiss Mail",
+      siteName: "Sendly",
       locale,
       type: "website",
     },
@@ -86,7 +86,7 @@ export function buildOrganizationJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Swiss Mail",
+    name: "Sendly",
     url: getSiteUrl(),
     areaServed: "CH",
     availableLanguage: [...routing.locales],
@@ -97,7 +97,7 @@ export function buildWebsiteJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Swiss Mail",
+    name: "Sendly",
     url: getSiteUrl(),
     inLanguage: [...routing.locales],
   };
@@ -124,7 +124,7 @@ export function buildServiceJsonLd({
     availableLanguage: locale,
     provider: {
       "@type": "Organization",
-      name: "Swiss Mail",
+      name: "Sendly",
       url: getSiteUrl(),
     },
   };

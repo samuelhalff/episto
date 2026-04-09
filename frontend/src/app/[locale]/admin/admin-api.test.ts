@@ -63,6 +63,25 @@ describe("admin-api", () => {
     });
   });
 
+  it("keeps browser admin requests on the same-origin /api proxy even with a public API origin", async () => {
+    process.env.NEXT_PUBLIC_API_URL = "https://api.swissmail.ch";
+    vi.stubGlobal("window", { location: { origin: "https://swissmail.ch" } });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ authenticated: false, microsoftSsoEnabled: false }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchAdminAuthSession();
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/auth/session", {
+      credentials: "include",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+  });
+
   it("posts to the backend logout endpoint with browser credentials", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

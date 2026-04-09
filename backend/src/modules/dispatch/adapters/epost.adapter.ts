@@ -249,7 +249,7 @@ function buildDocumentMetadata(
     shippingCountry: dispatchPackage.recipient.country,
     envelopeSize: "C5",
     postage: mapPostage(dispatchPackage.deliveryType),
-    windowLocation: "LEFT",
+    windowLocation: "RIGHT",
     duplex: false,
     senderAddress: buildSenderAddress(dispatchPackage.sender),
   };
@@ -705,7 +705,7 @@ export class EpostDispatchAdapter {
           source: "provider",
         },
         {
-          label: "Swiss Mail service",
+          label: "Sendly service",
           amountCents: swissMailMarkupCents,
           source: "swiss_mail",
         },

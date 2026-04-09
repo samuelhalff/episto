@@ -102,11 +102,13 @@ export default function OverviewPage() {
                 label: t("overview.priority.ambiguous"),
                 value: overview.data.ambiguousDispatchQueue,
                 alert: overview.data.ambiguousDispatchQueue > 0,
+                sub: t("overview.priority.ambiguousInfo"),
               },
               {
                 label: t("overview.priority.suspicious"),
                 value: overview.data.suspiciousActivityQueue,
                 alert: overview.data.suspiciousActivityQueue > 0,
+                sub: t("overview.priority.suspiciousInfo"),
               },
             ]}
           />
@@ -153,6 +155,7 @@ export default function OverviewPage() {
                   label: t("overview.signals.recentRefunds"),
                   value: overview.data.recentRefunds,
                   alert: overview.data.recentRefunds > 0,
+                  sub: t("overview.signals.recentRefundsInfo"),
                 },
               ]}
             />
@@ -171,16 +174,19 @@ export default function OverviewPage() {
                 label: t("overview.retention.expiredSessions"),
                 value: retention.data.pendingExpirations.expiredSessions,
                 alert: retention.data.pendingExpirations.expiredSessions > 0,
+                sub: t("overview.retention.expiredSessionsInfo"),
               },
               {
                 label: t("overview.retention.expiredContent"),
                 value: retention.data.pendingExpirations.expiredContent,
                 alert: retention.data.pendingExpirations.expiredContent > 0,
+                sub: t("overview.retention.expiredContentInfo"),
               },
               {
                 label: t("overview.retention.expiredPdfs"),
                 value: retention.data.pendingExpirations.expiredPdfs,
                 alert: retention.data.pendingExpirations.expiredPdfs > 0,
+                sub: t("overview.retention.expiredPdfsInfo"),
               },
             ]}
           />

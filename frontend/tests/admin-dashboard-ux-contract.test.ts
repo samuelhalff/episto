@@ -18,6 +18,10 @@ const overviewPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/admin/overview/page.tsx"),
   "utf8",
 );
+const adminPanelsSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/admin/admin-panels.tsx"),
+  "utf8",
+);
 const adminTopBarPath = path.join(
   repoRoot,
   "frontend/src/app/[locale]/admin/admin-top-bar.tsx",
@@ -53,6 +57,12 @@ const requiredAdminKeys = [
   "admin.overview.quickActions.flags",
   "admin.overview.quickActions.sessions",
   "admin.overview.quickActions.retention",
+  "admin.overview.priority.ambiguousInfo",
+  "admin.overview.priority.suspiciousInfo",
+  "admin.overview.signals.recentRefundsInfo",
+  "admin.overview.retention.expiredSessionsInfo",
+  "admin.overview.retention.expiredContentInfo",
+  "admin.overview.retention.expiredPdfsInfo",
   "admin.account.title",
   "admin.account.description",
   "admin.account.identity",
@@ -99,9 +109,24 @@ describe("admin dashboard ux contract", () => {
     expect(overviewPageSource).toContain('getAdminPagePath(pathname, "flags")');
     expect(overviewPageSource).toContain('getAdminPagePath(pathname, "sessions")');
     expect(overviewPageSource).toContain('getAdminPagePath(pathname, "retention")');
+    expect(overviewPageSource).toContain('sub: t("overview.priority.ambiguousInfo")');
+    expect(overviewPageSource).toContain('sub: t("overview.priority.suspiciousInfo")');
+    expect(overviewPageSource).toContain('sub: t("overview.signals.recentRefundsInfo")');
+    expect(overviewPageSource).toContain('sub: t("overview.retention.expiredSessionsInfo")');
+    expect(overviewPageSource).toContain('sub: t("overview.retention.expiredContentInfo")');
+    expect(overviewPageSource).toContain('sub: t("overview.retention.expiredPdfsInfo")');
     expect(overviewPageSource).not.toContain("fetchAdminSummary");
     expect(overviewPageSource).not.toContain("fetchAdminLocale");
     expect(overviewPageSource).not.toContain("fetchAdminAi");
+  });
+
+  it("keeps legacy dashboard cards on app theme tokens instead of hardcoded light card colors", () => {
+    expect(adminPanelsSource).toContain("var(--app-surface-strong)");
+    expect(adminPanelsSource).toContain("var(--app-surface-muted)");
+    expect(adminPanelsSource).toContain("var(--app-fg)");
+    expect(adminPanelsSource).toContain("var(--app-muted)");
+    expect(adminPanelsSource).not.toContain("bg-white");
+    expect(adminPanelsSource).not.toContain("text-zinc-950");
   });
 
   it("adds an account page that reads the authenticated admin profile", () => {

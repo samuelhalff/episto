@@ -110,8 +110,11 @@ describe("regression: env validation accepts valid configs", () => {
       expect(result.data.SESSION_TTL_HOURS).toBe(72);
       expect(result.data.ORDER_ACCESS_DAYS).toBe(90);
       expect(result.data.CONTENT_RETENTION_DAYS).toBe(7);
+      expect(result.data.STATEMENT_RETENTION_DAYS).toBe(10);
       expect(result.data.EPOST_SUBMISSION_MODE).toBe("mock");
       expect(result.data.POSTAL_DISPATCH_PROVIDER).toBe("stub");
+      expect(result.data.APP_DISPLAY_NAME).toBe("Sendly");
+      expect(result.data.SUPPORT_EMAIL).toBe("support@swissmail.ch");
     }
   });
 

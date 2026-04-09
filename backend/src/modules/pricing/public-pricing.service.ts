@@ -14,7 +14,7 @@ const PUBLIC_PAGE_COUNTS = [1, 2, 3, 4, 5] as const;
 const PUBLIC_REFERENCE_ASSUMPTIONS = {
   shippingCountry: "CH",
   envelopeSize: "C5",
-  windowLocation: "LEFT",
+  windowLocation: "RIGHT",
   duplex: false,
   attachmentMode: "none",
 } as const;
@@ -42,7 +42,7 @@ export interface PublicPricingMatrixEntry {
   attachmentMode: "none" | "single_hint";
   shippingCountry: "CH";
   envelopeSize: "C5";
-  windowLocation: "LEFT";
+  windowLocation: "RIGHT";
   duplex: false;
   providerQuotedCents: number;
   currency: "CHF";

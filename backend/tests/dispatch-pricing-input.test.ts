@@ -8,7 +8,7 @@ vi.mock("../src/shared/config/index.js", () => ({
 }));
 
 describe("dispatch pricing input", () => {
-  it("normalizes Swiss Mail's fixed pricing dimensions", async () => {
+  it("normalizes Sendly's fixed pricing dimensions", async () => {
     const { buildDispatchPricingInput } = await import(
       "../src/modules/dispatch/dispatch-pricing-input.service.js"
     );
@@ -27,7 +27,7 @@ describe("dispatch pricing input", () => {
       attachmentMode: "single_hint",
       shippingCountry: "CH",
       envelopeSize: "C5",
-      windowLocation: "LEFT",
+      windowLocation: "RIGHT",
       duplex: false,
     });
   });
@@ -44,7 +44,7 @@ describe("dispatch pricing input", () => {
       attachmentMode: "none",
       shippingCountry: "CH",
       envelopeSize: "C5",
-      windowLocation: "LEFT",
+      windowLocation: "RIGHT",
       duplex: false,
     });
 

@@ -9,7 +9,7 @@ export interface DispatchPricingInput {
   attachmentMode: "none" | "single_hint";
   shippingCountry: "CH";
   envelopeSize: "C5";
-  windowLocation: "LEFT";
+  windowLocation: "RIGHT";
   duplex: false;
 }
 
@@ -36,7 +36,7 @@ export function buildDispatchPricingInput(args: {
     attachmentMode: args.attachmentCount > 0 ? "single_hint" : "none",
     shippingCountry: "CH",
     envelopeSize: "C5",
-    windowLocation: "LEFT",
+    windowLocation: "RIGHT",
     duplex: false,
   };
 }

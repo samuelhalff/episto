@@ -45,7 +45,7 @@ function createPublicPricingResponse() {
       referenceScenario: {
         shippingCountry: "CH" as const,
         envelopeSize: "C5" as const,
-        windowLocation: "LEFT" as const,
+        windowLocation: "RIGHT" as const,
         duplex: false as const,
         attachmentMode: "none" as const,
         standardPostage: "A_POST" as const,
@@ -214,7 +214,7 @@ describe("shared contract schemas", () => {
         attachmentHandling: "single_hint",
         lineItems: [
           { label: "ePost provider quote", amountCents: 625, source: "provider" },
-          { label: "Swiss Mail service", amountCents: 340, source: "swiss_mail" },
+          { label: "Sendly service", amountCents: 340, source: "swiss_mail" },
         ],
       },
       meta: {

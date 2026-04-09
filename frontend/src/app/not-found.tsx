@@ -66,7 +66,7 @@ export default function RootNotFound() {
           </div>
 
           <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-            Swiss Mail
+            Sendly
           </p>
 
           <h1 className="mt-5 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">

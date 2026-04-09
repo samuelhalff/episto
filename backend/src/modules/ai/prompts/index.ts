@@ -39,7 +39,7 @@ function localeInstruction(locale: string): string {
 // Safety preamble (shared across all prompts)
 // ---------------------------------------------------------------------------
 
-const SAFETY_PREAMBLE = `You are a professional letter-writing assistant for Swiss Mail, a service that helps users compose and send formal Swiss correspondence.
+const SAFETY_PREAMBLE = `You are a professional letter-writing assistant for Sendly, a service that helps users compose and send formal Swiss correspondence.
 
 STRICT RULES:
 - NEVER invent facts, names, dates, addresses, or details not provided by the user.
@@ -177,7 +177,7 @@ export function analyzeIntakePrompt(input: AnalyzeIntakeInput): ChatMessage[] {
   return [
     {
       role: "system",
-      content: `You are a Swiss Mail intake analysis engine. In ONE pass, do all of the following:
+      content: `You are a Sendly intake analysis engine. In ONE pass, do all of the following:
 - classify the user's intent
 - assess whether the content is blocked
 - extract any concrete draft fields that were explicitly provided

@@ -1,11 +1,11 @@
-# Swiss Mail Documentation
+# Sendly Documentation
 
 > Formal letters from your phone — in minutes.
 
-This is the complete specification for Swiss Mail, a mobile-first SaaS for AI-assisted formal-letter
+This is the complete specification for Sendly, a mobile-first SaaS for AI-assisted formal-letter
 drafting, final PDF generation, and postal-provider submission for Switzerland.
 
-The implementation and launch-preparation name is **Swiss Mail**. See [Naming & Identity](02-brand/naming-and-identity.md) for the current brand source of truth.
+The implementation and launch-preparation name is **Sendly**. See [Naming & Identity](02-brand/naming-and-identity.md) for the current brand source of truth.
 
 ---
 
@@ -27,7 +27,7 @@ Pick the path that matches your role. Each leads through the docs in an order th
 ### 🛠️ Frontend Developer
 
 1. [Product Scope](01-vision/product-scope.md) — what we're building
-2. [Provider Submission Model](04-product/provider-submission-model.md) — what Swiss Mail owns vs what the provider owns
+2. [Provider Submission Model](04-product/provider-submission-model.md) — what Sendly owns vs what the provider owns
 3. [Design System](02-brand/design-system.md) — tokens to implement
 4. [Component Library](03-ux/component-library.md) — component specs
 5. [Page Specifications](03-ux/page-specifications.md) — routes and layouts
@@ -102,7 +102,7 @@ _Why this product exists and where it's going._
 
 ### 02 — Brand
 
-_How Swiss Mail looks, sounds, and presents itself._
+_How Sendly looks, sounds, and presents itself._
 
 | Document                                                  | Description                                           |
 | --------------------------------------------------------- | ----------------------------------------------------- |
@@ -210,7 +210,7 @@ _What we must never do. Read before writing any code._
 
 ## Document Conventions
 
-- **`Swiss Mail`** — locked implementation and launch-preparation product name
+- **`Sendly`** — locked implementation and launch-preparation product name
 - **Status: Decided** — locked; do not change without explicit review
 - **Status: Living document** — expected to evolve as implementation proceeds
 - **Status: Provisional** — decided for now; may change with new information

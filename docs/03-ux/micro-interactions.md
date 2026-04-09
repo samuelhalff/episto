@@ -1,4 +1,4 @@
-# Swiss Mail Micro-Interactions & Animation Specification
+# Sendly Micro-Interactions & Animation Specification
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** MVP. Light mode. Mobile-first.  
@@ -43,7 +43,7 @@
 
 ## 1. Animation Principles
 
-Animation in Swiss Mail is **an instrument of clarity, not decoration**. The product is used in high-stakes moments — a tenant sending a formal notice, a professional dispatching a contract. Motion must reinforce confidence, not add noise.
+Animation in Sendly is **an instrument of clarity, not decoration**. The product is used in high-stakes moments — a tenant sending a formal notice, a professional dispatching a contract. Motion must reinforce confidence, not add noise.
 
 ### Five Governing Principles
 

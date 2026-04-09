@@ -67,6 +67,7 @@
 
   html {
     scroll-behavior: smooth;
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -85,6 +86,11 @@
       background-color 220ms ease,
       color 220ms ease,
       border-color 220ms ease;
+  }
+
+  [data-theme-ready="false"] [data-theme-chrome="marketing"] {
+    visibility: hidden;
+    pointer-events: none;
   }
 
   .signature-script {

@@ -11,6 +11,7 @@ type NamedProfile = {
   addressLine2?: string | null;
   postalCode?: string | null;
   city?: string | null;
+  country?: string | null;
 };
 
 const SUBJECT_PREFIX_BY_LOCALE: Record<SubjectLocale, string> = {
@@ -74,27 +75,26 @@ export function getAddressLines(
   }
 
   const lines: string[] = [];
-  const name =
-    type === "sender" ? getSenderDisplayName(profile) : getRecipientDisplayName(profile);
+  const fullName = [trimText(profile.firstName), trimText(profile.lastName)]
+    .filter(Boolean)
+    .join(" ");
+  const company = trimText(profile.company);
+  const department = trimText(profile.department);
 
   if (type === "recipient") {
-    const company = trimText(profile.company);
-    const department = trimText(profile.department);
-
     if (company) {
       lines.push(company);
     }
     if (department) {
       lines.push(department);
     }
-    if (name && name !== company) {
-      lines.push(name);
+    if (fullName) {
+      lines.push(fullName);
     }
   } else {
-    if (name) {
-      lines.push(name);
+    if (fullName) {
+      lines.push(fullName);
     }
-    const company = trimText(profile.company);
     if (company) {
       lines.push(company);
     }
@@ -114,6 +114,9 @@ export function getAddressLines(
   }
   if (locality) {
     lines.push(locality);
+  }
+  if (profile.country && profile.country !== "CH") {
+    lines.push(profile.country);
   }
 
   return lines;

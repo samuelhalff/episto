@@ -2,11 +2,12 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 import { desc, eq } from "drizzle-orm";
 import { OrderStatusResponseSchema } from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
-import { notFoundError } from "../../shared/errors/index.js";
+import { AppError, notFoundError } from "../../shared/errors/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { recordEvent } from "../analytics/index.js";
 import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-mode.js";
+import { isStatementWithinRetentionWindow } from "./order-access-window.js";
 
 /**
  * Resolve an order access token to its payment attempt.
@@ -54,6 +55,16 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
 
       const payment = await resolveOrderToken(db, orderToken);
       if (!payment) throw notFoundError("order");
+      if (!isStatementWithinRetentionWindow(payment.orderAccessTokenExpiresAt)) {
+        throw new AppError({
+          family: "validation_error",
+          statusCode: 410,
+          code: "ORDER_STATEMENT_EXPIRED",
+          message: `Statement download expired for order token ${orderToken}`,
+          userMessage: "This statement is no longer available for download.",
+          userAction: "Contact support if you need a copy.",
+        });
+      }
 
       const [draft] = await db
         .select()

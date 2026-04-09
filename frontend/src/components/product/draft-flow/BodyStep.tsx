@@ -40,7 +40,7 @@ import {
   SegmentedControl,
   SurfaceIconButton,
 } from "./ui";
-import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import { showStepErrorToast } from "./step-feedback";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
 import type {
   DraftWorkspacePreviewToggleProps,
@@ -392,14 +392,6 @@ export function BodyStep({
     }
   }
 
-  function handleBlockedConfirm() {
-    showStepWarningToast({
-      id: "body-step-missing",
-      title: t("stepNeedsAttentionTitle"),
-      items: [t("reviewMissingBody")],
-    });
-  }
-
   function handleModeChange(mode: EditMode) {
     if (mode === "manual") {
       setIsComposerFocused(false);
@@ -483,14 +475,22 @@ export function BodyStep({
     }
   }
 
+  function handleDismissBodyGenerationDialog() {
+    startTransition(() => {
+      setIsAutoComposing(false);
+      setInitialComposeStatus("idle");
+    });
+  }
+
   // Keep preview in the sticky toolbar so it never widens the dock CTA row.
   const bodyModeToolbarClassName =
     "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7";
+  const handlePreviewAction = onTogglePreview ?? (() => setShowPreview(true));
   const previewToolbarButton = canProceed && !isPreviewPanelVisible ? (
     <SurfaceIconButton
       type="button"
       size="composer"
-      onClick={() => setShowPreview(true)}
+      onClick={handlePreviewAction}
       disabled={isNavigating}
       aria-label={t("openDraftPreview")}
     >
@@ -498,18 +498,16 @@ export function BodyStep({
     </SurfaceIconButton>
   ) : null;
 
-  const primaryCta = canProceed ? (
+  const primaryCta = (
     <PrimaryButton
       onClick={() => {
         void handleConfirm();
       }}
-      disabled={updateDraft.isPending}
+      disabled={!canProceed || updateDraft.isPending}
       loading={updateDraft.isPending || Boolean(isNavigating)}
+      tone={canProceed ? "primary" : "warning"}
+      hideIcon={!canProceed}
     >
-      {t("continueToAttachments")}
-    </PrimaryButton>
-  ) : (
-    <PrimaryButton onClick={handleBlockedConfirm} tone="warning" hideIcon>
       {t("continueToAttachments")}
     </PrimaryButton>
   );
@@ -571,13 +569,13 @@ export function BodyStep({
               isCompactViewport={isCompactViewport}
               topBadges={quickActionBadges}
               leadingActions={
-                onTogglePreview ? (
+                handlePreviewAction ? (
                   <ComposerIconButton
                     icon={isPreviewPanelVisible ? "preview-off" : "preview"}
                     aria-label={
                       isPreviewPanelVisible ? tc("hidePreview") : tc("showPreview")
                     }
-                    onClick={onTogglePreview}
+                    onClick={handlePreviewAction}
                   />
                 ) : undefined
               }
@@ -778,7 +776,9 @@ export function BodyStep({
           errorDescription={t("bodyGenerationErrorDescription")}
           refreshLabel={t("bodyGenerationRefreshAction")}
           supportLabel={t("bodyGenerationSupportAction")}
+          closeLabel={tc("close")}
           onRefresh={() => window.location.reload()}
+          onClose={handleDismissBodyGenerationDialog}
         />
       ) : null}
 

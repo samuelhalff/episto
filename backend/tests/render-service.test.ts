@@ -6,6 +6,7 @@ import { AppError } from "../src/shared/errors/index.js";
 const mocks = vi.hoisted(() => {
   const page = {
     setContent: vi.fn(),
+    evaluate: vi.fn(),
     pdf: vi.fn(),
     close: vi.fn(),
   };
@@ -47,8 +48,8 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-// Mock puppeteer-core — we can't run a browser in CI
-vi.mock("puppeteer-core", () => ({
+// Mock puppeteer — we can't run a browser in CI
+vi.mock("puppeteer", () => ({
   default: {
     launch: mocks.launch,
   },
@@ -121,6 +122,7 @@ describe("render.service", () => {
     vi.clearAllMocks();
     mocks.launch.mockResolvedValue(mocks.browser);
     mocks.page.setContent.mockResolvedValue(undefined);
+    mocks.page.evaluate.mockResolvedValue(undefined);
     mocks.page.pdf.mockResolvedValue(await createPdfBuffer());
     mocks.page.close.mockResolvedValue(undefined);
     mocks.createFileAsset.mockResolvedValue({ id: "rendered-asset-1" });
@@ -326,12 +328,82 @@ describe("render.service", () => {
     await renderSnapshotToPdf("snapshot-3");
 
     const html = String(mocks.page.setContent.mock.calls.at(-1)?.[0] ?? "");
-    expect(html).toContain(".sender-line");
+    expect(html).toContain(".letter-layout-shell");
+    expect(html).toContain(".sender-block");
+    expect(html).toContain(".dispatch-line");
     expect(html).toContain(".recipient-block");
+    expect(html).toContain(".right-meta");
     expect(html).toContain(".date-line");
-    expect(html).toContain("text-align: right");
+    expect(html).toContain("left: 121mm");
+    expect(html).toContain("top: 87mm");
     expect(html).toContain("Sam Sender");
     expect(html).toContain("Receiver AG");
+  });
+
+  it("waits for DOM readiness and font loading instead of blocking on network idle", async () => {
+    mockDbWithSelectResults(
+      [
+        {
+          id: "snapshot-fonts",
+          draftId: "draft-fonts",
+          version: 1,
+          snapshotData: {
+            schemaVersion: 1,
+            locale: "en-CH",
+            deliveryType: "standard",
+            subject: "Font loading regression",
+            body: "The renderer should not hang on embedded data-font requests.",
+            enclosureNote: null,
+            signatureMode: "typed",
+            tone: null,
+            intent: null,
+            sender: {
+              firstName: "Sam",
+              lastName: "Sender",
+              company: null,
+              addressLine1: "Main street 1",
+              addressLine2: null,
+              postalCode: "8000",
+              city: "Zurich",
+              country: "CH",
+            },
+            recipient: {
+              firstName: "Alex",
+              lastName: "Receiver",
+              company: null,
+              department: null,
+              addressLine1: "Market street 2",
+              addressLine2: null,
+              postalCode: "3000",
+              city: "Bern",
+              country: "CH",
+            },
+            attachmentAssetIds: [],
+            signatureAssetId: null,
+            estimatedPages: 1,
+            metadata: null,
+          },
+          renderedPdfAssetId: null,
+        },
+      ],
+      [{ sessionId: "session-fonts" }],
+    );
+
+    const { renderSnapshotToPdf } =
+      await import("../src/modules/rendering/render.service.js");
+    await renderSnapshotToPdf("snapshot-fonts");
+
+    expect(mocks.page.setContent).toHaveBeenCalledWith(
+      expect.any(String),
+      expect.objectContaining({ waitUntil: "domcontentloaded" }),
+    );
+    expect(mocks.page.evaluate).toHaveBeenCalledTimes(1);
+    expect(mocks.page.setContent.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.page.evaluate.mock.invocationCallOrder[0],
+    );
+    expect(mocks.page.evaluate.mock.invocationCallOrder[0]).toBeLessThan(
+      mocks.page.pdf.mock.invocationCallOrder[0],
+    );
   });
 
   it("counts every page in a generated multi-page pdf buffer", async () => {

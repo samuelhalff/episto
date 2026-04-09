@@ -41,9 +41,11 @@ describe("address autocomplete UI", () => {
     expect(recipientStepSource).toContain(
       "if (!canProceed || setRecipient.isPending || isResolvingSelection) return;",
     );
-    expect(senderStepSource).toContain("disabled={setSender.isPending || isResolvingSelection}");
+    expect(senderStepSource).toContain(
+      "disabled={!canProceed || setSender.isPending || isResolvingSelection}",
+    );
     expect(recipientStepSource).toContain(
-      "disabled={setRecipient.isPending || isResolvingSelection}",
+      "disabled={!canProceed || setRecipient.isPending || isResolvingSelection}",
     );
   });
 
@@ -62,6 +64,7 @@ describe("address autocomplete UI", () => {
     expect(messagesSource).toContain('"searchingAddresses"');
     expect(messagesSource).toContain('"addressSearchUnavailable"');
     expect(messagesSource).toContain('"addressSearchNoResults"');
+    expect(messagesSource).toContain('"addressSearchSelectionRequired"');
   });
 
   it("adds a dedicated pending placeholder to the structured address fields", () => {

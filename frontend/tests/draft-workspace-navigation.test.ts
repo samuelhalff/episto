@@ -225,4 +225,15 @@ describe("draft workspace navigation", () => {
     expect(draftWorkspaceClientSource).toContain('<IntakeStep key="intake" {...commonProps} {...previewProps} />');
     expect(draftWorkspaceClientSource).toContain('<BodyStep key="body" {...commonProps} {...previewProps} />');
   });
+
+  it("keeps preview-capable steps on a modal fallback when the side pane is unavailable", () => {
+    expect(intakeStepSource).toContain(
+      "const handlePreviewAction = onTogglePreview ?? (() => setShowPreview(true));",
+    );
+    expect(intakeStepSource).toContain("<LetterPreviewModal");
+    expect(bodyStepSource).toContain(
+      "const handlePreviewAction = onTogglePreview ?? (() => setShowPreview(true));",
+    );
+    expect(bodyStepSource).toContain("onClick={handlePreviewAction}");
+  });
 });

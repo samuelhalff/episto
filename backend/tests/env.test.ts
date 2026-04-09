@@ -61,6 +61,21 @@ describe("EnvSchema — valid minimal env", () => {
     expect(result.EMAIL_FROM).toBe("noreply@swissmail.ch");
   });
 
+  it("applies default APP_DISPLAY_NAME", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.APP_DISPLAY_NAME).toBe("Sendly");
+  });
+
+  it("applies default SUPPORT_EMAIL", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.SUPPORT_EMAIL).toBe("support@swissmail.ch");
+  });
+
+  it("applies default STATEMENT_RETENTION_DAYS", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.STATEMENT_RETENTION_DAYS).toBe(10);
+  });
+
   it("applies default S3_REGION", () => {
     const result = EnvSchema.parse(validEnv());
     expect(result.S3_REGION).toBe("us-east-1");

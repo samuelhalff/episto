@@ -12,6 +12,10 @@ const flowHeaderSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/FlowHeader.tsx"),
   "utf8",
 );
+const customerMenuSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/layout/CustomerSiteMenu.tsx"),
+  "utf8",
+);
 const workspaceMenuSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/WorkspaceSiteMenu.tsx"),
   "utf8",
@@ -50,5 +54,20 @@ describe("customer header contract", () => {
     expect(entryPageSource.match(/<CustomerSiteMenu/g)?.length).toBe(2);
     expect(statusPageSource.match(/<CustomerSiteMenu/g)?.length).toBe(2);
     expect(statusPageSource).toContain("<HeaderLanguageMenu");
+  });
+
+  it("uses anchored popovers for desktop customer menus while keeping compact sheets for mobile", () => {
+    expect(customerMenuSource).toContain('from "../ui/popover"');
+    expect(customerMenuSource).toContain("<Popover");
+    expect(customerMenuSource).toContain("PopoverTrigger asChild");
+    expect(customerMenuSource).toContain("PopoverContent");
+    expect(customerMenuSource).toContain("SheetContent");
+    expect(customerMenuSource).toContain("SheetClose asChild");
+    expect(workspaceMenuSource).toContain('from "../../ui/popover"');
+    expect(workspaceMenuSource).toContain("<Popover");
+    expect(workspaceMenuSource).toContain("PopoverTrigger asChild");
+    expect(workspaceMenuSource).toContain("PopoverContent");
+    expect(workspaceMenuSource).toContain("SheetContent");
+    expect(workspaceMenuSource).toContain("SheetClose asChild");
   });
 });

@@ -26,6 +26,7 @@ import {
   shouldSendShortcutImmediately,
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
+import { LetterPreviewModal } from "../LetterPreviewModal";
 import {
   getDraftWorkspaceState,
   mergeDraftWorkspaceState,
@@ -68,6 +69,7 @@ export function IntakeStep({
   const attachmentInputRef = useRef<HTMLInputElement>(null);
   const threadContainerRef = useRef<HTMLElement>(null);
   const threadEndRef = useRef<HTMLDivElement>(null);
+  const [showPreview, setShowPreview] = useState(false);
   const [intakeText, setIntakeText] = useState("");
   const [isComposerFocused, setIsComposerFocused] = useState(false);
   const hasHydratedRef = useRef(false);
@@ -171,6 +173,7 @@ export function IntakeStep({
     !conversation.isSending &&
     !conversation.isStreaming &&
     !conversation.isAwaitingResponse;
+  const handlePreviewAction = onTogglePreview ?? (() => setShowPreview(true));
   const intakeTips = [
     {
       title: t("tipFullContext"),
@@ -318,11 +321,11 @@ export function IntakeStep({
                 onClick={onStepClick}
               />
             ) : null}
-            {onTogglePreview ? (
+            {handlePreviewAction ? (
               <ComposerIconButton
                 icon={isPreviewPanelVisible ? "preview-off" : "preview"}
                 aria-label={isPreviewPanelVisible ? tc("hidePreview") : tc("showPreview")}
-                onClick={onTogglePreview}
+                onClick={handlePreviewAction}
               />
             ) : null}
             <ComposerIconButton
@@ -489,6 +492,9 @@ export function IntakeStep({
           </section>
         )}
       </div>
+      {showPreview ? (
+        <LetterPreviewModal draftId={draftId} onClose={() => setShowPreview(false)} />
+      ) : null}
     </DraftShell>
   );
 }

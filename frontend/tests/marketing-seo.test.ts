@@ -150,7 +150,7 @@ describe("marketing seo plumbing", () => {
       locale: "fr-CH",
       pathname: "/pricing",
       title: "Tarifs",
-      description: "Comparez les tarifs Swiss Mail.",
+      description: "Comparez les tarifs Sendly.",
     });
 
     expect(metadata.alternates?.canonical).toBe("https://example.test/fr-CH/pricing");
@@ -164,15 +164,15 @@ describe("marketing seo plumbing", () => {
     expect(metadata.metadataBase).toEqual(new URL("https://example.test"));
     expect(metadata.openGraph).toMatchObject({
       title: "Tarifs",
-      description: "Comparez les tarifs Swiss Mail.",
+      description: "Comparez les tarifs Sendly.",
       url: "https://example.test/fr-CH/pricing",
       locale: "fr-CH",
-      siteName: "Swiss Mail",
+      siteName: "Sendly",
       type: "website",
     });
     expect(metadata.twitter).toMatchObject({
       title: "Tarifs",
-      description: "Comparez les tarifs Swiss Mail.",
+      description: "Comparez les tarifs Sendly.",
       card: "summary_large_image",
     });
   });
@@ -185,7 +185,7 @@ describe("marketing seo plumbing", () => {
       locale: "de-CH",
       pathname: "/help",
       title: "Hilfe",
-      description: "Antworten für Swiss Mail.",
+      description: "Antworten für Sendly.",
     });
 
     expect(getSiteUrl()).toBe("https://example.test");

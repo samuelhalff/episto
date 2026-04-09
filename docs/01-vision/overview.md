@@ -1,6 +1,6 @@
-# Swiss Mail — Project Overview
+# Sendly — Project Overview
 
-**Product:** Swiss Mail  
+**Product:** Sendly  
 **Last updated:** 2026-03-15  
 **Status:** Foundation phase — TypeScript boundaries prepared; feature implementation not yet started
 
@@ -8,10 +8,10 @@
 
 ## 1. What This Is
 
-Swiss Mail is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction.
+Sendly is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction.
 
-Operationally, Swiss Mail owns drafting, review, canonical PDF generation, dispatch metadata
-preparation, provider submission, and status normalization. Swiss Mail does not run its own print
+Operationally, Sendly owns drafting, review, canonical PDF generation, dispatch metadata
+preparation, provider submission, and status normalization. Sendly does not run its own print
 facility or physical mail workflow. See [Provider Submission Model](../04-product/provider-submission-model.md).
 
 The user journey is:

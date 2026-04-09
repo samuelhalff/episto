@@ -237,7 +237,7 @@ describe("draft review route", () => {
       expect.anything(),
       "draft-review",
       "review-session",
-      "fields_complete",
+      "collecting",
     );
     expect(transitionDraftStatus).not.toHaveBeenCalledWith(
       expect.anything(),

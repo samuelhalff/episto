@@ -1,4 +1,4 @@
-# Swiss Mail — UX Redesign & Terms and Conditions
+# Sendly — UX Redesign & Terms and Conditions
 
 **Prepared by:** Product & Legal Advisory  
 **Date:** 2026-04-05  
@@ -27,7 +27,7 @@ The current desktop implementation (`DraftShell.tsx`) creates a **two-column lay
 
 The core legal challenge is threefold:
 
-1. **Platform positioning.** Swiss Mail must be clearly positioned as a software/service platform that purchases downstream postal services from Swiss Post/ePost on its own account. The user contracts with West Bay SA. West Bay SA contracts with Swiss Post. The user does not become a direct counterparty of Swiss Post. This distinction is critical for avoiding characterization as an independent postal operator under Swiss postal law (Postgesetz, PG).
+1. **Platform positioning.** Sendly must be clearly positioned as a software/service platform that purchases downstream postal services from Swiss Post/ePost on its own account. The user contracts with West Bay SA. West Bay SA contracts with Swiss Post. The user does not become a direct counterparty of Swiss Post. This distinction is critical for avoiding characterization as an independent postal operator under Swiss postal law (Postgesetz, PG).
 
 2. **Service boundary clarity.** The Terms must draw a clean line between what West Bay SA delivers (drafting assistance, PDF generation, submission orchestration, confirmation records) and what Swiss Post/ePost delivers (printing, enveloping, transport, delivery). Users must understand this distinction without being confused by it.
 
@@ -50,24 +50,24 @@ The core legal challenge is threefold:
 
 ### Findings from Leading Products
 
-**1. Split-pane is justified only when both panes show the same content type (code diff, synchronised editing) or when one pane is genuinely static/short (Stripe checkout order summary).** When both panes have independent scroll contexts and unrelated content types (form fields vs. progress tracker), the pattern degrades the experience. GitHub, Canva, and Linear all abandon split-pane on mobile. Swiss Mail's current desktop sidebar does not contain enough value to justify its layout cost.
+**1. Split-pane is justified only when both panes show the same content type (code diff, synchronised editing) or when one pane is genuinely static/short (Stripe checkout order summary).** When both panes have independent scroll contexts and unrelated content types (form fields vs. progress tracker), the pattern degrades the experience. GitHub, Canva, and Linear all abandon split-pane on mobile. Sendly's current desktop sidebar does not contain enough value to justify its layout cost.
 
-**2. The strongest checkout flows narrow the layout as commitment increases.** Apple, Aesop, Stripe Checkout, and NET-A-PORTER all transition from multi-column product pages to focused single-column checkout flows. The pattern is consistent: visual complexity decreases as stakes increase. Swiss Mail currently does the opposite — the checkout page introduces a different grid layout than review.
+**2. The strongest checkout flows narrow the layout as commitment increases.** Apple, Aesop, Stripe Checkout, and NET-A-PORTER all transition from multi-column product pages to focused single-column checkout flows. The pattern is consistent: visual complexity decreases as stakes increase. Sendly currently does the opposite — the checkout page introduces a different grid layout than review.
 
-**3. One-thing-per-screen outperforms on desktop too.** GOV.UK's extensive research demonstrates that single-column, one-question-per-step forms outperform multi-field layouts even on wide viewports. Typeform, TurboTax, and Apple Checkout all follow this principle. Swiss Mail's step-based approach is correct; the bolt-on sidebar undermines it.
+**3. One-thing-per-screen outperforms on desktop too.** GOV.UK's extensive research demonstrates that single-column, one-question-per-step forms outperform multi-field layouts even on wide viewports. Typeform, TurboTax, and Apple Checkout all follow this principle. Sendly's step-based approach is correct; the bolt-on sidebar undermines it.
 
-**4. Review before commitment is the gold standard.** GOV.UK's "Check your answers" pattern — showing all collected information in a summary list with edit links before final submission — is the most effective trust-building mechanism. Swiss Mail's review page partially implements this but uses a split layout when it should use a focused, full-width summary.
+**4. Review before commitment is the gold standard.** GOV.UK's "Check your answers" pattern — showing all collected information in a summary list with edit links before final submission — is the most effective trust-building mechanism. Sendly's review page partially implements this but uses a split layout when it should use a focused, full-width summary.
 
 **5. Confirmation pages hero the reference number and next steps.** Swiss Air, Wise, Revolut, and DocuSign all follow the same structure: success icon → reference number (largest element) → summary → next steps → secondary actions. Motion is subtle. The reference/confirmation number is the emotional anchor.
 
-**6. Document download should be primary CTA when the document is the goal; secondary when it is a byproduct.** For Swiss Mail's signed summary PDF, the download is the goal of the confirmation page — it should be the primary CTA, not buried below timeline steps.
+**6. Document download should be primary CTA when the document is the goal; secondary when it is a byproduct.** For Sendly's signed summary PDF, the download is the goal of the confirmation page — it should be the primary CTA, not buried below timeline steps.
 
 ### Patterns to Adopt
 
 | Pattern                                                | Source                                  | Application                                                                        |
 | ------------------------------------------------------ | --------------------------------------- | ---------------------------------------------------------------------------------- |
 | **Consistent single-column with max-width constraint** | Apple, GOV.UK, Typeform                 | All draft steps, review, checkout, and confirmation                                |
-| **Sticky bottom dock for primary action**              | Swiss Mail mobile (already implemented) | Extend to desktop with a full-width bottom bar                                     |
+| **Sticky bottom dock for primary action**              | Sendly mobile (already implemented) | Extend to desktop with a full-width bottom bar                                     |
 | **Full-width immersive preview**                       | Canva presentation mode, Figma Present  | Letter preview as a full-screen overlay or dedicated view, not a sidebar           |
 | **Summary-before-commit review**                       | GOV.UK "Check your answers"             | Review page as a single-column summary with edit links                             |
 | **Narrowing visual complexity**                        | Apple, Stripe, Aesop                    | Transition from `<AppLayout>` to `<MinimalLayout>` should be seamless, not jarring |
@@ -154,7 +154,7 @@ Marketing → Draft Entry → Draft Workspace → Review → Checkout → Confir
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Swiss Mail logo]  ● ● ○ ○ ○ ○ ○   Saved ✓   [≡]  │  ← FlowHeader (sticky, h-14)
+│  [Sendly logo]  ● ● ○ ○ ○ ○ ○   Saved ✓   [≡]  │  ← FlowHeader (sticky, h-14)
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -183,7 +183,7 @@ Marketing → Draft Entry → Draft Workspace → Review → Checkout → Confir
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Swiss Mail logo]  ● ● ● ● ● ● ● ●   [← Back]     │  ← FlowHeader
+│  [Sendly logo]  ● ● ● ● ● ● ● ●   [← Back]     │  ← FlowHeader
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -224,7 +224,7 @@ Marketing → Draft Entry → Draft Workspace → Review → Checkout → Confir
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Swiss Mail logo]          Step 2 of 3   [← Review]  │  ← MinimalLayout header
+│  [Sendly logo]          Step 2 of 3   [← Review]  │  ← MinimalLayout header
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -267,7 +267,7 @@ This is the critical new design.
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Swiss Mail logo]                          [≡ Menu]   │  ← MinimalLayout header
+│  [Sendly logo]                          [≡ Menu]   │  ← MinimalLayout header
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -378,7 +378,7 @@ The PDF issued by West Bay SA contains:
 │  letter was submitted to Swiss Post /    │
 │  ePost infrastructure for physical       │
 │  dispatch on behalf of the sender via    │
-│  the Swiss Mail platform operated by     │
+│  the Sendly platform operated by     │
 │  West Bay SA. This confirmation does     │
 │  not constitute proof of delivery.       │
 │                                          │
@@ -399,9 +399,9 @@ Following the confirmation record page(s):
 
 **Template: Transaction Confirmation (new, replaces or supplements existing payment receipt)**
 
-- **Subject:** "Your Swiss Mail confirmation — SM-4FD8704A"
+- **Subject:** "Your Sendly confirmation — SM-4FD8704A"
 - **Body:**
-  - Swiss Mail logo / header
+  - Sendly logo / header
   - "Your letter has been submitted for dispatch."
   - Reference: SM-4FD8704A
   - Date and time
@@ -462,7 +462,7 @@ Mobile uses the exact same layout framework — the only difference is that the 
 **Confirmation page:**
 
 1. Build the signed PDF download hero card as a new component (`<SignedConfirmationCard>`).
-2. Implement the backend download so `GET /v1/drafts/:id/pdf` and `GET /v1/orders/:orderToken/pdf` generate and serve the signed confirmation bundle. Page 1 must be the branded Swiss Mail confirmation record with logo, submission mode, provider reference, tracking number when present, and the other operational metadata required for support/email follow-up. The remaining pages must be the exact rendered letter PDF prepared for dispatch.
+2. Implement the backend download so `GET /v1/drafts/:id/pdf` and `GET /v1/orders/:orderToken/pdf` generate and serve the signed confirmation bundle. Page 1 must be the branded Sendly confirmation record with logo, submission mode, provider reference, tracking number when present, and the other operational metadata required for support/email follow-up. The remaining pages must be the exact rendered letter PDF prepared for dispatch.
 3. Track 10-day expiry and show appropriate states (available, expiring soon, expired).
 4. If submission mode is `mock`, the card and the PDF must explicitly state that no fee-bearing ePost submission occurred. Mock mode must still surface the same provider-shaped fields expected from live ePost responses.
 5. The current download trigger is `GET /v1/drafts/:id/pdf` with session authentication. The public order-status route uses `GET /v1/orders/:orderToken/pdf`.
@@ -485,7 +485,7 @@ The letter preview modal should be accessible from any step where a draft body e
 
 1. **Contractual counterparty is West Bay SA.** The user contracts solely with West Bay SA. Swiss Post/ePost is a downstream service provider used by West Bay SA. This is the foundational structural choice.
 
-2. **"Platform service" not "postal service."** The Terms describe Swiss Mail as a platform providing document preparation and dispatch submission services. Physical postal execution is explicitly delegated to Swiss Post/ePost. This reduces the risk of Swiss Mail being characterized as a postal operator under Art. 2 PG.
+2. **"Platform service" not "postal service."** The Terms describe Sendly as a platform providing document preparation and dispatch submission services. Physical postal execution is explicitly delegated to Swiss Post/ePost. This reduces the risk of Sendly being characterized as a postal operator under Art. 2 PG.
 
 3. **No sublicensing language.** The Terms do not suggest that West Bay SA is sublicensing or extending Swiss Post rights to users. West Bay SA purchases services from Swiss Post on its own account and passes the benefit to users as part of its integrated service.
 
@@ -513,7 +513,7 @@ The letter preview modal should be accessible from any step where a draft body e
 
 ---
 
-# Terms and Conditions — Swiss Mail
+# Terms and Conditions — Sendly
 
 **Effective date:** [insert date]  
 **Last updated:** [insert date]  
@@ -539,7 +539,7 @@ Before you read the full terms, here is what matters most:
 
 ## 1. Scope of Service
 
-1.1. Swiss Mail is a web-based platform operated by West Bay SA ("**we**", "**us**", "**our**") that enables users ("**you**", "**your**") to:
+1.1. Sendly is a web-based platform operated by West Bay SA ("**we**", "**us**", "**our**") that enables users ("**you**", "**your**") to:
 
 (a) prepare formal letters using AI-assisted drafting tools;  
  (b) review and edit letters in a structured workflow;  
@@ -558,11 +558,11 @@ Before you read the full terms, here is what matters most:
 
 ## 2. Platform Nature — We Are Not a Postal Operator
 
-2.1. Swiss Mail is a **software and service platform**. We provide technology, AI-assisted drafting, document formatting, and dispatch submission orchestration.
+2.1. Sendly is a **software and service platform**. We provide technology, AI-assisted drafting, document formatting, and dispatch submission orchestration.
 
 2.2. We are **not** a postal operator, postal service provider, or licensed carrier. We do not operate printing facilities, mail sorting centres, or delivery networks. We do not transport or deliver physical mail.
 
-2.3. For the physical execution of postal dispatch, we use the services of Swiss Post / ePost and potentially other specialised service providers. We engage these providers on our own account as part of delivering our service to you. You do not enter into a separate contract with Swiss Post, ePost, or any other downstream provider by using Swiss Mail.
+2.3. For the physical execution of postal dispatch, we use the services of Swiss Post / ePost and potentially other specialised service providers. We engage these providers on our own account as part of delivering our service to you. You do not enter into a separate contract with Swiss Post, ePost, or any other downstream provider by using Sendly.
 
 2.4. References to Swiss Post / ePost in these Terms, in our platform interface, or in our communications are provided for transparency about the operational execution of your dispatch. They do not constitute, and should not be understood as, a direct contractual relationship between you and Swiss Post / ePost or any sublicensing of Swiss Post / ePost services to you.
 
@@ -570,11 +570,11 @@ Before you read the full terms, here is what matters most:
 
 ## 3. Account and User Eligibility
 
-3.1. Swiss Mail is designed for use by individuals and legal entities with a valid postal address in Switzerland.
+3.1. Sendly is designed for use by individuals and legal entities with a valid postal address in Switzerland.
 
 3.2. You must be at least 18 years old or have the legal capacity to enter into a binding contract under applicable Swiss law.
 
-3.3. The current version of Swiss Mail operates on a **guest-first model**. You are not required to create a user account to use the service. A temporary session is created when you begin drafting a letter. Session duration is limited and communicated in the platform interface.
+3.3. The current version of Sendly operates on a **guest-first model**. You are not required to create a user account to use the service. A temporary session is created when you begin drafting a letter. Session duration is limited and communicated in the platform interface.
 
 3.4. We reserve the right to introduce optional or mandatory account registration in future versions of the service.
 
@@ -596,7 +596,7 @@ Before you read the full terms, here is what matters most:
 
 4.3. Successful payment does not guarantee that your letter has been physically handed over to Swiss Post. Handover occurs as part of the subsequent dispatch process and may take place after a delay depending on processing schedules and provider availability.
 
-4.4. You will receive a transaction reference number upon successful payment. This reference is generated by Swiss Mail and may differ from any reference subsequently assigned by Swiss Post or the dispatch provider.
+4.4. You will receive a transaction reference number upon successful payment. This reference is generated by Sendly and may differ from any reference subsequently assigned by Swiss Post or the dispatch provider.
 
 ---
 
@@ -654,13 +654,13 @@ Before you read the full terms, here is what matters most:
 
 ## 9. No Guarantee of Deadline Compliance, Legal Effects, or Proof Effects
 
-9.1. **Swiss Mail does not guarantee that your letter will arrive by a specific date, meet a statutory or contractual deadline, or produce a specific legal effect.** This applies to all delivery types, including registered mail.
+9.1. **Sendly does not guarantee that your letter will arrive by a specific date, meet a statutory or contractual deadline, or produce a specific legal effect.** This applies to all delivery types, including registered mail.
 
 9.2. If you are sending a letter to comply with a legal notice period, a contractual deadline, a statutory filing requirement, or any other time-sensitive obligation, you are solely responsible for ensuring that you submit your letter with sufficient time for processing, dispatch, transport, and delivery.
 
 9.3. We do not provide legal advice, legal review, or opinions on the legal validity or sufficiency of your letters. AI-assisted drafting is a convenience tool, not a legal service.
 
-9.4. The fact that a letter was submitted through Swiss Mail does not, by itself, constitute proof of delivery to the recipient, proof of receipt by the recipient, or proof of the content of the communication, unless the selected delivery type includes a provider-confirmed delivery record (such as registered mail with signature confirmation) and the provider has confirmed such delivery.
+9.4. The fact that a letter was submitted through Sendly does not, by itself, constitute proof of delivery to the recipient, proof of receipt by the recipient, or proof of the content of the communication, unless the selected delivery type includes a provider-confirmed delivery record (such as registered mail with signature confirmation) and the provider has confirmed such delivery.
 
 9.5. Our signed confirmation document (see Section 22) confirms that a letter was submitted by us for dispatch through Swiss Post / ePost infrastructure. It does not constitute proof of delivery to the intended recipient.
 
@@ -680,7 +680,7 @@ Before you read the full terms, here is what matters most:
 
 11.1. Where available, our platform may offer registered mail (Einschreiben / Recommandé) and other enhanced delivery types. The availability of these options depends on the capabilities offered by our dispatch provider.
 
-11.2. Registered mail is handled by Swiss Post according to its own service specifications. The characteristics, limitations, and tracking capabilities of registered mail are determined by Swiss Post, not by Swiss Mail. For details, see [Swiss Post / ePost Service Description — insert final link].
+11.2. Registered mail is handled by Swiss Post according to its own service specifications. The characteristics, limitations, and tracking capabilities of registered mail are determined by Swiss Post, not by Sendly. For details, see [Swiss Post / ePost Service Description — insert final link].
 
 11.3. We do not guarantee the availability of delivery confirmation, tracking information, or recipient signature records for any delivery type. The availability of such features depends on the dispatch provider's capabilities and the specific service tier selected.
 
@@ -702,7 +702,7 @@ Before you read the full terms, here is what matters most:
 
 ## 13. Prohibited Uses
 
-13.1. You may not use Swiss Mail for any of the following purposes:
+13.1. You may not use Sendly for any of the following purposes:
 
 (a) **Fraud or impersonation**: sending letters under a false identity, impersonating another person or entity, or using fabricated sender details without authorisation;  
  (b) **Harassment, threats, or intimidation**: sending letters whose primary purpose is to threaten, harass, intimidate, or cause distress to the recipient;  
@@ -745,7 +745,7 @@ in any of the following circumstances:
 
 ## 15. Fees, Payment, and Taxes
 
-15.1. The fees for using Swiss Mail are displayed in the platform interface before you authorise payment. The total price, including any applicable taxes, is shown at checkout before you confirm your order.
+15.1. The fees for using Sendly are displayed in the platform interface before you authorise payment. The total price, including any applicable taxes, is shown at checkout before you confirm your order.
 
 15.2. All prices are in Swiss Francs (CHF).
 
@@ -779,7 +779,7 @@ in any of the following circumstances:
 
 ## 17. Limitation of Liability
 
-17.1. **To the maximum extent permitted by Swiss law**, West Bay SA's total aggregate liability for all claims arising out of or in connection with your use of Swiss Mail is limited to the amount you paid for the specific transaction giving rise to the claim.
+17.1. **To the maximum extent permitted by Swiss law**, West Bay SA's total aggregate liability for all claims arising out of or in connection with your use of Sendly is limited to the amount you paid for the specific transaction giving rise to the claim.
 
 17.2. We are **not** liable for:
 
@@ -830,11 +830,11 @@ in any of the following circumstances:
 
 ## 20. Data Protection and Processing
 
-20.1. We process personal data in connection with your use of Swiss Mail in accordance with applicable Swiss data protection law (DSG) and, where applicable, the EU General Data Protection Regulation (GDPR).
+20.1. We process personal data in connection with your use of Sendly in accordance with applicable Swiss data protection law (DSG) and, where applicable, the EU General Data Protection Regulation (GDPR).
 
 20.2. Our Privacy Policy, available at [swissmail.ch/privacy], describes in detail what personal data we collect, how we use it, who we share it with, and your rights regarding your data.
 
-20.3. By using Swiss Mail, you acknowledge that certain personal data (including sender and recipient address information) is necessarily shared with our dispatch provider for the purpose of fulfilling the postal dispatch. This sharing is an essential part of the service you request.
+20.3. By using Sendly, you acknowledge that certain personal data (including sender and recipient address information) is necessarily shared with our dispatch provider for the purpose of fulfilling the postal dispatch. This sharing is an essential part of the service you request.
 
 20.4. We retain personal data only for as long as necessary to fulfil the purposes for which it was collected, including transaction completion, dispute resolution, legal compliance, and fraud prevention. Specific retention periods are described in our Privacy Policy.
 
@@ -883,9 +883,9 @@ in any of the following circumstances:
 
 ## 24. Changes to Services and Discontinuation
 
-24.1. We may modify, update, or discontinue features of the Swiss Mail platform at any time. Where changes materially affect the core service (pricing, dispatch providers, data handling), we will provide reasonable notice through the platform or by email to users who have provided an email address in a recent transaction.
+24.1. We may modify, update, or discontinue features of the Sendly platform at any time. Where changes materially affect the core service (pricing, dispatch providers, data handling), we will provide reasonable notice through the platform or by email to users who have provided an email address in a recent transaction.
 
-24.2. We may discontinue the Swiss Mail service entirely with at least 30 days' notice. In the event of discontinuation, all pending paid dispatches will be completed or refunded.
+24.2. We may discontinue the Sendly service entirely with at least 30 days' notice. In the event of discontinuation, all pending paid dispatches will be completed or refunded.
 
 24.3. Changes to these Terms will be posted on our website with an updated effective date. Continued use of the service after the updated effective date constitutes acceptance of the revised Terms. For material changes, we will use reasonable efforts to notify active users.
 
@@ -895,7 +895,7 @@ in any of the following circumstances:
 
 25.1. These Terms are governed by and construed in accordance with the substantive laws of Switzerland, excluding the Swiss conflict-of-laws rules and the United Nations Convention on Contracts for the International Sale of Goods (CISG).
 
-25.2. Any disputes arising out of or in connection with these Terms or your use of Swiss Mail shall be subject to the exclusive jurisdiction of the competent courts at the registered seat of West Bay SA, subject to any mandatory consumer forum provisions under Swiss law.
+25.2. Any disputes arising out of or in connection with these Terms or your use of Sendly shall be subject to the exclusive jurisdiction of the competent courts at the registered seat of West Bay SA, subject to any mandatory consumer forum provisions under Swiss law.
 
 25.3. If you are a consumer domiciled in Switzerland, you may also bring proceedings at your place of domicile in accordance with Art. 32 ZPO (Swiss Code of Civil Procedure).
 
@@ -907,7 +907,7 @@ in any of the following circumstances:
 
 26.2. Our failure to enforce any right or provision of these Terms does not constitute a waiver of that right or provision.
 
-26.3. These Terms, together with our Privacy Policy and any specific terms presented during the checkout process, constitute the entire agreement between you and West Bay SA regarding your use of Swiss Mail.
+26.3. These Terms, together with our Privacy Policy and any specific terms presented during the checkout process, constitute the entire agreement between you and West Bay SA regarding your use of Sendly.
 
 26.4. You may not assign or transfer your rights or obligations under these Terms without our prior written consent. We may assign our rights and obligations under these Terms to a successor entity in connection with a merger, acquisition, or sale of all or substantially all of our assets.
 
@@ -915,7 +915,7 @@ in any of the following circumstances:
 
 ## 27. Contact and Complaints
 
-27.1. For questions, support requests, or complaints regarding Swiss Mail:
+27.1. For questions, support requests, or complaints regarding Sendly:
 
 **West Bay SA**  
  [Registered address]  
@@ -964,7 +964,7 @@ _These Terms and Conditions are provided in English. In the event of a discrepan
 
 ### Assumptions Made
 
-1. **West Bay SA is the correct contracting entity.** The Terms are drafted assuming West Bay SA is the entity that will operate Swiss Mail and hold the Swiss Post / ePost commercial relationship.
+1. **West Bay SA is the correct contracting entity.** The Terms are drafted assuming West Bay SA is the entity that will operate Sendly and hold the Swiss Post / ePost commercial relationship.
 
 2. **Swiss VAT applies.** The Terms assume West Bay SA is or will be VAT-registered in Switzerland. If not, the VAT language in Section 15 should be adjusted.
 

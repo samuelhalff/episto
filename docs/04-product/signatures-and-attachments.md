@@ -49,7 +49,7 @@ Locked constraints:
 **Locked timing:** attachments are available only after the first draft exists and remain editable
 through the review step. Checkout does not introduce new attachment upload behavior.
 
-**Launch gate:** If the provider-confirmed launch path cannot support attachments safely, Swiss Mail
+**Launch gate:** If the provider-confirmed launch path cannot support attachments safely, Sendly
 must disable attachment submission at launch rather than inventing a packaging flow.
 
 ## Account scope — LOCKED: Option B

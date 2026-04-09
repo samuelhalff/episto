@@ -25,7 +25,7 @@ export function buildCanonicalRateMatrixInputs(config = env()): DispatchPricingI
         attachmentMode,
         shippingCountry: "CH" as const,
         envelopeSize: "C5" as const,
-        windowLocation: "LEFT" as const,
+        windowLocation: "RIGHT" as const,
         duplex: false as const,
       })),
     ),
@@ -64,7 +64,7 @@ export async function syncDispatchRateMatrix(args: {
       attachmentMode: string;
       shippingCountry: "CH";
       envelopeSize: "C5";
-      windowLocation: "LEFT";
+      windowLocation: "RIGHT";
       duplex: false;
       providerQuotedCents: number;
       currency: "CHF";

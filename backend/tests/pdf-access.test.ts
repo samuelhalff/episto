@@ -28,6 +28,7 @@ const mocks = vi.hoisted(() => {
     getLatestSnapshot: vi.fn(),
     downloadObjectBuffer: vi.fn(),
     renderConfirmationDocumentHtml: vi.fn(),
+    renderLetterHtml: vi.fn(),
     renderPdfBufferFromHtml: vi.fn(),
   };
 });
@@ -52,6 +53,7 @@ vi.mock("../src/modules/rendering/confirmation-document.js", () => ({
 }));
 
 vi.mock("../src/modules/rendering/render.service.js", () => ({
+  renderLetterHtml: mocks.renderLetterHtml,
   renderPdfBufferFromHtml: mocks.renderPdfBufferFromHtml,
 }));
 
@@ -118,14 +120,20 @@ describe("pdf-access", () => {
       createdAt: new Date("2026-04-08T12:00:00.000Z"),
     });
 
-    mocks.downloadObjectBuffer.mockResolvedValue({
-      buffer: Buffer.from("letter-pdf"),
-      contentType: "application/pdf",
-    });
     mocks.renderConfirmationDocumentHtml.mockReturnValue("<html>confirmation</html>");
-    mocks.renderPdfBufferFromHtml.mockResolvedValue({
-      pdfBuffer: Buffer.from("front-pdf"),
-      pageCount: 1,
+    mocks.renderLetterHtml.mockReturnValue("<html>letter</html>");
+    mocks.renderPdfBufferFromHtml.mockImplementation(async (html: string) => {
+      if (html === "<html>confirmation</html>") {
+        return {
+          pdfBuffer: Buffer.from("front-pdf"),
+          pageCount: 1,
+        };
+      }
+
+      return {
+        pdfBuffer: Buffer.from("letter-pdf"),
+        pageCount: 2,
+      };
     });
 
     mocks.loadPdf.mockImplementation(async (buffer: Uint8Array) => {
@@ -138,19 +146,13 @@ describe("pdf-access", () => {
     mocks.createPdf.mockResolvedValue(mocks.bundlePdf);
   });
 
-  it("builds a branded confirmation front page and appends the exact rendered letter PDF", async () => {
+  it("builds a fresh confirmation bundle from the latest snapshot layout instead of appending a stale stored letter pdf", async () => {
     const selectResults = [
-      [
-        {
-          storageKey: "renders/draft-1/3.pdf",
-          status: "active",
-        },
-      ],
       [
         {
           state: "accepted",
           providerName: "epost-oneapi-mock",
-          providerReference: "mock-epost-registered-1234",
+          providerReference: "EPR-T-R-0D2D6C40F706",
           trackingNumber: "98.40.541881.00002354",
           submittedAt: new Date("2026-04-08T12:05:00.000Z"),
           createdAt: new Date("2026-04-08T12:04:00.000Z"),
@@ -179,11 +181,18 @@ describe("pdf-access", () => {
       await import("../src/modules/rendering/pdf-access.js");
     await sendRenderedDraftPdf(db as never, "draft-1", reply as never);
 
+    expect(mocks.renderLetterHtml).toHaveBeenCalledWith(
+      expect.objectContaining({
+        subject: "Termination notice",
+        sender: expect.objectContaining({ city: "Zurich" }),
+        recipient: expect.objectContaining({ company: "Receiver AG" }),
+      }),
+    );
     expect(mocks.renderConfirmationDocumentHtml).toHaveBeenCalledWith(
       expect.objectContaining({
         orderRef: "SM-DRAFT-1",
         providerMode: "mock",
-        providerReference: "mock-epost-registered-1234",
+        providerReference: "EPR-T-R-0D2D6C40F706",
         trackingNumber: "98.40.541881.00002354",
         pageCount: 2,
         attachmentNames: ["contract-scan.pdf"],
@@ -200,11 +209,13 @@ describe("pdf-access", () => {
         },
       },
     );
+    expect(mocks.renderPdfBufferFromHtml).toHaveBeenCalledWith("<html>letter</html>");
+    expect(mocks.downloadObjectBuffer).not.toHaveBeenCalled();
     expect(mocks.bundlePdf.copyPages).toHaveBeenCalledTimes(2);
     expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
     expect(reply.header).toHaveBeenCalledWith(
       "Content-Disposition",
-      'attachment; filename="swiss-mail-draft-1-confirmation.pdf"',
+      'attachment; filename="sendly-draft-1-confirmation.pdf"',
     );
     expect(reply.send).toHaveBeenCalledWith(Buffer.from("merged-pdf"));
   });
@@ -257,7 +268,7 @@ describe("pdf-access", () => {
     const db = {
       select: vi
         .fn()
-        .mockImplementation(() => makeSelectChain([{ storageKey: "renders/draft-long/1.pdf", status: "active" }])),
+        .mockImplementation(() => makeSelectChain([])),
     };
     const reply = {
       header: vi.fn().mockReturnThis(),

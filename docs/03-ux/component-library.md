@@ -6,7 +6,7 @@
 > **Scope:** Reusable UI and product component behavior. This file does not define route order,
 > pricing truth, system states, or business logic outside component boundaries.
 
-This is the complete component catalog for Swiss Mail. Every reusable element — from primitive buttons to product-specific letter previews — is specified here with variants, states, responsive behavior, and accessibility requirements.
+This is the complete component catalog for Sendly. Every reusable element — from primitive buttons to product-specific letter previews — is specified here with variants, states, responsive behavior, and accessibility requirements.
 
 Our components serve one mission: **make sending a formal letter feel effortless.** SuperPost competes on price. We compete on experience — the feeling that creating and sending a letter is as easy as sending a text message. Every component must reduce friction, guide the user forward, and feel polished to the pixel.
 
@@ -43,7 +43,7 @@ components/
 │   ├── accordion.tsx
 │   ├── progress.tsx
 │   └── breadcrumb.tsx
-├── product/             # Swiss Mail-specific components
+├── product/             # Sendly-specific components
 │   ├── letter-preview.tsx
 │   ├── conversation-panel.tsx
 │   ├── draft-workspace.tsx
@@ -93,7 +93,7 @@ components/
 ### Implementation guardrails
 
 - `components/ui/` is the only place for shared overlay primitives. Do not hand-roll new modal, sheet, popover, or dropdown foundations inside feature folders.
-- `components/product/` may compose primitives into Swiss Mail-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
+- `components/product/` may compose primitives into Sendly-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
 - Repeated CTA treatments belong in shared button wrappers, not per-step utility classes.
 - Primary workflow CTAs use the shared yellow action treatment. Secondary, back, close, and dismiss actions use the shared neutral grey treatment.
 - When a component needs presence or transition choreography beyond simple CSS hover/focus feedback, use `framer-motion` on top of the shared primitive rather than bespoke animation logic.
@@ -414,7 +414,7 @@ Loading placeholder that matches the shape of content it replaces.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Swiss Mail unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make Sendly unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### LetterPreview
 
@@ -1566,7 +1566,7 @@ When the user clicks the logo in the app header while a draft is in progress (`/
 - `<header>` element with `role="banner"`
 - `<nav>` inside header: `aria-label="Main navigation"` (marketing) or `aria-label="Draft navigation"` (app)
 - Skip-to-content link: first focusable element in the header, visually hidden until focused: `<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute ...">Skip to content</a>`
-- Logo: `<a>` with `aria-label="Swiss Mail — go to homepage"`
+- Logo: `<a>` with `aria-label="Sendly — go to homepage"`
 - Mobile hamburger: `<button aria-label="Open menu" aria-expanded="false">`. When open: `aria-expanded="true"`. Overlay traps focus; `Escape` closes it.
 - MobileNav overlay: `role="dialog"`, `aria-label="Navigation menu"`. Focus returns to hamburger button on close.
 - Language switcher: `aria-label="Select language"`, `aria-haspopup="listbox"`. See LanguageSwitcher below.
@@ -1594,7 +1594,7 @@ Multi-column footer for marketing pages.
 2. Legal: Terms, Privacy policy, Imprint
 3. Language: DE, FR, IT, EN
 
-**Bottom:** `© 2026 Swiss Mail · Built for Switzerland 🇨🇭`
+**Bottom:** `© 2026 Sendly · Built for Switzerland 🇨🇭`
 
 **Visual:** `bg-slate-900 text-slate-300`, generous padding, `text-sm`
 

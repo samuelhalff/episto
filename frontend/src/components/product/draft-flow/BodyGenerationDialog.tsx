@@ -1,5 +1,6 @@
 "use client";
 
+import { type ComponentProps } from "react";
 import { AlertTriangle, LifeBuoy, RefreshCw, Sparkles } from "lucide-react";
 import {
   Dialog,
@@ -19,7 +20,9 @@ interface BodyGenerationDialogProps {
   errorDescription: string;
   refreshLabel: string;
   supportLabel: string;
+  closeLabel: string;
   onRefresh: () => void;
+  onClose: () => void;
 }
 
 export function BodyGenerationDialog({
@@ -32,15 +35,38 @@ export function BodyGenerationDialog({
   errorDescription,
   refreshLabel,
   supportLabel,
+  closeLabel,
   onRefresh,
+  onClose,
 }: BodyGenerationDialogProps) {
   const isLoading = status === "loading";
+  const handleEscapeKeyDown: NonNullable<
+    ComponentProps<typeof DialogContent>["onEscapeKeyDown"]
+  > = (event) => {
+    if (isLoading) {
+      event.preventDefault();
+    }
+  };
+  const handlePointerDownOutside: NonNullable<
+    ComponentProps<typeof DialogContent>["onPointerDownOutside"]
+  > = (event) => {
+    if (isLoading) {
+      event.preventDefault();
+    }
+  };
 
   return (
-    <Dialog open={open}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!nextOpen && !isLoading) {
+          onClose();
+        }
+      }}
+    >
       <DialogContent
-        onEscapeKeyDown={(event) => event.preventDefault()}
-        onPointerDownOutside={(event) => event.preventDefault()}
+        onEscapeKeyDown={handleEscapeKeyDown}
+        onPointerDownOutside={handlePointerDownOutside}
         className="flex items-end justify-center bg-transparent p-4 sm:items-center sm:p-6"
       >
         <div className="app-panel w-full max-w-lg rounded-4xl p-6 sm:p-7">
@@ -83,6 +109,9 @@ export function BodyGenerationDialog({
                 <PrimaryButton onClick={onRefresh} icon={<RefreshCw className="h-4 w-4" />}>
                   {refreshLabel}
                 </PrimaryButton>
+                <SecondaryButton onClick={onClose} leadingVisual="hide">
+                  {closeLabel}
+                </SecondaryButton>
                 <SecondaryButton disabled icon={<LifeBuoy className="h-4 w-4" />} hideIcon={false}>
                   {supportLabel}
                 </SecondaryButton>

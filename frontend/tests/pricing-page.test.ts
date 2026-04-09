@@ -163,9 +163,9 @@ function createPricingMessages() {
         "These public totals use the same stored provider pricing source shown in the app.",
       compositionTitle: "What makes up the price",
       compositionBody:
-        "Swiss Mail service plus the stored provider reference totals for standard and registered dispatch.",
-      serviceStandardFeeLabel: "Swiss Mail service (standard)",
-      serviceRegisteredFeeLabel: "Swiss Mail service (registered)",
+        "Sendly service plus the stored provider reference totals for standard and registered dispatch.",
+      serviceStandardFeeLabel: "Sendly service (standard)",
+      serviceRegisteredFeeLabel: "Sendly service (registered)",
       referenceAssumptionsTitle: "Reference assumptions",
       referenceAssumptionsBody:
         "These public examples cover Swiss domestic letters with the fixed provider-side settings the stored matrix currently supports.",
@@ -179,7 +179,7 @@ function createPricingMessages() {
       assumptionStandardPostageLabel: "Standard postage mapping",
       assumptionRegisteredPostageLabel: "Registered postage mapping",
       syncFreshBody:
-        "These prices come from the latest stored provider sync used by Swiss Mail.",
+        "These prices come from the latest stored provider sync used by Sendly.",
       syncStaleBody:
         "These prices come from the last successful provider sync and may be outdated until the next refresh.",
       matrixExamplesTitle: "Matrix-backed page-count examples",
@@ -189,7 +189,7 @@ function createPricingMessages() {
       registeredExamplesTitle: "Registered examples",
       pagesColumnLabel: "Pages",
       providerQuoteColumnLabel: "Provider quote",
-      totalColumnLabel: "Swiss Mail total",
+      totalColumnLabel: "Sendly total",
     },
   } satisfies Record<string, unknown>;
 }
@@ -248,7 +248,7 @@ function createPricingData({
       referenceScenario: {
         shippingCountry: "CH",
         envelopeSize: "C5",
-        windowLocation: "LEFT",
+        windowLocation: "RIGHT",
         duplex: false,
         attachmentMode: "none",
         standardPostage: "A_POST",
@@ -337,7 +337,7 @@ describe("pricing page presentation", () => {
     expect(markup).toContain("CHF 9.78");
   });
 
-  it("shows separate Swiss Mail service rows when standard and registered markups differ", () => {
+  it("shows separate Sendly service rows when standard and registered markups differ", () => {
     pricingState.value = {
       data: createPricingData({
         standardMarkupCents: 340,
@@ -349,8 +349,8 @@ describe("pricing page presentation", () => {
 
     const markup = renderPricingSections();
 
-    expect(markup).toContain("Swiss Mail service (standard)");
-    expect(markup).toContain("Swiss Mail service (registered)");
+    expect(markup).toContain("Sendly service (standard)");
+    expect(markup).toContain("Sendly service (registered)");
     expect(markup).toContain("CHF 3.40");
     expect(markup).toContain("CHF 4.10");
   });

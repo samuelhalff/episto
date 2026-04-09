@@ -52,13 +52,18 @@ describe("workspace layout regressions", () => {
     expect(letterPreviewSource).toContain('max-w-[980px]');
     expect(letterPreviewSource).toContain("min-h-[640px]");
     expect(letterPreviewSource).toContain("!isImmersive");
-    expect(letterPreviewSource).toContain('className="max-w-[220px] text-xs"');
-    expect(letterPreviewSource).toContain('className="mt-6 ml-auto max-w-[260px] text-right"');
+    expect(letterPreviewSource).toContain("letter-layout-shell");
+    expect(letterPreviewSource).toContain("sender-block");
+    expect(letterPreviewSource).toContain("dispatch-line");
+    expect(letterPreviewSource).toContain("recipient-block");
+    expect(letterPreviewSource).toContain("right-meta");
+    expect(letterPreviewSource).not.toContain('className="mt-6 ml-auto max-w-[260px] text-right"');
   });
 
   it("stacks preview actions in the footer with hide below confirm", () => {
     expect(letterPreviewModalSource).toContain("h-[100dvh] max-h-[100dvh] min-h-[100dvh]");
     expect(letterPreviewModalSource).toContain("rounded-none");
+    expect(letterPreviewModalSource).toContain("md:right-auto md:left-1/2");
     expect(letterPreviewModalSource).toContain("flex-col gap-3");
     expect(letterPreviewModalSource).toContain("SheetClose asChild");
     expect(letterPreviewModalSource).toContain("getAppButtonClassName");

@@ -10,6 +10,7 @@ import { getApiErrorCode, getApiErrorUserMessage } from "../../../lib/api";
 
 export interface AddressResolutionState {
   isResolving: boolean;
+  requiresSelection: boolean;
   selectedLabel: string | null;
 }
 
@@ -64,6 +65,8 @@ export function AddressAutocompleteField({
     selectedSuggestion?.id ?? "",
     Boolean(selectedSuggestion?.id),
   );
+  const requiresSelection =
+    hasUserInteracted && draftQuery.trim().length >= 3 && selectedSuggestion === null;
   const isResolvingSelection =
     Boolean(selectedSuggestion) &&
     !addressDetails.data &&
@@ -89,9 +92,15 @@ export function AddressAutocompleteField({
   useEffect(() => {
     onResolutionStateChange?.({
       isResolving: isResolvingSelection,
+      requiresSelection,
       selectedLabel: isResolvingSelection ? selectedSuggestion?.label ?? null : null,
     });
-  }, [isResolvingSelection, onResolutionStateChange, selectedSuggestion?.label]);
+  }, [
+    isResolvingSelection,
+    onResolutionStateChange,
+    requiresSelection,
+    selectedSuggestion?.label,
+  ]);
 
   const isLoading =
     addressSearch.isLoading ||
@@ -201,6 +210,12 @@ export function AddressAutocompleteField({
       {shouldShowNoResults ? (
         <p className="text-sm text-zinc-500 dark:text-zinc-300">
           {t("addressSearchNoResults")}
+        </p>
+      ) : null}
+
+      {requiresSelection && !isLoading && !errorMessage ? (
+        <p className="text-sm text-amber-700 dark:text-amber-300">
+          {t("addressSearchSelectionRequired")}
         </p>
       ) : null}
 

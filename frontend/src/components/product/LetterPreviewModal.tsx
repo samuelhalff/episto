@@ -22,7 +22,7 @@ import { LetterPreview } from "./LetterPreview";
 interface LetterPreviewModalProps {
   draftId: string;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm?: (() => void) | undefined;
   confirmDisabled?: boolean;
 }
 
@@ -40,7 +40,7 @@ export function LetterPreviewModal({
     <Sheet open onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="bottom"
-        className={`${getSheetSurfaceClassName("preview")} h-[100dvh] max-h-[100dvh] min-h-[100dvh] rounded-none md:bottom-4 md:left-1/2 md:h-[min(94dvh,1040px)] md:w-[min(1080px,calc(100vw-2rem))] md:max-h-[94dvh] md:min-h-0 md:-translate-x-1/2 md:rounded-4xl`}
+        className={`${getSheetSurfaceClassName("preview")} h-[100dvh] max-h-[100dvh] min-h-[100dvh] rounded-none md:bottom-4 md:right-auto md:left-1/2 md:h-[min(94dvh,1040px)] md:w-[min(1080px,calc(100vw-2rem))] md:max-h-[94dvh] md:min-h-0 md:-translate-x-1/2 md:rounded-4xl`}
       >
         <SheetHandle className="pt-[calc(env(safe-area-inset-top,0px)+0.5rem)] md:hidden" />
 
@@ -84,16 +84,18 @@ export function LetterPreviewModal({
 
         <SheetFooter sticky surface="muted" className="sm:px-6">
           <div className="mx-auto flex w-full max-w-[1120px] flex-col gap-3 sm:max-w-[320px]">
-            <ActionButton
-              disabled={confirmDisabled}
-              onClick={() => {
-                onClose();
-                onConfirm();
-              }}
-              fullWidth
-            >
-              {t("confirmContent")}
-            </ActionButton>
+            {onConfirm ? (
+              <ActionButton
+                disabled={confirmDisabled}
+                onClick={() => {
+                  onClose();
+                  onConfirm();
+                }}
+                fullWidth
+              >
+                {t("confirmContent")}
+              </ActionButton>
+            ) : null}
             <ActionButton variant="secondary" onClick={onClose} fullWidth>
               {t("hidePreview")}
             </ActionButton>

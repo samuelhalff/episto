@@ -138,7 +138,7 @@ _CI-ready quality gates._
 
 - [x] `robots.txt` (Disallow /api/ and /admin/)
 - [x] Dynamic `sitemap.xml` (all static pages × 4 locales via Next.js app router)
-- [x] Web app manifest (`manifest.json` with Swiss Mail branding)
+- [x] Web app manifest (`manifest.json` with Sendly branding)
 - [x] HTML metadata (title, description, manifest link in locale layout)
 
 ### Phase 7C — Admin Dashboard UI:

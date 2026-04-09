@@ -18,6 +18,7 @@ import type { DispatchState } from "@swiss-mail/shared";
 interface DispatchConfirmationProps {
   dispatchState: (typeof DispatchState)[keyof typeof DispatchState] | null;
   providerReference: string | null;
+  trackingNumber?: string | null;
   providerMode: "mock" | "live" | null;
   isTrackable: boolean;
   submittedAt: string | null;
@@ -71,6 +72,7 @@ function getStepStatus(step: TimelineStep, state: string | null): StepStatus {
 export function DispatchConfirmation({
   dispatchState,
   providerReference,
+  trackingNumber,
   providerMode,
   isTrackable,
   submittedAt,
@@ -114,6 +116,10 @@ export function DispatchConfirmation({
 
   const current = statusCopy[state as keyof typeof statusCopy] ?? statusCopy.queued;
   const isRejected = state === "rejected";
+  const primaryReference = trackingNumber ?? providerReference;
+  const primaryReferenceLabel = trackingNumber
+    ? t("reference.trackingLabel")
+    : t("reference.label");
 
   return (
     <div className="space-y-6">
@@ -127,33 +133,43 @@ export function DispatchConfirmation({
       </div>
 
       {/* Provider reference */}
-      {providerReference && (
-        <div className="rounded-lg border border-border bg-muted/20 px-4 py-3">
-          <p className="text-xs font-medium text-muted-foreground">
-            {t("reference.label")}
+      {primaryReference && (
+        <div className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            {primaryReferenceLabel}
           </p>
-          <p className="mt-1 font-mono text-sm font-medium">{providerReference}</p>
+          <p className="mt-2 font-mono text-base font-semibold leading-snug text-zinc-950 dark:text-zinc-50">
+            {primaryReference}
+          </p>
+          {trackingNumber && providerReference && (
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="font-medium">{t("reference.label")}:</span>{" "}
+              <span className="font-mono">{providerReference}</span>
+            </p>
+          )}
           {isTrackable ? (
-            <p className="mt-1 text-xs text-emerald-700">
+            <p className="mt-2 text-xs font-medium text-emerald-700 dark:text-emerald-300">
               {t("reference.trackingAvailable")}
             </p>
           ) : (
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
               {t("reference.noTracking")}
             </p>
           )}
           {providerMode === "mock" && (
-            <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-950">
-              <p className="font-medium">{t("reference.mockLabel")}</p>
-              <p className="mt-1">{t("reference.mockBody")}</p>
+            <div className="mt-3 rounded-2xl bg-[var(--action-choice-active-bg)] px-3 py-3 text-xs text-[var(--app-muted-strong)]">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+                {t("reference.mockLabel")}
+              </p>
+              <p className="mt-1.5 leading-5">{t("reference.mockBody")}</p>
             </div>
           )}
         </div>
       )}
 
-      {!providerReference && (
-        <div className="rounded-lg border border-border bg-muted/20 px-4 py-3">
-          <p className="text-xs text-muted-foreground">{t("reference.pending")}</p>
+      {!primaryReference && (
+        <div className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4">
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{t("reference.pending")}</p>
         </div>
       )}
 

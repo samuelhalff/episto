@@ -330,7 +330,7 @@ describe("PaymentAttemptSchema", () => {
       attachmentHandling: "excluded",
       lineItems: [
         { label: "ePost provider quote", amountCents: 165, source: "provider" },
-        { label: "Swiss Mail service", amountCents: 80, source: "swiss_mail" },
+        { label: "Sendly service", amountCents: 80, source: "swiss_mail" },
       ],
     },
     failureReason: null,
@@ -602,7 +602,7 @@ describe("PaymentBreakdownSchema", () => {
       attachmentHandling: "excluded",
       lineItems: [
         { label: "ePost provider quote", amountCents: 165, source: "provider" },
-        { label: "Swiss Mail service", amountCents: 80, source: "swiss_mail" },
+        { label: "Sendly service", amountCents: 80, source: "swiss_mail" },
       ],
     });
     expect(result.providerQuotedCents).toBe(165);

@@ -10,7 +10,7 @@
  * - "As an admin, the shell passes sidebarOpen/onClose/onMenuToggle correctly."
  * - "As an admin, clicking a nav link in the mobile drawer closes the drawer."
  */
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -115,6 +115,16 @@ describe("regression: admin responsive dashboard", () => {
   it("top bar shows admin initials in an avatar", () => {
     expect(topBarSource).toContain("initials");
     expect(topBarSource).toContain("accountHref");
+  });
+
+  it("top bar keeps the search and account pills on the same responsive height", () => {
+    expect(topBarSource).toContain("inline-flex h-11");
+    expect(topBarSource).toContain("flex h-11 min-w-0");
+  });
+
+  it("top bar keeps the avatar circle fixed and centered on narrow layouts", () => {
+    expect(topBarSource).toContain("h-9 w-9 shrink-0");
+    expect(topBarSource).toContain("items-center justify-center rounded-full");
   });
 
   it("top bar supports all admin routes including retention", () => {

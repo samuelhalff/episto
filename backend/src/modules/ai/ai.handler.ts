@@ -259,6 +259,15 @@ export async function handleComposeFromContext(
       conversationHistory,
     });
 
+    if (analysis.question?.trim() && !analysis.hasEnoughContext) {
+      await emitAssistantCompletion(
+        draftId,
+        conversationHistory,
+        getIntakeReplyContent(analysis),
+      );
+      return;
+    }
+
     if (!analysis.ready && !analysis.hasEnoughContext) {
       await emitAssistantCompletion(
         draftId,

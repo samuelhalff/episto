@@ -108,7 +108,7 @@ Rules:
 
 ## Provider conversation persistence
 
-When the Azure execution path uses provider-side threads or conversations, Swiss Mail still owns the
+When the Azure execution path uses provider-side threads or conversations, Sendly still owns the
 canonical drafting state.
 
 Rules:

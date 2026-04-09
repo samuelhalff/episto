@@ -72,7 +72,7 @@ describe("dispatch provider contracts", () => {
     expect(result.attachmentPolicy.allowedMimeTypes).toEqual(["application/pdf"]);
   });
 
-  it("parses a dispatch quote with provider and swiss mail rows", () => {
+  it("parses a dispatch quote with provider and Sendly rows", () => {
     const result = DispatchQuoteSchema.parse({
       draftId: "11111111-1111-4111-8111-111111111111",
       snapshotId: "22222222-2222-4222-8222-222222222222",
@@ -85,7 +85,7 @@ describe("dispatch provider contracts", () => {
       attachmentHandling: "excluded",
       lineItems: [
         { label: "Provider quote", amountCents: 165, source: "provider" },
-        { label: "Swiss Mail service", amountCents: 80, source: "swiss_mail" },
+        { label: "Sendly service", amountCents: 80, source: "swiss_mail" },
       ],
     });
 

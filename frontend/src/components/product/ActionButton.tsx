@@ -6,6 +6,7 @@ import { Link } from "../../i18n/navigation";
 import { AppButton, getAppButtonClassName } from "../ui/app-button";
 
 type ActionButtonVariant = "primary" | "secondary";
+const DESKTOP_MIN_WIDTH_CLASS_NAME = "lg:w-auto lg:min-w-[10rem]";
 
 interface ActionButtonContentProps {
   children: ReactNode;
@@ -17,6 +18,7 @@ interface ActionButtonContentProps {
 interface SharedActionProps {
   variant?: ActionButtonVariant;
   fullWidth?: boolean;
+  desktopMinWidth?: boolean;
   className?: string;
   contentClassName?: string;
   children: ReactNode;
@@ -57,6 +59,7 @@ function ActionButtonContent({
 export function ActionButton({
   variant = "primary",
   fullWidth = false,
+  desktopMinWidth = false,
   className = "",
   contentClassName = "",
   children,
@@ -75,7 +78,13 @@ export function ActionButton({
       loading={loading}
       variant={variant}
       fullWidth={fullWidth}
-      className={["min-w-0 flex-nowrap whitespace-nowrap", className].filter(Boolean).join(" ")}
+      className={[
+        "min-w-0 flex-nowrap whitespace-nowrap",
+        desktopMinWidth ? DESKTOP_MIN_WIDTH_CLASS_NAME : "",
+        className,
+      ]
+        .filter(Boolean)
+        .join(" ")}
       leadingIcon={leadingIcon}
       trailingIcon={trailingIcon}
       trailingMeta={trailingMeta}
@@ -97,6 +106,7 @@ export function ActionButton({
 export function ActionLink({
   variant = "secondary",
   fullWidth = false,
+  desktopMinWidth = false,
   className = "",
   contentClassName = "",
   children,
@@ -111,7 +121,13 @@ export function ActionLink({
       className={getAppButtonClassName({
         variant,
         fullWidth,
-        className: ["min-w-0 flex-nowrap whitespace-nowrap", className].filter(Boolean).join(" "),
+        className: [
+          "min-w-0 flex-nowrap whitespace-nowrap",
+          desktopMinWidth ? DESKTOP_MIN_WIDTH_CLASS_NAME : "",
+          className,
+        ]
+          .filter(Boolean)
+          .join(" "),
       })}
       {...props}
     >

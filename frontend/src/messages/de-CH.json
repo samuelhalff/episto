@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Swiss Mail",
+    "appName": "Sendly",
     "loading": "Wird geladen…",
     "error": "Ein Fehler ist aufgetreten",
     "tryAgain": "Erneut versuchen",
@@ -31,7 +31,7 @@
     "showPreview": "Vorschau anzeigen",
     "hidePreview": "Vorschau ausblenden",
     "refresh": "Aktualisieren",
-    "privacyNoticeBody": "Swiss Mail verwendet ein einziges notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Drittanbieter-Analysen.",
+    "privacyNoticeBody": "Sendly verwendet ein einziges notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Drittanbieter-Analysen.",
     "privacyPolicy": "Datenschutz",
     "dismissPrivacyNotice": "Datenschutzhinweis ausblenden"
   },
@@ -57,14 +57,14 @@
     "useCaseLease": "Mietvertrag kündigen",
     "useCaseComplaint": "Formelle Beschwerde einreichen",
     "useCaseAuthority": "An eine Behörde schreiben",
-    "trustTitle": "Warum Swiss Mail",
+    "trustTitle": "Warum Sendly",
     "trustSwissPost": "Zustellung durch die Schweizerische Post",
     "trustSecure": "Sicher & verschlüsselt",
     "trustNoAccount": "Kein Konto erforderlich",
     "pricingTitle": "Einfache, transparente Preise",
     "pricingFrom": "Ab {price} pro Brief",
     "pricingFromFallback": "Transparente Preise pro Brief",
-    "pricingNotes": "Referenztotal basierend auf {printedPages} gedruckter Seite, {physicalSheets} A4-Blatt, {envelopeFormat}-Couvert plus {service} Swiss Mail Service.",
+    "pricingNotes": "Referenztotal basierend auf {printedPages} gedruckter Seite, {physicalSheets} A4-Blatt, {envelopeFormat}-Couvert plus {service} Sendly Service.",
     "pricingNotesFallback": "Standard- und Einschreiben-Preise werden vor der Zahlung gezeigt.",
     "ctaTitle": "Bereit, Ihren Brief zu versenden?",
     "ctaButton": "Jetzt schreiben",
@@ -79,15 +79,15 @@
       "terms": "AGB",
       "imprint": "Impressum",
       "help": "Hilfe",
-      "copyright": "© 2025 Swiss Mail. Alle Rechte vorbehalten."
+      "copyright": "© 2025 Sendly. Alle Rechte vorbehalten."
     },
-    "appName": "Swiss Mail",
+    "appName": "Sendly",
     "homepage": {
       "hero": {
         "badge": "Für wichtige Briefe gemacht",
         "title": "Wichtige Briefe — professionell vorbereitet, bereit zum Versand",
         "subtitle": "Beschreiben Sie Ihr Anliegen. Wir führen Sie zu einem klaren, formellen Brief, den Sie vor dem Versand in Ruhe prüfen können.",
-        "body": "Swiss Mail hilft Ihnen, ernsthafte Korrespondenz ohne Postschalter-Umweg sauber vorzubereiten — vom ersten Entwurf bis zur postalischen Aufgabe in der Schweiz.",
+        "body": "Sendly hilft Ihnen, ernsthafte Korrespondenz ohne Postschalter-Umweg sauber vorzubereiten — vom ersten Entwurf bis zur postalischen Aufgabe in der Schweiz.",
         "primaryCta": "Jetzt Brief schreiben",
         "secondaryCta": "So funktioniert es",
         "proof": "Kein Konto erforderlich · Klarer Total vor der Zahlung · Datenschutzbewusste Infrastruktur"
@@ -120,7 +120,7 @@
       "confidence": {
         "eyebrow": "Warum es Vertrauen schafft",
         "title": "Mehr Sicherheit vor dem Senden",
-        "intro": "Swiss Mail ersetzt nicht Ihre Entscheidung — es gibt Ihrem Brief einen professionellen Rahmen und lässt Ihnen vor dem Versand die Kontrolle.",
+        "intro": "Sendly ersetzt nicht Ihre Entscheidung — es gibt Ihrem Brief einen professionellen Rahmen und lässt Ihnen vor dem Versand die Kontrolle.",
         "cards": {
           "structured": {
             "title": "Klar strukturiert",
@@ -160,7 +160,7 @@
     }
   },
   "howItWorks": {
-    "title": "So funktioniert Swiss Mail",
+    "title": "So funktioniert Sendly",
     "subtitle": "Drei einfache Schritte, um einen professionellen Brief zu versenden.",
     "stepLabel": "Schritt {number}",
     "step1Detail": "Teilen Sie uns mit, welche Art von Brief Sie benötigen. Wir führen Sie durch die Struktur und bereiten einen formellen Brief im korrekten Schweizer Format vor.",
@@ -188,7 +188,7 @@
     "registeredAddonLabel": "Einschreiben-Aufpreis",
     "registeredTotalLabel": "Total Einschreiben",
     "compositionTitle": "Woraus sich der Preis zusammensetzt",
-    "compositionBody": "Jedes öffentliche Total kombiniert die Swiss Mail Servicegebühr mit dem gespeicherten Provider-Referenztotal für Standard- oder Einschreibenversand.",
+    "compositionBody": "Jedes öffentliche Total kombiniert die Sendly Servicegebühr mit dem gespeicherten Provider-Referenztotal für Standard- oder Einschreibenversand.",
     "referenceAssumptionsTitle": "Referenzannahmen",
     "referenceAssumptionsBody": "Diese öffentlichen Beispiele decken Schweizer Inlandbriefe mit den festen Provider-Einstellungen ab, die die gespeicherte Matrix derzeit unterstützt.",
     "assumptionCountryLabel": "Ziel",
@@ -205,7 +205,7 @@
     "syncStaleLabel": "Aktualisierung nötig",
     "syncSourceLabel": "Quelle",
     "syncLastSyncedLabel": "Zuletzt synchronisiert",
-    "syncFreshBody": "Diese öffentlichen Preise stammen aus der neuesten gespeicherten Provider-Synchronisierung, die Swiss Mail verwendet.",
+    "syncFreshBody": "Diese öffentlichen Preise stammen aus der neuesten gespeicherten Provider-Synchronisierung, die Sendly verwendet.",
     "syncStaleBody": "Diese öffentlichen Preise stammen aus der letzten erfolgreichen Provider-Synchronisierung und können bis zur nächsten Aktualisierung veraltet sein.",
     "matrixExamplesTitle": "Matrixbasierte Seitenbeispiele",
     "matrixExamplesBody": "Diese Beispieltotale stammen nur aus der gespeicherten Inlandsmatrix ohne Beilagen.",
@@ -213,18 +213,18 @@
     "registeredExamplesTitle": "Einschreiben-Beispiele",
     "pagesColumnLabel": "Seiten",
     "providerQuoteColumnLabel": "Provider-Preis",
-    "totalColumnLabel": "Swiss Mail Total",
-    "serviceCardEyebrow": "Swiss Mail",
-    "serviceCardTitle": "Was Swiss Mail zusätzlich abdeckt",
-    "serviceCardBody": "Die exakte Belastung ist immer das Live-ePost-Angebot für Ihren echten Entwurf plus unsere Swiss Mail Servicegebühr. Die öffentliche Seite bleibt ehrlich, indem sie ein dokumentiertes Referenzszenario statt einer vagen Schätzung verwendet.",
-    "serviceFeeLabel": "Swiss Mail Service",
-    "serviceStandardFeeLabel": "Swiss Mail Service (Standard)",
-    "serviceRegisteredFeeLabel": "Swiss Mail Service (Einschreiben)",
+    "totalColumnLabel": "Sendly Total",
+    "serviceCardEyebrow": "Sendly",
+    "serviceCardTitle": "Was Sendly zusätzlich abdeckt",
+    "serviceCardBody": "Die exakte Belastung ist immer das Live-ePost-Angebot für Ihren echten Entwurf plus unsere Sendly Servicegebühr. Die öffentliche Seite bleibt ehrlich, indem sie ein dokumentiertes Referenzszenario statt einer vagen Schätzung verwendet.",
+    "serviceFeeLabel": "Sendly Service",
+    "serviceStandardFeeLabel": "Sendly Service (Standard)",
+    "serviceRegisteredFeeLabel": "Sendly Service (Einschreiben)",
     "providerStandardQuoteLabel": "ePost Standard-Referenz",
     "providerRegisteredQuoteLabel": "ePost Einschreiben-Referenz",
     "pricingTableTitle": "Referenz-Totale",
     "summaryCardTitle": "Klare Totale vor der Zahlung",
-    "summaryCardBody": "Diese öffentlichen Totale stammen aus derselben gespeicherten Preisquelle, die Swiss Mail auch für die Standard- und Einschreiben-Preisvorschau im Produkt verwendet.",
+    "summaryCardBody": "Diese öffentlichen Totale stammen aus derselben gespeicherten Preisquelle, die Sendly auch für die Standard- und Einschreiben-Preisvorschau im Produkt verwendet.",
     "checkoutTruth": "Im Checkout wird das exakte Total aus dem Live-Provider-Angebot für Ihren konkreten Entwurf, Seitenumfang, Beilagen und Versandtyp neu berechnet. Wir belasten nicht anhand des Referenzszenarios dieser Seite.",
     "providerCardEyebrow": "ePost Referenz",
     "providerCardTitle": "Offizielle ePost-Einheitspreise",
@@ -238,7 +238,7 @@
     "providerFirstSheetDuplexLabel": "C5-Couvert + erstes A4-Blatt (Duplex)",
     "providerExtraSheetSimplexLabel": "Jedes weitere A4-Blatt (Simplex)",
     "providerExtraSheetDuplexLabel": "Jedes weitere A4-Blatt (Duplex)",
-    "providerVatNote": "ePost veröffentlicht diese B2B-Referenzpreise exkl. MwSt. Swiss Mail bestätigt den finalen Kundentotal vor der Zahlung.",
+    "providerVatNote": "ePost veröffentlicht diese B2B-Referenzpreise exkl. MwSt. Sendly bestätigt den finalen Kundentotal vor der Zahlung.",
     "referenceCardEyebrow": "Szenario",
     "referenceCardTitle": "Wovon diese Seite ausgeht",
     "referenceCardBody": "Referenzszenario: {printedPages} gedruckte Seite, {physicalSheets} physisches A4-Blatt, {envelopeFormat}-Couvert, {standardPostage} für Standardpost und {registeredPostage} für Einschreiben.",
@@ -263,7 +263,7 @@
     "comparisonConfirmationRegistered": "Stärkerer Wortlaut erst nach Provider-Bestätigung",
     "comparisonPriceLabel": "Referenzpreis",
     "includedCardEyebrow": "Inbegriffen",
-    "includedCardTitle": "Was der Swiss Mail Service abdeckt",
+    "includedCardTitle": "Was der Sendly Service abdeckt",
     "includedCardBody": "Die Servicegebühr ist nicht nur Porto. Sie deckt den gesamten Ablauf vom Entwurf bis zum Versand.",
     "includedDrafting": "Formulierungshilfe und strukturierte Prüfung",
     "includedFormatting": "Schweizer Briefformatierung und finale PDF-Erstellung",
@@ -286,8 +286,8 @@
     "faq3q": "Gibt es Mengenrabatte?",
     "faq3a": "Nicht im MVP. Die Preise gelten pro Brief und werden vor der Zahlung klar angezeigt.",
     "faq4q": "Ist die MwSt in den angezeigten Preisen enthalten?",
-    "faq4a": "Die Swiss Mail Checkout-Totale werden vor der Zahlung in CHF angezeigt. Die ePost-Einheitsreferenz auf dieser Seite zeigen wir so, wie ePost sie veröffentlicht: exkl. MwSt.",
-    "vatIncludedNote": "Swiss Mail Kundentotale werden in CHF angezeigt und vor der Zahlung bestätigt.",
+    "faq4a": "Die Sendly Checkout-Totale werden vor der Zahlung in CHF angezeigt. Die ePost-Einheitsreferenz auf dieser Seite zeigen wir so, wie ePost sie veröffentlicht: exkl. MwSt.",
+    "vatIncludedNote": "Sendly Kundentotale werden in CHF angezeigt und vor der Zahlung bestätigt.",
     "noHiddenFees": "Keine versteckten Gebühren",
     "ctaEyebrow": "Ausprobieren",
     "ctaBandTitle": "Probieren Sie es aus. Sie zahlen erst, wenn Sie bereit zum Senden sind.",
@@ -304,7 +304,7 @@
   "legal": {
     "privacyTitle": "Datenschutzerklärung",
     "privacyLastUpdated": "Letzte Aktualisierung: Januar 2025",
-    "privacyIntro": "Diese Datenschutzerklärung erläutert, wie Swiss Mail Ihre personenbezogenen Daten erhebt, nutzt und schützt, wenn Sie unseren Dienst verwenden.",
+    "privacyIntro": "Diese Datenschutzerklärung erläutert, wie Sendly Ihre personenbezogenen Daten erhebt, nutzt und schützt, wenn Sie unseren Dienst verwenden.",
     "dataCollectionTitle": "Datenerhebung",
     "dataUsageTitle": "Datenverwendung",
     "dataStorageTitle": "Datenspeicherung und Sicherheit",
@@ -316,7 +316,7 @@
     "legalReviewNote": "Inhalt wird nach rechtlicher Prüfung finalisiert.",
     "termsTitle": "Allgemeine Geschäftsbedingungen",
     "termsLastUpdated": "Letzte Aktualisierung: Januar 2025",
-    "termsIntro": "Diese Allgemeinen Geschäftsbedingungen regeln die Nutzung des Briefversanddienstes von Swiss Mail.",
+    "termsIntro": "Diese Allgemeinen Geschäftsbedingungen regeln die Nutzung des Briefversanddienstes von Sendly.",
     "serviceDescTitle": "Leistungsbeschreibung",
     "userObligationsTitle": "Pflichten der Nutzerin / des Nutzers",
     "paymentTermsTitle": "Zahlungsbedingungen",
@@ -325,7 +325,7 @@
     "amendmentsTitle": "Änderungen",
     "imprintTitle": "Impressum",
     "operatedBy": "Dieser Dienst wird betrieben von:",
-    "companyName": "Swiss Mail",
+    "companyName": "Sendly",
     "contactEmail": "E-Mail",
     "commercialRegister": "Handelsregister",
     "vatNumber": "Mehrwertsteuernummer",
@@ -446,6 +446,7 @@
     "searchingAddresses": "Adressvorschläge",
     "addressSearchUnavailable": "Die Adresssuche ist vorübergehend nicht verfügbar. Du kannst die Adresse unten weiterhin manuell eingeben.",
     "addressSearchNoResults": "Keine passende Adresse gefunden. Du kannst unten mit der manuellen Eingabe fortfahren.",
+    "addressSearchSelectionRequired": "Wähle einen Adressvorschlag aus oder leere die Suche, um unten manuell weiterzumachen.",
     "enterAddressManually": "Adresse manuell eingeben",
     "backToSearch": "Zurück zur Suche",
     "backToIntake": "Ausgangslage",
@@ -480,7 +481,7 @@
     "bodyGenerationLoadingDescription": "Wir erstellen aus Ihren bereits bestätigten Angaben eine erste Fassung Ihres Briefs. Das sollte nur einen Moment dauern.",
     "bodyGenerationLoadingLabel": "Formulieren",
     "bodyGenerationErrorTitle": "Der Inhalt konnte nicht erstellt werden",
-    "bodyGenerationErrorDescription": "Bitte laden Sie diesen Schritt neu und versuchen Sie es erneut. Eine Support-Option wird hier später ergänzt, falls das Problem bleibt.",
+    "bodyGenerationErrorDescription": "Bitte laden Sie diesen Schritt neu und versuchen Sie es erneut, oder schliessen Sie dieses Fenster, um manuell weiterzuschreiben. Eine Support-Option wird hier später ergänzt, falls das Problem bleibt.",
     "bodyGenerationRefreshAction": "Entwurf neu laden",
     "bodyGenerationSupportAction": "Support kontaktieren",
     "letterBodyLabel": "Brieftext",
@@ -643,7 +644,7 @@
     "paymentPending": "Zahlungsformular wird geladen…",
     "paymentConfigError": "Das Zahlungssystem ist nicht konfiguriert. Bitte versuchen Sie es später erneut.",
     "consentRequired": "Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.",
-    "legalConsent": "Ich habe die <terms>Nutzungsbedingungen</terms> gelesen und stimme diesen zu. Ich verstehe, dass Swiss Mail keine Rechtsdienstleistung erbringt.",
+    "legalConsent": "Ich habe die <terms>Nutzungsbedingungen</terms> gelesen und stimme diesen zu. Ich verstehe, dass Sendly keine Rechtsdienstleistung erbringt.",
     "sendMyLetter": "Bezahlen",
     "securedByStripe": "Gesichert durch Stripe",
     "swissDelivery": "Versand über die Schweizerische Post",
@@ -654,7 +655,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Einschreiben",
     "providerQuoteLabel": "Anbieterpreis",
-    "swissMailServiceLabel": "Swiss Mail Service",
+    "swissMailServiceLabel": "Sendly Service",
     "secureCheckout": "Sichere Zahlung über Stripe",
     "paymentHelp": "Stripe verarbeitet die Zahlungsdaten. Wir erfassen selbst keine rohen Kartendaten.",
     "total": "Total",
@@ -674,7 +675,7 @@
     "continueToPayment": "Weiter",
     "calculatingPayment": "Berechnung…",
     "backToReview": "Zurück",
-    "paymentMethodsHelp": "TWINT erscheint zuerst. Karten und unterstützte Wallets werden angezeigt, wenn Stripe und Ihr Gerät sie freigeben."
+    "paymentMethodsHelp": "TWINT erscheint zuerst, gefolgt von Karte, Apple Pay, Google Pay und weiteren unterstützten Wallets, sobald Stripe und Ihr Gerät sie verfügbar machen."
   },
   "attachments": {
     "title": "Anhänge",
@@ -747,6 +748,7 @@
     "stateAccepted": "Zum Versand angenommen",
     "stateRejected": "Versand wurde abgelehnt — wir untersuchen dies",
     "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
+    "emailNoticeEyebrow": "Zahlungsquittung",
     "emailNotice": "Eine Zahlungsquittung wurde an Ihre E-Mail gesendet",
     "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
     "stickyCtaLabel": "Weiteren Brief senden",
@@ -851,11 +853,12 @@
     },
     "reference": {
       "label": "Anbieterreferenz",
+      "trackingLabel": "Sendungsnummer",
       "trackingAvailable": "Tracking für diese Sendung verfügbar",
       "noTracking": "Kein Tracking für diese Sendung verfügbar",
       "pending": "Eine Anbieterreferenz erscheint hier, falls sie verfügbar wird.",
-      "mockLabel": "Simulierte Anbieterbestätigung",
-      "mockBody": "Die Live-ePost-Zustellung ist in dieser Umgebung deaktiviert. Es wurde keine kostenpflichtige Sendung ausgelöst."
+      "mockLabel": "Testumgebung",
+      "mockBody": "Diese Vorschau verwendet provider-nahe Beispielkennungen. Es wurde keine Live-ePost-Sendung ausgelöst."
     },
     "step": {
       "submitted": "An den Druck übergeben",
@@ -867,28 +870,28 @@
   },
   "seo": {
     "home": {
-      "title": "Swiss Mail — Wichtige Briefe online vorbereiten und versenden",
+      "title": "Sendly — Wichtige Briefe online vorbereiten und versenden",
       "description": "Verfassen Sie formelle Briefe, prüfen Sie jedes Detail und lösen Sie die postalische Aufgabe in der Schweiz aus — ohne Konto."
     },
     "pricing": {
-      "title": "Preise — Swiss Mail",
-      "description": "Sehen Sie Referenzpreise für Standard und Einschreiben, die Servicegebühr von Swiss Mail und wie der finale Total vor der Zahlung bestätigt wird."
+      "title": "Preise — Sendly",
+      "description": "Sehen Sie Referenzpreise für Standard und Einschreiben, die Servicegebühr von Sendly und wie der finale Total vor der Zahlung bestätigt wird."
     },
     "help": {
-      "title": "Hilfe — Swiss Mail",
-      "description": "Antworten zu Briefentwurf, Zahlung, Versand, Anhängen und Support bei Swiss Mail."
+      "title": "Hilfe — Sendly",
+      "description": "Antworten zu Briefentwurf, Zahlung, Versand, Anhängen und Support bei Sendly."
     },
     "privacy": {
-      "title": "Datenschutz — Swiss Mail",
-      "description": "Erfahren Sie, wie Swiss Mail Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
+      "title": "Datenschutz — Sendly",
+      "description": "Erfahren Sie, wie Sendly Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
     },
     "terms": {
-      "title": "AGB — Swiss Mail",
-      "description": "Lesen Sie die Bedingungen für Nutzung, Bezahlung und Versand mit Swiss Mail."
+      "title": "AGB — Sendly",
+      "description": "Lesen Sie die Bedingungen für Nutzung, Bezahlung und Versand mit Sendly."
     },
     "imprint": {
-      "title": "Impressum — Swiss Mail",
-      "description": "Betreiberangaben und Kontaktinformationen von Swiss Mail."
+      "title": "Impressum — Sendly",
+      "description": "Betreiberangaben und Kontaktinformationen von Sendly."
     }
   },
   "admin": {
@@ -929,17 +932,23 @@
       "priority": {
         "title": "Prioritäre Warteschlangen",
         "ambiguous": "Unklare Versandfälle",
-        "suspicious": "Verdächtige Sitzungen"
+        "ambiguousInfo": "Manuelle Versandprüfung",
+        "suspicious": "Verdächtige Sitzungen",
+        "suspiciousInfo": "Betrugs- oder Missbrauchsprüfung"
       },
       "retention": {
         "title": "Retention-Follow-up",
         "expiredSessions": "Abgelaufene Sitzungen",
         "expiredContent": "Abgelaufene Inhalte",
-        "expiredPdfs": "Abgelaufene PDFs"
+        "expiredPdfs": "Abgelaufene PDFs",
+        "expiredSessionsInfo": "Sitzungszugriff abgelaufen",
+        "expiredContentInfo": "Inhalte nach Frist",
+        "expiredPdfsInfo": "PDFs nach Frist"
       },
       "signals": {
         "title": "Operative Signale",
-        "recentRefunds": "Aktuelle Rückerstattungen (7d)"
+        "recentRefunds": "Aktuelle Rückerstattungen (7d)",
+        "recentRefundsInfo": "Letzte 7 Tage"
       },
       "dispatchStates": "Versandstatus",
       "paymentStates": "Zahlungsstatus (30d)",

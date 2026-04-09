@@ -573,6 +573,79 @@ describe("handleAiMessage", () => {
     expect(draftLetter).toHaveBeenCalledOnce();
   });
 
+  it("keeps compose question-led when intake still needs a follow-up despite returning ready", async () => {
+    const metadata = {
+      workspaceDraft: {
+        recipientForm: {
+          isCompany: true,
+          showManual: true,
+          fullName: "",
+          companyName: "Ark Fiduciaire SA",
+          selectedCompany: {
+            id: "zefix:1498936",
+            name: "Ark Fiduciaire SA",
+            source: "zefix",
+            legalSeat: "Geneva",
+            registryId: "1498936",
+            registryUid: "CHE193650350",
+            registryChid: "CH66016340210",
+            registryStatus: "ACTIVE",
+          },
+          addressLine1: "Boulevard Georges-Favon 26",
+          postalCode: "1204",
+          city: "Geneva",
+        },
+      },
+    };
+
+    primeDraftReads({
+      draft: { ...DRAFT, metadata, intent: "complaint" },
+      conversation: [
+        {
+          id: "user-msg-1",
+          role: "user",
+          content: "I want to send a formal complaint about poor service.",
+        },
+      ],
+      metadata,
+    });
+    vi.mocked(analyzeIntake).mockResolvedValue({
+      intent: "complaint",
+      risk: "low",
+      summary: "Formal complaint",
+      fields: {},
+      ready: true,
+      question: "Which service failure should the recipient correct?",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-follow-up",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "Which service failure should the recipient correct?",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
+
+    await handleComposeFromContext({
+      draftId: "draft-1",
+      sessionId: "session-1",
+    });
+
+    expect(analyzeIntake).toHaveBeenCalledOnce();
+    expect(draftLetter).not.toHaveBeenCalled();
+    expect(createMessage).toHaveBeenCalledWith(expect.anything(), {
+      draftId: "draft-1",
+      role: "assistant",
+      content: "Which service failure should the recipient correct?",
+    });
+    expect(events).toContainEqual([
+      "ai_message_complete",
+      expect.objectContaining({
+        fullContent: "Which service failure should the recipient correct?",
+      }),
+    ]);
+  });
+
   it("skips duplicate context composition when another worker already holds the distributed lock", async () => {
     acquireRedisLock.mockResolvedValueOnce(null);
 

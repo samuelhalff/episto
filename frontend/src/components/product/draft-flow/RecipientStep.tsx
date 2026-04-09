@@ -21,7 +21,8 @@ import {
   type AddressResolutionState,
 } from "./AddressAutocompleteField";
 import { AddressFields } from "./AddressFields";
-import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import { showStepErrorToast } from "./step-feedback";
+import { getRecipientStepValidation } from "./step-validation";
 import { CompanySearchResults } from "./company-search-results";
 import {
   getDraftWorkspaceState,
@@ -76,6 +77,7 @@ export function RecipientStep({
   const [addressLine1, setAddressLine1] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
+  const [requiresAddressSelection, setRequiresAddressSelection] = useState(false);
   const [pendingAddressSelectionLabel, setPendingAddressSelectionLabel] = useState<string | null>(
     null,
   );
@@ -289,20 +291,19 @@ export function RecipientStep({
     companyName,
   ]);
 
-  const missingItems = [
-    isCompany
-      ? !companyName.trim()
-        ? t("companyNameLabel")
-        : null
-      : !fullName.trim()
-        ? t("fullName")
-        : null,
-    !addressLine1.trim() ? t("streetAddress") : null,
-    !postalCode.trim() ? t("zipCode") : null,
-    !city.trim() ? t("city") : null,
-  ].filter((value): value is string => Boolean(value));
-  const canProceed = missingItems.length === 0;
   const isResolvingSelection = pendingAddressSelectionLabel !== null;
+  const canProceed = getRecipientStepValidation({
+    isCompany,
+    showManual,
+    fullName,
+    companyName,
+    addressLine1,
+    postalCode,
+    city,
+    hasSelectedCompany: selectedCompany !== null,
+    isResolvingSelection,
+    requiresAddressSelection,
+  }).canProceed;
 
   function handleFocusChange(focused: boolean) {
     setIsFormFocused(focused);
@@ -319,6 +320,7 @@ export function RecipientStep({
   );
   const handleResolutionStateChange = useCallback((state: AddressResolutionState) => {
     setPendingAddressSelectionLabel(state.isResolving ? state.selectedLabel : null);
+    setRequiresAddressSelection(state.requiresSelection);
   }, []);
 
   async function handleNext() {
@@ -357,14 +359,6 @@ export function RecipientStep({
     }
   }
 
-  function handleBlockedNext() {
-    showStepWarningToast({
-      id: "recipient-step-missing",
-      title: t("stepNeedsAttentionTitle"),
-      items: missingItems,
-    });
-  }
-
   return (
     <DraftShell
       step={2}
@@ -381,8 +375,8 @@ export function RecipientStep({
       isNavigating={isNavigating}
       primaryAction={
         <PrimaryButton
-          onClick={canProceed ? handleNext : handleBlockedNext}
-          disabled={setRecipient.isPending || isResolvingSelection}
+          onClick={handleNext}
+          disabled={!canProceed || setRecipient.isPending || isResolvingSelection}
           loading={setRecipient.isPending || Boolean(isNavigating) || isResolvingSelection}
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}

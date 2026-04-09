@@ -228,7 +228,7 @@ export const PublicPricingTierSchema = z.object({
 export const PublicPricingReferenceScenarioSchema = z.object({
   shippingCountry: z.literal("CH"),
   envelopeSize: z.literal("C5"),
-  windowLocation: z.literal("LEFT"),
+  windowLocation: z.literal("RIGHT"),
   duplex: z.literal(false),
   attachmentMode: z.enum(["none", "single_hint"]),
   standardPostage: PostalPostageSchema,

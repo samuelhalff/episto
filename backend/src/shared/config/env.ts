@@ -50,6 +50,7 @@ export const EnvSchema = z
     CONTENT_RETENTION_DAYS: z.coerce.number().int().positive().default(7),
     PDF_RETENTION_HOURS_POST_DISPATCH: z.coerce.number().int().positive().default(24),
     METADATA_RETENTION_YEARS: z.coerce.number().int().positive().default(7),
+    STATEMENT_RETENTION_DAYS: z.coerce.number().int().positive().default(10),
 
     // AI
     AI_PROVIDER_MODE: z
@@ -105,7 +106,17 @@ export const EnvSchema = z
 
     // Email
     RESEND_API_KEY: z.string().startsWith("re_"),
+    APP_DISPLAY_NAME: z.string().min(1).default("Sendly"),
     EMAIL_FROM: z.string().email().default("noreply@swissmail.ch"),
+    SUPPORT_EMAIL: z.string().email().default("support@swissmail.ch"),
+    LEGAL_ENTITY_NAME: z.string().min(1).default("West Bay SA"),
+    LEGAL_ENTITY_ADDRESS_LINE_1: z
+      .string()
+      .min(1)
+      .default("Chemin du Pre-Roset 19"),
+    LEGAL_ENTITY_ADDRESS_LINE_2: z.string().min(1).default("1294 Genthod"),
+    LEGAL_ENTITY_COUNTRY: z.string().min(1).default("Switzerland"),
+    LEGAL_ENTITY_UID_VAT: z.string().min(1).default("CHE-107.892.984"),
 
     // CORS
     CORS_ORIGIN: z.string().default("http://localhost:5000"),

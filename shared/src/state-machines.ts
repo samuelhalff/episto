@@ -18,7 +18,7 @@ const DRAFT_TRANSITIONS: Record<DraftStatusValue, readonly DraftStatusValue[]> =
     ],
     [DraftStatus.reviewed]: [DraftStatus.rendering, DraftStatus.closed],
     [DraftStatus.rendering]: [
-      DraftStatus.fields_complete,
+      DraftStatus.collecting,
       DraftStatus.ready,
       DraftStatus.closed,
     ],

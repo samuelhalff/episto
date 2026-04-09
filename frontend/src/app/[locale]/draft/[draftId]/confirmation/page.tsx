@@ -18,11 +18,11 @@ import {
   Send,
   HelpCircle,
   Copy,
-  Mail,
   PenLine,
   Loader2,
 } from "lucide-react";
 import { ActionLink } from "../../../../../components/product/ActionButton";
+import { ConfirmationEmailNotice } from "../../../../../components/product/ConfirmationEmailNotice";
 import { ProtectedPdfDownloadButton } from "../../../../../components/product/ProtectedPdfDownloadButton";
 import { DispatchConfirmation } from "../../../../../components/product/DispatchConfirmation";
 import { FlowHeader } from "../../../../../components/product/FlowHeader";
@@ -276,11 +276,18 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
               dispatchState as Parameters<typeof DispatchConfirmation>[0]["dispatchState"]
             }
             providerReference={dispatch.data?.providerRef ?? null}
+            trackingNumber={dispatch.data?.trackingNumber ?? null}
             providerMode={dispatch.data?.providerMode ?? null}
             isTrackable={dispatch.data?.trackingAvailable ?? false}
             submittedAt={dispatch.data?.submittedAt ?? null}
             lastCheckedAt={dispatch.data?.lastCheckedAt ?? null}
           />
+          <div className="mt-5 border-t border-[var(--app-border)] pt-4">
+            <ProtectedPdfDownloadButton
+              apiPath={`/v1/drafts/${draftId}/pdf`}
+              namespace="confirmation"
+            />
+          </div>
         </div>
 
         {/* What happens next — 4-step timeline */}
@@ -305,47 +312,25 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         </div>
 
         {/* Email notice */}
-        <div
-          className="app-panel-muted mx-auto flex max-w-sm items-center gap-3 rounded-2.5xl px-5 py-3 text-left text-sm text-zinc-700 dark:text-zinc-200"
-        >
-          <Mail className="h-5 w-5 shrink-0" />
-          <div>
-            <StatusBadge tone="info" className="mb-2">
-              {t("emailNotice")}
-            </StatusBadge>
-            <p className="text-xs text-zinc-600 dark:text-zinc-300">{t("emailNoticeDetail")}</p>
-          </div>
-        </div>
+        <ConfirmationEmailNotice
+          eyebrow={t("emailNoticeEyebrow")}
+          title={t("emailNotice")}
+          detail={t("emailNoticeDetail")}
+        />
 
         {/* Actions */}
-        <div className="flex flex-col items-center gap-3 pt-4 sm:flex-row sm:justify-center">
-          <ProtectedPdfDownloadButton
-            apiPath={`/v1/drafts/${draftId}/pdf`}
-            namespace="confirmation"
-            className="sm:flex-1"
-          />
+        <div className="flex flex-col items-center gap-3 pt-4">
           <ActionLink
             href="/draft/new"
             variant="primary"
             fullWidth
-            className="sm:flex-1"
+            className="w-full max-w-sm"
             leadingIcon={<PenLine className="h-4 w-4" />}
           >
             {t("sendAnother")}
           </ActionLink>
         </div>
       </main>
-
-      {/* Mobile sticky CTA */}
-      <div className="app-sticky-bar fixed inset-x-4 bottom-4 rounded-2.5xl p-2 md:hidden">
-        <ActionLink
-          href="/draft/new"
-          variant="primary"
-          fullWidth
-        >
-          {t("stickyCtaLabel")}
-        </ActionLink>
-      </div>
     </>
   );
 }

@@ -6,7 +6,7 @@
  *    subject line, salutation, body, closing, and signature."
  * - "As a user, the enclosure note appears when provided."
  * - "As a user, a letter without a signature mode omits the signature block."
- * - "As a user, the sender one-liner uses · separators (Swiss SN standard)."
+ * - "As a user, the first-page layout matches the reviewed right-window postal template."
  * - "As a user, the recipient block shows company, department, name, and full address."
  * - "As a user, the date includes the sender's city when available."
  */
@@ -62,22 +62,23 @@ describe("regression: PDF letter template renders all elements", () => {
     vi.resetModules();
   });
 
-  it("renders the sender one-liner with · separators", async () => {
+  it("renders a sender block in the top-left without the old sender one-liner", async () => {
     const { renderLetterHtml } = await import(
       "../src/modules/rendering/render.service.js"
     );
     const html = renderLetterHtml(makeSnapshotData());
 
-    expect(html).toContain("sender-line");
-    // · separator between sender fields
-    expect(html).toContain("\u00B7");
+    expect(html).toContain("letter-layout-shell");
+    expect(html).toContain("sender-block");
+    expect(html).not.toContain("sender-line");
+    expect(html).toContain("width: 80mm");
     expect(html).toContain("Mueller GmbH");
     expect(html).toContain("Anna Mueller");
     expect(html).toContain("Bahnhofstrasse 10");
     expect(html).toContain("8001 Zurich");
   });
 
-  it("includes sender.addressLine2 in the sender one-liner when present", async () => {
+  it("includes sender.addressLine2 in the sender block when present", async () => {
     const { renderLetterHtml } = await import(
       "../src/modules/rendering/render.service.js"
     );
@@ -97,13 +98,14 @@ describe("regression: PDF letter template renders all elements", () => {
     );
 
     expect(html).toContain("Postfach 42");
-    // Verify it's in the sender one-liner, not just anywhere
-    const senderLineMatch = html.match(/<div class="sender-line">[^<]+<\/div>/);
-    expect(senderLineMatch).not.toBeNull();
-    expect(senderLineMatch![0]).toContain("Postfach 42");
+    const senderBlockMatch = html.match(
+      /<div class="sender-block">[\s\S]*?<\/div>/,
+    );
+    expect(senderBlockMatch).not.toBeNull();
+    expect(senderBlockMatch![0]).toContain("Postfach 42");
   });
 
-  it("omits sender.addressLine2 from one-liner when null", async () => {
+  it("omits sender.addressLine2 from the sender block when null", async () => {
     const { renderLetterHtml } = await import(
       "../src/modules/rendering/render.service.js"
     );
@@ -122,10 +124,11 @@ describe("regression: PDF letter template renders all elements", () => {
       }),
     );
 
-    const senderLineMatch = html.match(/<div class="sender-line">[^<]+<\/div>/);
-    expect(senderLineMatch).not.toBeNull();
-    // Should not have double separators from null being filtered
-    expect(senderLineMatch![0]).not.toContain("\u00B7 \u00B7");
+    const senderBlockMatch = html.match(
+      /<div class="sender-block">[\s\S]*?<\/div>/,
+    );
+    expect(senderBlockMatch).not.toBeNull();
+    expect(senderBlockMatch![0]).not.toContain("null");
   });
 
   it("includes recipient.addressLine2 in the recipient block when present", async () => {
@@ -158,14 +161,27 @@ describe("regression: PDF letter template renders all elements", () => {
     expect(html).toContain("3011 Bern");
   });
 
-  it("renders the date line with sender city", async () => {
+  it("renders the logistics line above the right-side recipient block", async () => {
     const { renderLetterHtml } = await import(
       "../src/modules/rendering/render.service.js"
     );
     const html = renderLetterHtml(makeSnapshotData());
 
+    expect(html).toContain("dispatch-line");
+    expect(html).toContain("STANDARD MAIL");
+    expect(html).toContain("text-decoration: underline");
+    expect(html).toContain("left: 121mm");
+  });
+
+  it("renders the date line below the recipient block with sender city", async () => {
+    const { renderLetterHtml } = await import(
+      "../src/modules/rendering/render.service.js"
+    );
+    const html = renderLetterHtml(makeSnapshotData());
+
+    expect(html).toContain("right-meta");
     expect(html).toContain("date-line");
-    expect(html).toContain("text-align: right");
+    expect(html).toContain("top: 87mm");
     expect(html).toContain("Zurich,");
   });
 
@@ -299,7 +315,7 @@ describe("regression: PDF letter template renders all elements", () => {
     );
 
     expect(html).toContain("Solo Person");
-    expect(html).toContain("sender-line");
+    expect(html).toContain("sender-block");
   });
 
   it("renders without crashing when recipient has no company or department", async () => {

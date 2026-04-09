@@ -63,7 +63,7 @@ function createMatrixEntries() {
     attachmentMode: "none" as const,
     shippingCountry: "CH" as const,
     envelopeSize: "C5" as const,
-    windowLocation: "LEFT" as const,
+    windowLocation: "RIGHT" as const,
     duplex: false as const,
     currency: "CHF" as const,
     providerQuoteReference: null,
@@ -108,7 +108,7 @@ describe("public pricing service", () => {
     expect(result.providerBreakdown.referenceScenario).toEqual({
       shippingCountry: "CH",
       envelopeSize: "C5",
-      windowLocation: "LEFT",
+      windowLocation: "RIGHT",
       duplex: false,
       attachmentMode: "none",
       standardPostage: "A_POST",

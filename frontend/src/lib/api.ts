@@ -17,7 +17,15 @@ export function normalizeApiBase(apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/
 }
 
 export function getApiBase(): string {
-  return normalizeApiBase();
+  const normalized = normalizeApiBase();
+
+  // Keep browser traffic on the site origin so session cookies survive
+  // mobile webviews and refreshes even when production exposes a public API host.
+  if (typeof window !== "undefined") {
+    return "/api";
+  }
+
+  return normalized;
 }
 
 export class ApiError extends Error {

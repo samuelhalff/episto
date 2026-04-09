@@ -8,7 +8,7 @@ import {
   type DispatchSubmitResult,
 } from "@swiss-mail/shared";
 
-const MOCK_PROVIDER_REFERENCE_PREFIX = "mock-epost";
+const MOCK_PROVIDER_REFERENCE_PREFIX = "EPR-T";
 
 function buildReferenceSeed(dispatchPackage: DispatchPackage): string {
   return `${dispatchPackage.draftId}:${dispatchPackage.snapshotId}:${dispatchPackage.deliveryType}`;
@@ -19,7 +19,7 @@ function buildReferenceDigest(seed: string): string {
 }
 
 function buildMockTrackingNumber(providerReference: string): string | null {
-  if (!providerReference.startsWith(`${MOCK_PROVIDER_REFERENCE_PREFIX}-registered-`)) {
+  if (!providerReference.startsWith(`${MOCK_PROVIDER_REFERENCE_PREFIX}-R-`)) {
     return null;
   }
 
@@ -28,17 +28,16 @@ function buildMockTrackingNumber(providerReference: string): string | null {
 }
 
 export function isMockEpostProviderReference(providerReference: string): boolean {
-  return providerReference.startsWith(`${MOCK_PROVIDER_REFERENCE_PREFIX}-`);
+  return /^EPR-T-[RS]-[A-F0-9]{12}$/.test(providerReference);
 }
 
 export function buildMockEpostProviderReference(
   dispatchPackage: DispatchPackage,
 ): string {
-  return [
-    MOCK_PROVIDER_REFERENCE_PREFIX,
-    dispatchPackage.deliveryType,
-    buildReferenceDigest(buildReferenceSeed(dispatchPackage)),
-  ].join("-");
+  const deliveryCode = dispatchPackage.deliveryType === "registered" ? "R" : "S";
+  return `${MOCK_PROVIDER_REFERENCE_PREFIX}-${deliveryCode}-${buildReferenceDigest(
+    buildReferenceSeed(dispatchPackage),
+  ).toUpperCase()}`;
 }
 
 export function submitMockEpostDelivery(

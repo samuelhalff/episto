@@ -44,25 +44,25 @@ function hasConfiguredStripePublishableKey(value: string): boolean {
 
 function getStripeAppearance(theme: "light" | "dark") {
   return {
-    theme: (theme === "dark" ? "night" : "stripe") as "night" | "stripe",
+    theme: (theme === "dark" ? "night" : "flat") as "night" | "flat",
     labels: "floating" as const,
     variables: {
       // Must match --action-primary-bg in globals.css. Stripe requires literal values here.
       colorPrimary: "#f6c54a",
-      colorBackground: theme === "dark" ? "#10161f" : "#f7f4ee",
+      colorBackground: theme === "dark" ? "#10161f" : "#faf8f3",
       colorText: theme === "dark" ? "#e6edf3" : "#18181b",
       colorTextSecondary: theme === "dark" ? "#9ea7b3" : "#5f5f67",
       colorTextPlaceholder: theme === "dark" ? "#6e7681" : "#8a8a93",
       colorDanger: theme === "dark" ? "#f87171" : "#dc2626",
-      borderRadius: "18px",
+      borderRadius: "16px",
       fontSizeBase: "16px",
       fontFamily:
         "\"Ideal Sans\", \"Inter\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
       fontWeightMedium: "600",
       fontWeightBold: "700",
-      spacingUnit: "6px",
-      gridRowSpacing: "18px",
-      tabSpacing: "10px",
+      spacingUnit: "4px",
+      gridRowSpacing: "14px",
+      tabSpacing: "8px",
       focusBoxShadow:
         theme === "dark"
           ? "0 0 0 4px rgba(246, 197, 74, 0.18)"
@@ -73,20 +73,18 @@ function getStripeAppearance(theme: "light" | "dark") {
     },
     rules: {
       ".Block": {
-        backgroundColor: theme === "dark" ? "#111822" : "#fffdf9",
-        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(15, 23, 42, 0.08)"}`,
-        boxShadow:
-          theme === "dark"
-            ? "0 1px 0 rgba(255,255,255,0.04)"
-            : "0 1px 0 rgba(255,255,255,0.75)",
+        backgroundColor: theme === "dark" ? "#111822" : "#fffefb",
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.14)" : "rgba(15, 23, 42, 0.06)"}`,
+        boxShadow: "none",
       },
       ".Input": {
         backgroundColor: theme === "dark" ? "#111822" : "#ffffff",
-        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.16)" : "rgba(15, 23, 42, 0.08)"}`,
+        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.14)" : "rgba(15, 23, 42, 0.07)"}`,
         boxShadow: "none",
       },
       ".AccordionItem": {
-        border: `1px solid ${theme === "dark" ? "rgba(177, 186, 196, 0.14)" : "rgba(15, 23, 42, 0.08)"}`,
+        backgroundColor: "transparent",
+        border: "0px solid transparent",
         boxShadow: "none",
       },
       ".AccordionItem:hover": {
@@ -363,7 +361,7 @@ export default function CheckoutPage({
                     href={backToReviewHref}
                     variant="secondary"
                     fullWidth
-                    className="sm:w-auto sm:min-w-[10rem]"
+                    desktopMinWidth
                     leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
                   >
                     {t("backToReview")}
@@ -373,7 +371,7 @@ export default function CheckoutPage({
                   <ActionButton
                     type="submit"
                     fullWidth
-                    className="sm:flex-1"
+                    desktopMinWidth
                     disabled={
                       !isValid ||
                       hasBlockingPricingError ||
@@ -435,7 +433,7 @@ export default function CheckoutPage({
                     href={backToReviewHref}
                     variant="secondary"
                     fullWidth
-                    className="sm:w-auto sm:min-w-[10rem]"
+                    desktopMinWidth
                     leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
                   >
                     {t("backToReview")}

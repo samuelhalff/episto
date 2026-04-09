@@ -1,4 +1,4 @@
-# Swiss Mail — Chat UI Audit
+# Sendly — Chat UI Audit
 
 > **Status:** Audit — not yet actioned  
 > **Scope:** Conversation panel layout, scroll behaviour, input anchoring, preview integration  
@@ -12,7 +12,7 @@
 
 1. [Reference Analysis — What the best chat UIs get right](#1-reference-analysis)
 2. [Common Patterns (distilled rules)](#2-common-patterns)
-3. [Gap Analysis — Swiss Mail vs. established patterns](#3-gap-analysis)
+3. [Gap Analysis — Sendly vs. established patterns](#3-gap-analysis)
 4. [Recommended Changes](#4-recommended-changes)
 5. [Open Questions](#5-open-questions)
 
@@ -58,7 +58,7 @@ Six established chat interfaces, evaluated on the dimensions that matter for a c
 | **Loading states** | Animated dots, then streaming text. Markdown blocks snap into shape after rendering, which can feel jumpy. |
 | **Step/progress indicators** | N/A. |
 
-**Lesson from Gemini:** Incremental markdown rendering is hard. If Swiss Mail streams structured content (letter fields, formatted paragraphs), render the structure once at the end, not incrementally, to avoid CLS.
+**Lesson from Gemini:** Incremental markdown rendering is hard. If Sendly streams structured content (letter fields, formatted paragraphs), render the structure once at the end, not incrementally, to avoid CLS.
 
 ### 1.4 WhatsApp Web
 
@@ -185,7 +185,7 @@ Current implementation files:
 
 **What the best transactional flows do:** Stripe and Shopify keep checkout progress in the header, but make it compact, single-row, and fixed-height. The issue here is not showing progress chrome at all; it is letting the progress chrome change the header height.
 
-**Note:** Swiss Mail is not an open-ended chat app like ChatGPT or Claude. It is a transactional funnel (`Draft → Review → Pay → Sent`), so persistent progress chrome is appropriate as long as it stays compact and stable.
+**Note:** Sendly is not an open-ended chat app like ChatGPT or Claude. It is a transactional funnel (`Draft → Review → Pay → Sent`), so persistent progress chrome is appropriate as long as it stays compact and stable.
 
 **Status:** ✅ Resolved.
 
@@ -258,13 +258,13 @@ Current implementation files:
 
 ### 3.7 Step indicator has value, but should not compete with drafting
 
-**Problem:** The `StepIndicator` in `FlowHeader` is useful because Swiss Mail is a paid multi-step funnel (`Draft → Review → Pay → Sent`). Users need to know where they are and how many steps remain. The issue is not its existence; the issue is that its current presentation takes too much visual priority during active drafting.
+**Problem:** The `StepIndicator` in `FlowHeader` is useful because Sendly is a paid multi-step funnel (`Draft → Review → Pay → Sent`). Users need to know where they are and how many steps remain. The issue is not its existence; the issue is that its current presentation takes too much visual priority during active drafting.
 
 **What the right pattern looks like:** E-commerce checkouts such as Stripe and Shopify keep progress visible in header chrome because users are moving through a paid funnel. The correct pattern is a subtle, fixed-height treatment during drafting, with enough visibility to preserve orientation without overpowering the conversation.
 
 **Status:** ✅ Resolved.
 
-**Impact:** During drafting, the conversation and live preview should dominate. A compact, low-contrast step indicator preserves orientation without turning the header into the loudest element on screen. Swiss Mail now follows the checkout pattern: compact dots on mobile, a slim rail on desktop, and no variable header height.
+**Impact:** During drafting, the conversation and live preview should dominate. A compact, low-contrast step indicator preserves orientation without turning the header into the loudest element on screen. Sendly now follows the checkout pattern: compact dots on mobile, a slim rail on desktop, and no variable header height.
 
 ### 3.8 Summary table
 
@@ -291,7 +291,7 @@ Current implementation files:
 
 **Status:** ✅ DONE.
 
-Keep the step indicator in the header because Swiss Mail is a transactional funnel. The implementation now keeps the full header, including progress, within `h-14` (56px) on every viewport.
+Keep the step indicator in the header because Sendly is a transactional funnel. The implementation now keeps the full header, including progress, within `h-14` (56px) on every viewport.
 
 Implemented treatment:
 - Mobile gets 4 compact dots.
@@ -484,7 +484,7 @@ Fixed height: `h-14` (56px). No wrapping, no second row, no conditional rows.
 
 ### Step Indicator — Locked Design
 
-> **Decision (2026-03):** The step indicator is a core UX element and must not be removed or reduced to invisible dots. Swiss Mail is a transactional checkout funnel, not an open-ended chat. Users spending money need visible, confident progress indication.
+> **Decision (2026-03):** The step indicator is a core UX element and must not be removed or reduced to invisible dots. Sendly is a transactional checkout funnel, not an open-ended chat. Users spending money need visible, confident progress indication.
 
 **Mobile (compact):** Animated node-and-track progress bar with current step label. Nodes are connected by colored lines (emerald for complete, stone for future). Current node has a subtle pulse ring animation. Fits in a single header row.
 

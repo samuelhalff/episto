@@ -1,4 +1,4 @@
-# Swiss Mail Design System
+# Sendly Design System
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** Light and dark mode, MVP. Dark mode uses `class` strategy (Tailwind `darkMode: "class"`), toggled via ThemeProvider.  
@@ -26,7 +26,7 @@
 
 ### Core Premise
 
-Swiss Mail exists at the intersection of **paper** and **digital**. The product is formal, deliberate, and Swiss — but never cold, bureaucratic, or intimidating. Every design decision reinforces a single emotional truth: *"This will be taken care of, professionally."*
+Sendly exists at the intersection of **paper** and **digital**. The product is formal, deliberate, and Swiss — but never cold, bureaucratic, or intimidating. Every design decision reinforces a single emotional truth: *"This will be taken care of, professionally."*
 
 ### Three Design Pillars
 
@@ -555,7 +555,7 @@ All custom icons live in `components/icons/`.
 
 ### Philosophy
 
-Animation in Swiss Mail is **functional, not expressive**. Motion confirms an action happened or guides attention — it never performs. The UI is used in stressful moments (sending an important legal letter). Bouncy or playful motion is wrong here.
+Animation in Sendly is **functional, not expressive**. Motion confirms an action happened or guides attention — it never performs. The UI is used in stressful moments (sending an important legal letter). Bouncy or playful motion is wrong here.
 
 ### Duration Scale
 

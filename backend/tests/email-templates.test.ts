@@ -9,12 +9,21 @@ describe("Email template rendering", () => {
       orderRef: "ORD-12345",
       amount: "4.90",
       deliveryType: "Standard",
+      brandName: "Sendly",
+      supportEmail: "contact@houle.ai",
+      statusUrl: "https://houle.ai/en-CH/status/token-123",
+      statementRetentionDays: 10,
     });
 
     expect(result.subject).toContain("ORD-12345");
     expect(result.text).toContain("CHF 4.90");
     expect(result.text).toContain("Standard");
+    expect(result.text).toContain("10 days");
+    expect(result.text).toContain("contact@houle.ai");
+    expect(result.text).toContain("https://houle.ai/en-CH/status/token-123");
     expect(result.html).toContain("<strong>ORD-12345</strong>");
+    expect(result.html).toContain("contact@houle.ai");
+    expect(result.html).toContain("Download your signed dispatch statement");
   });
 
   it("renders dispatch-submitted with order ref (en-CH)", () => {
@@ -30,14 +39,14 @@ describe("Email template rendering", () => {
   it("renders dispatch-accepted (en-CH)", () => {
     const result = renderTemplate("dispatch-accepted", "en-CH", {
       orderRef: "ORD-ABC",
-      providerReference: "mock-epost-registered-1234",
+      providerReference: "EPR-T-R-0D2D6C40F706",
       trackingNumber: "98.40.541881.00002354",
       statusUrl: "https://swissmail.ch/status/token-123",
     });
 
     expect(result.subject).toContain("accepted");
     expect(result.text).toContain("confirmed acceptance");
-    expect(result.text).toContain("mock-epost-registered-1234");
+    expect(result.text).toContain("EPR-T-R-0D2D6C40F706");
     expect(result.text).toContain("98.40.541881.00002354");
     expect(result.text).toContain("https://swissmail.ch/status/token-123");
   });

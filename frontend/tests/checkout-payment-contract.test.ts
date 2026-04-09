@@ -68,6 +68,13 @@ describe("checkout-payment-contract i18n", () => {
     expect(checkout["paymentMethodsHelp"]).toContain("supported wallets");
   });
 
+  it("en-CH paymentMethodsHelp names Apple Pay and Google Pay after cards", () => {
+    const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
+    expect(checkout["paymentMethodsHelp"]).toContain("card");
+    expect(checkout["paymentMethodsHelp"]).toContain("Apple Pay");
+    expect(checkout["paymentMethodsHelp"]).toContain("Google Pay");
+  });
+
   it('en-CH calculatingPayment is exactly "Calculating\u2026"', () => {
     const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
     expect(checkout["calculatingPayment"]).toBe("Calculating\u2026");
@@ -126,8 +133,9 @@ describe("checkout-payment-contract page layout", () => {
       checkoutPageSource.indexOf("href={backToReviewHref}"),
       checkoutPageSource.indexOf("primaryAction={"),
     );
-    expect(checkoutPageSource).toContain('className="sm:w-auto sm:min-w-[10rem]"');
     expect(backActionBlock).not.toContain('className="sm:flex-1"');
+    expect(backActionBlock).toContain("fullWidth");
+    expect(backActionBlock).toContain("desktopMinWidth");
   });
 });
 
@@ -144,13 +152,11 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     expect(stripePaymentFormSource).toContain("mb-4 mt-2 text-sm leading-6");
   });
 
-  it("paymentMethodOrder contract: first twint, second card, length 2", () => {
+  it("paymentMethodOrder contract: twint, card, apple_pay, google_pay", () => {
     const match = stripePaymentFormSource.match(/paymentMethodOrder:\s*\[([^\]]+)\]/);
     expect(match).not.toBeNull();
     const methods = match![1].split(",").map((s: string) => s.trim().replace(/['"]/g, ""));
-    expect(methods).toHaveLength(2);
-    expect(methods[0]).toBe("twint");
-    expect(methods[1]).toBe("card");
+    expect(methods).toEqual(["twint", "card", "apple_pay", "google_pay"]);
   });
 
   it("does not render a trailing price chip in the final Stripe payment CTA", () => {
@@ -168,8 +174,8 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     expect(stripePaymentFormSource).toContain("email: normalizedBillingEmail");
   });
 
-  it("shows Swiss Mail as the business name in the PaymentElement and keeps the accordion expanded", () => {
-    expect(stripePaymentFormSource).toContain('business: { name: "Swiss Mail" }');
+  it("shows Sendly as the business name in the PaymentElement and keeps the accordion expanded", () => {
+    expect(stripePaymentFormSource).toContain('business: { name: "Sendly" }');
     expect(stripePaymentFormSource).toContain('type: "accordion"');
     expect(stripePaymentFormSource).toContain("defaultCollapsed: false");
   });
@@ -184,7 +190,8 @@ describe("checkout-payment-contract StripePaymentForm", () => {
     );
     expect(stripeBackActionBlock).toContain("href={backToReviewHref}");
     expect(stripeBackActionBlock).not.toContain('className="sm:flex-1"');
-    expect(stripeBackActionBlock).toContain('className="sm:w-auto sm:min-w-[10rem]"');
+    expect(stripeBackActionBlock).toContain("fullWidth");
+    expect(stripeBackActionBlock).toContain("desktopMinWidth");
   });
 
   it("hydrates the Stripe payment step with the submitted or session email", () => {

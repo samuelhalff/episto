@@ -101,7 +101,7 @@ describeIfIntegrationDb("dispatch lifecycle integration", () => {
         attachmentHandling: "excluded",
         lineItems: [
           { label: "Provider quote", amountCents: 165, source: "provider" },
-          { label: "Swiss Mail service", amountCents: 80, source: "swiss_mail" },
+          { label: "Sendly service", amountCents: 80, source: "swiss_mail" },
         ],
       },
     });

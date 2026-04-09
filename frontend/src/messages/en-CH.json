@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Swiss Mail",
+    "appName": "Sendly",
     "loading": "Loading…",
     "error": "An error occurred",
     "tryAgain": "Try again",
@@ -31,7 +31,7 @@
     "showPreview": "Show preview",
     "hidePreview": "Hide preview",
     "refresh": "Refresh",
-    "privacyNoticeBody": "Swiss Mail uses a single essential cookie for your session. No tracking, no third-party analytics.",
+    "privacyNoticeBody": "Sendly uses a single essential cookie for your session. No tracking, no third-party analytics.",
     "privacyPolicy": "Privacy policy",
     "dismissPrivacyNotice": "Dismiss privacy notice"
   },
@@ -57,14 +57,14 @@
     "useCaseLease": "End a lease agreement",
     "useCaseComplaint": "File a formal complaint",
     "useCaseAuthority": "Write to an authority",
-    "trustTitle": "Why Swiss Mail",
+    "trustTitle": "Why Sendly",
     "trustSwissPost": "Delivered by Swiss Post",
     "trustSecure": "Secure & encrypted",
     "trustNoAccount": "No account needed",
     "pricingTitle": "Simple, transparent pricing",
     "pricingFrom": "From {price} per letter",
     "pricingFromFallback": "Transparent per-letter pricing",
-    "pricingNotes": "Reference total based on {printedPages} printed page, {physicalSheets} A4 sheet, {envelopeFormat} envelope, plus {service} Swiss Mail service.",
+    "pricingNotes": "Reference total based on {printedPages} printed page, {physicalSheets} A4 sheet, {envelopeFormat} envelope, plus {service} Sendly service.",
     "pricingNotesFallback": "Standard and registered totals are shown before payment.",
     "ctaTitle": "Ready to send your letter?",
     "ctaButton": "Start writing",
@@ -79,15 +79,15 @@
       "terms": "Terms",
       "imprint": "Imprint",
       "help": "Help",
-      "copyright": "© 2025 Swiss Mail. All rights reserved."
+      "copyright": "© 2025 Sendly. All rights reserved."
     },
-    "appName": "Swiss Mail",
+    "appName": "Sendly",
     "homepage": {
       "hero": {
         "badge": "Built for important letters",
         "title": "Serious letters — professionally prepared, ready to send",
         "subtitle": "Describe what you need. We guide you to a clear formal letter that you can review carefully before it goes out.",
-        "body": "Swiss Mail helps you prepare important correspondence without a trip to the post office — from first draft to postal submission in Switzerland.",
+        "body": "Sendly helps you prepare important correspondence without a trip to the post office — from first draft to postal submission in Switzerland.",
         "primaryCta": "Write your letter now",
         "secondaryCta": "See how it works",
         "proof": "No account required · Clear total before payment · Privacy-conscious infrastructure"
@@ -120,7 +120,7 @@
       "confidence": {
         "eyebrow": "Why it feels reliable",
         "title": "More confidence before you send",
-        "intro": "Swiss Mail does not replace your judgement — it gives your letter a professional frame and keeps you in control before dispatch.",
+        "intro": "Sendly does not replace your judgement — it gives your letter a professional frame and keeps you in control before dispatch.",
         "cards": {
           "structured": {
             "title": "Properly structured",
@@ -160,7 +160,7 @@
     }
   },
   "howItWorks": {
-    "title": "How Swiss Mail works",
+    "title": "How Sendly works",
     "subtitle": "Three simple steps to send a professional letter.",
     "stepLabel": "Step {number}",
     "step1Detail": "Tell us what kind of letter you need. We guide the structure and prepare a formal letter in the correct Swiss format.",
@@ -188,7 +188,7 @@
     "registeredAddonLabel": "Registered add-on",
     "registeredTotalLabel": "Registered total",
     "compositionTitle": "What makes up the price",
-    "compositionBody": "Each public total combines the Swiss Mail service fee with the stored provider reference total for standard or registered dispatch.",
+    "compositionBody": "Each public total combines the Sendly service fee with the stored provider reference total for standard or registered dispatch.",
     "referenceAssumptionsTitle": "Reference assumptions",
     "referenceAssumptionsBody": "These public examples cover Swiss domestic letters with the fixed provider settings the stored matrix currently supports.",
     "assumptionCountryLabel": "Destination",
@@ -205,7 +205,7 @@
     "syncStaleLabel": "Needs refresh",
     "syncSourceLabel": "Source",
     "syncLastSyncedLabel": "Last synced",
-    "syncFreshBody": "These public prices come from the latest stored provider sync used by Swiss Mail.",
+    "syncFreshBody": "These public prices come from the latest stored provider sync used by Sendly.",
     "syncStaleBody": "These public prices come from the last successful provider sync and may be outdated until the next refresh.",
     "matrixExamplesTitle": "Matrix-backed page-count examples",
     "matrixExamplesBody": "These example totals come from the stored Swiss domestic no-attachment matrix only.",
@@ -213,18 +213,18 @@
     "registeredExamplesTitle": "Registered examples",
     "pagesColumnLabel": "Pages",
     "providerQuoteColumnLabel": "Provider quote",
-    "totalColumnLabel": "Swiss Mail total",
-    "serviceCardEyebrow": "Swiss Mail",
-    "serviceCardTitle": "What Swiss Mail adds on top",
-    "serviceCardBody": "The exact charge is always the live ePost quote for your real draft plus our Swiss Mail service fee. The public page keeps that honest by using one documented reference scenario instead of guessing.",
-    "serviceFeeLabel": "Swiss Mail service",
-    "serviceStandardFeeLabel": "Swiss Mail service (standard)",
-    "serviceRegisteredFeeLabel": "Swiss Mail service (registered)",
+    "totalColumnLabel": "Sendly total",
+    "serviceCardEyebrow": "Sendly",
+    "serviceCardTitle": "What Sendly adds on top",
+    "serviceCardBody": "The exact charge is always the live ePost quote for your real draft plus our Sendly service fee. The public page keeps that honest by using one documented reference scenario instead of guessing.",
+    "serviceFeeLabel": "Sendly service",
+    "serviceStandardFeeLabel": "Sendly service (standard)",
+    "serviceRegisteredFeeLabel": "Sendly service (registered)",
     "providerStandardQuoteLabel": "ePost standard reference",
     "providerRegisteredQuoteLabel": "ePost registered reference",
     "pricingTableTitle": "Reference totals",
     "summaryCardTitle": "Clear totals before you pay",
-    "summaryCardBody": "These public totals come from the same stored pricing source Swiss Mail uses for standard and registered draft price display.",
+    "summaryCardBody": "These public totals come from the same stored pricing source Sendly uses for standard and registered draft price display.",
     "checkoutTruth": "Checkout recalculates the exact total from the live provider quote for your specific draft, page count, attachments, and delivery type. We do not charge from this page's reference scenario.",
     "providerCardEyebrow": "ePost reference",
     "providerCardTitle": "Official ePost unit inputs",
@@ -238,7 +238,7 @@
     "providerFirstSheetDuplexLabel": "C5 envelope + first A4 sheet (duplex)",
     "providerExtraSheetSimplexLabel": "Each extra A4 sheet (simplex)",
     "providerExtraSheetDuplexLabel": "Each extra A4 sheet (duplex)",
-    "providerVatNote": "ePost publishes these B2B reference rates excluding VAT. Swiss Mail confirms the final customer total before payment.",
+    "providerVatNote": "ePost publishes these B2B reference rates excluding VAT. Sendly confirms the final customer total before payment.",
     "referenceCardEyebrow": "Scenario",
     "referenceCardTitle": "What this page assumes",
     "referenceCardBody": "Reference scenario: {printedPages} printed page, {physicalSheets} physical A4 sheet, {envelopeFormat} envelope, {standardPostage} for standard mail, and {registeredPostage} for registered mail.",
@@ -263,7 +263,7 @@
     "comparisonConfirmationRegistered": "Stronger wording only after provider confirmation",
     "comparisonPriceLabel": "Reference price",
     "includedCardEyebrow": "Included",
-    "includedCardTitle": "What the Swiss Mail service covers",
+    "includedCardTitle": "What the Sendly service covers",
     "includedCardBody": "The service fee is not just postage. It covers the full drafting-to-dispatch flow.",
     "includedDrafting": "Drafting assistance and structured review",
     "includedFormatting": "Swiss-style formatting and final PDF generation",
@@ -286,8 +286,8 @@
     "faq3q": "Are there volume discounts?",
     "faq3a": "Not at MVP. Pricing is per letter and shown clearly before payment.",
     "faq4q": "Is VAT included in the prices shown?",
-    "faq4a": "Swiss Mail checkout totals are shown in CHF before payment. The ePost unit reference on this page is presented as ePost publishes it: excluding VAT.",
-    "vatIncludedNote": "Swiss Mail customer totals are shown in CHF and confirmed before payment.",
+    "faq4a": "Sendly checkout totals are shown in CHF before payment. The ePost unit reference on this page is presented as ePost publishes it: excluding VAT.",
+    "vatIncludedNote": "Sendly customer totals are shown in CHF and confirmed before payment.",
     "noHiddenFees": "No hidden fees",
     "ctaEyebrow": "Try it",
     "ctaBandTitle": "Try it. You only pay when you are ready to send.",
@@ -304,7 +304,7 @@
   "legal": {
     "privacyTitle": "Privacy Policy",
     "privacyLastUpdated": "Last updated: January 2025",
-    "privacyIntro": "This privacy policy explains how Swiss Mail collects, uses, and protects your personal data when you use our service.",
+    "privacyIntro": "This privacy policy explains how Sendly collects, uses, and protects your personal data when you use our service.",
     "dataCollectionTitle": "Data Collection",
     "dataUsageTitle": "Data Usage",
     "dataStorageTitle": "Data Storage and Security",
@@ -316,7 +316,7 @@
     "legalReviewNote": "Content to be finalized by legal review.",
     "termsTitle": "Terms of Service",
     "termsLastUpdated": "Last updated: January 2025",
-    "termsIntro": "These terms of service govern your use of the Swiss Mail letter delivery service.",
+    "termsIntro": "These terms of service govern your use of the Sendly letter delivery service.",
     "serviceDescTitle": "Service Description",
     "userObligationsTitle": "User Obligations",
     "paymentTermsTitle": "Payment Terms",
@@ -325,7 +325,7 @@
     "amendmentsTitle": "Amendments",
     "imprintTitle": "Imprint",
     "operatedBy": "This service is operated by:",
-    "companyName": "Swiss Mail",
+    "companyName": "Sendly",
     "contactEmail": "Email",
     "commercialRegister": "Commercial Register",
     "vatNumber": "VAT Number",
@@ -446,6 +446,7 @@
     "searchingAddresses": "Address suggestions",
     "addressSearchUnavailable": "Address search is temporarily unavailable. You can still enter the address manually below.",
     "addressSearchNoResults": "No matching address found. You can continue with manual entry below.",
+    "addressSearchSelectionRequired": "Choose an address suggestion or clear the search field to continue with manual entry below.",
     "enterAddressManually": "Enter address manually",
     "backToSearch": "Back to search",
     "backToIntake": "Intake",
@@ -480,7 +481,7 @@
     "bodyGenerationLoadingDescription": "We’re turning the details you already confirmed into a first version of your letter. This should only take a moment.",
     "bodyGenerationLoadingLabel": "Drafting",
     "bodyGenerationErrorTitle": "We couldn’t draft the content",
-    "bodyGenerationErrorDescription": "Please refresh this step to try again. Support will be available here later if the problem persists.",
+    "bodyGenerationErrorDescription": "Please refresh this step to try again, or close this sheet to keep editing manually. Support will be available here later if the problem persists.",
     "bodyGenerationRefreshAction": "Refresh draft",
     "bodyGenerationSupportAction": "Contact support",
     "letterBodyLabel": "Letter body",
@@ -643,7 +644,7 @@
     "paymentPending": "Payment form loading…",
     "paymentConfigError": "Payment system is not configured. Please try again later.",
     "consentRequired": "You must accept the terms to continue.",
-    "legalConsent": "I have read and agree to the <terms>Terms of Service</terms> and understand that Swiss Mail is not a legal service.",
+    "legalConsent": "I have read and agree to the <terms>Terms of Service</terms> and understand that Sendly is not a legal service.",
     "sendMyLetter": "Pay",
     "securedByStripe": "Secured by Stripe",
     "swissDelivery": "Swiss postal delivery",
@@ -654,7 +655,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Registered",
     "providerQuoteLabel": "Provider quote",
-    "swissMailServiceLabel": "Swiss Mail service",
+    "swissMailServiceLabel": "Sendly service",
     "secureCheckout": "Secure checkout through Stripe",
     "paymentHelp": "Stripe handles the payment details. We never collect raw card data ourselves.",
     "total": "Total",
@@ -674,7 +675,7 @@
     "continueToPayment": "Next",
     "calculatingPayment": "Calculating…",
     "backToReview": "Back",
-    "paymentMethodsHelp": "TWINT appears first. Cards and supported wallets appear when Stripe and your device make them available."
+    "paymentMethodsHelp": "TWINT appears first, followed by card, Apple Pay, Google Pay, and other supported wallets when Stripe and your device make them available."
   },
   "attachments": {
     "title": "Attachments",
@@ -747,6 +748,7 @@
     "stateAccepted": "Accepted for dispatch",
     "stateRejected": "Dispatch was rejected — we're investigating",
     "stateUnknown": "Status is being confirmed — we'll update you by email",
+    "emailNoticeEyebrow": "Payment receipt",
     "emailNotice": "A payment receipt has been sent to your email",
     "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
     "stickyCtaLabel": "Send another letter",
@@ -851,11 +853,12 @@
     },
     "reference": {
       "label": "Provider reference",
+      "trackingLabel": "Tracking number",
       "trackingAvailable": "Tracking available for this shipment",
       "noTracking": "No tracking available for this shipment",
       "pending": "A provider reference will appear here if one becomes available.",
-      "mockLabel": "Mock provider confirmation",
-      "mockBody": "Live ePost delivery is disabled in this environment. No fee-bearing submission was made."
+      "mockLabel": "Test environment",
+      "mockBody": "This preview uses provider-shaped sample identifiers. No live ePost submission was made."
     },
     "step": {
       "submitted": "Submitted to printing",
@@ -867,28 +870,28 @@
   },
   "seo": {
     "home": {
-      "title": "Swiss Mail — Prepare and send serious letters online",
+      "title": "Sendly — Prepare and send serious letters online",
       "description": "Draft formal letters, review every detail, and start postal dispatch in Switzerland without opening an account."
     },
     "pricing": {
-      "title": "Pricing — Swiss Mail",
-      "description": "See reference totals for standard and registered letters, the Swiss Mail service fee, and how the final total is confirmed before payment."
+      "title": "Pricing — Sendly",
+      "description": "See reference totals for standard and registered letters, the Sendly service fee, and how the final total is confirmed before payment."
     },
     "help": {
-      "title": "Help — Swiss Mail",
-      "description": "Answers about drafting, payment, dispatch, attachments, and support for Swiss Mail."
+      "title": "Help — Sendly",
+      "description": "Answers about drafting, payment, dispatch, attachments, and support for Sendly."
     },
     "privacy": {
-      "title": "Privacy — Swiss Mail",
-      "description": "Learn how Swiss Mail handles session data, files, payments, and retention with privacy-conscious safeguards."
+      "title": "Privacy — Sendly",
+      "description": "Learn how Sendly handles session data, files, payments, and retention with privacy-conscious safeguards."
     },
     "terms": {
-      "title": "Terms — Swiss Mail",
-      "description": "Read the terms for using Swiss Mail, paying for dispatch, and sending letters as a guest."
+      "title": "Terms — Sendly",
+      "description": "Read the terms for using Sendly, paying for dispatch, and sending letters as a guest."
     },
     "imprint": {
-      "title": "Imprint — Swiss Mail",
-      "description": "Operator details and contact information for Swiss Mail."
+      "title": "Imprint — Sendly",
+      "description": "Operator details and contact information for Sendly."
     }
   },
   "admin": {
@@ -929,17 +932,23 @@
       "priority": {
         "title": "Priority queues",
         "ambiguous": "Ambiguous dispatches",
-        "suspicious": "Suspicious sessions"
+        "ambiguousInfo": "Manual dispatch review",
+        "suspicious": "Suspicious sessions",
+        "suspiciousInfo": "Fraud or abuse review"
       },
       "retention": {
         "title": "Retention follow-up",
         "expiredSessions": "Expired sessions",
         "expiredContent": "Expired content",
-        "expiredPdfs": "Expired PDFs"
+        "expiredPdfs": "Expired PDFs",
+        "expiredSessionsInfo": "Resume access expired",
+        "expiredContentInfo": "Content past retention",
+        "expiredPdfsInfo": "PDFs past retention"
       },
       "signals": {
         "title": "Operational signals",
-        "recentRefunds": "Recent refunds (7d)"
+        "recentRefunds": "Recent refunds (7d)",
+        "recentRefundsInfo": "Last 7 days"
       },
       "dispatchStates": "Dispatch states",
       "paymentStates": "Payment states (30d)",

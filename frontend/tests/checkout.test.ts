@@ -118,6 +118,12 @@ describe("checkout footer actions", () => {
     expect(stripePaymentFormSource).toContain("<ActionButton");
   });
 
+  it("opts checkout and payment dock actions into the shared desktop minimum width treatment", () => {
+    expect(checkoutPageSource).toContain("desktopMinWidth");
+    expect(stripePaymentFormSource).toContain("desktopMinWidth");
+    expect(checkoutPageSource).not.toContain("sm:min-w-[10rem]");
+  });
+
   it("uses the shared form-control utility and Stripe 16px base sizing", () => {
     expect(globalsCssSource).toContain(".app-form-control");
     expect(checkoutPageSource).toContain("app-form-control");
@@ -144,13 +150,13 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).toContain('t("paymentBlockedEnvironmentBody")');
   });
 
-  it("presents Twint as the first payment method in the PaymentElement", () => {
+  it("orders payment methods as Twint, card, Apple Pay, then Google Pay", () => {
     const match = stripePaymentFormSource.match(/paymentMethodOrder:\s*\[([^\]]+)\]/);
     expect(match).not.toBeNull();
     const methods = match![1]
       .split(",")
       .map((s: string) => s.trim().replace(/['"]/g, ""));
-    expect(methods[0]).toBe("twint");
+    expect(methods).toEqual(["twint", "card", "apple_pay", "google_pay"]);
   });
 
   it("waits for rendering to finish before requesting a live quote", () => {
@@ -165,9 +171,9 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).not.toContain('colorPrimary: "#18181b"');
   });
 
-  it("uses the Stripe theme in light mode and night in dark mode", () => {
+  it("uses the flat Stripe theme in light mode and night in dark mode", () => {
     expect(checkoutPageSource).toContain("useTheme");
-    expect(checkoutPageSource).toContain('theme === "dark" ? "night" : "stripe"');
+    expect(checkoutPageSource).toContain('theme === "dark" ? "night" : "flat"');
     expect(checkoutPageSource).toContain("colorBackground");
     expect(checkoutPageSource).toContain("colorText");
   });
@@ -188,11 +194,16 @@ describe("checkout footer actions", () => {
     expect(stripePaymentFormSource).toContain('email: "never"');
   });
 
-  it("uses an accordion PaymentElement layout for cleaner multi-method checkout", () => {
+  it("uses a compact accordion PaymentElement layout for cleaner multi-method checkout", () => {
     expect(stripePaymentFormSource).toContain("layout: {");
     expect(stripePaymentFormSource).toContain('type: "accordion"');
-    expect(stripePaymentFormSource).toContain("spacedAccordionItems: true");
+    expect(stripePaymentFormSource).toContain("spacedAccordionItems: false");
     expect(stripePaymentFormSource).not.toContain('layout: { type: "tabs"');
+  });
+
+  it("tightens Stripe spacing so wallet rows stay readable on smaller screens", () => {
+    expect(checkoutPageSource).toContain('spacingUnit: "4px"');
+    expect(checkoutPageSource).toContain('gridRowSpacing: "14px"');
   });
 
   it("reuses the shared section label and muted surfaces on the payment step", () => {

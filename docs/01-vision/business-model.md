@@ -1,6 +1,6 @@
 # Business Model & Go-to-Market
 
-**Product:** Swiss Mail  
+**Product:** Sendly  
 **Last updated:** 2026-03-18  
 **Status:** Directional — MVP pricing is locked; launch validation and GTM execution remain active business work  
 **See also:** [Product Scope](product-scope.md) · [Roadmap](roadmap.md) · [Competitive Landscape](competitive-landscape.md) · [Open Decisions](../08-guardrails/open-decisions.md)
@@ -9,7 +9,7 @@
 
 ## 1. Positioning
 
-Swiss Mail launches with a **brand-first, trust-first homepage** targeted at Swiss consumers who need to send formal letters occasionally — people who know they need to write something but haven't started.
+Sendly launches with a **brand-first, trust-first homepage** targeted at Swiss consumers who need to send formal letters occasionally — people who know they need to write something but haven't started.
 
 Marketing channels:
 - Broad brand homepage
@@ -63,13 +63,13 @@ This works because:
 ### Pricing Considerations
 
 - Reference point: CHF 2.50 (SuperPost, standard letter; verify before decisions)
-- Swiss Mail can justify a modest premium on AI drafting value
+- Sendly can justify a modest premium on AI drafting value
 - Must not price above the "just do it yourself" threshold
 - Transparent pricing at the surface level (before checkout) reduces abandonment
 - The configured markup and resulting customer totals still require validation against real provider
   commercial terms before public launch
 
-> **Locked MVP launch pricing:** provider quote plus a configurable Swiss Mail markup.
+> **Locked MVP launch pricing:** provider quote plus a configurable Sendly markup.
 >
 > This is the locked product decision for initial public release. Markup values must be config-backed,
 > and checkout totals must come from a real provider quote rather than hardcoded prices.

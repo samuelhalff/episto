@@ -10,6 +10,18 @@ import {
 } from "lucide-react";
 import type { HealthResponse, OverviewResponse, QueueStatus } from "./admin-api";
 
+const headingStyle = { color: "var(--app-muted)" };
+const foregroundStyle = { color: "var(--app-fg)" };
+const mutedStyle = { color: "var(--app-muted)" };
+const strongSurfaceStyle = {
+  borderColor: "var(--app-border)",
+  background: "var(--app-surface-strong)",
+};
+const mutedSurfaceStyle = {
+  borderColor: "var(--app-border)",
+  background: "var(--app-surface-muted)",
+};
+
 // ---------------------------------------------------------------------------
 // Health Panel
 // ---------------------------------------------------------------------------
@@ -25,20 +37,21 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
 
   return (
     <section>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={headingStyle}>
         Service Health
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {services.map((s) => (
-          <div
-            key={s.label}
-            className="flex items-center gap-3 rounded-lg border bg-white px-4 py-3"
-          >
-            <s.icon className="h-5 w-5 shrink-0 text-zinc-400" />
+          <div key={s.label} className="flex items-center gap-3 rounded-lg border px-4 py-3" style={strongSurfaceStyle}>
+            <s.icon className="h-5 w-5 shrink-0" style={mutedStyle} />
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium text-zinc-950">{s.label}</p>
+              <p className="text-sm font-medium" style={foregroundStyle}>
+                {s.label}
+              </p>
               {s.status.detail && (
-                <p className="truncate text-xs text-zinc-400">{s.status.detail}</p>
+                <p className="truncate text-xs" style={mutedStyle}>
+                  {s.status.detail}
+                </p>
               )}
             </div>
             {s.status.ok ? (
@@ -50,7 +63,7 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
         ))}
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-6 text-xs text-zinc-400">
+      <div className="mt-4 flex flex-wrap gap-6 text-xs" style={mutedStyle}>
         <span>
           Last payment:{" "}
           {health.lastPaymentAt
@@ -65,14 +78,26 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
         </span>
       </div>
 
-      <div className="mt-4 rounded-lg border border-zinc-200 bg-white px-4 py-3 text-xs text-zinc-500">
+      <div className="mt-4 rounded-lg border px-4 py-3 text-xs" style={{ ...mutedSurfaceStyle, ...mutedStyle }}>
         <div className="grid gap-2 sm:grid-cols-2">
-          <span>AI mode: <span className="font-medium text-zinc-700">{health.ai.providerMode}</span></span>
-          <span>Agent: <span className="font-medium text-zinc-700">{health.ai.agentId ?? "—"}</span></span>
-          <span>Project endpoint: <span className="font-medium text-zinc-700">{health.ai.projectEndpoint ?? "—"}</span></span>
-          <span>Environment: <span className="font-medium text-zinc-700">{health.ai.environmentName ?? "—"}</span></span>
-          <span>Location: <span className="font-medium text-zinc-700">{health.ai.location ?? "—"}</span></span>
-          <span>Subscription: <span className="font-medium text-zinc-700">{health.ai.subscriptionId ?? "—"}</span></span>
+          <span>
+            AI mode: <span className="font-medium" style={foregroundStyle}>{health.ai.providerMode}</span>
+          </span>
+          <span>
+            Agent: <span className="font-medium" style={foregroundStyle}>{health.ai.agentId ?? "—"}</span>
+          </span>
+          <span>
+            Project endpoint: <span className="font-medium" style={foregroundStyle}>{health.ai.projectEndpoint ?? "—"}</span>
+          </span>
+          <span>
+            Environment: <span className="font-medium" style={foregroundStyle}>{health.ai.environmentName ?? "—"}</span>
+          </span>
+          <span>
+            Location: <span className="font-medium" style={foregroundStyle}>{health.ai.location ?? "—"}</span>
+          </span>
+          <span>
+            Subscription: <span className="font-medium" style={foregroundStyle}>{health.ai.subscriptionId ?? "—"}</span>
+          </span>
         </div>
       </div>
     </section>
@@ -86,7 +111,7 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
 export function OverviewPanel({ overview }: { overview: OverviewResponse }) {
   return (
     <section>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={headingStyle}>
         Operational Overview
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -121,7 +146,7 @@ export function OverviewPanel({ overview }: { overview: OverviewResponse }) {
         <CountTable title="Payment States (30d)" data={overview.payments} />
       </div>
 
-      <p className="mt-4 text-xs text-zinc-400">
+      <p className="mt-4 text-xs" style={mutedStyle}>
         Generated at: {new Date(overview.generatedAt).toLocaleString()}
       </p>
     </section>
@@ -138,23 +163,23 @@ export function QueuesPanel({ queues }: { queues: Record<string, QueueStatus> })
 
   return (
     <section>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">
+      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={headingStyle}>
         Queue Status
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {entries.map(([name, q]) => (
-          <div key={name} className="rounded-lg border border-zinc-200 bg-white px-4 py-3">
-            <p className="text-sm font-medium text-zinc-950">
+          <div key={name} className="rounded-lg border px-4 py-3" style={strongSurfaceStyle}>
+            <p className="text-sm font-medium" style={foregroundStyle}>
               {name.replace(/-/g, " ")}
             </p>
             <div className="mt-2 flex gap-4 text-xs">
-              <span className="text-zinc-500">
-                Waiting: <span className="font-medium text-zinc-700">{q.waiting}</span>
+              <span style={mutedStyle}>
+                Waiting: <span className="font-medium" style={foregroundStyle}>{q.waiting}</span>
               </span>
-              <span className="text-zinc-500">
-                Active: <span className="font-medium text-zinc-700">{q.active}</span>
+              <span style={mutedStyle}>
+                Active: <span className="font-medium" style={foregroundStyle}>{q.active}</span>
               </span>
-              <span className={q.failed > 0 ? "text-destructive" : "text-zinc-500"}>
+              <span className={q.failed > 0 ? "text-destructive" : ""} style={q.failed > 0 ? undefined : mutedStyle}>
                 Failed: <span className="font-medium">{q.failed}</span>
               </span>
             </div>
@@ -180,13 +205,19 @@ function StatCard({
 }) {
   return (
     <div
-      className={`rounded-lg border px-4 py-3 ${
-        alert ? "border-amber-200 bg-amber-50" : "border-zinc-200 bg-white"
-      }`}
+      className="rounded-lg border px-4 py-3"
+      style={{
+        borderColor: alert ? "rgba(245, 158, 11, 0.3)" : "var(--app-border)",
+        background: alert ? "rgba(245, 158, 11, 0.06)" : "var(--app-surface-strong)",
+      }}
     >
-      <p className="text-xs font-medium text-zinc-500">{label}</p>
+      <p className="text-xs font-medium" style={mutedStyle}>
+        {label}
+      </p>
       <div className="mt-1 flex items-center gap-2">
-        <span className="text-2xl font-semibold text-zinc-950">{value}</span>
+        <span className="text-2xl font-semibold" style={foregroundStyle}>
+          {value}
+        </span>
         {alert && <AlertTriangle className="h-4 w-4 text-amber-500" />}
       </div>
     </div>
@@ -204,15 +235,22 @@ function CountTable({
   if (entries.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white">
-      <h3 className="border-b border-zinc-100 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+    <div className="rounded-lg border" style={strongSurfaceStyle}>
+      <h3
+        className="border-b px-4 py-2 text-xs font-semibold uppercase tracking-wider"
+        style={{ color: "var(--app-muted)", borderColor: "var(--app-border)" }}
+      >
         {title}
       </h3>
-      <div className="divide-y divide-zinc-50">
-        {entries.map(([key, value]) => (
-          <div key={key} className="flex items-center justify-between px-4 py-2">
-            <span className="text-sm text-zinc-600">{key.replace(/_/g, " ")}</span>
-            <span className="font-mono text-sm font-medium text-zinc-950">
+      <div>
+        {entries.map(([key, value], index) => (
+          <div
+            key={key}
+            className="flex items-center justify-between px-4 py-2"
+            style={index === 0 ? undefined : { borderTop: "1px solid var(--app-border)" }}
+          >
+            <span className="text-sm" style={mutedStyle}>{key.replace(/_/g, " ")}</span>
+            <span className="font-mono text-sm font-medium" style={foregroundStyle}>
               {value}
             </span>
           </div>

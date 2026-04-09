@@ -1,6 +1,6 @@
 # Voice and tone
 
-This guide defines how Swiss Mail speaks to users in every context. It is the single source of truth for copywriters, product designers, and developers writing UI text.
+This guide defines how Sendly speaks to users in every context. It is the single source of truth for copywriters, product designers, and developers writing UI text.
 
 Its authority is limited to wording and tone. It does not redefine routes, permissions, pricing,
 provider capabilities, or system states that are governed elsewhere in the docs.
@@ -13,7 +13,7 @@ and [`../08-guardrails/provider-certainties.md`](../08-guardrails/provider-certa
 
 ## 1. Brand voice attributes
 
-Swiss Mail is a competent friend who handles your paperwork — not a bank, not a chatbot, not a government portal. The voice is consistent across all surfaces; only the tone shifts to fit context.
+Sendly is a competent friend who handles your paperwork — not a bank, not a chatbot, not a government portal. The voice is consistent across all surfaces; only the tone shifts to fit context.
 
 ### Clear
 
@@ -124,7 +124,7 @@ Always answer: what failed? What can the user do now?
 **Tone:** Reassuring, transparent, no surprises. Users are about to spend money — give them full clarity on what they're paying for and what happens next.
 
 > "CHF {formattedPrice} for standard delivery. Includes printing, postage, and same-day submission." *(price from config — this is a tone example, not a hardcoded amount)*
-> "Payment is processed by Stripe. Swiss Mail does not store your card details."
+> "Payment is processed by Stripe. Sendly does not store your card details."
 > "Once payment succeeds, your letter is submitted for dispatch. You'll receive a confirmation."
 
 No dark patterns. No upsells disguised as defaults. No vague "fees may apply."
@@ -160,7 +160,7 @@ Use sentence case everywhere in the UI — headings, buttons, labels, messages.
 > ✅ "Review your letter"  
 > ❌ "Review Your Letter"
 
-Exception: proper nouns (Swiss Post, Stripe, Swiss Mail).
+Exception: proper nouns (Swiss Post, Stripe, Sendly).
 
 ### Active voice
 
@@ -377,7 +377,7 @@ Alternatively, label the current step without numbered steps when the flow is sh
 
 ## 5. Multilingual considerations
 
-Swiss Mail targets four Swiss locales: `de-CH`, `fr-CH`, `it-CH`, `en-CH`.
+Sendly targets four Swiss locales: `de-CH`, `fr-CH`, `it-CH`, `en-CH`.
 
 ### Infrastructure rules
 
@@ -474,7 +474,7 @@ Dispatch status is unclear. We're checking with the provider. This usually resol
 
 ### provider_outage
 
-**Pattern:** `Swiss Mail's postal service is temporarily unavailable. [What the user should do.]`
+**Pattern:** `Sendly's postal service is temporarily unavailable. [What the user should do.]`
 
 ```
 We can't submit letters right now due to a provider issue. Your draft is saved — try again in a few minutes.
@@ -584,7 +584,7 @@ Reframe without accusation:
 ❌ "Send before midnight!"
 ```
 
-Swiss Mail does not manufacture urgency. If there is a real time constraint (e.g. same-day posting cutoff), state it factually: "Same-day posting requires submission before 16:00."
+Sendly does not manufacture urgency. If there is a real time constraint (e.g. same-day posting cutoff), state it factually: "Same-day posting requires submission before 16:00."
 
 ### Sycophantic affirmations
 

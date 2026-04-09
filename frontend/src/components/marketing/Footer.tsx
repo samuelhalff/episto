@@ -10,6 +10,7 @@ export function Footer() {
   return (
     <footer
       role="contentinfo"
+      data-theme-chrome="marketing"
       className="border-t border-zinc-100 bg-[var(--app-surface-muted)] transition-colors dark:border-zinc-800 dark:bg-zinc-950"
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10">

@@ -13,8 +13,7 @@
  */
 
 import { readFileSync } from "node:fs";
-import puppeteer from "puppeteer-core";
-import type { Browser } from "puppeteer-core";
+import puppeteer, { type Browser } from "puppeteer";
 import { eq } from "drizzle-orm";
 import { PDFDocument } from "pdf-lib";
 import { getDb } from "../../db/index.js";
@@ -36,6 +35,7 @@ import {
   type SnapshotData,
 } from "@swiss-mail/shared";
 import { stripLetterFramingDocument } from "@swiss-mail/shared/letter-framing";
+import { getPuppeteerLaunchOptions } from "./browser-launch.js";
 
 const logger = createLogger("render-service");
 
@@ -73,21 +73,7 @@ let _browser: Browser | undefined;
 async function getBrowser(): Promise<Browser> {
   if (_browser?.connected) return _browser;
 
-  // In production, use the system Chromium.
-  // PUPPETEER_EXECUTABLE_PATH env var controls the binary location.
-  const executablePath =
-    process.env.PUPPETEER_EXECUTABLE_PATH ?? "/usr/bin/chromium-browser";
-
-  _browser = await puppeteer.launch({
-    executablePath,
-    headless: true,
-    args: [
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-dev-shm-usage",
-      "--disable-gpu",
-    ],
-  });
+  _browser = await puppeteer.launch(getPuppeteerLaunchOptions());
   return _browser;
 }
 
@@ -156,6 +142,72 @@ function getSenderSignatureName(sender: SnapshotData["sender"]): string {
   return [sender.firstName, sender.lastName].filter(Boolean).join(" ").trim();
 }
 
+function getAddressBlockLines(
+  address: SnapshotData["sender"] | SnapshotData["recipient"] | null | undefined,
+  role: "sender" | "recipient",
+): string[] {
+  if (!address) {
+    return [];
+  }
+
+  const lines: string[] = [];
+  const fullName = [address.firstName, address.lastName].filter(Boolean).join(" ").trim();
+
+  if (role === "recipient") {
+    if (address.company) {
+      lines.push(address.company);
+    }
+    if ("department" in address && address.department) {
+      lines.push(address.department);
+    }
+    if (fullName) {
+      lines.push(fullName);
+    }
+  } else {
+    if (fullName) {
+      lines.push(fullName);
+    }
+    if (address.company) {
+      lines.push(address.company);
+    }
+  }
+
+  lines.push(address.addressLine1);
+
+  if (address.addressLine2) {
+    lines.push(address.addressLine2);
+  }
+
+  lines.push(`${address.postalCode} ${address.city}`);
+
+  if (address.country && address.country !== "CH") {
+    lines.push(address.country);
+  }
+
+  return lines;
+}
+
+function renderAddressBlockHtml(lines: string[]): string {
+  return lines.map((line) => escapeHtml(line)).join("<br>");
+}
+
+function getDeliveryTypeDisplay(
+  locale: SnapshotData["locale"],
+  deliveryType: SnapshotData["deliveryType"],
+): string {
+  switch (locale) {
+    case "de-CH":
+      return deliveryType === "registered" ? "Einschreiben" : "A-Post";
+    case "fr-CH":
+      return deliveryType === "registered" ? "Recommande" : "Courrier Standard";
+    case "it-CH":
+      return deliveryType === "registered" ? "Raccomandata" : "Posta Standard";
+    case "en-CH":
+    default:
+      return deliveryType === "registered" ? "Registered Mail" : "Standard Mail";
+  }
+}
+
 // ---------------------------------------------------------------------------
 // HTML letter template (Swiss DIN 5008 / SN 010 130 inspired)
 // ---------------------------------------------------------------------------
@@ -186,32 +238,14 @@ export function renderLetterHtml(data: SnapshotData): string {
   <div class="signature-name">${escapeHtml(signatureName)}</div>
 </div>`
       : "";
-
-  const recipientBlock = recipient
-    ? [
-        recipient.company,
-        recipient.department,
-        [recipient.firstName, recipient.lastName].filter(Boolean).join(" ") || null,
-        recipient.addressLine1,
-        recipient.addressLine2,
-        `${recipient.postalCode} ${recipient.city}`,
-      ]
-        .filter(Boolean)
-        .map((l) => escapeHtml(l!))
-        .join("<br>")
-    : "";
-
-  const senderOneLiner = sender
-    ? [
-        sender.company,
-        [sender.firstName, sender.lastName].filter(Boolean).join(" "),
-        sender.addressLine1,
-        sender.addressLine2,
-        `${sender.postalCode} ${sender.city}`,
-      ]
-        .filter(Boolean)
-        .join(" \u00B7 ")
-    : "";
+  const senderBlock = renderAddressBlockHtml(getAddressBlockLines(sender, "sender"));
+  const recipientBlock = renderAddressBlockHtml(
+    getAddressBlockLines(recipient, "recipient"),
+  );
+  const deliveryLine = getDeliveryTypeDisplay(
+    data.locale,
+    data.deliveryType,
+  ).toUpperCase();
 
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(data.locale)}">
@@ -221,41 +255,77 @@ export function renderLetterHtml(data: SnapshotData): string {
     ${getSignatureFontFaceCss()}
     @page {
       size: A4;
-      margin: 25mm 25mm 25mm 25mm;
+      margin: 0;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      color: #1a1a1a;
+      -webkit-font-smoothing: antialiased;
+      background: #ffffff;
+    }
+    .letter-layout-shell {
+      position: relative;
+      width: 210mm;
+      min-height: 297mm;
+      background: #ffffff;
+    }
+    .sender-block,
+    .dispatch-line,
+    .recipient-block,
+    .right-meta {
+      position: absolute;
+      left: 25mm;
+      text-align: left;
+    }
+    .sender-block {
+      top: 20mm;
+      width: 80mm;
+      font-size: 8.75pt;
+      line-height: 1.45;
+      color: #202020;
+    }
+    .dispatch-line {
+      top: 40mm;
+      left: 121mm;
+      width: 59mm;
+      font-size: 8.25pt;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      color: #202020;
+    }
+    .recipient-block {
+      top: 52mm;
+      left: 121mm;
+      width: 59mm;
+      min-height: 31mm;
+      font-size: 10.5pt;
+      line-height: 1.35;
+      color: #141414;
+    }
+    .right-meta {
+      top: 87mm;
+      left: 121mm;
+      width: 59mm;
+    }
+    .date-line {
+      font-size: 10pt;
+      color: #444;
+    }
+    .body-flow {
+      padding: 114mm 20mm 20mm 25mm;
       font-size: 10.5pt;
       line-height: 1.55;
       color: #1a1a1a;
-      -webkit-font-smoothing: antialiased;
-    }
-    .sender-line {
-      font-size: 7.5pt;
-      color: #888;
-      letter-spacing: 0.02em;
-      border-bottom: 0.5px solid #ccc;
-      padding-bottom: 1mm;
-      margin-bottom: 5mm;
-    }
-    .recipient-block {
-      min-height: 27.3mm;
-      font-size: 10.5pt;
-      line-height: 1.4;
-      margin-bottom: 8mm;
-    }
-    .date-line {
-      text-align: right;
-      font-size: 10pt;
-      color: #555;
-      margin-bottom: 12mm;
     }
     .subject-line {
       font-weight: 700;
-      font-size: 11pt;
+      font-size: 11.25pt;
       letter-spacing: -0.01em;
-      margin-bottom: 8mm;
+      margin-bottom: 6mm;
     }
     .salutation-line {
       margin-bottom: 5mm;
@@ -330,24 +400,32 @@ export function renderLetterHtml(data: SnapshotData): string {
       font-weight: 600;
     }
     .enclosure-note {
-      font-size: 8.5pt;
+      font-size: 8.75pt;
       color: #666;
       margin-top: 12mm;
-      border-top: 0.5px solid #ccc;
       padding-top: 3mm;
+      border-top: 0.5px solid #d7d7d7;
+      font-style: italic;
     }
   </style>
 </head>
 <body>
-  ${senderOneLiner ? `<div class="sender-line">${escapeHtml(senderOneLiner)}</div>` : ""}
-  <div class="recipient-block">${recipientBlock}</div>
-  <div class="date-line">${escapeHtml(placeAndDate)}</div>
-  ${data.subject ? `<div class="subject-line">${escapeHtml(data.subject)}</div>` : ""}
-  ${hasLetterContent ? `<div class="salutation-line">${escapeHtml(salutation)}</div>` : ""}
-  <div class="letter-body">${renderDocumentHtml(document)}</div>
-  ${hasLetterContent ? `<div class="closing-line">${escapeHtml(closing)}</div>` : ""}
-  ${signatureBlock}
-  ${data.enclosureNote ? `<div class="enclosure-note">${escapeHtml(data.enclosureNote)}</div>` : ""}
+  <main class="letter-layout-shell">
+    ${senderBlock ? `<div class="sender-block">${senderBlock}</div>` : ""}
+    <div class="dispatch-line">${escapeHtml(deliveryLine)}</div>
+    <div class="recipient-block">${recipientBlock}</div>
+    <div class="right-meta">
+      <div class="date-line">${escapeHtml(placeAndDate)}</div>
+    </div>
+    <div class="body-flow">
+      ${data.subject ? `<div class="subject-line">${escapeHtml(data.subject)}</div>` : ""}
+      ${hasLetterContent ? `<div class="salutation-line">${escapeHtml(salutation)}</div>` : ""}
+      <div class="letter-body">${renderDocumentHtml(document)}</div>
+      ${hasLetterContent ? `<div class="closing-line">${escapeHtml(closing)}</div>` : ""}
+      ${signatureBlock}
+      ${data.enclosureNote ? `<div class="enclosure-note">${escapeHtml(data.enclosureNote)}</div>` : ""}
+    </div>
+  </main>
 </body>
 </html>`;
 }
@@ -501,7 +579,13 @@ export async function renderPdfBufferFromHtml(
   };
 
   try {
-    await page.setContent(html, { waitUntil: "networkidle0" });
+    await page.setContent(html, { waitUntil: "domcontentloaded" });
+    await page.evaluate(async () => {
+      const browserGlobal = globalThis as {
+        document?: { fonts?: { ready?: Promise<unknown> } };
+      };
+      await (browserGlobal.document?.fonts?.ready ?? Promise.resolve());
+    });
 
     const pdfBuffer = Buffer.from(
       await page.pdf({

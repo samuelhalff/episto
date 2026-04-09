@@ -188,6 +188,12 @@ describe("admin runtime surfaces", () => {
     expect(markup).toContain("Retention follow-up");
     expect(markup).toContain("Expired content");
     expect(markup).toContain("Expired PDFs");
+    expect(markup).toContain("Manual dispatch review");
+    expect(markup).toContain("Fraud or abuse review");
+    expect(markup).toContain("Last 7 days");
+    expect(markup).toContain("Resume access expired");
+    expect(markup).toContain("Content past retention");
+    expect(markup).toContain("PDFs past retention");
     expect(markup).toContain("Quick actions");
     expect(markup).toContain("Retention");
     expect(markup).toContain('href="/en-CH/admin/retention"');

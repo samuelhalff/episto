@@ -64,6 +64,12 @@ describe("shared button system", () => {
     expect(cardsSource).toContain('from "../../ui/app-button"');
   });
 
+  it("supports a shared desktop minimum width for reusable primary and secondary product actions", () => {
+    expect(actionButtonSource).toContain("desktopMinWidth?: boolean");
+    expect(actionButtonSource).toContain("lg:min-w-[10rem]");
+    expect(actionButtonSource).toContain("lg:w-auto");
+  });
+
   it("keeps shared primary, warning, and destructive button tokens available in globals", () => {
     expect(globalsCssSource).toContain(".btn-primary");
     expect(globalsCssSource).toContain(".btn-secondary");

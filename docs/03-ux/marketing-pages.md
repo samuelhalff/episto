@@ -1,4 +1,4 @@
-# Swiss Mail Marketing Pages Specification
+# Sendly Marketing Pages Specification
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** Homepage, use-case landing pages, How It Works page, Pricing page.  
@@ -25,7 +25,7 @@
 
 ## 1. Design Principles
 
-These rules govern every marketing page. They are not suggestions — violating them produces a product that looks like every other SaaS rather than the trusted Swiss brand Swiss Mail needs to be.
+These rules govern every marketing page. They are not suggestions — violating them produces a product that looks like every other SaaS rather than the trusted Swiss brand Sendly needs to be.
 
 ### 1.1 Visual Language
 
@@ -91,11 +91,11 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 ### 2.1 Hero Section
 
-**Purpose:** First impression — communicate what Swiss Mail is and get users to start drafting.
+**Purpose:** First impression — communicate what Sendly is and get users to start drafting.
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  Swiss Mail          [DE | FR | IT | EN]     │  ← Nav: transparent, sticky on scroll
+│  Sendly          [DE | FR | IT | EN]     │  ← Nav: transparent, sticky on scroll
 │─────────────────────────────────────────────────│
 │                                                  │
 │  Formelle Briefe per    ┌──────────────────┐    │
@@ -209,7 +209,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 ### 2.4 AI Differentiator
 
-**Purpose:** Show what makes Swiss Mail meaningfully different from "just mail a PDF yourself". Three alternating feature blocks.
+**Purpose:** Show what makes Sendly meaningfully different from "just mail a PDF yourself". Three alternating feature blocks.
 
 **Layout pattern:** Alternating `text-left / image-right` then `image-left / text-right`. On mobile: image above text, full-width.
 
@@ -223,7 +223,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 |---------|------|
 | Visual | Screenshot of conversation/guided-drafting UI inside a browser frame |
 | Headline | "Professionally structured, not just typed" |
-| Body | "Tell Swiss Mail what the letter is about — a cancellation, a complaint, a landlord dispute. It asks the right questions, picks the correct structure, sets the right tone, and produces a letter that looks like it came from a professional." |
+| Body | "Tell Sendly what the letter is about — a cancellation, a complaint, a landlord dispute. It asks the right questions, picks the correct structure, sets the right tone, and produces a letter that looks like it came from a professional." |
 | Layout | Text left, image right (desktop) |
 
 ---
@@ -234,7 +234,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 |---------|------|
 | Visual | Phone mockup with microphone recording indicator visible |
 | Headline | "Dictate from anywhere" |
-| Body | "On the train, in your car, between meetings. Speak your situation in plain language — Swiss Mail turns it into a properly formatted, correctly toned formal letter. In any Swiss language." |
+| Body | "On the train, in your car, between meetings. Speak your situation in plain language — Sendly turns it into a properly formatted, correctly toned formal letter. In any Swiss language." |
 | Layout | Image left, text right (desktop) |
 
 ---
@@ -252,7 +252,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 ### 2.5 Use Cases Grid
 
-**Purpose:** Signal the breadth of situations Swiss Mail handles. Drive to targeted landing pages.
+**Purpose:** Signal the breadth of situations Sendly handles. Drive to targeted landing pages.
 
 **Specs:**
 
@@ -380,16 +380,16 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 | # | Question | Answer guidance |
 |---|----------|-----------------|
-| 1 | How does Swiss Mail work? | Describe the 3-step flow: describe → review → send |
+| 1 | How does Sendly work? | Describe the 3-step flow: describe → review → send |
 | 2 | Do I need to create an account? | No. Guest-first. No account is required, but email is required at checkout for confirmation and support. |
 | 3 | How much does it cost? | From {formattedBasePrice}. Pay-per-letter. No subscription. |
 | 4 | How long does delivery take? | Standard delivery follows normal postal timelines. Registered service may provide delivery confirmation where supported. [Do not specify exact days — subject to provider capabilities.] |
 | 5 | What languages can I write in? | German, French, Italian, English. You can dictate in your language. |
-| 6 | Is my data private? | Stored drafts and files are encrypted, and Swiss Mail must describe its storage and processing regions transparently in the privacy policy. Do not imply Swiss-only processing unless that is explicitly approved. |
+| 6 | Is my data private? | Stored drafts and files are encrypted, and Sendly must describe its storage and processing regions transparently in the privacy policy. Do not imply Swiss-only processing unless that is explicitly approved. |
 | 7 | Can I attach documents? | Yes — PDFs and images can be attached for an additional per-file fee. |
 | 8 | Can I track my letter? | Tracking availability depends on delivery method. Registered mail provides delivery confirmation reference. [Do not promise real-time GPS tracking.] |
 | 9 | What if I need a refund? | Letters already dispatched cannot be recalled. Contact support if there is an issue before dispatch. |
-| 10 | Can I write in any font or layout? | Swiss Mail uses a professional Swiss-compliant A4 template. Custom layout is not available in MVP. |
+| 10 | Can I write in any font or layout? | Sendly uses a professional Swiss-compliant A4 template. Custom layout is not available in MVP. |
 
 ---
 
@@ -426,7 +426,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 | Column | Links |
 |--------|-------|
-| **Swiss Mail** (col 1) | Logo, 1-line brand description, "Built for Switzerland 🇨🇭" |
+| **Sendly** (col 1) | Logo, 1-line brand description, "Built for Switzerland 🇨🇭" |
 | **Product** (col 2) | How it works, Pricing, Use cases, FAQ |
 | **Legal** (col 3) | Terms of service, Privacy policy, Imprint (Impressum), Cookie settings |
 | **Language** (col 4) | Deutsch, Français, Italiano, English — each sets locale via `Accept-Language` cookie or URL prefix |
@@ -434,7 +434,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 **Footer bottom bar:**
 
 ```
-© 2026 Swiss Mail. All rights reserved.    Built for Switzerland 🇨🇭
+© 2026 Sendly. All rights reserved.    Built for Switzerland 🇨🇭
 ```
 
 ---
@@ -469,7 +469,7 @@ One page per use case. URL pattern: `/use-cases/{slug}` (e.g., `/use-cases/lease
 | Headline template | "[Use case verb] letter — done properly." |
 | Example (DE) | "Mietvertrag kündigen — richtig und rechtzeitig." |
 | Example (EN) | "Cancel your lease — done properly." |
-| Subheadline | "Swiss Mail generates a compliant {useCaseLabel} letter prepared for postal delivery in Switzerland. No templates, no printer, no post office queue." |
+| Subheadline | "Sendly generates a compliant {useCaseLabel} letter prepared for postal delivery in Switzerland. No templates, no printer, no post office queue." |
 | CTA | "Draft my {useCaseLabel} letter" — links to `/draft/new?useCase={slug}` |
 | Trust micro-copy | Same as homepage hero |
 
@@ -494,7 +494,7 @@ Why getting this right matters
 
 ---
 
-### 3.4 How Swiss Mail Solves It
+### 3.4 How Sendly Solves It
 
 Three cards, same layout as homepage "How It Works" but with use-case-specific step descriptions.
 
@@ -563,8 +563,8 @@ From {formattedBasePrice}
 
 | Question | Answer guidance |
 |----------|-----------------|
-| What notice period do I need? | Refer to the contract and local regulations. Swiss Mail helps with the letter; the user determines the correct date. |
-| Does it need to be sent by registered mail? | Many Swiss leases require registered mail. Swiss Mail offers this option. |
+| What notice period do I need? | Refer to the contract and local regulations. Sendly helps with the letter; the user determines the correct date. |
+| Does it need to be sent by registered mail? | Many Swiss leases require registered mail. Sendly offers this option. |
 | What if I miss the deadline? | The letter can still be drafted; we cannot advise on legal remedies for missed deadlines. |
 | Can I cancel mid-lease? | Special termination clauses vary. We draft the letter; we don't advise on contract law. |
 
@@ -592,7 +592,7 @@ An expanded, screenshot-heavy version of the homepage "How It Works" section. He
 
 | Section | Content |
 |---------|---------|
-| **Hero** | Simplified — title "How Swiss Mail works", no app mockup needed |
+| **Hero** | Simplified — title "How Sendly works", no app mockup needed |
 | **Step 1: Describe** | Screenshot of the guided conversation UI; caption each screen element |
 | **Step 2: Review** | Screenshot of the letter preview; explain edit capabilities |
 | **Step 3: Send** | Screenshot of checkout / delivery selection |
@@ -608,10 +608,10 @@ This section is critical for trust. Be honest about the flow.
 ```
 What happens after you pay
 
-1. Swiss Mail renders your final letter as a print-ready PDF.
-2. Swiss Mail submits the final PDF and required metadata to the configured postal-provider path.
+1. Sendly renders your final letter as a print-ready PDF.
+2. Sendly submits the final PDF and required metadata to the configured postal-provider path.
 3. The provider handles any downstream production and postal processing.
-4. Swiss Mail reflects the provider response honestly in your status.
+4. Sendly reflects the provider response honestly in your status.
 
 You will receive a dispatch confirmation once your letter has been 
 submitted to the postal system. Delivery confirmation is available 
@@ -663,8 +663,8 @@ It should show:
 1. a sync-status banner
 2. one primary totals card with standard total, registered add-on, and registered total
 3. one composition card with:
-   - Swiss Mail service fee (standard)
-   - Swiss Mail service fee (registered)
+   - Sendly service fee (standard)
+   - Sendly service fee (registered)
    - provider standard reference total
    - provider registered reference total
 4. one matrix-backed assumptions/examples area with:
@@ -820,10 +820,10 @@ All interactive elements on mobile:
 
 | Page | `<title>` template | Meta description |
 |------|-------------------|-----------------|
-| Homepage | `Swiss Mail — Formal Swiss letters from your phone` | "Draft and send formal letters in Switzerland in minutes. AI-assisted, Swiss postal delivery. No account needed." |
-| Use case | `[Use case title] letter — Swiss Mail` | Use-case-specific, ~140 chars |
-| How It Works | `How Swiss Mail works — Formal Swiss letters` | Describe the 3-step flow |
-| Pricing | `Pricing — Swiss Mail` | "Simple per-letter pricing. No subscription. From {formattedBasePrice}." |
+| Homepage | `Sendly — Formal Swiss letters from your phone` | "Draft and send formal letters in Switzerland in minutes. AI-assisted, Swiss postal delivery. No account needed." |
+| Use case | `[Use case title] letter — Sendly` | Use-case-specific, ~140 chars |
+| How It Works | `How Sendly works — Formal Swiss letters` | Describe the 3-step flow |
+| Pricing | `Pricing — Sendly` | "Simple per-letter pricing. No subscription. From {formattedBasePrice}." |
 
 ### 8.2 Structured Data
 

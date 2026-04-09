@@ -9,6 +9,7 @@ import {
 
 describe("API error helpers", () => {
   afterEach(() => {
+    vi.unstubAllGlobals();
     vi.resetModules();
     delete process.env.NEXT_PUBLIC_API_URL;
   });
@@ -86,5 +87,15 @@ describe("API error helpers", () => {
     const { getApiUrl } = await import("../src/lib/api");
 
     expect(getApiUrl("/v1/pricing")).toBe("http://localhost:4000/api/v1/pricing");
+  });
+
+  it("keeps browser requests on the same-origin /api proxy even when a public API origin is configured", async () => {
+    process.env.NEXT_PUBLIC_API_URL = "https://api.swissmail.ch";
+    vi.stubGlobal("window", { location: { origin: "https://swissmail.ch" } });
+    vi.resetModules();
+
+    const { getApiUrl } = await import("../src/lib/api");
+
+    expect(getApiUrl("/v1/pricing")).toBe("/api/v1/pricing");
   });
 });

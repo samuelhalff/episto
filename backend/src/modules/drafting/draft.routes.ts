@@ -475,7 +475,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       }
 
       if (renderedPageCount > 5) {
-        await transitionDraftStatus(db, draftId, session.id, "fields_complete");
+        await transitionDraftStatus(db, draftId, session.id, "collecting");
 
         throw validationError("Letters are limited to 5 pages.", [
           {

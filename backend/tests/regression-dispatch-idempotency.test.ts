@@ -49,13 +49,6 @@ const mocks = vi.hoisted(() => {
   };
 });
 
-vi.mock("../src/shared/errors/index.js", async () => {
-  const actual = await vi.importActual<typeof import("../src/shared/errors/index.js")>(
-    "../src/shared/errors/index.js",
-  );
-  return actual;
-});
-
 vi.mock("../src/shared/logging/index.js", () => ({
   createLogger: () => ({
     info: vi.fn(),

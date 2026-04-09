@@ -76,4 +76,9 @@ describe("prompt shortcut UI regressions", () => {
       'className="pointer-events-none absolute left-0 top-0 -z-10 flex opacity-0"',
     );
   });
+
+  it("resets the inherited right anchor when centering the shortcut sheet on larger viewports", () => {
+    expect(promptShortcutSheetSource).toContain("md:right-auto md:left-1/2");
+    expect(promptShortcutSheetSource).toContain("md:-translate-x-1/2");
+  });
 });

@@ -161,8 +161,8 @@ export function StripePaymentForm({
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="app-panel-muted overflow-hidden rounded-[2.25rem] border border-white/60 bg-[linear-gradient(160deg,rgba(255,255,255,0.98),rgba(250,247,241,0.96))] p-4 shadow-[0_32px_90px_rgba(15,23,42,0.08)] sm:p-6 dark:border-white/5 dark:bg-[linear-gradient(160deg,rgba(22,27,34,0.98),rgba(17,22,29,0.96))]">
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="app-panel-muted overflow-hidden rounded-[2rem] p-3 sm:p-4">
         <div className="mb-5 flex flex-wrap items-center gap-3">
           <span className="app-list-item-muted inline-flex items-center gap-2 rounded-full px-3 py-2 text-xs text-[var(--app-muted)]">
             <Lock className="h-3.5 w-3.5 text-[var(--app-muted-strong)]" />
@@ -173,8 +173,8 @@ export function StripePaymentForm({
           </p>
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-          <div className="rounded-[1.85rem] border border-white/70 bg-[var(--app-surface-strong)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.7)] dark:border-white/6 dark:bg-[var(--app-surface-soft)] sm:p-4">
+        <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_18rem]">
+          <div className="rounded-[1.5rem] bg-[var(--app-surface-strong)]/80 p-2 sm:p-3 dark:bg-[var(--app-surface-soft)]/90">
             <div>
               <p className="section-label">{t("enterPaymentDetails")}</p>
               <p className="mb-4 mt-2 text-sm leading-6 text-[var(--app-muted)]">
@@ -182,12 +182,12 @@ export function StripePaymentForm({
               </p>
             </div>
 
-            <div className="rounded-[1.6rem] border border-[var(--app-border)] bg-white/90 p-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] dark:bg-[rgba(13,17,23,0.58)] sm:p-3">
+            <div className="rounded-[1.35rem] bg-white/88 p-1.5 ring-1 ring-black/5 dark:bg-[rgba(13,17,23,0.44)] dark:ring-white/8 sm:p-2">
               {/* Stripe's PaymentElement renders card fields, TWINT, and other supported methods. */}
               <PaymentElement
                 key={normalizedBillingEmail || "checkout-payment"}
                 options={{
-                  business: { name: "Swiss Mail" },
+                  business: { name: "Sendly" },
                   defaultValues: {
                     billingDetails: {
                       email: normalizedBillingEmail,
@@ -196,9 +196,9 @@ export function StripePaymentForm({
                   layout: {
                     type: "accordion",
                     defaultCollapsed: false,
-                    spacedAccordionItems: true,
+                    spacedAccordionItems: false,
                   },
-                  paymentMethodOrder: ["twint", "card"],
+                  paymentMethodOrder: ["twint", "card", "apple_pay", "google_pay"],
                   fields: {
                     billingDetails: {
                       // Email is collected separately on the checkout page
@@ -212,7 +212,7 @@ export function StripePaymentForm({
           </div>
 
           <div className="space-y-3">
-            <div className="app-list-item-muted rounded-2xl p-4">
+            <div className="app-list-item-muted rounded-2xl p-3 sm:p-4">
               <div className="flex items-start gap-3">
                 <span className="mt-0.5 inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[var(--app-surface-strong)] text-[var(--app-muted-strong)]">
                   <Mail className="h-4 w-4" />
@@ -229,7 +229,7 @@ export function StripePaymentForm({
               </div>
             </div>
 
-            <div className="app-list-item-muted rounded-2xl p-4">
+            <div className="app-list-item-muted rounded-2xl p-3 sm:p-4">
               <p className="section-label">{t("secureCheckout")}</p>
               <ul className="mt-3 space-y-2 text-xs text-[var(--app-muted)]">
                 <li className="flex items-center gap-2">
@@ -266,7 +266,7 @@ export function StripePaymentForm({
           <ActionButton
             type="submit"
             fullWidth
-            className="sm:flex-1"
+            desktopMinWidth
             disabled={
               !stripe || !elements || !normalizedBillingEmail || paymentElementLoadFailed
             }

@@ -46,7 +46,7 @@ export function PromptShortcutSheet({
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="bottom"
-        className={`${getSheetSurfaceClassName("action")} max-h-[78svh] md:bottom-6 md:left-1/2 md:w-[min(640px,calc(100vw-2rem))] md:max-h-[72vh] md:-translate-x-1/2 md:rounded-4xl`}
+        className={`${getSheetSurfaceClassName("action")} max-h-[78svh] md:bottom-6 md:right-auto md:left-1/2 md:w-[min(640px,calc(100vw-2rem))] md:max-h-[72vh] md:-translate-x-1/2 md:rounded-4xl`}
       >
         <SheetHandle className="pt-3" />
         <SheetHeader>

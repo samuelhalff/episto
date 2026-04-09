@@ -240,7 +240,7 @@ export function ReviewPageReady({
     setBackError(null);
 
     void transitionDraft
-      .mutateAsync({ status: "fields_complete" })
+      .mutateAsync({ status: "collecting" })
       .then(() => {
         router.push(getCustomerFlowPath(draftId, "logistics"));
       })
@@ -344,7 +344,7 @@ export function ReviewPageReady({
             variant="secondary"
             onClick={handleBackToDraft}
             fullWidth
-            className="sm:w-auto"
+            desktopMinWidth
             loading={transitionDraft.isPending}
             disabled={transitionDraft.isPending}
             leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
@@ -360,14 +360,13 @@ export function ReviewPageReady({
                   draftId={draftId}
                   draft={draftData}
                   fullWidth
-                  buttonClassName="sm:w-auto"
                 />
               </div>
             ) : null}
             <ActionButton
               onClick={handleProceedToPayment}
               fullWidth
-              className="sm:w-auto"
+              desktopMinWidth
               contentClassName="w-full"
               disabled={reviewActionState.disabled}
               loading={reviewActionState.loading}

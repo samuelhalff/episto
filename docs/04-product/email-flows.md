@@ -89,10 +89,10 @@ MVP transactional email.
 **Trigger:** `PaymentState` transitions to `captured`
 **Timing:** Sent immediately on capture confirmation from Stripe webhook
 
-**Subject (i18n key):** `email.receipt.subject` → e.g., "Your Swiss Mail payment receipt – {formattedTotal}"
+**Subject (i18n key):** `email.receipt.subject` → e.g., "Your Sendly payment receipt – {formattedTotal}"
 
 **Content:**
-- Swiss Mail logo / header
+- Sendly logo / header
 - "Thank you for your order."
 - Order reference number
 - Date and time of payment
@@ -158,7 +158,7 @@ MVP transactional email.
 activity if payment is still incomplete and the session has an email address
 **Condition:** Only sent to sessions where an email address has been collected
 
-**Subject (i18n key):** `email.resume.subject` → e.g., "Continue your Swiss Mail draft"
+**Subject (i18n key):** `email.resume.subject` → e.g., "Continue your Sendly draft"
 
 **Content:**
 - "You have an unsent letter draft. Continue where you left off."
@@ -262,7 +262,7 @@ Requirements:
 |---|---|
 | From | `noreply@swissmail.ch` |
 | Reply-To | `support@swissmail.ch` |
-| Display name | `Swiss Mail` |
+| Display name | `Sendly` |
 
 The `noreply` address must not bounce silently — configure it to forward or discard with logging so bounce loops don't affect deliverability scores.
 

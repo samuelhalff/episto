@@ -157,7 +157,7 @@ export function AdminTopBar({ onMenuToggle }: AdminTopBarProps) {
           <Link
             href={searchHref}
             aria-label={t("shell.search")}
-            className="inline-flex items-center justify-center gap-2 rounded-full border p-2.5 text-sm font-medium transition hover:opacity-90 sm:px-4 sm:py-2"
+            className="inline-flex h-11 min-w-[44px] items-center justify-center gap-2 rounded-full border px-3 text-sm font-medium transition hover:opacity-90 sm:px-4"
             style={{
               borderColor: "var(--app-border)",
               background: "var(--app-surface-strong)",
@@ -171,14 +171,14 @@ export function AdminTopBar({ onMenuToggle }: AdminTopBarProps) {
           <Link
             href={accountHref}
             aria-label={t("shell.account")}
-            className="flex min-w-0 items-center gap-2 rounded-full border p-1 pr-3 transition hover:opacity-90 sm:gap-3 sm:pr-4"
+            className="flex h-11 min-w-0 items-center gap-2 rounded-full border pl-1 pr-3 transition hover:opacity-90 sm:gap-3 sm:pr-4"
             style={{
               borderColor: "var(--app-border)",
               background: "var(--app-surface-strong)",
             }}
           >
             <span
-              className="flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold sm:h-10 sm:w-10 sm:text-sm"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold leading-none sm:text-sm"
               style={{
                 background: "var(--app-fg)",
                 color: "var(--app-bg)",

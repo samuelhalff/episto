@@ -20,7 +20,7 @@ import {
 import { useTheme } from "../../../lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { ActionCard, Card, DraftShell, PrimaryButton } from "./ui";
-import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import { showStepErrorToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 
 type StepProps = DraftWorkspaceStepShellProps;
@@ -63,11 +63,6 @@ export function LogisticsStep({
   const hasSender = Boolean(senderName.trim());
   const hasRecipient = Boolean(recipientName.trim());
   const canReview = hasSubject && hasBody && hasSender && hasRecipient;
-  const missingItems: string[] = [];
-  if (!hasSender) missingItems.push(t("reviewMissingSender"));
-  if (!hasRecipient) missingItems.push(t("reviewMissingRecipient"));
-  if (!hasBody) missingItems.push(t("reviewMissingBody"));
-  if (!hasSubject) missingItems.push(t("reviewMissingSubject"));
 
   const attachmentCount = files.attachments.length;
   const registeredPrice = pricing.data?.registered?.displayPrice ?? t("priceUnavailable");
@@ -145,14 +140,6 @@ export function LogisticsStep({
     }
   }
 
-  function handleBlockedReview() {
-    showStepWarningToast({
-      id: "logistics-step-missing",
-      title: t("stepNeedsAttentionTitle"),
-      items: missingItems,
-    });
-  }
-
   const selectedDeliveryCardClass =
     "ring-amber-200 shadow-lg shadow-amber-200/40 dark:ring-amber-300/30 dark:shadow-none";
   const unselectedDeliveryCardClass =
@@ -183,8 +170,8 @@ export function LogisticsStep({
       isNavigating={isNavigating}
       primaryAction={
         <PrimaryButton
-          onClick={canReview ? handleReview : handleBlockedReview}
-          disabled={reviewDraft.isPending}
+          onClick={handleReview}
+          disabled={!canReview || reviewDraft.isPending}
           loading={reviewDraft.isPending || Boolean(isNavigating)}
           tone={canReview ? "primary" : "warning"}
           hideIcon={!canReview}

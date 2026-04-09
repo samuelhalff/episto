@@ -147,7 +147,8 @@ export default function StatusPage({
                   typeof DispatchConfirmation
                 >[0]["dispatchState"]
               }
-              providerReference={dispatchData.trackingNumber ?? dispatchData.providerRef}
+              providerReference={dispatchData.providerRef}
+              trackingNumber={dispatchData.trackingNumber}
               providerMode={dispatchData.providerMode}
               isTrackable={dispatchData.trackingAvailable}
               submittedAt={dispatchData.submittedAt}

@@ -12,7 +12,7 @@
 
 ## Primary UX model
 
-Swiss Mail is a **guided drafting workspace**, not a novelty chatbot.
+Sendly is a **guided drafting workspace**, not a novelty chatbot.
 
 The default structure:
 - **Primary panel** (left on desktop, full-width on mobile): guided conversation and form-like
@@ -176,7 +176,7 @@ From here the user can check letter status later through `/status/:orderToken` a
 
 Flow:
 1. User closes browser mid-draft
-2. Returns to the Swiss Mail homepage (`/`) within the session TTL (configurable — see `docs/08-guardrails/open-decisions.md`)
+2. Returns to the Sendly homepage (`/`) within the session TTL (configurable — see `docs/08-guardrails/open-decisions.md`)
 3. Frontend checks `GET /api/sessions/current` using the HttpOnly session cookie
 4. If active draft found: a prominent recovery card appears on `/draft/new`: "You have an unfinished letter.
    [Continue draft] [Start fresh]"

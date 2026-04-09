@@ -59,7 +59,7 @@ describe("EpostDispatchAdapter mock submission mode", () => {
 
     await expect(adapter.submit(basePackage)).resolves.toMatchObject({
       state: "accepted",
-      providerReference: expect.stringMatching(/^mock-epost-registered-/),
+      providerReference: expect.stringMatching(/^EPR-T-R-[A-F0-9]{12}$/),
       trackingNumber: expect.any(String),
       failureReason: null,
     });
@@ -71,10 +71,10 @@ describe("EpostDispatchAdapter mock submission mode", () => {
     const adapter = new EpostDispatchAdapter({ submissionMode: "mock" });
 
     await expect(
-      adapter.checkStatus("mock-epost-registered-0d2d6c40f706"),
+      adapter.checkStatus("EPR-T-R-0D2D6C40F706"),
     ).resolves.toMatchObject({
       state: "accepted",
-      providerReference: "mock-epost-registered-0d2d6c40f706",
+      providerReference: "EPR-T-R-0D2D6C40F706",
       trackingNumber: expect.any(String),
     });
   });

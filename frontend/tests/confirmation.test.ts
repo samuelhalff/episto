@@ -83,6 +83,7 @@ const REQUIRED_CONFIRMATION_KEYS = [
   "stateAccepted",
   "stateRejected",
   "stateUnknown",
+  "emailNoticeEyebrow",
   "emailNotice",
   "emailNoticeDetail",
   "stickyCtaLabel",
@@ -146,5 +147,12 @@ describe("confirmation page regressions", () => {
     expect(confirmationPageSource).toContain("dark:bg-emerald-500/15 dark:text-emerald-300");
     expect(confirmationPageSource).toContain("dark:bg-zinc-800 dark:text-zinc-500");
     expect(confirmationPageSource).toContain("text-zinc-400 dark:text-zinc-500");
+  });
+
+  it("keeps only one bottom action and removes the floating send-another button", () => {
+    expect(confirmationPageSource).not.toContain("stickyCtaLabel");
+    expect(confirmationPageSource).not.toContain("fixed inset-x-4 bottom-4");
+    expect(confirmationPageSource).toContain('href="/draft/new"');
+    expect(confirmationPageSource).toContain('{t("sendAnother")}');
   });
 });

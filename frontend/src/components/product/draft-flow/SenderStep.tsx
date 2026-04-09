@@ -18,7 +18,8 @@ import {
   type AddressResolutionState,
 } from "./AddressAutocompleteField";
 import { AddressFields } from "./AddressFields";
-import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import { showStepErrorToast } from "./step-feedback";
+import { getSenderStepValidation } from "./step-validation";
 import {
   getDraftWorkspaceState,
   mergeDraftWorkspaceState,
@@ -59,6 +60,7 @@ export function SenderStep({
   const [addressLine1, setAddressLine1] = useState("");
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
+  const [requiresAddressSelection, setRequiresAddressSelection] = useState(false);
   const [pendingAddressSelectionLabel, setPendingAddressSelectionLabel] = useState<string | null>(
     null,
   );
@@ -132,14 +134,15 @@ export function SenderStep({
     hasHydratedRef.current = true;
   }, [draft.data?.metadata, preview.previewData?.sender, senderAutosave]);
 
-  const missingItems = [
-    !fullName.trim() ? t("fullName") : null,
-    !addressLine1.trim() ? t("streetAddress") : null,
-    !postalCode.trim() ? t("zipCode") : null,
-    !city.trim() ? t("city") : null,
-  ].filter((value): value is string => Boolean(value));
-  const canProceed = missingItems.length === 0;
   const isResolvingSelection = pendingAddressSelectionLabel !== null;
+  const canProceed = getSenderStepValidation({
+    fullName,
+    addressLine1,
+    postalCode,
+    city,
+    isResolvingSelection,
+    requiresAddressSelection,
+  }).canProceed;
 
   function handleFocusChange(focused: boolean) {
     setIsFormFocused(focused);
@@ -156,6 +159,7 @@ export function SenderStep({
   );
   const handleResolutionStateChange = useCallback((state: AddressResolutionState) => {
     setPendingAddressSelectionLabel(state.isResolving ? state.selectedLabel : null);
+    setRequiresAddressSelection(state.requiresSelection);
   }, []);
 
   async function handleNext() {
@@ -195,14 +199,6 @@ export function SenderStep({
     }
   }
 
-  function handleBlockedNext() {
-    showStepWarningToast({
-      id: "sender-step-missing",
-      title: t("stepNeedsAttentionTitle"),
-      items: missingItems,
-    });
-  }
-
   return (
     <DraftShell
       step={1}
@@ -219,8 +215,8 @@ export function SenderStep({
       isNavigating={isNavigating}
       primaryAction={
         <PrimaryButton
-          onClick={canProceed ? handleNext : handleBlockedNext}
-          disabled={setSender.isPending || isResolvingSelection}
+          onClick={handleNext}
+          disabled={!canProceed || setSender.isPending || isResolvingSelection}
           loading={setSender.isPending || Boolean(isNavigating) || isResolvingSelection}
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}

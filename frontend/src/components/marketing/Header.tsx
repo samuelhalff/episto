@@ -26,6 +26,7 @@ export function Header() {
   return (
     <header
       role="banner"
+      data-theme-chrome="marketing"
       className="sticky top-0 z-50 bg-white/97 shadow-[0_1px_0_rgba(0,0,0,0.05)] backdrop-blur-xl transition-colors dark:bg-zinc-950/92 dark:shadow-[0_1px_0_rgba(255,255,255,0.06)]"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">

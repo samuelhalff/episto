@@ -13,9 +13,9 @@ const messages = {
   "dispatch.reference.noTracking": "No tracking available for this shipment",
   "dispatch.reference.pending":
     "A provider reference will appear here if one becomes available.",
-  "dispatch.reference.mockLabel": "Mock provider confirmation",
+  "dispatch.reference.mockLabel": "Test environment",
   "dispatch.reference.mockBody":
-    "Live ePost delivery is disabled in this environment. No fee-bearing submission was made.",
+    "This preview uses provider-shaped sample identifiers. No live ePost submission was made.",
   "dispatch.step.submitted": "Submitted to printing",
   "dispatch.step.accepted": "Accepted for dispatch",
   "dispatch.step.dispatching": "Delivery status pending",
@@ -48,11 +48,11 @@ describe("DispatchConfirmation", () => {
     vi.unstubAllGlobals();
   });
 
-  it("shows an explicit mock-mode notice when the dispatch confirmation was simulated", () => {
+  it("shows a truthful test-environment notice without exposing mock wording", () => {
     render(
       React.createElement(DispatchConfirmation, {
         dispatchState: "accepted",
-        providerReference: "mock-epost-registered-1234",
+        providerReference: "EPR-T-R-0D2D6C40F706",
         providerMode: "mock",
         isTrackable: true,
         submittedAt: "2026-04-08T12:00:00.000Z",
@@ -62,6 +62,7 @@ describe("DispatchConfirmation", () => {
 
     expect(screen.getByText(messages["dispatch.reference.mockLabel"])).toBeTruthy();
     expect(screen.getByText(messages["dispatch.reference.mockBody"])).toBeTruthy();
-    expect(screen.getByText("mock-epost-registered-1234")).toBeTruthy();
+    expect(screen.getByText("EPR-T-R-0D2D6C40F706")).toBeTruthy();
+    expect(screen.queryByText(/mock/i)).toBeNull();
   });
 });

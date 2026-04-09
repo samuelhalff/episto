@@ -25,8 +25,23 @@ const draftComposerSource = readFileSync(
   "utf8",
 );
 
+const themeProviderSource = readFileSync(
+  path.join(repoRoot, "frontend/src/lib/theme.tsx"),
+  "utf8",
+);
+
 const themeToggleSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/ThemeToggle.tsx"),
+  "utf8",
+);
+
+const marketingHeaderSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/Header.tsx"),
+  "utf8",
+);
+
+const marketingFooterSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/Footer.tsx"),
   "utf8",
 );
 
@@ -90,13 +105,25 @@ describe("theme surface regressions", () => {
     expect(privacyNoticeSource).toContain("inset-x-4");
     expect(privacyNoticeSource).toContain("bottom-4");
     expect(privacyNoticeSource).toContain('useTranslations("common")');
-    expect(privacyNoticeSource).not.toContain("Swiss Mail uses a single essential cookie");
+    expect(privacyNoticeSource).not.toContain("Sendly uses a single essential cookie");
+  });
+
+  it("keeps marketing chrome hidden until the resolved theme is known", () => {
+    expect(themeProviderSource).toContain("hasResolvedTheme");
+    expect(themeProviderSource).not.toContain("queueMicrotask");
+    expect(marketingHeaderSource).toContain('data-theme-chrome="marketing"');
+    expect(marketingFooterSource).toContain('data-theme-chrome="marketing"');
+    expect(globalsSource).toContain('[data-theme-ready="false"] [data-theme-chrome="marketing"]');
   });
 
   it("keeps the shared section label style dark-mode safe", () => {
     expect(globalsSource).toContain(
       "text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500",
     );
+  });
+
+  it("reserves page scrollbar gutter space so checkout height changes do not shift the layout", () => {
+    expect(globalsSource).toContain("scrollbar-gutter: stable;");
   });
 
   it("defines the action and semantic Tailwind color utilities used by the audited routes", () => {

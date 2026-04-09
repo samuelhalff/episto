@@ -72,4 +72,14 @@ describe("FlowActionDock desktopSticky support", () => {
     );
     expect(src).toContain("desktopSticky");
   });
+
+  it("keeps responsive footer actions stacked until desktop so smaller viewports stay full width", () => {
+    const src = fs.readFileSync(
+      path.join(srcDir, "components/product/FlowActionDock.tsx"),
+      "utf-8",
+    );
+    expect(src).toContain("lg:flex-row");
+    expect(src).toContain("lg:w-auto");
+    expect(src).not.toContain("sm:flex-row");
+  });
 });

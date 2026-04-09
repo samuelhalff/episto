@@ -142,7 +142,7 @@ async function resolveDispatchQuoteFromStoredMatrix(
           source: "provider",
         },
         {
-          label: "Swiss Mail service",
+          label: "Sendly service",
           amountCents: swissMailMarkupCents,
           source: "swiss_mail",
         },
@@ -191,7 +191,7 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
             source: "provider",
           },
           {
-            label: "Swiss Mail service",
+            label: "Sendly service",
             amountCents: cached.swissMailMarkupCents,
             source: "swiss_mail",
           },

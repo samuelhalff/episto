@@ -14,15 +14,13 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-mode.js";
-import { downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
 import { renderConfirmationDocumentHtml } from "./confirmation-document.js";
-import { renderPdfBufferFromHtml } from "./render.service.js";
+import { renderLetterHtml, renderPdfBufferFromHtml } from "./render.service.js";
 import { getLatestSnapshot, type SnapshotRow } from "./snapshot.service.js";
 
-interface RenderedLetterAsset {
+interface RenderedLetterSource {
   snapshot: SnapshotRow;
   snapshotData: SnapshotData;
-  storageKey: string;
 }
 
 const CONFIRMATION_CONTENT_SUMMARY_MAX_LENGTH = 160;
@@ -62,9 +60,9 @@ function buildContentSummary(snapshotData: SnapshotData): string {
 async function getRenderedLetterAsset(
   db: Db,
   draftId: string,
-): Promise<RenderedLetterAsset> {
+): Promise<RenderedLetterSource> {
   const snapshot = await getLatestSnapshot(db, draftId);
-  if (!snapshot || !snapshot.renderedPdfAssetId) {
+  if (!snapshot) {
     throw new AppError({
       family: "rendering_failure",
       statusCode: 404,
@@ -77,30 +75,9 @@ async function getRenderedLetterAsset(
 
   const snapshotData = SnapshotDataSchema.parse(snapshot.snapshotData);
 
-  const [pdfAsset] = await db
-    .select({
-      storageKey: schema.fileAssets.storageKey,
-      status: schema.fileAssets.status,
-    })
-    .from(schema.fileAssets)
-    .where(eq(schema.fileAssets.id, snapshot.renderedPdfAssetId))
-    .limit(1);
-
-  if (!pdfAsset || pdfAsset.status !== "active") {
-    throw new AppError({
-      family: "rendering_failure",
-      statusCode: 410,
-      code: "PDF_EXPIRED",
-      message: "The rendered letter PDF has been deleted per retention policy.",
-      userMessage: "The confirmation document is no longer available.",
-      userAction: "Confirmation bundles are retained for a limited time after dispatch.",
-    });
-  }
-
   return {
     snapshot,
     snapshotData,
-    storageKey: pdfAsset.storageKey,
   };
 }
 
@@ -141,7 +118,8 @@ async function mergePdfBuffers(buffers: Buffer[]): Promise<Buffer> {
 
 async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buffer> {
   const renderedLetter = await getRenderedLetterAsset(db, draftId);
-  const [[dispatch], attachmentNames, downloadedLetter] = await Promise.all([
+  const letterHtml = renderLetterHtml(renderedLetter.snapshotData);
+  const [[dispatch], attachmentNames, renderedLetterPdf] = await Promise.all([
     db
       .select({
         state: schema.dispatchAttempts.state,
@@ -156,10 +134,10 @@ async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buff
       .orderBy(desc(schema.dispatchAttempts.createdAt))
       .limit(1),
     getAttachmentNames(db, renderedLetter.snapshotData.attachmentAssetIds),
-    downloadObjectBuffer(renderedLetter.storageKey),
+    renderPdfBufferFromHtml(letterHtml),
   ]);
 
-  const letterPdf = await PDFDocument.load(downloadedLetter.buffer);
+  const letterPdf = await PDFDocument.load(renderedLetterPdf.pdfBuffer);
   const providerMode: "mock" | "live" | null = dispatch
     ? isMockEpostProviderName(dispatch.providerName)
       ? "mock"
@@ -175,7 +153,7 @@ async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buff
     providerMode,
     providerReference: dispatch?.providerReference ?? null,
     trackingNumber: dispatch?.trackingNumber ?? null,
-    pageCount: letterPdf.getPageCount(),
+    pageCount: renderedLetterPdf.pageCount,
     attachmentNames,
     sender: renderedLetter.snapshotData.sender,
     recipient: renderedLetter.snapshotData.recipient,
@@ -195,7 +173,7 @@ async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buff
     },
   );
 
-  return mergePdfBuffers([confirmationFrontPage, downloadedLetter.buffer]);
+  return mergePdfBuffers([confirmationFrontPage, renderedLetterPdf.pdfBuffer]);
 }
 
 export async function sendRenderedDraftPdf(
@@ -209,7 +187,7 @@ export async function sendRenderedDraftPdf(
   reply.header("Content-Length", String(pdfBuffer.byteLength));
   reply.header(
     "Content-Disposition",
-    `attachment; filename="swiss-mail-${draftId.slice(0, 8)}-confirmation.pdf"`,
+    `attachment; filename="sendly-${draftId.slice(0, 8)}-confirmation.pdf"`,
   );
   reply.header("Cache-Control", "private, max-age=300");
 

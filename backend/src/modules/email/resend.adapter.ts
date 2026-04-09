@@ -15,6 +15,13 @@ export interface TransactionalEmail {
   html: string;
   text: string;
   replyTo?: string | undefined;
+  attachments?:
+    | Array<{
+        filename: string;
+        content: Buffer | string;
+        contentType?: string | undefined;
+      }>
+    | undefined;
 }
 
 /**
@@ -24,14 +31,21 @@ export interface TransactionalEmail {
 export async function sendEmail(email: TransactionalEmail): Promise<string> {
   const config = env();
   const resend = getResend();
+  const formattedFrom = `${config.APP_DISPLAY_NAME} <${config.EMAIL_FROM}>`;
+  const attachments = email.attachments?.map((attachment) => ({
+    filename: attachment.filename,
+    content: attachment.content,
+    ...(attachment.contentType ? { contentType: attachment.contentType } : {}),
+  }));
 
   const result = await resend.emails.send({
-    from: config.EMAIL_FROM,
+    from: formattedFrom,
     to: email.to,
     subject: email.subject,
     html: email.html,
     text: email.text,
-    replyTo: email.replyTo ?? "support@swissmail.ch",
+    replyTo: email.replyTo ?? config.SUPPORT_EMAIL,
+    ...(attachments ? { attachments } : {}),
   });
 
   if (result.error) {

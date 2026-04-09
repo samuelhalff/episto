@@ -13,7 +13,7 @@
 
 Define dispatch behavior without inventing provider capability.
 
-In Swiss Mail, "dispatch" means preparing the provider-bound submission package and submitting it to
+In Sendly, "dispatch" means preparing the provider-bound submission package and submitting it to
 the configured postal-provider path. It does not mean delivery, and it does not imply that Swiss
 Mail runs its own physical print-and-mail workflow.
 

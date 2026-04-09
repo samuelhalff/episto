@@ -1,6 +1,6 @@
 # Mobile UX Patterns
 
-> **Swiss Mail** — canonical mobile override reference.
+> **Sendly** — canonical mobile override reference.
 > Phone is the primary device. All other layouts are progressive enhancements.
 > This document governs responsive and touch behavior only. Route behavior, state transitions, and
 > business logic still come from `user-flows.md`, `page-specifications.md`, and the architecture docs.
@@ -21,7 +21,7 @@ The product exists because people need to send formal Swiss letters from their p
 
 **Competitive framing:**
 
-SuperPost markets "write and send from your mobile phone" but their UX is retrofitted. DocuPost and Pingen are desktop-first, business-oriented products. Swiss Mail's advantage is building mobile-first from day one, so the mobile experience is the designed experience — not a shrunk desktop.
+SuperPost markets "write and send from your mobile phone" but their UX is retrofitted. DocuPost and Pingen are desktop-first, business-oriented products. Sendly's advantage is building mobile-first from day one, so the mobile experience is the designed experience — not a shrunk desktop.
 
 ---
 
@@ -349,7 +349,7 @@ The mobile first-impression must be even more carefully choreographed than deskt
 TWINT is a native Swiss payment method handled via Stripe's PaymentElement:
 - User taps TWINT button → Stripe opens TWINT deep link (launches TWINT app if installed)
 - If TWINT app not installed: Stripe shows fallback (QR code or app store link)
-- User confirms payment in TWINT app → returns to Swiss Mail checkout page
+- User confirms payment in TWINT app → returns to Sendly checkout page
 - Return handling: Stripe webhook confirms payment, frontend polls or receives SSE update
 - Success: navigate to confirmation page
 - Failure: show error on checkout page, user can retry or choose another method

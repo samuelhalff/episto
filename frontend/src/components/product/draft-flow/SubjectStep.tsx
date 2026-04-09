@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { useDraft, useUpdateDraft } from "../../../hooks/use-api";
 import { normalizeLetterSubject } from "../../../lib/letter-content";
 import { DraftShell, Card, PrimaryButton } from "./ui";
-import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
+import { showStepErrorToast } from "./step-feedback";
 import { mergeDraftWorkspaceState } from "./workspace-state";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 
@@ -96,14 +96,6 @@ export function SubjectStep({
     }
   }
 
-  function handleBlockedConfirm() {
-    showStepWarningToast({
-      id: "subject-step-missing",
-      title: t("stepNeedsAttentionTitle"),
-      items: [t("reviewMissingSubject")],
-    });
-  }
-
   return (
     <DraftShell
       step={5}
@@ -120,8 +112,8 @@ export function SubjectStep({
       isNavigating={isNavigating}
       primaryAction={
         <PrimaryButton
-          onClick={canProceed ? handleConfirm : handleBlockedConfirm}
-          disabled={updateDraft.isPending}
+          onClick={handleConfirm}
+          disabled={!canProceed || updateDraft.isPending}
           loading={updateDraft.isPending || Boolean(isNavigating)}
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}
