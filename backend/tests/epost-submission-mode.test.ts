@@ -23,7 +23,7 @@ const basePackage: DispatchPackage = {
   sender: {
     firstName: "Swiss",
     lastName: "Mail",
-    company: "Swiss Mail",
+    company: "Sendly",
     addressLine1: "Bahnhofstrasse 1",
     postalCode: "8001",
     city: "Zurich",

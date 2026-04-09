@@ -6,6 +6,7 @@ import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { Lock, Mail, ShieldCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { captureError, captureMessage } from "../../lib/error-tracking";
+import { BRAND_NAME } from "../../lib/brand";
 import { ActionButton } from "./ActionButton";
 import { FlowActionDock } from "./FlowActionDock";
 
@@ -187,7 +188,7 @@ export function StripePaymentForm({
               <PaymentElement
                 key={normalizedBillingEmail || "checkout-payment"}
                 options={{
-                  business: { name: "Sendly" },
+                  business: { name: BRAND_NAME },
                   defaultValues: {
                     billingDetails: {
                       email: normalizedBillingEmail,

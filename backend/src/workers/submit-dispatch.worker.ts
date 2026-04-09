@@ -19,7 +19,7 @@ import { enqueueDispatchAcceptedEmail } from "../modules/dispatch/dispatch-notif
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { recordEvent } from "../modules/analytics/index.js";
 import { buildDispatchPackage } from "../modules/dispatch/dispatch-package.service.js";
-import { enqueuePaymentReceiptEmail } from "../modules/payments/payment-notifications.js";
+import { enqueueDispatchConfirmationEmail } from "../modules/dispatch/dispatch-confirmation.js";
 import {
   canFinalizeDispatchResolution,
   settlePaymentForDispatchResolution,
@@ -135,19 +135,19 @@ export async function processSubmitDispatchJob(
 
       if (settlement.payment && settlement.rawOrderAccessToken) {
         try {
-          await enqueuePaymentReceiptEmail(
+          await enqueueDispatchConfirmationEmail(
             db,
             settlement.payment,
             settlement.rawOrderAccessToken,
           );
-        } catch (receiptErr) {
+        } catch (confirmErr) {
           logger.error(
             {
               draftId,
               dispatchId: attempt.id,
-              err: receiptErr instanceof Error ? receiptErr.message : "Unknown error",
+              err: confirmErr instanceof Error ? confirmErr.message : "Unknown error",
             },
-            "Failed to enqueue payment receipt email after dispatch settlement",
+            "Failed to enqueue dispatch confirmation email after dispatch settlement",
           );
         }
       }

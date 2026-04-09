@@ -14,6 +14,7 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-mode.js";
+import { BRAND_NAME } from "../../shared/brand.js";
 import { renderConfirmationDocumentHtml } from "./confirmation-document.js";
 import { renderLetterHtml, renderPdfBufferFromHtml } from "./render.service.js";
 import { getLatestSnapshot, type SnapshotRow } from "./snapshot.service.js";
@@ -187,7 +188,7 @@ export async function sendRenderedDraftPdf(
   reply.header("Content-Length", String(pdfBuffer.byteLength));
   reply.header(
     "Content-Disposition",
-    `attachment; filename="sendly-${draftId.slice(0, 8)}-confirmation.pdf"`,
+    `attachment; filename="${BRAND_NAME.toLowerCase()}-${draftId.slice(0, 8)}-dispatch-statement.pdf"`,
   );
   reply.header("Cache-Control", "private, max-age=300");
 

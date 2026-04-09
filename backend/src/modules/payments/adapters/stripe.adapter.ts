@@ -84,13 +84,21 @@ function getStripe(): Stripe {
 
 export async function createPaymentIntent(
   amountCents: number,
-  metadata: { draftId: string; sessionId: string; paymentAttemptId: string },
+  metadata: {
+    draftId: string;
+    sessionId: string;
+    paymentAttemptId: string;
+    customerEmail: string;
+  },
 ): Promise<{ paymentIntentId: string; clientSecret: string }> {
   try {
     const intent = await getStripe().paymentIntents.create(
       {
         amount: amountCents,
         currency: "chf",
+        // Stripe sends the payment receipt to this email automatically.
+        // Our app does NOT generate or send a custom payment receipt.
+        receipt_email: metadata.customerEmail,
         metadata: {
           draftId: metadata.draftId,
           sessionId: metadata.sessionId,

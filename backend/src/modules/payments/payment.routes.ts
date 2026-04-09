@@ -11,7 +11,7 @@ import {
   setPaymentIntentId,
   transitionPaymentState,
 } from "./payment.service.js";
-import { enqueuePaymentReceiptEmail } from "./payment-notifications.js";
+import { enqueueDispatchConfirmationEmail } from "../dispatch/dispatch-confirmation.js";
 import {
   createPaymentIntent,
   constructWebhookEvent,
@@ -147,9 +147,9 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
 
         if (rawOrderAccessToken) {
           try {
-            await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
+            await enqueueDispatchConfirmationEmail(db, payment, rawOrderAccessToken);
           } catch (err) {
-            request.log.error({ err }, "Failed to enqueue payment receipt email");
+            request.log.error({ err }, "Failed to enqueue dispatch confirmation email");
           }
         }
         break;
@@ -326,6 +326,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
             draftId,
             sessionId: session.id,
             paymentAttemptId: payment.id,
+            customerEmail: body.email,
           });
 
           await setPaymentIntentId(tx, payment.id, stripeResult.paymentIntentId);
@@ -461,9 +462,9 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
             });
             if (rawOrderAccessToken) {
               try {
-                await enqueuePaymentReceiptEmail(db, payment, rawOrderAccessToken);
+                await enqueueDispatchConfirmationEmail(db, payment, rawOrderAccessToken);
               } catch (err) {
-                request.log.error({ err }, "Failed to enqueue payment receipt email");
+                request.log.error({ err }, "Failed to enqueue dispatch confirmation email");
               }
             }
             result = {
@@ -592,9 +593,9 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
 
           if (result.rawOrderAccessToken) {
             try {
-              await enqueuePaymentReceiptEmail(db, payment, result.rawOrderAccessToken);
+              await enqueueDispatchConfirmationEmail(db, payment, result.rawOrderAccessToken);
             } catch (err) {
-              request.log.error({ err }, "Failed to enqueue payment receipt email");
+              request.log.error({ err }, "Failed to enqueue dispatch confirmation email");
             }
           }
         }

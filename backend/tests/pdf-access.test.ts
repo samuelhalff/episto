@@ -215,7 +215,7 @@ describe("pdf-access", () => {
     expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
     expect(reply.header).toHaveBeenCalledWith(
       "Content-Disposition",
-      'attachment; filename="sendly-draft-1-confirmation.pdf"',
+      'attachment; filename="sendly-draft-1-dispatch-statement.pdf"',
     );
     expect(reply.send).toHaveBeenCalledWith(Buffer.from("merged-pdf"));
   });
