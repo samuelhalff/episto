@@ -3,6 +3,16 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import {
+  BarChart3,
+  Filter,
+  Search,
+  Users,
+  Flag,
+  Trash2,
+  Activity,
+  X,
+} from "lucide-react";
 import { useAdminAuth } from "./admin-auth-context";
 import { getAdminPagePath } from "../../../lib/admin-paths";
 
@@ -10,49 +20,60 @@ const NAV_SECTIONS = [
   {
     label: "Dashboard",
     items: [
-      { href: "overview", label: "Overview" },
-      { href: "funnel", label: "Funnel Analysis" },
+      { href: "overview", label: "Overview", icon: BarChart3 },
+      { href: "funnel", label: "Funnel Analysis", icon: Filter },
     ],
   },
   {
     label: "Operations",
     items: [
-      { href: "search", label: "Search" },
-      { href: "sessions", label: "Sessions" },
-      { href: "flags", label: "Flags & Queue" },
+      { href: "search", label: "Search", icon: Search },
+      { href: "sessions", label: "Sessions", icon: Users },
+      { href: "flags", label: "Flags & Queue", icon: Flag },
     ],
   },
   {
     label: "System",
     items: [
-      { href: "retention", label: "Retention" },
-      { href: "health", label: "Health" },
+      { href: "retention", label: "Retention", icon: Trash2 },
+      { href: "health", label: "Health", icon: Activity },
     ],
   },
 ];
 
-export function AdminSidebar() {
+interface AdminSidebarProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const pathname = usePathname();
   const { logout } = useAdminAuth();
   const [loggingOut, setLoggingOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
 
-  return (
-    <nav
-      className="flex w-[220px] shrink-0 flex-col border-r"
-      style={{
-        background: "var(--app-surface-strong)",
-        borderColor: "var(--app-border)",
-      }}
-    >
-      <div
-        className="px-5 pb-6 pt-6 text-sm font-semibold tracking-wide"
-        style={{ color: "var(--app-fg)" }}
-      >
-        ◆ SWISS MAIL ADMIN
+  const sidebarContent = (
+    <>
+      <div className="flex items-center justify-between px-5 pb-6 pt-6">
+        <span
+          className="text-sm font-semibold tracking-wide"
+          style={{ color: "var(--app-fg)" }}
+        >
+          ◆ SWISS MAIL ADMIN
+        </span>
+        {/* Close button visible only on mobile */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-md p-1 lg:hidden"
+          style={{ color: "var(--app-muted)" }}
+          aria-label="Close menu"
+        >
+          <X className="h-5 w-5" />
+        </button>
       </div>
 
-      <div className="flex flex-1 flex-col gap-0.5">
+      <div className="flex flex-1 flex-col gap-0.5 overflow-y-auto">
         {NAV_SECTIONS.map((section) => (
           <div key={section.label}>
             <div
@@ -64,17 +85,20 @@ export function AdminSidebar() {
             {section.items.map((item) => {
               const href = getAdminPagePath(pathname, item.href);
               const active = pathname === href || pathname.startsWith(`${href}/`);
+              const Icon = item.icon;
               return (
                 <Link
                   key={item.href}
                   href={href}
-                  className="block border-l-[3px] px-5 py-2.5 text-[13px] transition-colors"
+                  onClick={onClose}
+                  className="flex items-center gap-3 border-l-[3px] px-5 py-2.5 text-[13px] transition-colors"
                   style={{
                     borderColor: active ? "var(--app-fg)" : "transparent",
                     color: active ? "var(--app-fg)" : "var(--app-muted)",
                     background: active ? "var(--app-surface-muted)" : "transparent",
                   }}
                 >
+                  <Icon className="h-4 w-4 shrink-0" />
                   {item.label}
                 </Link>
               );
@@ -108,6 +132,43 @@ export function AdminSidebar() {
       >
         {loggingOut ? "Signing out..." : "Sign Out"}
       </button>
-    </nav>
+    </>
+  );
+
+  return (
+    <>
+      {/* Mobile overlay */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onClose}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile drawer */}
+      <nav
+        className={`fixed inset-y-0 left-0 z-50 flex w-[260px] flex-col border-r transition-transform duration-200 ease-in-out lg:hidden ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{
+          background: "var(--app-surface-strong)",
+          borderColor: "var(--app-border)",
+        }}
+      >
+        {sidebarContent}
+      </nav>
+
+      {/* Desktop sidebar — always visible */}
+      <nav
+        className="hidden w-[220px] shrink-0 flex-col border-r lg:flex"
+        style={{
+          background: "var(--app-surface-strong)",
+          borderColor: "var(--app-border)",
+        }}
+      >
+        {sidebarContent}
+      </nav>
+    </>
   );
 }

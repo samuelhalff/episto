@@ -353,17 +353,39 @@ describe("EnvSchema — Admin Microsoft SSO validation", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Dispatch pricing refresh config — runtime loader test
+// Dispatch pricing refresh config
 // ---------------------------------------------------------------------------
 
-it("parses dispatch pricing refresh settings", async () => {
-  const { loadEnv, env } = await import("../src/shared/config/index.js");
+describe("EnvSchema — dispatch pricing refresh config", () => {
+  it("parses dispatch pricing refresh settings with defaults", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.DISPATCH_RATE_MATRIX_TTL_HOURS).toBe(24);
+    expect(result.LIVE_DISPATCH_QUOTE_TTL_MINUTES).toBe(30);
+  });
 
-  process.env.DISPATCH_RATE_MATRIX_TTL_HOURS = "24";
-  process.env.LIVE_DISPATCH_QUOTE_TTL_MINUTES = "30";
+  it("coerces dispatch pricing refresh settings from strings", () => {
+    const result = EnvSchema.parse({
+      ...validEnv(),
+      DISPATCH_RATE_MATRIX_TTL_HOURS: "48",
+      LIVE_DISPATCH_QUOTE_TTL_MINUTES: "15",
+    });
+    expect(result.DISPATCH_RATE_MATRIX_TTL_HOURS).toBe(48);
+    expect(result.LIVE_DISPATCH_QUOTE_TTL_MINUTES).toBe(15);
+  });
 
-  loadEnv();
+  it("rejects zero or negative TTL values", () => {
+    expect(
+      EnvSchema.safeParse({
+        ...validEnv(),
+        DISPATCH_RATE_MATRIX_TTL_HOURS: "0",
+      }).success,
+    ).toBe(false);
 
-  expect(env().DISPATCH_RATE_MATRIX_TTL_HOURS).toBe(24);
-  expect(env().LIVE_DISPATCH_QUOTE_TTL_MINUTES).toBe(30);
+    expect(
+      EnvSchema.safeParse({
+        ...validEnv(),
+        LIVE_DISPATCH_QUOTE_TTL_MINUTES: "-1",
+      }).success,
+    ).toBe(false);
+  });
 });

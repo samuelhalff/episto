@@ -990,6 +990,10 @@
       "title": "État système",
       "description": "Vérifiez l'état des services, la pression sur les files et l'activité récente de paiement ou d'envoi."
     },
+    "retention": {
+      "title": "Conservation",
+      "description": "État de la conservation des données, expirations en attente et activité de nettoyage."
+    },
     "funnel": {
       "title": "Analyse du funnel",
       "description": "Comprenez les abandons et la concentration des erreurs avant de modifier le parcours produit."

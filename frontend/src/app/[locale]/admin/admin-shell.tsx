@@ -19,6 +19,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const sanitizedReturnTo = useMemo(() => {
     const nextSearchParams = new URLSearchParams(searchParams.toString());
@@ -109,10 +110,13 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--app-bg)" }}>
-      <AdminSidebar />
+      <AdminSidebar
+        open={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+      />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
-        <AdminTopBar />
-        <main id="main-content" className="flex-1 overflow-y-auto p-6 sm:p-8">
+        <AdminTopBar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
           {children}
         </main>
       </div>

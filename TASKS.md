@@ -107,7 +107,7 @@ _CI-ready quality gates._
 
 ### Pending (not blocked):
 
-- [x] UX documentation audit findings resolved (all 12 findings verified — see `AUDIT_FINDINGS.md`)
+- [x] UX documentation audit findings resolved (all 12 findings verified)
 - [x] Security headers audit (Helmet + CSP in frontend + custom headers all verified)
 - [x] Unused `@fastify/csrf-protection` dependency removed (custom X-Requested-With validation used instead)
 - [x] Retention module unit tests + scheduled cleanup job

@@ -990,6 +990,10 @@
       "title": "Systemstatus",
       "description": "Prüfen Sie Dienstestatus, Queue-Druck sowie letzte Zahlungs- und Versandaktivitäten."
     },
+    "retention": {
+      "title": "Aufbewahrung",
+      "description": "Status der Datenaufbewahrung, ausstehende Löschungen und Bereinigungsaktivitäten prüfen."
+    },
     "funnel": {
       "title": "Funnel-Analyse",
       "description": "Verstehen Sie Abbrüche und Fehlerhäufungen, bevor Sie den Produktfluss ändern."

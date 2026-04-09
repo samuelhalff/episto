@@ -187,19 +187,6 @@ export function renderLetterHtml(data: SnapshotData): string {
 </div>`
       : "";
 
-  const senderBlock = sender
-    ? [
-        sender.company,
-        `${sender.firstName} ${sender.lastName}`,
-        sender.addressLine1,
-        sender.addressLine2,
-        `${sender.postalCode} ${sender.city}`,
-      ]
-        .filter(Boolean)
-        .map((l) => escapeHtml(l!))
-        .join("<br>")
-    : "";
-
   const recipientBlock = recipient
     ? [
         recipient.company,
@@ -214,6 +201,18 @@ export function renderLetterHtml(data: SnapshotData): string {
         .join("<br>")
     : "";
 
+  const senderOneLiner = sender
+    ? [
+        sender.company,
+        [sender.firstName, sender.lastName].filter(Boolean).join(" "),
+        sender.addressLine1,
+        sender.addressLine2,
+        `${sender.postalCode} ${sender.city}`,
+      ]
+        .filter(Boolean)
+        .join(" \u00B7 ")
+    : "";
+
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(data.locale)}">
 <head>
@@ -222,134 +221,127 @@ export function renderLetterHtml(data: SnapshotData): string {
     ${getSignatureFontFaceCss()}
     @page {
       size: A4;
-      margin: 25mm 25mm 30mm 25mm;
+      margin: 25mm 25mm 25mm 25mm;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      font-size: 11pt;
-      line-height: 1.5;
+      font-size: 10.5pt;
+      line-height: 1.55;
       color: #1a1a1a;
+      -webkit-font-smoothing: antialiased;
     }
-    .letter-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 12mm;
-      margin-bottom: 16mm;
-    }
-    .sender-block {
-      width: 80mm;
-      flex: 0 0 80mm;
-      font-size: 9pt;
-      color: #666;
-      text-align: left;
-    }
-    .recipient-date-block {
-      width: 85mm;
-      margin-left: auto;
-      padding-top: 14mm;
-      text-align: right;
+    .sender-line {
+      font-size: 7.5pt;
+      color: #888;
+      letter-spacing: 0.02em;
+      border-bottom: 0.5px solid #ccc;
+      padding-bottom: 1mm;
+      margin-bottom: 5mm;
     }
     .recipient-block {
-      min-height: 30mm;
-      margin-bottom: 6mm;
+      min-height: 27.3mm;
+      font-size: 10.5pt;
+      line-height: 1.4;
+      margin-bottom: 8mm;
     }
     .date-line {
       text-align: right;
-      margin-bottom: 0;
+      font-size: 10pt;
+      color: #555;
+      margin-bottom: 12mm;
     }
     .subject-line {
-      font-weight: bold;
+      font-weight: 700;
+      font-size: 11pt;
+      letter-spacing: -0.01em;
       margin-bottom: 8mm;
     }
     .salutation-line {
-      margin-bottom: 6mm;
+      margin-bottom: 5mm;
     }
     .letter-body {
-      margin-bottom: 10mm;
+      margin-bottom: 8mm;
     }
     .closing-line {
-      margin-top: 10mm;
+      margin-top: 8mm;
     }
     .signature-block {
-      margin-top: 12mm;
+      margin-top: 10mm;
       page-break-inside: avoid;
     }
     .signature-script {
       display: inline-block;
       font-family: "Allura Signature", "Snell Roundhand", "Brush Script MT", cursive;
-      font-size: 28pt;
+      font-size: 26pt;
       letter-spacing: 0.01em;
       line-height: 0.9;
       color: #222;
-      transform: rotate(-2deg);
+      transform: rotate(-1.5deg);
       transform-origin: left center;
     }
     .signature-name {
-      margin-top: 2.5mm;
-      font-size: 10pt;
+      margin-top: 2mm;
+      font-size: 9.5pt;
       letter-spacing: 0.02em;
-      color: #666;
+      color: #555;
     }
     .letter-paragraph {
-      margin: 0 0 6mm 0;
+      margin: 0 0 4mm 0;
       white-space: pre-wrap;
     }
     .letter-heading-1 {
-      font-size: 16pt;
+      font-size: 15pt;
       font-weight: 700;
-      margin: 0 0 5mm 0;
+      margin: 2mm 0 4mm 0;
     }
     .letter-heading-2 {
-      font-size: 13pt;
+      font-size: 12.5pt;
       font-weight: 700;
-      margin: 0 0 4mm 0;
+      margin: 2mm 0 3mm 0;
     }
     .letter-heading-3 {
-      font-size: 11pt;
+      font-size: 10.5pt;
       font-weight: 700;
-      margin: 0 0 3mm 0;
+      margin: 1mm 0 2mm 0;
     }
     .letter-list {
-      margin: 0 0 6mm 24px;
+      margin: 0 0 4mm 20px;
       padding: 0;
     }
     .letter-list li {
-      margin-bottom: 2mm;
+      margin-bottom: 1.5mm;
     }
     .letter-table {
       width: 100%;
       border-collapse: collapse;
-      margin: 0 0 6mm 0;
+      margin: 0 0 5mm 0;
+      font-size: 9.5pt;
     }
     .letter-table th,
     .letter-table td {
       border: 1px solid #d1d5db;
-      padding: 6px 8px;
+      padding: 5px 7px;
       vertical-align: top;
     }
     .letter-table th {
       background: #f3f4f6;
       text-align: left;
+      font-weight: 600;
     }
     .enclosure-note {
-      font-size: 9pt;
+      font-size: 8.5pt;
       color: #666;
-      margin-top: 15mm;
-      border-top: 1px solid #ccc;
+      margin-top: 12mm;
+      border-top: 0.5px solid #ccc;
       padding-top: 3mm;
     }
   </style>
 </head>
 <body>
-  <div class="letter-header">
-    <div class="sender-block">${senderBlock}</div>
-    <div class="recipient-date-block">
-      <div class="recipient-block">${recipientBlock}</div>
-      <div class="date-line">${escapeHtml(placeAndDate)}</div>
-    </div>
-  </div>
+  ${senderOneLiner ? `<div class="sender-line">${escapeHtml(senderOneLiner)}</div>` : ""}
+  <div class="recipient-block">${recipientBlock}</div>
+  <div class="date-line">${escapeHtml(placeAndDate)}</div>
   ${data.subject ? `<div class="subject-line">${escapeHtml(data.subject)}</div>` : ""}
   ${hasLetterContent ? `<div class="salutation-line">${escapeHtml(salutation)}</div>` : ""}
   <div class="letter-body">${renderDocumentHtml(document)}</div>

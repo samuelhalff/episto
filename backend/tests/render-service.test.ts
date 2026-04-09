@@ -326,11 +326,9 @@ describe("render.service", () => {
     await renderSnapshotToPdf("snapshot-3");
 
     const html = String(mocks.page.setContent.mock.calls.at(-1)?.[0] ?? "");
-    expect(html).toContain(".sender-block");
+    expect(html).toContain(".sender-line");
     expect(html).toContain(".recipient-block");
     expect(html).toContain(".date-line");
-    expect(html).toContain("width: 80mm");
-    expect(html).toContain("margin-left: auto");
     expect(html).toContain("text-align: right");
     expect(html).toContain("Sam Sender");
     expect(html).toContain("Receiver AG");

@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { z } from "zod";
 import { eq, or, ilike } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { AppError } from "../../shared/errors/index.js";
@@ -6,6 +7,11 @@ import { recordSupportEvent } from "./index.js";
 import { createRefund } from "../payments/adapters/stripe.adapter.js";
 import { transitionPaymentState } from "../payments/payment.service.js";
 import type { AdminSearchResponse, AdminSearchResultItem } from "@swiss-mail/shared";
+
+const RefundBody = z.object({
+  reason: z.string().min(1).max(500),
+  notifyCustomer: z.boolean().optional(),
+});
 
 // ---------------------------------------------------------------------------
 // Admin action & search routes (split from admin.routes.ts per file-size rules)
@@ -194,21 +200,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { id } = request.params;
 
-      const body = request.body as
-        | { reason?: string | undefined; notifyCustomer?: boolean | undefined }
-        | null
-        | undefined;
-      if (
-        !body?.reason ||
-        typeof body.reason !== "string" ||
-        body.reason.length < 1 ||
-        body.reason.length > 500
-      ) {
-        reply
-          .status(400)
-          .send({ error: "reason is required (1-500 chars)" });
-        return;
-      }
+      const body = RefundBody.parse(request.body);
 
       const [draft] = await db
         .select()

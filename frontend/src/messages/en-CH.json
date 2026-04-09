@@ -990,6 +990,10 @@
       "title": "Health",
       "description": "Check service status, queue pressure, and recent payment or dispatch activity."
     },
+    "retention": {
+      "title": "Retention",
+      "description": "Review data retention status, pending expirations, and cleanup activity."
+    },
     "funnel": {
       "title": "Funnel analysis",
       "description": "Understand conversion drop-off and error concentration before changing the product flow."
