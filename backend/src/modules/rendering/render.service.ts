@@ -206,6 +206,7 @@ export function renderLetterHtml(data: SnapshotData): string {
         sender.company,
         [sender.firstName, sender.lastName].filter(Boolean).join(" "),
         sender.addressLine1,
+        sender.addressLine2,
         `${sender.postalCode} ${sender.city}`,
       ]
         .filter(Boolean)

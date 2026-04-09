@@ -77,6 +77,72 @@ describe("regression: PDF letter template renders all elements", () => {
     expect(html).toContain("8001 Zurich");
   });
 
+  it("includes sender.addressLine2 in the sender one-liner when present", async () => {
+    const { renderLetterHtml } = await import(
+      "../src/modules/rendering/render.service.js"
+    );
+    const html = renderLetterHtml(
+      makeSnapshotData({
+        sender: {
+          firstName: "Anna",
+          lastName: "Mueller",
+          company: "Mueller GmbH",
+          addressLine1: "Bahnhofstrasse 10",
+          addressLine2: "Postfach 42",
+          postalCode: "8001",
+          city: "Zurich",
+          country: "CH",
+        },
+      }),
+    );
+
+    expect(html).toContain("Postfach 42");
+    // Verify it's in the sender one-liner, not just anywhere
+    const senderLineMatch = html.match(/<div class="sender-line">[^<]+<\/div>/);
+    expect(senderLineMatch).not.toBeNull();
+    expect(senderLineMatch![0]).toContain("Postfach 42");
+  });
+
+  it("omits sender.addressLine2 from one-liner when null", async () => {
+    const { renderLetterHtml } = await import(
+      "../src/modules/rendering/render.service.js"
+    );
+    const html = renderLetterHtml(
+      makeSnapshotData({
+        sender: {
+          firstName: "Solo",
+          lastName: "Person",
+          company: null,
+          addressLine1: "Street 1",
+          addressLine2: null,
+          postalCode: "8000",
+          city: "Zurich",
+          country: "CH",
+        },
+      }),
+    );
+
+    const senderLineMatch = html.match(/<div class="sender-line">[^<]+<\/div>/);
+    expect(senderLineMatch).not.toBeNull();
+    // Should not have double separators from null being filtered
+    expect(senderLineMatch![0]).not.toContain("\u00B7 \u00B7");
+  });
+
+  it("includes recipient.addressLine2 in the recipient block when present", async () => {
+    const { renderLetterHtml } = await import(
+      "../src/modules/rendering/render.service.js"
+    );
+    const html = renderLetterHtml(makeSnapshotData());
+
+    // Default fixture has addressLine2: "Postfach 100"
+    expect(html).toContain("Postfach 100");
+    const recipientBlockMatch = html.match(
+      /<div class="recipient-block">[\s\S]*?<\/div>/,
+    );
+    expect(recipientBlockMatch).not.toBeNull();
+    expect(recipientBlockMatch![0]).toContain("Postfach 100");
+  });
+
   it("renders the full recipient block with company, department, name, and address", async () => {
     const { renderLetterHtml } = await import(
       "../src/modules/rendering/render.service.js"
