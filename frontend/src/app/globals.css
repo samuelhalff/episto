@@ -226,13 +226,11 @@
     @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98];
     background-color: var(--action-secondary-bg);
     color: var(--action-secondary-fg);
-    outline: 1px solid var(--action-secondary-border);
   }
 
   .btn-secondary:hover {
     background-color: var(--action-secondary-hover);
     color: var(--app-fg);
-    outline-color: var(--app-border-strong);
   }
 
   .btn-secondary:disabled {
@@ -336,7 +334,6 @@
   .app-toolbar-button[data-state="open"] {
     background-color: var(--app-surface-soft);
     color: var(--app-fg);
-    outline: 1px solid var(--app-border);
   }
 
   .app-toolbar-button:disabled {

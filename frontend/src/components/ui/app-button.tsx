@@ -55,7 +55,7 @@ export function getAppButtonClassName(options?: {
 
   return [
     variantClass,
-    "inline-flex min-w-0 items-center justify-center gap-2 font-semibold shadow-sm transition-all duration-200",
+    "inline-flex min-w-0 items-center justify-center gap-2 font-semibold transition-all duration-200",
     SIZE_CLASSNAMES[size],
     fullWidth ? "w-full" : "",
     className,
