@@ -26,6 +26,7 @@ import {
   type DraftWorkspaceStepSlug,
   getDraftWorkspacePath,
   getDraftWorkspaceStepIndex,
+  getDraftWorkspaceStepSlugFromPathname,
   getDraftWorkspaceUnlockedStepIndex,
   getNextDraftWorkspaceStep,
   isDraftWorkspaceStepLocked,
@@ -113,7 +114,6 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const unlockedStepIndex = getDraftWorkspaceUnlockedStepIndex(draft.data);
   const currentStep = Math.min(requestedStepIndex, unlockedStepIndex);
   const currentStepSlug = getDraftWorkspaceStepSlugByIndex(currentStep);
-  const nextStepSlug = getNextDraftWorkspaceStep(currentStep);
   const previousFlowStep = getPreviousCustomerFlowStep(currentStepSlug);
   const previousStepSlug = isDraftWorkspaceCustomerFlowStep(previousFlowStep) ? previousFlowStep : undefined;
   const previousStepLabel =
@@ -207,10 +207,13 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   }, []);
 
   const handleNext = useCallback(() => {
-    if (!nextStepSlug) return;
+    const slug = getDraftWorkspaceStepSlugFromPathname(window.location.pathname);
+    const idx = getDraftWorkspaceStepIndex(slug);
+    const target = getNextDraftWorkspaceStep(idx);
+    if (!target) return;
     setIsNavigating(true);
-    router.push(getDraftWorkspacePath(draftId, nextStepSlug));
-  }, [draftId, nextStepSlug, router]);
+    router.push(getDraftWorkspacePath(draftId, target));
+  }, [draftId, router]);
 
   const handlePrevious = useCallback(() => {
     if (!previousStepSlug) return;

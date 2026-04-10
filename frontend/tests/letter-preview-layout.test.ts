@@ -16,16 +16,23 @@ describe("letter preview layout", () => {
     expect(letterPreviewSource).toContain("aspect-[210/297]");
   });
 
-  it("uses the reviewed postal geometry instead of a loose stacked preview", () => {
+  it("uses a flow-based grid layout with semantic class names", () => {
     expect(letterPreviewSource).toContain("letter-layout-shell");
+    expect(letterPreviewSource).toContain("letter-header");
     expect(letterPreviewSource).toContain("sender-block");
     expect(letterPreviewSource).toContain("dispatch-line");
     expect(letterPreviewSource).toContain("recipient-block");
     expect(letterPreviewSource).toContain("right-meta");
-    expect(letterPreviewSource).toContain("width: mmToPreviewWidth(80)");
-    expect(letterPreviewSource).toContain("left: mmToPreviewWidth(121)");
-    expect(letterPreviewSource).toContain("top: mmToPreviewHeight(56)");
-    expect(letterPreviewSource).not.toContain("sender-line");
+    expect(letterPreviewSource).toContain("body-flow");
+    expect(letterPreviewSource).toContain("gridTemplateColumns");
+    expect(letterPreviewSource).not.toContain("position: absolute");
+    expect(letterPreviewSource).not.toContain('"absolute"');
+  });
+
+  it("uses mmPct helper for all spacing instead of absolute positioning", () => {
+    expect(letterPreviewSource).toContain("function mmPct(");
+    expect(letterPreviewSource).toContain("mmPct(");
+    expect(letterPreviewSource).not.toContain("mmToPreviewHeight");
   });
 
   it("renders signatures as a handwritten block with a typed name underneath", () => {

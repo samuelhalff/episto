@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Loader2, RefreshCw, X } from "lucide-react";
+import { Expand, Loader2, RefreshCw, X } from "lucide-react";
 import { useDraft } from "../../../hooks/use-api";
 import { useLetterPreview } from "../../../hooks/use-letter-preview";
 import { LetterPreview } from "../LetterPreview";
+import { LetterPreviewModal } from "../LetterPreviewModal";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 
 interface WorkspacePreviewPaneProps {
@@ -25,6 +26,7 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
   const shouldShowPreviewContent = Boolean(draft.data) || Boolean(previewData);
 
   const [transitionsEnabled, setTransitionsEnabled] = useState(false);
+  const [showZoomModal, setShowZoomModal] = useState(false);
   useEffect(() => {
     const id = requestAnimationFrame(() => setTransitionsEnabled(true));
     return () => cancelAnimationFrame(id);
@@ -61,14 +63,24 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
             </span>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
-          aria-label={tc("close")}
-        >
-          <X className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setShowZoomModal(true)}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+            aria-label={t("expandPreview")}
+          >
+            <Expand className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="inline-flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+            aria-label={tc("close")}
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       <ScrollShadowViewport surface="muted" className="min-h-0 flex-1 overflow-y-auto px-4 pb-6">
@@ -117,6 +129,13 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
           </div>
         )}
       </ScrollShadowViewport>
+
+      {showZoomModal ? (
+        <LetterPreviewModal
+          draftId={draftId}
+          onClose={() => setShowZoomModal(false)}
+        />
+      ) : null}
     </div>
   );
 }

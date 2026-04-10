@@ -105,7 +105,7 @@ export function LogisticsStep({
   }
 
   async function handleReview() {
-    if (reviewDraft.isPending || isNavigating) return;
+    if (reviewDraft.isPending || isNavigating || isDeliverySelectionPending) return;
     try {
       const reviewUpdates: {
         subject?: string;
@@ -171,8 +171,8 @@ export function LogisticsStep({
       primaryAction={
         <PrimaryButton
           onClick={handleReview}
-          disabled={!canReview || reviewDraft.isPending}
-          loading={reviewDraft.isPending || Boolean(isNavigating)}
+          disabled={!canReview || reviewDraft.isPending || isDeliverySelectionPending}
+          loading={reviewDraft.isPending || isDeliverySelectionPending || Boolean(isNavigating)}
           tone={canReview ? "primary" : "warning"}
           hideIcon={!canReview}
         >

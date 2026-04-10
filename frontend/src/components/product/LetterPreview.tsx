@@ -53,14 +53,15 @@ interface LetterPreviewProps {
 }
 
 const LETTER_PAGE_WIDTH_MM = 210;
-const LETTER_PAGE_HEIGHT_MM = 297;
 
-function mmToPreviewWidth(value: number): string {
+/**
+ * Convert mm to a CSS percentage relative to the A4 page width (210 mm).
+ * In a container with aspect-[210/297], this works for BOTH horizontal and
+ * vertical spacing because CSS resolves padding/margin percentages against
+ * the containing block width.
+ */
+function mmPct(value: number): string {
   return `${(value / LETTER_PAGE_WIDTH_MM) * 100}%`;
-}
-
-function mmToPreviewHeight(value: number): string {
-  return `${(value / LETTER_PAGE_HEIGHT_MM) * 100}%`;
 }
 
 export function LetterPreview({
@@ -122,12 +123,12 @@ export function LetterPreview({
         className={`rounded-3xl bg-[var(--app-surface-strong)] shadow-sm ${
           isImmersive
             ? "flex h-full flex-col rounded-none p-0 sm:rounded-3xl sm:p-4 lg:p-6"
-            : "p-5 sm:p-6 lg:p-8"
+            : "p-4 sm:p-5 lg:p-6"
         }`}
         style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
       >
         {!isImmersive && showHeader ? (
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--app-border)] pb-4">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--app-border)] pb-3">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
                 {t("preview")}
@@ -144,116 +145,119 @@ export function LetterPreview({
         <div
           className={`rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] dark:bg-[linear-gradient(180deg,#151c25_0%,#10161f_100%)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] ${
             isImmersive
-              ? "flex min-h-0 flex-1 rounded-none p-4 sm:rounded-2xl sm:p-6 lg:p-8"
-              : "aspect-[210/297] p-5 sm:p-6"
+              ? "flex min-h-0 flex-1 rounded-none p-3 sm:rounded-2xl sm:p-5 lg:p-6"
+              : "aspect-[210/297] p-3 sm:p-4"
           }`}
         >
           <div
-            className={`letter-layout-shell relative w-full text-sm text-zinc-700 ${
-              isImmersive ? "flex min-h-[640px] flex-1 flex-col" : "min-h-[560px]"
+            className={`letter-layout-shell w-full text-zinc-700 ${
+              isImmersive ? "flex min-h-[640px] flex-1 flex-col" : "flex min-h-[400px] flex-col"
             }`}
           >
+            {/* Header grid: sender (left) | gap | dispatch+recipient (right) */}
             <div
-              className="sender-block absolute"
+              className="letter-header grid items-start"
               style={{
-                top: mmToPreviewHeight(20),
-                left: mmToPreviewWidth(25),
-                width: mmToPreviewWidth(80),
+                gridTemplateColumns: `${mmPct(80)} 1fr ${mmPct(59)}`,
+                paddingTop: mmPct(16),
+                paddingLeft: mmPct(20),
+                paddingRight: mmPct(22),
               }}
             >
-              <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
-                <div className="text-[0.72rem] leading-[1.45]">
-                  {senderProfile ? (
-                    <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
-                      {senderLines.map((line, index) => (
-                        <div
-                          key={`${line}-${index}`}
-                          className={index === 0 ? "font-semibold" : "font-medium"}
-                        >
-                          {line}
-                        </div>
-                      ))}
-                    </div>
-                  ) : draft.senderProfileId ? (
-                    <span className="text-zinc-600 dark:text-zinc-300">
-                      &#x2709; {t("senderLabel")}
-                    </span>
-                  ) : (
-                    <span className="italic text-zinc-400 dark:text-zinc-500">
-                      {t("senderPlaceholder")}
-                    </span>
-                  )}
-                </div>
-              </ZoneBlock>
-            </div>
+              <div className="sender-block">
+                <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
+                  <div className="text-[0.6rem] leading-[1.5] sm:text-[0.65rem]">
+                    {senderProfile ? (
+                      <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
+                        {senderLines.map((line, index) => (
+                          <div
+                            key={`${line}-${index}`}
+                            className={index === 0 ? "font-semibold" : "font-medium"}
+                          >
+                            {line}
+                          </div>
+                        ))}
+                      </div>
+                    ) : draft.senderProfileId ? (
+                      <span className="text-zinc-600 dark:text-zinc-300">
+                        &#x2709; {t("senderLabel")}
+                      </span>
+                    ) : (
+                      <span className="italic text-zinc-400 dark:text-zinc-500">
+                        {t("senderPlaceholder")}
+                      </span>
+                    )}
+                  </div>
+                </ZoneBlock>
+              </div>
 
-            <div
-              className="dispatch-line absolute"
-              style={{
-                top: mmToPreviewHeight(40),
-                left: mmToPreviewWidth(121),
-                width: mmToPreviewWidth(59),
-              }}
-            >
-              <div className="border-b border-current pb-0.5 text-[0.62rem] font-bold tracking-[0.18em] text-zinc-700 dark:text-zinc-200">
-                {deliveryLine}
+              {/* Spacer column */}
+              <div />
+
+              {/* Right column: dispatch → recipient (flow stack) */}
+              <div
+                className="recipient-col flex flex-col"
+                style={{ paddingTop: mmPct(16) }}
+              >
+                <div className="dispatch-line">
+                  <div className="border-b border-current pb-0.5 text-[0.55rem] font-bold tracking-[0.16em] text-zinc-700 dark:text-zinc-200 sm:text-[0.58rem]">
+                    {deliveryLine}
+                  </div>
+                </div>
+                <div
+                  className="recipient-block"
+                  style={{ marginTop: mmPct(3), minHeight: mmPct(20) }}
+                >
+                  <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
+                    <div className="text-[0.65rem] leading-[1.4] text-left sm:text-[0.72rem]">
+                      {recipientProfile ? (
+                        <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
+                          {recipientLines.map((line, index) => (
+                            <div
+                              key={`${line}-${index}`}
+                              className={index === 0 ? "font-medium" : undefined}
+                            >
+                              {line}
+                            </div>
+                          ))}
+                        </div>
+                      ) : draft.recipientProfileId ? (
+                        <span className="text-zinc-600 dark:text-zinc-300">
+                          {t("recipientLabel")}
+                        </span>
+                      ) : (
+                        <span className="italic text-zinc-400 dark:text-zinc-500">
+                          {t("recipientPlaceholder")}
+                        </span>
+                      )}
+                    </div>
+                  </ZoneBlock>
+                </div>
               </div>
             </div>
 
+            {/* Date: right-aligned, flows below header */}
             <div
-              className="recipient-block absolute"
+              className="right-meta"
               style={{
-                top: mmToPreviewHeight(56),
-                left: mmToPreviewWidth(121),
-                width: mmToPreviewWidth(59),
+                marginTop: mmPct(8),
+                paddingLeft: mmPct(100),
+                paddingRight: mmPct(22),
               }}
             >
-              <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
-                <div className="text-[0.8rem] leading-[1.35] text-left">
-                  {recipientProfile ? (
-                    <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
-                      {recipientLines.map((line, index) => (
-                        <div
-                          key={`${line}-${index}`}
-                          className={index === 0 ? "font-medium" : undefined}
-                        >
-                          {line}
-                        </div>
-                      ))}
-                    </div>
-                  ) : draft.recipientProfileId ? (
-                    <span className="text-zinc-600 dark:text-zinc-300">
-                      {t("recipientLabel")}
-                    </span>
-                  ) : (
-                    <span className="italic text-zinc-400 dark:text-zinc-500">
-                      {t("recipientPlaceholder")}
-                    </span>
-                  )}
-                </div>
-              </ZoneBlock>
-            </div>
-
-            <div
-              className="right-meta absolute"
-              style={{
-                top: mmToPreviewHeight(91),
-                left: mmToPreviewWidth(121),
-                width: mmToPreviewWidth(59),
-              }}
-            >
-              <div className="date-line text-[0.72rem] text-zinc-500 dark:text-zinc-400">
+              <div className="date-line text-right text-[0.6rem] text-zinc-500 dark:text-zinc-400 sm:text-[0.65rem]">
                 {placeAndDate}
               </div>
             </div>
 
+            {/* Body: flows naturally below date */}
             <div
               className="body-flow flex h-full flex-col"
               style={{
-                paddingTop: mmToPreviewHeight(118),
-                paddingRight: mmToPreviewWidth(20),
-                paddingBottom: mmToPreviewHeight(20),
-                paddingLeft: mmToPreviewWidth(25),
+                marginTop: mmPct(8),
+                paddingRight: mmPct(18),
+                paddingBottom: mmPct(16),
+                paddingLeft: mmPct(20),
               }}
             >
               {editingZone === "subject" ? (
@@ -265,7 +269,7 @@ export function LetterPreview({
                 />
               ) : (
                 <ZoneBlock zone="subject" isEditing={false} onZoneClick={onZoneClick}>
-                  <div className="font-semibold text-zinc-900 dark:text-zinc-50">
+                  <div className="text-[0.72rem] font-semibold text-zinc-900 dark:text-zinc-50 sm:text-[0.8rem]">
                     {draft.subject ?? (
                       <span className="font-normal italic text-zinc-400 dark:text-zinc-500">
                         {t("subjectPlaceholder")}
@@ -276,7 +280,7 @@ export function LetterPreview({
               )}
 
               {hasLetterContent ? (
-                <div className="mt-6 text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
+                <div className="mt-4 text-[0.68rem] leading-relaxed text-zinc-700 dark:text-zinc-200 sm:text-[0.75rem]">
                   {salutation}
                 </div>
               ) : null}
@@ -291,7 +295,7 @@ export function LetterPreview({
                 />
               ) : (
                 <ZoneBlock zone="body" isEditing={false} onZoneClick={onZoneClick}>
-                  <div className="mt-6 space-y-4 leading-relaxed">
+                  <div className="mt-4 space-y-3 text-[0.68rem] leading-relaxed sm:text-[0.75rem]">
                     {hasLetterContent ? (
                       <DocumentPreview document={document} />
                     ) : (
@@ -304,23 +308,23 @@ export function LetterPreview({
               )}
 
               {hasLetterContent ? (
-                <div className="pt-6 text-sm leading-relaxed text-zinc-700 dark:text-zinc-200">
+                <div className="pt-4 text-[0.68rem] leading-relaxed text-zinc-700 dark:text-zinc-200 sm:text-[0.75rem]">
                   {closing}
                 </div>
               ) : null}
 
               {draft.enclosureNote && (
-                <div className="mt-10 border-t border-[var(--app-border)] pt-4 text-xs italic text-zinc-500 dark:text-zinc-400">
+                <div className="mt-8 border-t border-[var(--app-border)] pt-3 text-[0.6rem] italic text-zinc-500 dark:text-zinc-400">
                   {draft.enclosureNote}
                 </div>
               )}
 
               {shouldShowGeneratedSignature ? (
-                <div className="pt-8">
+                <div className="pt-6">
                   <p className="signature-script text-zinc-700 dark:text-zinc-100">
                     {signatureDisplayName}
                   </p>
-                  <p className="signature-name mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+                  <p className="signature-name mt-2 text-[0.68rem] text-zinc-500 dark:text-zinc-400 sm:text-[0.75rem]">
                     {signatureDisplayName}
                   </p>
                 </div>
