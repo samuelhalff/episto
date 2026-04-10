@@ -195,7 +195,7 @@ export function LetterPreview({
                 width: mmToPreviewWidth(59),
               }}
             >
-              <div className="border-b border-current pb-0.5 text-[0.62rem] font-bold tracking-[0.18em] text-zinc-700 dark:text-zinc-200">
+              <div className="overflow-hidden text-ellipsis whitespace-nowrap border-b border-current pb-0.5 text-[0.62rem] font-bold tracking-[0.18em] text-zinc-700 dark:text-zinc-200">
                 {deliveryLine}
               </div>
             </div>
@@ -203,7 +203,7 @@ export function LetterPreview({
             <div
               className="recipient-block absolute"
               style={{
-                top: mmToPreviewHeight(52),
+                top: mmToPreviewHeight(56),
                 left: mmToPreviewWidth(121),
                 width: mmToPreviewWidth(59),
               }}
@@ -237,7 +237,7 @@ export function LetterPreview({
             <div
               className="right-meta absolute"
               style={{
-                top: mmToPreviewHeight(87),
+                top: mmToPreviewHeight(91),
                 left: mmToPreviewWidth(121),
                 width: mmToPreviewWidth(59),
               }}
@@ -250,7 +250,7 @@ export function LetterPreview({
             <div
               className="body-flow flex h-full flex-col"
               style={{
-                paddingTop: mmToPreviewHeight(114),
+                paddingTop: mmToPreviewHeight(118),
                 paddingRight: mmToPreviewWidth(20),
                 paddingBottom: mmToPreviewHeight(20),
                 paddingLeft: mmToPreviewWidth(25),

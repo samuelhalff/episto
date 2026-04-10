@@ -24,7 +24,7 @@ describe("letter preview layout", () => {
     expect(letterPreviewSource).toContain("right-meta");
     expect(letterPreviewSource).toContain("width: mmToPreviewWidth(80)");
     expect(letterPreviewSource).toContain("left: mmToPreviewWidth(121)");
-    expect(letterPreviewSource).toContain("top: mmToPreviewHeight(52)");
+    expect(letterPreviewSource).toContain("top: mmToPreviewHeight(56)");
     expect(letterPreviewSource).not.toContain("sender-line");
   });
 
