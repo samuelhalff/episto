@@ -83,7 +83,7 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
         </div>
       </div>
 
-      <ScrollShadowViewport surface="muted" className="min-h-0 flex-1 overflow-y-auto px-2 pb-6">
+      <ScrollShadowViewport surface="muted" className="min-h-0 flex-1 overflow-y-auto px-2 pb-6 [scrollbar-gutter:auto]">
         {isLoading && !draft.data ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
