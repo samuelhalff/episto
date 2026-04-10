@@ -206,17 +206,14 @@ export function DraftShell({
                   type="button"
                   onClick={previewPanel.onToggle}
                   aria-label={previewPanel.isVisible ? tc("hidePreview") : tc("showPreview")}
-                  className={getAppButtonClassName({
-                    variant: "ghost",
-                    size: "md",
-                    className: "app-toolbar-button min-h-11 w-11 rounded-2xl p-0 shadow-none",
-                  })}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-2xl px-3.5 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
                 >
                   {previewPanel.isVisible ? (
-                    <EyeOff className="h-4 w-4" />
+                    <EyeOff className="h-5 w-5" />
                   ) : (
-                    <Eye className="h-4 w-4" />
+                    <Eye className="h-5 w-5" />
                   )}
+                  <span>{previewPanel.isVisible ? tc("hidePreview") : tc("showPreview")}</span>
                 </button>
               ) : null}
               <HeaderLanguageMenu />
