@@ -21,7 +21,7 @@ const PopoverContent = React.forwardRef<
       align={align}
       sideOffset={sideOffset}
       className={cx(
-        "menu-popover z-[120] w-[320px] rounded-3xl bg-zinc-50 p-4 shadow-none outline-none ring-1 ring-black/8 dark:bg-zinc-800 dark:ring-white/10 motion-reduce:animate-none",
+        "menu-popover z-[120] w-[320px] rounded-3xl bg-[var(--app-surface-strong)] p-4 outline-none ring-1 ring-[var(--app-border-strong)] motion-reduce:animate-none",
         className,
       )}
       {...props}

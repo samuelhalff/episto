@@ -325,16 +325,18 @@
     @apply inline-flex items-center justify-center transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60 active:scale-[0.98];
     background-color: transparent;
     color: var(--app-muted-strong);
+    box-shadow: none;
   }
 
   .app-toolbar-button:hover {
-    background-color: color-mix(in srgb, var(--app-surface-soft) 88%, transparent);
+    background-color: var(--app-surface-soft);
     color: var(--app-fg);
   }
 
   .app-toolbar-button[data-state="open"] {
-    background-color: color-mix(in srgb, var(--app-surface-soft) 96%, transparent);
+    background-color: var(--app-surface-soft);
     color: var(--app-fg);
+    outline: 1px solid var(--app-border);
   }
 
   .app-toolbar-button:disabled {
