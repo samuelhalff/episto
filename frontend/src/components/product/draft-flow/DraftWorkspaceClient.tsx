@@ -2,6 +2,7 @@
 
 import { startTransition, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { PanelRight } from "lucide-react";
 import { useDraft, useSession } from "../../../hooks/use-api";
 import { useMediaQuery } from "../../../hooks/use-media-query";
 import { useVisualViewport } from "../../../hooks/use-visual-viewport";
@@ -371,11 +372,23 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
           </div>
 
           {isWideViewport ? (
-            <WorkspacePreviewPane
-              draftId={draftId}
-              isOpen={isPreviewPanelVisible}
-              onClose={handleClosePreview}
-            />
+            <>
+              {!isPreviewPanelVisible ? (
+                <button
+                  type="button"
+                  onClick={handleTogglePreview}
+                  className="flex h-full w-10 shrink-0 items-start justify-center border-l border-[var(--app-border)] bg-[var(--app-surface-soft)] pt-3 text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-600 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
+                  aria-label={t("expandPreview")}
+                >
+                  <PanelRight className="h-4 w-4" />
+                </button>
+              ) : null}
+              <WorkspacePreviewPane
+                draftId={draftId}
+                isOpen={isPreviewPanelVisible}
+                onClose={handleClosePreview}
+              />
+            </>
           ) : null}
         </div>
 
