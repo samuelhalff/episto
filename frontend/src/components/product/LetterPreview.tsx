@@ -246,7 +246,6 @@ export function LetterPreview({
                 top: mmToPageCqw(LETTER_LAYOUT_MM.rightMeta.top),
                 left: mmToPageCqw(LETTER_LAYOUT_MM.rightMeta.left),
                 width: mmToPageCqw(LETTER_LAYOUT_MM.rightMeta.width),
-                textAlign: "right",
               }}
             >
               <div
