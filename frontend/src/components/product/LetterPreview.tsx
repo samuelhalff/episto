@@ -123,7 +123,7 @@ export function LetterPreview({
         className={`rounded-3xl bg-[var(--app-surface-strong)] shadow-sm ${
           isImmersive
             ? "flex h-full flex-col rounded-none p-0 sm:rounded-3xl sm:p-4 lg:p-6"
-            : "p-4 sm:p-5 lg:p-6"
+            : "p-2 sm:p-3"
         }`}
         style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
       >
@@ -203,7 +203,7 @@ export function LetterPreview({
               {/* Col 4: dispatch → recipient (flow stack) */}
               <div
                 className="recipient-col flex flex-col"
-                style={{ paddingTop: mmPct(14) }}
+                style={{ paddingTop: mmPct(28) }}
               >
                 <div className="dispatch-line">
                   <div className="border-b border-current pb-0.5 text-[0.55rem] font-bold tracking-[0.1em] text-zinc-700 dark:text-zinc-200 sm:text-[0.58rem]">
