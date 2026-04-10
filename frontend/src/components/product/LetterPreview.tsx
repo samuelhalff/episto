@@ -195,7 +195,7 @@ export function LetterPreview({
                 width: mmToPreviewWidth(59),
               }}
             >
-              <div className="overflow-hidden text-ellipsis whitespace-nowrap border-b border-current pb-0.5 text-[0.62rem] font-bold tracking-[0.18em] text-zinc-700 dark:text-zinc-200">
+              <div className="border-b border-current pb-0.5 text-[0.62rem] font-bold tracking-[0.18em] text-zinc-700 dark:text-zinc-200">
                 {deliveryLine}
               </div>
             </div>

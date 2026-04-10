@@ -208,8 +208,9 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
 
   const handleNext = useCallback(() => {
     if (!nextStepSlug) return;
-    navigateToStep(nextStepSlug);
-  }, [nextStepSlug, navigateToStep]);
+    setIsNavigating(true);
+    router.push(getDraftWorkspacePath(draftId, nextStepSlug));
+  }, [draftId, nextStepSlug, router]);
 
   const handlePrevious = useCallback(() => {
     if (!previousStepSlug) return;
