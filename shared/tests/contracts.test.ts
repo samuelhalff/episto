@@ -99,7 +99,7 @@ function createOrderStatusResponse() {
   return {
     order: {
       draftId: "11111111-1111-4111-8111-111111111111",
-      orderRef: "SM-ABC12345",
+      orderRef: "EP-ABC12345",
       locale: "en-CH" as const,
       payment: {
         state: "captured" as const,
@@ -214,7 +214,7 @@ describe("shared contract schemas", () => {
         attachmentHandling: "single_hint",
         lineItems: [
           { label: "ePost provider quote", amountCents: 625, source: "provider" },
-          { label: "Sendly service", amountCents: 340, source: "swiss_mail" },
+          { label: "Episto service", amountCents: 340, source: "swiss_mail" },
         ],
       },
       meta: {

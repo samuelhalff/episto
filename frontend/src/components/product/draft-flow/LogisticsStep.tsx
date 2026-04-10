@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Check, CheckCircle2, Loader2, Mail, Paperclip, Send } from "lucide-react";
 import {
@@ -19,6 +19,7 @@ import {
 } from "../../../lib/letter-content";
 import { useTheme } from "../../../lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
+import { SignatureSection } from "../SignatureSection";
 import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
@@ -44,7 +45,6 @@ export function LogisticsStep({
   const reviewDraft = useReviewDraft(draftId);
   const preview = useLetterPreview(draftId);
   const pricing = usePricing();
-  const signatureBootstrapRef = useRef(false);
   const [showAttachmentManager, setShowAttachmentManager] = useState(false);
   const [pendingDeliveryType, setPendingDeliveryType] = useState<
     "standard" | "registered" | null
@@ -69,27 +69,39 @@ export function LogisticsStep({
   const standardPrice = pricing.data?.standard?.displayPrice ?? t("priceUnavailable");
   const isDeliverySelectionPending = pendingDeliveryType !== null;
 
+  const currentSignatureMode = draft.data?.signatureMode ?? null;
+  const hasDrawnAsset = Boolean(files.signature);
+
   useEffect(() => {
     if (attachmentCount > 0) {
       setShowAttachmentManager(true);
     }
   }, [attachmentCount]);
 
-  useEffect(() => {
-    if (signatureBootstrapRef.current || !draft.data) {
-      return;
-    }
+  const handleSelectSignatureMode = useCallback(
+    (mode: "typed" | "drawn" | null) => {
+      void updateDraft.mutateAsync({
+        signatureMode: mode,
+        ...(mode === "typed" ? { signatureAssetId: null } : {}),
+      });
+    },
+    [updateDraft],
+  );
 
-    signatureBootstrapRef.current = true;
-    if (draft.data.signatureMode === "typed" && draft.data.signatureAssetId === null) {
-      return;
-    }
+  const handleDrawnSignature = useCallback(
+    (blob: Blob) => {
+      const file = new File([blob], "signature.png", { type: "image/png" });
+      void files.uploadFile(file, "signature");
+    },
+    [files],
+  );
 
-    void updateDraft.mutateAsync({
-      signatureMode: "typed",
-      signatureAssetId: null,
-    });
-  }, [draft.data, updateDraft]);
+  const handleClearDrawn = useCallback(() => {
+    if (files.signature) {
+      void files.removeFile(files.signature.id);
+    }
+    void updateDraft.mutateAsync({ signatureAssetId: null });
+  }, [files, updateDraft]);
 
   async function handleSelectDelivery(type: "standard" | "registered") {
     if (type === deliveryType || isDeliverySelectionPending) {
@@ -109,20 +121,10 @@ export function LogisticsStep({
     try {
       const reviewUpdates: {
         subject?: string;
-        signatureMode?: "typed";
-        signatureAssetId?: string | null;
       } = {};
 
       if (normalizedSubject && normalizedSubject !== draft.data?.subject) {
         reviewUpdates.subject = normalizedSubject;
-      }
-
-      if (draft.data?.signatureMode !== "typed") {
-        reviewUpdates.signatureMode = "typed";
-      }
-
-      if ((draft.data?.signatureAssetId ?? null) !== null) {
-        reviewUpdates.signatureAssetId = null;
       }
 
       if (Object.keys(reviewUpdates).length > 0) {
@@ -322,14 +324,16 @@ export function LogisticsStep({
           </div>
 
           <Card isCompactViewport={isCompactViewport} density="thin">
-            <div className="rounded-[28px] border border-[var(--app-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,249,240,0.92)_100%)] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] dark:bg-[linear-gradient(180deg,rgba(21,28,37,0.96)_0%,rgba(16,22,31,0.92)_100%)]">
-              <p className="signature-script text-zinc-700 dark:text-zinc-100">
-                {signatureDisplayName}
-              </p>
-              <p className="signature-name mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                {signatureDisplayName}
-              </p>
-            </div>
+            <SignatureSection
+              signerName={signatureDisplayName}
+              currentMode={currentSignatureMode as "typed" | "drawn" | null}
+              hasDrawnAsset={hasDrawnAsset}
+              isUploading={files.isUploading}
+              onSelectMode={handleSelectSignatureMode}
+              onDrawnSignature={handleDrawnSignature}
+              onClearDrawn={handleClearDrawn}
+              isCompactViewport={isCompactViewport ?? false}
+            />
           </Card>
         </section>
 

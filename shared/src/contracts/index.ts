@@ -30,7 +30,7 @@ export const UpdateDraftInput = z.object({
   intent: z.string().optional(),
   deliveryType: DeliveryTypeSchema.optional(),
   enclosureNote: z.string().optional(),
-  signatureMode: z.enum(["typed", "image"]).nullable().optional(),
+  signatureMode: z.enum(["typed", "drawn"]).nullable().optional(),
   senderProfileId: z.string().uuid().nullable().optional(),
   recipientProfileId: z.string().uuid().nullable().optional(),
   signatureAssetId: z.string().uuid().nullable().optional(),

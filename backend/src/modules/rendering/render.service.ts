@@ -19,7 +19,7 @@ import { PDFDocument } from "pdf-lib";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { createFileAsset, renderStorageKey } from "../files/file.service.js";
-import { uploadObject } from "../files/adapters/s3.adapter.js";
+import { uploadObject, downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
 import { AppError } from "../../shared/errors/index.js";
 import { createLogger } from "../../shared/logging/index.js";
@@ -216,7 +216,14 @@ function getDeliveryTypeDisplay(
 // HTML letter template (Swiss DIN 5008 / SN 010 130 inspired)
 // ---------------------------------------------------------------------------
 
-export function renderLetterHtml(data: SnapshotData): string {
+export interface RenderLetterHtmlOptions {
+  signatureImageBase64?: string | null;
+}
+
+export function renderLetterHtml(
+  data: SnapshotData,
+  options?: RenderLetterHtmlOptions,
+): string {
   const sender = data.sender;
   const recipient = data.recipient;
   const formattedDate = new Date().toLocaleDateString(data.locale, {
@@ -235,13 +242,19 @@ export function renderLetterHtml(data: SnapshotData): string {
   const hasLetterContent = flattenDocumentModel(document).trim().length > 0;
   const { salutation, closing } = getLetterFraming(data.locale);
   const signatureName = getSenderSignatureName(sender);
-  const signatureBlock =
-    data.signatureMode && signatureName
-      ? `<div class="signature-block">
+
+  let signatureBlock = "";
+  if (data.signatureMode === "drawn" && options?.signatureImageBase64) {
+    signatureBlock = `<div class="signature-block">
+  <img class="signature-image" src="data:image/png;base64,${options.signatureImageBase64}" alt="Signature" />
+  <div class="signature-name">${escapeHtml(signatureName)}</div>
+</div>`;
+  } else if (data.signatureMode && signatureName) {
+    signatureBlock = `<div class="signature-block">
   <div class="signature-script">${escapeHtml(signatureName)}</div>
   <div class="signature-name">${escapeHtml(signatureName)}</div>
-</div>`
-      : "";
+</div>`;
+  }
   const senderBlock = renderAddressBlockHtml(getAddressBlockLines(sender, "sender"));
   const recipientBlock = renderAddressBlockHtml(
     getAddressBlockLines(recipient, "recipient"),
@@ -353,6 +366,11 @@ export function renderLetterHtml(data: SnapshotData): string {
       color: ${LETTER_COLORS.signatureScript};
       transform: rotate(-1.5deg);
       transform-origin: left center;
+    }
+    .signature-image {
+      max-height: 18mm;
+      max-width: 60mm;
+      object-fit: contain;
     }
     .signature-name {
       margin-top: ${LETTER_LAYOUT_MM.signatureName.marginTop}mm;
@@ -632,10 +650,25 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
     snapshot.snapshotData,
   );
 
-  // 2. Render HTML
-  const html = renderLetterHtml(snapshotData);
+  // 2. Load drawn signature image if needed
+  let signatureImageBase64: string | null = null;
+  if (snapshotData.signatureMode === "drawn" && snapshotData.signatureAssetId) {
+    const [signatureAsset] = await db
+      .select({ storageKey: schema.fileAssets.storageKey })
+      .from(schema.fileAssets)
+      .where(eq(schema.fileAssets.id, snapshotData.signatureAssetId))
+      .limit(1);
 
-  // 3. Generate PDF via Puppeteer
+    if (signatureAsset) {
+      const { buffer } = await downloadObjectBuffer(signatureAsset.storageKey);
+      signatureImageBase64 = buffer.toString("base64");
+    }
+  }
+
+  // 3. Render HTML
+  const html = renderLetterHtml(snapshotData, { signatureImageBase64 });
+
+  // 4. Generate PDF via Puppeteer
   const { pdfBuffer, pageCount } = await renderPdfBufferFromHtml(html);
 
   // 4. Upload to storage

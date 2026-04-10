@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Sendly",
+    "appName": "Episto",
     "loading": "Wird geladen…",
     "error": "Ein Fehler ist aufgetreten",
     "tryAgain": "Erneut versuchen",
@@ -31,7 +31,7 @@
     "showPreview": "Vorschau anzeigen",
     "hidePreview": "Vorschau ausblenden",
     "refresh": "Aktualisieren",
-    "privacyNoticeBody": "Sendly verwendet ein einziges notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Drittanbieter-Analysen.",
+    "privacyNoticeBody": "Episto verwendet ein einziges notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Drittanbieter-Analysen.",
     "privacyPolicy": "Datenschutz",
     "dismissPrivacyNotice": "Datenschutzhinweis ausblenden"
   },
@@ -57,14 +57,14 @@
     "useCaseLease": "Mietvertrag kündigen",
     "useCaseComplaint": "Formelle Beschwerde einreichen",
     "useCaseAuthority": "An eine Behörde schreiben",
-    "trustTitle": "Warum Sendly",
+    "trustTitle": "Warum Episto",
     "trustSwissPost": "Zustellung durch die Schweizerische Post",
     "trustSecure": "Sicher & verschlüsselt",
     "trustNoAccount": "Kein Konto erforderlich",
     "pricingTitle": "Einfache, transparente Preise",
     "pricingFrom": "Ab {price} pro Brief",
     "pricingFromFallback": "Transparente Preise pro Brief",
-    "pricingNotes": "Referenztotal basierend auf {printedPages} gedruckter Seite, {physicalSheets} A4-Blatt, {envelopeFormat}-Couvert plus {service} Sendly Service.",
+    "pricingNotes": "Referenztotal basierend auf {printedPages} gedruckter Seite, {physicalSheets} A4-Blatt, {envelopeFormat}-Couvert plus {service} Episto Service.",
     "pricingNotesFallback": "Standard- und Einschreiben-Preise werden vor der Zahlung gezeigt.",
     "ctaTitle": "Bereit, Ihren Brief zu versenden?",
     "ctaButton": "Jetzt schreiben",
@@ -79,15 +79,15 @@
       "terms": "AGB",
       "imprint": "Impressum",
       "help": "Hilfe",
-      "copyright": "© 2025 Sendly. Alle Rechte vorbehalten."
+      "copyright": "© 2025 Episto. Alle Rechte vorbehalten."
     },
-    "appName": "Sendly",
+    "appName": "Episto",
     "homepage": {
       "hero": {
         "badge": "Für wichtige Briefe gemacht",
         "title": "Wichtige Briefe — professionell vorbereitet, bereit zum Versand",
         "subtitle": "Beschreiben Sie Ihr Anliegen. Wir führen Sie zu einem klaren, formellen Brief, den Sie vor dem Versand in Ruhe prüfen können.",
-        "body": "Sendly hilft Ihnen, ernsthafte Korrespondenz ohne Postschalter-Umweg sauber vorzubereiten — vom ersten Entwurf bis zur postalischen Aufgabe in der Schweiz.",
+        "body": "Episto hilft Ihnen, ernsthafte Korrespondenz ohne Postschalter-Umweg sauber vorzubereiten — vom ersten Entwurf bis zur postalischen Aufgabe in der Schweiz.",
         "primaryCta": "Jetzt Brief schreiben",
         "secondaryCta": "So funktioniert es",
         "proof": "Kein Konto erforderlich · Klarer Total vor der Zahlung · Datenschutzbewusste Infrastruktur"
@@ -120,7 +120,7 @@
       "confidence": {
         "eyebrow": "Warum es Vertrauen schafft",
         "title": "Mehr Sicherheit vor dem Senden",
-        "intro": "Sendly ersetzt nicht Ihre Entscheidung — es gibt Ihrem Brief einen professionellen Rahmen und lässt Ihnen vor dem Versand die Kontrolle.",
+        "intro": "Episto ersetzt nicht Ihre Entscheidung — es gibt Ihrem Brief einen professionellen Rahmen und lässt Ihnen vor dem Versand die Kontrolle.",
         "cards": {
           "structured": {
             "title": "Klar strukturiert",
@@ -160,7 +160,7 @@
     }
   },
   "howItWorks": {
-    "title": "So funktioniert Sendly",
+    "title": "So funktioniert Episto",
     "subtitle": "Drei einfache Schritte, um einen professionellen Brief zu versenden.",
     "stepLabel": "Schritt {number}",
     "step1Detail": "Teilen Sie uns mit, welche Art von Brief Sie benötigen. Wir führen Sie durch die Struktur und bereiten einen formellen Brief im korrekten Schweizer Format vor.",
@@ -188,7 +188,7 @@
     "registeredAddonLabel": "Einschreiben-Aufpreis",
     "registeredTotalLabel": "Total Einschreiben",
     "compositionTitle": "Woraus sich der Preis zusammensetzt",
-    "compositionBody": "Jedes öffentliche Total kombiniert die Sendly Servicegebühr mit dem gespeicherten Provider-Referenztotal für Standard- oder Einschreibenversand.",
+    "compositionBody": "Jedes öffentliche Total kombiniert die Episto Servicegebühr mit dem gespeicherten Provider-Referenztotal für Standard- oder Einschreibenversand.",
     "referenceAssumptionsTitle": "Referenzannahmen",
     "referenceAssumptionsBody": "Diese öffentlichen Beispiele decken Schweizer Inlandbriefe mit den festen Provider-Einstellungen ab, die die gespeicherte Matrix derzeit unterstützt.",
     "assumptionCountryLabel": "Ziel",
@@ -205,7 +205,7 @@
     "syncStaleLabel": "Aktualisierung nötig",
     "syncSourceLabel": "Quelle",
     "syncLastSyncedLabel": "Zuletzt synchronisiert",
-    "syncFreshBody": "Diese öffentlichen Preise stammen aus der neuesten gespeicherten Provider-Synchronisierung, die Sendly verwendet.",
+    "syncFreshBody": "Diese öffentlichen Preise stammen aus der neuesten gespeicherten Provider-Synchronisierung, die Episto verwendet.",
     "syncStaleBody": "Diese öffentlichen Preise stammen aus der letzten erfolgreichen Provider-Synchronisierung und können bis zur nächsten Aktualisierung veraltet sein.",
     "matrixExamplesTitle": "Matrixbasierte Seitenbeispiele",
     "matrixExamplesBody": "Diese Beispieltotale stammen nur aus der gespeicherten Inlandsmatrix ohne Beilagen.",
@@ -213,18 +213,18 @@
     "registeredExamplesTitle": "Einschreiben-Beispiele",
     "pagesColumnLabel": "Seiten",
     "providerQuoteColumnLabel": "Provider-Preis",
-    "totalColumnLabel": "Sendly Total",
-    "serviceCardEyebrow": "Sendly",
-    "serviceCardTitle": "Was Sendly zusätzlich abdeckt",
-    "serviceCardBody": "Die exakte Belastung ist immer das Live-ePost-Angebot für Ihren echten Entwurf plus unsere Sendly Servicegebühr. Die öffentliche Seite bleibt ehrlich, indem sie ein dokumentiertes Referenzszenario statt einer vagen Schätzung verwendet.",
-    "serviceFeeLabel": "Sendly Service",
-    "serviceStandardFeeLabel": "Sendly Service (Standard)",
-    "serviceRegisteredFeeLabel": "Sendly Service (Einschreiben)",
+    "totalColumnLabel": "Episto Total",
+    "serviceCardEyebrow": "Episto",
+    "serviceCardTitle": "Was Episto zusätzlich abdeckt",
+    "serviceCardBody": "Die exakte Belastung ist immer das Live-ePost-Angebot für Ihren echten Entwurf plus unsere Episto Servicegebühr. Die öffentliche Seite bleibt ehrlich, indem sie ein dokumentiertes Referenzszenario statt einer vagen Schätzung verwendet.",
+    "serviceFeeLabel": "Episto Service",
+    "serviceStandardFeeLabel": "Episto Service (Standard)",
+    "serviceRegisteredFeeLabel": "Episto Service (Einschreiben)",
     "providerStandardQuoteLabel": "ePost Standard-Referenz",
     "providerRegisteredQuoteLabel": "ePost Einschreiben-Referenz",
     "pricingTableTitle": "Referenz-Totale",
     "summaryCardTitle": "Klare Totale vor der Zahlung",
-    "summaryCardBody": "Diese öffentlichen Totale stammen aus derselben gespeicherten Preisquelle, die Sendly auch für die Standard- und Einschreiben-Preisvorschau im Produkt verwendet.",
+    "summaryCardBody": "Diese öffentlichen Totale stammen aus derselben gespeicherten Preisquelle, die Episto auch für die Standard- und Einschreiben-Preisvorschau im Produkt verwendet.",
     "checkoutTruth": "Im Checkout wird das exakte Total aus dem Live-Provider-Angebot für Ihren konkreten Entwurf, Seitenumfang, Beilagen und Versandtyp neu berechnet. Wir belasten nicht anhand des Referenzszenarios dieser Seite.",
     "providerCardEyebrow": "ePost Referenz",
     "providerCardTitle": "Offizielle ePost-Einheitspreise",
@@ -238,7 +238,7 @@
     "providerFirstSheetDuplexLabel": "C5-Couvert + erstes A4-Blatt (Duplex)",
     "providerExtraSheetSimplexLabel": "Jedes weitere A4-Blatt (Simplex)",
     "providerExtraSheetDuplexLabel": "Jedes weitere A4-Blatt (Duplex)",
-    "providerVatNote": "ePost veröffentlicht diese B2B-Referenzpreise exkl. MwSt. Sendly bestätigt den finalen Kundentotal vor der Zahlung.",
+    "providerVatNote": "ePost veröffentlicht diese B2B-Referenzpreise exkl. MwSt. Episto bestätigt den finalen Kundentotal vor der Zahlung.",
     "referenceCardEyebrow": "Szenario",
     "referenceCardTitle": "Wovon diese Seite ausgeht",
     "referenceCardBody": "Referenzszenario: {printedPages} gedruckte Seite, {physicalSheets} physisches A4-Blatt, {envelopeFormat}-Couvert, {standardPostage} für Standardpost und {registeredPostage} für Einschreiben.",
@@ -263,7 +263,7 @@
     "comparisonConfirmationRegistered": "Stärkerer Wortlaut erst nach Provider-Bestätigung",
     "comparisonPriceLabel": "Referenzpreis",
     "includedCardEyebrow": "Inbegriffen",
-    "includedCardTitle": "Was der Sendly Service abdeckt",
+    "includedCardTitle": "Was der Episto Service abdeckt",
     "includedCardBody": "Die Servicegebühr ist nicht nur Porto. Sie deckt den gesamten Ablauf vom Entwurf bis zum Versand.",
     "includedDrafting": "Formulierungshilfe und strukturierte Prüfung",
     "includedFormatting": "Schweizer Briefformatierung und finale PDF-Erstellung",
@@ -286,8 +286,8 @@
     "faq3q": "Gibt es Mengenrabatte?",
     "faq3a": "Nicht im MVP. Die Preise gelten pro Brief und werden vor der Zahlung klar angezeigt.",
     "faq4q": "Ist die MwSt in den angezeigten Preisen enthalten?",
-    "faq4a": "Die Sendly Checkout-Totale werden vor der Zahlung in CHF angezeigt. Die ePost-Einheitsreferenz auf dieser Seite zeigen wir so, wie ePost sie veröffentlicht: exkl. MwSt.",
-    "vatIncludedNote": "Sendly Kundentotale werden in CHF angezeigt und vor der Zahlung bestätigt.",
+    "faq4a": "Die Episto Checkout-Totale werden vor der Zahlung in CHF angezeigt. Die ePost-Einheitsreferenz auf dieser Seite zeigen wir so, wie ePost sie veröffentlicht: exkl. MwSt.",
+    "vatIncludedNote": "Episto Kundentotale werden in CHF angezeigt und vor der Zahlung bestätigt.",
     "noHiddenFees": "Keine versteckten Gebühren",
     "ctaEyebrow": "Ausprobieren",
     "ctaBandTitle": "Probieren Sie es aus. Sie zahlen erst, wenn Sie bereit zum Senden sind.",
@@ -304,7 +304,7 @@
   "legal": {
     "privacyTitle": "Datenschutzerklärung",
     "privacyLastUpdated": "Letzte Aktualisierung: Januar 2025",
-    "privacyIntro": "Diese Datenschutzerklärung erläutert, wie Sendly Ihre personenbezogenen Daten erhebt, nutzt und schützt, wenn Sie unseren Dienst verwenden.",
+    "privacyIntro": "Diese Datenschutzerklärung erläutert, wie Episto Ihre personenbezogenen Daten erhebt, nutzt und schützt, wenn Sie unseren Dienst verwenden.",
     "dataCollectionTitle": "Datenerhebung",
     "dataUsageTitle": "Datenverwendung",
     "dataStorageTitle": "Datenspeicherung und Sicherheit",
@@ -316,7 +316,7 @@
     "legalReviewNote": "Inhalt wird nach rechtlicher Prüfung finalisiert.",
     "termsTitle": "Allgemeine Geschäftsbedingungen",
     "termsLastUpdated": "Letzte Aktualisierung: Januar 2025",
-    "termsIntro": "Diese Allgemeinen Geschäftsbedingungen regeln die Nutzung des Briefversanddienstes von Sendly.",
+    "termsIntro": "Diese Allgemeinen Geschäftsbedingungen regeln die Nutzung des Briefversanddienstes von Episto.",
     "serviceDescTitle": "Leistungsbeschreibung",
     "userObligationsTitle": "Pflichten der Nutzerin / des Nutzers",
     "paymentTermsTitle": "Zahlungsbedingungen",
@@ -325,7 +325,7 @@
     "amendmentsTitle": "Änderungen",
     "imprintTitle": "Impressum",
     "operatedBy": "Dieser Dienst wird betrieben von:",
-    "companyName": "Sendly",
+    "companyName": "Episto",
     "contactEmail": "E-Mail",
     "commercialRegister": "Handelsregister",
     "vatNumber": "Mehrwertsteuernummer",
@@ -364,10 +364,13 @@
     "bodyPlaceholder": "Briefinhalt…",
     "signatureLabel": "Unterschrift",
     "signatureTyped": "Getippt",
-    "signatureImage": "Bild hochladen",
-    "signatureTypedPreview": "Ihre getippte Unterschrift",
-    "signatureUploadPrompt": "Unterschriftsbild hochladen",
-    "signatureUploadHint": "PNG oder JPEG, max. 2 MB",
+    "signatureTypedDesc": "Ihr Name in einer klassischen Schreibschrift",
+    "signatureDrawn": "Zeichnen",
+    "signatureDrawnDesc": "Direkt auf dem Bildschirm unterschreiben",
+    "signatureDrawHint": "Mit dem Finger oder Stift unterschreiben",
+    "signatureClear": "Löschen",
+    "signatureUploading": "Unterschrift wird gespeichert…",
+    "signatureSaved": "Unterschrift gespeichert",
     "startDictation": "Diktat starten",
     "stopDictation": "Diktat stoppen",
     "voicePrimary": "Brief diktieren",
@@ -590,7 +593,7 @@
     "zipPlaceholder": "8000",
     "cityPlaceholder": "Zürich",
     "bodyEmptyHint": "Noch kein Inhalt. Nutzen Sie unten den KI-Prompt, um den Text zu erstellen.",
-    "signatureImageAlt": "Hochgeladene Unterschrift",
+    "signatureImageAlt": "Gezeichnete Unterschrift",
     "signatureFallbackName": "Ihr Name"
   },
   "review": {
@@ -618,7 +621,6 @@
     "readyToSend": "Bereit",
     "needsAttention": "Prüfen",
     "typedSignature": "Getippte Unterschrift",
-    "uploadedSignature": "Hochgeladene Unterschrift",
     "noSignature": "Keine Unterschrift hinzugefügt",
     "noAttachments": "Keine Beilagen",
     "attachmentCount": "{count} Beilage(n)",
@@ -633,7 +635,8 @@
     "calculatingPrice": "Preis wird berechnet…",
     "proceedToPayment": "Kasse",
     "backToDraft": "Zurück",
-    "total": "Total"
+    "total": "Total",
+    "drawnSignature": "Gezeichnete Unterschrift"
   },
   "checkout": {
     "title": "Kasse",
@@ -645,7 +648,7 @@
     "paymentPending": "Zahlungsformular wird geladen…",
     "paymentConfigError": "Das Zahlungssystem ist nicht konfiguriert. Bitte versuchen Sie es später erneut.",
     "consentRequired": "Sie müssen die Nutzungsbedingungen akzeptieren, um fortzufahren.",
-    "legalConsent": "Ich habe die <terms>Nutzungsbedingungen</terms> gelesen und stimme diesen zu. Ich verstehe, dass Sendly keine Rechtsdienstleistung erbringt.",
+    "legalConsent": "Ich habe die <terms>Nutzungsbedingungen</terms> gelesen und stimme diesen zu. Ich verstehe, dass Episto keine Rechtsdienstleistung erbringt.",
     "sendMyLetter": "Bezahlen",
     "securedByStripe": "Gesichert durch Stripe",
     "swissDelivery": "Versand über die Schweizerische Post",
@@ -656,7 +659,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Einschreiben",
     "providerQuoteLabel": "Anbieterpreis",
-    "swissMailServiceLabel": "Sendly Service",
+    "swissMailServiceLabel": "Episto Service",
     "secureCheckout": "Sichere Zahlung über Stripe",
     "paymentHelp": "Stripe verarbeitet die Zahlungsdaten. Wir erfassen selbst keine rohen Kartendaten.",
     "total": "Total",
@@ -871,28 +874,28 @@
   },
   "seo": {
     "home": {
-      "title": "Sendly — Wichtige Briefe online vorbereiten und versenden",
+      "title": "Episto — Wichtige Briefe online vorbereiten und versenden",
       "description": "Verfassen Sie formelle Briefe, prüfen Sie jedes Detail und lösen Sie die postalische Aufgabe in der Schweiz aus — ohne Konto."
     },
     "pricing": {
-      "title": "Preise — Sendly",
-      "description": "Sehen Sie Referenzpreise für Standard und Einschreiben, die Servicegebühr von Sendly und wie der finale Total vor der Zahlung bestätigt wird."
+      "title": "Preise — Episto",
+      "description": "Sehen Sie Referenzpreise für Standard und Einschreiben, die Servicegebühr von Episto und wie der finale Total vor der Zahlung bestätigt wird."
     },
     "help": {
-      "title": "Hilfe — Sendly",
-      "description": "Antworten zu Briefentwurf, Zahlung, Versand, Anhängen und Support bei Sendly."
+      "title": "Hilfe — Episto",
+      "description": "Antworten zu Briefentwurf, Zahlung, Versand, Anhängen und Support bei Episto."
     },
     "privacy": {
-      "title": "Datenschutz — Sendly",
-      "description": "Erfahren Sie, wie Sendly Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
+      "title": "Datenschutz — Episto",
+      "description": "Erfahren Sie, wie Episto Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
     },
     "terms": {
-      "title": "AGB — Sendly",
-      "description": "Lesen Sie die Bedingungen für Nutzung, Bezahlung und Versand mit Sendly."
+      "title": "AGB — Episto",
+      "description": "Lesen Sie die Bedingungen für Nutzung, Bezahlung und Versand mit Episto."
     },
     "imprint": {
-      "title": "Impressum — Sendly",
-      "description": "Betreiberangaben und Kontaktinformationen von Sendly."
+      "title": "Impressum — Episto",
+      "description": "Betreiberangaben und Kontaktinformationen von Episto."
     }
   },
   "admin": {

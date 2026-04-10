@@ -39,7 +39,7 @@ export interface LetterPreviewData {
   enclosureNote: string | null;
   locale: string;
   deliveryType: string;
-  signatureMode: "typed" | "image" | null;
+  signatureMode: "typed" | "drawn" | null;
   signatureFileId: string | null;
   attachmentCount: number;
   priceCents: number | null;

@@ -330,7 +330,7 @@ describe("PaymentAttemptSchema", () => {
       attachmentHandling: "excluded",
       lineItems: [
         { label: "ePost provider quote", amountCents: 165, source: "provider" },
-        { label: "Sendly service", amountCents: 80, source: "swiss_mail" },
+        { label: "Episto service", amountCents: 80, source: "swiss_mail" },
       ],
     },
     failureReason: null,
@@ -602,7 +602,7 @@ describe("PaymentBreakdownSchema", () => {
       attachmentHandling: "excluded",
       lineItems: [
         { label: "ePost provider quote", amountCents: 165, source: "provider" },
-        { label: "Sendly service", amountCents: 80, source: "swiss_mail" },
+        { label: "Episto service", amountCents: 80, source: "swiss_mail" },
       ],
     });
     expect(result.providerQuotedCents).toBe(165);
@@ -644,9 +644,7 @@ describe("PaymentBreakdownSchema", () => {
         totalCents: 120,
         providerQuoteReference: null,
         attachmentHandling: "excluded",
-        lineItems: [
-          { label: "Provider fee", amountCents: -100, source: "provider" },
-        ],
+        lineItems: [{ label: "Provider fee", amountCents: -100, source: "provider" }],
       }),
     ).toThrow();
   });

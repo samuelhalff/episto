@@ -86,17 +86,13 @@ export function ReviewPageReady({
   const hasAttachments = attachmentCount > 0;
   const hasSignature = hasConcreteSignature(signatureMode, signatureFileId);
   const allComplete = hasSender && hasRecipient && hasBody && hasSubject;
-  const canRequestQuote =
-    allComplete && !["reviewed", "rendering"].includes(draftData?.status ?? "");
+  const isRenderPending = ["reviewed", "rendering"].includes(draftData.status);
+  const canRequestQuote = allComplete && !isRenderPending;
   const quoteErrorMessage = getApiErrorUserMessage(quote.error);
 
-  const alreadyPrepared = [
-    "reviewed",
-    "rendering",
-    "ready",
-    "submitted",
-    "dispatched",
-  ].includes(draftData.status);
+  const alreadyPrepared = ["ready", "submitted", "dispatched", "closed"].includes(
+    draftData.status,
+  );
   const isSubmittingReview = reviewDraft.isPending || updateDraft.isPending;
   const reviewActionState = useReviewPrimaryActionState({
     allComplete,
@@ -105,6 +101,7 @@ export function ReviewPageReady({
     hasQuoteError: quote.isError,
     isQuoteLoading: quote.isLoading,
     isSubmitting: isSubmittingReview,
+    isRenderPending,
   });
 
   const reviewSummaryItems = useMemo<ReviewSummaryItem[]>(
@@ -122,8 +119,8 @@ export function ReviewPageReady({
       {
         label: t("signature"),
         value: hasSignature
-          ? signatureMode === "image"
-            ? t("uploadedSignature")
+          ? signatureMode === "drawn"
+            ? t("drawnSignature")
             : t("typedSignature")
           : t("noSignature"),
         helperText: !hasSignature ? t("signatureMissingHelp") : undefined,
@@ -190,7 +187,7 @@ export function ReviewPageReady({
 
     const reviewUpdates: {
       subject?: string;
-      signatureMode?: "typed" | "image" | null;
+      signatureMode?: "typed" | "drawn" | null;
       signatureAssetId?: string | null;
     } = {};
 
@@ -308,8 +305,14 @@ export function ReviewPageReady({
             <ReviewSummaryCard
               title={t("summaryTitle")}
               description={t("reviewReadOnly")}
-              statusTone={allComplete ? "success" : "warning"}
-              statusLabel={allComplete ? t("readyToSend") : t("needsAttention")}
+              statusTone={isRenderPending ? "warning" : allComplete ? "success" : "warning"}
+              statusLabel={
+                isRenderPending
+                  ? t("calculatingPrice")
+                  : allComplete
+                    ? t("readyToSend")
+                    : t("needsAttention")
+              }
               items={reviewSummaryItems}
             />
 

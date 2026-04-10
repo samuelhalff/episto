@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Sendly",
+    "appName": "Episto",
     "loading": "Caricamento…",
     "error": "Si è verificato un errore",
     "tryAgain": "Riprova",
@@ -31,7 +31,7 @@
     "showPreview": "Mostra anteprima",
     "hidePreview": "Nascondi anteprima",
     "refresh": "Aggiorna",
-    "privacyNoticeBody": "Sendly utilizza un solo cookie essenziale per la sessione. Nessun tracciamento, nessuna analisi di terze parti.",
+    "privacyNoticeBody": "Episto utilizza un solo cookie essenziale per la sessione. Nessun tracciamento, nessuna analisi di terze parti.",
     "privacyPolicy": "Informativa sulla privacy",
     "dismissPrivacyNotice": "Chiudi l'avviso sulla privacy"
   },
@@ -57,14 +57,14 @@
     "useCaseLease": "Disdire un contratto di locazione",
     "useCaseComplaint": "Presentare un reclamo formale",
     "useCaseAuthority": "Scrivere a un'autorità",
-    "trustTitle": "Perché Sendly",
+    "trustTitle": "Perché Episto",
     "trustSwissPost": "Consegna tramite la Posta Svizzera",
     "trustSecure": "Sicuro e crittografato",
     "trustNoAccount": "Nessun account necessario",
     "pricingTitle": "Prezzi semplici e trasparenti",
     "pricingFrom": "Da {price} per lettera",
     "pricingFromFallback": "Prezzi chiari per lettera",
-    "pricingNotes": "Totale di riferimento basato su {printedPages} pagina stampata, {physicalSheets} foglio A4, busta {envelopeFormat}, più {service} di servizio Sendly.",
+    "pricingNotes": "Totale di riferimento basato su {printedPages} pagina stampata, {physicalSheets} foglio A4, busta {envelopeFormat}, più {service} di servizio Episto.",
     "pricingNotesFallback": "I totali standard e raccomandata vengono mostrati prima del pagamento.",
     "ctaTitle": "Pronto a inviare la Sua lettera?",
     "ctaButton": "Iniziare a scrivere",
@@ -79,15 +79,15 @@
       "terms": "Condizioni",
       "imprint": "Colofone",
       "help": "Aiuto",
-      "copyright": "© 2025 Sendly. Tutti i diritti riservati."
+      "copyright": "© 2025 Episto. Tutti i diritti riservati."
     },
-    "appName": "Sendly",
+    "appName": "Episto",
     "homepage": {
       "hero": {
         "badge": "Pensato per lettere importanti",
         "title": "Lettere importanti — preparate con cura, pronte per l’invio",
         "subtitle": "Descriva ciò di cui ha bisogno. La guidiamo verso una lettera formale chiara che può controllare con calma prima dell’invio.",
-        "body": "Sendly La aiuta a preparare una corrispondenza importante senza passare dallo sportello postale — dalla prima bozza fino alla presa in carico per l’invio in Svizzera.",
+        "body": "Episto La aiuta a preparare una corrispondenza importante senza passare dallo sportello postale — dalla prima bozza fino alla presa in carico per l’invio in Svizzera.",
         "primaryCta": "Scriva la Sua lettera ora",
         "secondaryCta": "Veda come funziona",
         "proof": "Nessun conto richiesto · Totale chiaro prima del pagamento · Infrastruttura attenta alla privacy"
@@ -120,7 +120,7 @@
       "confidence": {
         "eyebrow": "Perché ispira fiducia",
         "title": "Più sicurezza prima dell’invio",
-        "intro": "Sendly non sostituisce il Suo giudizio — dà alla Sua lettera una cornice professionale e Le lascia il controllo prima dell’invio.",
+        "intro": "Episto non sostituisce il Suo giudizio — dà alla Sua lettera una cornice professionale e Le lascia il controllo prima dell’invio.",
         "cards": {
           "structured": {
             "title": "Struttura professionale",
@@ -160,7 +160,7 @@
     }
   },
   "howItWorks": {
-    "title": "Come funziona Sendly",
+    "title": "Come funziona Episto",
     "subtitle": "Tre semplici passi per inviare una lettera professionale.",
     "stepLabel": "Passo {number}",
     "step1Detail": "Ci dica che tipo di lettera Le serve. La guidiamo nella struttura e prepariamo una lettera formale nel corretto formato svizzero.",
@@ -188,7 +188,7 @@
     "registeredAddonLabel": "Supplemento raccomandata",
     "registeredTotalLabel": "Totale raccomandata",
     "compositionTitle": "Da cosa è composto il prezzo",
-    "compositionBody": "Ogni totale pubblico combina la commissione di servizio Sendly con il totale di riferimento del fornitore salvato per la spedizione standard o raccomandata.",
+    "compositionBody": "Ogni totale pubblico combina la commissione di servizio Episto con il totale di riferimento del fornitore salvato per la spedizione standard o raccomandata.",
     "referenceAssumptionsTitle": "Ipotesi di riferimento",
     "referenceAssumptionsBody": "Questi esempi pubblici coprono lettere nazionali svizzere con le impostazioni fisse del fornitore attualmente supportate dalla matrice salvata.",
     "assumptionCountryLabel": "Destinazione",
@@ -205,7 +205,7 @@
     "syncStaleLabel": "Aggiornamento necessario",
     "syncSourceLabel": "Fonte",
     "syncLastSyncedLabel": "Ultima sincronizzazione",
-    "syncFreshBody": "Questi prezzi pubblici provengono dall'ultima sincronizzazione del fornitore salvata usata da Sendly.",
+    "syncFreshBody": "Questi prezzi pubblici provengono dall'ultima sincronizzazione del fornitore salvata usata da Episto.",
     "syncStaleBody": "Questi prezzi pubblici provengono dall'ultima sincronizzazione del fornitore riuscita e potrebbero essere superati fino al prossimo aggiornamento.",
     "matrixExamplesTitle": "Esempi di pagine basati sulla matrice",
     "matrixExamplesBody": "Questi totali di esempio provengono solo dalla matrice svizzera nazionale salvata senza allegati.",
@@ -213,18 +213,18 @@
     "registeredExamplesTitle": "Esempi raccomandata",
     "pagesColumnLabel": "Pagine",
     "providerQuoteColumnLabel": "Prezzo fornitore",
-    "totalColumnLabel": "Totale Sendly",
-    "serviceCardEyebrow": "Sendly",
-    "serviceCardTitle": "Cosa aggiunge Sendly",
-    "serviceCardBody": "L'addebito esatto è sempre il preventivo ePost live per la Sua bozza reale, più la nostra commissione di servizio Sendly. La pagina pubblica resta onesta usando uno scenario di riferimento documentato invece di una stima vaga.",
-    "serviceFeeLabel": "Servizio Sendly",
-    "serviceStandardFeeLabel": "Servizio Sendly (standard)",
-    "serviceRegisteredFeeLabel": "Servizio Sendly (raccomandata)",
+    "totalColumnLabel": "Totale Episto",
+    "serviceCardEyebrow": "Episto",
+    "serviceCardTitle": "Cosa aggiunge Episto",
+    "serviceCardBody": "L'addebito esatto è sempre il preventivo ePost live per la Sua bozza reale, più la nostra commissione di servizio Episto. La pagina pubblica resta onesta usando uno scenario di riferimento documentato invece di una stima vaga.",
+    "serviceFeeLabel": "Servizio Episto",
+    "serviceStandardFeeLabel": "Servizio Episto (standard)",
+    "serviceRegisteredFeeLabel": "Servizio Episto (raccomandata)",
     "providerStandardQuoteLabel": "Riferimento ePost standard",
     "providerRegisteredQuoteLabel": "Riferimento ePost raccomandata",
     "pricingTableTitle": "Totali di riferimento",
     "summaryCardTitle": "Totali chiari prima del pagamento",
-    "summaryCardBody": "Questi totali pubblici provengono dalla stessa fonte tariffaria salvata che Sendly usa anche per mostrare i prezzi standard e raccomandati nel prodotto.",
+    "summaryCardBody": "Questi totali pubblici provengono dalla stessa fonte tariffaria salvata che Episto usa anche per mostrare i prezzi standard e raccomandati nel prodotto.",
     "checkoutTruth": "Il checkout ricalcola il totale esatto dal preventivo live del fornitore per la Sua bozza specifica, il numero di pagine, gli allegati e il tipo di spedizione. Non addebitiamo in base allo scenario di riferimento di questa pagina.",
     "providerCardEyebrow": "Riferimento ePost",
     "providerCardTitle": "Input unitari ufficiali ePost",
@@ -238,7 +238,7 @@
     "providerFirstSheetDuplexLabel": "Busta C5 + primo foglio A4 (duplex)",
     "providerExtraSheetSimplexLabel": "Ogni foglio A4 aggiuntivo (simplex)",
     "providerExtraSheetDuplexLabel": "Ogni foglio A4 aggiuntivo (duplex)",
-    "providerVatNote": "ePost pubblica questi prezzi B2B di riferimento al netto dell'IVA. Sendly conferma il totale finale per il cliente prima del pagamento.",
+    "providerVatNote": "ePost pubblica questi prezzi B2B di riferimento al netto dell'IVA. Episto conferma il totale finale per il cliente prima del pagamento.",
     "referenceCardEyebrow": "Scenario",
     "referenceCardTitle": "Cosa assume questa pagina",
     "referenceCardBody": "Scenario di riferimento: {printedPages} pagina stampata, {physicalSheets} foglio A4 fisico, busta {envelopeFormat}, {standardPostage} per la posta standard e {registeredPostage} per la raccomandata.",
@@ -263,7 +263,7 @@
     "comparisonConfirmationRegistered": "Formula più forte solo dopo conferma del fornitore",
     "comparisonPriceLabel": "Prezzo di riferimento",
     "includedCardEyebrow": "Incluso",
-    "includedCardTitle": "Cosa copre il servizio Sendly",
+    "includedCardTitle": "Cosa copre il servizio Episto",
     "includedCardBody": "La commissione di servizio non copre solo l'affrancatura. Copre l'intero flusso, dalla bozza alla spedizione.",
     "includedDrafting": "Supporto alla redazione e revisione strutturata",
     "includedFormatting": "Formattazione in stile svizzero e generazione del PDF finale",
@@ -286,8 +286,8 @@
     "faq3q": "Esistono sconti per volume?",
     "faq3a": "Non nell'MVP. Il prezzo è per lettera ed è mostrato chiaramente prima del pagamento.",
     "faq4q": "L'IVA è inclusa nei prezzi mostrati?",
-    "faq4a": "I totali Sendly nel checkout sono mostrati in CHF prima del pagamento. Il riferimento unitario ePost su questa pagina è mostrato come ePost lo pubblica: al netto dell'IVA.",
-    "vatIncludedNote": "I totali cliente Sendly sono mostrati in CHF e confermati prima del pagamento.",
+    "faq4a": "I totali Episto nel checkout sono mostrati in CHF prima del pagamento. Il riferimento unitario ePost su questa pagina è mostrato come ePost lo pubblica: al netto dell'IVA.",
+    "vatIncludedNote": "I totali cliente Episto sono mostrati in CHF e confermati prima del pagamento.",
     "noHiddenFees": "Nessun costo nascosto",
     "ctaEyebrow": "Provare",
     "ctaBandTitle": "Provate. Pagate solo quando siete pronti a inviare.",
@@ -304,7 +304,7 @@
   "legal": {
     "privacyTitle": "Informativa sulla privacy",
     "privacyLastUpdated": "Ultimo aggiornamento: gennaio 2025",
-    "privacyIntro": "La presente informativa sulla privacy spiega come Sendly raccoglie, utilizza e protegge i Suoi dati personali quando utilizza il nostro servizio.",
+    "privacyIntro": "La presente informativa sulla privacy spiega come Episto raccoglie, utilizza e protegge i Suoi dati personali quando utilizza il nostro servizio.",
     "dataCollectionTitle": "Raccolta dei dati",
     "dataUsageTitle": "Utilizzo dei dati",
     "dataStorageTitle": "Archiviazione e sicurezza dei dati",
@@ -316,7 +316,7 @@
     "legalReviewNote": "Contenuto da finalizzare dopo revisione legale.",
     "termsTitle": "Condizioni generali di utilizzo",
     "termsLastUpdated": "Ultimo aggiornamento: gennaio 2025",
-    "termsIntro": "Le presenti condizioni generali disciplinano l'utilizzo del servizio di spedizione lettere Sendly.",
+    "termsIntro": "Le presenti condizioni generali disciplinano l'utilizzo del servizio di spedizione lettere Episto.",
     "serviceDescTitle": "Descrizione del servizio",
     "userObligationsTitle": "Obblighi dell'utente",
     "paymentTermsTitle": "Condizioni di pagamento",
@@ -325,7 +325,7 @@
     "amendmentsTitle": "Modifiche",
     "imprintTitle": "Colofone",
     "operatedBy": "Questo servizio è gestito da:",
-    "companyName": "Sendly",
+    "companyName": "Episto",
     "contactEmail": "E-mail",
     "commercialRegister": "Registro di commercio",
     "vatNumber": "Numero IVA",
@@ -364,10 +364,13 @@
     "bodyPlaceholder": "Testo della lettera…",
     "signatureLabel": "Firma",
     "signatureTyped": "Digitata",
-    "signatureImage": "Carica immagine",
-    "signatureTypedPreview": "La tua firma digitata",
-    "signatureUploadPrompt": "Carica un’immagine della firma",
-    "signatureUploadHint": "PNG o JPEG, max 2 MB",
+    "signatureTypedDesc": "Il tuo nome in un font corsivo classico",
+    "signatureDrawn": "Disegna",
+    "signatureDrawnDesc": "Firma direttamente sullo schermo",
+    "signatureDrawHint": "Firma con il dito o una penna",
+    "signatureClear": "Cancella",
+    "signatureUploading": "Salvataggio della firma…",
+    "signatureSaved": "Firma salvata",
     "startDictation": "Avvia dettatura",
     "stopDictation": "Interrompi dettatura",
     "voicePrimary": "Dettate la lettera",
@@ -590,7 +593,7 @@
     "zipPlaceholder": "6900",
     "cityPlaceholder": "Lugano",
     "bodyEmptyHint": "Nessun contenuto ancora. Usa il prompt IA qui sotto per generarlo.",
-    "signatureImageAlt": "Firma caricata",
+    "signatureImageAlt": "Firma disegnata",
     "signatureFallbackName": "Il tuo nome"
   },
   "review": {
@@ -618,7 +621,6 @@
     "readyToSend": "Pronta",
     "needsAttention": "Da verificare",
     "typedSignature": "Firma digitata",
-    "uploadedSignature": "Firma caricata",
     "noSignature": "Nessuna firma aggiunta",
     "noAttachments": "Nessun allegato",
     "attachmentCount": "{count} allegato/i",
@@ -633,7 +635,8 @@
     "calculatingPrice": "Calcolo del prezzo…",
     "proceedToPayment": "Cassa",
     "backToDraft": "Indietro",
-    "total": "Totale"
+    "total": "Totale",
+    "drawnSignature": "Firma disegnata"
   },
   "checkout": {
     "title": "Pagamento",
@@ -645,7 +648,7 @@
     "paymentPending": "Caricamento del modulo di pagamento…",
     "paymentConfigError": "Il sistema di pagamento non è configurato. Si prega di riprovare più tardi.",
     "consentRequired": "È necessario accettare le condizioni per continuare.",
-    "legalConsent": "Ho letto e accetto le <terms>Condizioni d'uso</terms> e sono consapevole che Sendly non fornisce servizi legali.",
+    "legalConsent": "Ho letto e accetto le <terms>Condizioni d'uso</terms> e sono consapevole che Episto non fornisce servizi legali.",
     "sendMyLetter": "Paga",
     "securedByStripe": "Protetto da Stripe",
     "swissDelivery": "Spedizione tramite la Posta Svizzera",
@@ -656,7 +659,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Raccomandata",
     "providerQuoteLabel": "Preventivo del fornitore",
-    "swissMailServiceLabel": "Servizio Sendly",
+    "swissMailServiceLabel": "Servizio Episto",
     "secureCheckout": "Pagamento sicuro tramite Stripe",
     "paymentHelp": "Stripe gestisce i dati di pagamento. Noi non raccogliamo mai i dati grezzi della carta.",
     "total": "Totale",
@@ -871,28 +874,28 @@
   },
   "seo": {
     "home": {
-      "title": "Sendly — Preparare e inviare online lettere importanti",
+      "title": "Episto — Preparare e inviare online lettere importanti",
       "description": "Rediga una lettera formale, controlli ogni dettaglio e avvii l’invio postale in Svizzera senza creare un account."
     },
     "pricing": {
-      "title": "Prezzi — Sendly",
-      "description": "Consulti i totali di riferimento per posta standard e raccomandata, la commissione Sendly e la conferma del totale prima del pagamento."
+      "title": "Prezzi — Episto",
+      "description": "Consulti i totali di riferimento per posta standard e raccomandata, la commissione Episto e la conferma del totale prima del pagamento."
     },
     "help": {
-      "title": "Aiuto — Sendly",
-      "description": "Risposte su redazione, pagamento, spedizione, allegati e supporto di Sendly."
+      "title": "Aiuto — Episto",
+      "description": "Risposte su redazione, pagamento, spedizione, allegati e supporto di Episto."
     },
     "privacy": {
-      "title": "Privacy — Sendly",
-      "description": "Scopra come Sendly gestisce dati di sessione, file, pagamenti e conservazione con un approccio attento alla privacy."
+      "title": "Privacy — Episto",
+      "description": "Scopra come Episto gestisce dati di sessione, file, pagamenti e conservazione con un approccio attento alla privacy."
     },
     "terms": {
-      "title": "Condizioni — Sendly",
-      "description": "Legga le condizioni per usare Sendly, pagare la spedizione e inviare lettere come ospite."
+      "title": "Condizioni — Episto",
+      "description": "Legga le condizioni per usare Episto, pagare la spedizione e inviare lettere come ospite."
     },
     "imprint": {
-      "title": "Colofone — Sendly",
-      "description": "Dati dell’operatore e informazioni di contatto di Sendly."
+      "title": "Colofone — Episto",
+      "description": "Dati dell’operatore e informazioni di contatto di Episto."
     }
   },
   "admin": {

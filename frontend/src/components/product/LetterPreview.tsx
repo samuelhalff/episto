@@ -47,7 +47,7 @@ interface LetterPreviewProps {
   draft: DraftLetter | undefined;
   senderProfile?: ProfileBlock | null | undefined;
   recipientProfile?: ProfileBlock | null | undefined;
-  signatureMode?: "typed" | "image" | null | undefined;
+  signatureMode?: "typed" | "drawn" | null | undefined;
   signatureUrl?: string | null | undefined;
   editingZone?: ZoneKind | null | undefined;
   onZoneClick?: ((zone: ZoneKind) => void) | undefined;
@@ -62,6 +62,7 @@ export function LetterPreview({
   senderProfile,
   recipientProfile,
   signatureMode,
+  signatureUrl,
   editingZone,
   onZoneClick,
   onZoneSave,
@@ -96,7 +97,8 @@ export function LetterPreview({
   const resolvedSignatureMode = signatureMode ?? draft.signatureMode;
   const typedSignatureName = getSenderDisplayName(senderProfile);
   const signatureDisplayName = typedSignatureName || t("signatureFallbackName");
-  const shouldShowGeneratedSignature = Boolean(resolvedSignatureMode);
+  const shouldShowGeneratedSignature = resolvedSignatureMode === "typed";
+  const shouldShowDrawnSignature = resolvedSignatureMode === "drawn";
   const placeAndDate = senderProfile?.city?.trim()
     ? `${senderProfile.city.trim()}, ${formattedDate}`
     : formattedDate;
@@ -358,6 +360,28 @@ export function LetterPreview({
                   >
                     {signatureDisplayName}
                   </p>
+                  <p
+                    className="signature-name"
+                    style={{
+                      marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
+                      fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
+                      color: LETTER_COLORS.signatureName,
+                    }}
+                  >
+                    {signatureDisplayName}
+                  </p>
+                </div>
+              ) : shouldShowDrawnSignature && signatureUrl ? (
+                <div style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}>
+                  <img
+                    src={signatureUrl}
+                    alt={t("signatureImageAlt")}
+                    style={{
+                      maxHeight: "4.5cqw",
+                      maxWidth: "18cqw",
+                      objectFit: "contain",
+                    }}
+                  />
                   <p
                     className="signature-name"
                     style={{

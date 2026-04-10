@@ -136,5 +136,5 @@ export function hasConcreteSignature(
     return true;
   }
 
-  return signatureMode === "image" && Boolean(signatureFileId);
+  return signatureMode === "drawn" && Boolean(signatureFileId);
 }

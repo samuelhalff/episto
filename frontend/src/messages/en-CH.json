@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Sendly",
+    "appName": "Episto",
     "loading": "Loading…",
     "error": "An error occurred",
     "tryAgain": "Try again",
@@ -31,7 +31,7 @@
     "showPreview": "Show preview",
     "hidePreview": "Hide preview",
     "refresh": "Refresh",
-    "privacyNoticeBody": "Sendly uses a single essential cookie for your session. No tracking, no third-party analytics.",
+    "privacyNoticeBody": "Episto uses a single essential cookie for your session. No tracking, no third-party analytics.",
     "privacyPolicy": "Privacy policy",
     "dismissPrivacyNotice": "Dismiss privacy notice"
   },
@@ -57,14 +57,14 @@
     "useCaseLease": "End a lease agreement",
     "useCaseComplaint": "File a formal complaint",
     "useCaseAuthority": "Write to an authority",
-    "trustTitle": "Why Sendly",
+    "trustTitle": "Why Episto",
     "trustSwissPost": "Delivered by Swiss Post",
     "trustSecure": "Secure & encrypted",
     "trustNoAccount": "No account needed",
     "pricingTitle": "Simple, transparent pricing",
     "pricingFrom": "From {price} per letter",
     "pricingFromFallback": "Transparent per-letter pricing",
-    "pricingNotes": "Reference total based on {printedPages} printed page, {physicalSheets} A4 sheet, {envelopeFormat} envelope, plus {service} Sendly service.",
+    "pricingNotes": "Reference total based on {printedPages} printed page, {physicalSheets} A4 sheet, {envelopeFormat} envelope, plus {service} Episto service.",
     "pricingNotesFallback": "Standard and registered totals are shown before payment.",
     "ctaTitle": "Ready to send your letter?",
     "ctaButton": "Start writing",
@@ -79,15 +79,15 @@
       "terms": "Terms",
       "imprint": "Imprint",
       "help": "Help",
-      "copyright": "© 2025 Sendly. All rights reserved."
+      "copyright": "© 2025 Episto. All rights reserved."
     },
-    "appName": "Sendly",
+    "appName": "Episto",
     "homepage": {
       "hero": {
         "badge": "Built for important letters",
         "title": "Serious letters — professionally prepared, ready to send",
         "subtitle": "Describe what you need. We guide you to a clear formal letter that you can review carefully before it goes out.",
-        "body": "Sendly helps you prepare important correspondence without a trip to the post office — from first draft to postal submission in Switzerland.",
+        "body": "Episto helps you prepare important correspondence without a trip to the post office — from first draft to postal submission in Switzerland.",
         "primaryCta": "Write your letter now",
         "secondaryCta": "See how it works",
         "proof": "No account required · Clear total before payment · Privacy-conscious infrastructure"
@@ -120,7 +120,7 @@
       "confidence": {
         "eyebrow": "Why it feels reliable",
         "title": "More confidence before you send",
-        "intro": "Sendly does not replace your judgement — it gives your letter a professional frame and keeps you in control before dispatch.",
+        "intro": "Episto does not replace your judgement — it gives your letter a professional frame and keeps you in control before dispatch.",
         "cards": {
           "structured": {
             "title": "Properly structured",
@@ -160,7 +160,7 @@
     }
   },
   "howItWorks": {
-    "title": "How Sendly works",
+    "title": "How Episto works",
     "subtitle": "Three simple steps to send a professional letter.",
     "stepLabel": "Step {number}",
     "step1Detail": "Tell us what kind of letter you need. We guide the structure and prepare a formal letter in the correct Swiss format.",
@@ -188,7 +188,7 @@
     "registeredAddonLabel": "Registered add-on",
     "registeredTotalLabel": "Registered total",
     "compositionTitle": "What makes up the price",
-    "compositionBody": "Each public total combines the Sendly service fee with the stored provider reference total for standard or registered dispatch.",
+    "compositionBody": "Each public total combines the Episto service fee with the stored provider reference total for standard or registered dispatch.",
     "referenceAssumptionsTitle": "Reference assumptions",
     "referenceAssumptionsBody": "These public examples cover Swiss domestic letters with the fixed provider settings the stored matrix currently supports.",
     "assumptionCountryLabel": "Destination",
@@ -205,7 +205,7 @@
     "syncStaleLabel": "Needs refresh",
     "syncSourceLabel": "Source",
     "syncLastSyncedLabel": "Last synced",
-    "syncFreshBody": "These public prices come from the latest stored provider sync used by Sendly.",
+    "syncFreshBody": "These public prices come from the latest stored provider sync used by Episto.",
     "syncStaleBody": "These public prices come from the last successful provider sync and may be outdated until the next refresh.",
     "matrixExamplesTitle": "Matrix-backed page-count examples",
     "matrixExamplesBody": "These example totals come from the stored Swiss domestic no-attachment matrix only.",
@@ -213,18 +213,18 @@
     "registeredExamplesTitle": "Registered examples",
     "pagesColumnLabel": "Pages",
     "providerQuoteColumnLabel": "Provider quote",
-    "totalColumnLabel": "Sendly total",
-    "serviceCardEyebrow": "Sendly",
-    "serviceCardTitle": "What Sendly adds on top",
-    "serviceCardBody": "The exact charge is always the live ePost quote for your real draft plus our Sendly service fee. The public page keeps that honest by using one documented reference scenario instead of guessing.",
-    "serviceFeeLabel": "Sendly service",
-    "serviceStandardFeeLabel": "Sendly service (standard)",
-    "serviceRegisteredFeeLabel": "Sendly service (registered)",
+    "totalColumnLabel": "Episto total",
+    "serviceCardEyebrow": "Episto",
+    "serviceCardTitle": "What Episto adds on top",
+    "serviceCardBody": "The exact charge is always the live ePost quote for your real draft plus our Episto service fee. The public page keeps that honest by using one documented reference scenario instead of guessing.",
+    "serviceFeeLabel": "Episto service",
+    "serviceStandardFeeLabel": "Episto service (standard)",
+    "serviceRegisteredFeeLabel": "Episto service (registered)",
     "providerStandardQuoteLabel": "ePost standard reference",
     "providerRegisteredQuoteLabel": "ePost registered reference",
     "pricingTableTitle": "Reference totals",
     "summaryCardTitle": "Clear totals before you pay",
-    "summaryCardBody": "These public totals come from the same stored pricing source Sendly uses for standard and registered draft price display.",
+    "summaryCardBody": "These public totals come from the same stored pricing source Episto uses for standard and registered draft price display.",
     "checkoutTruth": "Checkout recalculates the exact total from the live provider quote for your specific draft, page count, attachments, and delivery type. We do not charge from this page's reference scenario.",
     "providerCardEyebrow": "ePost reference",
     "providerCardTitle": "Official ePost unit inputs",
@@ -238,7 +238,7 @@
     "providerFirstSheetDuplexLabel": "C5 envelope + first A4 sheet (duplex)",
     "providerExtraSheetSimplexLabel": "Each extra A4 sheet (simplex)",
     "providerExtraSheetDuplexLabel": "Each extra A4 sheet (duplex)",
-    "providerVatNote": "ePost publishes these B2B reference rates excluding VAT. Sendly confirms the final customer total before payment.",
+    "providerVatNote": "ePost publishes these B2B reference rates excluding VAT. Episto confirms the final customer total before payment.",
     "referenceCardEyebrow": "Scenario",
     "referenceCardTitle": "What this page assumes",
     "referenceCardBody": "Reference scenario: {printedPages} printed page, {physicalSheets} physical A4 sheet, {envelopeFormat} envelope, {standardPostage} for standard mail, and {registeredPostage} for registered mail.",
@@ -263,7 +263,7 @@
     "comparisonConfirmationRegistered": "Stronger wording only after provider confirmation",
     "comparisonPriceLabel": "Reference price",
     "includedCardEyebrow": "Included",
-    "includedCardTitle": "What the Sendly service covers",
+    "includedCardTitle": "What the Episto service covers",
     "includedCardBody": "The service fee is not just postage. It covers the full drafting-to-dispatch flow.",
     "includedDrafting": "Drafting assistance and structured review",
     "includedFormatting": "Swiss-style formatting and final PDF generation",
@@ -286,8 +286,8 @@
     "faq3q": "Are there volume discounts?",
     "faq3a": "Not at MVP. Pricing is per letter and shown clearly before payment.",
     "faq4q": "Is VAT included in the prices shown?",
-    "faq4a": "Sendly checkout totals are shown in CHF before payment. The ePost unit reference on this page is presented as ePost publishes it: excluding VAT.",
-    "vatIncludedNote": "Sendly customer totals are shown in CHF and confirmed before payment.",
+    "faq4a": "Episto checkout totals are shown in CHF before payment. The ePost unit reference on this page is presented as ePost publishes it: excluding VAT.",
+    "vatIncludedNote": "Episto customer totals are shown in CHF and confirmed before payment.",
     "noHiddenFees": "No hidden fees",
     "ctaEyebrow": "Try it",
     "ctaBandTitle": "Try it. You only pay when you are ready to send.",
@@ -304,7 +304,7 @@
   "legal": {
     "privacyTitle": "Privacy Policy",
     "privacyLastUpdated": "Last updated: January 2025",
-    "privacyIntro": "This privacy policy explains how Sendly collects, uses, and protects your personal data when you use our service.",
+    "privacyIntro": "This privacy policy explains how Episto collects, uses, and protects your personal data when you use our service.",
     "dataCollectionTitle": "Data Collection",
     "dataUsageTitle": "Data Usage",
     "dataStorageTitle": "Data Storage and Security",
@@ -316,7 +316,7 @@
     "legalReviewNote": "Content to be finalized by legal review.",
     "termsTitle": "Terms of Service",
     "termsLastUpdated": "Last updated: January 2025",
-    "termsIntro": "These terms of service govern your use of the Sendly letter delivery service.",
+    "termsIntro": "These terms of service govern your use of the Episto letter delivery service.",
     "serviceDescTitle": "Service Description",
     "userObligationsTitle": "User Obligations",
     "paymentTermsTitle": "Payment Terms",
@@ -325,7 +325,7 @@
     "amendmentsTitle": "Amendments",
     "imprintTitle": "Imprint",
     "operatedBy": "This service is operated by:",
-    "companyName": "Sendly",
+    "companyName": "Episto",
     "contactEmail": "Email",
     "commercialRegister": "Commercial Register",
     "vatNumber": "VAT Number",
@@ -364,10 +364,13 @@
     "bodyPlaceholder": "Letter body…",
     "signatureLabel": "Signature",
     "signatureTyped": "Typed",
-    "signatureImage": "Image",
-    "signatureTypedPreview": "Typed signature",
-    "signatureUploadPrompt": "Upload signature image",
-    "signatureUploadHint": "PNG or JPEG, max. 2 MB",
+    "signatureTypedDesc": "Your name set in a classic script font",
+    "signatureDrawn": "Draw",
+    "signatureDrawnDesc": "Sign directly on screen",
+    "signatureDrawHint": "Sign with your finger or stylus",
+    "signatureClear": "Clear",
+    "signatureUploading": "Saving signature…",
+    "signatureSaved": "Signature saved",
     "startDictation": "Start dictation",
     "stopDictation": "Stop dictation",
     "voicePrimary": "Speak your letter",
@@ -590,7 +593,7 @@
     "zipPlaceholder": "8000",
     "cityPlaceholder": "Zurich",
     "bodyEmptyHint": "No content yet. Use the AI prompt below to generate it.",
-    "signatureImageAlt": "Uploaded signature",
+    "signatureImageAlt": "Drawn signature",
     "signatureFallbackName": "Your Name"
   },
   "review": {
@@ -618,7 +621,6 @@
     "readyToSend": "Ready",
     "needsAttention": "Needs attention",
     "typedSignature": "Typed signature",
-    "uploadedSignature": "Uploaded signature",
     "noSignature": "No signature added",
     "noAttachments": "No attachments",
     "attachmentCount": "{count} attachment(s)",
@@ -633,7 +635,8 @@
     "calculatingPrice": "Calculating price…",
     "proceedToPayment": "Checkout",
     "backToDraft": "Back",
-    "total": "Total"
+    "total": "Total",
+    "drawnSignature": "Drawn signature"
   },
   "checkout": {
     "title": "Checkout",
@@ -645,7 +648,7 @@
     "paymentPending": "Payment form loading…",
     "paymentConfigError": "Payment system is not configured. Please try again later.",
     "consentRequired": "You must accept the terms to continue.",
-    "legalConsent": "I have read and agree to the <terms>Terms of Service</terms> and understand that Sendly is not a legal service.",
+    "legalConsent": "I have read and agree to the <terms>Terms of Service</terms> and understand that Episto is not a legal service.",
     "sendMyLetter": "Pay",
     "securedByStripe": "Secured by Stripe",
     "swissDelivery": "Swiss postal delivery",
@@ -656,7 +659,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Registered",
     "providerQuoteLabel": "Provider quote",
-    "swissMailServiceLabel": "Sendly service",
+    "swissMailServiceLabel": "Episto service",
     "secureCheckout": "Secure checkout through Stripe",
     "paymentHelp": "Stripe handles the payment details. We never collect raw card data ourselves.",
     "total": "Total",
@@ -871,28 +874,28 @@
   },
   "seo": {
     "home": {
-      "title": "Sendly — Prepare and send serious letters online",
+      "title": "Episto — Prepare and send serious letters online",
       "description": "Draft formal letters, review every detail, and start postal dispatch in Switzerland without opening an account."
     },
     "pricing": {
-      "title": "Pricing — Sendly",
-      "description": "See reference totals for standard and registered letters, the Sendly service fee, and how the final total is confirmed before payment."
+      "title": "Pricing — Episto",
+      "description": "See reference totals for standard and registered letters, the Episto service fee, and how the final total is confirmed before payment."
     },
     "help": {
-      "title": "Help — Sendly",
-      "description": "Answers about drafting, payment, dispatch, attachments, and support for Sendly."
+      "title": "Help — Episto",
+      "description": "Answers about drafting, payment, dispatch, attachments, and support for Episto."
     },
     "privacy": {
-      "title": "Privacy — Sendly",
-      "description": "Learn how Sendly handles session data, files, payments, and retention with privacy-conscious safeguards."
+      "title": "Privacy — Episto",
+      "description": "Learn how Episto handles session data, files, payments, and retention with privacy-conscious safeguards."
     },
     "terms": {
-      "title": "Terms — Sendly",
-      "description": "Read the terms for using Sendly, paying for dispatch, and sending letters as a guest."
+      "title": "Terms — Episto",
+      "description": "Read the terms for using Episto, paying for dispatch, and sending letters as a guest."
     },
     "imprint": {
-      "title": "Imprint — Sendly",
-      "description": "Operator details and contact information for Sendly."
+      "title": "Imprint — Episto",
+      "description": "Operator details and contact information for Episto."
     }
   },
   "admin": {
