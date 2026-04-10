@@ -27,6 +27,10 @@ import {
   extractAiDocumentMetadata,
   flattenDocumentModel,
   getLetterFraming,
+  LETTER_COLORS,
+  LETTER_LAYOUT_MM,
+  LETTER_LAYOUT_PT,
+  LETTER_PAGE_MM,
   SnapshotDataSchema,
   type DocumentModel,
   type DocumentBlock,
@@ -260,14 +264,14 @@ export function renderLetterHtml(data: SnapshotData): string {
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: #1a1a1a;
+      color: ${LETTER_COLORS.text};
       -webkit-font-smoothing: antialiased;
       background: #ffffff;
     }
     .letter-layout-shell {
       position: relative;
-      width: 210mm;
-      min-height: 297mm;
+      width: ${LETTER_PAGE_MM.width}mm;
+      min-height: ${LETTER_PAGE_MM.height}mm;
       background: #ffffff;
     }
     .sender-block,
@@ -275,103 +279,103 @@ export function renderLetterHtml(data: SnapshotData): string {
     .recipient-block,
     .right-meta {
       position: absolute;
-      left: 25mm;
       text-align: left;
     }
     .sender-block {
-      top: 20mm;
-      width: 80mm;
-      font-size: 8.75pt;
+      top: ${LETTER_LAYOUT_MM.sender.top}mm;
+      left: ${LETTER_LAYOUT_MM.sender.left}mm;
+      width: ${LETTER_LAYOUT_MM.sender.width}mm;
+      font-size: ${LETTER_LAYOUT_PT.sender}pt;
       line-height: 1.45;
-      color: #202020;
+      color: ${LETTER_COLORS.text};
     }
     .dispatch-line {
-      top: 40mm;
-      left: 121mm;
-      width: 59mm;
-      font-size: 8.25pt;
+      top: ${LETTER_LAYOUT_MM.dispatch.top}mm;
+      left: ${LETTER_LAYOUT_MM.dispatch.left}mm;
+      width: ${LETTER_LAYOUT_MM.dispatch.width}mm;
+      font-size: ${LETTER_LAYOUT_PT.dispatch}pt;
       line-height: 1.2;
       font-weight: 700;
       letter-spacing: 0.08em;
       text-decoration: underline;
       text-underline-offset: 2px;
-      color: #202020;
+      color: ${LETTER_COLORS.text};
     }
     .recipient-block {
-      top: 52mm;
-      left: 121mm;
-      width: 59mm;
-      min-height: 31mm;
-      font-size: 10.5pt;
+      top: ${LETTER_LAYOUT_MM.recipient.top}mm;
+      left: ${LETTER_LAYOUT_MM.recipient.left}mm;
+      width: ${LETTER_LAYOUT_MM.recipient.width}mm;
+      min-height: ${LETTER_LAYOUT_MM.recipient.minHeight}mm;
+      font-size: ${LETTER_LAYOUT_PT.recipient}pt;
       line-height: 1.35;
-      color: #141414;
+      color: ${LETTER_COLORS.text};
     }
     .right-meta {
-      top: 87mm;
-      left: 121mm;
-      width: 59mm;
+      top: ${LETTER_LAYOUT_MM.rightMeta.top}mm;
+      left: ${LETTER_LAYOUT_MM.rightMeta.left}mm;
+      width: ${LETTER_LAYOUT_MM.rightMeta.width}mm;
     }
     .date-line {
-      font-size: 10pt;
-      color: #444;
+      font-size: ${LETTER_LAYOUT_PT.date}pt;
+      color: ${LETTER_COLORS.date};
     }
     .body-flow {
-      padding: 114mm 20mm 20mm 25mm;
-      font-size: 10.5pt;
+      padding: ${LETTER_LAYOUT_MM.body.paddingTop}mm ${LETTER_LAYOUT_MM.body.paddingRight}mm ${LETTER_LAYOUT_MM.body.paddingBottom}mm ${LETTER_LAYOUT_MM.body.paddingLeft}mm;
+      font-size: ${LETTER_LAYOUT_PT.body}pt;
       line-height: 1.55;
-      color: #1a1a1a;
+      color: ${LETTER_COLORS.text};
     }
     .subject-line {
       font-weight: 700;
-      font-size: 11.25pt;
+      font-size: ${LETTER_LAYOUT_PT.subject}pt;
       letter-spacing: -0.01em;
-      margin-bottom: 6mm;
+      margin-bottom: ${LETTER_LAYOUT_MM.subject.marginBottom}mm;
     }
     .salutation-line {
-      margin-bottom: 5mm;
+      margin-bottom: ${LETTER_LAYOUT_MM.salutation.marginBottom}mm;
     }
     .letter-body {
-      margin-bottom: 8mm;
+      margin-bottom: ${LETTER_LAYOUT_MM.letterBody.marginBottom}mm;
     }
     .closing-line {
-      margin-top: 8mm;
+      margin-top: ${LETTER_LAYOUT_MM.closing.marginTop}mm;
     }
     .signature-block {
-      margin-top: 10mm;
+      margin-top: ${LETTER_LAYOUT_MM.signature.marginTop}mm;
       page-break-inside: avoid;
     }
     .signature-script {
       display: inline-block;
       font-family: "Allura Signature", "Snell Roundhand", "Brush Script MT", cursive;
-      font-size: 26pt;
+      font-size: ${LETTER_LAYOUT_PT.signatureScript}pt;
       letter-spacing: 0.01em;
       line-height: 0.9;
-      color: #222;
+      color: ${LETTER_COLORS.signatureScript};
       transform: rotate(-1.5deg);
       transform-origin: left center;
     }
     .signature-name {
-      margin-top: 2mm;
-      font-size: 9.5pt;
+      margin-top: ${LETTER_LAYOUT_MM.signatureName.marginTop}mm;
+      font-size: ${LETTER_LAYOUT_PT.signatureName}pt;
       letter-spacing: 0.02em;
-      color: #555;
+      color: ${LETTER_COLORS.signatureName};
     }
     .letter-paragraph {
       margin: 0 0 4mm 0;
       white-space: pre-wrap;
     }
     .letter-heading-1 {
-      font-size: 15pt;
+      font-size: ${LETTER_LAYOUT_PT.heading1}pt;
       font-weight: 700;
       margin: 2mm 0 4mm 0;
     }
     .letter-heading-2 {
-      font-size: 12.5pt;
+      font-size: ${LETTER_LAYOUT_PT.heading2}pt;
       font-weight: 700;
       margin: 2mm 0 3mm 0;
     }
     .letter-heading-3 {
-      font-size: 10.5pt;
+      font-size: ${LETTER_LAYOUT_PT.heading3}pt;
       font-weight: 700;
       margin: 1mm 0 2mm 0;
     }
@@ -386,25 +390,25 @@ export function renderLetterHtml(data: SnapshotData): string {
       width: 100%;
       border-collapse: collapse;
       margin: 0 0 5mm 0;
-      font-size: 9.5pt;
+      font-size: ${LETTER_LAYOUT_PT.table}pt;
     }
     .letter-table th,
     .letter-table td {
-      border: 1px solid #d1d5db;
+      border: 1px solid ${LETTER_COLORS.tableBorder};
       padding: 5px 7px;
       vertical-align: top;
     }
     .letter-table th {
-      background: #f3f4f6;
+      background: ${LETTER_COLORS.tableHeaderBg};
       text-align: left;
       font-weight: 600;
     }
     .enclosure-note {
-      font-size: 8.75pt;
-      color: #666;
-      margin-top: 12mm;
-      padding-top: 3mm;
-      border-top: 0.5px solid #d7d7d7;
+      font-size: ${LETTER_LAYOUT_PT.sender}pt;
+      color: ${LETTER_COLORS.enclosure};
+      margin-top: ${LETTER_LAYOUT_MM.enclosure.marginTop}mm;
+      padding-top: ${LETTER_LAYOUT_MM.enclosure.paddingTop}mm;
+      border-top: 0.5px solid ${LETTER_COLORS.enclosureBorder};
       font-style: italic;
     }
   </style>

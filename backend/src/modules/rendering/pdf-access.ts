@@ -2,6 +2,7 @@ import type { FastifyReply } from "fastify";
 import { desc, eq, inArray } from "drizzle-orm";
 import { PDFDocument } from "pdf-lib";
 import {
+  buildOrderReference,
   extractAiDocumentMetadata,
   flattenDocumentModel,
   SnapshotDataSchema,
@@ -138,14 +139,14 @@ async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buff
     renderPdfBufferFromHtml(letterHtml),
   ]);
 
-  const letterPdf = await PDFDocument.load(renderedLetterPdf.pdfBuffer);
+  const _letterPdf = await PDFDocument.load(renderedLetterPdf.pdfBuffer);
   const providerMode: "mock" | "live" | null = dispatch
     ? isMockEpostProviderName(dispatch.providerName)
       ? "mock"
       : "live"
     : null;
   const confirmationHtml = renderConfirmationDocumentHtml({
-    orderRef: `SM-${draftId.slice(0, 8).toUpperCase()}`,
+    orderRef: buildOrderReference(draftId),
     locale: renderedLetter.snapshotData.locale,
     submittedAt:
       dispatch?.submittedAt ?? dispatch?.createdAt ?? renderedLetter.snapshot.createdAt,

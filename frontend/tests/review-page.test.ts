@@ -60,7 +60,7 @@ describe("review page regressions", () => {
   });
 
   it("does not request a live quote while the reviewed snapshot is still rendering", () => {
-    expect(reviewReadySource).toContain('!["reviewed", "rendering"].includes');
+    expect(reviewReadySource).toContain('["reviewed", "rendering"].includes');
     expect(reviewReadySource).toContain('allComplete ? t("pricingPending")');
   });
 

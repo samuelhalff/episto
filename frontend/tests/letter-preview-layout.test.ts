@@ -16,23 +16,30 @@ describe("letter preview layout", () => {
     expect(letterPreviewSource).toContain("aspect-[210/297]");
   });
 
-  it("uses a flow-based grid layout with semantic class names", () => {
+  it("uses the shared letter geometry with absolute paper coordinates", () => {
     expect(letterPreviewSource).toContain("letter-layout-shell");
-    expect(letterPreviewSource).toContain("letter-header");
     expect(letterPreviewSource).toContain("sender-block");
     expect(letterPreviewSource).toContain("dispatch-line");
     expect(letterPreviewSource).toContain("recipient-block");
     expect(letterPreviewSource).toContain("right-meta");
     expect(letterPreviewSource).toContain("body-flow");
-    expect(letterPreviewSource).toContain("gridTemplateColumns");
-    expect(letterPreviewSource).not.toContain("position: absolute");
-    expect(letterPreviewSource).not.toContain('"absolute"');
+    expect(letterPreviewSource).toContain("mmToPageCqw");
+    expect(letterPreviewSource).toContain("ptToPageCqw");
+    expect(letterPreviewSource).toContain('containerType: "inline-size"');
+    expect(letterPreviewSource).toContain('position: "absolute"');
   });
 
-  it("uses mmPct helper for all spacing instead of absolute positioning", () => {
-    expect(letterPreviewSource).toContain("function mmPct(");
-    expect(letterPreviewSource).toContain("mmPct(");
-    expect(letterPreviewSource).not.toContain("mmToPreviewHeight");
+  it("uses the shared color palette for letter content", () => {
+    expect(letterPreviewSource).toContain("LETTER_COLORS");
+    expect(letterPreviewSource).toContain("LETTER_COLORS.text");
+    expect(letterPreviewSource).toContain("LETTER_COLORS.date");
+    expect(letterPreviewSource).toContain("LETTER_COLORS.signatureScript");
+    expect(letterPreviewSource).toContain("LETTER_COLORS.signatureName");
+    expect(letterPreviewSource).toContain("LETTER_COLORS.enclosure");
+  });
+
+  it("renders body content with the preview-specific letter sizing", () => {
+    expect(letterPreviewSource).toContain('variant="letter"');
   });
 
   it("renders signatures as a handwritten block with a typed name underneath", () => {

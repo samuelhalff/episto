@@ -7,24 +7,41 @@ import type {
   InlineSpan,
   ListItem,
 } from "@swiss-mail/shared";
+import { LETTER_COLORS, LETTER_LAYOUT_PT, mmToPageCqw, ptToPageCqw } from "@swiss-mail/shared";
 
-export function DocumentPreview({ document }: { document: DocumentModel }) {
+type DocumentPreviewVariant = "default" | "letter";
+
+export function DocumentPreview({
+  document,
+  variant = "default",
+}: {
+  document: DocumentModel;
+  variant?: DocumentPreviewVariant;
+}) {
+  const isLetter = variant === "letter";
+
   return (
-    <div className="space-y-4 text-zinc-700 dark:text-zinc-200">
+    <div
+      className={isLetter ? "grid" : "space-y-4 text-zinc-700 dark:text-zinc-200"}
+      style={isLetter ? { rowGap: mmToPageCqw(4) } : undefined}
+    >
       {document.blocks.map((block, index) => (
-        <Fragment key={`${block.type}-${index}`}>{renderBlock(block)}</Fragment>
+        <Fragment key={`${block.type}-${index}`}>{renderBlock(block, variant)}</Fragment>
       ))}
     </div>
   );
 }
 
-function renderBlock(block: DocumentBlock) {
+function renderBlock(block: DocumentBlock, variant: DocumentPreviewVariant) {
+  const isLetter = variant === "letter";
+
   if (block.type === "paragraph") {
-    const className = paragraphClassName(block.style, block.alignment);
+    const className = paragraphClassName(block.style, block.alignment, variant);
     const style: CSSProperties = {
       marginTop: block.spacingBefore ? `${block.spacingBefore}pt` : undefined,
       marginBottom: block.spacingAfter ? `${block.spacingAfter}pt` : undefined,
       paddingLeft: block.indentation ? `${block.indentation}pt` : undefined,
+      ...paragraphStyle(block.style, variant),
     };
 
     if (block.style === "Heading 1") {
@@ -61,9 +78,26 @@ function renderBlock(block: DocumentBlock) {
   if (block.type === "list") {
     const ListTag = block.listType === "numbered" ? "ol" : "ul";
     return (
-      <ListTag className="ml-6 space-y-2 text-zinc-700 dark:text-zinc-200">
+      <ListTag
+        className={isLetter ? "" : "ml-6 space-y-2 text-zinc-700 dark:text-zinc-200"}
+        style={
+          isLetter
+            ? {
+                marginLeft: "2.6cqw",
+                display: "grid",
+                rowGap: mmToPageCqw(1.5),
+                fontSize: ptToPageCqw(LETTER_LAYOUT_PT.body),
+                lineHeight: 1.55,
+              }
+            : undefined
+        }
+      >
         {block.items.map((item, index) => (
-          <ListItemPreview key={`${item.text}-${index}`} item={item} />
+          <ListItemPreview
+            key={`${item.text}-${index}`}
+            item={item}
+            variant={variant}
+          />
         ))}
       </ListTag>
     );
@@ -71,13 +105,28 @@ function renderBlock(block: DocumentBlock) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full border-collapse text-left text-sm text-zinc-700 dark:text-zinc-200">
+      <table
+        className={`w-full border-collapse text-left${isLetter ? "" : " text-zinc-700 dark:text-zinc-200"}`}
+        style={isLetter ? { fontSize: ptToPageCqw(LETTER_LAYOUT_PT.table) } : undefined}
+      >
         <thead>
-          <tr className="bg-zinc-100 dark:bg-zinc-800">
+          <tr
+            className={isLetter ? "" : "bg-zinc-100 dark:bg-zinc-800"}
+            style={isLetter ? { background: LETTER_COLORS.tableHeaderBg } : undefined}
+          >
             {block.headers.map((header) => (
               <th
                 key={header}
-                className="border border-zinc-300 px-3 py-2 font-semibold text-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+                className={isLetter ? "" : "border border-zinc-300 font-semibold text-zinc-800 dark:border-zinc-700 dark:text-zinc-100"}
+                style={
+                  isLetter
+                    ? {
+                        padding: `${mmToPageCqw(1.2)} ${mmToPageCqw(1.8)}`,
+                        border: `1px solid ${LETTER_COLORS.tableBorder}`,
+                        fontWeight: 600,
+                      }
+                    : undefined
+                }
               >
                 {header}
               </th>
@@ -90,7 +139,15 @@ function renderBlock(block: DocumentBlock) {
               {row.map((cell, cellIndex) => (
                 <td
                   key={`cell-${rowIndex}-${cellIndex}`}
-                  className="border border-zinc-300 px-3 py-2 align-top dark:border-zinc-700"
+                  className={isLetter ? "align-top" : "border border-zinc-300 align-top dark:border-zinc-700"}
+                  style={
+                    isLetter
+                      ? {
+                          padding: `${mmToPageCqw(1.2)} ${mmToPageCqw(1.8)}`,
+                          border: `1px solid ${LETTER_COLORS.tableBorder}`,
+                        }
+                      : undefined
+                  }
                 >
                   {cell}
                 </td>
@@ -103,14 +160,48 @@ function renderBlock(block: DocumentBlock) {
   );
 }
 
-function ListItemPreview({ item }: { item: ListItem }) {
+function ListItemPreview({
+  item,
+  variant,
+}: {
+  item: ListItem;
+  variant: DocumentPreviewVariant;
+}) {
+  const isLetter = variant === "letter";
+
   return (
-    <li className="leading-relaxed text-zinc-700 dark:text-zinc-200">
+    <li
+      className={isLetter ? "" : "text-zinc-700 dark:text-zinc-200"}
+      style={
+        isLetter
+          ? {
+              lineHeight: 1.55,
+              fontSize: ptToPageCqw(LETTER_LAYOUT_PT.body),
+            }
+          : undefined
+      }
+    >
       <span>{renderInlineText(item.text, item.spans ?? [])}</span>
       {item.children && item.children.length > 0 ? (
-        <ul className="ml-6 mt-2 space-y-2">
+        <ul
+          className={isLetter ? "" : "ml-6 mt-2 space-y-2"}
+          style={
+            isLetter
+              ? {
+                  marginLeft: "2.6cqw",
+                  marginTop: mmToPageCqw(1.5),
+                  display: "grid",
+                  rowGap: mmToPageCqw(1.5),
+                }
+              : undefined
+          }
+        >
           {item.children.map((child, index) => (
-            <ListItemPreview key={`${child.text}-${index}`} item={child} />
+            <ListItemPreview
+              key={`${child.text}-${index}`}
+              item={child}
+              variant={variant}
+            />
           ))}
         </ul>
       ) : null}
@@ -118,21 +209,71 @@ function ListItemPreview({ item }: { item: ListItem }) {
   );
 }
 
-function paragraphClassName(style: string, alignment?: string): string {
-  const classes = ["whitespace-pre-wrap", "text-zinc-700", "dark:text-zinc-200"];
-  if (style === "Heading 1")
-    classes.push("text-2xl", "font-bold", "text-zinc-900", "dark:text-zinc-50");
-  else if (style === "Heading 2")
-    classes.push("text-xl", "font-bold", "text-zinc-900", "dark:text-zinc-50");
-  else if (style === "Heading 3")
-    classes.push("text-lg", "font-semibold", "text-zinc-900", "dark:text-zinc-100");
-  else classes.push("text-sm", "leading-7");
+function paragraphClassName(
+  style: string,
+  alignment: string | undefined,
+  variant: DocumentPreviewVariant,
+): string {
+  const isLetter = variant === "letter";
+  const classes = ["whitespace-pre-wrap"];
+  if (!isLetter) classes.push("text-zinc-700", "dark:text-zinc-200");
+
+  if (style === "Heading 1") {
+    if (!isLetter) classes.push("font-bold", "text-zinc-900", "dark:text-zinc-50");
+    if (variant === "default") classes.push("text-2xl");
+  } else if (style === "Heading 2") {
+    if (!isLetter) classes.push("font-bold", "text-zinc-900", "dark:text-zinc-50");
+    if (variant === "default") classes.push("text-xl");
+  } else if (style === "Heading 3") {
+    if (!isLetter) classes.push("font-semibold", "text-zinc-900", "dark:text-zinc-100");
+    if (variant === "default") classes.push("text-lg");
+  } else if (variant === "default") {
+    classes.push("text-sm", "leading-7");
+  }
 
   if (alignment === "center") classes.push("text-center");
   else if (alignment === "right") classes.push("text-right");
   else if (alignment === "justify") classes.push("text-justify");
 
   return classes.join(" ");
+}
+
+function paragraphStyle(
+  style: string,
+  variant: DocumentPreviewVariant,
+): CSSProperties | undefined {
+  if (variant !== "letter") {
+    return undefined;
+  }
+
+  if (style === "Heading 1") {
+    return {
+      fontSize: ptToPageCqw(LETTER_LAYOUT_PT.heading1),
+      fontWeight: 700,
+      margin: `${mmToPageCqw(2)} 0 ${mmToPageCqw(4)} 0`,
+    };
+  }
+
+  if (style === "Heading 2") {
+    return {
+      fontSize: ptToPageCqw(LETTER_LAYOUT_PT.heading2),
+      fontWeight: 700,
+      margin: `${mmToPageCqw(2)} 0 ${mmToPageCqw(3)} 0`,
+    };
+  }
+
+  if (style === "Heading 3") {
+    return {
+      fontSize: ptToPageCqw(LETTER_LAYOUT_PT.heading3),
+      fontWeight: 700,
+      margin: `${mmToPageCqw(1)} 0 ${mmToPageCqw(2)} 0`,
+    };
+  }
+
+  return {
+    fontSize: ptToPageCqw(LETTER_LAYOUT_PT.body),
+    lineHeight: 1.55,
+  };
 }
 
 function renderInlineText(text: string, spans: InlineSpan[]) {
