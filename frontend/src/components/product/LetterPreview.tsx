@@ -120,10 +120,10 @@ export function LetterPreview({
       }`}
     >
       <div
-        className={`rounded-3xl bg-[var(--app-surface-strong)] shadow-sm ${
+        className={`rounded-2xl bg-[var(--app-surface-strong)] shadow-sm ${
           isImmersive
             ? "flex h-full flex-col rounded-none p-0 sm:rounded-3xl sm:p-4 lg:p-6"
-            : "p-2 sm:p-3"
+            : "p-1 sm:p-1.5"
         }`}
         style={{ outline: "1px solid rgba(0,0,0,0.05)" }}
       >
@@ -143,10 +143,10 @@ export function LetterPreview({
           </div>
         ) : null}
         <div
-          className={`rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] dark:bg-[linear-gradient(180deg,#151c25_0%,#10161f_100%)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] ${
+          className={`rounded-xl bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] dark:bg-[linear-gradient(180deg,#151c25_0%,#10161f_100%)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] ${
             isImmersive
               ? "flex min-h-0 flex-1 rounded-none p-2 sm:rounded-2xl sm:p-4 lg:p-5"
-              : "aspect-[210/297] p-1.5 sm:p-2.5"
+              : "aspect-[210/297] p-1 sm:p-1.5"
           }`}
         >
           <div
