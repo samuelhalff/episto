@@ -145,8 +145,8 @@ export function LetterPreview({
         <div
           className={`rounded-2xl bg-[linear-gradient(180deg,#ffffff_0%,#fffdfa_100%)] shadow-[inset_0_1px_2px_rgba(120,53,15,0.04)] dark:bg-[linear-gradient(180deg,#151c25_0%,#10161f_100%)] dark:shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] ${
             isImmersive
-              ? "flex min-h-0 flex-1 rounded-none p-3 sm:rounded-2xl sm:p-5 lg:p-6"
-              : "aspect-[210/297] p-3 sm:p-4"
+              ? "flex min-h-0 flex-1 rounded-none p-2 sm:rounded-2xl sm:p-4 lg:p-5"
+              : "aspect-[210/297] p-1.5 sm:p-2.5"
           }`}
         >
           <div
@@ -154,21 +154,27 @@ export function LetterPreview({
               isImmersive ? "flex min-h-[640px] flex-1 flex-col" : "flex min-h-[400px] flex-col"
             }`}
           >
-            {/* Header grid: sender (left) | gap | dispatch+recipient (right) */}
+            {/*
+             * Header grid — 5 columns with margins built in so that
+             * column percentages (via mmPct) resolve against the full
+             * container width, matching A4 proportions exactly.
+             */}
             <div
               className="letter-header grid items-start"
               style={{
-                gridTemplateColumns: `${mmPct(80)} 1fr ${mmPct(59)}`,
-                paddingTop: mmPct(16),
-                paddingLeft: mmPct(20),
-                paddingRight: mmPct(22),
+                gridTemplateColumns: `${mmPct(14)} ${mmPct(80)} 1fr ${mmPct(70)} ${mmPct(14)}`,
+                paddingTop: mmPct(12),
               }}
             >
+              {/* Col 1: left margin (empty) */}
+              <div />
+
+              {/* Col 2: sender */}
               <div className="sender-block">
                 <ZoneBlock zone="sender" onZoneClick={onZoneClick}>
                   <div className="text-[0.6rem] leading-[1.5] sm:text-[0.65rem]">
                     {senderProfile ? (
-                      <div className="space-y-0.5 text-zinc-700 dark:text-zinc-200">
+                      <div className="text-zinc-700 dark:text-zinc-200">
                         {senderLines.map((line, index) => (
                           <div
                             key={`${line}-${index}`}
@@ -191,22 +197,22 @@ export function LetterPreview({
                 </ZoneBlock>
               </div>
 
-              {/* Spacer column */}
+              {/* Col 3: gap */}
               <div />
 
-              {/* Right column: dispatch → recipient (flow stack) */}
+              {/* Col 4: dispatch → recipient (flow stack) */}
               <div
                 className="recipient-col flex flex-col"
-                style={{ paddingTop: mmPct(16) }}
+                style={{ paddingTop: mmPct(14) }}
               >
                 <div className="dispatch-line">
-                  <div className="border-b border-current pb-0.5 text-[0.55rem] font-bold tracking-[0.16em] text-zinc-700 dark:text-zinc-200 sm:text-[0.58rem]">
+                  <div className="border-b border-current pb-0.5 text-[0.55rem] font-bold tracking-[0.1em] text-zinc-700 dark:text-zinc-200 sm:text-[0.58rem]">
                     {deliveryLine}
                   </div>
                 </div>
                 <div
                   className="recipient-block"
-                  style={{ marginTop: mmPct(3), minHeight: mmPct(20) }}
+                  style={{ marginTop: mmPct(3), minHeight: mmPct(18) }}
                 >
                   <ZoneBlock zone="recipient" onZoneClick={onZoneClick}>
                     <div className="text-[0.65rem] leading-[1.4] text-left sm:text-[0.72rem]">
@@ -234,15 +240,18 @@ export function LetterPreview({
                   </ZoneBlock>
                 </div>
               </div>
+
+              {/* Col 5: right margin (empty) */}
+              <div />
             </div>
 
             {/* Date: right-aligned, flows below header */}
             <div
               className="right-meta"
               style={{
-                marginTop: mmPct(8),
-                paddingLeft: mmPct(100),
-                paddingRight: mmPct(22),
+                marginTop: mmPct(6),
+                paddingLeft: mmPct(14),
+                paddingRight: mmPct(14),
               }}
             >
               <div className="date-line text-right text-[0.6rem] text-zinc-500 dark:text-zinc-400 sm:text-[0.65rem]">
@@ -254,10 +263,10 @@ export function LetterPreview({
             <div
               className="body-flow flex h-full flex-col"
               style={{
-                marginTop: mmPct(8),
-                paddingRight: mmPct(18),
-                paddingBottom: mmPct(16),
-                paddingLeft: mmPct(20),
+                marginTop: mmPct(6),
+                paddingRight: mmPct(14),
+                paddingBottom: mmPct(12),
+                paddingLeft: mmPct(14),
               }}
             >
               {editingZone === "subject" ? (
