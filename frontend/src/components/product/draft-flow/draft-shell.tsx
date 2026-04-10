@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
+import { ChevronDown } from "lucide-react";
 import { WorkspaceSiteMenu } from "./WorkspaceSiteMenu";
 import { SecondaryButton } from "./cards";
 import { StepTriggerButton } from "./draft-composer";
@@ -10,6 +11,7 @@ import { HeaderLanguageMenu } from "../../layout/HeaderLanguageMenu";
 import { useStepNav } from "./step-nav-context";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
+import { getAppButtonClassName } from "../../ui/app-button";
 
 interface DraftShellProps {
   step?: number;
@@ -118,7 +120,11 @@ export function DraftShell({
                       type="button"
                       disabled={isNavigating}
                       aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
-                      className="group inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
+                      className={getAppButtonClassName({
+                        variant: "ghost",
+                        size: "md",
+                        className: "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
+                      })}
                     >
                       <div className="flex items-center gap-1">
                         {Array.from({ length: totalSteps }, (_, i) => (
@@ -134,9 +140,10 @@ export function DraftShell({
                           />
                         ))}
                       </div>
-                      <span aria-hidden="true" className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300">
-                        {step + 1} / {totalSteps}
+                      <span className="text-sm font-medium">
+                        {step + 1}/{totalSteps}
                       </span>
+                      <ChevronDown className={`h-4 w-4 transition-transform ${stepPopoverOpen ? "rotate-180" : ""}`} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent align="end" sideOffset={8} className="w-[320px] p-0">
@@ -167,7 +174,11 @@ export function DraftShell({
                   onClick={onStepClick}
                   disabled={isNavigating}
                   aria-label={`Step ${step + 1} of ${totalSteps} — view all steps`}
-                  className="group inline-flex items-center gap-2.5 rounded-lg px-2.5 py-2 transition-colors hover:bg-zinc-100 disabled:opacity-50 dark:hover:bg-zinc-800"
+                  className={getAppButtonClassName({
+                    variant: "ghost",
+                    size: "md",
+                    className: "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
+                  })}
                 >
                   <div className="flex items-center gap-1">
                     {Array.from({ length: totalSteps }, (_, i) => (
@@ -183,9 +194,10 @@ export function DraftShell({
                       />
                     ))}
                   </div>
-                  <span aria-hidden="true" className="text-[11px] font-medium text-zinc-400 transition-colors group-hover:text-zinc-600 dark:text-zinc-500 dark:group-hover:text-zinc-300">
-                    {step + 1} / {totalSteps}
+                  <span className="text-sm font-medium">
+                    {step + 1}/{totalSteps}
                   </span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${isStepMenuOpen ? "rotate-180" : ""}`} />
                 </button>
               ) : null}
               <HeaderLanguageMenu />

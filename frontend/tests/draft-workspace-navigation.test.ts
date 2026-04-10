@@ -117,9 +117,9 @@ describe("draft workspace navigation", () => {
     expect(stepOverlaySource).toContain("<Lock");
   });
 
-  it("uses phase copy in the post-draft header step indicator", () => {
-    expect(stepIndicatorSource).toContain('t("phaseProgress"');
-    expect(stepIndicatorSource).not.toContain('t("stepProgress"');
+  it("shows step name without redundant phase label in the step indicator", () => {
+    expect(stepIndicatorSource).not.toContain('t("phaseProgress"');
+    expect(stepIndicatorSource).toContain('t(currentStepKey)');
   });
 
   it("uses clearer confirmation copy when starting a new draft from resume", () => {
