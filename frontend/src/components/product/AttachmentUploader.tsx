@@ -434,8 +434,8 @@ export function AttachmentUploader({
                   ? "min-h-[96px] py-4"
                   : "min-h-[112px] py-5"
                 : isCompactViewport
-                  ? "min-h-[152px] py-6"
-                  : "min-h-[176px] py-8",
+                  ? "min-h-[200px] py-8"
+                  : "min-h-[240px] py-10",
               isDragOver
                 ? "border-primary bg-primary/5"
                 : "border-zinc-200 bg-white hover:border-primary/40 hover:bg-primary/5 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-primary/40 dark:hover:bg-primary/10",

@@ -2,13 +2,13 @@
 
 import { type ReactNode, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Eye, EyeOff } from "lucide-react";
 import { WorkspaceSiteMenu } from "./WorkspaceSiteMenu";
 import { SecondaryButton } from "./cards";
 import { StepTriggerButton } from "./draft-composer";
 import { StepList } from "./StepOverlay";
 import { HeaderLanguageMenu } from "../../layout/HeaderLanguageMenu";
-import { useStepNav } from "./step-nav-context";
+import { useStepNav, usePreviewPanel } from "./step-nav-context";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 import { Popover, PopoverContent, PopoverTrigger } from "../../ui/popover";
 import { getAppButtonClassName } from "../../ui/app-button";
@@ -54,6 +54,7 @@ export function DraftShell({
   const td = useTranslations("draft");
   const [stepPopoverOpen, setStepPopoverOpen] = useState(false);
   const stepNav = useStepNav();
+  const previewPanel = usePreviewPanel();
 
   const dismissKeyboard = useCallback(() => {
     const el = document.activeElement;
@@ -198,6 +199,24 @@ export function DraftShell({
                     {step + 1}/{totalSteps}
                   </span>
                   <ChevronDown className={`h-4 w-4 transition-transform ${isStepMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+              ) : null}
+              {previewPanel ? (
+                <button
+                  type="button"
+                  onClick={previewPanel.onToggle}
+                  aria-label={previewPanel.isVisible ? tc("hidePreview") : tc("showPreview")}
+                  className={getAppButtonClassName({
+                    variant: "ghost",
+                    size: "md",
+                    className: "app-toolbar-button min-h-11 w-11 rounded-2xl p-0 shadow-none",
+                  })}
+                >
+                  {previewPanel.isVisible ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
                 </button>
               ) : null}
               <HeaderLanguageMenu />

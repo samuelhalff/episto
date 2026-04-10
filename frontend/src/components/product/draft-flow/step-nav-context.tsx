@@ -28,3 +28,27 @@ export function StepNavProvider({
 export function useStepNav(): StepNavContextValue | null {
   return useContext(StepNavContext);
 }
+
+// ---------------------------------------------------------------------------
+// Preview panel context — consumed by DraftShell header for a global toggle
+// ---------------------------------------------------------------------------
+
+interface PreviewPanelContextValue {
+  isVisible: boolean;
+  onToggle: () => void;
+}
+
+const PreviewPanelContext = createContext<PreviewPanelContextValue | null>(null);
+
+export function PreviewPanelProvider({
+  children,
+  ...value
+}: PreviewPanelContextValue & { children: ReactNode }) {
+  return (
+    <PreviewPanelContext.Provider value={value}>{children}</PreviewPanelContext.Provider>
+  );
+}
+
+export function usePreviewPanel(): PreviewPanelContextValue | null {
+  return useContext(PreviewPanelContext);
+}
