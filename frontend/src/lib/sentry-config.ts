@@ -4,10 +4,14 @@ import { env } from "./env";
 const FRONTEND_TRACES_SAMPLE_RATE = 0.1;
 const TOKEN_PLACEHOLDER = "[token]";
 const TOKENIZED_PATH_PATTERNS = [
+  /(\/draft\/)([^/?#]+)/g,
+  /(\/admin\/drafts\/)([^/?#]+)/g,
   /(\/resume\/)([^/?#]+)/g,
   /(\/status\/)([^/?#]+)/g,
+  /(\/v1\/drafts\/)([^/?#]+)/g,
   /(\/v1\/resume\/)([^/?#]+)/g,
   /(\/v1\/orders\/)([^/?#]+)/g,
+  /(\/api\/v1\/drafts\/)([^/?#]+)/g,
   /(\/api\/v1\/resume\/)([^/?#]+)/g,
   /(\/api\/v1\/orders\/)([^/?#]+)/g,
 ];

@@ -14,6 +14,15 @@ export interface FrontendErrorContext {
 
 export type FrontendMessageLevel = "warning" | "error";
 
+function createSafeError(error: Error): Error {
+  const safeError = new Error(error.message);
+  safeError.name = error.name;
+  if (error.stack) {
+    safeError.stack = error.stack;
+  }
+  return safeError;
+}
+
 function withErrorTrackingScope(
   context: FrontendErrorContext | undefined,
   callback: () => void,
@@ -43,7 +52,7 @@ function withErrorTrackingScope(
 export function captureException(error: Error, context?: FrontendErrorContext): void {
   try {
     withErrorTrackingScope(context, () => {
-      Sentry.captureException(error);
+      Sentry.captureException(createSafeError(error));
     });
   } catch {
     // Error tracking must never break the UI.

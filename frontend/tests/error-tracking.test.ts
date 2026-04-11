@@ -82,13 +82,19 @@ describe("frontend error tracking", () => {
 
     expect(sentry.withScope).toHaveBeenCalledOnce();
     expect(scope.setTag).toHaveBeenCalledWith("component", "ComposerPanel");
-    expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/draft-1");
+    expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/[token]");
     expect(scope.setTag).toHaveBeenCalledWith("error_family", "rendering_failure");
     expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", {
       status: 500,
       retryable: true,
     });
-    expect(sentry.captureException).toHaveBeenCalledWith(error);
+    expect(sentry.captureException).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Error",
+        message: "Component crashed",
+      }),
+    );
+    expect(sentry.captureException.mock.calls[0]?.[0]).not.toBe(error);
   });
 
   it("captures warning messages through the Sentry message API", async () => {
@@ -107,6 +113,24 @@ describe("frontend error tracking", () => {
     expect(sentry.captureMessage).toHaveBeenCalledWith("Slow API response", "warning");
   });
 
+  it("sanitizes route-like metadata before sending it to Sentry", async () => {
+    const { mod, scope } = await loadErrorTrackingModule({
+      NEXT_PUBLIC_SENTRY_DSN: "https://public@example.ingest.sentry.io/123",
+    });
+
+    mod.captureMessage("navigating", "warning", {
+      route: "/en-CH/draft/draft-99/review",
+      extra: {
+        path: "/api/v1/drafts/draft-99/stream",
+      },
+    });
+
+    expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/[token]/review");
+    expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", {
+      path: "/api/v1/drafts/[token]/stream",
+    });
+  });
+
   it("never throws if the Sentry SDK itself fails", async () => {
     const { mod, sentry } = await loadErrorTrackingModule({
       NEXT_PUBLIC_SENTRY_DSN: "https://public@example.ingest.sentry.io/123",
@@ -118,5 +142,22 @@ describe("frontend error tracking", () => {
 
     expect(() => mod.captureException(new Error("boom"))).not.toThrow();
     expect(() => mod.captureMessage("warn", "warning")).not.toThrow();
+  });
+
+  it("strips custom error fields before passing exceptions to Sentry", async () => {
+    const { mod, sentry } = await loadErrorTrackingModule({
+      NEXT_PUBLIC_SENTRY_DSN: "https://public@example.ingest.sentry.io/123",
+    });
+    const apiLikeError = Object.assign(new Error("API error 500"), {
+      body: { error: { userMessage: "sensitive" } },
+      request: { path: "/v1/drafts/draft-1" },
+    });
+
+    mod.captureException(apiLikeError);
+
+    const capturedError = sentry.captureException.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(capturedError.message).toBe("API error 500");
+    expect(capturedError).not.toHaveProperty("body");
+    expect(capturedError).not.toHaveProperty("request");
   });
 });
