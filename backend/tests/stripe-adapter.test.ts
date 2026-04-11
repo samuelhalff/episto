@@ -64,15 +64,13 @@ describe("createPaymentIntent", () => {
     expect(paymentIntentsCreate).toHaveBeenCalledWith(
       expect.objectContaining({
         amount: 625,
-        receipt_email: "payer@example.com",
-        description: "Swiss Mail order EP-ORDER-1",
-        metadata: {
+        currency: "chf",
+        automatic_payment_methods: { enabled: true },
+        metadata: expect.objectContaining({
           draftId: "draft-1",
           sessionId: "session-1",
           paymentAttemptId: "payment-1",
-          orderRef: "EP-ORDER-1",
-          deliveryType: "standard",
-        },
+        }),
       }),
       { idempotencyKey: "payment-1" },
     );
@@ -97,7 +95,9 @@ describe("createPaymentIntent", () => {
       deliveryType: "standard",
     });
 
-    expect(paymentIntentsCreate).toHaveBeenCalledWith(
+    const [createPayload] = paymentIntentsCreate.mock.calls[0]!;
+
+    expect(createPayload).toEqual(
       expect.objectContaining({
         receipt_email: "payer@example.com",
         description: "Swiss Mail order EP-ORDER-1",
@@ -106,7 +106,6 @@ describe("createPaymentIntent", () => {
           deliveryType: "standard",
         }),
       }),
-      { idempotencyKey: "payment-1" },
     );
   });
 
