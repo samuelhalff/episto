@@ -40,6 +40,7 @@ export const EnvSchema = z
     // Stripe
     STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
     STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
+    ORDER_ACCESS_TOKEN_SECRET: z.string().min(32),
 
     // Session
     SESSION_TTL_HOURS: z.coerce.number().int().positive().default(72),

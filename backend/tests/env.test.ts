@@ -11,6 +11,7 @@ const validEnv = () => ({
   S3_SECRET_KEY: "secret123",
   STRIPE_SECRET_KEY: "sk_test_abc123",
   STRIPE_WEBHOOK_SECRET: "whsec_test_abc123",
+  ORDER_ACCESS_TOKEN_SECRET: "order-access-secret-at-least-32-chars",
   AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
   AZURE_OPENAI_API_KEY: "key123",
   RESEND_API_KEY: "re_abc123",
@@ -145,6 +146,13 @@ describe("EnvSchema — missing required fields", () => {
   it("fails without RESEND_API_KEY", () => {
     const e = { ...validEnv() };
     delete (e as Record<string, unknown>).RESEND_API_KEY;
+    const result = EnvSchema.safeParse(e);
+    expect(result.success).toBe(false);
+  });
+
+  it("fails without ORDER_ACCESS_TOKEN_SECRET", () => {
+    const e = { ...validEnv() };
+    delete (e as Record<string, unknown>).ORDER_ACCESS_TOKEN_SECRET;
     const result = EnvSchema.safeParse(e);
     expect(result.success).toBe(false);
   });

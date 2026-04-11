@@ -23,6 +23,7 @@ function makeValidEnv(overrides?: Record<string, unknown>) {
     S3_SECRET_KEY: "minio123",
     STRIPE_SECRET_KEY: "sk_test_abc123456",
     STRIPE_WEBHOOK_SECRET: "whsec_test_abc123",
+    ORDER_ACCESS_TOKEN_SECRET: "order-access-secret-at-least-32-chars",
     RESEND_API_KEY: "re_test_abc",
     AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
     AZURE_OPENAI_API_KEY: "key123",
