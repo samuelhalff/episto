@@ -4,11 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-);
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const globalsSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/globals.css"),
@@ -105,7 +101,7 @@ describe("theme surface regressions", () => {
     expect(privacyNoticeSource).toContain("inset-x-4");
     expect(privacyNoticeSource).toContain("bottom-4");
     expect(privacyNoticeSource).toContain('useTranslations("common")');
-    expect(privacyNoticeSource).not.toContain("Sendly uses a single essential cookie");
+    expect(privacyNoticeSource).not.toContain("Episto uses a single essential cookie");
   });
 
   it("keeps marketing chrome hidden until the resolved theme is known", () => {
@@ -113,7 +109,9 @@ describe("theme surface regressions", () => {
     expect(themeProviderSource).not.toContain("queueMicrotask");
     expect(marketingHeaderSource).toContain('data-theme-chrome="marketing"');
     expect(marketingFooterSource).toContain('data-theme-chrome="marketing"');
-    expect(globalsSource).toContain('[data-theme-ready="false"] [data-theme-chrome="marketing"]');
+    expect(globalsSource).toContain(
+      '[data-theme-ready="false"] [data-theme-chrome="marketing"]',
+    );
   });
 
   it("keeps the shared section label style dark-mode safe", () => {

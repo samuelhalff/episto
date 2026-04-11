@@ -358,9 +358,9 @@ describe("dispatch workers", () => {
     expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(mocks.currentDb, {
       dispatchAttemptId: "dispatch-2a",
       draftId: "draft-2a",
+      paymentId: "payment-2a",
       providerReference: "provider-2a",
       trackingNumber: null,
-      rawOrderAccessToken: "order-token-2a",
     });
   });
 
@@ -561,9 +561,9 @@ describe("dispatch workers", () => {
     expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(mocks.currentDb, {
       dispatchAttemptId: "dispatch-5",
       draftId: "draft-5",
+      paymentId: "payment-5",
       providerReference: "provider-5",
       trackingNumber: "track-5",
-      rawOrderAccessToken: "order-token-5",
     });
   });
 });

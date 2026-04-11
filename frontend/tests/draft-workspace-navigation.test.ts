@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -29,6 +29,10 @@ const newDraftPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/new/page.tsx"),
   "utf8",
 );
+const newDraftEntryHelperPath = path.join(repoRoot, "frontend/src/lib/new-draft-entry.ts");
+const newDraftEntryHelperSource = existsSync(newDraftEntryHelperPath)
+  ? readFileSync(newDraftEntryHelperPath, "utf8")
+  : "";
 
 const resumePageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/resume/[token]/page.tsx"),
@@ -127,12 +131,13 @@ describe("draft workspace navigation", () => {
     expect(newDraftPageSource).not.toContain('confirmLabel={tr("startFresh")}');
   });
 
-  it("waits for explicit entry input before creating a new draft", () => {
+  it("waits for explicit entry input before creating a new draft in the default flow", () => {
     expect(newDraftPageSource).toContain('{ kind: "ready"; hasActiveSession: boolean }');
     expect(newDraftPageSource).toContain("<textarea");
-    expect(newDraftPageSource).toContain("async function startDraft");
-    expect(newDraftPageSource.indexOf("async function startDraft")).toBeGreaterThan(
-      newDraftPageSource.indexOf('await apiFetch("/v1/sessions/current")'),
+    expect(newDraftPageSource).toContain("const startDraft = useCallback(");
+    expect(newDraftPageSource).toContain("handleEntrySubmit");
+    expect(newDraftPageSource).toContain(
+      'void startDraft({ initialMessage: composerValue });',
     );
   });
 
@@ -154,6 +159,20 @@ describe("draft workspace navigation", () => {
     expect(newDraftPageSource).toContain("pendingStartAction");
     expect(newDraftPageSource).toContain('pendingStartAction === "resume"');
     expect(newDraftPageSource).toContain('pendingAction: "fresh"');
+  });
+
+  it("uses an explicit recoverable-draft helper instead of resuming the latest draft blindly", () => {
+    expect(existsSync(newDraftEntryHelperPath)).toBe(true);
+    expect(newDraftPageSource).toContain("findRecoverableDraft");
+    expect(newDraftEntryHelperSource).toContain("submitted");
+    expect(newDraftEntryHelperSource).toContain("dispatched");
+    expect(newDraftEntryHelperSource).toContain("closed");
+    expect(newDraftPageSource).not.toContain("return sortDraftsByActivity(drafts)[0] ?? null;");
+  });
+
+  it("treats the fresh entry param as an immediate fresh-start flow", () => {
+    expect(newDraftPageSource).toContain("shouldForceFreshEntry(searchParams)");
+    expect(newDraftPageSource).toContain("forceNewSession: true");
   });
 
   it("keeps entry actions and quick starts on shared action surfaces", () => {

@@ -19,8 +19,9 @@ import { PDFDocument } from "pdf-lib";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { createFileAsset, renderStorageKey } from "../files/file.service.js";
-import { uploadObject, downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
+import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
+import { loadSignatureImageBase64 } from "./signature-image.js";
 import { AppError } from "../../shared/errors/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import {
@@ -249,7 +250,7 @@ export function renderLetterHtml(
   <img class="signature-image" src="data:image/png;base64,${options.signatureImageBase64}" alt="Signature" />
   <div class="signature-name">${escapeHtml(signatureName)}</div>
 </div>`;
-  } else if (data.signatureMode && signatureName) {
+  } else if (data.signatureMode === "typed" && signatureName) {
     signatureBlock = `<div class="signature-block">
   <div class="signature-script">${escapeHtml(signatureName)}</div>
   <div class="signature-name">${escapeHtml(signatureName)}</div>
@@ -651,19 +652,7 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
   );
 
   // 2. Load drawn signature image if needed
-  let signatureImageBase64: string | null = null;
-  if (snapshotData.signatureMode === "drawn" && snapshotData.signatureAssetId) {
-    const [signatureAsset] = await db
-      .select({ storageKey: schema.fileAssets.storageKey })
-      .from(schema.fileAssets)
-      .where(eq(schema.fileAssets.id, snapshotData.signatureAssetId))
-      .limit(1);
-
-    if (signatureAsset) {
-      const { buffer } = await downloadObjectBuffer(signatureAsset.storageKey);
-      signatureImageBase64 = buffer.toString("base64");
-    }
-  }
+  const signatureImageBase64 = await loadSignatureImageBase64(db, snapshotData);
 
   // 3. Render HTML
   const html = renderLetterHtml(snapshotData, { signatureImageBase64 });

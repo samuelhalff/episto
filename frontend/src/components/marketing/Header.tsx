@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
+import { BrandMark } from "../branding/BrandMark";
 import { MenuTriggerButton } from "../layout/MenuTriggerButton";
 import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";
 import { SiteMenuPanel } from "../layout/SiteMenuPanel";
@@ -34,9 +35,7 @@ export function Header() {
           href="/"
           className="inline-flex min-w-0 items-center gap-3 text-lg font-semibold tracking-tight text-zinc-950 transition-colors dark:text-zinc-50 sm:text-xl"
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-950 text-sm font-bold text-white shadow-sm dark:bg-amber-400 dark:text-zinc-950">
-            SM
-          </span>
+          <BrandMark className="h-10 w-10 shrink-0" />
           <span className="truncate">{tc("appName")}</span>
         </Link>
 

@@ -152,7 +152,7 @@ describe("confirmation page regressions", () => {
   it("keeps only one bottom action and removes the floating send-another button", () => {
     expect(confirmationPageSource).not.toContain("stickyCtaLabel");
     expect(confirmationPageSource).not.toContain("fixed inset-x-4 bottom-4");
-    expect(confirmationPageSource).toContain('href="/draft/new"');
+    expect(confirmationPageSource).toContain('href="/draft/new?fresh=1"');
     expect(confirmationPageSource).toContain('{t("sendAnother")}');
   });
 });

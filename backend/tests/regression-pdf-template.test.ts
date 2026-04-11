@@ -228,6 +228,21 @@ describe("regression: PDF letter template renders all elements", () => {
     expect(html).not.toContain('<div class="signature-script">');
   });
 
+  it("does not fabricate a typed signature block when drawn mode has no image payload", async () => {
+    const { renderLetterHtml } = await import(
+      "../src/modules/rendering/render.service.js"
+    );
+    const html = renderLetterHtml(
+      makeSnapshotData({
+        signatureMode: "drawn",
+        signatureAssetId: "22222222-2222-4222-8222-222222222222",
+      }),
+    );
+
+    expect(html).not.toContain('<div class="signature-block">');
+    expect(html).not.toContain('<div class="signature-script">');
+  });
+
   it("renders the enclosure note when provided", async () => {
     const { renderLetterHtml } = await import(
       "../src/modules/rendering/render.service.js"

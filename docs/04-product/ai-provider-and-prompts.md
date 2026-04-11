@@ -108,7 +108,7 @@ Rules:
 
 ## Provider conversation persistence
 
-When the Azure execution path uses provider-side threads or conversations, Sendly still owns the
+When the Azure execution path uses provider-side threads or conversations, Episto still owns the
 canonical drafting state.
 
 Rules:
@@ -150,9 +150,10 @@ Prompt rules:
 Do not store prompts inline in UI code or spread prompt fragments across feature modules.
 
 ### Locale & Legal Safety
+
 - **Locale enforcement:** Every prompt must explicitly state the target locale (e.g., "Output strictly in standard Swiss German (Hochdeutsch)").
 - **Dialect rule:** Never generate Swiss German dialect (Mundart) for formal letters.
-- **Legal hallucination:** Instruct the model to *never* invent Article numbers or specific laws. If a user asks for "legal backing", the model must refuse or use generic phrasing ("under applicable Swiss law") rather than fabricating a statute.
+- **Legal hallucination:** Instruct the model to _never_ invent Article numbers or specific laws. If a user asks for "legal backing", the model must refuse or use generic phrasing ("under applicable Swiss law") rather than fabricating a statute.
 
 ---
 
@@ -240,13 +241,13 @@ Test doubles are allowed in automated tests. No fake provider path may appear in
 
 ## Still configurable
 
-| Decision | Status |
-|---|---|
-| Exact Azure region / deployment names | Config-driven |
-| Exact production model IDs | Config-driven (defaults locked, deployments configurable) |
-| Provider-specific retry/backoff tuning | Open |
-| Prompt-storage path and versioning convention | Open but implementation-ready |
-| Whether a secondary moderation vendor is ever needed | Post-MVP unless explicitly approved |
+| Decision                                             | Status                                                    |
+| ---------------------------------------------------- | --------------------------------------------------------- |
+| Exact Azure region / deployment names                | Config-driven                                             |
+| Exact production model IDs                           | Config-driven (defaults locked, deployments configurable) |
+| Provider-specific retry/backoff tuning               | Open                                                      |
+| Prompt-storage path and versioning convention        | Open but implementation-ready                             |
+| Whether a secondary moderation vendor is ever needed | Post-MVP unless explicitly approved                       |
 
 ## Azure deployment checklist
 

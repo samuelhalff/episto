@@ -1,89 +1,117 @@
 # Dictation and Speech Input
 
 **Resolves:** GAP-2 (speech/dictation technical decision)
-**Status:** Directional implementation guide. Browser-native dictation is the current recommended
-MVP path, but provider-specific behavior must stay behind an abstraction boundary and must not leak
-into user-facing promises.
+**Status:** Locked implementation direction. Dictation is a backend-owned product path built around
+Azure AI Speech. Browser-native speech recognition is not the canonical implementation.
 
 ---
 
-## 1. Speech-to-Text Decision
+## 1. Decision
 
-### Option A: Web Speech API (browser native) — RECOMMENDED for MVP
-- Pros: Zero backend cost, instant availability, no audio upload (privacy), works offline on some devices, good enough for Swiss German/French/Italian
-- Cons: Inconsistent across browsers (Chrome best, Safari partial, Firefox limited), no fine-tuning, accuracy varies by dialect, no server-side fallback
-- Swiss language support: Chrome supports de-CH, fr-CH, it-CH via Google STT backend
-- Privacy: Audio processed by browser vendor (Google for Chrome, Apple for Safari)
+### Locked direction
 
-### Option B: Whisper API (OpenAI)
-- Pros: Excellent multilingual, consistent quality, supports Swiss German well
-- Cons: Audio must be sent to US servers (privacy concern), cost per minute, latency, requires microphone permission + upload
-- Cost: ~$0.006 per minute
+- **Primary path:** same-origin microphone capture in the browser, streamed to the backend, then to
+  **Azure AI Speech** for live transcription.
+- **Fallback path:** buffered stop-then-transcribe through the same backend-owned speech adapter
+  when the live stream fails or cannot complete cleanly.
+- **Provider boundary:** the frontend never calls Azure directly. All provider interaction stays in a
+  backend adapter.
 
-### Option C: Self-hosted Whisper / Deepgram
-- Pros: Data stays under our control, customizable
-- Cons: Infrastructure burden, latency, cost, overkill for MVP
+### Rejected as the primary product path
 
-**Decision status:** RECOMMENDED Option A for MVP. Browser Web Speech API with graceful degradation.
-Treat this as the current design direction, not as permission to hardcode browser-vendor-specific
-assumptions across the app. Keep dictation behind a dedicated frontend abstraction and keep copy
-truthful about availability.
+- **Browser Web Speech API:** rejected because behavior, locale quality, and availability vary too
+  much by browser/vendor and would make dictation non-deterministic across the product.
+- **Whisper as the main live engine:** rejected for primary dictation because the product needs
+  low-latency live transcription plus phrase-list/custom-speech support. Do not assume Whisper is
+  the fallback either unless a later explicit decision adds it.
 
 ---
 
-## 2. Implementation
-- Use `window.SpeechRecognition` / `webkitSpeechRecognition`
-- Language set from user's locale: `recognition.lang = 'de-CH'`
-- Continuous mode: `recognition.continuous = true`
-- Interim results: show real-time transcription as user speaks
-- Final result: send as user message to AI conversation
+## 2. Runtime flow
+
+1. The browser requests microphone permission and captures audio locally.
+2. The frontend streams PCM audio to a same-origin backend route.
+3. The backend opens a speech session against Azure AI Speech and relays partial/final transcript
+   events back to the client.
+4. If the live session fails after audio was captured, the frontend can submit the buffered audio to
+   a backend fallback route for stop-then-transcribe.
+5. Transcript text is inserted into the editable composer; the user still decides what to send.
+
+No raw Azure payloads or browser-vendor STT assumptions should leak into UI copy or shared
+contracts.
 
 ---
 
-## 3. UX Pattern
-- Microphone button: prominent on mobile (bottom-right, floating, accent color)
-- States: idle → listening (pulsing animation) → processing → result
-- Visual feedback: waveform or pulsing indicator while recording
-- Cancel: tap microphone again or swipe away
-- Result: transcribed text appears in input field, user can edit before sending
-- Error: "Voice input is not available in this browser. Type your message instead."
+## 3. Responsibility split
+
+### App-owned
+
+- microphone UX and permission handling
+- realtime transcript state (`partial` vs `final`)
+- canonical vocabulary lists for important Swiss companies/institutions
+- request-time hints derived from the current draft/session context
+- privacy enforcement (transit-only audio, no raw audio retention)
+- backend adapter boundary and normalization of provider responses
+
+### Azure-owned
+
+- speech recognition execution
+- phrase lists / custom speech configuration
+- speech resource quotas, endpoints, and regional configuration
 
 ---
 
-## 4. Language Switching
-- Dictation language follows the session locale
-- If user switches locale, speech recognition language switches too
-- No automatic language detection (too unreliable for Swiss dialects)
+## 4. Vocabulary and language behavior
+
+- Dictation language follows the active letter locale (`de-CH`, `fr-CH`, `it-CH`, `en-CH`).
+- If the user switches locale, the next dictation session must use the new locale.
+- Do **not** auto-detect language during dictation.
+- The app maintains a canonical vocabulary seed for important Swiss recipients and institutions.
+- The backend augments that canonical list with request-time hints from the current draft context
+  (recipient, sender, company, city, known references, etc.).
 
 ---
 
-## 5. Privacy
-- Browser API: audio is processed by browser vendor, not our servers
-- No audio is stored by us
-- Privacy notice: "Voice input is processed by your browser. We don't store audio."
-- If user declines microphone permission: show text-only mode
+## 5. UX and failure handling
+
+- Dictation remains first-class on mobile and available on desktop.
+- States stay explicit: idle -> listening -> processing -> result/error.
+- Partial transcription may appear while listening, but only editable text is committed to the
+  composer.
+- If microphone permission is denied, keep typing available and show a clear recovery message.
+- If live transcription fails mid-session, stop the active listening UI promptly and try the
+  buffered fallback when audio is available.
+- Never claim success when the speech provider response is ambiguous or incomplete.
 
 ---
 
-## 6. Accessibility
-- Dictation is an enhancement, NOT a requirement
-- All features accessible via typing
-- Screen reader: announce recording state changes
-- Keyboard shortcut: Ctrl+Shift+M to toggle recording (desktop)
+## 6. Privacy and security
+
+- Raw audio is **transit-only**. Do not store raw audio in application storage, logs, or support
+  tooling.
+- Same-origin application responses must allow `microphone=(self)` so customer dictation surfaces
+  work, while keeping other sensitive browser APIs restricted.
+- Provider secrets remain server-side only.
+- User-facing copy must stay truthful: we transcribe speech through our backend speech provider; we
+  do not promise offline, on-device, or browser-vendor processing.
 
 ---
 
-## 7. Browser Compatibility
-- Chrome/Edge: Full support (de-CH, fr-CH, it-CH, en-CH)
-- Safari: Partial (may lack Swiss locale variants)
-- Firefox: Limited (experimental, may not work)
-- Fallback: keep the voice affordance discoverable but unavailable with a clear explanation; do not
-  hide it silently where voice input is otherwise presented as a first-class path
+## 7. Accessibility and compatibility
+
+- Dictation is an enhancement, not a requirement.
+- All drafting paths must remain available via typing alone.
+- Screen readers should receive recording-state announcements.
+- Availability depends on browser microphone capture primitives (`getUserMedia`, audio processing,
+  same-origin realtime transport), not on browser-native speech recognition support.
+- Do not silently hide dictation where it is presented as a first-class affordance; if unavailable,
+  show a truthful unavailable state and keep typing ready.
 
 ---
 
-## 8. Future Enhancements
-- Whisper API integration for accuracy improvement
-- Custom vocabulary for Swiss postal/legal terms
-- Punctuation commands ("period", "new paragraph")
-- Speaker diarization (future, for phone dictation)
+## 8. Future enhancements
+
+- custom speech endpoint tuning once we have enough safe vocabulary data
+- richer punctuation/formatting commands
+- better recipient/entity hint generation from draft context
+- call/voice-note scenarios only after a separate product decision

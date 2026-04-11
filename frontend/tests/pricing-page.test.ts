@@ -37,16 +37,22 @@ vi.mock("next-intl", () => {
     }, source);
 
   const formatMessage = (message: string, values?: Record<string, unknown>) =>
-    message.replace(/\{(\w+)\}/g, (_, key: string) => String(values?.[key] ?? `{${key}}`));
+    message.replace(/\{(\w+)\}/g, (_, key: string) =>
+      String(values?.[key] ?? `{${key}}`),
+    );
 
   return {
     useTranslations(namespace?: string) {
       return (key: string, values?: Record<string, unknown>) => {
-        const base = namespace ? getNested(i18nState.messages, namespace) : i18nState.messages;
+        const base = namespace
+          ? getNested(i18nState.messages, namespace)
+          : i18nState.messages;
         const value = getNested(base, key);
 
         if (typeof value !== "string") {
-          throw new Error(`Missing translation: ${namespace ? `${namespace}.` : ""}${key}`);
+          throw new Error(
+            `Missing translation: ${namespace ? `${namespace}.` : ""}${key}`,
+          );
         }
 
         return formatMessage(value, values);
@@ -163,9 +169,9 @@ function createPricingMessages() {
         "These public totals use the same stored provider pricing source shown in the app.",
       compositionTitle: "What makes up the price",
       compositionBody:
-        "Sendly service plus the stored provider reference totals for standard and registered dispatch.",
-      serviceStandardFeeLabel: "Sendly service (standard)",
-      serviceRegisteredFeeLabel: "Sendly service (registered)",
+        "Episto service plus the stored provider reference totals for standard and registered dispatch.",
+      serviceStandardFeeLabel: "Episto service (standard)",
+      serviceRegisteredFeeLabel: "Episto service (registered)",
       referenceAssumptionsTitle: "Reference assumptions",
       referenceAssumptionsBody:
         "These public examples cover Swiss domestic letters with the fixed provider-side settings the stored matrix currently supports.",
@@ -179,7 +185,7 @@ function createPricingMessages() {
       assumptionStandardPostageLabel: "Standard postage mapping",
       assumptionRegisteredPostageLabel: "Registered postage mapping",
       syncFreshBody:
-        "These prices come from the latest stored provider sync used by Sendly.",
+        "These prices come from the latest stored provider sync used by Episto.",
       syncStaleBody:
         "These prices come from the last successful provider sync and may be outdated until the next refresh.",
       matrixExamplesTitle: "Matrix-backed page-count examples",
@@ -189,7 +195,7 @@ function createPricingMessages() {
       registeredExamplesTitle: "Registered examples",
       pagesColumnLabel: "Pages",
       providerQuoteColumnLabel: "Provider quote",
-      totalColumnLabel: "Sendly total",
+      totalColumnLabel: "Episto total",
     },
   } satisfies Record<string, unknown>;
 }
@@ -337,7 +343,7 @@ describe("pricing page presentation", () => {
     expect(markup).toContain("CHF 9.78");
   });
 
-  it("shows separate Sendly service rows when standard and registered markups differ", () => {
+  it("shows separate Episto service rows when standard and registered markups differ", () => {
     pricingState.value = {
       data: createPricingData({
         standardMarkupCents: 340,
@@ -349,8 +355,8 @@ describe("pricing page presentation", () => {
 
     const markup = renderPricingSections();
 
-    expect(markup).toContain("Sendly service (standard)");
-    expect(markup).toContain("Sendly service (registered)");
+    expect(markup).toContain("Episto service (standard)");
+    expect(markup).toContain("Episto service (registered)");
     expect(markup).toContain("CHF 3.40");
     expect(markup).toContain("CHF 4.10");
   });
@@ -364,8 +370,12 @@ describe("pricing page presentation", () => {
 
     const markup = renderPricingSections();
     const matchCount =
-      markup.match(new RegExp(enCH.pricing.pricingUnavailableBody.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g"))
-        ?.length ?? 0;
+      markup.match(
+        new RegExp(
+          enCH.pricing.pricingUnavailableBody.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+          "g",
+        ),
+      )?.length ?? 0;
 
     expect(matchCount).toBe(1);
     expect(markup).not.toContain(enCH.pricing.priceUnavailable);

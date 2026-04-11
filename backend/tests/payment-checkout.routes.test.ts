@@ -34,6 +34,7 @@ vi.mock("../src/db/index.js", () => ({
       id: "draft_id",
       sessionId: "session_id",
       deliveryType: "delivery_type",
+      status: "status",
     },
     sessions: {
       id: "session_id",
@@ -98,6 +99,7 @@ describe("payment checkout routes", () => {
             {
               id: "draft-1",
               deliveryType: "standard",
+              status: "ready",
             },
           ]),
         })),
@@ -180,6 +182,37 @@ describe("payment checkout routes", () => {
     expect(mocks.db.transaction).toHaveBeenCalledTimes(1);
     expect(mocks.tx.update).toHaveBeenCalledWith({ id: "session_id" });
     expect(mocks.db.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects checkout while the final review render is still pending", async () => {
+    mocks.db.select.mockReturnValueOnce({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn().mockResolvedValue([
+            {
+              id: "draft-1",
+              deliveryType: "standard",
+              status: "rendering",
+            },
+          ]),
+        })),
+      })),
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({
+      error: {
+        code: "DRAFT_RENDER_PENDING",
+      },
+    });
+    expect(mocks.resolvePaymentDispatchQuoteForDraft).not.toHaveBeenCalled();
+    expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
   });
 
   it("reuses a resumable existing pending payment intent without creating a new attempt", async () => {

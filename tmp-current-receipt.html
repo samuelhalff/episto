@@ -1,385 +1,386 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en-CH">
-<head>
-  <meta charset="UTF-8">
-  <style>
-    @page {
-      size: A4;
-      margin: 0;
-    }
-    * {
-      box-sizing: border-box;
-    }
-    body {
-      margin: 0;
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      background: #f3efe5;
-      color: #18181b;
-    }
-    .sheet {
-      min-height: 297mm;
-      padding: 18mm 14mm 14mm;
-      background:
-        radial-gradient(circle at top right, rgba(246, 197, 74, 0.18), transparent 32%),
-        linear-gradient(180deg, #fffdf8 0%, #f8f3e8 100%);
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
-      page-break-after: always;
-    }
-    .sheet:last-of-type {
-      page-break-after: auto;
-    }
-    .header {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 220px;
-      gap: 14px;
-      align-items: flex-start;
-      margin-bottom: 14px;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .brand {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: #7c5d13;
-      margin-bottom: 6px;
-    }
-    h1 {
-      margin: 0;
-      font-size: 28px;
-      line-height: 1.05;
-    }
-    .subheader {
-      margin-bottom: 12px;
-    }
-    .sheet-title {
-      margin: 0;
-      font-size: 22px;
-      line-height: 1.1;
-    }
-    .lede {
-      max-width: 400px;
-      margin: 8px 0 0;
-      font-size: 13px;
-      line-height: 1.5;
-      color: #3f3f46;
-      overflow-wrap: anywhere;
-    }
-    .issuer {
-      min-width: 220px;
-      padding: 14px;
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.82);
-      border: 1px solid rgba(24, 24, 27, 0.08);
-      font-size: 12px;
-      line-height: 1.5;
-      break-inside: avoid;
-      page-break-inside: avoid;
-      overflow-wrap: anywhere;
-    }
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-      margin: 16px 0;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .card,
-    .section {
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.88);
-      border: 1px solid rgba(24, 24, 27, 0.08);
-      padding: 14px 16px;
-    }
-    .card {
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .card dt,
-    .meta-row dt {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: #71717a;
-      margin-bottom: 4px;
-    }
-    .card dd,
-    .meta-row dd {
-      margin: 0;
-      font-size: 14px;
-      line-height: 1.4;
-      overflow-wrap: anywhere;
-    }
-    .section {
-      margin-top: 10px;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    .section-table {
-      break-inside: auto;
-      page-break-inside: auto;
-    }
-    .section h2 {
-      margin: 0 0 12px;
-      font-size: 13px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #71717a;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-    tbody {
-      break-inside: auto;
-      page-break-inside: auto;
-    }
-    tr {
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    th,
-    td {
-      padding: 8px 0;
-      border-bottom: 1px solid rgba(24, 24, 27, 0.08);
-      text-align: left;
-      vertical-align: top;
-    }
-    td:first-child {
-      padding-right: 12px;
-      overflow-wrap: anywhere;
-    }
-    .amount {
-      text-align: right;
-      white-space: nowrap;
-      font-variant-numeric: tabular-nums;
-    }
-    .total-row td {
-      padding-top: 12px;
-      border-bottom: none;
-      font-size: 16px;
-      font-weight: 700;
-    }
-    .meta-list {
-      margin: 0;
-    }
-    .meta-row {
-      display: grid;
-      grid-template-columns: 180px minmax(0, 1fr);
-      gap: 12px;
-      padding: 6px 0;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-    a {
-      color: #7c5d13;
-      text-decoration: none;
-      overflow-wrap: anywhere;
-    }
-    .meta-note,
-    .section-note {
-      color: #52525b;
-      font-size: 12px;
-      line-height: 1.5;
-    }
-    .section-note {
-      margin: 10px 0 0;
-    }
-    .footnote {
-      margin-top: 12px;
-      font-size: 12px;
-      line-height: 1.55;
-      color: #52525b;
-      break-inside: avoid;
-      page-break-inside: avoid;
-    }
-  </style>
-</head>
-<body>
-  <section class="sheet">
-    <header class="header">
-      <div>
-        <div class="brand">Sendly</div>
-        <h1>Payment receipt</h1>
-        <p class="lede">
-          This receipt confirms payment for your outbound letter order. The attached
-          record is issued by West Bay SA and stays linked to
-          order reference SM-C5DCBAB5.
-        </p>
-      </div>
-      <aside class="issuer">
-        <strong>West Bay SA</strong><br>
-        Chemin du Pre-Roset 19<br>1294 Genthod<br>Switzerland<br>
-        UID / VAT: CHE-107.892.984
-      </aside>
-    </header>
-  
-    <section class="summary">
-      
-    <dl class="card">
-      <dt>Order reference</dt>
-      <dd>SM-C5DCBAB5</dd>
-    </dl>
-  
-      
-    <dl class="card">
-      <dt>Issued on</dt>
-      <dd>9 April 2026 at 14:47</dd>
-    </dl>
-  
-      
-    <dl class="card">
-      <dt>Amount charged</dt>
-      <dd>CHF 9.65</dd>
-    </dl>
-  
-      
-    <dl class="card">
-      <dt>Delivery type</dt>
-      <dd>Registered mail</dd>
-    </dl>
-  
-      
-    <dl class="card">
-      <dt>Sender</dt>
-      <dd>Samuel Halff</dd>
-    </dl>
-  
-      
-    <dl class="card">
-      <dt>Recipient</dt>
-      <dd>Swisscom AG</dd>
-    </dl>
-  
-      
-    <dl class="card">
-      <dt>Customer email</dt>
-      <dd>samuelhalff@gmail.com</dd>
-    </dl>
-  
-    </section>
-  
-    <section class="section section-table">
-      <h2>Charged amount</h2>
-      <table>
-        <tbody>
-          
-        <tr>
-          <td>ePost provider quote</td>
-          <td class="amount">CHF 6.25</td>
-        </tr>
-      
-        <tr>
-          <td>Sendly service</td>
-          <td class="amount">CHF 3.40</td>
-        </tr>
-      
-          
-                <tr class="total-row">
-                  <td>Total charged (CHF)</td>
-                  <td class="amount">CHF 9.65</td>
-                </tr>
-              
-        </tbody>
-      </table>
-      
-    </section>
-  
-    <section class="section">
-      <h2>Document access</h2>
-      <dl class="meta-list">
-        <div class="meta-row">
-          <dt>Signed dispatch statement</dt>
-          <dd>
-            <a href="https://ark-fid.ddns.net/en-CH/status/_efvUh6VbTvw1f83ROTbmT4DukbJFDElPOmoNPsB6Xo">Open order status</a><br>
-            <span class="meta-note">Available for 10 days from payment confirmation.</span>
-          </dd>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      @page {
+        size: A4;
+        margin: 0;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Helvetica Neue", Arial, sans-serif;
+        background: #f3efe5;
+        color: #18181b;
+      }
+      .sheet {
+        min-height: 297mm;
+        padding: 18mm 14mm 14mm;
+        background:
+          radial-gradient(circle at top right, rgba(246, 197, 74, 0.18), transparent 32%),
+          linear-gradient(180deg, #fffdf8 0%, #f8f3e8 100%);
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        page-break-after: always;
+      }
+      .sheet:last-of-type {
+        page-break-after: auto;
+      }
+      .header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 220px;
+        gap: 14px;
+        align-items: flex-start;
+        margin-bottom: 14px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .brand {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #7c5d13;
+        margin-bottom: 6px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        line-height: 1.05;
+      }
+      .subheader {
+        margin-bottom: 12px;
+      }
+      .sheet-title {
+        margin: 0;
+        font-size: 22px;
+        line-height: 1.1;
+      }
+      .lede {
+        max-width: 400px;
+        margin: 8px 0 0;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #3f3f46;
+        overflow-wrap: anywhere;
+      }
+      .issuer {
+        min-width: 220px;
+        padding: 14px;
+        border-radius: 20px;
+        background: rgba(255, 255, 255, 0.82);
+        border: 1px solid rgba(24, 24, 27, 0.08);
+        font-size: 12px;
+        line-height: 1.5;
+        break-inside: avoid;
+        page-break-inside: avoid;
+        overflow-wrap: anywhere;
+      }
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin: 16px 0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .card,
+      .section {
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(24, 24, 27, 0.08);
+        padding: 14px 16px;
+      }
+      .card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .card dt,
+      .meta-row dt {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #71717a;
+        margin-bottom: 4px;
+      }
+      .card dd,
+      .meta-row dd {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.4;
+        overflow-wrap: anywhere;
+      }
+      .section {
+        margin-top: 10px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      .section-table {
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      .section h2 {
+        margin: 0 0 12px;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #71717a;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+      }
+      tbody {
+        break-inside: auto;
+        page-break-inside: auto;
+      }
+      tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      th,
+      td {
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(24, 24, 27, 0.08);
+        text-align: left;
+        vertical-align: top;
+      }
+      td:first-child {
+        padding-right: 12px;
+        overflow-wrap: anywhere;
+      }
+      .amount {
+        text-align: right;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+      }
+      .total-row td {
+        padding-top: 12px;
+        border-bottom: none;
+        font-size: 16px;
+        font-weight: 700;
+      }
+      .meta-list {
+        margin: 0;
+      }
+      .meta-row {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 12px;
+        padding: 6px 0;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+      a {
+        color: #7c5d13;
+        text-decoration: none;
+        overflow-wrap: anywhere;
+      }
+      .meta-note,
+      .section-note {
+        color: #52525b;
+        font-size: 12px;
+        line-height: 1.5;
+      }
+      .section-note {
+        margin: 10px 0 0;
+      }
+      .footnote {
+        margin-top: 12px;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #52525b;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    </style>
+  </head>
+  <body>
+    <section class="sheet">
+      <header class="header">
+        <div>
+          <div class="brand">Episto</div>
+          <h1>Payment receipt</h1>
+          <p class="lede">
+            This receipt confirms payment for your outbound letter order. The attached
+            record is issued by West Bay SA and stays linked to order reference
+            EP-C5DCBAB5.
+          </p>
         </div>
-        <div class="meta-row">
-          <dt>Support</dt>
-          <dd>
-            <a href="mailto:contact@houle.ai">contact@houle.ai</a><br>
-            <span class="meta-note">Temporary mailbox until the final app-domain support address is confirmed.</span>
-          </dd>
-        </div>
-      </dl>
+        <aside class="issuer">
+          <strong>West Bay SA</strong><br />
+          Chemin du Pre-Roset 19<br />1294 Genthod<br />Switzerland<br />
+          UID / VAT: CHE-107.892.984
+        </aside>
+      </header>
+
+      <section class="summary">
+        <dl class="card">
+          <dt>Order reference</dt>
+          <dd>EP-C5DCBAB5</dd>
+        </dl>
+
+        <dl class="card">
+          <dt>Issued on</dt>
+          <dd>9 April 2026 at 14:47</dd>
+        </dl>
+
+        <dl class="card">
+          <dt>Amount charged</dt>
+          <dd>CHF 9.65</dd>
+        </dl>
+
+        <dl class="card">
+          <dt>Delivery type</dt>
+          <dd>Registered mail</dd>
+        </dl>
+
+        <dl class="card">
+          <dt>Sender</dt>
+          <dd>Samuel Halff</dd>
+        </dl>
+
+        <dl class="card">
+          <dt>Recipient</dt>
+          <dd>Swisscom AG</dd>
+        </dl>
+
+        <dl class="card">
+          <dt>Customer email</dt>
+          <dd>samuelhalff@gmail.com</dd>
+        </dl>
+      </section>
+
+      <section class="section section-table">
+        <h2>Charged amount</h2>
+        <table>
+          <tbody>
+            <tr>
+              <td>ePost provider quote</td>
+              <td class="amount">CHF 6.25</td>
+            </tr>
+
+            <tr>
+              <td>Episto service</td>
+              <td class="amount">CHF 3.40</td>
+            </tr>
+
+            <tr class="total-row">
+              <td>Total charged (CHF)</td>
+              <td class="amount">CHF 9.65</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section class="section">
+        <h2>Document access</h2>
+        <dl class="meta-list">
+          <div class="meta-row">
+            <dt>Signed dispatch statement</dt>
+            <dd>
+              <a
+                href="https://ark-fid.ddns.net/en-CH/status/_efvUh6VbTvw1f83ROTbmT4DukbJFDElPOmoNPsB6Xo"
+                >Open order status</a
+              ><br />
+              <span class="meta-note"
+                >Available for 10 days from payment confirmation.</span
+              >
+            </dd>
+          </div>
+          <div class="meta-row">
+            <dt>Support</dt>
+            <dd>
+              <a href="mailto:contact@houle.ai">contact@houle.ai</a><br />
+              <span class="meta-note"
+                >Temporary mailbox until the final app-domain support address is
+                confirmed.</span
+              >
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="section">
+        <h2>Processor references</h2>
+        <dl class="meta-list">
+          <div class="meta-row">
+            <dt>Stripe PaymentIntent</dt>
+            <dd>pi_3TKHzP6PH7OY9gYF1OTG3Cib</dd>
+          </div>
+
+          <div class="meta-row">
+            <dt>Stripe Charge</dt>
+            <dd>py_3TKHzP6PH7OY9gYF1vfd0587</dd>
+          </div>
+        </dl>
+      </section>
+
+      <p class="footnote">
+        This document is a merchant-issued receipt. Stripe processor identifiers are
+        included only as secondary reconciliation references and are not the primary legal
+        invoice number for this service.
+      </p>
     </section>
-  
-    <section class="section">
-      <h2>Processor references</h2>
-      <dl class="meta-list">
-        
-              <div class="meta-row">
-                <dt>Stripe PaymentIntent</dt>
-                <dd>pi_3TKHzP6PH7OY9gYF1OTG3Cib</dd>
-              </div>
-            
-              <div class="meta-row">
-                <dt>Stripe Charge</dt>
-                <dd>py_3TKHzP6PH7OY9gYF1vfd0587</dd>
-              </div>
-            
-      </dl>
+    <section class="sheet">
+      <header class="subheader">
+        <div class="brand">Episto</div>
+        <h2 class="sheet-title">Receipt references</h2>
+      </header>
+
+      <section class="section">
+        <h2>Document access</h2>
+        <dl class="meta-list">
+          <div class="meta-row">
+            <dt>Signed dispatch statement</dt>
+            <dd>
+              <a
+                href="https://ark-fid.ddns.net/en-CH/status/_efvUh6VbTvw1f83ROTbmT4DukbJFDElPOmoNPsB6Xo"
+                >Open order status</a
+              ><br />
+              <span class="meta-note"
+                >Available for 10 days from payment confirmation.</span
+              >
+            </dd>
+          </div>
+          <div class="meta-row">
+            <dt>Support</dt>
+            <dd>
+              <a href="mailto:contact@houle.ai">contact@houle.ai</a><br />
+              <span class="meta-note"
+                >Temporary mailbox until the final app-domain support address is
+                confirmed.</span
+              >
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="section">
+        <h2>Processor references</h2>
+        <dl class="meta-list">
+          <div class="meta-row">
+            <dt>Stripe PaymentIntent</dt>
+            <dd>pi_3TKHzP6PH7OY9gYF1OTG3Cib</dd>
+          </div>
+
+          <div class="meta-row">
+            <dt>Stripe Charge</dt>
+            <dd>py_3TKHzP6PH7OY9gYF1vfd0587</dd>
+          </div>
+        </dl>
+      </section>
+
+      <p class="footnote">
+        This document is a merchant-issued receipt. Stripe processor identifiers are
+        included only as secondary reconciliation references and are not the primary legal
+        invoice number for this service.
+      </p>
     </section>
-  
-            <p class="footnote">
-              This document is a merchant-issued receipt. Stripe processor identifiers are
-              included only as secondary reconciliation references and are not the primary
-              legal invoice number for this service.
-            </p>
-          </section><section class="sheet">
-    <header class="subheader">
-      <div class="brand">Sendly</div>
-      <h2 class="sheet-title">Receipt references</h2>
-    </header>
-  
-    <section class="section">
-      <h2>Document access</h2>
-      <dl class="meta-list">
-        <div class="meta-row">
-          <dt>Signed dispatch statement</dt>
-          <dd>
-            <a href="https://ark-fid.ddns.net/en-CH/status/_efvUh6VbTvw1f83ROTbmT4DukbJFDElPOmoNPsB6Xo">Open order status</a><br>
-            <span class="meta-note">Available for 10 days from payment confirmation.</span>
-          </dd>
-        </div>
-        <div class="meta-row">
-          <dt>Support</dt>
-          <dd>
-            <a href="mailto:contact@houle.ai">contact@houle.ai</a><br>
-            <span class="meta-note">Temporary mailbox until the final app-domain support address is confirmed.</span>
-          </dd>
-        </div>
-      </dl>
-    </section>
-  
-    <section class="section">
-      <h2>Processor references</h2>
-      <dl class="meta-list">
-        
-              <div class="meta-row">
-                <dt>Stripe PaymentIntent</dt>
-                <dd>pi_3TKHzP6PH7OY9gYF1OTG3Cib</dd>
-              </div>
-            
-              <div class="meta-row">
-                <dt>Stripe Charge</dt>
-                <dd>py_3TKHzP6PH7OY9gYF1vfd0587</dd>
-              </div>
-            
-      </dl>
-    </section>
-  
-            <p class="footnote">
-              This document is a merchant-issued receipt. Stripe processor identifiers are
-              included only as secondary reconciliation references and are not the primary
-              legal invoice number for this service.
-            </p>
-          </section>
-</body>
+  </body>
 </html>

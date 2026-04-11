@@ -25,6 +25,7 @@ async function loadBuildApp(trustProxy: boolean) {
     draftRoutes: async () => {},
     addressSearchRoutes: async () => {},
     streamRoutes: async () => {},
+    dictationRoutes: async () => {},
   }));
 
   vi.doMock("../src/modules/payments/index.js", () => ({
@@ -139,6 +140,24 @@ describe("proxy-aware request IP handling", () => {
         ],
       },
     });
+
+    await app.close();
+  });
+
+  it("keeps microphone access enabled for same-origin dictation routes", async () => {
+    const { buildApp } = await loadBuildApp(false);
+    const app = await buildApp(pino({ level: "silent" }));
+    app.get("/debug/headers", async () => ({ ok: true }));
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/debug/headers",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["permissions-policy"]).toBe(
+      "camera=(), microphone=(self), geolocation=()",
+    );
 
     await app.close();
   });

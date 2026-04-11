@@ -12,9 +12,10 @@
 
 ## Primary UX model
 
-Sendly is a **guided drafting workspace**, not a novelty chatbot.
+Episto is a **guided drafting workspace**, not a novelty chatbot.
 
 The default structure:
+
 - **Primary panel** (left on desktop, full-width on mobile): guided conversation and form-like
   prompts
 - **Secondary panel** (right on desktop, toggleable on mobile): live letter preview
@@ -32,6 +33,7 @@ The default structure:
 6. Confirmation: user lands on `/draft/:id/confirmation`
 
 Branch points:
+
 - Template discovery can start from `/templates` or `/use-cases/:slug` before `/draft/new`
 - Resume Draft Flow can return the user to `/draft/new`, `/draft/:id`, or `/resume/:token`
 - Language Switch Mid-Flow is available inside `/draft/:id` without resetting draft state
@@ -45,6 +47,7 @@ Branch points:
 ### Step 1 — Start
 
 User arrives at `/draft/new`. Common entry paths are:
+
 - Direct from `/`
 - From `/how-it-works` or `/pricing`
 - From a use-case CTA on `/templates` or `/use-cases/:slug`
@@ -83,6 +86,7 @@ address blocks or compact date-choice inputs. The preview updates continuously a
 confirmed.
 
 At this stage the user may:
+
 - Resume an unfinished guest draft from `/draft/new` or `/resume/:token`
 - Switch UI locale in the workspace header without losing draft state
 
@@ -97,6 +101,7 @@ transforms into a real, professionally formatted letter. The first-draft reveal 
 choreographed animation sequence (see `micro-interactions.md` §4.2 "First Draft Reveal Choreography").
 
 The user can:
+
 - Edit any zone directly by tapping it in the preview
 - Request a revised tone or wording from the conversation panel (see `page-specifications.md` §6.2 "Revision and Iteration UX")
 - Add attachments (PDF/PNG/JPG) after the first draft exists
@@ -117,6 +122,7 @@ User sees the complete draft in its final rendered form. They confirm the recipi
 delivery type (standard or registered). This is the last chance to edit before committing.
 
 The system performs:
+
 - Field completeness check
 - Address validation (two tiers — see `docs/04-product/postal-dispatch.md`):
   - **Hard block:** Non-Swiss address (country ≠ Switzerland) — cannot proceed until corrected
@@ -144,11 +150,12 @@ dependable contact handle for confirmations and support.
 
 There is no separate signup step. Email collection happens within the checkout context.
 
-→ Email policy: [`docs/04-product/auth-billing-accounts.md`](../04-product/auth-billing-accounts.md)  
+→ Email policy: [`docs/04-product/auth-billing-accounts.md`](../04-product/auth-billing-accounts.md)
 
 ### Step 8 — Dispatch
 
 On payment confirmation:
+
 1. Backend authorizes or captures payment (depending on the locked capture model)
 2. Renders the final PDF artifact
 3. Submits the dispatch request through the adapter
@@ -157,6 +164,7 @@ On payment confirmation:
 ### Step 9 — Confirmation (`/draft/:id/confirmation`)
 
 User sees the confirmation screen with:
+
 - A real provider reference number (if the provider issued one)
 - A clear distinction between "reference" and "tracking" where applicable
 - The email address the confirmation was sent to
@@ -175,8 +183,9 @@ From here the user can check letter status later through `/status/:orderToken` a
 ## Resume Draft Flow
 
 Flow:
+
 1. User closes browser mid-draft
-2. Returns to the Sendly homepage (`/`) within the session TTL (configurable — see `docs/08-guardrails/open-decisions.md`)
+2. Returns to the Episto homepage (`/`) within the session TTL (configurable — see `docs/08-guardrails/open-decisions.md`)
 3. Frontend checks `GET /api/sessions/current` using the HttpOnly session cookie
 4. If active draft found: a prominent recovery card appears on `/draft/new`: "You have an unfinished letter.
    [Continue draft] [Start fresh]"
@@ -192,6 +201,7 @@ start rather than implying data can still be restored. The exact TTL value is an
 ## Language Switch Mid-Flow
 
 Flow:
+
 1. User is in workspace with de-CH UI, writing a French letter
 2. User clicks language selector in header → picks "FR"
 3. UI re-renders in French: labels, buttons, and navigation update
@@ -203,6 +213,7 @@ Flow:
 ## Send Another Letter Flow
 
 Flow:
+
 1. On confirmation page, user taps "Send another letter →"
 2. New session created
 3. If the device has approved locally saved sender details, sender address is auto-filled
@@ -212,6 +223,7 @@ Flow:
 ## Check Letter Status Flow (Returning User)
 
 Flow:
+
 1. User receives **immediate** confirmation email with a secure "Order Status" link (separate from draft resume link).
 2. Clicks link → `/status/:orderToken` → shows current dispatch status and receipt.
 3. This link is valid for 90 days (configurable), independent of the original drafting session TTL (configurable — see `docs/08-guardrails/open-decisions.md`).
@@ -222,14 +234,15 @@ Flow:
    - `rejected` → "Dispatch was rejected" (with next steps)
    - `unknown` → "Status is being confirmed" (honest ambiguity — never collapse to success)
    - `reconciled` → "Status confirmed: [outcome]"
-4. "In transit" and "Delivered" are **not** canonical states. Do not show these labels.
+5. "In transit" and "Delivered" are **not** canonical states. Do not show these labels.
    Further delivery progress (physical transit, delivery confirmation) is entirely provider-dependent
    and may not be available — see `docs/08-guardrails/provider-certainties.md`.
-5. Reference number is shown with a tooltip: "This is a provider reference number. It is not a tracking link unless your delivery type supports tracking."
+6. Reference number is shown with a tooltip: "This is a provider reference number. It is not a tracking link unless your delivery type supports tracking."
 
 ## Template Browsing Flow
 
 Flow:
+
 1. User lands on homepage, scrolls to the use-case section
 2. Sees "View all templates →" link → navigates to `/templates`
 3. Browses a filterable grid of template cards
@@ -252,29 +265,29 @@ Flow:
 
 ## Trust and clarity rules
 
-| Rule | Behavior |
-|---|---|
-| No fake progress | Never show provider success before backend confirmation |
-| No inflated reference labels | Never label a reference as "tracking" unless it supports tracking |
-| No hidden costs | Price summary visible before the user commits to payment |
-| No silent AI rewrites | AI must not rewrite user-confirmed facts after review |
-| Ambiguous state stays ambiguous | If dispatch state is uncertain, tell the user so |
+| Rule                            | Behavior                                                          |
+| ------------------------------- | ----------------------------------------------------------------- |
+| No fake progress                | Never show provider success before backend confirmation           |
+| No inflated reference labels    | Never label a reference as "tracking" unless it supports tracking |
+| No hidden costs                 | Price summary visible before the user commits to payment          |
+| No silent AI rewrites           | AI must not rewrite user-confirmed facts after review             |
+| Ambiguous state stays ambiguous | If dispatch state is uncertain, tell the user so                  |
 
 ## Emotional Arc — The Feeling at Each Step
 
 This table defines the emotional state we're designing for at each stage. Every micro-interaction, copy choice, and animation decision should serve this arc. If a design decision conflicts with the target emotion, the target emotion wins.
 
-| Step | Route | Target emotion | The user should think… | Anti-pattern (breaks the arc) |
-|---|---|---|---|---|
-| Marketing | `/`, `/how-it-works` | **Intrigued, curious** | "This looks easy. Maybe I should try it." | Showing complex pricing tables or feature matrices that feel like enterprise software |
-| Draft entry | `/draft/new` | **Unburdened, empowered** | "I just tell it what I need? That's it?" | Showing a multi-field form or requiring account creation |
-| Active drafting | `/draft/:id` | **Impressed, in flow** | "It understood me. This is actually good." | Slow AI responses, layout shifts, losing typed content |
-| First draft reveal | (within `/draft/:id`) | **Delighted, amazed** | "Wow — that looks like a real letter. Already." | Dumping all content at once with no choreography, or showing it in a text box instead of a formatted preview |
-| Refinement | (within `/draft/:id`) | **In control, creative** | "I can tweak this easily. It keeps getting better." | Requiring re-generation from scratch, losing edits, or making revisions feel laborious |
-| Review | `/draft/:id/review` | **Confident, calm** | "Everything looks right. I'm ready." | Showing scary warnings, requiring too many confirmations, or making editing difficult from this page |
-| Checkout | `/draft/:id/checkout` | **Trusting, decisive** | "Fair price. Just need to pay and I'm done." | Hidden fees, surprise price changes, or complex payment flows |
-| Confirmation | `/draft/:id/confirmation` | **Relieved, accomplished** | "Done. That was so much easier than I expected." | Claiming delivery when only dispatch is submitted, or showing a generic "thank you" without status |
-| Return/status check | `/status/:orderToken` | **Reassured, informed** | "My letter is being handled. I can see what's happening." | Showing stale data, fake tracking, or "status unavailable" without explanation |
+| Step                | Route                     | Target emotion             | The user should think…                                    | Anti-pattern (breaks the arc)                                                                                |
+| ------------------- | ------------------------- | -------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Marketing           | `/`, `/how-it-works`      | **Intrigued, curious**     | "This looks easy. Maybe I should try it."                 | Showing complex pricing tables or feature matrices that feel like enterprise software                        |
+| Draft entry         | `/draft/new`              | **Unburdened, empowered**  | "I just tell it what I need? That's it?"                  | Showing a multi-field form or requiring account creation                                                     |
+| Active drafting     | `/draft/:id`              | **Impressed, in flow**     | "It understood me. This is actually good."                | Slow AI responses, layout shifts, losing typed content                                                       |
+| First draft reveal  | (within `/draft/:id`)     | **Delighted, amazed**      | "Wow — that looks like a real letter. Already."           | Dumping all content at once with no choreography, or showing it in a text box instead of a formatted preview |
+| Refinement          | (within `/draft/:id`)     | **In control, creative**   | "I can tweak this easily. It keeps getting better."       | Requiring re-generation from scratch, losing edits, or making revisions feel laborious                       |
+| Review              | `/draft/:id/review`       | **Confident, calm**        | "Everything looks right. I'm ready."                      | Showing scary warnings, requiring too many confirmations, or making editing difficult from this page         |
+| Checkout            | `/draft/:id/checkout`     | **Trusting, decisive**     | "Fair price. Just need to pay and I'm done."              | Hidden fees, surprise price changes, or complex payment flows                                                |
+| Confirmation        | `/draft/:id/confirmation` | **Relieved, accomplished** | "Done. That was so much easier than I expected."          | Claiming delivery when only dispatch is submitted, or showing a generic "thank you" without status           |
+| Return/status check | `/status/:orderToken`     | **Reassured, informed**    | "My letter is being handled. I can see what's happening." | Showing stale data, fake tracking, or "status unavailable" without explanation                               |
 
 ---
 

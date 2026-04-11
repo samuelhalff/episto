@@ -9,7 +9,7 @@ describe("letter content helpers", () => {
         {
           firstName: null,
           lastName: null,
-          company: "Sendly AG",
+          company: "Episto AG",
           addressLine1: "Limmatquai 10",
           addressLine2: null,
           postalCode: "8001",
@@ -18,7 +18,7 @@ describe("letter content helpers", () => {
         },
         "sender",
       ),
-    ).toEqual(["Sendly AG", "Limmatquai 10", "8001 Zurich"]);
+    ).toEqual(["Episto AG", "Limmatquai 10", "8001 Zurich"]);
   });
 
   it("keeps the country line for non-Swiss sender and recipient addresses", () => {

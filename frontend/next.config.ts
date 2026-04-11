@@ -61,6 +61,10 @@ export function buildContentSecurityPolicy(isDevelopment: boolean): string {
   ].join("; ");
 }
 
+export function buildPermissionsPolicy(): string {
+  return "camera=(), microphone=(self), geolocation=()";
+}
+
 const securityHeaders = [
   {
     key: "Strict-Transport-Security",
@@ -72,7 +76,7 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=()",
+    value: buildPermissionsPolicy(),
   },
   {
     key: "Content-Security-Policy",

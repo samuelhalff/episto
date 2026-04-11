@@ -8,10 +8,9 @@ vi.mock("../src/shared/config/index.js", () => ({
 }));
 
 describe("dispatch pricing input", () => {
-  it("normalizes Sendly's fixed pricing dimensions", async () => {
-    const { buildDispatchPricingInput } = await import(
-      "../src/modules/dispatch/dispatch-pricing-input.service.js"
-    );
+  it("normalizes Episto's fixed pricing dimensions", async () => {
+    const { buildDispatchPricingInput } =
+      await import("../src/modules/dispatch/dispatch-pricing-input.service.js");
 
     const input = buildDispatchPricingInput({
       draftId: "11111111-1111-4111-8111-111111111111",
@@ -33,9 +32,8 @@ describe("dispatch pricing input", () => {
   });
 
   it("derives a stable hash from pricing-relevant fields only", async () => {
-    const { hashDispatchPricingInput } = await import(
-      "../src/modules/dispatch/dispatch-pricing-input.service.js"
-    );
+    const { hashDispatchPricingInput } =
+      await import("../src/modules/dispatch/dispatch-pricing-input.service.js");
 
     const hash = hashDispatchPricingInput({
       deliveryType: "standard",

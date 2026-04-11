@@ -38,7 +38,7 @@ The following HTTP response headers must be set on all application responses:
 | `X-Content-Type-Options` | `nosniff` |
 | `X-XSS-Protection` | `0` |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` |
+| `Permissions-Policy` | `camera=(), microphone=(self), geolocation=()` |
 
 ### Content Security Policy
 
@@ -76,6 +76,8 @@ with nonces in production when the rendering pipeline is stable.
 
 - Do not retain letter content longer than the configurable retention window
 - Do not keep attachments or rendered PDFs "just in case" — delete on policy expiry
+- Dictation audio is transit-only: stream/upload it for transcription, but do not persist raw audio
+  in storage, logs, or support tooling
 - Do not create hidden permanent archives from application logs
 - Content retention and transactional metadata retention use separate, configurable TTLs
 - Provider retention must stay metadata-first: keep references, normalized state, timestamps, and

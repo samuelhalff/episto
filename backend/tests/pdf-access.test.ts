@@ -187,10 +187,13 @@ describe("pdf-access", () => {
         sender: expect.objectContaining({ city: "Zurich" }),
         recipient: expect.objectContaining({ company: "Receiver AG" }),
       }),
+      {
+        signatureImageBase64: null,
+      },
     );
     expect(mocks.renderConfirmationDocumentHtml).toHaveBeenCalledWith(
       expect.objectContaining({
-        orderRef: "SM-DRAFT-1",
+        orderRef: "EP-DRAFT-1",
         providerMode: "mock",
         providerReference: "EPR-T-R-0D2D6C40F706",
         trackingNumber: "98.40.541881.00002354",
@@ -215,9 +218,118 @@ describe("pdf-access", () => {
     expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
     expect(reply.header).toHaveBeenCalledWith(
       "Content-Disposition",
-      'attachment; filename="sendly-draft-1-dispatch-statement.pdf"',
+      'attachment; filename="episto-draft-1-dispatch-statement.pdf"',
     );
     expect(reply.send).toHaveBeenCalledWith(Buffer.from("merged-pdf"));
+  });
+
+  it("loads the drawn signature image when rebuilding the confirmation bundle letter pdf", async () => {
+    mocks.getLatestSnapshot.mockResolvedValueOnce({
+      id: "snapshot-drawn",
+      draftId: "draft-drawn",
+      version: 1,
+      snapshotData: {
+        schemaVersion: 1,
+        locale: "en-CH",
+        deliveryType: "registered",
+        subject: "Termination notice",
+        body: "Please accept this cancellation notice effective immediately.",
+        enclosureNote: null,
+        signatureMode: "drawn",
+        tone: null,
+        intent: null,
+        sender: {
+          firstName: "Sam",
+          lastName: "Sender",
+          company: null,
+          addressLine1: "Main street 1",
+          addressLine2: null,
+          postalCode: "8000",
+          city: "Zurich",
+          country: "CH",
+        },
+        recipient: {
+          firstName: "Alex",
+          lastName: "Receiver",
+          company: "Receiver AG",
+          department: null,
+          addressLine1: "Market street 2",
+          addressLine2: null,
+          postalCode: "3000",
+          city: "Bern",
+          country: "CH",
+        },
+        attachmentAssetIds: ["11111111-1111-4111-8111-111111111111"],
+        signatureAssetId: "22222222-2222-4222-8222-222222222222",
+        estimatedPages: 2,
+        metadata: null,
+      },
+      renderedPdfAssetId: "rendered-asset-1",
+      createdAt: new Date("2026-04-08T12:00:00.000Z"),
+    });
+    mocks.downloadObjectBuffer.mockResolvedValue({
+      buffer: Buffer.from("drawn-signature"),
+      contentType: "image/png",
+    });
+
+    const db = {
+      select: vi.fn((fields?: Record<string, unknown>) => {
+        const projection = fields ? Object.keys(fields).sort().join(",") : "__all__";
+        if (
+          projection ===
+          "createdAt,providerName,providerReference,state,submittedAt,trackingNumber"
+        ) {
+          return makeSelectChain([
+            {
+              state: "accepted",
+              providerName: "epost-oneapi-mock",
+              providerReference: "EPR-T-R-0D2D6C40F706",
+              trackingNumber: "98.40.541881.00002354",
+              submittedAt: new Date("2026-04-08T12:05:00.000Z"),
+              createdAt: new Date("2026-04-08T12:04:00.000Z"),
+            },
+          ]);
+        }
+        if (projection === "id,originalFilename,storageKey") {
+          return makeSelectChain([
+            {
+              id: "11111111-1111-4111-8111-111111111111",
+              originalFilename: "contract-scan.pdf",
+              storageKey: "attachments/session/contract-scan.pdf",
+            },
+          ]);
+        }
+        if (projection === "storageKey") {
+          return makeSelectChain([
+            {
+              storageKey: "signatures/session/drawn-signature.png",
+            },
+          ]);
+        }
+        return makeSelectChain([]);
+      }),
+    };
+    const reply = {
+      header: vi.fn().mockReturnThis(),
+      send: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const { sendRenderedDraftPdf } =
+      await import("../src/modules/rendering/pdf-access.js");
+    await sendRenderedDraftPdf(db as never, "draft-drawn", reply as never);
+
+    expect(mocks.downloadObjectBuffer).toHaveBeenCalledWith(
+      "signatures/session/drawn-signature.png",
+    );
+    expect(mocks.renderLetterHtml).toHaveBeenCalledWith(
+      expect.objectContaining({
+        signatureMode: "drawn",
+        signatureAssetId: "22222222-2222-4222-8222-222222222222",
+      }),
+      {
+        signatureImageBase64: Buffer.from("drawn-signature").toString("base64"),
+      },
+    );
   });
 
   it("caps the confirmation content summary so the cover sheet stays compact", async () => {
@@ -266,9 +378,7 @@ describe("pdf-access", () => {
     });
 
     const db = {
-      select: vi
-        .fn()
-        .mockImplementation(() => makeSelectChain([])),
+      select: vi.fn().mockImplementation(() => makeSelectChain([])),
     };
     const reply = {
       header: vi.fn().mockReturnThis(),

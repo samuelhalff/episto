@@ -13,7 +13,12 @@ import { env } from "./shared/config/index.js";
 import { AppError } from "./shared/errors/index.js";
 import { healthRoutes } from "./routes/health.js";
 import { sessionRoutes } from "./modules/sessions/index.js";
-import { addressSearchRoutes, draftRoutes, streamRoutes } from "./modules/drafting/index.js";
+import {
+  addressSearchRoutes,
+  dictationRoutes,
+  draftRoutes,
+  streamRoutes,
+} from "./modules/drafting/index.js";
 import { paymentRoutes } from "./modules/payments/index.js";
 import { dispatchRoutes } from "./modules/dispatch/index.js";
 import { messageRoutes } from "./modules/messages/index.js";
@@ -21,6 +26,8 @@ import { fileRoutes } from "./modules/files/index.js";
 import { adminAuthRoutes, adminRoutes } from "./modules/admin/index.js";
 import { orderRoutes } from "./modules/orders/index.js";
 import { pricingRoutes } from "./modules/pricing/pricing.routes.js";
+
+const PERMISSIONS_POLICY = "camera=(), microphone=(self), geolocation=()";
 
 export async function buildApp(logger: pino.Logger) {
   const config = env();
@@ -54,7 +61,7 @@ export async function buildApp(logger: pino.Logger) {
 
   // Permissions-Policy and X-XSS-Protection=0 not set by Helmet — add manually.
   app.addHook("onSend", (_req, reply, _payload, done) => {
-    reply.header("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+    reply.header("Permissions-Policy", PERMISSIONS_POLICY);
     reply.header("X-XSS-Protection", "0");
     done();
   });
@@ -226,6 +233,7 @@ export async function buildApp(logger: pino.Logger) {
   await app.register(draftRoutes, { prefix: "/api/v1" });
   await app.register(addressSearchRoutes, { prefix: "/api/v1" });
   await app.register(streamRoutes, { prefix: "/api/v1" });
+  await app.register(dictationRoutes, { prefix: "/api/v1" });
   await app.register(paymentRoutes, { prefix: "/api/v1" });
   await app.register(fileRoutes, { prefix: "/api/v1" });
   await app.register(dispatchRoutes, { prefix: "/api/v1" });

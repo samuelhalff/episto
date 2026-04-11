@@ -200,6 +200,213 @@ describe("applyStructuredEdit", () => {
     expect(result.document.blocks).toHaveLength(1);
   });
 
+  it("rejects plain-text prompt scaffolding before it can become the draft body", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "plain_text",
+          version: DOCUMENT_RESPONSE_VERSION,
+          plainText: {
+            text:
+              "USER_MESSAGE:\nA draft for terminating your Swisscom AG internet subscription will be prepared.",
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects structured paragraphs that leak prompt scaffolding labels", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "structured_edit",
+          version: DOCUMENT_RESPONSE_VERSION,
+          structuredEdit: {
+            target: { scope: "selection" },
+            operations: [
+              {
+                type: "replace_with_blocks",
+                blocks: [
+                  {
+                    type: "paragraph",
+                    text:
+                      "Latest user message:\nI want to terminate my Swisscom internet contract at the next possible date.",
+                    style: "Normal",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects prompt scaffolding that appears in a later paragraph", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "structured_edit",
+          version: DOCUMENT_RESPONSE_VERSION,
+          structuredEdit: {
+            target: { scope: "selection" },
+            operations: [
+              {
+                type: "replace_with_blocks",
+                blocks: [
+                  {
+                    type: "paragraph",
+                    text: "Please cancel my internet contract at the next possible date.",
+                    style: "Normal",
+                  },
+                  {
+                    type: "paragraph",
+                    text:
+                      "USER_MESSAGE:\nI want to terminate my Swisscom internet contract at the next possible date.",
+                    style: "Normal",
+                  },
+                ],
+              },
+            ],
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects prompt scaffolding that leaks through list items", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "structured_edit",
+          version: DOCUMENT_RESPONSE_VERSION,
+          structuredEdit: {
+            target: { scope: "selection" },
+            operations: [
+              {
+                type: "make_bulleted_list",
+                items: [
+                  { text: "Please end the contract at the next possible date.", level: 1 },
+                  { text: "USER_MESSAGE: Cancel my Swisscom internet contract.", level: 1 },
+                ],
+              },
+            ],
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects prompt scaffolding even when it appears late in a long response", () => {
+    const leadIn = "Please review this cancellation request carefully. ".repeat(20);
+
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "plain_text",
+          version: DOCUMENT_RESPONSE_VERSION,
+          plainText: {
+            text: `${leadIn}\n\nRecent conversation:\nThe user wants to cancel a Swisscom contract.`,
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects leaked revision prompt headers", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "plain_text",
+          version: DOCUMENT_RESPONSE_VERSION,
+          plainText: {
+            text:
+              "CURRENT LETTER BODY:\nPlease cancel my contract at the next possible date.",
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects leaked draft-parameter labels", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "structured_edit",
+          version: DOCUMENT_RESPONSE_VERSION,
+          structuredEdit: {
+            target: { scope: "selection" },
+            operations: [
+              {
+                type: "make_bulleted_list",
+                items: [
+                  { text: "- Subject: Termination of internet contract", level: 1 },
+                  { text: "- Intent: Cancel at the next possible date", level: 1 },
+                  { text: "- Recipient: Swisscom AG", level: 1 },
+                ],
+              },
+            ],
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects markdown-decorated prompt headers in plain text output", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "plain_text",
+          version: DOCUMENT_RESPONSE_VERSION,
+          plainText: {
+            text: "> **Current letter body:**\nPlease cancel my contract at the next possible date.",
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
+  it("rejects markdown-decorated draft labels inside structured list items", () => {
+    expect(() =>
+      applyStructuredEdit(
+        {
+          mode: "structured_edit",
+          version: DOCUMENT_RESPONSE_VERSION,
+          structuredEdit: {
+            target: { scope: "selection" },
+            operations: [
+              {
+                type: "make_bulleted_list",
+                items: [
+                  { text: "- **Subject:** Termination of internet contract", level: 1 },
+                  { text: "> Latest user message: Cancel my Swisscom internet contract.", level: 1 },
+                ],
+              },
+            ],
+          },
+        },
+        undefined,
+        "en-CH",
+      ),
+    ).toThrowError(/prompt scaffolding/i);
+  });
+
   it("supports heading plus paragraph combinations", () => {
     const result = applyStructuredEdit({
       mode: "structured_edit",

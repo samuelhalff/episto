@@ -1,6 +1,6 @@
 # Voice and tone
 
-This guide defines how Sendly speaks to users in every context. It is the single source of truth for copywriters, product designers, and developers writing UI text.
+This guide defines how Episto speaks to users in every context. It is the single source of truth for copywriters, product designers, and developers writing UI text.
 
 Its authority is limited to wording and tone. It does not redefine routes, permissions, pricing,
 provider capabilities, or system states that are governed elsewhere in the docs.
@@ -13,28 +13,28 @@ and [`../08-guardrails/provider-certainties.md`](../08-guardrails/provider-certa
 
 ## 1. Brand voice attributes
 
-Sendly is a competent friend who handles your paperwork — not a bank, not a chatbot, not a government portal. The voice is consistent across all surfaces; only the tone shifts to fit context.
+Episto is a competent friend who handles your paperwork — not a bank, not a chatbot, not a government portal. The voice is consistent across all surfaces; only the tone shifts to fit context.
 
 ### Clear
 
 Say exactly what is happening. No jargon, no vague abstractions, no mystery.
 
-| ✅ Do | ❌ Don't |
-|---|---|
-| "Your letter is ready to review." | "Your document has been processed." |
-| "Enter the recipient's full postal address." | "Provide destination information." |
-| "Payment failed. No letter was submitted." | "There was an issue completing your request." |
-| "We don't have a delivery confirmation yet." | "Status: pending" (with no context) |
+| ✅ Do                                        | ❌ Don't                                      |
+| -------------------------------------------- | --------------------------------------------- |
+| "Your letter is ready to review."            | "Your document has been processed."           |
+| "Enter the recipient's full postal address." | "Provide destination information."            |
+| "Payment failed. No letter was submitted."   | "There was an issue completing your request." |
+| "We don't have a delivery confirmation yet." | "Status: pending" (with no context)           |
 
 ### Confident
 
 We know what we're doing. Assertive, not arrogant. We don't hedge unnecessarily, and we don't over-promise.
 
-| ✅ Do | ❌ Don't |
-|---|---|
-| "Your letter will be prepared and submitted for delivery in Switzerland." | "We'll try to get your letter sent soon." |
-| "Registered mail gives you a signed proof of receipt." | "Registered mail might provide some kind of proof." |
-| `"CHF {price} for standard delivery."` *(use actual config value — see pricing-structure.md)* | "Pricing may vary — please check." |
+| ✅ Do                                                                                         | ❌ Don't                                            |
+| --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| "Your letter will be prepared and submitted for delivery in Switzerland."                     | "We'll try to get your letter sent soon."           |
+| "Registered mail gives you a signed proof of receipt."                                        | "Registered mail might provide some kind of proof." |
+| `"CHF {price} for standard delivery."` _(use actual config value — see pricing-structure.md)_ | "Pricing may vary — please check."                  |
 
 > **Implementation note:** All CHF amounts in examples throughout this document are illustrative
 > format examples only. The current launch prices are locked in
@@ -45,30 +45,30 @@ We know what we're doing. Assertive, not arrogant. We don't hedge unnecessarily,
 
 Human and approachable, but not performatively friendly. We are not a mascot, not a cheerleader, not a customer service script.
 
-| ✅ Do | ❌ Don't |
-|---|---|
+| ✅ Do                                                                 | ❌ Don't                                                 |
+| --------------------------------------------------------------------- | -------------------------------------------------------- |
 | "Not sure what to write? Describe your situation and we'll draft it." | "Hi there! 👋 Let's craft your amazing letter together!" |
-| "Take your time — your draft is saved automatically." | "Awesome! You're doing great!" |
-| "Something went wrong on our end. We're looking into it." | "Uh oh! Looks like we hit a snag 😬" |
+| "Take your time — your draft is saved automatically."                 | "Awesome! You're doing great!"                           |
+| "Something went wrong on our end. We're looking into it."             | "Uh oh! Looks like we hit a snag 😬"                     |
 
 ### Swiss
 
 Precision, reliability, and quality are built into everything. We respect the user's time. We do not over-design interactions. We do not use filler.
 
-| ✅ Do | ❌ Don't |
-|---|---|
+| ✅ Do                                                        | ❌ Don't                                                   |
+| ------------------------------------------------------------ | ---------------------------------------------------------- |
 | "Delivered to Swiss addresses through our dispatch partner." | "Fast, reliable delivery across the whole of Switzerland!" |
-| "A4, black and white, single-sided." | "Professional, high-quality printing options available." |
-| "Reference: 9876543210123456" | "Your tracking number has been assigned ✓" |
+| "A4, black and white, single-sided."                         | "Professional, high-quality printing options available."   |
+| "Reference: 9876543210123456"                                | "Your tracking number has been assigned ✓"                 |
 
 ### Honest
 
 If something failed, is unknown, or is ambiguous — say so directly. We never dress up uncertainty as success.
 
-| ✅ Do | ❌ Don't |
-|---|---|
-| "We've submitted your letter. Dispatch confirmation is pending." | "Your letter has been sent!" |
-| "We can't confirm delivery for standard mail." | "Your letter is on its way!" |
+| ✅ Do                                                                             | ❌ Don't                                         |
+| --------------------------------------------------------------------------------- | ------------------------------------------------ |
+| "We've submitted your letter. Dispatch confirmation is pending."                  | "Your letter has been sent!"                     |
+| "We can't confirm delivery for standard mail."                                    | "Your letter is on its way!"                     |
 | "We couldn't generate a draft. Please try describing your situation differently." | "Almost there — one more moment…" (then failure) |
 
 ---
@@ -123,8 +123,8 @@ Always answer: what failed? What can the user do now?
 
 **Tone:** Reassuring, transparent, no surprises. Users are about to spend money — give them full clarity on what they're paying for and what happens next.
 
-> "CHF {formattedPrice} for standard delivery. Includes printing, postage, and same-day submission." *(price from config — this is a tone example, not a hardcoded amount)*
-> "Payment is processed by Stripe. Sendly does not store your card details."
+> "CHF {formattedPrice} for standard delivery. Includes printing, postage, and same-day submission." _(price from config — this is a tone example, not a hardcoded amount)_
+> "Payment is processed by Stripe. Episto does not store your card details."
 > "Once payment succeeds, your letter is submitted for dispatch. You'll receive a confirmation."
 
 No dark patterns. No upsells disguised as defaults. No vague "fees may apply."
@@ -160,7 +160,7 @@ Use sentence case everywhere in the UI — headings, buttons, labels, messages.
 > ✅ "Review your letter"  
 > ❌ "Review Your Letter"
 
-Exception: proper nouns (Swiss Post, Stripe, Sendly).
+Exception: proper nouns (Swiss Post, Stripe, Episto).
 
 ### Active voice
 
@@ -194,17 +194,17 @@ Use "you/your" directly. Never "the user", never third-person references to the 
 
 ### Words to avoid
 
-| Avoid | Why |
-|---|---|
-| "just" | Dismisses the user's effort ("just click here") |
-| "simply" | Same as "just" |
-| "easy" | Same as "just"; also sets a false expectation |
-| "please" in errors | Sounds like begging; weakens authority |
-| "sorry" in automated messages | Reserve for genuine human apologies in support |
-| "Oops!" | Cutesy; undermines trust |
-| "Something went wrong" | Useless without specifics |
-| "Act now" / "Limited time" | False urgency; out of character |
-| API, webhook, queue, retry | Technical jargon invisible to users |
+| Avoid                         | Why                                             |
+| ----------------------------- | ----------------------------------------------- |
+| "just"                        | Dismisses the user's effort ("just click here") |
+| "simply"                      | Same as "just"                                  |
+| "easy"                        | Same as "just"; also sets a false expectation   |
+| "please" in errors            | Sounds like begging; weakens authority          |
+| "sorry" in automated messages | Reserve for genuine human apologies in support  |
+| "Oops!"                       | Cutesy; undermines trust                        |
+| "Something went wrong"        | Useless without specifics                       |
+| "Act now" / "Limited time"    | False urgency; out of character                 |
+| API, webhook, queue, retry    | Technical jargon invisible to users             |
 
 ### Exclamation marks
 
@@ -377,7 +377,7 @@ Alternatively, label the current step without numbered steps when the flow is sh
 
 ## 5. Multilingual considerations
 
-Sendly targets four Swiss locales: `de-CH`, `fr-CH`, `it-CH`, `en-CH`.
+Episto targets four Swiss locales: `de-CH`, `fr-CH`, `it-CH`, `en-CH`.
 
 ### Infrastructure rules
 
@@ -390,12 +390,12 @@ Sendly targets four Swiss locales: `de-CH`, `fr-CH`, `it-CH`, `en-CH`.
 
 These are separate concerns with separate pipelines:
 
-| UI copy | AI-generated letter content |
-|---|---|
-| Translated once, used forever | Generated per request, personalised |
-| Lives in message catalogue | Lives in draft content |
-| Human-reviewed translations | Separate prompt and locale logic |
-| Consistency is the goal | Fluency and tone-matching per locale |
+| UI copy                       | AI-generated letter content          |
+| ----------------------------- | ------------------------------------ |
+| Translated once, used forever | Generated per request, personalised  |
+| Lives in message catalogue    | Lives in draft content               |
+| Human-reviewed translations   | Separate prompt and locale logic     |
+| Consistency is the goal       | Fluency and tone-matching per locale |
 
 Never mix them. Never use a letter-generation prompt to produce UI strings.
 
@@ -474,7 +474,7 @@ Dispatch status is unclear. We're checking with the provider. This usually resol
 
 ### provider_outage
 
-**Pattern:** `Sendly's postal service is temporarily unavailable. [What the user should do.]`
+**Pattern:** `Episto's postal service is temporarily unavailable. [What the user should do.]`
 
 ```
 We can't submit letters right now due to a provider issue. Your draft is saved — try again in a few minutes.
@@ -584,7 +584,7 @@ Reframe without accusation:
 ❌ "Send before midnight!"
 ```
 
-Sendly does not manufacture urgency. If there is a real time constraint (e.g. same-day posting cutoff), state it factually: "Same-day posting requires submission before 16:00."
+Episto does not manufacture urgency. If there is a real time constraint (e.g. same-day posting cutoff), state it factually: "Same-day posting requires submission before 16:00."
 
 ### Sycophantic affirmations
 
@@ -599,4 +599,4 @@ Acknowledge the action, not the user's judgement. "Draft saved." is better than 
 
 ---
 
-*Last updated: March 2026. This document is owned by the product team. Changes require review by a product designer or lead.*
+_Last updated: March 2026. This document is owned by the product team. Changes require review by a product designer or lead._

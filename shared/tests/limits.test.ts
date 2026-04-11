@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import {
+  DICTATION_LIMITS,
   DRAFT_CONTENT_LIMITS,
   FILE_LIMITS,
   getAllowedMimeTypes,
@@ -95,5 +96,14 @@ describe("shared text limits", () => {
         content: "x".repeat(DRAFT_CONTENT_LIMITS.messageChars + 1),
       }),
     ).toThrow();
+  });
+});
+
+describe("shared dictation limits", () => {
+  it("keeps frontend and backend aligned on the canonical audio capture format", () => {
+    expect(DICTATION_LIMITS.sampleRateHz).toBe(16_000);
+    expect(DICTATION_LIMITS.channelCount).toBe(1);
+    expect(DICTATION_LIMITS.maxCaptureSeconds).toBe(120);
+    expect(DICTATION_LIMITS.maxFallbackBytes).toBe(4 * 1024 * 1024);
   });
 });

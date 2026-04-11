@@ -13,6 +13,7 @@ import {
   Activity,
   X,
 } from "lucide-react";
+import { BrandMark } from "../../../components/branding/BrandMark";
 import { useAdminAuth } from "./admin-auth-context";
 import { getAdminPagePath } from "../../../lib/admin-paths";
 
@@ -55,12 +56,15 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
   const sidebarContent = (
     <>
       <div className="flex items-center justify-between px-5 pb-6 pt-6">
-        <span
-          className="text-sm font-semibold tracking-wide"
-          style={{ color: "var(--app-fg)" }}
-        >
-          ◆ SENDLY ADMIN
-        </span>
+        <div className="flex items-center gap-2">
+          <BrandMark className="h-6 w-6 shrink-0" />
+          <span
+            className="text-sm font-semibold tracking-wide"
+            style={{ color: "var(--app-fg)" }}
+          >
+            EPISTO ADMIN
+          </span>
+        </div>
         {/* Close button visible only on mobile */}
         <button
           type="button"
@@ -107,9 +111,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         ))}
       </div>
 
-      {logoutError && (
-        <p className="px-4 text-xs text-destructive">{logoutError}</p>
-      )}
+      {logoutError && <p className="px-4 text-xs text-destructive">{logoutError}</p>}
 
       <button
         onClick={() => {

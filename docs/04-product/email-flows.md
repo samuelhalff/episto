@@ -89,10 +89,11 @@ MVP transactional email.
 **Trigger:** `PaymentState` transitions to `captured`
 **Timing:** Sent immediately on capture confirmation from Stripe webhook
 
-**Subject (i18n key):** `email.receipt.subject` → e.g., "Your Sendly payment receipt – {formattedTotal}"
+**Subject (i18n key):** `email.receipt.subject` → e.g., "Your Episto payment receipt – {formattedTotal}"
 
 **Content:**
-- Sendly logo / header
+
+- Episto logo / header
 - "Thank you for your order."
 - Order reference number
 - Date and time of payment
@@ -107,6 +108,7 @@ MVP transactional email.
 - Link to support
 
 **Must NOT include:**
+
 - Letter body or content
 - Full recipient address
 - Dispatch tracking link (tracking is only available if provider supplies it)
@@ -122,6 +124,7 @@ MVP transactional email.
 **Subject (i18n key):** `email.dispatch_submitted.subject` → e.g., "Your letter has been submitted to Swiss Post"
 
 **Content:**
+
 - "Your letter has been submitted to Swiss Post for processing."
 - Order reference number
 - Secure order-status link for later status checks
@@ -141,6 +144,7 @@ MVP transactional email.
 **Subject (i18n key):** `email.dispatch_accepted.subject` → e.g., "Your letter has been accepted for dispatch"
 
 **Content:**
+
 - "Swiss Post has accepted your letter submission for further processing."
 - Order reference number
 - Secure order-status link for later status checks
@@ -158,9 +162,10 @@ MVP transactional email.
 activity if payment is still incomplete and the session has an email address
 **Condition:** Only sent to sessions where an email address has been collected
 
-**Subject (i18n key):** `email.resume.subject` → e.g., "Continue your Sendly draft"
+**Subject (i18n key):** `email.resume.subject` → e.g., "Continue your Episto draft"
 
 **Content:**
+
 - "You have an unsent letter draft. Continue where you left off."
 - Secure resume link (signed, time-limited token — 72-hour default expiry from config)
 - Warning: "This link expires in {configuredResumeExpiryLabel}." — duration from config
@@ -168,6 +173,7 @@ activity if payment is still incomplete and the session has an email address
 - No letter content in email body
 
 **Security requirements:**
+
 - Resume tokens are opaque, high-entropy credentials
 - Tokens are time-limited for MVP, not single-use
 - Token expiry matches the configured guest-access window
@@ -185,6 +191,7 @@ deterministically yet
 **Subject (i18n key):** `email.dispatch_under_review.subject` → e.g., "We're reviewing your letter's dispatch status"
 
 **Content:**
+
 - "We've submitted your letter, but Swiss Post has not confirmed the outcome yet."
 - Order reference number
 - Secure order-status link for later status checks
@@ -204,6 +211,7 @@ This template must not imply rejection, refund, delivery, or provider acceptance
 **Subject (i18n key):** `email.refund.subject` → e.g., "Your letter could not be dispatched – refund issued"
 
 **Content:**
+
 - "Unfortunately, your letter could not be dispatched."
 - Reason (if deterministic and user-actionable): e.g., "The recipient address could not be validated." Use plain language. Do not expose raw provider error strings.
 - "A full refund of {formattedRefundAmount} has been issued to your original payment method."
@@ -214,6 +222,7 @@ This template must not imply rejection, refund, delivery, or provider acceptance
 - Link to support
 
 **If reason is ambiguous (dispatch state unknown / under manual review):**
+
 - Do NOT send this template yet
 - Send Template 5 with honest status
 - Do not claim refund has been issued until Stripe confirms it
@@ -224,8 +233,8 @@ This template must not imply rejection, refund, delivery, or provider acceptance
 
 **Status: LOCKED**
 
-| Provider | Notes |
-|---|---|
+| Provider   | Notes                                                                                |
+| ---------- | ------------------------------------------------------------------------------------ |
 | **Resend** | Locked transactional email provider; clean API, React Email fit, good MVP ergonomics |
 
 Do not hardcode provider-specific API calls outside the email adapter module.
@@ -249,6 +258,7 @@ This allows provider switching without changing feature code.
 Alternative: MJML (less TypeScript-native but battle-tested).
 
 Requirements:
+
 - Templates must compile to static HTML — no runtime rendering of sensitive data in template engine
 - Plain-text fallback required for every template
 - Templates must support all four locales (de-CH, fr-CH, it-CH, en-CH)
@@ -258,11 +268,11 @@ Requirements:
 
 ## Sender and reply-to configuration
 
-| Field | Value |
-|---|---|
-| From | `noreply@swissmail.ch` |
-| Reply-To | `support@swissmail.ch` |
-| Display name | `Sendly` |
+| Field        | Value                  |
+| ------------ | ---------------------- |
+| From         | `noreply@swissmail.ch` |
+| Reply-To     | `support@swissmail.ch` |
+| Display name | `Episto`               |
 
 The `noreply` address must not bounce silently — configure it to forward or discard with logging so bounce loops don't affect deliverability scores.
 
@@ -280,12 +290,12 @@ The `noreply` address must not bounce silently — configure it to forward or di
 
 Before any email is sent in production, the following DNS records must be configured for `swissmail.ch`:
 
-| Record | Purpose | Status |
-|---|---|---|
-| **SPF** | Authorizes sending IPs | Required before launch |
-| **DKIM** | Signs outgoing messages | Required before launch |
-| **DMARC** | Policy for auth failures | Required before launch (`p=none` initially, tighten post-launch) |
-| **MX** (for `noreply@`) | Handles bounces correctly | Required |
+| Record                  | Purpose                   | Status                                                           |
+| ----------------------- | ------------------------- | ---------------------------------------------------------------- |
+| **SPF**                 | Authorizes sending IPs    | Required before launch                                           |
+| **DKIM**                | Signs outgoing messages   | Required before launch                                           |
+| **DMARC**               | Policy for auth failures  | Required before launch (`p=none` initially, tighten post-launch) |
+| **MX** (for `noreply@`) | Handles bounces correctly | Required                                                         |
 
 These are not optional. Sending transactional email without SPF/DKIM/DMARC risks deliverability failure and damages domain reputation.
 
@@ -304,8 +314,8 @@ These are not optional. Sending transactional email without SPF/DKIM/DMARC risks
 
 ## Open decisions
 
-| Decision | Status |
-|---|---|
-| Template technology (React Email vs MJML) | Open — recommend React Email |
-| Exact token expiry for resume links | Config-driven — must match retention config |
-| Marketing email opt-in (post-MVP) | Out of scope for MVP |
+| Decision                                  | Status                                      |
+| ----------------------------------------- | ------------------------------------------- |
+| Template technology (React Email vs MJML) | Open — recommend React Email                |
+| Exact token expiry for resume links       | Config-driven — must match retention config |
+| Marketing email opt-in (post-MVP)         | Out of scope for MVP                        |

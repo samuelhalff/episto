@@ -8,6 +8,7 @@ import { Link } from "../../../../i18n/navigation";
 import { apiFetch } from "../../../../lib/api";
 import { OrderStatusResponseSchema, queryKeys } from "@swiss-mail/shared";
 import type { OrderStatusResponse } from "@swiss-mail/shared";
+import { BrandMark } from "../../../../components/branding/BrandMark";
 import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
 import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation";
@@ -76,9 +77,7 @@ export default function StatusPage({
             href="/"
             className="inline-flex items-center gap-3 font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
           >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-amber-200/80 bg-white text-xs shadow-sm dark:border-amber-500/30 dark:bg-zinc-900">
-              SM
-            </span>
+            <BrandMark className="h-10 w-10 shrink-0" />
             {tc("appName")}
           </Link>
           <div className="hidden items-center gap-3 sm:flex">
@@ -114,19 +113,25 @@ export default function StatusPage({
             <dl className="divide-y divide-zinc-100 dark:divide-zinc-800">
               <div className="flex items-center justify-between py-3 text-sm">
                 <dt className="text-zinc-500">{t("orderReference")}</dt>
-                <dd className="font-mono font-medium text-zinc-900 dark:text-zinc-100">{order.orderRef}</dd>
+                <dd className="font-mono font-medium text-zinc-900 dark:text-zinc-100">
+                  {order.orderRef}
+                </dd>
               </div>
               {order.recipientName && (
                 <div className="flex items-center justify-between py-3 text-sm">
                   <dt className="text-zinc-500">{t("recipient")}</dt>
-                  <dd className="font-medium text-zinc-900 dark:text-zinc-100">{order.recipientName}</dd>
+                  <dd className="font-medium text-zinc-900 dark:text-zinc-100">
+                    {order.recipientName}
+                  </dd>
                 </div>
               )}
               <div className="flex items-center justify-between py-3 text-sm">
                 <dt className="text-zinc-500">{t("paymentAmount")}</dt>
                 <dd className="font-medium text-zinc-900 dark:text-zinc-100">
                   CHF {priceCHF}
-                  <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">({payment.state})</span>
+                  <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
+                    ({payment.state})
+                  </span>
                 </dd>
               </div>
               {payment.capturedAt && (

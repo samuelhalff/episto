@@ -9,7 +9,7 @@ configuration.
 
 ## Locked identity
 
-- Product name: **Sendly**
+- Product name: **Episto**
 - Primary public domain: **`swissmail.ch`**
 - Public API domain: **`api.swissmail.ch`**
 - Transactional email addresses:
@@ -20,7 +20,7 @@ configuration.
 
 ## Implementation rule
 
-- Use `Sendly` in all user-facing strings and documentation unless a route or system contract
+- Use `Episto` in all user-facing strings and documentation unless a route or system contract
   requires a localized translation of the name, which is not currently planned.
 - Use `swissmail.ch` in public URL examples and `api.swissmail.ch` in API URL examples.
 - Do not keep parallel placeholder variants such as `[ProductName]` or `[domain]` in live specs.
@@ -37,7 +37,7 @@ The following are still real launch gates, but they do not reopen the implementa
 
 ## Brand posture
 
-Sendly should read as:
+Episto should read as:
 
 - trustworthy without sounding bureaucratic
 - precise without sounding legalistic
@@ -56,6 +56,6 @@ Sendly should read as:
 
 Until final assets are delivered:
 
-- use a clean wordmark reading `Sendly`
+- use a clean wordmark reading `Episto`
 - pair it with a simple envelope/letter symbol only if the symbol is already production-grade
 - avoid Swiss-cross branding, clip-art envelope illustrations, or decorative effects

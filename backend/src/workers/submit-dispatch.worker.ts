@@ -157,9 +157,9 @@ export async function processSubmitDispatchJob(
           await enqueueDispatchAcceptedEmail(db, {
             dispatchAttemptId: attempt.id,
             draftId,
+            paymentId,
             providerReference: result.providerReference ?? null,
             trackingNumber: result.trackingNumber ?? null,
-            rawOrderAccessToken: settlement.rawOrderAccessToken,
           });
         } catch (acceptedEmailErr) {
           logger.error(

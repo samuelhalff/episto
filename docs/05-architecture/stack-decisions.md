@@ -28,7 +28,8 @@ Every row marked **Locked** is a hard constraint for implementation. Do not open
 | ORM / query builder | **Locked** | Drizzle ORM + `drizzle-kit` |
 | Object storage | **Locked** | S3-compatible on Infomaniak (see hosting topology below) |
 | Payments | **Locked** | Stripe |
-| AI provider | **Locked** | Azure OpenAI / Azure AI Foundry Models API |
+| Text AI provider | **Locked** | Azure OpenAI / Azure AI Foundry Models API |
+| Speech-to-text provider | **Locked** | Azure AI Speech |
 | Dispatch provider path | **Locked** | ePost / KLARA oneAPI (`api.epost.ch`) |
 | PDF generation | **Locked** | Puppeteer (HTML/CSS → PDF) |
 | Async job queue | **Locked** | BullMQ + Redis |
@@ -197,10 +198,12 @@ These are the recommended npm packages for each locked technology decision. Use 
 | CORS | `@fastify/cors` | Same-origin CORS policy |
 | Helmet (security headers) | `@fastify/helmet` | HSTS, X-Frame-Options, CSP |
 | Multipart uploads | `@fastify/multipart` | File upload handling with stream support |
+| WebSocket transport | `@fastify/websocket` | Same-origin live audio streaming to backend-owned dictation routes |
 | Cookie handling | `@fastify/cookie` | HttpOnly secure session cookies |
 | CSRF protection | Custom `X-Requested-With` hook | Same-origin mutation protection; all mutating requests (except webhooks) must include `X-Requested-With: XMLHttpRequest` |
 | Cron scheduling | `bullmq` repeatable jobs | No separate cron library needed; BullMQ handles scheduled retention jobs |
 | Email (adapter) | `resend` | Locked transactional email provider |
+| Speech-to-text | `microsoft-cognitiveservices-speech-sdk` | Locked — Azure AI Speech for live dictation, phrase lists, and buffered fallback transcription |
 | UUID generation | `crypto.randomUUID()` (built-in Node.js) | Zero-dependency; CSPRNG-backed |
 | Token generation | `crypto.randomBytes(32).toString('base64url')` (built-in) | 256-bit entropy; URL-safe |
 | Token hashing | `crypto.createHash('sha256')` (built-in) | For resume token storage |

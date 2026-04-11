@@ -127,14 +127,14 @@ export async function processReconcileDispatchJob(
         }
       }
 
-      if (status.state === "accepted") {
+      if (status.state === "accepted" && settlement.payment) {
         try {
           await enqueueDispatchAcceptedEmail(db, {
             dispatchAttemptId,
             draftId: attempt.draftId,
+            paymentId: settlement.payment.id,
             providerReference: status.providerReference ?? null,
             trackingNumber: status.trackingNumber ?? null,
-            rawOrderAccessToken: settlement.rawOrderAccessToken,
           });
         } catch (acceptedEmailErr) {
           logger.error(

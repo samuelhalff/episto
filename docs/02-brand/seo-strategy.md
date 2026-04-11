@@ -1,4 +1,4 @@
-# SEO Strategy — Sendly
+# SEO Strategy — Episto
 
 **Status:** MVP planning  
 **Scope:** Swiss market, multilingual (de-CH, fr-CH, it-CH, en-CH)  
@@ -45,13 +45,13 @@ gimmicky automation language.
 
 Template per page type:
 
-| Page type | Title pattern | Description length |
-|---|---|---|
-| Homepage | `Sendly — Briefe online versenden, Schweiz` | 140–155 chars |
-| Use-case LP | `{UseCase} per Post — {ProductName}` | 140–155 chars |
-| How it works | `Wie es funktioniert — {ProductName}` | 140–155 chars |
-| Pricing | `Preise — {ProductName}` | 140–155 chars |
-| Blog post | `{Post Title} — {ProductName} Blog` | 140–155 chars |
+| Page type    | Title pattern                               | Description length |
+| ------------ | ------------------------------------------- | ------------------ |
+| Homepage     | `Episto — Briefe online versenden, Schweiz` | 140–155 chars      |
+| Use-case LP  | `{UseCase} per Post — {ProductName}`        | 140–155 chars      |
+| How it works | `Wie es funktioniert — {ProductName}`       | 140–155 chars      |
+| Pricing      | `Preise — {ProductName}`                    | 140–155 chars      |
+| Blog post    | `{Post Title} — {ProductName} Blog`         | 140–155 chars      |
 
 - [ ] Every page has a unique, non-truncated `<title>` and `<meta name="description">`
 - [ ] No duplicate titles or descriptions across language variants
@@ -67,14 +67,14 @@ Template per page type:
 
 Implement on the relevant pages:
 
-| Schema type | Pages |
-|---|---|
-| `Organization` | All pages (site-wide, in `<head>`) |
-| `Product` / `Service` | Homepage, pricing page |
-| `HowTo` | How-it-works page |
-| `FAQPage` | Use-case landing pages, pricing page |
-| `BreadcrumbList` | All pages with depth > 1 |
-| `WebSite` with `SearchAction` | Homepage |
+| Schema type                   | Pages                                |
+| ----------------------------- | ------------------------------------ |
+| `Organization`                | All pages (site-wide, in `<head>`)   |
+| `Product` / `Service`         | Homepage, pricing page               |
+| `HowTo`                       | How-it-works page                    |
+| `FAQPage`                     | Use-case landing pages, pricing page |
+| `BreadcrumbList`              | All pages with depth > 1             |
+| `WebSite` with `SearchAction` | Homepage                             |
 
 - [ ] Validate all structured data with Google's Rich Results Test before launch
 - [ ] No fabricated fields — only assert facts that are actually true
@@ -124,6 +124,7 @@ Every indexable page must declare the full set of language variants:
 ```
 
 Rules:
+
 - Every variant must link back to all other variants (bidirectional)
 - `x-default` points to the language-selection homepage or the most common entry
 - Managed centrally; never hardcoded page-by-page
@@ -137,11 +138,11 @@ Rules:
 
 ### Core Web Vitals targets
 
-| Metric | Target | Notes |
-|---|---|---|
-| LCP (Largest Contentful Paint) | < 2.5s | Hero image/text must be SSR-rendered |
-| FID / INP (Interaction to Next Paint) | < 100ms / < 200ms | Minimise main-thread blocking JS |
-| CLS (Cumulative Layout Shift) | < 0.1 | Reserve space for images, fonts; avoid late-loading content |
+| Metric                                | Target            | Notes                                                       |
+| ------------------------------------- | ----------------- | ----------------------------------------------------------- |
+| LCP (Largest Contentful Paint)        | < 2.5s            | Hero image/text must be SSR-rendered                        |
+| FID / INP (Interaction to Next Paint) | < 100ms / < 200ms | Minimise main-thread blocking JS                            |
+| CLS (Cumulative Layout Shift)         | < 0.1             | Reserve space for images, fonts; avoid late-loading content |
 
 - [ ] Measure with PageSpeed Insights on real mobile device profile before launch
 - [ ] Set up continuous CWV monitoring (Search Console CWV report + synthetic testing)
@@ -210,53 +211,53 @@ Rules:
 
 ### de-CH
 
-| Keyword | Intent | Priority |
-|---|---|---|
-| Brief online versenden Schweiz | Transactional | High |
-| Kündigung per Post senden | Transactional | High |
-| Brief schreiben lassen online | Transactional | High |
-| Eingeschriebener Brief Schweiz | Informational/Transactional | High |
-| Kündigungsschreiben Vorlage Schweiz | Informational | Medium |
-| Formellen Brief schreiben | Informational | Medium |
-| Brief einschreiben online aufgeben | Transactional | Medium |
-| Mietvertrag kündigen Schweiz | Transactional | Medium |
+| Keyword                             | Intent                      | Priority |
+| ----------------------------------- | --------------------------- | -------- |
+| Brief online versenden Schweiz      | Transactional               | High     |
+| Kündigung per Post senden           | Transactional               | High     |
+| Brief schreiben lassen online       | Transactional               | High     |
+| Eingeschriebener Brief Schweiz      | Informational/Transactional | High     |
+| Kündigungsschreiben Vorlage Schweiz | Informational               | Medium   |
+| Formellen Brief schreiben           | Informational               | Medium   |
+| Brief einschreiben online aufgeben  | Transactional               | Medium   |
+| Mietvertrag kündigen Schweiz        | Transactional               | Medium   |
 
 ### fr-CH
 
-| Keyword | Intent | Priority |
-|---|---|---|
-| Envoyer une lettre en ligne Suisse | Transactional | High |
-| Résiliation par courrier Suisse | Transactional | High |
-| Lettre recommandée en ligne | Transactional | High |
-| Rédiger lettre formelle en ligne | Transactional | High |
-| Modèle lettre résiliation Suisse | Informational | Medium |
-| Envoyer courrier recommandé Suisse | Transactional | Medium |
-| Lettre de résiliation contrat | Informational/Transactional | Medium |
-| Courrier officiel en ligne | Transactional | Medium |
+| Keyword                            | Intent                      | Priority |
+| ---------------------------------- | --------------------------- | -------- |
+| Envoyer une lettre en ligne Suisse | Transactional               | High     |
+| Résiliation par courrier Suisse    | Transactional               | High     |
+| Lettre recommandée en ligne        | Transactional               | High     |
+| Rédiger lettre formelle en ligne   | Transactional               | High     |
+| Modèle lettre résiliation Suisse   | Informational               | Medium   |
+| Envoyer courrier recommandé Suisse | Transactional               | Medium   |
+| Lettre de résiliation contrat      | Informational/Transactional | Medium   |
+| Courrier officiel en ligne         | Transactional               | Medium   |
 
 ### it-CH
 
-| Keyword | Intent | Priority |
-|---|---|---|
-| Inviare lettera online Svizzera | Transactional | High |
-| Disdetta contratto per posta | Transactional | High |
-| Lettera raccomandata online Svizzera | Transactional | High |
-| Scrivere lettera formale online | Transactional | High |
-| Modello lettera disdetta Svizzera | Informational | Medium |
-| Spedire raccomandata online | Transactional | Medium |
-| Disdetta affitto Svizzera | Transactional | Medium |
+| Keyword                              | Intent        | Priority |
+| ------------------------------------ | ------------- | -------- |
+| Inviare lettera online Svizzera      | Transactional | High     |
+| Disdetta contratto per posta         | Transactional | High     |
+| Lettera raccomandata online Svizzera | Transactional | High     |
+| Scrivere lettera formale online      | Transactional | High     |
+| Modello lettera disdetta Svizzera    | Informational | Medium   |
+| Spedire raccomandata online          | Transactional | Medium   |
+| Disdetta affitto Svizzera            | Transactional | Medium   |
 
 ### en-CH
 
-| Keyword | Intent | Priority |
-|---|---|---|
-| Send letter online Switzerland | Transactional | High |
-| Mail letter online Swiss Post | Transactional | High |
-| Cancel contract by post Switzerland | Transactional | High |
-| Send registered letter Switzerland | Transactional | High |
-| Swiss cancellation letter template | Informational | Medium |
-| Write formal letter Switzerland | Informational/Transactional | Medium |
-| Online postal service Switzerland | Transactional | Medium |
+| Keyword                             | Intent                      | Priority |
+| ----------------------------------- | --------------------------- | -------- |
+| Send letter online Switzerland      | Transactional               | High     |
+| Mail letter online Swiss Post       | Transactional               | High     |
+| Cancel contract by post Switzerland | Transactional               | High     |
+| Send registered letter Switzerland  | Transactional               | High     |
+| Swiss cancellation letter template  | Informational               | Medium   |
+| Write formal letter Switzerland     | Informational/Transactional | Medium   |
+| Online postal service Switzerland   | Transactional               | Medium   |
 
 ---
 
@@ -266,6 +267,7 @@ Rules:
 
 **Purpose:** Brand introduction, trust establishment, language entry.  
 **Structure:**
+
 1. Hero with primary CTA in the detected or selected language
 2. Trust signals (privacy-first, delivery-status clarity, dispatch confirmation)
 3. Use-case entry cards (cancellation, formal notice, complaint, etc.)
@@ -280,16 +282,17 @@ Rules:
 
 One page per use case per language. Priority use cases for MVP:
 
-| Use case | de-CH slug | fr-CH slug | it-CH slug | en-CH slug |
-|---|---|---|---|---|
-| Cancellation letters | `/de/kuendigungsschreiben` | `/fr/lettre-de-resiliation` | `/it/lettera-di-disdetta` | `/en/cancellation-letter` |
-| Formal notices | `/de/formelle-mitteilung` | `/fr/avis-formel` | `/it/avviso-formale` | `/en/formal-notice` |
-| Contract termination | `/de/vertragskuendigung` | `/fr/resiliation-contrat` | `/it/risoluzione-contratto` | `/en/contract-termination` |
-| Complaints | `/de/beschwerdebrief` | `/fr/lettre-de-reclamation` | `/it/lettera-di-reclamo` | `/en/complaint-letter` |
+| Use case             | de-CH slug                 | fr-CH slug                  | it-CH slug                  | en-CH slug                 |
+| -------------------- | -------------------------- | --------------------------- | --------------------------- | -------------------------- |
+| Cancellation letters | `/de/kuendigungsschreiben` | `/fr/lettre-de-resiliation` | `/it/lettera-di-disdetta`   | `/en/cancellation-letter`  |
+| Formal notices       | `/de/formelle-mitteilung`  | `/fr/avis-formel`           | `/it/avviso-formale`        | `/en/formal-notice`        |
+| Contract termination | `/de/vertragskuendigung`   | `/fr/resiliation-contrat`   | `/it/risoluzione-contratto` | `/en/contract-termination` |
+| Complaints           | `/de/beschwerdebrief`      | `/fr/lettre-de-reclamation` | `/it/lettera-di-reclamo`    | `/en/complaint-letter`     |
 
 **Each use-case page must include:**
+
 - What the use case is and when it applies in Switzerland
-- How Sendly handles it (step-by-step)
+- How Episto handles it (step-by-step)
 - Dispatch options (standard vs registered)
 - Transparent pricing
 - CTA to start a draft
@@ -315,6 +318,7 @@ One page per use case per language. Priority use cases for MVP:
 ### MVP content requirements (before launch)
 
 Every language must have at minimum:
+
 - Translated homepage
 - 1–2 use-case landing pages (start with cancellation letters — highest intent volume)
 - How-it-works page
@@ -330,15 +334,16 @@ Purpose: long-tail keyword capture, trust building, organic acquisition.
 
 Priority topic clusters:
 
-| Cluster | Example articles |
-|---|---|
+| Cluster                     | Example articles                                                 |
+| --------------------------- | ---------------------------------------------------------------- |
 | Swiss letter-writing guides | "Wie schreibt man einen gültigen Kündigungsbrief in der Schweiz" |
-| Legal context (non-advice) | "Fristen für Vertragskündigungen in der Schweiz" |
-| Template gallery | "Kündigungsschreiben Vorlage — kostenlos herunterladen" |
-| How Swiss Post works | "Einschreiben in der Schweiz — was bedeutet das genau?" |
-| Swiss tenant/landlord | "Mietvertrag kündigen: was muss im Brief stehen?" |
+| Legal context (non-advice)  | "Fristen für Vertragskündigungen in der Schweiz"                 |
+| Template gallery            | "Kündigungsschreiben Vorlage — kostenlos herunterladen"          |
+| How Swiss Post works        | "Einschreiben in der Schweiz — was bedeutet das genau?"          |
+| Swiss tenant/landlord       | "Mietvertrag kündigen: was muss im Brief stehen?"                |
 
 **Rules for content:**
+
 - Every piece must serve a real search intent AND provide a clear path into the product
 - No fabricated legal claims — always include a disclaimer for legal-adjacent content
 - Content must be written or reviewed by a fluent native speaker of each locale
@@ -347,6 +352,7 @@ Priority topic clusters:
 **Template gallery (`/{lang}/vorlagen/` etc.)**
 
 Landing pages for individual letter templates. Each page:
+
 - Explains the template's purpose
 - Shows a preview (non-functional, blurred if needed)
 - CTAs to start a draft using that template
@@ -382,6 +388,7 @@ Landing pages for individual letter templates. Each page:
 ### Backlink strategy
 
 Priority targets for Swiss backlinks:
+
 - Swiss consumer protection organisations (e.g. Konsumentenschutz)
 - Swiss legal aid resources (link-worthy if content is genuinely useful)
 - Swiss startup and fintech directories
@@ -396,14 +403,14 @@ Priority targets for Swiss backlinks:
 
 These are hard constraints for **marketing pages** (not app routes):
 
-| Resource | Budget |
-|---|---|
+| Resource                            | Budget   |
+| ----------------------------------- | -------- |
 | Total JS (initial load, compressed) | < 200 KB |
-| Total CSS (compressed) | < 30 KB |
-| Total page weight (first load) | < 500 KB |
-| Time to Interactive (3G connection) | < 3s |
-| LCP | < 2.5s |
-| CLS score | < 0.1 |
+| Total CSS (compressed)              | < 30 KB  |
+| Total page weight (first load)      | < 500 KB |
+| Time to Interactive (3G connection) | < 3s     |
+| LCP                                 | < 2.5s   |
+| CLS score                           | < 0.1    |
 
 ### Enforcement approach
 
@@ -421,6 +428,7 @@ These are hard constraints for **marketing pages** (not app routes):
 ### Privacy-first requirement
 
 Switzerland has high privacy expectations. The analytics stack must be:
+
 - GDPR-compatible (applies to Swiss businesses dealing with EU residents)
 - Ideally nDSG (Swiss data protection act) aligned
 - No invasive fingerprinting
@@ -428,25 +436,25 @@ Switzerland has high privacy expectations. The analytics stack must be:
 
 ### Recommended vendor consideration
 
-| Vendor | Cookieless | EU/Swiss hosted | Notes |
-|---|---|---|---|
-| Plausible Analytics | ✅ | ✅ (EU) | Lightweight, no consent banner needed |
-| Fathom Analytics | ✅ | ✅ | Similar to Plausible |
-| Umami (self-hosted) | ✅ | ✅ (if self-hosted CH) | Most control; ops overhead |
-| Google Analytics 4 | ❌ | ❌ | Consent banner required; complex compliance |
+| Vendor              | Cookieless | EU/Swiss hosted        | Notes                                       |
+| ------------------- | ---------- | ---------------------- | ------------------------------------------- |
+| Plausible Analytics | ✅         | ✅ (EU)                | Lightweight, no consent banner needed       |
+| Fathom Analytics    | ✅         | ✅                     | Similar to Plausible                        |
+| Umami (self-hosted) | ✅         | ✅ (if self-hosted CH) | Most control; ops overhead                  |
+| Google Analytics 4  | ❌         | ❌                     | Consent banner required; complex compliance |
 
 > Decision: open — see Open Decisions. Default recommendation is Plausible or equivalent privacy-first tool.
 
 ### Core metrics to track
 
-| Metric | Why |
-|---|---|
+| Metric                                    | Why                                     |
+| ----------------------------------------- | --------------------------------------- |
 | Organic search traffic (by language/page) | Channel quality and content performance |
-| Keyword ranking positions | Track target keywords weekly |
-| Landing page → draft-start conversion | SEO-to-product funnel |
-| Draft-start → payment conversion | Full funnel anchor |
-| Bounce rate on use-case pages | Content relevance signal |
-| Search Console impressions/clicks/CTR | Organic visibility health |
+| Keyword ranking positions                 | Track target keywords weekly            |
+| Landing page → draft-start conversion     | SEO-to-product funnel                   |
+| Draft-start → payment conversion          | Full funnel anchor                      |
+| Bounce rate on use-case pages             | Content relevance signal                |
+| Search Console impressions/clicks/CTR     | Organic visibility health               |
 
 ### Search Console
 
@@ -467,15 +475,15 @@ Switzerland has high privacy expectations. The analytics stack must be:
 
 These items are **blocked** and must be resolved before full SEO implementation:
 
-| Decision | Blocker | Impact |
-|---|---|---|
-| Domain name | Product naming decision outstanding | All canonical URLs, hreflang, structured data |
-| Analytics vendor | Privacy/compliance review needed | Tracking setup, consent banner decision |
-| Exact keyword research | Requires Ahrefs/SEMrush or equivalent | Finalise page priorities, slug choices |
-| Blog / resource launch timing | Post-MVP; scope and resourcing remain undecided | Long-tail acquisition |
-| Swiss hosting confirmation | Infrastructure decision pending | Local SEO trust signal, CWV |
-| Google Business Profile | Requires verified business address in CH | Branded search panel |
-| Content localisation review | Translations must be reviewed by native speakers | Multilingual page quality |
+| Decision                      | Blocker                                          | Impact                                        |
+| ----------------------------- | ------------------------------------------------ | --------------------------------------------- |
+| Domain name                   | Product naming decision outstanding              | All canonical URLs, hreflang, structured data |
+| Analytics vendor              | Privacy/compliance review needed                 | Tracking setup, consent banner decision       |
+| Exact keyword research        | Requires Ahrefs/SEMrush or equivalent            | Finalise page priorities, slug choices        |
+| Blog / resource launch timing | Post-MVP; scope and resourcing remain undecided  | Long-tail acquisition                         |
+| Swiss hosting confirmation    | Infrastructure decision pending                  | Local SEO trust signal, CWV                   |
+| Google Business Profile       | Requires verified business address in CH         | Branded search panel                          |
+| Content localisation review   | Translations must be reviewed by native speakers | Multilingual page quality                     |
 
 ---
 
@@ -483,11 +491,11 @@ These items are **blocked** and must be resolved before full SEO implementation:
 
 For positioning context only — not an authoritative analysis:
 
-| Competitor | Domain | Notes |
-|---|---|---|
-| SuperPost | superpost.com | Online letter sending, Swiss focus |
-| Pingen | pingen.ch | API-first postal dispatch, developer-oriented |
-| Swiss Post ePost | epost.ch | Official postal offering |
+| Competitor       | Domain        | Notes                                         |
+| ---------------- | ------------- | --------------------------------------------- |
+| SuperPost        | superpost.com | Online letter sending, Swiss focus            |
+| Pingen           | pingen.ch     | API-first postal dispatch, developer-oriented |
+| Swiss Post ePost | epost.ch      | Official postal offering                      |
 
-Sendly should differentiate on: guided mobile workflow, calm consumer-first UX, and a faster
+Episto should differentiate on: guided mobile workflow, calm consumer-first UX, and a faster
 path from intent to posted letter — not purely on price or dispatch speed.

@@ -20,6 +20,7 @@ vi.mock("../src/modules/drafting/index.js", () => ({
   draftRoutes: async () => {},
   addressSearchRoutes: async () => {},
   streamRoutes: async () => {},
+  dictationRoutes: async () => {},
 }));
 
 vi.mock("../src/modules/payments/index.js", () => ({

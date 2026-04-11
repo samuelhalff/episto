@@ -1,6 +1,6 @@
 # Competitive Landscape — Swiss Online Letter Sending
 
-**Product:** Sendly  
+**Product:** Episto  
 **Last updated:** 2026-03-15  
 **Status:** Living document — update when competitor features change or new entrants appear
 
@@ -12,22 +12,23 @@ The Swiss online letter-sending market is small but fragmented. No single player
 
 **Market segments visible today:**
 
-| Segment | Representative Players | Customer |
-|---|---|---|
-| Consumer one-off hybrid mail | SuperPost (Pingen GmbH) | Individuals, light business |
-| B2B/API hybrid mail | Pingen (pingen.ch) | Companies, developers |
-| US-style digital mailhouse | DocuPost | US SMBs, healthcare, legal |
-| Institutional hybrid delivery | Swiss Post ePost | Enterprise, government, ERP users |
+| Segment                       | Representative Players  | Customer                          |
+| ----------------------------- | ----------------------- | --------------------------------- |
+| Consumer one-off hybrid mail  | SuperPost (Pingen GmbH) | Individuals, light business       |
+| B2B/API hybrid mail           | Pingen (pingen.ch)      | Companies, developers             |
+| US-style digital mailhouse    | DocuPost                | US SMBs, healthcare, legal        |
+| Institutional hybrid delivery | Swiss Post ePost        | Enterprise, government, ERP users |
 
 **Key observations:**
-- The consumer segment in Switzerland is currently served primarily by SuperPost, which is a capable but limited product — it handles the dispatch workflow well but does not help users *write* the letter.
+
+- The consumer segment in Switzerland is currently served primarily by SuperPost, which is a capable but limited product — it handles the dispatch workflow well but does not help users _write_ the letter.
 - The B2B/API tier (Pingen, ePost) is well-served and not our target for MVP.
 - No competitor offers meaningful AI-assisted drafting. Users are expected to arrive with a letter already written.
-- Mobile experience is an afterthought for all players except SuperPost, which is optimized for mobile uploading — but not mobile *composing*.
+- Mobile experience is an afterthought for all players except SuperPost, which is optimized for mobile uploading — but not mobile _composing_.
 - Trust and data privacy are underexploited as differentiators despite being central Swiss values.
 
 **Market opportunity:**  
-There is a clear gap for a product that meets users *before* they have a document — at the moment when they know they need to write something formal but don't know how to start.
+There is a clear gap for a product that meets users _before_ they have a document — at the moment when they know they need to write something formal but don't know how to start.
 
 ---
 
@@ -71,26 +72,26 @@ Institutional hybrid mail (Swiss Post subsidiary). SmartSend for business corres
 
 ## 3. Feature Comparison Matrix
 
-| Feature | Sendly | SuperPost | Pingen | DocuPost | ePost |
-|---|:---:|:---:|:---:|:---:|:---:|
-| **AI letter drafting** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Voice/dictation input** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **Guided conversation UI** | ✅ | ❌ | ❌ | ❌ | ❌ |
-| **No account required** | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Mobile-first UX** | ✅ | ✅ | ❌ | ❌ | ❌ |
-| **Swiss market focus** | ✅ | ✅ | ✅ | ❌ | ✅ |
-| **4 Swiss languages (AI)** | ✅ | Partial | Partial | ❌ | ✅ |
-| **Honest status comms** | ✅ | Partial | ✅ | Partial | Partial |
-| **Swiss data privacy** | ✅ | ✅ | ✅ | ❌ | ✅ |
-| **PDF upload path** | Planned | ✅ | ✅ | ✅ | ✅ |
-| **Real-time tracking** | Planned but provider-dependent | ❌ | ✅ | ✅ (USPS) | ✅ |
-| **Registered mail** | Planned | ❌ | ✅ | ✅ | ✅ |
-| **B2B / API access** | Future | ❌ | ✅ | ✅ | ✅ |
-| **Bulk/mail merge** | ❌ | ❌ | ✅ | ✅ | ✅ |
-| **Social proof / testimonials** | None yet | Moderate | Moderate | Strong | Institutional |
-| **Coupon/discount system** | Not a launch basis | ✅ | ❌ | ❌ | ❌ |
-| **QR digital receipt** | Not a launch basis | ✅ | ❌ | ❌ | Partial |
-| **Consumer pricing visible** | Launch pricing pending approval | ✅ (CHF 2.50) | ❌ | ✅ ($0.95+) | ❌ |
+| Feature                         |             Episto              |   SuperPost   |  Pingen  |  DocuPost   |     ePost     |
+| ------------------------------- | :-----------------------------: | :-----------: | :------: | :---------: | :-----------: |
+| **AI letter drafting**          |               ✅                |      ❌       |    ❌    |     ❌      |      ❌       |
+| **Voice/dictation input**       |               ✅                |      ❌       |    ❌    |     ❌      |      ❌       |
+| **Guided conversation UI**      |               ✅                |      ❌       |    ❌    |     ❌      |      ❌       |
+| **No account required**         |               ✅                |      ✅       |    ❌    |     ❌      |      ❌       |
+| **Mobile-first UX**             |               ✅                |      ✅       |    ❌    |     ❌      |      ❌       |
+| **Swiss market focus**          |               ✅                |      ✅       |    ✅    |     ❌      |      ✅       |
+| **4 Swiss languages (AI)**      |               ✅                |    Partial    | Partial  |     ❌      |      ✅       |
+| **Honest status comms**         |               ✅                |    Partial    |    ✅    |   Partial   |    Partial    |
+| **Swiss data privacy**          |               ✅                |      ✅       |    ✅    |     ❌      |      ✅       |
+| **PDF upload path**             |             Planned             |      ✅       |    ✅    |     ✅      |      ✅       |
+| **Real-time tracking**          | Planned but provider-dependent  |      ❌       |    ✅    |  ✅ (USPS)  |      ✅       |
+| **Registered mail**             |             Planned             |      ❌       |    ✅    |     ✅      |      ✅       |
+| **B2B / API access**            |             Future              |      ❌       |    ✅    |     ✅      |      ✅       |
+| **Bulk/mail merge**             |               ❌                |      ❌       |    ✅    |     ✅      |      ✅       |
+| **Social proof / testimonials** |            None yet             |   Moderate    | Moderate |   Strong    | Institutional |
+| **Coupon/discount system**      |       Not a launch basis        |      ✅       |    ❌    |     ❌      |      ❌       |
+| **QR digital receipt**          |       Not a launch basis        |      ✅       |    ❌    |     ❌      |    Partial    |
+| **Consumer pricing visible**    | Launch pricing pending approval | ✅ (CHF 2.50) |    ❌    | ✅ ($0.95+) |      ❌       |
 
 > **Legend:** ✅ Yes / ❌ No / Partial / product-side note = current planning posture, not an implementation instruction
 
@@ -104,7 +105,7 @@ Institutional hybrid mail (Swiss Post subsidiary). SmartSend for business corres
 Every competitor — without exception — assumes the user arrives with a complete, ready-to-send document. The moment a user doesn't know how to phrase a formal cancellation, termination, or complaint, all current tools fail them. This is the largest unserved moment in the user journey.
 
 **2. Mobile composition is absent.**  
-SuperPost is mobile-optimized for *uploading* a document. None of the Swiss players are designed for composing a letter on a phone. Users who want to send something formal from their commute have no good option.
+SuperPost is mobile-optimized for _uploading_ a document. None of the Swiss players are designed for composing a letter on a phone. Users who want to send something formal from their commute have no good option.
 
 **3. Language support is shallow.**  
 Swiss formal correspondence spans de-CH, fr-CH, it-CH, and en-CH. SuperPost leans heavily on German SEO content. No competitor offers AI-assisted drafting across all four Swiss languages.
@@ -124,19 +125,20 @@ SuperPost has use-case landing pages (cancellations, notices) but no actual guid
 
 ### How we think about this product
 
-**Sendly is not a mail service. It is a premium formal-letter preparation tool with integrated dispatch.**
+**Episto is not a mail service. It is a premium formal-letter preparation tool with integrated dispatch.**
 
-SuperPost is a dispatch service. You bring your document — they mail it. Sendly enters the
-journey *before* the document exists. It helps users produce a properly structured, correctly toned,
+SuperPost is a dispatch service. You bring your document — they mail it. Episto enters the
+journey _before_ the document exists. It helps users produce a properly structured, correctly toned,
 professionally formatted letter, then submits the final PDF and metadata through the postal-provider
 path. These are different products solving different problems.
 
-### Where Sendly wins
+### Where Episto wins
 
 **Primary position: The only product that helps you write a professional letter.**  
-Sendly enters the user journey before any competitor does — when the user knows they need to write something formal but hasn't started. This is not a marginal improvement; it is a completely different product category.
+Episto enters the user journey before any competitor does — when the user knows they need to write something formal but hasn't started. This is not a marginal improvement; it is a completely different product category.
 
 **What the product actually delivers (in priority order):**
+
 1. High-quality letter structure appropriate for each use case
 2. Tone control — formal, neutral, or firm
 3. Strong subject line generation
@@ -145,7 +147,8 @@ Sendly enters the user journey before any competitor does — when the user know
 6. Mobile review flow that builds confidence
 7. Dispatch as the natural conclusion, not the product itself
 
-**Secondary position: Swiss-native, mobile-native, honest.**  
+**Secondary position: Swiss-native, mobile-native, honest.**
+
 - Swiss data privacy as an earned claim, not a badge
 - Mobile-first with voice input as a first-class feature
 - Status communication that reflects actual dispatch reality (not fake "delivered" states)
@@ -155,6 +158,7 @@ Sendly enters the user journey before any competitor does — when the user know
 Someone who needs to send a formal Swiss letter where the stakes matter — a cancellation, a complaint, a landlord dispute, an insurance claim — and doesn't know how to write it properly. They speak German, French, Italian, or English. They are not a developer, not a bulk mailer, and not looking for an ERP integration.
 
 **The high-stakes use cases that justify the premium:**
+
 - Lease cancellations and tenancy disputes
 - Insurance cancellations and claims
 - Contract terminations with consequences
@@ -162,14 +166,14 @@ Someone who needs to send a formal Swiss letter where the stakes matter — a ca
 - Demand letters and payment reminders
 - Official correspondence with authorities
 
-These are situations where people *want* the letter to be right. They will pay for the confidence that it is.
+These are situations where people _want_ the letter to be right. They will pay for the confidence that it is.
 
 **Pricing positioning — quality premium, not price competition:**  
-Competing dispatch tools set a lower reference point for send-only workflows. We do not compete on price alone. Sendly justifies a premium only if it delivers a *finished professional letter*, not just a send button. The public amount must stay below the "I'll just do it myself" threshold, but the justification is the quality of the result and the ease of producing it, not being cheaper than anyone else. See [Pricing Structure](../04-product/pricing-structure.md) for the canonical checkout truth.
+Competing dispatch tools set a lower reference point for send-only workflows. We do not compete on price alone. Episto justifies a premium only if it delivers a _finished professional letter_, not just a send button. The public amount must stay below the "I'll just do it myself" threshold, but the justification is the quality of the result and the ease of producing it, not being cheaper than anyone else. See [Pricing Structure](../04-product/pricing-structure.md) for the canonical checkout truth.
 
 **The business question is not "can we mail cheaper?" It is: "will enough users pay for a clearly more professional and reassuring result?"** Our conviction is yes — especially for the high-stakes use cases above.
 
-### Where Sendly does not compete (MVP)
+### Where Episto does not compete (MVP)
 
 - Generic "send any letter online" → SuperPost is fine for this
 - Bulk/mail merge senders → Pingen is the better tool
@@ -183,6 +187,7 @@ Competing dispatch tools set a lower reference point for send-only workflows. We
 ## 6. Lessons Learned from Competitors
 
 ### From SuperPost
+
 - **No-registration checkout** dramatically reduces friction — confirm our guest-first approach
 - **Step wizard** (Content → Recipient → Attachment → Summary → Payment) is proven UX; adapt for our flow with an AI drafting step added before recipient capture
 - **QR code for digital receipt** — users appreciate a verification artifact; consider equivalent
@@ -190,17 +195,20 @@ Competing dispatch tools set a lower reference point for send-only workflows. We
 - **Coupon codes** are a low-cost acquisition tool worth building at launch
 
 ### From DocuPost
+
 - **"No post office"** framing works — tell users what they don't have to do
 - **Social proof is critical** — 80K customers and named industry testimonials build trust before checkout; we need a social proof strategy from day one
 - **Transparent pricing** at the surface level (before checkout) reduces abandonment
 - **Balance/prepay** reduces per-transaction friction for repeat users — worth evaluating for v2
 
 ### From Pingen
+
 - **Real-time tracking UI** sets user expectation correctly — show what you actually know, step by step
 - **Analytics for B2B users** — relevant for v2, not MVP
 - **API-first thinking** — even in MVP, design internal APIs with future B2B integration in mind
 
 ### From Swiss Post ePost
+
 - **Swiss data privacy as a headline feature** — not a footnote; position it prominently in trust blocks
 - **Hybrid delivery concept** (physical and digital) — worth understanding as a future feature; if recipient has a digital address, a copy could be delivered digitally too
 - **Universal service obligation** — Swiss Post has regulatory reason to keep physical mail alive; our dispatch model is stable long-term
@@ -243,4 +251,4 @@ Users sending formal legal letters may not trust AI-generated text without revie
 
 ---
 
-*This document is a living analysis. Revisit whenever: a competitor ships a notable feature, pricing changes, a new player enters, or we make a positioning decision that affects the competitive calculus.*
+_This document is a living analysis. Revisit whenever: a competitor ships a notable feature, pricing changes, a new player enters, or we make a positioning decision that affects the competitive calculus._

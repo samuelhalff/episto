@@ -6,7 +6,7 @@ describe("confirmation document template", () => {
       await import("../src/modules/rendering/confirmation-document.js");
 
     const html = renderConfirmationDocumentHtml({
-      orderRef: "SM-4FD8704A",
+      orderRef: "EP-4FD8704A",
       locale: "en-CH",
       submittedAt: new Date("2026-04-08T12:00:00.000Z"),
       dispatchState: "accepted",
@@ -43,9 +43,9 @@ describe("confirmation document template", () => {
       letterHtml: '<section class="letter-pages">Letter body</section>',
     });
 
-    expect(html).toContain("Sendly");
+    expect(html).toContain("Episto");
     expect(html).toContain("Dispatch statement");
-    expect(html).toContain("SM-4FD8704A");
+    expect(html).toContain("EP-4FD8704A");
     expect(html).toContain("Issued on");
     expect(html).toContain("98.40.541881.00002354");
     expect(html).toContain("Tracking number");
@@ -55,7 +55,7 @@ describe("confirmation document template", () => {
     expect(html).toContain("font-weight: 900");
     expect(html).toContain('<circle cx="26" cy="30" r="10.5"');
     expect(html).toContain('<circle cx="36.5" cy="19.5" r="4.5"');
-    expect(html).not.toContain('M18 28h16');
+    expect(html).not.toContain("M18 28h16");
     expect(html).toContain("min-height: 297mm");
     expect(html).toContain("break-inside: avoid");
     expect(html).not.toMatch(/\.confirmation-page\s*\{\s*height:\s*297mm/);
@@ -75,7 +75,7 @@ describe("confirmation document template", () => {
       await import("../src/modules/rendering/confirmation-document.js");
 
     const html = renderConfirmationDocumentHtml({
-      orderRef: "SM-7GC1209B",
+      orderRef: "EP-7GC1209B",
       locale: "fr-CH",
       submittedAt: new Date("2026-04-08T12:00:00.000Z"),
       dispatchState: "accepted",

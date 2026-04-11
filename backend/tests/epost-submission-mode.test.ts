@@ -23,7 +23,7 @@ const basePackage: DispatchPackage = {
   sender: {
     firstName: "Swiss",
     lastName: "Mail",
-    company: "Sendly",
+    company: "Episto",
     addressLine1: "Bahnhofstrasse 1",
     postalCode: "8001",
     city: "Zurich",
@@ -70,9 +70,7 @@ describe("EpostDispatchAdapter mock submission mode", () => {
   it("returns a deterministic accepted status lookup for mock references", async () => {
     const adapter = new EpostDispatchAdapter({ submissionMode: "mock" });
 
-    await expect(
-      adapter.checkStatus("EPR-T-R-0D2D6C40F706"),
-    ).resolves.toMatchObject({
+    await expect(adapter.checkStatus("EPR-T-R-0D2D6C40F706")).resolves.toMatchObject({
       state: "accepted",
       providerReference: "EPR-T-R-0D2D6C40F706",
       trackingNumber: expect.any(String),

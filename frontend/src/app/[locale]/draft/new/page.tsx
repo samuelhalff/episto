@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useMemo, useRef, useState } from "react";
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
@@ -21,12 +21,17 @@ import {
 import { Link, useRouter } from "../../../../i18n/navigation";
 import { routing } from "../../../../i18n/routing";
 import { ConfirmDialog } from "../../../../components/product/ConfirmDialog";
+import { BrandMark } from "../../../../components/branding/BrandMark";
 import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
 import { AppButton } from "../../../../components/ui/app-button";
 import { useDictation } from "../../../../hooks/use-dictation";
 import { ApiError, apiFetch } from "../../../../lib/api";
 import { ActionButton, ActionLink } from "../../../../components/product/ActionButton";
+import {
+  findRecoverableDraft,
+  shouldForceFreshEntry,
+} from "../../../../lib/new-draft-entry";
 import { primePendingDraftTurn } from "../../../../lib/pending-draft-turn";
 
 type BootstrapState =
@@ -53,14 +58,6 @@ type PendingStartAction =
   | "composer"
   | `quick-start:${string}`
   | null;
-
-function sortDraftsByActivity(drafts: DraftLetter[]): DraftLetter[] {
-  return [...drafts].sort((left, right) => {
-    const leftDate = new Date(left.updatedAt ?? left.createdAt).getTime();
-    const rightDate = new Date(right.updatedAt ?? right.createdAt).getTime();
-    return rightDate - leftDate;
-  });
-}
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -98,8 +95,10 @@ function getErrorMessage(error: unknown): string {
 function normalizeDraft(draft: DraftLetter): DraftLetter {
   return {
     ...draft,
-    createdAt: draft.createdAt instanceof Date ? draft.createdAt : new Date(draft.createdAt),
-    updatedAt: draft.updatedAt instanceof Date ? draft.updatedAt : new Date(draft.updatedAt),
+    createdAt:
+      draft.createdAt instanceof Date ? draft.createdAt : new Date(draft.createdAt),
+    updatedAt:
+      draft.updatedAt instanceof Date ? draft.updatedAt : new Date(draft.updatedAt),
   };
 }
 
@@ -115,11 +114,8 @@ export default function NewDraftPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const dictation = useDictation();
-  const {
-    finalText: dictatedComposerText,
-    resetText: resetDictationText,
-  } = dictation;
+  const dictation = useDictation({ fieldContext: "entry" });
+  const { finalText: dictatedComposerText, resetText: resetDictationText } = dictation;
   const sessionLocale = routing.locales.includes(
     locale as (typeof routing.locales)[number],
   )
@@ -134,7 +130,9 @@ export default function NewDraftPage() {
   const [showConfirmFresh, setShowConfirmFresh] = useState(false);
   const runIdRef = useRef(0);
   const useCasePrefillAppliedRef = useRef(false);
+  const freshEntryStartedRef = useRef(false);
   const isStartingDraft = pendingStartAction !== null;
+  const forceFreshEntry = shouldForceFreshEntry(searchParams);
 
   const quickStarts = useMemo<QuickStartConfig[]>(
     () => [
@@ -209,10 +207,10 @@ export default function NewDraftPage() {
   useEffect(() => {
     const runId = ++runIdRef.current;
 
-    async function getLatestDraft(): Promise<DraftLetter | null> {
+    async function getRecoverableDraft(): Promise<DraftLetter | null> {
       try {
         const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
-        return sortDraftsByActivity(drafts)[0] ?? null;
+        return findRecoverableDraft(drafts);
       } catch (error) {
         if (error instanceof ApiError && error.status === 401) {
           return null;
@@ -226,12 +224,16 @@ export default function NewDraftPage() {
         setState({ kind: "loading" });
 
         try {
-          const { session } = await apiFetch<{ session: Session }>("/v1/sessions/current");
+          const { session } = await apiFetch<{ session: Session }>(
+            "/v1/sessions/current",
+          );
           queryClient.setQueryData(queryKeys.session("current"), session);
-          const existingDraft = await getLatestDraft();
-          if (existingDraft) {
-            setState({ kind: "resume", draft: existingDraft });
-            return;
+          if (!forceFreshEntry) {
+            const existingDraft = await getRecoverableDraft();
+            if (existingDraft) {
+              setState({ kind: "resume", draft: existingDraft });
+              return;
+            }
           }
 
           if (runId === runIdRef.current) {
@@ -248,10 +250,12 @@ export default function NewDraftPage() {
           setState({ kind: "ready", hasActiveSession: false });
         }
       } catch (error) {
-        const existingDraft = await getLatestDraft().catch(() => null);
-        if (existingDraft) {
-          setState({ kind: "resume", draft: existingDraft });
-          return;
+        if (!forceFreshEntry) {
+          const existingDraft = await getRecoverableDraft().catch(() => null);
+          if (existingDraft) {
+            setState({ kind: "resume", draft: existingDraft });
+            return;
+          }
         }
 
         if (runId !== runIdRef.current) {
@@ -266,91 +270,104 @@ export default function NewDraftPage() {
     }
 
     void bootstrap();
-  }, [queryClient, retryCount]);
+  }, [forceFreshEntry, queryClient, retryCount]);
 
-  async function startDraft(options?: {
-    forceNewSession?: boolean;
-    initialMessage?: string;
-    pendingAction?: Exclude<PendingStartAction, null>;
-  }) {
-    if (isStartingDraft) {
+  const startDraft = useCallback(
+    async (options?: {
+      forceNewSession?: boolean;
+      initialMessage?: string;
+      pendingAction?: Exclude<PendingStartAction, null>;
+    }) => {
+      if (isStartingDraft) {
+        return;
+      }
+
+      const initialMessage = options?.initialMessage?.trim() ?? "";
+      const forceNewSession = options?.forceNewSession ?? false;
+      const nextPendingAction =
+        options?.pendingAction ?? (initialMessage ? "composer" : "fresh");
+
+      setSubmissionError(null);
+      setPendingStartAction(nextPendingAction);
+
+      try {
+        const mustCreateSession =
+          forceNewSession || (state.kind === "ready" && !state.hasActiveSession);
+
+        if (mustCreateSession) {
+          const { session } = await apiFetch<{ session: Session }>("/v1/sessions", {
+            method: "POST",
+            body: JSON.stringify({ locale: sessionLocale }),
+          });
+          queryClient.setQueryData(queryKeys.session("current"), session);
+
+          if (state.kind === "ready") {
+            setState({ kind: "ready", hasActiveSession: true });
+          }
+        }
+
+        const { draft } = await apiFetch<{ draft: DraftLetter }>("/v1/drafts", {
+          method: "POST",
+          body: JSON.stringify({}),
+        });
+        const seededDraft = normalizeDraft(draft);
+        queryClient.setQueryData(queryKeys.draft(draft.id), seededDraft);
+
+        if (initialMessage) {
+          const response = await apiFetch<{ message: ConversationMessagePayload }>(
+            `/v1/drafts/${draft.id}/messages`,
+            {
+              method: "POST",
+              body: JSON.stringify({ content: initialMessage }),
+            },
+          );
+
+          const seededMessage: ConversationMessage = {
+            ...response.message,
+            createdAt:
+              response.message.createdAt instanceof Date
+                ? response.message.createdAt
+                : new Date(response.message.createdAt),
+          };
+
+          queryClient.setQueryData<ConversationMessage[]>(
+            queryKeys.draftMessages(draft.id),
+            [seededMessage],
+          );
+          primePendingDraftTurn({ draftId: draft.id, messageId: seededMessage.id });
+        }
+
+        startTransition(() => {
+          router.replace(`/draft/${draft.id}`);
+        });
+      } catch (error) {
+        try {
+          const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
+          const existingDraft = findRecoverableDraft(drafts);
+          if (!forceFreshEntry && existingDraft) {
+            setPendingStartAction(null);
+            setState({ kind: "resume", draft: existingDraft });
+            return;
+          }
+        } catch {
+          // Ignore fallback lookup failures and show the original error.
+        }
+
+        setSubmissionError(getErrorMessage(error));
+        setPendingStartAction(null);
+      }
+    },
+    [forceFreshEntry, isStartingDraft, queryClient, router, sessionLocale, state],
+  );
+
+  useEffect(() => {
+    if (!forceFreshEntry || state.kind !== "ready" || freshEntryStartedRef.current) {
       return;
     }
 
-    const initialMessage = options?.initialMessage?.trim() ?? "";
-    const forceNewSession = options?.forceNewSession ?? false;
-    const nextPendingAction = options?.pendingAction ?? (initialMessage ? "composer" : "fresh");
-
-    setSubmissionError(null);
-    setPendingStartAction(nextPendingAction);
-
-    try {
-      const mustCreateSession =
-        forceNewSession || (state.kind === "ready" && !state.hasActiveSession);
-
-      if (mustCreateSession) {
-        const { session } = await apiFetch<{ session: Session }>("/v1/sessions", {
-          method: "POST",
-          body: JSON.stringify({ locale: sessionLocale }),
-        });
-        queryClient.setQueryData(queryKeys.session("current"), session);
-
-        if (state.kind === "ready") {
-          setState({ kind: "ready", hasActiveSession: true });
-        }
-      }
-
-      const { draft } = await apiFetch<{ draft: DraftLetter }>("/v1/drafts", {
-        method: "POST",
-        body: JSON.stringify({}),
-      });
-      const seededDraft = normalizeDraft(draft);
-      queryClient.setQueryData(queryKeys.draft(draft.id), seededDraft);
-
-      if (initialMessage) {
-        const response = await apiFetch<{ message: ConversationMessagePayload }>(
-          `/v1/drafts/${draft.id}/messages`,
-          {
-            method: "POST",
-            body: JSON.stringify({ content: initialMessage }),
-          },
-        );
-
-        const seededMessage: ConversationMessage = {
-          ...response.message,
-          createdAt:
-            response.message.createdAt instanceof Date
-              ? response.message.createdAt
-              : new Date(response.message.createdAt),
-        };
-
-        queryClient.setQueryData<ConversationMessage[]>(
-          queryKeys.draftMessages(draft.id),
-          [seededMessage],
-        );
-        primePendingDraftTurn({ draftId: draft.id, messageId: seededMessage.id });
-      }
-
-      startTransition(() => {
-        router.replace(`/draft/${draft.id}`);
-      });
-    } catch (error) {
-      try {
-        const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
-        const existingDraft = sortDraftsByActivity(drafts)[0] ?? null;
-        if (existingDraft) {
-          setPendingStartAction(null);
-          setState({ kind: "resume", draft: existingDraft });
-          return;
-        }
-      } catch {
-        // Ignore fallback lookup failures and show the original error.
-      }
-
-      setSubmissionError(getErrorMessage(error));
-      setPendingStartAction(null);
-    }
-  }
+    freshEntryStartedRef.current = true;
+    void startDraft({ forceNewSession: true, pendingAction: "fresh" });
+  }, [forceFreshEntry, startDraft, state]);
 
   function handleEntrySubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -467,12 +484,7 @@ export default function NewDraftPage() {
               >
                 {tc("tryAgain")}
               </ActionButton>
-              <ActionLink
-                href="/"
-                variant="secondary"
-                fullWidth
-                className="sm:flex-1"
-              >
+              <ActionLink href="/" variant="secondary" fullWidth className="sm:flex-1">
                 {tc("backToHome")}
               </ActionLink>
             </div>
@@ -663,9 +675,7 @@ function EntryHeader() {
           href="/"
           className="inline-flex min-w-0 items-center gap-3 text-sm font-semibold tracking-tight text-[var(--app-fg)]"
         >
-          <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[var(--action-primary-bg)] text-xs font-semibold uppercase tracking-widest text-[var(--action-primary-fg)] shadow-sm">
-            SM
-          </span>
+          <BrandMark className="h-10 w-10 shrink-0" />
           <span className="truncate">{tc("appName")}</span>
         </Link>
 

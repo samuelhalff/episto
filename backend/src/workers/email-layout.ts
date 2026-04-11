@@ -2,7 +2,7 @@
  * Shared HTML email layout — responsive, branded wrapper for all transactional emails.
  *
  * Uses table-based layout with inline styles for maximum email client compatibility.
- * Brand: Sendly (#f6c54a golden yellow accent).
+ * Brand: Episto (#f6c54a golden yellow accent).
  */
 
 const BRAND_COLOR = "#f6c54a";
@@ -33,10 +33,17 @@ export interface EmailLayoutConfig {
   supportEmail: string;
 }
 
-const FOOTER_STRINGS: Record<string, { privacy: string; terms: string; imprint: string }> = {
+const FOOTER_STRINGS: Record<
+  string,
+  { privacy: string; terms: string; imprint: string }
+> = {
   "en-CH": { privacy: "Privacy Policy", terms: "Terms of Service", imprint: "Imprint" },
   "de-CH": { privacy: "Datenschutz", terms: "Nutzungsbedingungen", imprint: "Impressum" },
-  "fr-CH": { privacy: "Confidentialité", terms: "Conditions", imprint: "Mentions légales" },
+  "fr-CH": {
+    privacy: "Confidentialité",
+    terms: "Conditions",
+    imprint: "Mentions légales",
+  },
   "it-CH": { privacy: "Privacy", terms: "Condizioni", imprint: "Colophon" },
 };
 
@@ -154,7 +161,7 @@ export function heading(text: string): string {
 }
 
 export function paragraph(text: string, style?: string): string {
-  return `<p style="margin:0 0 16px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;${style ?? ''}">${text}</p>`;
+  return `<p style="margin:0 0 16px;font-size:14px;color:${TEXT_COLOR};line-height:1.6;${style ?? ""}">${text}</p>`;
 }
 
 export function mutedText(text: string): string {

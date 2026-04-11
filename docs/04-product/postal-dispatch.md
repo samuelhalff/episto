@@ -13,7 +13,7 @@
 
 Define dispatch behavior without inventing provider capability.
 
-In Sendly, "dispatch" means preparing the provider-bound submission package and submitting it to
+In Episto, "dispatch" means preparing the provider-bound submission package and submitting it to
 the configured postal-provider path. It does not mean delivery, and it does not imply that Swiss
 Mail runs its own physical print-and-mail workflow.
 
@@ -75,14 +75,14 @@ Do not infer provider payload shape from these app-level fields. Mapping stays i
 
 **Minimum adapter responsibilities:**
 
-| Responsibility | Notes |
-|---|---|
-| Validate request payload | Against canonical dispatch schema |
-| Submit dispatch request | Provider-specific transport hidden inside adapter |
-| Normalize provider response | Map to `DispatchAttemptResult` canonical type |
-| Expose provider reference identifiers | Never assume all references are trackable |
-| Expose supported status lookup capability | Only if the provider actually supports it |
-| Map provider errors into canonical app errors | See error taxonomy in `../07-operations/` |
+| Responsibility                                | Notes                                             |
+| --------------------------------------------- | ------------------------------------------------- |
+| Validate request payload                      | Against canonical dispatch schema                 |
+| Submit dispatch request                       | Provider-specific transport hidden inside adapter |
+| Normalize provider response                   | Map to `DispatchAttemptResult` canonical type     |
+| Expose provider reference identifiers         | Never assume all references are trackable         |
+| Expose supported status lookup capability     | Only if the provider actually supports it         |
+| Map provider errors into canonical app errors | See error taxonomy in `../07-operations/`         |
 
 ## Tracking rules
 
@@ -96,11 +96,11 @@ Do not infer provider payload shape from these app-level fields. Mapping stays i
 
 ## Failure handling rules
 
-| Scenario | Required behavior |
-|---|---|
-| Ambiguous submission state | Stay ambiguous until reconciled; never collapse to success |
-| Retry after failure | Must be idempotent or explicitly guarded against duplicate dispatch |
-| Refund trigger | Must be tied to real dispatch outcome, not UI-side optimism |
+| Scenario                   | Required behavior                                                   |
+| -------------------------- | ------------------------------------------------------------------- |
+| Ambiguous submission state | Stay ambiguous until reconciled; never collapse to success          |
+| Retry after failure        | Must be idempotent or explicitly guarded against duplicate dispatch |
+| Refund trigger             | Must be tied to real dispatch outcome, not UI-side optimism         |
 
 ## Provider details still requiring confirmed docs
 

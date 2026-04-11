@@ -6,11 +6,12 @@
 > **Scope:** Reusable UI and product component behavior. This file does not define route order,
 > pricing truth, system states, or business logic outside component boundaries.
 
-This is the complete component catalog for Sendly. Every reusable element — from primitive buttons to product-specific letter previews — is specified here with variants, states, responsive behavior, and accessibility requirements.
+This is the complete component catalog for Episto. Every reusable element — from primitive buttons to product-specific letter previews — is specified here with variants, states, responsive behavior, and accessibility requirements.
 
 Our components serve one mission: **make sending a formal letter feel effortless.** SuperPost competes on price. We compete on experience — the feeling that creating and sending a letter is as easy as sending a text message. Every component must reduce friction, guide the user forward, and feel polished to the pixel.
 
 > **Cross-references:**
+>
 > - Visual tokens → [Design System](../02-brand/design-system.md)
 > - Page layouts → [Page Specifications](page-specifications.md)
 > - Animations → [Micro-Interactions](micro-interactions.md)
@@ -43,7 +44,7 @@ components/
 │   ├── accordion.tsx
 │   ├── progress.tsx
 │   └── breadcrumb.tsx
-├── product/             # Sendly-specific components
+├── product/             # Episto-specific components
 │   ├── letter-preview.tsx
 │   ├── conversation-panel.tsx
 │   ├── draft-workspace.tsx
@@ -93,7 +94,7 @@ components/
 ### Implementation guardrails
 
 - `components/ui/` is the only place for shared overlay primitives. Do not hand-roll new modal, sheet, popover, or dropdown foundations inside feature folders.
-- `components/product/` may compose primitives into Sendly-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
+- `components/product/` may compose primitives into Episto-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
 - Repeated CTA treatments belong in shared button wrappers, not per-step utility classes.
 - Primary workflow CTAs use the shared yellow action treatment. Secondary, back, close, and dismiss actions use the shared neutral grey treatment.
 - When a component needs presence or transition choreography beyond simple CSS hover/focus feedback, use `framer-motion` on top of the shared primitive rather than bespoke animation logic.
@@ -112,46 +113,49 @@ The primary interactive element. Every button must clearly communicate what happ
 
 **Variants:**
 
-| Variant | Use case | Tailwind base |
-|---------|----------|---------------|
-| `primary` | Main CTA — "Draft your letter", "Send" | Shared yellow primary action treatment (`btn-primary`) |
-| `secondary` | Supporting or dismissive action — "Back", "Close", "See how it works" | Shared neutral grey action treatment (`btn-secondary`) |
-| `outline` | Tertiary action — "Edit", "Back" | `border border-input bg-background hover:bg-accent` |
-| `ghost` | Minimal action — inline links, nav items | `hover:bg-accent hover:text-accent-foreground` |
-| `destructive` | Dangerous action — "Cancel letter", "Remove" | `bg-destructive text-destructive-foreground hover:bg-destructive/90` |
-| `link` | Text-only action — "Learn more" | `text-primary underline-offset-4 hover:underline` |
+| Variant       | Use case                                                              | Tailwind base                                                        |
+| ------------- | --------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `primary`     | Main CTA — "Draft your letter", "Send"                                | Shared yellow primary action treatment (`btn-primary`)               |
+| `secondary`   | Supporting or dismissive action — "Back", "Close", "See how it works" | Shared neutral grey action treatment (`btn-secondary`)               |
+| `outline`     | Tertiary action — "Edit", "Back"                                      | `border border-input bg-background hover:bg-accent`                  |
+| `ghost`       | Minimal action — inline links, nav items                              | `hover:bg-accent hover:text-accent-foreground`                       |
+| `destructive` | Dangerous action — "Cancel letter", "Remove"                          | `bg-destructive text-destructive-foreground hover:bg-destructive/90` |
+| `link`        | Text-only action — "Learn more"                                       | `text-primary underline-offset-4 hover:underline`                    |
 
 **Sizes:**
 
-| Size | Height | Padding | Font | Touch target |
-|------|--------|---------|------|-------------|
-| `sm` | 32px | `px-3` | `text-xs` | 32×32 (desktop only) |
-| `md` | 40px | `px-4` | `text-sm` | 40×40 |
-| `lg` | 48px | `px-6` | `text-base` | 48×48 (recommended for mobile CTAs) |
-| `xl` | 56px | `px-8` | `text-lg` | 56×56 (hero CTAs) |
+| Size | Height | Padding | Font        | Touch target                        |
+| ---- | ------ | ------- | ----------- | ----------------------------------- |
+| `sm` | 32px   | `px-3`  | `text-xs`   | 32×32 (desktop only)                |
+| `md` | 40px   | `px-4`  | `text-sm`   | 40×40                               |
+| `lg` | 48px   | `px-6`  | `text-base` | 48×48 (recommended for mobile CTAs) |
+| `xl` | 56px   | `px-8`  | `text-lg`   | 56×56 (hero CTAs)                   |
 
 **States:**
 
-| State | Visual | Transition |
-|-------|--------|-----------|
-| Default | Base variant styles | — |
-| Hover | Background lightens/darkens 10% + shadow-sm appears | 150ms ease-out |
-| Focus | `ring-2 ring-primary/50 ring-offset-2` | instant |
-| Active | `scale(0.98)` + 5% darker background | 100ms |
-| Disabled | `opacity-50 cursor-not-allowed pointer-events-none` | — |
-| Loading | Text replaced by spinner (same size). Button width locked. | 150ms crossfade |
+| State    | Visual                                                     | Transition      |
+| -------- | ---------------------------------------------------------- | --------------- |
+| Default  | Base variant styles                                        | —               |
+| Hover    | Background lightens/darkens 10% + shadow-sm appears        | 150ms ease-out  |
+| Focus    | `ring-2 ring-primary/50 ring-offset-2`                     | instant         |
+| Active   | `scale(0.98)` + 5% darker background                       | 100ms           |
+| Disabled | `opacity-50 cursor-not-allowed pointer-events-none`        | —               |
+| Loading  | Text replaced by spinner (same size). Button width locked. | 150ms crossfade |
 
 **Icon support:**
+
 - Icon-left: `<Button><Icon /> Label</Button>` — icon at 16px, 8px gap
 - Icon-right: `<Button>Label <Icon /></Button>`
 - Icon-only: square button, icon centered, `aria-label` required
 
 **Accessibility:**
+
 - All buttons have visible focus indicators
 - Loading buttons get `aria-busy="true"` and `aria-disabled="true"`
 - Disabled buttons remain in tab order with `aria-disabled="true"` (not `disabled` attribute, which removes from tab order)
 
 **Rules:**
+
 - ✅ Button labels describe the action: "Send my letter", "Upload file"
 - ✅ One primary button per visible section
 - ✅ Back, close, cancel, and other supporting controls reuse the shared secondary treatment instead of inventing route-specific chrome
@@ -166,6 +170,7 @@ The primary interactive element. Every button must clearly communicate what happ
 Text input for single-line data: names, addresses, email, phone.
 
 **Structure:**
+
 ```
 ┌─────────────────────────────┐
 │ Label                       │  ← text-sm text-muted-foreground, above input
@@ -177,21 +182,23 @@ Text input for single-line data: names, addresses, email, phone.
 ```
 
 **Variants:**
+
 - `default`: Standard text input
 - `with-icon`: Left icon inside input (search, email, phone icons)
 - `with-action`: Right-side button (clear, copy, visibility toggle)
 
 **States:**
 
-| State | Border | Label | Helper |
-|-------|--------|-------|--------|
-| Default | `border-input` | `text-muted-foreground` | `text-muted-foreground` |
-| Focus | `ring-2 ring-primary/50 border-primary` | `text-primary` | unchanged |
-| Error | `border-destructive ring-destructive/50` | `text-destructive` | `text-destructive` with error message |
-| Valid | `border-success` (subtle green) | unchanged | optional success helper |
-| Disabled | `opacity-50 bg-muted` | `opacity-50` | hidden |
+| State    | Border                                   | Label                   | Helper                                |
+| -------- | ---------------------------------------- | ----------------------- | ------------------------------------- |
+| Default  | `border-input`                           | `text-muted-foreground` | `text-muted-foreground`               |
+| Focus    | `ring-2 ring-primary/50 border-primary`  | `text-primary`          | unchanged                             |
+| Error    | `border-destructive ring-destructive/50` | `text-destructive`      | `text-destructive` with error message |
+| Valid    | `border-success` (subtle green)          | unchanged               | optional success helper               |
+| Disabled | `opacity-50 bg-muted`                    | `opacity-50`            | hidden                                |
 
 **Input modes** (critical for mobile keyboards):
+
 - Name: `inputMode="text"` `autoComplete="name"`
 - Email: `inputMode="email"` `autoComplete="email"` `type="email"`
 - Phone: `inputMode="tel"` `autoComplete="tel"` `type="tel"`
@@ -200,6 +207,7 @@ Text input for single-line data: names, addresses, email, phone.
 - City: `inputMode="text"` `autoComplete="address-level2"`
 
 **Accessibility:**
+
 - Label associated via `htmlFor`/`id`
 - Error messages linked with `aria-describedby`
 - Required fields use `aria-required="true"` + visual indicator (asterisk)
@@ -212,11 +220,13 @@ Text input for single-line data: names, addresses, email, phone.
 Multi-line text input. Primary use: letter body content in manual edit mode.
 
 **Props:**
+
 - `maxLength`: Character limit (default: 10,000 for letter body)
 - `showCount`: Show "X / 10,000" character counter
 - `autoResize`: Grow with content (min 4 rows, max 20 rows)
 
 **Visual:**
+
 - Same border/focus/error states as Input
 - Character counter: bottom-right, `text-xs text-muted-foreground`
 - Counter turns `text-warning` at 90%, `text-destructive` at 100%
@@ -228,11 +238,13 @@ Multi-line text input. Primary use: letter body content in manual edit mode.
 Single-value selection with optional search.
 
 **Use cases:**
+
 - Delivery type (Standard / Registered)
 - Language selector (DE / FR / IT / EN)
 - Tone selector (Formal / Neutral / Firm)
 
 **Behavior:**
+
 - Trigger: styled like Input, with chevron-down icon right
 - Dropdown: `bg-popover`, `shadow-lg`, `rounded-md`, max 8 visible items
 - Search: optional, appears as input at top of dropdown
@@ -249,12 +261,13 @@ Wayfinding for multi-level pages. Keeps users oriented without competing with th
 
 **Props:**
 
-| Prop | Type | Notes |
-|------|------|-------|
-| `items` | `Array<{ label, href? }>` | Ordered path segments. All but the last segment include `href`. |
-| `mobileCollapse` | `boolean` | Default `true`. Collapses middle segments when the trail exceeds 3 levels. |
+| Prop             | Type                      | Notes                                                                      |
+| ---------------- | ------------------------- | -------------------------------------------------------------------------- |
+| `items`          | `Array<{ label, href? }>` | Ordered path segments. All but the last segment include `href`.            |
+| `mobileCollapse` | `boolean`                 | Default `true`. Collapses middle segments when the trail exceeds 3 levels. |
 
 **Structure:**
+
 - Pattern: `Home > [Section] > [Page]`
 - Separators use chevron icons, `text-sm text-secondary`
 - Clickable segments use `text-primary`
@@ -262,17 +275,19 @@ Wayfinding for multi-level pages. Keeps users oriented without competing with th
 
 **States:**
 
-| State | Behavior |
-|-------|----------|
-| Default | All non-current segments are clickable |
-| Current page | Rendered as text only, no hover state |
+| State            | Behavior                                         |
+| ---------------- | ------------------------------------------------ |
+| Default          | All non-current segments are clickable           |
+| Current page     | Rendered as text only, no hover state            |
 | Collapsed mobile | If more than 3 levels, show `... > Current Page` |
 
 **Responsive:**
+
 - Mobile: collapse middle segments when the trail exceeds 3 levels
 - Desktop: show the full trail inline, wrap only if space is constrained
 
 **Accessibility:**
+
 - Wrapper uses `nav aria-label="Breadcrumb"`
 - Segments are rendered inside an ordered list (`ol`)
 - Current page uses `aria-current="page"`
@@ -284,6 +299,7 @@ Wayfinding for multi-level pages. Keeps users oriented without competing with th
 Centered overlay for confirmations and important information.
 
 **Structure:**
+
 ```
 ┌──── Backdrop (bg-black/50, backdrop-blur-sm) ─────┐
 │                                                     │
@@ -299,6 +315,7 @@ Centered overlay for confirmations and important information.
 ```
 
 **Sizes:**
+
 - `sm`: max-w-sm (384px) — confirmation dialogs
 - `md`: max-w-md (448px) — standard dialogs
 - `lg`: max-w-lg (512px) — complex forms
@@ -307,6 +324,7 @@ Centered overlay for confirmations and important information.
 **Animation:** Fade + scale from 0.95→1 (200ms). Backdrop fade 150ms.
 
 **Accessibility:**
+
 - Focus trapped inside dialog
 - Escape key closes dialog
 - `role="dialog"` + `aria-modal="true"` + `aria-labelledby`
@@ -319,11 +337,13 @@ Centered overlay for confirmations and important information.
 Slide-in panel. **The primary secondary surface on mobile.**
 
 **Behavior:**
+
 - **Mobile**: Slides up from bottom, drag handle at top, drag-to-dismiss
 - **Desktop**: Slides in from right side (or bottom, configurable)
 - Backdrop: same as Dialog
 
 **Use cases (critical for our mobile-first UX):**
+
 - Letter preview on mobile (50% → full height, draggable)
 - Zone editing on mobile (type in sheet, see result on preview above)
 - Attachment upload options (Camera, Files, Photo Library)
@@ -332,11 +352,13 @@ Slide-in panel. **The primary secondary surface on mobile.**
 - Delivery details
 
 **Canonical sheet archetypes:**
+
 - **Navigation sheet** — full-height side sheet for menu/navigation content. Header holds title + close control; content scrolls independently.
 - **Action/list sheet** — bottom sheet for compact option lists and step menus. Use a drag handle, compact list rows, and a safe-area footer action.
 - **Preview sheet** — immersive bottom sheet for large preview surfaces. Keep a sticky safe-area footer for the main actions.
 
 **Consistency rules:**
+
 - Footer actions must stay fully inside the viewport and above `env(safe-area-inset-bottom)`.
 - Bottom-sheet bodies scroll independently; headers and footers do not.
 - Every vertically scrollable workspace or sheet surface should use the shared scroll-shadow treatment so users can tell when more content exists above or below the viewport.
@@ -346,6 +368,7 @@ Slide-in panel. **The primary secondary surface on mobile.**
 - Draft-workspace dock controls use one shared 56x56 rounded-2xl surface button pattern, and field-leading icons use one shared 48x48 rounded-2xl muted badge pattern.
 
 **Drag behavior:**
+
 - Drag handle: 32×4px rounded pill, centered, `bg-muted-foreground/30`
 - Drag thresholds: >30% down = dismiss, <30% = snap back
 - Snap points: 50% height, 90% height, closed
@@ -358,18 +381,19 @@ Compact status indicator.
 
 **Variants:**
 
-| Variant | Background | Text | Use case |
-|---------|-----------|------|----------|
-| `default` | `bg-secondary` | `text-secondary-foreground` | Neutral info |
-| `primary` | `bg-primary` | `text-primary-foreground` | Active/current |
-| `success` | `bg-success/15` | `text-success` | Completed, accepted |
-| `warning` | `bg-warning/15` | `text-warning` | Pending, attention |
-| `destructive` | `bg-destructive/15` | `text-destructive` | Failed, rejected |
-| `outline` | `bg-transparent border` | `text-foreground` | Category tags |
+| Variant       | Background              | Text                        | Use case            |
+| ------------- | ----------------------- | --------------------------- | ------------------- |
+| `default`     | `bg-secondary`          | `text-secondary-foreground` | Neutral info        |
+| `primary`     | `bg-primary`            | `text-primary-foreground`   | Active/current      |
+| `success`     | `bg-success/15`         | `text-success`              | Completed, accepted |
+| `warning`     | `bg-warning/15`         | `text-warning`              | Pending, attention  |
+| `destructive` | `bg-destructive/15`     | `text-destructive`          | Failed, rejected    |
+| `outline`     | `bg-transparent border` | `text-foreground`           | Category tags       |
 
 **Sizes:** `sm` (20px height, text-xs), `md` (24px height, text-xs)
 
 **Status badge mapping:**
+
 - Draft collecting → `default` "Drafting"
 - Fields complete → `primary` "Ready for review"
 - Payment authorized → `warning` "Payment pending"
@@ -387,6 +411,7 @@ Ephemeral feedback messages.
 **Variants:** `success` (green icon), `error` (red icon), `warning` (amber icon), `info` (blue icon)
 
 **Behavior:**
+
 - Position: top-center (mobile), top-right (desktop)
 - Enter: slide down + fade in (200ms)
 - Auto-dismiss: 5 seconds (success/info), persistent (error/warning)
@@ -405,6 +430,7 @@ Loading placeholder that matches the shape of content it replaces.
 **Visual:** `bg-muted rounded-md` with shimmer animation (left-to-right gradient sweep, 1.5s loop)
 
 **Rules:**
+
 - Match the exact dimensions and layout of the content being loaded
 - Use rounded rectangles for text lines, circles for avatars
 - Content replaces skeleton with 200ms crossfade
@@ -414,13 +440,14 @@ Loading placeholder that matches the shape of content it replaces.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Sendly unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### LetterPreview
 
 **The signature component of the entire product.** A real-time preview of the letter as it will be printed and mailed. This is what makes users say "wow" — seeing their words become a physical letter before their eyes.
 
 **Visual:**
+
 ```
 ┌─────────────────────────────────────────┐
 │  ┌───────────────────────────────────┐  │
@@ -460,6 +487,7 @@ These are the components that make Sendly unique. They embody the core experienc
 ```
 
 **Key properties:**
+
 - Background: `bg-paper` (`#FAFAF7` — see design-system.md §2)
 - Shadow: `shadow-paper` — `0 2px 8px rgba(0,0,0,0.06), 0 8px 24px rgba(0,0,0,0.04)` — subtle paper elevation
 - Border: `border border-border/30` — barely visible edge
@@ -467,16 +495,19 @@ These are the components that make Sendly unique. They embody the core experienc
 - Scale: fits container width, maintains A4 aspect ratio, min-height ensures visible even with little content
 
 **Zone editing (desktop):**
+
 - Hover over a zone → subtle `bg-primary/5` tint + dashed border appears (150ms)
 - Click zone → inline editing appears (ZoneEditor component — see below)
 - Zones: sender, recipient, date, subject, salutation, body, closing, signature
 
 **Zone editing (mobile):**
+
 - Tap zone → bottom Sheet opens with edit form for that zone
 - Sheet has the zone title and structured inputs
 - Save → sheet closes, preview updates with highlight pulse (200ms)
 
 **Zone tab order (accessibility — critical):**
+
 - Zones must be keyboard-navigable. Tab order follows visual layout: sender → recipient → date → subject → salutation → body → closing → signature.
 - Each zone: `tabindex="0"`, `role="button"`, `aria-label="Edit [zone name]"` (e.g., "Edit recipient address").
 - `Enter` or `Space` activates the zone editor for that zone.
@@ -484,16 +515,19 @@ These are the components that make Sendly unique. They embody the core experienc
 - Visual focus ring: `ring-2 ring-primary ring-offset-2` — must be visible on all zones.
 
 **Real-time updates:**
+
 - As AI generates text, content streams into the body zone
 - Changed text briefly pulses with subtle `bg-primary/5` highlight
 - Smooth transitions — never jarring or jumpy
 
 **Responsive:**
+
 - Desktop: fixed in right panel (60% width), scrollable if letter is long
 - Mobile: hidden by default, accessible via floating "Preview" pill button
 - Tablet: below conversation panel, scaled to fit
 
 **Zoom:**
+
 - Mobile (in bottom sheet): NO pinch-to-zoom — nested scrolling within a sheet creates a confusing UX. Instead, provide a "Full screen" button that opens the preview in a full-viewport overlay where pinch-to-zoom IS enabled (see `mobile-patterns.md` MDZ-6).
 - Mobile (in full-screen overlay): pinch-to-zoom supported
 - Desktop: optional zoom slider (75%, 100%, 125%)
@@ -507,6 +541,7 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 **Used on:** `/draft/:id` — within or overlaying the LetterPreview.
 
 **Desktop: Popover mode**
+
 ```
 ┌──────────────────────────────────────┐
 │  Edit: Recipient address        [✕]  │
@@ -518,12 +553,14 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 │  [Cancel]                   [Save]   │
 └──────────────────────────────────────┘
 ```
+
 - Appears as a `<Popover>` anchored to the clicked zone
 - Position: auto — avoids overflow, prefers below the zone
 - Width: `max-w-sm` (320px)
 - Background: `surface`, `shadow-lg`, `rounded-lg`, `border`
 
 **Mobile: Sheet mode**
+
 - Opens a `<Sheet>` from bottom
 - Title: "Edit [zone name]"
 - Same field layout, full-width inputs
@@ -532,24 +569,26 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 
 **Zone-specific input types:**
 
-| Zone | Inputs |
-|------|--------|
-| Sender | First name, Last name, Company (optional), Street + number, PLZ + City |
-| Recipient | Same as sender |
-| Date | Date picker (locale-aware format) |
-| Subject | Single-line text input |
-| Salutation | Single-line text input with locale-aware default suggestions |
-| Body | Multi-line `<Textarea>`, auto-resize, max 2000 chars |
-| Closing | Single-line text input with locale-aware default suggestions |
-| Signature | Opens `<SignaturePicker>` instead of inline fields |
+| Zone       | Inputs                                                                 |
+| ---------- | ---------------------------------------------------------------------- |
+| Sender     | First name, Last name, Company (optional), Street + number, PLZ + City |
+| Recipient  | Same as sender                                                         |
+| Date       | Date picker (locale-aware format)                                      |
+| Subject    | Single-line text input                                                 |
+| Salutation | Single-line text input with locale-aware default suggestions           |
+| Body       | Multi-line `<Textarea>`, auto-resize, max 2000 chars                   |
+| Closing    | Single-line text input with locale-aware default suggestions           |
+| Signature  | Opens `<SignaturePicker>` instead of inline fields                     |
 
 **Behavior:**
+
 - Save validates fields inline (same error pattern as all forms: red border + error text below field).
 - Save triggers a preview re-render. The edited zone highlights briefly with `primary-light` background pulse (300ms).
 - Cancel discards changes and returns to preview view. No confirmation dialog for Cancel (edits are small).
 - If the user edits a zone that the AI previously generated, a system message is added to the conversation: "Body edited manually" — so the AI knows not to overwrite it (see `page-specifications.md` §6.2 "Revision via ZoneEditor").
 
 **Accessibility:**
+
 - Popover/Sheet: `role="dialog"`, `aria-label="Edit [zone name]"`
 - Focus is trapped inside the editor while open.
 - First input auto-focused on open.
@@ -565,6 +604,7 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 **The "magic" interface.** This is where users interact with the AI to draft their letter. It should feel like texting a knowledgeable assistant, not filling out a form.
 
 **Layout:**
+
 ```
 ┌─────────────────────────────────┐
 │  ┌─ Messages ─────────────────┐ │  ← scrollable message area
@@ -599,15 +639,16 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 
 **Message types:**
 
-| Type | Alignment | Background | Icon |
-|------|-----------|-----------|------|
-| AI message | Left | `bg-muted` | Small app icon |
-| User message | Right | `bg-primary text-primary-foreground` | None |
-| System message | Center | `bg-transparent text-muted-foreground text-sm` | None |
-| Typing indicator | Left | `bg-muted` | Three pulsing dots |
-| Field extraction card | Full-width | `bg-card shadow-sm border` | Field-specific |
+| Type                  | Alignment  | Background                                     | Icon               |
+| --------------------- | ---------- | ---------------------------------------------- | ------------------ |
+| AI message            | Left       | `bg-muted`                                     | Small app icon     |
+| User message          | Right      | `bg-primary text-primary-foreground`           | None               |
+| System message        | Center     | `bg-transparent text-muted-foreground text-sm` | None               |
+| Typing indicator      | Left       | `bg-muted`                                     | Three pulsing dots |
+| Field extraction card | Full-width | `bg-card shadow-sm border`                     | Field-specific     |
 
 **Quick-reply chips:**
+
 - Appear below AI messages when AI offers choices
 - Horizontal scroll on mobile, wrap on desktop
 - Style: `bg-background border rounded-full px-3 py-1.5 text-sm`
@@ -615,12 +656,14 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 - Fade in with stagger (50ms per chip)
 
 **Field extraction cards:**
+
 - When AI extracts or requests structured data, show it as a card
 - Card contains: field label, current value (or input), validation state
 - Auto-populate from conversation context
 - User can edit inline or skip (AI will ask again later)
 
 **Input bar:**
+
 - Pinned to bottom of panel (above mobile keyboard when active)
 - Input: auto-resize textarea (1-4 rows)
 - Send button: right side, `bg-primary rounded-full`, enabled only when input non-empty
@@ -628,6 +671,7 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 - Keyboard: `enterkeyhint="send"` on mobile for easy sending
 
 **Accessibility:**
+
 - Message list: `role="log"` `aria-live="polite"` `aria-label="Conversation"`
 - New messages announced to screen readers
 - Input: `aria-label="Message"` with clear placeholder
@@ -651,6 +695,7 @@ The conversation panel maintains an auto-scroll-to-bottom behavior that must fee
 **The feature that sets us apart from every competitor.** Users can literally speak their letter into existence.
 
 **Visual:**
+
 ```
 Default:    [ 🎤 ]      ← 48×48px circle, bg-accent/10, text-accent
 Listening:  [ 🎤 ◉ ]    ← pulsing ring animation, bg-accent, text-white
@@ -660,21 +705,28 @@ Error:      [ 🎤 ✗ ]    ← brief red flash, then back to default
 
 **States:**
 
-| State | Visual | Audio feedback |
-|-------|--------|---------------|
-| Idle | Mic icon, subtle background | — |
-| Listening | Pulsing concentric rings (accent color), mic icon white | Optional: subtle beep on start |
-| Processing | Spinner | — |
-| Result | Text appears in input, mic returns to idle | — |
-| Error | Brief red flash + toast with error message | — |
-| Unavailable | Hidden entirely (browser doesn't support Web Speech API) | — |
+| State       | Visual                                                   | Audio feedback                 |
+| ----------- | -------------------------------------------------------- | ------------------------------ |
+| Idle        | Mic icon, subtle background                              | —                              |
+| Listening   | Pulsing concentric rings (accent color), mic icon white  | Optional: subtle beep on start |
+| Processing  | Spinner                                                  | —                              |
+| Result      | Text appears in input, mic returns to idle               | —                              |
+| Error       | Brief red flash + toast with error message               | —                              |
+| Unavailable | Visible with a clear unavailable message (mic capture or live transport unsupported) | — |
 
 **Pulsing animation (listening state):**
+
 ```css
 @keyframes dictation-pulse {
-  0% { box-shadow: 0 0 0 0 var(--accent-rgb, 0.4); }
-  70% { box-shadow: 0 0 0 12px var(--accent-rgb, 0); }
-  100% { box-shadow: 0 0 0 0 var(--accent-rgb, 0); }
+  0% {
+    box-shadow: 0 0 0 0 var(--accent-rgb, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 12px var(--accent-rgb, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 var(--accent-rgb, 0);
+  }
 }
 ```
 
@@ -691,6 +743,7 @@ Error:      [ 🎤 ✗ ]    ← brief red flash, then back to default
 The main application screen. Brings together ConversationPanel, LetterPreview, and all editing controls.
 
 **Desktop layout (lg+):**
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  Header: Logo │ Step Indicator │ Price │ Language │ CTA     │
@@ -712,6 +765,7 @@ The main application screen. Brings together ConversationPanel, LetterPreview, a
 ```
 
 **Mobile layout (default):**
+
 ```
 ┌──────────────────────┐
 │ Header: ← │ Step │ ⋮ │
@@ -735,6 +789,7 @@ The main application screen. Brings together ConversationPanel, LetterPreview, a
 ```
 
 **Key behaviors:**
+
 - Conversation and preview are always in sync
 - Typing in conversation → AI responds → preview updates
 - Editing a zone on preview → updates the draft state → conversation acknowledges
@@ -750,6 +805,7 @@ Displays fields the AI has extracted from the conversation so far. Gives the use
 **Used on:** `/draft/:id` — inside the conversation panel, appears after the first field is extracted.
 
 **Structure:**
+
 ```
 ┌──────────────────────────────────────────────────┐
 │  📋 Letter details                          [✕]  │
@@ -764,13 +820,14 @@ Displays fields the AI has extracted from the conversation so far. Gives the use
 
 **States per field:**
 
-| State | Visual | Icon |
-|-------|--------|------|
-| Filled | `text-primary`, truncated with ellipsis | `Pencil` (16px, `text-tertiary`) |
-| Empty / not yet provided | `text-tertiary italic` "[not yet provided]" | `AlertCircle` (16px, `text-warning`) |
-| Editing | Field becomes an inline text input with `Save` / `Cancel` | — |
+| State                    | Visual                                                    | Icon                                 |
+| ------------------------ | --------------------------------------------------------- | ------------------------------------ |
+| Filled                   | `text-primary`, truncated with ellipsis                   | `Pencil` (16px, `text-tertiary`)     |
+| Empty / not yet provided | `text-tertiary italic` "[not yet provided]"               | `AlertCircle` (16px, `text-warning`) |
+| Editing                  | Field becomes an inline text input with `Save` / `Cancel` | —                                    |
 
 **Behavior:**
+
 - Pencil icon click opens inline edit mode for that specific field (NOT a separate page or dialog).
 - For address fields: pencil opens a compact address form (street, PLZ, city) in a popover (desktop) or sheet (mobile).
 - Saving an inline edit updates both the field card AND the letter preview simultaneously.
@@ -778,10 +835,12 @@ Displays fields the AI has extracted from the conversation so far. Gives the use
 - Card re-expands with a gentle pulse if the AI asks for a field that was previously provided but now conflicts.
 
 **Responsive:**
+
 - Desktop: card sits below the latest conversation message, full width of the conversation panel.
 - Mobile: same positioning, full width. Inline edit uses sheets instead of popovers.
 
 **Accessibility:**
+
 - `role="region"`, `aria-label="Extracted letter details"`
 - Each field row is focusable; `Enter` activates edit mode
 - Edit mode traps focus within the field until Save/Cancel
@@ -795,6 +854,7 @@ Row of contextual suggested replies that appear below AI messages. Provides stru
 **Used on:** `/draft/:id` — below AI messages in the conversation panel.
 
 **Structure:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  [Cancel a contract]  [Send a complaint]  [Other]       │
@@ -802,6 +862,7 @@ Row of contextual suggested replies that appear below AI messages. Provides stru
 ```
 
 **Visual:**
+
 - Each chip: `<Button variant="outline" size="sm">`, `rounded-full`, `px-3 py-1.5`
 - Text: `text-sm`, `text-primary`
 - Border: `border-border` (default), `border-primary` on hover
@@ -811,6 +872,7 @@ Row of contextual suggested replies that appear below AI messages. Provides stru
 - Stagger animation: chips appear 50ms apart from left to right (see `micro-interactions.md` §4.3 "Quick-Reply Chips")
 
 **Behavior:**
+
 - Tapping a chip sends that text as a user message in the conversation.
 - After sending: the chip row disappears (not just the tapped chip — ALL chips from that AI message).
 - Chips are single-use — once any chip is tapped, the set is consumed and removed.
@@ -818,10 +880,12 @@ Row of contextual suggested replies that appear below AI messages. Provides stru
 - If the user types a custom message instead of tapping a chip, the chip row for that AI message also disappears.
 
 **Responsive:**
+
 - Mobile: chips are horizontally scrollable if they overflow (no wrapping). `overflow-x-auto`, `scrollbar-hide`. Show partial last chip as a hint there are more.
 - Desktop: wrap to second line if needed.
 
 **Accessibility:**
+
 - Each chip: `role="button"`, `aria-label="Reply: [chip text]"`
 - Chip row: `role="group"`, `aria-label="Suggested replies"`
 - Focus navigation: left/right arrow keys move between chips; `Enter` or `Space` activates
@@ -836,13 +900,14 @@ Inline, dismissable error/warning notification that appears within a page sectio
 
 **Variants:**
 
-| Variant | Background | Border | Icon | Use case |
-|---------|------------|--------|------|----------|
-| `error` | `bg-error/10` | `border-error/20` | `AlertCircle` (error) | AI failure, network error, rendering failure |
-| `warning` | `bg-warning/10` | `border-warning/20` | `AlertTriangle` (warning) | Soft validation issues, dispatch ambiguity |
-| `info` | `bg-primary/5` | `border-primary/20` | `Info` (primary) | Informational notices |
+| Variant   | Background      | Border              | Icon                      | Use case                                     |
+| --------- | --------------- | ------------------- | ------------------------- | -------------------------------------------- |
+| `error`   | `bg-error/10`   | `border-error/20`   | `AlertCircle` (error)     | AI failure, network error, rendering failure |
+| `warning` | `bg-warning/10` | `border-warning/20` | `AlertTriangle` (warning) | Soft validation issues, dispatch ambiguity   |
+| `info`    | `bg-primary/5`  | `border-primary/20` | `Info` (primary)          | Informational notices                        |
 
 **Structure:**
+
 ```
 ┌──────────────────────────────────────────────────┐
 │  ⚠️  Couldn't get a response. Try again.   [✕]  │
@@ -851,6 +916,7 @@ Inline, dismissable error/warning notification that appears within a page sectio
 ```
 
 **Layout rules:**
+
 - Full width of parent container
 - Icon (20px) + message text + optional action link/button + dismiss `X`
 - `rounded-lg`, `p-3`
@@ -858,16 +924,19 @@ Inline, dismissable error/warning notification that appears within a page sectio
 - Action button/link: `<Button variant="ghost" size="sm">` or `<a>` with `underline`
 
 **Behavior:**
+
 - Dismiss button removes the banner with a 150ms fade-out.
 - If the error condition is still active after dismiss, the banner may reappear on next relevant action.
 - If the banner includes a "Retry" action, tapping it triggers the failed operation again and shows a loading spinner on the button.
 - Multiple banners stack vertically with `gap-2` — but aim for at most 2 visible at once. Newer banners replace older ones of the same category.
 
 **Responsive:**
+
 - Mobile: message and action stack vertically
 - Desktop: message and action on one line
 
 **Accessibility:**
+
 - `role="alert"` for error variant, `role="status"` for warning/info
 - Dismiss button: `aria-label="Dismiss error message"`
 
@@ -880,6 +949,7 @@ Persistent bottom bar in the draft workspace showing current step, delivery type
 **Used on:** `/draft/:id` — desktop: pinned at the bottom; mobile: collapsed to a minimal bar.
 
 **Structure (desktop):**
+
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  Step 2 of 4: Drafting  │  Standard ▾  │  ~CHF 3.90  │ [Continue to Review →] │
@@ -887,6 +957,7 @@ Persistent bottom bar in the draft workspace showing current step, delivery type
 ```
 
 **Layout (desktop):**
+
 - Full width, fixed to bottom of viewport: `fixed bottom-0 left-0 right-0`
 - Height: 56px, `bg-surface`, `border-t border-border`, `shadow-sm` (upward)
 - Four sections separated by `border-r border-border`:
@@ -896,6 +967,7 @@ Persistent bottom bar in the draft workspace showing current step, delivery type
   4. **CTA:** `<Button variant="primary" size="sm">` "Continue to Review →" — enabled/disabled per Draft-to-Review conditions
 
 **Layout (mobile):**
+
 - Collapsed to a single-line bar: height 44px
 - Shows only: running total + "Continue" button (or disabled state)
 - Tap on the price expands a `<Sheet>` with full breakdown: step label, delivery selector, itemized price, CTA
@@ -910,10 +982,12 @@ Persistent bottom bar in the draft workspace showing current step, delivery type
 | Price unavailable | Price slot: `text-warning text-xs` "Price unavailable" |
 
 **Responsive:**
+
 - Desktop (≥768px): full four-section layout
 - Mobile (<768px): collapsed single-line with expandable sheet
 
 **Accessibility:**
+
 - `role="toolbar"`, `aria-label="Draft status and actions"`
 - CTA in disabled state: `aria-disabled="true"` + tooltip text as `aria-describedby`
 - DeliverySelector: `aria-label="Select delivery type"`
@@ -928,33 +1002,36 @@ Time-sensitive session warning shown inside the drafting workspace before expiry
 
 **Variants:**
 
-| Variant | Visual | Copy | Action |
-|---------|--------|------|--------|
-| `warning` | `bg-warning/10 border-warning text-warning-foreground` | "Your session expires in 1 hour. [Save via email]" | Inline link. Dismissible. |
-| `critical` | `bg-error/10 border-error text-error-foreground` | "Session expires in 5 minutes. Enter your email to save." | Inline email field + `Save` button. Not dismissible. |
+| Variant    | Visual                                                 | Copy                                                      | Action                                               |
+| ---------- | ------------------------------------------------------ | --------------------------------------------------------- | ---------------------------------------------------- |
+| `warning`  | `bg-warning/10 border-warning text-warning-foreground` | "Your session expires in 1 hour. [Save via email]"        | Inline link. Dismissible.                            |
+| `critical` | `bg-error/10 border-error text-error-foreground`       | "Session expires in 5 minutes. Enter your email to save." | Inline email field + `Save` button. Not dismissible. |
 
 **Structure:**
+
 - Full-width banner below the workspace header
 - Border, rounded corners, and `surface` base so warning colour feels layered rather than flat
 - Right edge contains either a dismiss button (`warning`) or the inline save form (`critical`)
 
 **States:**
 
-| State | Behavior |
-|-------|----------|
-| Hidden | Not rendered until the expiry threshold is reached |
-| Warning | Shows notice with save-via-email link and dismiss button |
+| State    | Behavior                                                      |
+| -------- | ------------------------------------------------------------- |
+| Hidden   | Not rendered until the expiry threshold is reached            |
+| Warning  | Shows notice with save-via-email link and dismiss button      |
 | Critical | Replaces link with inline email input + primary `Save` button |
-| Saving | Button shows spinner, form disabled |
-| Saved | Success copy replaces form: "Resume link sent to {email}" |
+| Saving   | Button shows spinner, form disabled                           |
+| Saved    | Success copy replaces form: "Resume link sent to {email}"     |
 
 **Animation:** Slide down on appear (200ms), matching the warning-banner pattern from `micro-interactions.md`.
 
 **Responsive:**
+
 - Mobile: content stacks; critical save form becomes full-width beneath the message
 - Desktop: message and actions stay on one row when space allows
 
 **Accessibility:**
+
 - `warning` uses `role="status"`, `critical` uses `role="alert"`
 - Dismiss button label: `aria-label="Dismiss session expiry warning"`
 - Critical email field uses `type="email"` and an associated label, even if visually hidden
@@ -970,6 +1047,7 @@ Minimal status indicator showing draft save state. Lives inside the workspace `<
 **Purpose:** Provide continuous confidence that the user's work is safe, without drawing attention during normal operation.
 
 **Structure:**
+
 ```
 ┌──────────────────────────────────────────────────┐
 │ [Logo]  ● Draft · Review · Pay · Done   ✓ Saved  │
@@ -980,24 +1058,27 @@ Minimal status indicator showing draft save state. Lives inside the workspace `<
 
 **States:**
 
-| State | Icon | Text | Color | Behavior |
-|-------|------|------|-------|----------|
-| `idle` | `Check` (12px) | "Saved" | `text-tertiary` | Default. Appears 1s after last successful save. |
-| `saving` | `Loader2` (12px, spinning) | "Saving…" | `text-tertiary` | Shown immediately when auto-save triggers. |
-| `error` | `AlertCircle` (12px) | "Not saved" | `text-warning` | Persists until save succeeds or user retries. Clickable — opens retry tooltip. |
-| `offline` | `WifiOff` (12px) | "Offline — recent changes are not saved yet" | `text-warning` | Persists until reconnected. |
+| State     | Icon                       | Text                                         | Color           | Behavior                                                                       |
+| --------- | -------------------------- | -------------------------------------------- | --------------- | ------------------------------------------------------------------------------ |
+| `idle`    | `Check` (12px)             | "Saved"                                      | `text-tertiary` | Default. Appears 1s after last successful save.                                |
+| `saving`  | `Loader2` (12px, spinning) | "Saving…"                                    | `text-tertiary` | Shown immediately when auto-save triggers.                                     |
+| `error`   | `AlertCircle` (12px)       | "Not saved"                                  | `text-warning`  | Persists until save succeeds or user retries. Clickable — opens retry tooltip. |
+| `offline` | `WifiOff` (12px)           | "Offline — recent changes are not saved yet" | `text-warning`  | Persists until reconnected.                                                    |
 
 **Visual rules:**
+
 - Fixed width container (`min-w-[100px]`) to prevent layout shift during state transitions.
 - Icon and text crossfade on state change (150ms opacity transition) — see `micro-interactions.md` §4.2 "Letter Preview" (Auto-Save Indicator subsection).
 - Never use success-green for the "Saved" state — it's not a success event, it's the default state. `text-tertiary` keeps it quiet.
 - The `error` state is the only state that should be visually prominent.
 
 **Responsive:**
+
 - Desktop: icon + text label, right-aligned in header
 - Mobile: icon only (no text) to save horizontal space. Tooltip on tap shows full status text.
 
 **Accessibility:**
+
 - `role="status"`, `aria-live="polite"` — screen readers announce state changes without interrupting
 - `aria-label="Draft save status: [current state]"`
 - Error state: `aria-live="assertive"` (elevated urgency)
@@ -1011,17 +1092,20 @@ Shows progress through the letter-sending flow.
 **Steps:** Draft → Review → Payment → Confirmation
 
 **Visual (desktop):**
+
 ```
   ● ─────── ○ ─────── ○ ─────── ○
  Draft     Review   Payment  Confirmed
 ```
 
 **Visual (mobile):** Compact dots without labels (labels appear as page title):
+
 ```
   ● ── ○ ── ○ ── ○
 ```
 
 **Step states:**
+
 - Completed: filled circle (`bg-primary`), checkmark icon, line filled
 - Current: filled circle (`bg-primary`), step number, pulsing ring
 - Upcoming: hollow circle (`border-muted`), step number, line muted
@@ -1033,6 +1117,7 @@ Shows progress through the letter-sending flow.
 Card-based selector for Standard vs Registered mail.
 
 **Layout:**
+
 ```
 ┌─ Standard ─────────────────┐  ┌─ Registered ──────────────────┐
 │  ✓ Selected                │  │                                 │
@@ -1061,6 +1146,7 @@ Card-based selector for Standard vs Registered mail.
 Always-visible price breakdown. Transparency builds trust.
 
 **Layout:**
+
 ```
 ┌─────────────────────────────────┐
 │  Price breakdown                │
@@ -1076,6 +1162,7 @@ Always-visible price breakdown. Transparency builds trust.
 ```
 
 **Behavior:**
+
 - Updates in real-time as content changes (page count) or options change (delivery type)
 - Price change animates: number morphs to new value (200ms)
 - "Total" line: `text-lg font-semibold`
@@ -1088,6 +1175,7 @@ Always-visible price breakdown. Transparency builds trust.
 Drag-and-drop (desktop) or tap-to-select (mobile) file upload.
 
 **Desktop:**
+
 ```
 ┌─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ┐
 │                                  │  ← dashed border, bg-muted/30
@@ -1098,11 +1186,13 @@ Drag-and-drop (desktop) or tap-to-select (mobile) file upload.
 ```
 
 **Mobile:** Tap opens a Sheet with options:
+
 - 📷 Take photo
 - 📁 Choose file
 - 🖼️ Photo library
 
 **File list (after upload):**
+
 ```
 ┌────────────────────────────────────┐
 │  📄 contract.pdf    1.2 MB    ✕   │  ← file card with icon, name, size, remove
@@ -1118,11 +1208,13 @@ Drag-and-drop (desktop) or tap-to-select (mobile) file upload.
 **Accepted formats:** PDF, PNG, JPG/JPEG only. Do NOT accept office formats (`.docx`, `.xlsx`, `.pptx`, etc.) — this is a locked product constraint (see `docs/04-product/file-handling.md`). If a user drops or selects a disallowed format, show a `<Toast>` with: "Only PDF, PNG, and JPG files are accepted." Do not silently ignore the file.
 
 **File size enforcement:**
+
 - Per file: max 5 MB. If exceeded, show inline error on the file row: `text-error text-xs` "File exceeds 5 MB limit."
 - Total per draft: max 20 MB. If the next upload would exceed this, disable the upload area and show: "Total attachment limit (20 MB) reached."
 - Max attachments per draft: 5. Once reached, hide the drop zone and show: "Maximum 5 attachments reached."
 
 **Page count estimate (if attachment pricing is enabled):**
+
 - Below each uploaded PDF file, show an estimated page count: `text-xs text-tertiary` "~N pages"
 - Below the file list, show total attachment pages: `text-xs text-secondary` "Total: ~N attachment pages"
 - This helps the user anticipate pricing impact before reaching checkout.
@@ -1137,6 +1229,7 @@ Drag-and-drop (desktop) or tap-to-select (mobile) file upload.
 Two modes: typed name or uploaded image.
 
 **Layout:**
+
 ```
 ┌─────────────────────────────────────┐
 │  How would you like to sign?        │
@@ -1165,6 +1258,7 @@ Two modes: typed name or uploaded image.
 Formatted Swiss address display with edit capability.
 
 **Layout:**
+
 ```
 ┌──────────────────────────────┐
 │  Recipient            ✏️ Edit │
@@ -1178,6 +1272,7 @@ Formatted Swiss address display with edit capability.
 ```
 
 **Validation indicator:**
+
 - ✓ green: all required fields present, PLZ format valid
 - ⚠ amber: missing optional fields or unverifiable address
 - ✗ red: missing required fields
@@ -1191,6 +1286,7 @@ Formatted Swiss address display with edit capability.
 Shows the current state of a dispatched letter with visual timeline.
 
 **Layout:**
+
 ```
 ┌─────────────────────────────────────────┐
 │  📬 Letter Status                       │
@@ -1208,6 +1304,7 @@ Shows the current state of a dispatched letter with visual timeline.
 ```
 
 **State colors:**
+
 - Completed steps: `text-success` with checkmark
 - Current step: `text-primary` with pulsing dot
 - Upcoming: `text-muted-foreground`
@@ -1220,6 +1317,7 @@ Shows the current state of a dispatched letter with visual timeline.
 Use-case cards on homepage and draft entry page. These drive conversions.
 
 **Layout:**
+
 ```
 ┌──────────────────────────┐
 │  📋                      │  ← icon in accent color circle (48px)
@@ -1245,6 +1343,7 @@ Use-case cards on homepage and draft entry page. These drive conversions.
 Post-payment success state. The rewarding conclusion of the flow.
 
 **Layout:**
+
 ```
 ┌─────────────────────────────────────────────┐
 │                                              │
@@ -1277,6 +1376,7 @@ Post-payment success state. The rewarding conclusion of the flow.
 Inspired by SuperPost. Digital access to the letter via QR code.
 
 **Layout:**
+
 ```
 ┌──────────────────────────┐
 │  Digital copy             │
@@ -1303,14 +1403,15 @@ Route-level failure state for pages that cannot recover inline.
 
 **Variants:**
 
-| Variant | Use case | Default heading |
-|---------|----------|-----------------|
-| `notFound` | Unknown route or missing content | "Page not found" |
-| `serverError` | Unhandled server failure | "Something went wrong" |
-| `sessionExpired` | Expired token or invalid resume state | "Your session has expired" |
-| `maintenanceMode` | Planned service interruption | "We'll be back shortly" |
+| Variant           | Use case                              | Default heading            |
+| ----------------- | ------------------------------------- | -------------------------- |
+| `notFound`        | Unknown route or missing content      | "Page not found"           |
+| `serverError`     | Unhandled server failure              | "Something went wrong"     |
+| `sessionExpired`  | Expired token or invalid resume state | "Your session has expired" |
+| `maintenanceMode` | Planned service interruption          | "We'll be back shortly"    |
 
 **Structure:**
+
 - Centered card layout, `max-w-md`
 - `surface` background with border and `shadow-sm`
 - Optional illustration slot above the heading
@@ -1320,19 +1421,21 @@ Route-level failure state for pages that cannot recover inline.
 
 **States:**
 
-| State | Behavior |
-|-------|----------|
-| Static | Card with heading, description, and one primary action |
-| With secondary action | Adds ghost button for fallback navigation |
-| With illustration | Optional SVG appears above heading |
+| State                 | Behavior                                               |
+| --------------------- | ------------------------------------------------------ |
+| Static                | Card with heading, description, and one primary action |
+| With secondary action | Adds ghost button for fallback navigation              |
+| With illustration     | Optional SVG appears above heading                     |
 
 **Animation:** Fade in on mount (300ms). Remove animation entirely when reduced motion is enabled.
 
 **Responsive:**
+
 - Mobile: card uses near-full width with generous horizontal padding
 - Desktop: keep card centred with actions right-aligned or stacked based on copy length
 
 **Accessibility:**
+
 - Heading is always the page `h1`
 - Action links use descriptive text such as "Go to homepage" or "Start a new letter"
 - For 500-level failures, avoid auto-redirects that would interrupt assistive technology users
@@ -1346,6 +1449,7 @@ Route-level failure state for pages that cannot recover inline.
 Full-viewport hero for the homepage. The first thing users see.
 
 **Structure:**
+
 - Background: gradient from `--color-primary-dark` to `--color-slate-900`
 - Headline: `text-4xl md:text-5xl lg:text-6xl font-bold text-white`
 - Subtitle: `text-lg md:text-xl text-white/80 max-w-2xl`
@@ -1374,6 +1478,7 @@ Three-step explainer. Simple enough for anyone to understand.
 **Layout (desktop):** Three columns. (Mobile: stacked cards.)
 
 **Cards:**
+
 1. 🗣️ **"Describe"** — "Tell us what you need — type or dictate. Our AI drafts it for you."
 2. 📝 **"Review"** — "See your letter in real time. Edit anything with a tap."
 3. 📬 **"Send"** — "Choose delivery, pay, and we generate the final PDF and submit it. Done."
@@ -1390,16 +1495,17 @@ Alternating editorial section for explaining differentiators without turning the
 
 **Props:**
 
-| Prop | Type | Notes |
-|------|------|-------|
-| `heading` | `string` | Required section headline |
-| `description` | `string | ReactNode` | 2-3 short paragraphs maximum |
-| `imageSrc` | `string` | Asset should stay under 400KB |
-| `imageAlt` | `string` | Required descriptive alt text |
-| `reversed` | `boolean` | Flips image/text order on tablet and desktop |
-| `ctaHref` | `string` | Optional inline CTA link |
+| Prop          | Type      | Notes                                        |
+| ------------- | --------- | -------------------------------------------- | ---------------------------- |
+| `heading`     | `string`  | Required section headline                    |
+| `description` | `string   | ReactNode`                                   | 2-3 short paragraphs maximum |
+| `imageSrc`    | `string`  | Asset should stay under 400KB                |
+| `imageAlt`    | `string`  | Required descriptive alt text                |
+| `reversed`    | `boolean` | Flips image/text order on tablet and desktop |
+| `ctaHref`     | `string`  | Optional inline CTA link                     |
 
 **Structure:**
+
 - 50/50 split on tablet and desktop with `gap-16`
 - Image sits inside a 16:9 container, rounded-lg, `shadow-sm`
 - Text column uses `text-2xl font-semibold` heading and `text-secondary` body copy
@@ -1407,19 +1513,21 @@ Alternating editorial section for explaining differentiators without turning the
 
 **States:**
 
-| State | Behavior |
-|-------|----------|
-| Standard | Image left, text right |
-| Reversed | Text left, image right |
+| State       | Behavior                       |
+| ----------- | ------------------------------ |
+| Standard    | Image left, text right         |
+| Reversed    | Text left, image right         |
 | CTA present | Link appears beneath body copy |
 
 **Animation:** Fade-up on scroll intersection, following `micro-interactions.md` marketing section timing.
 
 **Responsive:**
+
 - Mobile: always stacked with image first, text second
 - Tablet and desktop: side-by-side; `reversed` only applies at these breakpoints
 
 **Accessibility:**
+
 - Never use the image as the only source of meaning; core message stays in text
 - Decorative images use empty alt text, otherwise `imageAlt` must describe the content
 - CTA link text must describe destination, not just "Learn more"
@@ -1433,6 +1541,7 @@ Searchable public gallery of common letter templates and starting points.
 **Used on:** `/templates`
 
 **Structure:**
+
 - Search input sits above the filter chips with a leading search icon
 - Category chips: All, Cancellations, Complaints, Notices, Demand, Official, Insurance
 - Card count line above the grid: "N templates"
@@ -1440,28 +1549,30 @@ Searchable public gallery of common letter templates and starting points.
 
 **Filter behavior:**
 
-| Element | Behavior |
-|---------|----------|
-| Search | Debounced 300ms text filter |
-| Active chip | `bg-primary text-white` |
-| Inactive chip | `bg-muted text-secondary` |
-| Sorting | Recommended order by default (curated from config, not alphabetical). No user-facing sort dropdown in MVP. See `page-specifications.md` §11 for template gallery route spec. |
+| Element       | Behavior                                                                                                                                                                     |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Search        | Debounced 300ms text filter                                                                                                                                                  |
+| Active chip   | `bg-primary text-white`                                                                                                                                                      |
+| Inactive chip | `bg-muted text-secondary`                                                                                                                                                    |
+| Sorting       | Recommended order by default (curated from config, not alphabetical). No user-facing sort dropdown in MVP. See `page-specifications.md` §11 for template gallery route spec. |
 
 **States:**
 
-| State | Behavior |
-|-------|----------|
-| Default | Full grid, recommended order (curated from config) |
-| Filtered | Grid updates based on query + category |
+| State        | Behavior                                                |
+| ------------ | ------------------------------------------------------- |
+| Default      | Full grid, recommended order (curated from config)      |
+| Filtered     | Grid updates based on query + category                  |
 | Empty search | "No templates match '[query]'." + `Clear search` action |
 
 **Grid:**
+
 - 1 column on mobile
 - 2 columns on tablet
 - 3 columns on desktop
 - `gap-6` between cards
 
 **Accessibility:**
+
 - Search input has a visible label and search icon marked decorative
 - Category chips expose pressed state with `aria-pressed`
 - Empty-state clear action is keyboard accessible and announced with clear wording
@@ -1473,6 +1584,7 @@ Searchable public gallery of common letter templates and starting points.
 Single pricing card — we're not a SaaS with tiers, we're pay-per-letter.
 
 **Layout:**
+
 ```
 ┌─────────────────────────────────┐
 │                                  │
@@ -1519,21 +1631,25 @@ Full-width call-to-action section. Appears at bottom of marketing pages.
 ### Header
 
 **Marketing pages (scrolled past hero):**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  Logo     How it works  Pricing  Use cases    [DE▾] CTA │
 └─────────────────────────────────────────────────────────┘
 ```
+
 - Background: `bg-transparent` initially → `bg-background/95 backdrop-blur` on scroll (150ms)
 - Height: 64px
 - Position: sticky top
 
 **App pages:**
+
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  ←  │  StepIndicator  │  Price  │  [DE▾]  │  Actions   │
 └─────────────────────────────────────────────────────────┘
 ```
+
 - Background: `bg-background border-b`
 
 **Logo click behavior during active drafting:**
@@ -1563,10 +1679,11 @@ When the user clicks the logo in the app header while a draft is in progress (`/
 **Mobile:** Logo left, hamburger right. Nav items in full-screen MobileNav overlay.
 
 **Accessibility (all header variants):**
+
 - `<header>` element with `role="banner"`
 - `<nav>` inside header: `aria-label="Main navigation"` (marketing) or `aria-label="Draft navigation"` (app)
 - Skip-to-content link: first focusable element in the header, visually hidden until focused: `<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute ...">Skip to content</a>`
-- Logo: `<a>` with `aria-label="Sendly — go to homepage"`
+- Logo: `<a>` with `aria-label="Episto — go to homepage"`
 - Mobile hamburger: `<button aria-label="Open menu" aria-expanded="false">`. When open: `aria-expanded="true"`. Overlay traps focus; `Escape` closes it.
 - MobileNav overlay: `role="dialog"`, `aria-label="Navigation menu"`. Focus returns to hamburger button on close.
 - Language switcher: `aria-label="Select language"`, `aria-haspopup="listbox"`. See LanguageSwitcher below.
@@ -1576,6 +1693,7 @@ When the user clicks the logo in the app header while a draft is in progress (`/
 Compact 4-language selector. Always visible in header.
 
 **Visual:** Current language code in button (`DE`), dropdown with full names:
+
 - 🇩🇪 Deutsch
 - 🇫🇷 Français
 - 🇮🇹 Italiano
@@ -1590,11 +1708,12 @@ Compact 4-language selector. Always visible in header.
 Multi-column footer for marketing pages.
 
 **Columns:**
+
 1. Product: How it works, Pricing, Use cases, FAQ
 2. Legal: Terms, Privacy policy, Imprint
 3. Language: DE, FR, IT, EN
 
-**Bottom:** `© 2026 Sendly · Built for Switzerland 🇨🇭`
+**Bottom:** `© 2026 Episto · Built for Switzerland 🇨🇭`
 
 **Visual:** `bg-slate-900 text-slate-300`, generous padding, `text-sm`
 
@@ -1608,14 +1727,15 @@ Long-form legal document shell optimised for reading, navigation, and printing.
 
 **Props:**
 
-| Prop | Type | Notes |
-|------|------|-------|
-| `title` | `string` | Page title shown above the document |
-| `lastUpdated` | `string` | Rendered at the top in `text-sm text-secondary` |
-| `children` | `ReactNode` | Legal markdown or prose content |
-| `locale` | `Locale` | Shares the same language selector as the header |
+| Prop          | Type        | Notes                                           |
+| ------------- | ----------- | ----------------------------------------------- |
+| `title`       | `string`    | Page title shown above the document             |
+| `lastUpdated` | `string`    | Rendered at the top in `text-sm text-secondary` |
+| `children`    | `ReactNode` | Legal markdown or prose content                 |
+| `locale`      | `Locale`    | Shares the same language selector as the header |
 
 **Structure:**
+
 - Wrapped in `MarketingLayout` so the standard header and footer remain intact on screen
 - Main content column is centred, `max-w-prose` (65ch), `py-16`
 - Language selector matches the header pattern and supports all 4 locales
@@ -1626,17 +1746,19 @@ Long-form legal document shell optimised for reading, navigation, and printing.
 
 **States:**
 
-| State | Behavior |
-|-------|----------|
-| Default | Header, last-updated line, language selector, TOC, document body |
-| Mobile TOC collapsed | Summary button shows and hides the heading list |
-| Print | Hide navigation and footer, expand content to full width |
+| State                | Behavior                                                         |
+| -------------------- | ---------------------------------------------------------------- |
+| Default              | Header, last-updated line, language selector, TOC, document body |
+| Mobile TOC collapsed | Summary button shows and hides the heading list                  |
+| Print                | Hide navigation and footer, expand content to full width         |
 
 **Responsive:**
+
 - Mobile: content remains single-column with TOC above prose
 - Desktop: two-column layout with sticky TOC and centred reading column
 
 **Accessibility:**
+
 - TOC is wrapped in `nav aria-label="Table of contents"`
 - Anchor links on headings have visible focus states and readable labels
 - Print styles preserve heading hierarchy and link destinations where practical
@@ -1647,16 +1769,16 @@ Long-form legal document shell optimised for reading, navigation, and printing.
 
 ### Do / Don't
 
-| ✅ Do | ❌ Don't |
-|-------|---------|
-| Use primary button for one main CTA per section | Put two primary buttons next to each other |
-| Show loading states for all async actions | Leave the user wondering if something is happening |
-| Animate meaningful state changes | Animate everything (respect reduced motion) |
-| Use sheets for secondary content on mobile | Open full pages for editing a single field |
-| Show real-time price as content changes | Surprise the user with a different total at checkout |
-| Make dictation prominent on mobile | Hide voice input behind menus |
-| Show honest dispatch status | Collapse "submitted" and "delivered" into one state |
-| Use skeleton loaders for initial page loads | Show blank white pages while loading |
+| ✅ Do                                           | ❌ Don't                                             |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| Use primary button for one main CTA per section | Put two primary buttons next to each other           |
+| Show loading states for all async actions       | Leave the user wondering if something is happening   |
+| Animate meaningful state changes                | Animate everything (respect reduced motion)          |
+| Use sheets for secondary content on mobile      | Open full pages for editing a single field           |
+| Show real-time price as content changes         | Surprise the user with a different total at checkout |
+| Make dictation prominent on mobile              | Hide voice input behind menus                        |
+| Show honest dispatch status                     | Collapse "submitted" and "delivered" into one state  |
+| Use skeleton loaders for initial page loads     | Show blank white pages while loading                 |
 
 ### Consistency Rules
 

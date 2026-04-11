@@ -25,10 +25,14 @@ export const PROMPT_VERSION = "2.0.0";
 // ---------------------------------------------------------------------------
 
 const LOCALE_MAP: Record<string, string> = {
-  "de-CH": "Write in standard Swiss German (Hochdeutsch). Never use Swiss German dialect (Mundart). Use formal register appropriate for Swiss business correspondence.",
-  "fr-CH": "Write in standard Swiss French. Use formal register appropriate for Swiss business correspondence.",
-  "it-CH": "Write in standard Swiss Italian. Use formal register appropriate for Swiss business correspondence.",
-  "en-CH": "Write in formal British English appropriate for Swiss business correspondence.",
+  "de-CH":
+    "Write in standard Swiss German (Hochdeutsch). Never use Swiss German dialect (Mundart). Use formal register appropriate for Swiss business correspondence.",
+  "fr-CH":
+    "Write in standard Swiss French. Use formal register appropriate for Swiss business correspondence.",
+  "it-CH":
+    "Write in standard Swiss Italian. Use formal register appropriate for Swiss business correspondence.",
+  "en-CH":
+    "Write in formal British English appropriate for Swiss business correspondence.",
 };
 
 function localeInstruction(locale: string): string {
@@ -39,7 +43,7 @@ function localeInstruction(locale: string): string {
 // Safety preamble (shared across all prompts)
 // ---------------------------------------------------------------------------
 
-const SAFETY_PREAMBLE = `You are a professional letter-writing assistant for Sendly, a service that helps users compose and send formal Swiss correspondence.
+const SAFETY_PREAMBLE = `You are a professional letter-writing assistant for Episto, a service that helps users compose and send formal Swiss correspondence.
 
 STRICT RULES:
 - NEVER invent facts, names, dates, addresses, or details not provided by the user.
@@ -169,7 +173,10 @@ export interface AnalyzeIntakeInput {
 
 export function analyzeIntakePrompt(input: AnalyzeIntakeInput): ChatMessage[] {
   const recentConversation = (input.conversationHistory ?? [])
-    .filter((message) => typeof message.content === "string" && message.content.trim().length > 0)
+    .filter(
+      (message) =>
+        typeof message.content === "string" && message.content.trim().length > 0,
+    )
     .slice(-8)
     .map((message) => `${message.role}: ${message.content.trim()}`)
     .join("\n");
@@ -177,7 +184,7 @@ export function analyzeIntakePrompt(input: AnalyzeIntakeInput): ChatMessage[] {
   return [
     {
       role: "system",
-      content: `You are a Sendly intake analysis engine. In ONE pass, do all of the following:
+      content: `You are an Episto intake analysis engine. In ONE pass, do all of the following:
 - classify the user's intent
 - assess whether the content is blocked
 - extract any concrete draft fields that were explicitly provided
@@ -284,7 +291,10 @@ export interface ExtractFieldsInput {
 
 export function extractFieldsPrompt(input: ExtractFieldsInput): ChatMessage[] {
   const recentConversation = (input.conversationHistory ?? [])
-    .filter((message) => typeof message.content === "string" && message.content.trim().length > 0)
+    .filter(
+      (message) =>
+        typeof message.content === "string" && message.content.trim().length > 0,
+    )
     .slice(-8)
     .map((message) => `${message.role}: ${message.content.trim()}`)
     .join("\n");
@@ -334,7 +344,10 @@ export interface AskFollowUpInput {
 
 export function askFollowUpPrompt(input: AskFollowUpInput): ChatMessage[] {
   const recentConversation = (input.conversationHistory ?? [])
-    .filter((message) => typeof message.content === "string" && message.content.trim().length > 0)
+    .filter(
+      (message) =>
+        typeof message.content === "string" && message.content.trim().length > 0,
+    )
     .slice(-8)
     .map((message) => `${message.role}: ${message.content.trim()}`)
     .join("\n");
@@ -413,7 +426,11 @@ export interface DraftLetterInput {
 }
 
 export function draftLetterPrompt(input: DraftLetterInput): ChatMessage[] {
-  const recipientName = [input.recipient.firstName, input.recipient.lastName, input.recipient.company]
+  const recipientName = [
+    input.recipient.firstName,
+    input.recipient.lastName,
+    input.recipient.company,
+  ]
     .filter(Boolean)
     .join(" ");
 

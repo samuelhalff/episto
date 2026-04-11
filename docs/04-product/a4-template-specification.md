@@ -1,6 +1,6 @@
 # A4 Letter Template Specification
 
-**Project**: Sendly  
+**Project**: Episto  
 **Status**: Draft — open decisions listed in §10  
 **Last updated**: 2026-03-15  
 **Scope**: Physical layout, typography, zone map, rendering rules, and validation for the single A4 letter template used in MVP.
@@ -9,7 +9,7 @@ This file mixes settled geometry with still-open typography and rendering choice
 the settled constraints as hard requirements. Any item still marked open must remain configurable or
 blocked until explicitly locked elsewhere.
 
-> **Implementation lock — 2026-04-08:** The canonical Sendly geometry for both `LetterPreview`
+> **Implementation lock — 2026-04-08:** The canonical Episto geometry for both `LetterPreview`
 > and the backend-rendered letter PDF is now: sender block top-left, recipient block on the right,
 > and place/date directly underneath on the right. This lock overrides older sender-right /
 > recipient-left notes elsewhere in this draft until a production postal-template sign-off explicitly
@@ -20,7 +20,7 @@ blocked until explicitly locked elsewhere.
 
 ## 1. Swiss Postal Standards Reference
 
-Sendly uses the Swiss standard C5/6 (DL) window envelope, the dominant format in Swiss business correspondence. The governing standard is **SN 010130** (Swiss standard for window envelopes and address placement).
+Episto uses the Swiss standard C5/6 (DL) window envelope, the dominant format in Swiss business correspondence. The governing standard is **SN 010130** (Swiss standard for window envelopes and address placement).
 
 ### Standard Envelope: C5/6 (DL)
 

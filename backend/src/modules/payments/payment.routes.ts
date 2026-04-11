@@ -35,6 +35,8 @@ const CheckoutBody = z.object({
   email: z.string().email().max(254),
 });
 
+const CHECKOUT_READY_DRAFT_STATUSES = new Set(["ready", "submitted", "dispatched"]);
+
 // ---------------------------------------------------------------------------
 // Webhook sub-plugin (encapsulated — overrides content-type parser for raw body)
 // ---------------------------------------------------------------------------
@@ -263,6 +265,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         .select({
           id: schema.draftLetters.id,
           deliveryType: schema.draftLetters.deliveryType,
+          status: schema.draftLetters.status,
         })
         .from(schema.draftLetters)
         .where(
@@ -274,6 +277,16 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!draft) throw notFoundError("draft");
+      if (!CHECKOUT_READY_DRAFT_STATUSES.has(draft.status)) {
+        throw new AppError({
+          family: "policy_refusal",
+          statusCode: 409,
+          code: "DRAFT_RENDER_PENDING",
+          message: `Draft is not ready for checkout: ${draft.status}`,
+          userMessage: "Your final letter preview is still being prepared.",
+          userAction: "Wait for the preview to finish rendering, then try again.",
+        });
+      }
 
       const resolvedPaymentQuote = await resolvePaymentDispatchQuoteForDraft(db, draftId);
       const amountCents = resolvedPaymentQuote.quote.totalCents;

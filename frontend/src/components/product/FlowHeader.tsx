@@ -6,6 +6,7 @@ import { Link } from "../../i18n/navigation";
 import { StepIndicator } from "./StepIndicator";
 import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";
 import { CustomerSiteMenu } from "../layout/CustomerSiteMenu";
+import { BrandMark } from "../branding/BrandMark";
 
 interface FlowHeaderProps {
   currentStep: number;
@@ -35,9 +36,7 @@ export function FlowHeader({
                 href="/"
                 className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold tracking-[-0.02em] text-zinc-950 dark:text-zinc-50"
               >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-950 text-[11px] font-semibold uppercase tracking-widest text-white shadow-sm dark:bg-amber-400 dark:text-zinc-950">
-                  SM
-                </span>
+                <BrandMark className="h-8 w-8 shrink-0" />
                 <span>{tc("appName")}</span>
               </Link>
               <CustomerSiteMenu
@@ -55,9 +54,7 @@ export function FlowHeader({
               href="/"
               className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold tracking-[-0.02em] text-zinc-950 dark:text-zinc-50"
             >
-              <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-zinc-950 text-[11px] font-semibold uppercase tracking-widest text-white shadow-sm dark:bg-amber-400 dark:text-zinc-950">
-                SM
-              </span>
+              <BrandMark className="h-8 w-8 shrink-0" />
               <span>{tc("appName")}</span>
             </Link>
 
@@ -68,7 +65,10 @@ export function FlowHeader({
             <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               {headerAction}
               <HeaderLanguageMenu />
-              <CustomerSiteMenu title={tc("appName")} description={t("nav.writeLetter")} />
+              <CustomerSiteMenu
+                title={tc("appName")}
+                description={t("nav.writeLetter")}
+              />
               {statusLabel ? (
                 <span className="hidden text-[11px] font-medium text-zinc-400 dark:text-zinc-500 lg:inline">
                   {statusLabel}

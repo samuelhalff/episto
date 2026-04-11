@@ -209,23 +209,29 @@ interface UseDispatchStatusReturn {
 
 **File:** `hooks/use-dictation.ts`
 
-**Responsibility:** Web Speech API wrapper with locale support.
+**Responsibility:** Same-origin microphone capture plus backend-owned live/fallback dictation.
 
 ```typescript
-interface UseDictationReturn {
-  isSupported: boolean;            // Feature detection
-  isRecording: boolean;
-  interimText: string;             // Partial recognition result
-  finalText: string;               // Committed recognition result
-  startRecording: (locale: Locale) => void;
-  stopRecording: () => void;
-  error: DictationError | null;    // permission_denied | no_speech | network | not_supported
+interface UseDictationOptions {
+  draftId?: string;
+  fieldContext: "entry" | "intake" | "refinement";
 }
 
-// Uses window.webkitSpeechRecognition || window.SpeechRecognition
-// continuous=true, interimResults=true
-// Language set from active locale (de-CH, fr-CH, it-CH, en-CH)
-// Graceful degradation: if not supported, isSupported=false and the UI shows a clear unavailable message
+interface UseDictationReturn {
+  isSupported: boolean;            // Browser can capture mic + stream/upload to same-origin backend
+  isRecording: boolean;
+  interimText: string;             // Partial backend transcript
+  finalText: string;               // Committed backend transcript
+  startRecording: (locale: Locale) => Promise<void>;
+  stopRecording: () => void;
+  resetText: () => void;
+  error: DictationError | null;    // permission_denied | no_speech | network | not_supported | aborted
+}
+
+// Uses getUserMedia + audio processing in the browser.
+// Streams PCM audio to /api/v1/dictation/live and receives partial/final transcript events.
+// Falls back to POST /api/v1/dictation/transcribe with buffered audio/wav when live streaming fails.
+// Never calls Azure or any speech provider directly from the browser.
 ```
 
 ### `useLetterPreview`

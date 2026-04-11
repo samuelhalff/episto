@@ -1,6 +1,6 @@
 # Mobile UX Patterns
 
-> **Sendly** — canonical mobile override reference.
+> **Episto** — canonical mobile override reference.
 > Phone is the primary device. All other layouts are progressive enhancements.
 > This document governs responsive and touch behavior only. Route behavior, state transitions, and
 > business logic still come from `user-flows.md`, `page-specifications.md`, and the architecture docs.
@@ -21,7 +21,7 @@ The product exists because people need to send formal Swiss letters from their p
 
 **Competitive framing:**
 
-SuperPost markets "write and send from your mobile phone" but their UX is retrofitted. DocuPost and Pingen are desktop-first, business-oriented products. Sendly's advantage is building mobile-first from day one, so the mobile experience is the designed experience — not a shrunk desktop.
+SuperPost markets "write and send from your mobile phone" but their UX is retrofitted. DocuPost and Pingen are desktop-first, business-oriented products. Episto's advantage is building mobile-first from day one, so the mobile experience is the designed experience — not a shrunk desktop.
 
 ---
 
@@ -29,13 +29,13 @@ SuperPost markets "write and send from your mobile phone" but their UX is retrof
 
 All breakpoints use Tailwind's default scale. Mobile is the default — no prefix needed.
 
-| Breakpoint | Range | Tailwind prefix |
-|---|---|---|
-| **Mobile** | 0 – 639 px | _(default)_ |
-| **Small tablet** | 640 – 767 px | `sm:` |
-| **Tablet** | 768 – 1023 px | `md:` |
-| **Desktop** | 1024 – 1279 px | `lg:` |
-| **Wide** | 1280 px + | `xl:` |
+| Breakpoint       | Range          | Tailwind prefix |
+| ---------------- | -------------- | --------------- |
+| **Mobile**       | 0 – 639 px     | _(default)_     |
+| **Small tablet** | 640 – 767 px   | `sm:`           |
+| **Tablet**       | 768 – 1023 px  | `md:`           |
+| **Desktop**      | 1024 – 1279 px | `lg:`           |
+| **Wide**         | 1280 px +      | `xl:`           |
 
 ### Mobile (default) — 0–639 px
 
@@ -153,6 +153,7 @@ No element should feel "dead" on tap. Latency between tap and visual response mu
 >
 > If a bottom nav bar is introduced in the future (e.g., for the account dashboard with multiple
 > sections), it belongs in that context only and must follow these rules:
+>
 > - Fixed at bottom, height 56 px + `env(safe-area-inset-bottom)`.
 > - Active tab: bold label, colored icon. Inactive: muted gray.
 > - Maximum 4 items; no overflow menu.
@@ -197,6 +198,7 @@ Used for secondary content: preview, options menus, attachment pickers, edit for
 ### 5.1 Homepage (Mobile)
 
 **Hero section**
+
 - Full-viewport height (`min-h-svh`), text centered vertically.
 - Headline: `text-3xl font-bold`, 2–3 lines max.
 - Subheading: `text-base text-muted-foreground`, 1–2 lines.
@@ -204,18 +206,22 @@ Used for secondary content: preview, options menus, attachment pickers, edit for
 - Background: clean, fast-loading (no autoplay video on mobile).
 
 **Sections below hero**
+
 - Single column, `py-10 px-4` padding.
 - Generous vertical breathing room (`gap-6` to `gap-10` between sections).
 
 **Trust strip**
+
 - Horizontal scroll (`overflow-x-auto`, `flex gap-3`, no-scrollbar CSS) for certification badges.
 - Or: wrap into 2-column grid if 4 or fewer badges.
 
 **Use-case / feature cards**
+
 - Full-width stacked cards on mobile.
 - Each card: icon, short label, 1-line description.
 
 **Sticky "Draft your letter" CTA**
+
 - Floating button (`fixed bottom-6 left-4 right-4`) appears after user scrolls past hero.
 - Hidden when the bottom nav bar is visible (app context only).
 - Dismiss/hide once user begins drafting.
@@ -241,6 +247,7 @@ The initial screen before a session is established.
 This is the heart of the product. Every detail matters.
 
 **Default view: Conversation panel (full screen)**
+
 - AI messages and user reply input occupy full screen.
 - Input box pins to bottom of visible viewport above keyboard.
 - Messages scroll above.
@@ -264,23 +271,27 @@ The mobile first-impression must be even more carefully choreographed than deskt
 **Critical mobile rule:** Preview must NEVER be hidden behind the composer or overlap the input region. On mobile it stays available as a stable top toggle with a badge when the preview changed since the user last viewed it.
 
 **Composer hierarchy rule:**
+
 - Voice should be gently pushed, not forced.
 - The initial empty composer may contain a strong dictation starter row, but typing must remain available in the same composer with no separate mode-picking detour.
 - After the first interaction, the composer simplifies: textarea, mic, send. Do not keep a large dictation banner competing with active typing.
 - Never place the preview trigger inside the composer card. Keep preview as a separate top toggle.
 
 **Preview toggle**
+
 - Render a two-option segmented control directly below the step strip: `Write | Preview`.
 - Active state is obvious and high contrast; inactive state remains visible but secondary.
 - Badge: Preview shows a dot indicator when the letter changed since the user last viewed the preview.
 - Scroll behavior: the toggle stays fixed with the app frame; it is not part of the scrollable thread.
 
 **Preview mode**
+
 - Preview replaces the conversation panel in the main mobile workspace area.
 - The same app frame remains visible: header, step indicator, workspace toggle.
 - The preview panel itself may scroll independently if the letter is longer than the viewport.
 
 **Zone editing**
+
 1. User taps a field/zone on the preview (recipient address, body paragraph, sender name, etc.).
 2. Sheet slides up to full height with an edit form for that field.
 3. User edits, taps "Save".
@@ -288,6 +299,7 @@ The mobile first-impression must be even more carefully choreographed than deskt
 5. Tapping outside or dragging down returns to conversation.
 
 **Status strip**
+
 - Compact fixed bar above the bottom nav / bottom floating controls.
 - Shows: current step label | price estimate | delivery type badge.
 - Height: 36 px, `text-xs`.
@@ -296,6 +308,7 @@ The mobile first-impression must be even more carefully choreographed than deskt
 ### Session Expiry Warning — Mobile
 
 **Warning state** (configurable threshold, e.g. 1 hour remaining):
+
 - Single-line banner directly below the app header.
 - `bg-warning/10 border-b border-warning/20`. Height: ~44 px.
 - Text: "⏱ Your session expires in {timeRemaining}. [Save via email →]"
@@ -303,6 +316,7 @@ The mobile first-impression must be even more carefully choreographed than deskt
 - Banner slides in from top (translateY: -100%→0, 200ms, ease-out). Does not push content — uses `position: sticky top-[headerHeight]` with a scroll-padding-top adjustment on the container.
 
 **Critical state** (configurable threshold, e.g. 5 minutes remaining):
+
 - Two-line banner, NOT dismissible. Replaces the warning banner.
 - `bg-warning/20 border-b border-warning/40`.
 - Line 1: "⚠️ Your session expires soon."
@@ -312,22 +326,26 @@ The mobile first-impression must be even more carefully choreographed than deskt
 - On save failure: inline error below input, "Couldn't save. Try again."
 
 **Keyboard interaction:**
+
 - When the email input in the critical-state banner receives focus, the keyboard appears and conversation content scrolls.
 - Use `window.visualViewport` to track keyboard height and adjust scroll position so the banner input remains visible above the keyboard.
 - Do not use `position: fixed` for the banner — it causes reflow issues with the virtual keyboard on iOS Safari.
 
 **Keyboard handling**
+
 - Conversation input always visible above software keyboard.
 - Use `window.visualViewport` resize events or `dvh`/`svh` CSS units.
 - Sheet must not resize unpredictably when keyboard opens.
 
 **Attachment flow**
+
 - Tap attachment icon in conversation or toolbar.
 - Bottom sheet opens with three options: 📷 Camera, 🖼 Photo Library, 📄 Files.
 - On selection, uploader runs with progress indicator.
 - Uploaded attachments shown as thumbnail chips in conversation.
 
 **Signature flow**
+
 - Tap signature zone in preview or "Add signature" in conversation.
 - Bottom sheet opens with two tabs: "Type name" (renders in signature font) and "Upload image".
 - Confirm saves to draft state.
@@ -347,9 +365,10 @@ The mobile first-impression must be even more carefully choreographed than deskt
 ### TWINT Payment on Mobile
 
 TWINT is a native Swiss payment method handled via Stripe's PaymentElement:
+
 - User taps TWINT button → Stripe opens TWINT deep link (launches TWINT app if installed)
 - If TWINT app not installed: Stripe shows fallback (QR code or app store link)
-- User confirms payment in TWINT app → returns to Sendly checkout page
+- User confirms payment in TWINT app → returns to Episto checkout page
 - Return handling: Stripe webhook confirms payment, frontend polls or receives SSE update
 - Success: navigate to confirmation page
 - Failure: show error on checkout page, user can retry or choose another method
@@ -364,6 +383,7 @@ Touch target: TWINT button must be at least 48×44px with the official TWINT log
 **Layout:** Full-width, single-column, no sidebars. Vertical scroll.
 
 **Structure (top to bottom):**
+
 1. **Status icon + headline** — `CheckCircle` (success) or `AlertTriangle` (dispatch ambiguous/rejected), 40 px icon. Headline: "Letter dispatched for delivery" or "Dispatch pending confirmation". Honest language per guardrails.
 2. **Status card** — `border border-border rounded-card p-4`. Shows: dispatch state label, timestamp, brief explanation. If state is ambiguous, shows "We'll update this page as we receive confirmation." — never implies delivery has occurred when only submission is confirmed.
 3. **Reference number** — `font-mono text-2xl`, center-aligned. Tap copies to clipboard with toast feedback ("Copied!"). Label: "Your reference number".
@@ -372,11 +392,13 @@ Touch target: TWINT button must be at least 48×44px with the official TWINT log
 6. **"Send another letter" CTA** — primary button, full-width, `mt-2`. Returns to Draft Entry.
 
 **Animations:**
+
 - Page enters with a calm `opacity: 0→1, translateY: 8px→0` (300ms, ease-out). No confetti. No particle effects. No celebratory motion.
 - Status icon animates in with a subtle scale-in (0.8→1.0, 300ms, spring) only if dispatch is successful.
 - No animations if dispatch state is ambiguous or rejected — static render only.
 
 **Mobile-specific rules:**
+
 - No "send again to [same address]" prefill shortcut in MVP — too risky to misaddress.
 - If the user navigates back from confirmation, do not resume the paid draft for editing — show the confirmation page again or route to `/status/:orderToken`.
 - Reference number must be visible without scrolling on screens ≥ 390 px wide.
@@ -386,31 +408,34 @@ Touch target: TWINT button must be at least 48×44px with the official TWINT log
 
 ## 6. Keyboard and Input Patterns
 
-| Field type | `inputmode` | `autocomplete` |
-|---|---|---|
-| Email address | `email` | `email` |
-| Phone number | `tel` | `tel` |
-| First name | `text` | `given-name` |
-| Last name | `text` | `family-name` |
-| Street address | `text` | `street-address` |
-| Postal code | `numeric` | `postal-code` |
-| City | `text` | `address-level2` |
-| Country | `text` | `country-name` |
+| Field type     | `inputmode` | `autocomplete`   |
+| -------------- | ----------- | ---------------- |
+| Email address  | `email`     | `email`          |
+| Phone number   | `tel`       | `tel`            |
+| First name     | `text`      | `given-name`     |
+| Last name      | `text`      | `family-name`    |
+| Street address | `text`      | `street-address` |
+| Postal code    | `numeric`   | `postal-code`    |
+| City           | `text`      | `address-level2` |
+| Country        | `text`      | `country-name`   |
 
 **Dismiss keyboard**
+
 - Tapping outside an active input dismisses the keyboard.
 - Provide a visible "Done" or dismiss affordance where `blur()` is not obvious.
 
 **Form scrolling**
+
 - Active input must always remain above the software keyboard.
 - Test with both iOS Safari and Android Chrome — their keyboard heights differ.
 - Use `scrollIntoView({ behavior: 'smooth', block: 'nearest' })` on focus events.
 
 **Dictation**
-- Use the Web Speech API (`SpeechRecognition`) for in-browser dictation.
+
+- Use same-origin microphone capture with backend-owned Azure AI Speech transcription.
 - Show a waveform or animated mic indicator while recording.
-- Fall back gracefully: if speech API is not available, keep the voice affordance discoverable with
-  a clear unavailable message rather than hiding it silently.
+- Fall back gracefully: if live dictation cannot complete, keep the voice affordance discoverable and
+  use the buffered stop-then-transcribe path when audio was captured.
 - After transcription, paste text into the draft input; allow immediate correction.
 
 #### Dictation Error Recovery
@@ -418,58 +443,63 @@ Touch target: TWINT button must be at least 48×44px with the official TWINT log
 Dictation will fail, mis-transcribe, or produce unexpected results. These situations must feel like minor bumps, not dead ends.
 
 **Transcription errors:**
+
 - Transcribed text always goes into the editable input field, NOT directly into the conversation as a sent message.
 - The user must explicitly confirm (tap Send or press Enter) before the transcription is submitted.
 - If the transcription is obviously wrong, the user can edit it in the input field before sending.
 - Below the transcribed text in the input field, show a brief `text-xs text-tertiary` hint: "Tap to edit, then send" — this reminds the user they can fix it.
 
 **Multi-language dictation:**
-- The Web Speech API's `lang` property must match the active letter locale (de-CH, fr-CH, it-CH, en-CH).
-- If the user switches letter language mid-conversation, the dictation language must update.
-- If the user speaks a different language than the configured locale, the transcription quality may degrade. This is a known limitation of the Web Speech API — do NOT try to auto-detect language during dictation. Instead, let the (possibly garbled) transcription go through, and the AI conversation will handle the intent.
+
+- The dictation locale sent to the backend must match the active letter locale (de-CH, fr-CH, it-CH, en-CH).
+- If the user switches letter language mid-conversation, the next dictation session must use the new locale.
+- If the user speaks a different language than the configured locale, transcription quality may degrade. Do NOT try to auto-detect language during dictation. Let the transcript land in the editable input field and let the user correct it if needed.
 - **Do not show a language mismatch warning for dictation.** The friction of a warning is worse than the occasional bad transcription.
 
 **Network-dependent speech recognition:**
-- The Web Speech API requires an internet connection on most browsers (it sends audio to a cloud service).
+
+- Live dictation requires an internet connection because audio is streamed to the backend speech adapter.
 - If the user is offline when they tap the mic button: show `<Toast>` "Voice input needs an internet connection. Try typing instead." and do not activate the microphone.
-- If recognition fails mid-dictation (network drops): show the partial transcription in the input field (whatever was captured) + `<Toast>` "Connection lost — we captured what we could."
+- If recognition fails mid-dictation (network drops): stop the listening UI, keep any partial transcription already shown, and try the buffered fallback when audio was captured. If the fallback also fails, show `<Toast>` "Connection lost — we captured what we could."
 - Do NOT leave the mic indicator animating after a failure. Stop the visual feedback within 500ms of the error.
 
 **Microphone permission:**
+
 - If the browser blocks microphone access: show `<Toast>` "Microphone access is needed for voice input. Check your browser settings." Do NOT repeatedly prompt — one toast per session is enough.
 - The mic button remains visible even without permission, but tapping it shows the permission toast. Do not hide the button based on permission state — users may change permissions later.
 
-**Long dictation (>30 seconds):**
-- The Web Speech API may time out after extended silence or very long continuous speech (browser-dependent).
-- If a timeout occurs: submit what was captured, stop the indicator, and show `<Toast>` "Voice input timed out — we captured what you said so far."
+**Long dictation:**
+
+- Capture is bounded by the shared dictation limits; once the current capture cap is reached, stop cleanly, submit what was captured, and show `<Toast>` "Voice input timed out — we captured what you said so far."
 - Do NOT auto-restart dictation after a timeout — let the user tap the mic again if they want to continue.
 
-**Browser-specific dictation quality (from `docs/04-product/dictation-and-speech.md`):**
-The Web Speech API's quality varies significantly by browser:
-- **Chrome (Android/Desktop):** Full support for de-CH, fr-CH, it-CH, en-CH via Google STT. Best experience.
-- **Safari (iOS/macOS):** Partial — may lack Swiss locale variants. Transcription may default to de-DE, fr-FR, it-IT. Results are usable but less accurate for Swiss German dialect words.
-- **Firefox:** Limited — experimental, may not work at all on some versions.
+**Browser capability expectations (from `docs/04-product/dictation-and-speech.md`):**
+Dictation availability depends on browser microphone capture and same-origin realtime transport support, not on browser-native speech recognition quality tables.
 
 **What the UI should do:**
+
 - Do NOT show a browser compatibility warning preemptively — this creates friction before the user has even tried.
-- If dictation fails on Safari/Firefox (API throws `not-allowed` or `service-not-allowed`): show `<Toast>` "Voice input isn't available in this browser. Try Chrome for the best experience, or type your message instead."
+- If dictation is unavailable because the browser cannot provide microphone capture or the live transport primitives: show `<Toast>` "Voice input isn't available in this browser right now. Try typing instead."
 - If dictation produces poor results (garbled text): let the text go through to the input field for editing. The AI conversation layer is tolerant of imperfect input.
 - **Never block the flow** because of browser limitations. The text input is always available as a fallback.
 
 ### Keyboard and Dictation Coexistence
 
 When the soft keyboard is open:
+
 - Dictation mic button remains visible above the keyboard (pinned to input bar)
 - Tapping mic: keyboard stays open but becomes inactive while listening
 - After dictation: text appears in input, keyboard reactivates for editing
 - If dictation produces text while keyboard was showing suggestions: dismiss suggestions, show transcribed text
 
 When dictation is active:
+
 - Input field shows real-time transcript
 - Keyboard is suppressed (does not appear)
 - After dictation ends: keyboard appears automatically for editing
 
 **Paste**
+
 - All address fields must accept paste.
 - Attempt to auto-parse pasted multi-line Swiss addresses into structured fields (street, number, PLZ, city) — surface as a suggestion, never silently overwrite.
 
@@ -479,13 +509,13 @@ When dictation is active:
 
 **Targets**
 
-| Metric | Target |
-|---|---|
-| Time to Interactive (3G) | < 3 s |
-| First Contentful Paint | < 1.5 s |
-| Total Blocking Time | < 200 ms |
-| JS bundle (first paint) | < 150 KB gzipped |
-| Largest Contentful Paint | < 2.5 s |
+| Metric                   | Target           |
+| ------------------------ | ---------------- |
+| Time to Interactive (3G) | < 3 s            |
+| First Contentful Paint   | < 1.5 s          |
+| Total Blocking Time      | < 200 ms         |
+| JS bundle (first paint)  | < 150 KB gzipped |
+| Largest Contentful Paint | < 2.5 s          |
 
 **Implementation rules**
 
@@ -502,23 +532,24 @@ When dictation is active:
 ## 8. Gesture and Animation
 
 **Principles**
+
 - Animations should communicate state, not decorate.
 - Every animation must have a `prefers-reduced-motion` fallback (instant transition or no animation).
 
 **Specific patterns**
 
-| Interaction | Animation | Duration |
-|---|---|---|
-| Bottom sheet open | Spring from bottom, slight bounce | 300 ms |
-| Bottom sheet dismiss | Ease-out slide down | 200 ms |
-| Sheet drag | Follows finger 1:1, spring-snap on release | — |
-| Page forward navigation | Slide left (new page in from right) | 250 ms |
-| Page back navigation | Slide right (current page out to right) | 200 ms |
-| Pull-to-refresh | Rubber-band stretch, spinner appears at threshold | — |
-| Hero parallax | Subtle scroll-linked background shift (desktop/tablet only) | — |
-| Tap feedback | `scale(0.97)`, revert | 75 ms |
-| Toast / snackbar | Slide up from bottom, auto-dismiss after 3 s | 200 ms |
-| Preview toggle — first draft ready | Badge/update signal appears on the Preview option | 150 ms |
+| Interaction                        | Animation                                                   | Duration |
+| ---------------------------------- | ----------------------------------------------------------- | -------- |
+| Bottom sheet open                  | Spring from bottom, slight bounce                           | 300 ms   |
+| Bottom sheet dismiss               | Ease-out slide down                                         | 200 ms   |
+| Sheet drag                         | Follows finger 1:1, spring-snap on release                  | —        |
+| Page forward navigation            | Slide left (new page in from right)                         | 250 ms   |
+| Page back navigation               | Slide right (current page out to right)                     | 200 ms   |
+| Pull-to-refresh                    | Rubber-band stretch, spinner appears at threshold           | —        |
+| Hero parallax                      | Subtle scroll-linked background shift (desktop/tablet only) | —        |
+| Tap feedback                       | `scale(0.97)`, revert                                       | 75 ms    |
+| Toast / snackbar                   | Slide up from bottom, auto-dismiss after 3 s                | 200 ms   |
+| Preview toggle — first draft ready | Badge/update signal appears on the Preview option           | 150 ms   |
 
 **`prefers-reduced-motion`**
 
@@ -538,17 +569,20 @@ Apply this globally. Sheet open/close should still function — just without ani
 ## 9. Mobile-Specific Edge Cases
 
 **Landscape orientation**
+
 - Allow but do not optimize for.
 - Ensure nothing breaks: no overflow, no hidden CTAs.
 - Bottom sheet in landscape: cap height at 90% of viewport height.
 
 **Very small screens (< 360 px wide — e.g., iPhone SE 1st gen)**
+
 - Test all flows at 320 px width.
 - No horizontal overflow allowed.
 - Font sizes must not shrink below 14 px for body text (avoid inaccessible micro-text).
 - Stacked CTA buttons must fit without clipping.
 
 **iOS Safari safe areas**
+
 - Use `env(safe-area-inset-bottom)` for fixed bottom elements (bottom nav, sticky CTAs, bottom sheets).
 - `padding-bottom: env(safe-area-inset-bottom)` on bottom bar.
 - Test on notched iPhone and Dynamic Island models.
@@ -563,20 +597,24 @@ Apply this globally. Sheet open/close should still function — just without ani
 - Test on: iPhone with notch, iPhone with Dynamic Island, Android with gesture nav bar
 
 **Android hardware back button**
+
 - Use Next.js router `push` (not `replace`) for step-by-step navigation so back goes to previous step.
 - Bottom sheets must intercept back button on Android — close the sheet instead of navigating away.
 
 **Copy / paste**
+
 - All reference numbers must be selectable and have a tap-to-copy action.
 - All address blocks must be selectable.
 - Never use `user-select: none` on content the user might need to copy.
 
 **Deep links / resume tokens**
+
 - Draft resume links (sent via SMS or email) must open directly into the correct draft workspace.
 - Link must be usable without an account (guest session via token).
 - Handle expired tokens gracefully with a clear message.
 
 **Autofill conflicts**
+
 - Some browsers autofill unexpected fields. Use explicit `autocomplete="off"` only where autofill would cause data errors (e.g., search fields or one-time codes). Do not blanket-disable autofill.
 
 ---
@@ -586,6 +624,7 @@ Apply this globally. Sheet open/close should still function — just without ani
 **Screen readers: VoiceOver (iOS) and TalkBack (Android)**
 
 Required testing checkpoints:
+
 - All buttons have descriptive accessible labels (not just "Button" or an icon).
 - All form fields have associated `<label>` elements (not just placeholder text).
 - Bottom sheets announce their opening and receive focus on open.
@@ -593,30 +632,36 @@ Required testing checkpoints:
 - Step indicators convey current step to screen readers (`aria-current="step"`).
 
 **Focus management**
+
 - When a bottom sheet opens, focus must move to the first interactive element inside the sheet.
 - When a sheet closes, focus must return to the element that triggered it.
 - Never allow focus to remain "trapped" outside of a visible interactive area.
 - Tab order must be logical: top-to-bottom, left-to-right within each view.
 
 **Color contrast**
+
 - All body text: minimum 4.5:1 contrast ratio against background (WCAG AA).
 - Large text / headings: minimum 3:1.
 - Interactive element borders and focus rings: minimum 3:1.
 - Never rely on color alone to convey status (e.g., add an icon or label alongside color).
 
 **Touch target spacing**
+
 - Minimum 8 px between adjacent tappable elements.
 - Navigation items in bottom bar: equal spacing, each target ≥ 48 × 48 px.
 
 **Announcements for async updates**
+
 ```html
 <div aria-live="polite" aria-atomic="true" class="sr-only">
   <!-- Inject dynamic status text here, e.g., "Draft updated" or "Upload complete" -->
 </div>
 ```
+
 Place one such region near the top of each major view and update its text content when meaningful state changes occur.
 
 **Keyboard / external keyboard support**
+
 - Users may pair a Bluetooth keyboard with their phone.
 - All flows must be operable without touch: tab, enter, escape, space must work as expected.
 - Escape must close open sheets and overlays.

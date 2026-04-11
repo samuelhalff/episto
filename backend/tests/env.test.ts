@@ -14,6 +14,8 @@ const validEnv = () => ({
   ORDER_ACCESS_TOKEN_SECRET: "order-access-secret-at-least-32-chars",
   AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
   AZURE_OPENAI_API_KEY: "key123",
+  AZURE_SPEECH_REGION: "switzerlandnorth",
+  AZURE_SPEECH_API_KEY: "speech-key-123",
   RESEND_API_KEY: "re_abc123",
 });
 
@@ -92,6 +94,11 @@ describe("EnvSchema — valid minimal env", () => {
     expect(result.ADDRESS_SEARCH_PROVIDER).toBe("geo_admin");
   });
 
+  it("applies default AZURE_SPEECH_REQUEST_TIMEOUT_MS", () => {
+    const result = EnvSchema.parse(validEnv());
+    expect(result.AZURE_SPEECH_REQUEST_TIMEOUT_MS).toBe(15000);
+  });
+
   it("applies default GEO_ADMIN_API_BASE_URL", () => {
     const result = EnvSchema.parse(validEnv());
     expect(result.GEO_ADMIN_API_BASE_URL).toBe("https://api3.geo.admin.ch");
@@ -146,6 +153,20 @@ describe("EnvSchema — missing required fields", () => {
   it("fails without RESEND_API_KEY", () => {
     const e = { ...validEnv() };
     delete (e as Record<string, unknown>).RESEND_API_KEY;
+    const result = EnvSchema.safeParse(e);
+    expect(result.success).toBe(false);
+  });
+
+  it("fails without AZURE_SPEECH_REGION", () => {
+    const e = { ...validEnv() };
+    delete (e as Record<string, unknown>).AZURE_SPEECH_REGION;
+    const result = EnvSchema.safeParse(e);
+    expect(result.success).toBe(false);
+  });
+
+  it("fails without AZURE_SPEECH_API_KEY", () => {
+    const e = { ...validEnv() };
+    delete (e as Record<string, unknown>).AZURE_SPEECH_API_KEY;
     const result = EnvSchema.safeParse(e);
     expect(result.success).toBe(false);
   });

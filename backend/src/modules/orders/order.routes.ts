@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { desc, eq } from "drizzle-orm";
-import { OrderStatusResponseSchema } from "@swiss-mail/shared";
+import { buildOrderReference, OrderStatusResponseSchema } from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
 import { AppError, notFoundError } from "../../shared/errors/index.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
@@ -93,7 +93,7 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
       const response = OrderStatusResponseSchema.parse({
         order: {
           draftId: draft.id,
-          orderRef: `SM-${draft.id.slice(0, 8).toUpperCase()}`,
+          orderRef: buildOrderReference(draft.id),
           locale: draft.locale,
           payment: {
             state: payment.state,

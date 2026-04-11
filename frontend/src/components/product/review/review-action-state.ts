@@ -7,6 +7,7 @@ export interface ReviewPrimaryActionStateInput {
   hasQuoteError: boolean;
   isQuoteLoading: boolean;
   isSubmitting: boolean;
+  isRenderPending: boolean;
 }
 
 export interface ReviewPrimaryActionState {
@@ -24,12 +25,16 @@ export function getReviewPrimaryActionState({
   hasQuoteError,
   isQuoteLoading,
   isSubmitting,
+  isRenderPending,
 }: ReviewPrimaryActionStateInput): ReviewPrimaryActionState {
   const quoteIsColdStarting =
-    allComplete && !alreadyPrepared && !hasQuote && !hasQuoteError;
-  const quoteIsPending = quoteIsColdStarting || isQuoteLoading;
+    allComplete && !alreadyPrepared && !hasQuote && !hasQuoteError && !isRenderPending;
+  const quoteIsPending = isRenderPending || quoteIsColdStarting || isQuoteLoading;
   const canProceed =
-    allComplete && !isSubmitting && (alreadyPrepared || (hasQuote && !hasQuoteError));
+    allComplete &&
+    !isSubmitting &&
+    !isRenderPending &&
+    (alreadyPrepared || (hasQuote && !hasQuoteError));
 
   return {
     canProceed,

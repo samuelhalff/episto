@@ -18,6 +18,13 @@ export const DRAFT_CONTENT_LIMITS = {
   messageChars: 2_000,
 } as const;
 
+export const DICTATION_LIMITS = {
+  sampleRateHz: 16_000,
+  channelCount: 1,
+  maxCaptureSeconds: 120,
+  maxFallbackBytes: 4 * 1024 * 1024,
+} as const;
+
 export type UploadKind = keyof Pick<typeof FILE_LIMITS, "attachment" | "signature">;
 
 export function getAllowedMimeTypes(kind: UploadKind): readonly string[] {

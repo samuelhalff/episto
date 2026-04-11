@@ -18,10 +18,7 @@ import {
   storeResolvedQuote,
 } from "./dispatch-quote-cache.service.js";
 
-export async function getDispatchQuoteForDraft(
-  db: Db,
-  draftId: string,
-) {
+export async function getDispatchQuoteForDraft(db: Db, draftId: string) {
   const snapshot = await getLatestSnapshot(db, draftId);
   if (!snapshot) {
     throw validationError("Review the draft before requesting a delivery quote.");
@@ -78,7 +75,11 @@ export interface ResolvedDispatchQuote {
     swissMailMarkupCents: number;
     totalCents: number;
     currency: "CHF";
-    lineItems: Array<{ label: string; amountCents: number; source: "provider" | "swiss_mail" }>;
+    lineItems: Array<{
+      label: string;
+      amountCents: number;
+      source: "provider" | "swiss_mail";
+    }>;
     providerQuoteReference: string | null;
     attachmentHandling: "excluded" | "single_hint" | "unverified";
   };
@@ -96,9 +97,7 @@ async function resolveDispatchQuoteFromStoredMatrix(
   const matrixRow = await getStoredMatrixQuote(db, source.pricingInput);
 
   if (!matrixRow) {
-    throw validationError(
-      "Pricing is not available yet. Please try again shortly.",
-    );
+    throw validationError("Pricing is not available yet. Please try again shortly.");
   }
 
   const cfg = env();
@@ -142,16 +141,14 @@ async function resolveDispatchQuoteFromStoredMatrix(
           source: "provider",
         },
         {
-          label: "Sendly service",
+          label: "Episto service",
           amountCents: swissMailMarkupCents,
           source: "swiss_mail",
         },
       ],
       providerQuoteReference: null,
       attachmentHandling:
-        source.pricingInput.attachmentMode === "single_hint"
-          ? "single_hint"
-          : "excluded",
+        source.pricingInput.attachmentMode === "single_hint" ? "single_hint" : "excluded",
     },
     meta: {
       source: "matrix",
@@ -191,7 +188,7 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
             source: "provider",
           },
           {
-            label: "Sendly service",
+            label: "Episto service",
             amountCents: cached.swissMailMarkupCents,
             source: "swiss_mail",
           },

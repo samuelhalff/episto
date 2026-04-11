@@ -1,4 +1,4 @@
-# Sendly Micro-Interactions & Animation Specification
+# Episto Micro-Interactions & Animation Specification
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** MVP. Light mode. Mobile-first.  
@@ -43,22 +43,22 @@
 
 ## 1. Animation Principles
 
-Animation in Sendly is **an instrument of clarity, not decoration**. The product is used in high-stakes moments — a tenant sending a formal notice, a professional dispatching a contract. Motion must reinforce confidence, not add noise.
+Animation in Episto is **an instrument of clarity, not decoration**. The product is used in high-stakes moments — a tenant sending a formal notice, a professional dispatching a contract. Motion must reinforce confidence, not add noise.
 
 ### Five Governing Principles
 
-| Principle | What It Means | Red Flag |
-|-----------|--------------|----------|
-| **Purposeful** | Every animation communicates exactly one thing: a state change, a spatial relationship, or an action outcome. If you cannot name what the animation is communicating, remove it. | Animation that "looks nice" with no functional role |
-| **Quick** | Most animations complete in under 300ms. The user is never waiting for an animation to finish before interacting. | Anything that blocks the next interaction |
-| **Consistent** | The same category of change uses the same motion pattern everywhere. Appearing things always enter the same way. Dismissal always exits the same way. | Two components with similar roles behaving differently |
-| **Respectful** | `prefers-reduced-motion: reduce` cuts all durations to near-zero. Animations enhance the experience — they never gate it. The product is fully functional with motion off. | Content that is invisible until an animation reveals it |
-| **Swiss precision** | Clean, geometric, restrained. Think Stripe checkout, not a gamified onboarding flow. No bouncing elements, no elastic overshoots on navigation, no particle effects in the main flow. | Spring physics on anything other than direct touch/press feedback |
-| **Responsive** | Interaction feedback must start immediately. Motion confirms responsiveness; it must never mask slow code or late state updates. | Spinner appears late, tap feels ignored, transition hides computation lag |
+| Principle           | What It Means                                                                                                                                                                         | Red Flag                                                                  |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Purposeful**      | Every animation communicates exactly one thing: a state change, a spatial relationship, or an action outcome. If you cannot name what the animation is communicating, remove it.      | Animation that "looks nice" with no functional role                       |
+| **Quick**           | Most animations complete in under 300ms. The user is never waiting for an animation to finish before interacting.                                                                     | Anything that blocks the next interaction                                 |
+| **Consistent**      | The same category of change uses the same motion pattern everywhere. Appearing things always enter the same way. Dismissal always exits the same way.                                 | Two components with similar roles behaving differently                    |
+| **Respectful**      | `prefers-reduced-motion: reduce` cuts all durations to near-zero. Animations enhance the experience — they never gate it. The product is fully functional with motion off.            | Content that is invisible until an animation reveals it                   |
+| **Swiss precision** | Clean, geometric, restrained. Think Stripe checkout, not a gamified onboarding flow. No bouncing elements, no elastic overshoots on navigation, no particle effects in the main flow. | Spring physics on anything other than direct touch/press feedback         |
+| **Responsive**      | Interaction feedback must start immediately. Motion confirms responsiveness; it must never mask slow code or late state updates.                                                      | Spinner appears late, tap feels ignored, transition hides computation lag |
 
 ### Tone
 
-The one sentence that governs all motion decisions: *"This is a professional tool. Move with purpose."*
+The one sentence that governs all motion decisions: _"This is a professional tool. Move with purpose."_
 
 Responsiveness target for core flows: interaction feedback should be effectively immediate to the
 user, and implementation should support an INP under 200 ms on representative devices and browsers.
@@ -71,23 +71,23 @@ These tokens are defined in `docs/02-brand/design-system.md` and the Tailwind co
 
 ### Duration Tiers
 
-| Tier | Duration | Tailwind token | When to use |
-|------|----------|----------------|-------------|
-| **Fast** | 150ms | `duration-fast` | Button press, hover color, toggle, tooltip appear |
-| **Normal** | 200ms | `duration-normal` | Dropdown open/close, toast enter/exit, skeleton→content |
-| **Slow** | 300ms | `duration-slow` | Modal enter, sheet slide, page fade, card hover |
-| **Deliberate** | 500ms | `duration-deliberate` | Progress step advance, letter preview re-render signal |
-| **Extended** | 600–800ms | (inline only) | Letter-sent celebration, hero entrance stagger |
+| Tier           | Duration  | Tailwind token        | When to use                                             |
+| -------------- | --------- | --------------------- | ------------------------------------------------------- |
+| **Fast**       | 150ms     | `duration-fast`       | Button press, hover color, toggle, tooltip appear       |
+| **Normal**     | 200ms     | `duration-normal`     | Dropdown open/close, toast enter/exit, skeleton→content |
+| **Slow**       | 300ms     | `duration-slow`       | Modal enter, sheet slide, page fade, card hover         |
+| **Deliberate** | 500ms     | `duration-deliberate` | Progress step advance, letter preview re-render signal  |
+| **Extended**   | 600–800ms | (inline only)         | Letter-sent celebration, hero entrance stagger          |
 
 ### Easing Curves
 
-| Name | Curve | Tailwind token | Rule |
-|------|-------|----------------|------|
-| **Enter** | `cubic-bezier(0, 0, 0.2, 1)` | `ease-enter` | All elements entering the screen |
-| **Exit** | `cubic-bezier(0.4, 0, 1, 1)` | `ease-exit` | All elements leaving the screen |
-| **In-out** | `cubic-bezier(0.4, 0, 0.2, 1)` | `ease-inout` | Position changes within the screen |
-| **Spring** | `cubic-bezier(0.34, 1.56, 0.64, 1)` | `ease-spring` | Direct touch/press feedback only (button press, checkbox, toggle) |
-| **Linear** | `linear` | n/a | Spinner rotation, skeleton shimmer (time-based loops) |
+| Name       | Curve                               | Tailwind token | Rule                                                              |
+| ---------- | ----------------------------------- | -------------- | ----------------------------------------------------------------- |
+| **Enter**  | `cubic-bezier(0, 0, 0.2, 1)`        | `ease-enter`   | All elements entering the screen                                  |
+| **Exit**   | `cubic-bezier(0.4, 0, 1, 1)`        | `ease-exit`    | All elements leaving the screen                                   |
+| **In-out** | `cubic-bezier(0.4, 0, 0.2, 1)`      | `ease-inout`   | Position changes within the screen                                |
+| **Spring** | `cubic-bezier(0.34, 1.56, 0.64, 1)` | `ease-spring`  | Direct touch/press feedback only (button press, checkbox, toggle) |
+| **Linear** | `linear`                            | n/a            | Spinner rotation, skeleton shimmer (time-based loops)             |
 
 **Rule:** Enter curve for anything appearing. Exit curve for anything disappearing. Spring only for direct physical feedback. Never spring on navigation, layout, or autonomous transitions.
 
@@ -108,7 +108,7 @@ easing: ease-enter
 
 Children within a section stagger at **50ms intervals** per element. The first element starts immediately on mount; subsequent elements are delayed by `index × 50ms`. Maximum stagger depth: 6 elements (after 6, remaining elements share the last delay slot — no 500ms waits).
 
-> **Stagger disambiguation:** This 50ms stagger applies to marketing page *entry transitions* (when the user navigates to a marketing page). It is distinct from the **75ms** scroll-reveal stagger in §5 ("Stagger Within Sections"), which governs elements entering the viewport as the user scrolls. Use 50ms for page-load transitions, 75ms for scroll-reveal stagger — never mix the two.
+> **Stagger disambiguation:** This 50ms stagger applies to marketing page _entry transitions_ (when the user navigates to a marketing page). It is distinct from the **75ms** scroll-reveal stagger in §5 ("Stagger Within Sections"), which governs elements entering the viewport as the user scrolls. Use 50ms for page-load transitions, 75ms for scroll-reveal stagger — never mix the two.
 
 ### App Navigation — Forward
 
@@ -140,15 +140,15 @@ Use Framer Motion `AnimatePresence` with `mode="wait"` at the route boundary. Wr
 ```ts
 // shared/pageTransition.ts
 export const pageVariants = {
-  initial:  { opacity: 0, x: 40 },
-  animate:  { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0, 0, 0.2, 1] } },
-  exit:     { opacity: 0, x: -40, transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } },
-}
+  initial: { opacity: 0, x: 40 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0, 0, 0.2, 1] } },
+  exit: { opacity: 0, x: -40, transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } },
+};
 export const pageVariantsBack = {
-  initial:  { opacity: 0, x: -40 },
-  animate:  { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0, 0, 0.2, 1] } },
-  exit:     { opacity: 0, x: 40, transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } },
-}
+  initial: { opacity: 0, x: -40 },
+  animate: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0, 0, 0.2, 1] } },
+  exit: { opacity: 0, x: 40, transition: { duration: 0.3, ease: [0.4, 0, 1, 1] } },
+};
 ```
 
 ### Modal and Dialog Open
@@ -190,7 +190,9 @@ Buttons have three animation layers: hover, press, and async state.
 #### Hover
 
 ```css
-transition: background-color 150ms ease-out, box-shadow 150ms ease-out;
+transition:
+  background-color 150ms ease-out,
+  box-shadow 150ms ease-out;
 ```
 
 No `transform` on hover. The hover state communicates availability, not invitation — keep it subtle. Shadow increases from `shadow-sm` to `shadow-md` on primary buttons only.
@@ -217,10 +219,27 @@ When a button triggers an async action:
 // Pattern — LoadingButton
 <button style={{ minWidth: buttonRef.current?.offsetWidth }}>
   <AnimatePresence mode="wait">
-    {isLoading
-      ? <motion.span key="spinner" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}><Spinner /></motion.span>
-      : <motion.span key="label"   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>{children}</motion.span>
-    }
+    {isLoading ? (
+      <motion.span
+        key="spinner"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
+      >
+        <Spinner />
+      </motion.span>
+    ) : (
+      <motion.span
+        key="label"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.15 }}
+      >
+        {children}
+      </motion.span>
+    )}
   </AnimatePresence>
 </button>
 ```
@@ -279,12 +298,12 @@ This is distinct from the Content Update animation (which uses `accent-light` fo
 
 The auto-save status indicator lives in the workspace header, right-aligned. Its animation must be imperceptible during normal operation — the user should barely notice saves happening.
 
-| State | Icon | Text | Color | Animation |
-|-------|------|------|-------|-----------|
-| Idle (saved) | `Check` (12px) | "Saved" | `text-tertiary` | Fade-in 200ms, appears 1s after last change |
-| Saving | `Loader2` (12px) | "Saving…" | `text-tertiary` | Crossfade from previous state (150ms). Spinner: `animate-spin` |
-| Save failed | `AlertCircle` (12px) | "Not saved" | `text-warning` | Crossfade 150ms. Persists until resolved |
-| Offline | `WifiOff` (12px) | "Offline" | `text-warning` | Crossfade 150ms. Persists until reconnected |
+| State        | Icon                 | Text        | Color           | Animation                                                      |
+| ------------ | -------------------- | ----------- | --------------- | -------------------------------------------------------------- |
+| Idle (saved) | `Check` (12px)       | "Saved"     | `text-tertiary` | Fade-in 200ms, appears 1s after last change                    |
+| Saving       | `Loader2` (12px)     | "Saving…"   | `text-tertiary` | Crossfade from previous state (150ms). Spinner: `animate-spin` |
+| Save failed  | `AlertCircle` (12px) | "Not saved" | `text-warning`  | Crossfade 150ms. Persists until resolved                       |
+| Offline      | `WifiOff` (12px)     | "Offline"   | `text-warning`  | Crossfade 150ms. Persists until reconnected                    |
 
 **Transitions:** The indicator must never shift layout (reserve fixed width). State changes crossfade — the icon and text simultaneously transition with `opacity: 1→0→1` (total 150ms). No slide, no scale.
 
@@ -334,6 +353,7 @@ Mobile preview sheet page navigation:
 
 **Page count change (1→2, 2→3, etc.):**
 When the letter grows to a new page (body text exceeds one page):
+
 - The "Page 1 of N" indicator updates with the scale pulse above.
 - The page count number animates: old number fades out (opacity 1→0, translateY 0→-4px, 100ms) and new number fades in (opacity 0→1, translateY 4px→0, 150ms) — a vertical slide-crossfade.
 - If approaching the 5-page limit (page 4→5): the indicator briefly flashes `text-warning` for 500ms, then returns to normal. This is a pre-warning before the hard limit warning appears.
@@ -348,27 +368,29 @@ This is the emotional climax of the drafting experience — the moment when the 
 
 **Desktop choreography:**
 
-| Step | Delay | Element | Animation | Duration | Easing |
-|------|-------|---------|-----------|----------|--------|
-| 1 | 0ms | Sender block | `opacity: 0→1, translateY: 8px→0` | 200ms | ease-enter |
-| 2 | 100ms | Recipient block | `opacity: 0→1, translateY: 8px→0` | 200ms | ease-enter |
-| 3 | 200ms | Date line | `opacity: 0→1, translateY: 8px→0` | 200ms | ease-enter |
-| 4 | 300ms | Subject line | `opacity: 0→1, translateY: 8px→0` | 200ms | ease-enter |
-| 5 | 400ms | Body paragraphs | `opacity: 0→1` (no translateY — body is the anchor) | 300ms | ease-enter |
-| 6 | 600ms | Closing + signature | `opacity: 0→1, translateY: 4px→0` | 200ms | ease-enter |
-| 7 | 0–800ms | Paper card elevation | `box-shadow: shadow-sm → shadow-paper` | 800ms | ease-inout |
+| Step | Delay   | Element              | Animation                                           | Duration | Easing     |
+| ---- | ------- | -------------------- | --------------------------------------------------- | -------- | ---------- |
+| 1    | 0ms     | Sender block         | `opacity: 0→1, translateY: 8px→0`                   | 200ms    | ease-enter |
+| 2    | 100ms   | Recipient block      | `opacity: 0→1, translateY: 8px→0`                   | 200ms    | ease-enter |
+| 3    | 200ms   | Date line            | `opacity: 0→1, translateY: 8px→0`                   | 200ms    | ease-enter |
+| 4    | 300ms   | Subject line         | `opacity: 0→1, translateY: 8px→0`                   | 200ms    | ease-enter |
+| 5    | 400ms   | Body paragraphs      | `opacity: 0→1` (no translateY — body is the anchor) | 300ms    | ease-enter |
+| 6    | 600ms   | Closing + signature  | `opacity: 0→1, translateY: 4px→0`                   | 200ms    | ease-enter |
+| 7    | 0–800ms | Paper card elevation | `box-shadow: shadow-sm → shadow-paper`              | 800ms    | ease-inout |
 
 Total reveal duration: ~800ms. The shadow elevation animates across the full duration, giving the sense of the page "becoming real" as content populates it.
 
 **Mobile choreography:**
 
 The reveal happens while the preview sheet is closed. When the user opens the preview:
+
 1. Content is already fully populated (no stagger — the user expects to see their letter immediately).
 2. Instead of a stagger, a single brief `shadow-paper` scale pulse (scale `1→1.01→1`, 300ms, spring easing) signals "this is new."
 
 **Accompanying UI cues:**
 
 When the first draft is ready:
+
 1. **Desktop:** System message in conversation panel: `"Your letter is ready to review"` (centered, `text-tertiary text-xs`). A subtle scroll-into-view ensures the preview panel shows the top of the letter.
 2. **Mobile:** The floating Preview FAB pulses once (scale `1→1.15→1`, 300ms, spring easing) with a brief `accent` border glow (`box-shadow: 0 0 0 3px accent-light`, 300ms in, 500ms hold, 300ms out). A toast notification slides in: "Your letter is ready — tap to preview" with a `FileText` icon.
 
@@ -475,7 +497,7 @@ When the current step is marked complete:
 ```css
 width: 0% → 100%;
 transition: width 500ms cubic-bezier(0.4, 0, 0.2, 1); /* ease-inout, deliberate */
-background-color: primary (#1E3A5F);
+background-color: primary (#1e3a5f);
 ```
 
 The line fill is the most deliberate animation in the indicator — it communicates meaningful progress, so it earns the longer duration.
@@ -530,7 +552,9 @@ File card appears with `opacity: 0 → 1`, `translateY: 8px → 0`, 200ms, ease-
 The progress bar fills smoothly, tied directly to `XMLHttpRequest.upload.onprogress` or the equivalent. Use CSS transition for smoothness, not stepped updates:
 
 ```css
-.progress-bar { transition: width 100ms linear; }
+.progress-bar {
+  transition: width 100ms linear;
+}
 ```
 
 #### Upload Complete
@@ -573,13 +597,28 @@ The shake must complete before the user can re-submit. Disable the submit button
 
 ```css
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  15%       { transform: translateX(-4px); }
-  30%       { transform: translateX(4px); }
-  45%       { transform: translateX(-4px); }
-  60%       { transform: translateX(4px); }
-  75%       { transform: translateX(-2px); }
-  90%       { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-4px);
+  }
+  30% {
+    transform: translateX(4px);
+  }
+  45% {
+    transform: translateX(-4px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  90% {
+    transform: translateX(2px);
+  }
 }
 ```
 
@@ -666,8 +705,12 @@ Skeletons are shown immediately on load — no blank pages, no loading spinners 
 
 ```css
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton {
@@ -787,8 +830,12 @@ When voice dictation is active, the microphone button emits a pulsing ring:
 
 ```css
 @keyframes dictation-pulse {
-  0%   { box-shadow: 0 0 0 0 var(--accent); }
-  100% { box-shadow: 0 0 0 12px rgba(var(--accent-rgb), 0); }
+  0% {
+    box-shadow: 0 0 0 0 var(--accent);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(var(--accent-rgb), 0);
+  }
 }
 
 .dictation-active {
@@ -846,7 +893,9 @@ Implement with a scroll event listener throttled to `requestAnimationFrame`. Nev
 .site-header {
   background-color: transparent;
   backdrop-filter: blur(0px);
-  transition: background-color 150ms ease-out, backdrop-filter 150ms ease-out;
+  transition:
+    background-color 150ms ease-out,
+    backdrop-filter 150ms ease-out;
 }
 .site-header.scrolled {
   background-color: rgba(255, 255, 255, 0.92);
@@ -958,9 +1007,12 @@ The upload drop zone has a subtle hover pulse:
 ```css
 .drop-zone {
   border: 1.5px dashed var(--color-border);
-  transition: border-color 150ms ease-out, background-color 150ms ease-out;
+  transition:
+    border-color 150ms ease-out,
+    background-color 150ms ease-out;
 }
-.drop-zone:hover, .drop-zone.drag-over {
+.drop-zone:hover,
+.drop-zone.drag-over {
   border-color: var(--color-primary);
   background-color: var(--color-primary-light);
 }
@@ -1003,8 +1055,15 @@ Attention indicator: a pulsing dot (scale 1 → 1.3 → 1, 1.5s, infinite) next 
 
 ```css
 @keyframes attention-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50%       { transform: scale(1.3); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
 }
 .attention-dot {
   animation: attention-pulse 1.5s ease-in-out infinite;
@@ -1063,15 +1122,15 @@ For a user's first-ever completed letter (tracked in session or account state), 
 
 ### When to Use Which Tool
 
-| Situation | Tool | Reason |
-|-----------|------|--------|
-| Hover, focus, color, border transitions | CSS `transition` | Cheaper, GPU-accelerated, no JS overhead |
-| Enter/exit with unmounting | Framer Motion `AnimatePresence` | CSS cannot animate unmounting elements |
-| List reordering or layout changes | Framer Motion `layout` prop | Automatic FLIP animation |
-| Stagger groups | Framer Motion `staggerChildren` | Clean declarative API |
-| Drag and spring physics | Framer Motion `drag` + `spring` | Physics engine baked in |
-| Infinite loops (shimmer, spinner) | CSS `@keyframes` | `animation` property, not `transition` |
-| Scroll-linked values | Native `IntersectionObserver` or CSS `animation-timeline` | No Framer Motion scroll hooks in the critical path |
+| Situation                               | Tool                                                      | Reason                                             |
+| --------------------------------------- | --------------------------------------------------------- | -------------------------------------------------- |
+| Hover, focus, color, border transitions | CSS `transition`                                          | Cheaper, GPU-accelerated, no JS overhead           |
+| Enter/exit with unmounting              | Framer Motion `AnimatePresence`                           | CSS cannot animate unmounting elements             |
+| List reordering or layout changes       | Framer Motion `layout` prop                               | Automatic FLIP animation                           |
+| Stagger groups                          | Framer Motion `staggerChildren`                           | Clean declarative API                              |
+| Drag and spring physics                 | Framer Motion `drag` + `spring`                           | Physics engine baked in                            |
+| Infinite loops (shimmer, spinner)       | CSS `@keyframes`                                          | `animation` property, not `transition`             |
+| Scroll-linked values                    | Native `IntersectionObserver` or CSS `animation-timeline` | No Framer Motion scroll hooks in the critical path |
 
 ### Framer Motion Variants Pattern
 
@@ -1080,21 +1139,26 @@ Define animation variants in dedicated files, not inline in JSX:
 ```ts
 // components/product/LetterPreview/variants.ts
 export const cardVariants = {
-  hidden: { opacity: 0, y: 24, boxShadow: '0 0 0 0 rgba(0,0,0,0)' },
+  hidden: { opacity: 0, y: 24, boxShadow: "0 0 0 0 rgba(0,0,0,0)" },
   visible: {
-    opacity: 1, y: 0,
-    boxShadow: '0 4px 24px rgba(0,0,0,0.08)',
-    transition: { duration: 0.5, ease: [0, 0, 0.2, 1] }
-  }
-}
+    opacity: 1,
+    y: 0,
+    boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+    transition: { duration: 0.5, ease: [0, 0, 0.2, 1] },
+  },
+};
 
 export const zoneHighlightVariants = {
-  idle:      { backgroundColor: 'transparent' },
-  pulsing:   { backgroundColor: '#FBF0EB',
-               transition: { duration: 0.2, ease: [0, 0, 0.2, 1] } },
-  fading:    { backgroundColor: 'transparent',
-               transition: { duration: 0.4, ease: [0.4, 0, 1, 1] } },
-}
+  idle: { backgroundColor: "transparent" },
+  pulsing: {
+    backgroundColor: "#FBF0EB",
+    transition: { duration: 0.2, ease: [0, 0, 0.2, 1] },
+  },
+  fading: {
+    backgroundColor: "transparent",
+    transition: { duration: 0.4, ease: [0.4, 0, 1, 1] },
+  },
+};
 ```
 
 ### CSS `@keyframes` Catalog
@@ -1102,64 +1166,121 @@ export const zoneHighlightVariants = {
 ```css
 /* Skeleton shimmer */
 @keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 /* Form shake */
 @keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  15%       { transform: translateX(-4px); }
-  30%       { transform: translateX(4px); }
-  45%       { transform: translateX(-4px); }
-  60%       { transform: translateX(4px); }
-  75%       { transform: translateX(-2px); }
-  90%       { transform: translateX(2px); }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-4px);
+  }
+  30% {
+    transform: translateX(4px);
+  }
+  45% {
+    transform: translateX(-4px);
+  }
+  60% {
+    transform: translateX(4px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+  90% {
+    transform: translateX(2px);
+  }
 }
 
 /* Spinner rotation */
 @keyframes spin {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Typing indicator dots */
 @keyframes typing-dot {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30%           { transform: translateY(-4px); opacity: 1; }
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
 }
 
 /* Attention pulse */
 @keyframes attention-pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50%       { transform: scale(1.3); opacity: 0.7; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
 }
 
 /* Letter scan line */
 @keyframes scan {
-  from { transform: translateX(-100%); }
-  to   { transform: translateX(100%); }
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
 }
 
 /* Dictation pulse ring */
 @keyframes dictation-pulse {
-  0%   { box-shadow: 0 0 0 0 var(--accent); }
-  100% { box-shadow: 0 0 0 12px rgba(var(--accent-rgb), 0); }
+  0% {
+    box-shadow: 0 0 0 0 var(--accent);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgba(var(--accent-rgb), 0);
+  }
 }
 
 /* Session expiry critical pulse */
 @keyframes expiry-pulse {
-  0%, 100% { background-color: var(--color-error-10); }
-  50%      { background-color: var(--color-error-15); }
+  0%,
+  100% {
+    background-color: var(--color-error-10);
+  }
+  50% {
+    background-color: var(--color-error-15);
+  }
 }
 ```
 
 ### Typing Indicator (AI)
 
 ```css
-.typing-dot:nth-child(1) { animation: typing-dot 1.2s ease-in-out infinite 0ms; }
-.typing-dot:nth-child(2) { animation: typing-dot 1.2s ease-in-out infinite 200ms; }
-.typing-dot:nth-child(3) { animation: typing-dot 1.2s ease-in-out infinite 400ms; }
+.typing-dot:nth-child(1) {
+  animation: typing-dot 1.2s ease-in-out infinite 0ms;
+}
+.typing-dot:nth-child(2) {
+  animation: typing-dot 1.2s ease-in-out infinite 200ms;
+}
+.typing-dot:nth-child(3) {
+  animation: typing-dot 1.2s ease-in-out infinite 400ms;
+}
 ```
 
 Three dots, each offset by 200ms. They travel up 4px and increase in opacity to indicate active thinking.
@@ -1235,10 +1356,10 @@ keyframes: {
   *,
   *::before,
   *::after {
-    animation-duration:       0.01ms !important;
+    animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration:       0.01ms !important;
-    scroll-behavior:           auto !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 ```
@@ -1250,13 +1371,13 @@ This is a catch-all and must be present in the global stylesheet.
 For components using Framer Motion, conditionally disable motion:
 
 ```ts
-import { useReducedMotion } from 'framer-motion'
+import { useReducedMotion } from "framer-motion";
 
 function LetterPreviewCard() {
-  const shouldReduceMotion = useReducedMotion()
+  const shouldReduceMotion = useReducedMotion();
   const variants = shouldReduceMotion
-    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } }  // No position change
-    : cardVariants  // Full animation
+    ? { hidden: { opacity: 0 }, visible: { opacity: 1 } } // No position change
+    : cardVariants; // Full animation
   // ...
 }
 ```
@@ -1274,22 +1395,22 @@ function LetterPreviewCard() {
 
 Some things must be **instantaneous**. Adding animation to these would create latency where none should exist.
 
-| Interaction | Why instant |
-|-------------|-------------|
-| Any response to a keypress (text appearing in inputs, letter zone updating) | User caused it; animation would feel like lag |
-| Form validation error text appearing on blur | The error is information, not an event |
-| Inline helper text showing/hiding | Utility text; not meaningful enough to animate |
-| Disabled state changes | Disabling an element is an informational state, not a transition |
-| Loading spinner rotation starting | The spin itself is the animation; the start of the spin is instant |
-| Focus ring appearance | Accessibility requirement — must be instant and visible |
-| Text content changes within the letter that the AI did not trigger | Any text the user typed directly; animation would fight the user |
-| Tooltip appear on keyboard focus | Accessibility: keyboard users need immediate feedback |
+| Interaction                                                                 | Why instant                                                        |
+| --------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Any response to a keypress (text appearing in inputs, letter zone updating) | User caused it; animation would feel like lag                      |
+| Form validation error text appearing on blur                                | The error is information, not an event                             |
+| Inline helper text showing/hiding                                           | Utility text; not meaningful enough to animate                     |
+| Disabled state changes                                                      | Disabling an element is an informational state, not a transition   |
+| Loading spinner rotation starting                                           | The spin itself is the animation; the start of the spin is instant |
+| Focus ring appearance                                                       | Accessibility requirement — must be instant and visible            |
+| Text content changes within the letter that the AI did not trigger          | Any text the user typed directly; animation would fight the user   |
+| Tooltip appear on keyboard focus                                            | Accessibility: keyboard users need immediate feedback              |
 
 **The rule:** If the user directly caused it with input (typing, clicking, keyboard navigation), make the result instant. Animations are for system-initiated transitions, not user-initiated responses.
 
 ---
 
-*This document is the animation playbook. If a motion decision is not described here, default to no animation. Add animation only when you can name what it communicates.*
+_This document is the animation playbook. If a motion decision is not described here, default to no animation. Add animation only when you can name what it communicates._
 
 ---
 
@@ -1314,6 +1435,7 @@ Components should fade in when they represent a state change or arrival. Compone
 ### ADZ-5: Do not override reduced-motion users' choice
 
 `prefers-reduced-motion: reduce` is a medical accessibility need, not a preference. When active:
+
 - All spring/bounce easings become linear
 - All durations cap at 100ms (effectively crossfade)
 - Confetti, parallax, and stagger sequences are fully suppressed

@@ -1,4 +1,5 @@
 export { draftRoutes } from "./draft.routes.js";
+export { dictationRoutes } from "./dictation.routes.js";
 export { streamRoutes } from "./stream.routes.js";
 export { addressSearchRoutes } from "./address-search.routes.js";
 export {

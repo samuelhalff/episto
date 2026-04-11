@@ -61,7 +61,7 @@ export function IntakeStep({
   const updateDraft = useUpdateDraft(draftId);
   const conversation = useConversation(draftId);
   const files = useDraftFiles(draftId);
-  const dictation = useDictation();
+  const dictation = useDictation({ draftId, fieldContext: "intake" });
   const {
     finalText: dictatedIntakeText,
     resetText: resetDictationText,

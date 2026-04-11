@@ -20,7 +20,9 @@ vi.mock("next-intl/server", async () => {
     }, source);
 
   const formatMessage = (message: string, values?: Record<string, unknown>) =>
-    message.replace(/\{(\w+)\}/g, (_, key: string) => String(values?.[key] ?? `{${key}}`));
+    message.replace(/\{(\w+)\}/g, (_, key: string) =>
+      String(values?.[key] ?? `{${key}}`),
+    );
 
   const frontendRoot = process.cwd().endsWith(`${sep}frontend`)
     ? process.cwd()
@@ -46,7 +48,9 @@ vi.mock("next-intl/server", async () => {
         const value = getNestedValue(base, key);
 
         if (typeof value !== "string") {
-          throw new Error(`Missing translation: ${namespace ? `${namespace}.` : ""}${key}`);
+          throw new Error(
+            `Missing translation: ${namespace ? `${namespace}.` : ""}${key}`,
+          );
         }
 
         return formatMessage(value, values);
@@ -58,10 +62,22 @@ vi.mock("next-intl/server", async () => {
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const originalSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 const localeMessages = {
-  "de-CH": JSON.parse(readRepoFile("frontend/src/messages/de-CH.json")) as Record<string, unknown>,
-  "en-CH": JSON.parse(readRepoFile("frontend/src/messages/en-CH.json")) as Record<string, unknown>,
-  "fr-CH": JSON.parse(readRepoFile("frontend/src/messages/fr-CH.json")) as Record<string, unknown>,
-  "it-CH": JSON.parse(readRepoFile("frontend/src/messages/it-CH.json")) as Record<string, unknown>,
+  "de-CH": JSON.parse(readRepoFile("frontend/src/messages/de-CH.json")) as Record<
+    string,
+    unknown
+  >,
+  "en-CH": JSON.parse(readRepoFile("frontend/src/messages/en-CH.json")) as Record<
+    string,
+    unknown
+  >,
+  "fr-CH": JSON.parse(readRepoFile("frontend/src/messages/fr-CH.json")) as Record<
+    string,
+    unknown
+  >,
+  "it-CH": JSON.parse(readRepoFile("frontend/src/messages/it-CH.json")) as Record<
+    string,
+    unknown
+  >,
 } as const;
 
 const marketingRouteModules = {
@@ -150,7 +166,7 @@ describe("marketing seo plumbing", () => {
       locale: "fr-CH",
       pathname: "/pricing",
       title: "Tarifs",
-      description: "Comparez les tarifs Sendly.",
+      description: "Comparez les tarifs Episto.",
     });
 
     expect(metadata.alternates?.canonical).toBe("https://example.test/fr-CH/pricing");
@@ -164,15 +180,15 @@ describe("marketing seo plumbing", () => {
     expect(metadata.metadataBase).toEqual(new URL("https://example.test"));
     expect(metadata.openGraph).toMatchObject({
       title: "Tarifs",
-      description: "Comparez les tarifs Sendly.",
+      description: "Comparez les tarifs Episto.",
       url: "https://example.test/fr-CH/pricing",
       locale: "fr-CH",
-      siteName: "Sendly",
+      siteName: "Episto",
       type: "website",
     });
     expect(metadata.twitter).toMatchObject({
       title: "Tarifs",
-      description: "Comparez les tarifs Sendly.",
+      description: "Comparez les tarifs Episto.",
       card: "summary_large_image",
     });
   });
@@ -180,12 +196,13 @@ describe("marketing seo plumbing", () => {
   it("normalizes a trailing slash in the public site url", async () => {
     process.env.NEXT_PUBLIC_SITE_URL = "https://example.test/";
 
-    const { buildMarketingMetadata, getSiteUrl } = await import("../src/lib/marketing-seo");
+    const { buildMarketingMetadata, getSiteUrl } =
+      await import("../src/lib/marketing-seo");
     const metadata = buildMarketingMetadata({
       locale: "de-CH",
       pathname: "/help",
       title: "Hilfe",
-      description: "Antworten für Sendly.",
+      description: "Antworten für Episto.",
     });
 
     expect(getSiteUrl()).toBe("https://example.test");
@@ -289,11 +306,17 @@ describe("marketing seo plumbing", () => {
     const { default: ImprintPage } = await marketingRouteModules.imprint();
 
     const homePage = await HomePage({ params: Promise.resolve({ locale: "en-CH" }) });
-    const pricingPage = await PricingPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const pricingPage = await PricingPage({
+      params: Promise.resolve({ locale: "en-CH" }),
+    });
     const helpPage = await HelpPage({ params: Promise.resolve({ locale: "en-CH" }) });
-    const privacyPage = await PrivacyPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const privacyPage = await PrivacyPage({
+      params: Promise.resolve({ locale: "en-CH" }),
+    });
     const termsPage = await TermsPage({ params: Promise.resolve({ locale: "en-CH" }) });
-    const imprintPage = await ImprintPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const imprintPage = await ImprintPage({
+      params: Promise.resolve({ locale: "en-CH" }),
+    });
 
     const homeJsonLd = getJsonLdNode(homePage);
     const pricingJsonLd = getJsonLdNode(pricingPage);
@@ -338,7 +361,9 @@ describe("marketing seo plumbing", () => {
 
   it("renders the privacy page with geo.admin source disclosure", async () => {
     const { default: PrivacyPage } = await marketingRouteModules.privacy();
-    const privacyPage = await PrivacyPage({ params: Promise.resolve({ locale: "en-CH" }) });
+    const privacyPage = await PrivacyPage({
+      params: Promise.resolve({ locale: "en-CH" }),
+    });
     const markup = renderToStaticMarkup(privacyPage);
 
     expect(markup).toContain("Source: Federal Office of Topography");

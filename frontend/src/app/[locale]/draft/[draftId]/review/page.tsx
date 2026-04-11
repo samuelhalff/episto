@@ -13,7 +13,10 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   const draft = useDraft(draftId);
   const preview = useLetterPreview(draftId);
   const { attachments } = useDraftFiles(draftId);
-  const quote = useDispatchQuote(draftId, Boolean(draft.data));
+  const quote = useDispatchQuote(
+    draftId,
+    Boolean(draft.data) && !["reviewed", "rendering"].includes(draft.data?.status ?? ""),
+  );
 
   if (draft.isLoading) {
     return (

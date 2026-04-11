@@ -3,6 +3,7 @@
 import { use, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { buildOrderReference } from "@swiss-mail/shared";
 import {
   usePaymentStatus,
   useDispatchInfo,
@@ -73,7 +74,9 @@ function TimelineStep({
           <div
             className={[
               "mt-1 h-8 w-px",
-              isComplete ? "bg-emerald-300 dark:bg-emerald-400/40" : "bg-zinc-200 dark:bg-zinc-800",
+              isComplete
+                ? "bg-emerald-300 dark:bg-emerald-400/40"
+                : "bg-zinc-200 dark:bg-zinc-800",
             ].join(" ")}
           />
         )}
@@ -81,7 +84,9 @@ function TimelineStep({
       <p
         className={[
           "pt-1.5 text-sm",
-          isComplete ? "font-medium text-zinc-900 dark:text-zinc-100" : "text-zinc-400 dark:text-zinc-500",
+          isComplete
+            ? "font-medium text-zinc-900 dark:text-zinc-100"
+            : "text-zinc-400 dark:text-zinc-500",
         ].join(" ")}
       >
         {label}
@@ -116,7 +121,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
   const dispatch = useDispatchInfo(draftId, isSuccess);
 
-  const orderRef = `SM-${draftId.slice(0, 8).toUpperCase()}`;
+  const orderRef = buildOrderReference(draftId);
 
   const copyRef = useCallback(async () => {
     try {
@@ -149,7 +154,9 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         className="mx-auto max-w-2xl space-y-6 px-4 py-12 text-center"
       >
         <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
-        <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">{t("paymentFailed")}</h1>
+        <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          {t("paymentFailed")}
+        </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
           {payment.data?.failureReason ?? t("paymentFailedSubtitle")}
         </p>
@@ -238,8 +245,12 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           <StatusBadge tone={stateTone} className="mb-3">
             {stateLabel}
           </StatusBadge>
-          <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">{t("title")}</h1>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{activeStateCopy.subtitle}</p>
+          <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+            {t("title")}
+          </h1>
+          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
+            {activeStateCopy.subtitle}
+          </p>
         </div>
 
         {/* Order reference with copy */}
@@ -291,9 +302,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         </div>
 
         {/* What happens next — 4-step timeline */}
-        <div
-          className="app-panel mx-auto max-w-sm rounded-3xl p-6 text-left"
-        >
+        <div className="app-panel mx-auto max-w-sm rounded-3xl p-6 text-left">
           <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("whatHappensNext")}
           </h2>
@@ -321,7 +330,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
         {/* Actions */}
         <div className="flex flex-col items-center gap-3 pt-4">
           <ActionLink
-            href="/draft/new"
+            href="/draft/new?fresh=1"
             variant="primary"
             fullWidth
             className="w-full max-w-sm"

@@ -25,6 +25,7 @@ import {
 } from "../dispatch/adapters/provider-capabilities.js";
 import {
   uploadObject,
+  downloadObjectBuffer,
   getPresignedDownloadUrl,
   deleteObject,
 } from "./adapters/s3.adapter.js";
@@ -317,7 +318,32 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // GET /files/:fileId/download — redirect to presigned URL
+  // GET /files/:fileId/preview — stream signature images through the app origin so
+  // browsers never need to resolve or load object-storage URLs directly.
+  app.get<{ Params: { fileId: string } }>(
+    "/files/:fileId/preview",
+    { preHandler: [requireSession] },
+    async (request, reply) => {
+      const session = request.session!;
+      const db = getDb();
+      const { fileId } = request.params;
+
+      const file = await getFileAsset(db, fileId, session.id);
+      if (!file || file.kind !== "signature" || !file.mimeType.startsWith("image/")) {
+        throw notFoundError("file");
+      }
+
+      const object = await downloadObjectBuffer(file.storageKey);
+      reply.header("Content-Type", object.contentType ?? file.mimeType);
+      reply.header("Content-Length", String(object.contentLength ?? object.buffer.byteLength));
+      reply.header("Content-Disposition", "inline");
+      reply.header("Cache-Control", "private, max-age=300");
+
+      await reply.send(object.buffer);
+    },
+  );
+
+  // GET /files/:fileId/download — keep raw downloads on the presigned-storage path.
   app.get<{ Params: { fileId: string } }>(
     "/files/:fileId/download",
     { preHandler: [requireSession] },

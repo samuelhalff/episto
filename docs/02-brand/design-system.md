@@ -1,4 +1,4 @@
-# Sendly Design System
+# Episto Design System
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** Light and dark mode, MVP. Dark mode uses `class` strategy (Tailwind `darkMode: "class"`), toggled via ThemeProvider.  
@@ -26,14 +26,14 @@
 
 ### Core Premise
 
-Sendly exists at the intersection of **paper** and **digital**. The product is formal, deliberate, and Swiss — but never cold, bureaucratic, or intimidating. Every design decision reinforces a single emotional truth: *"This will be taken care of, professionally."*
+Episto exists at the intersection of **paper** and **digital**. The product is formal, deliberate, and Swiss — but never cold, bureaucratic, or intimidating. Every design decision reinforces a single emotional truth: _"This will be taken care of, professionally."_
 
 ### Three Design Pillars
 
-| Pillar | What It Means | What It Rejects |
-|--------|---------------|-----------------|
-| **Swiss Precision** | Every element earns its place. Generous whitespace, exact alignment, nothing decorative. | Busy layouts, gradient overload, decorative chrome |
-| **Calm Authority** | The UI recedes to let the user's content be the focus. Trust through restraint. | Loud CTAs, aggressive upsells, anxious micro-interactions |
+| Pillar                  | What It Means                                                                                                             | What It Rejects                                                 |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| **Swiss Precision**     | Every element earns its place. Generous whitespace, exact alignment, nothing decorative.                                  | Busy layouts, gradient overload, decorative chrome              |
+| **Calm Authority**      | The UI recedes to let the user's content be the focus. Trust through restraint.                                           | Loud CTAs, aggressive upsells, anxious micro-interactions       |
 | **Paper Meets Digital** | The letter metaphor is present but not costume. The preview feels like a document, the workflow feels like a modern SaaS. | Skeuomorphic paper textures, clipart stamps, fake desk surfaces |
 
 ### Design Voice in Practice
@@ -53,41 +53,41 @@ The palette is **90% neutral, 10% intentional**. The core product workflow now u
 
 ### Core Tokens
 
-| Token | Hex | Tailwind Name | Use |
-|-------|-----|---------------|-----|
-| `primary` | `#F6C54A` | `primary` | Primary workflow buttons, main next-step CTA |
-| `primary-hover` | `#E9B93D` | `primary-hover` | Primary CTA hover state |
-| `primary-light` | `#FFF4CC` | `primary-light` | Selected states, soft action highlights |
-| `accent` | `#B85C38` | `accent` | Highlights, progress steps, warm emphasis, pricing badges |
-| `accent-hover` | `#A04E2E` | `accent-hover` | Accent hover state |
-| `accent-light` | `#FBF0EB` | `accent-light` | Accent-tinted background (tooltips, banners) |
-| `paper` | `#FAFAF7` | `paper` | Letter preview background — off-white, slightly warm |
-| `surface` | `#FFFFFF` | `surface` | Card and modal backgrounds |
-| `surface-subtle` | `#F8FAFC` | `surface-subtle` | Alternate row, secondary card, inactive tabs |
-| `surface-hover` | `#F1F5F9` | `surface-hover` | Hover on list items, nav entries |
-| `border` | `#E2E8F0` | `border` | Default border, input border, dividers |
-| `border-strong` | `#CBD5E1` | `border-strong` | Emphasized dividers, active input border |
-| `text-primary` | `#0F172A` | `text-primary` | Body text, headings |
-| `text-secondary` | `#475569` | `text-secondary` | Labels, metadata, helper text |
-| `text-tertiary` | `#94A3B8` | `text-tertiary` | Placeholders, disabled text, timestamps |
-| `text-inverse` | `#FFFFFF` | `text-inverse` | Text on dark/primary backgrounds |
+| Token            | Hex       | Tailwind Name    | Use                                                       |
+| ---------------- | --------- | ---------------- | --------------------------------------------------------- |
+| `primary`        | `#F6C54A` | `primary`        | Primary workflow buttons, main next-step CTA              |
+| `primary-hover`  | `#E9B93D` | `primary-hover`  | Primary CTA hover state                                   |
+| `primary-light`  | `#FFF4CC` | `primary-light`  | Selected states, soft action highlights                   |
+| `accent`         | `#B85C38` | `accent`         | Highlights, progress steps, warm emphasis, pricing badges |
+| `accent-hover`   | `#A04E2E` | `accent-hover`   | Accent hover state                                        |
+| `accent-light`   | `#FBF0EB` | `accent-light`   | Accent-tinted background (tooltips, banners)              |
+| `paper`          | `#FAFAF7` | `paper`          | Letter preview background — off-white, slightly warm      |
+| `surface`        | `#FFFFFF` | `surface`        | Card and modal backgrounds                                |
+| `surface-subtle` | `#F8FAFC` | `surface-subtle` | Alternate row, secondary card, inactive tabs              |
+| `surface-hover`  | `#F1F5F9` | `surface-hover`  | Hover on list items, nav entries                          |
+| `border`         | `#E2E8F0` | `border`         | Default border, input border, dividers                    |
+| `border-strong`  | `#CBD5E1` | `border-strong`  | Emphasized dividers, active input border                  |
+| `text-primary`   | `#0F172A` | `text-primary`   | Body text, headings                                       |
+| `text-secondary` | `#475569` | `text-secondary` | Labels, metadata, helper text                             |
+| `text-tertiary`  | `#94A3B8` | `text-tertiary`  | Placeholders, disabled text, timestamps                   |
+| `text-inverse`   | `#FFFFFF` | `text-inverse`   | Text on dark/primary backgrounds                          |
 
 ### Semantic Colors
 
-| Token | Hex | Use |
-|-------|-----|-----|
-| `success` | `#16A34A` | Confirmed dispatch, payment success, completed steps |
-| `success-bg` | `#F0FDF4` | Success banners, toast backgrounds |
-| `success-border` | `#BBF7D0` | Success card borders |
-| `error` | `#DC2626` | Form validation errors, failed payment, dispatch rejection |
-| `error-bg` | `#FEF2F2` | Error banners |
-| `error-border` | `#FECACA` | Error card borders |
-| `warning` | `#D97706` | Ambiguous dispatch state, expiring session, rate limit |
-| `warning-bg` | `#FFFBEB` | Warning banners |
-| `warning-border` | `#FDE68A` | Warning card borders |
-| `info` | `#2563EB` | Informational tooltips, provider status notes |
-| `info-bg` | `#EFF6FF` | Info banners |
-| `info-border` | `#BFDBFE` | Info card borders |
+| Token            | Hex       | Use                                                        |
+| ---------------- | --------- | ---------------------------------------------------------- |
+| `success`        | `#16A34A` | Confirmed dispatch, payment success, completed steps       |
+| `success-bg`     | `#F0FDF4` | Success banners, toast backgrounds                         |
+| `success-border` | `#BBF7D0` | Success card borders                                       |
+| `error`          | `#DC2626` | Form validation errors, failed payment, dispatch rejection |
+| `error-bg`       | `#FEF2F2` | Error banners                                              |
+| `error-border`   | `#FECACA` | Error card borders                                         |
+| `warning`        | `#D97706` | Ambiguous dispatch state, expiring session, rate limit     |
+| `warning-bg`     | `#FFFBEB` | Warning banners                                            |
+| `warning-border` | `#FDE68A` | Warning card borders                                       |
+| `info`           | `#2563EB` | Informational tooltips, provider status notes              |
+| `info-bg`        | `#EFF6FF` | Info banners                                               |
+| `info-border`    | `#BFDBFE` | Info card borders                                          |
 
 ### Tailwind Config — `extend.colors`
 
@@ -150,44 +150,44 @@ All tokens are also defined as CSS variables to enable future theming. Place in 
 ```css
 :root {
   /* Primary */
-  --color-primary:       #F6C54A;
-  --color-primary-hover: #E9B93D;
-  --color-primary-light: #FFF4CC;
+  --color-primary: #f6c54a;
+  --color-primary-hover: #e9b93d;
+  --color-primary-light: #fff4cc;
 
   /* Accent */
-  --color-accent:        #B85C38;
-  --color-accent-hover:  #A04E2E;
-  --color-accent-light:  #FBF0EB;
+  --color-accent: #b85c38;
+  --color-accent-hover: #a04e2e;
+  --color-accent-light: #fbf0eb;
 
   /* Surfaces */
-  --color-paper:          #FAFAF7;
-  --color-surface:        #FFFFFF;
-  --color-surface-subtle: #F8FAFC;
-  --color-surface-hover:  #F1F5F9;
+  --color-paper: #fafaf7;
+  --color-surface: #ffffff;
+  --color-surface-subtle: #f8fafc;
+  --color-surface-hover: #f1f5f9;
 
   /* Borders */
-  --color-border:        #E2E8F0;
-  --color-border-strong: #CBD5E1;
+  --color-border: #e2e8f0;
+  --color-border-strong: #cbd5e1;
 
   /* Text */
-  --color-text-primary:   #0F172A;
+  --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
-  --color-text-tertiary:  #94A3B8;
-  --color-text-inverse:   #FFFFFF;
+  --color-text-tertiary: #94a3b8;
+  --color-text-inverse: #ffffff;
 
   /* Semantic */
-  --color-success:        #16A34A;
-  --color-success-bg:     #F0FDF4;
-  --color-success-border: #BBF7D0;
-  --color-error:          #DC2626;
-  --color-error-bg:       #FEF2F2;
-  --color-error-border:   #FECACA;
-  --color-warning:        #D97706;
-  --color-warning-bg:     #FFFBEB;
-  --color-warning-border: #FDE68A;
-  --color-info:           #2563EB;
-  --color-info-bg:        #EFF6FF;
-  --color-info-border:    #BFDBFE;
+  --color-success: #16a34a;
+  --color-success-bg: #f0fdf4;
+  --color-success-border: #bbf7d0;
+  --color-error: #dc2626;
+  --color-error-bg: #fef2f2;
+  --color-error-border: #fecaca;
+  --color-warning: #d97706;
+  --color-warning-bg: #fffbeb;
+  --color-warning-border: #fde68a;
+  --color-info: #2563eb;
+  --color-info-bg: #eff6ff;
+  --color-info-border: #bfdbfe;
 }
 ```
 
@@ -206,10 +206,10 @@ All tokens are also defined as CSS variables to enable future theming. Place in 
 
 ### Font Stack
 
-| Role | Family | Source | Fallback |
-|------|---------|--------|----------|
-| **UI** | Inter | `next/font/google` | `system-ui, -apple-system, sans-serif` |
-| **Letter preview** | Source Serif 4 | `next/font/google` | `Georgia, 'Times New Roman', serif` |
+| Role               | Family         | Source             | Fallback                               |
+| ------------------ | -------------- | ------------------ | -------------------------------------- |
+| **UI**             | Inter          | `next/font/google` | `system-ui, -apple-system, sans-serif` |
+| **Letter preview** | Source Serif 4 | `next/font/google` | `Georgia, 'Times New Roman', serif`    |
 
 **Inter** is used everywhere in the product UI — navigation, forms, labels, buttons, metadata, headings. It is neutral and highly legible at all sizes.
 
@@ -219,26 +219,26 @@ workflow UI.
 
 ```ts
 // app/layout.tsx
-import { Inter, Source_Serif_4 } from 'next/font/google';
+import { Inter, Source_Serif_4 } from "next/font/google";
 
 const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 const sourceSerif = Source_Serif_4({
-  subsets: ['latin'],
-  variable: '--font-letter',
-  display: 'swap',
-  style: ['normal', 'italic'],
+  subsets: ["latin"],
+  variable: "--font-letter",
+  display: "swap",
+  style: ["normal", "italic"],
 });
 ```
 
 ```css
 /* globals.css */
 :root {
-  --font-sans:  var(--font-inter);
+  --font-sans: var(--font-inter);
   --font-serif: var(--font-letter);
 }
 
@@ -253,16 +253,16 @@ body {
 
 ### Type Scale
 
-| Step | Class | Size | Line Height | Letter Spacing | Weight | Use |
-|------|-------|------|-------------|----------------|--------|-----|
-| `4xl` | `text-4xl` | 36px / 2.25rem | 1.2 (tight) | −0.025em | 700 | Hero headline (marketing only) |
-| `3xl` | `text-3xl` | 30px / 1.875rem | 1.25 | −0.02em | 700 | Page titles |
-| `2xl` | `text-2xl` | 24px / 1.5rem | 1.3 | −0.015em | 600 | Section headings, modal titles |
-| `xl` | `text-xl` | 20px / 1.25rem | 1.4 | −0.01em | 600 | Card headings, step titles |
-| `lg` | `text-lg` | 18px / 1.125rem | 1.5 | 0 | 500 | Sub-headings, emphasized body |
-| `base` | `text-base` | 16px / 1rem | 1.6 | 0 | 400 | Body text, form values |
-| `sm` | `text-sm` | 14px / 0.875rem | 1.5 | 0.01em | 400/500 | Labels, secondary metadata |
-| `xs` | `text-xs` | 12px / 0.75rem | 1.4 | 0.02em | 400 | Captions, timestamps, legal footnotes |
+| Step   | Class       | Size            | Line Height | Letter Spacing | Weight  | Use                                   |
+| ------ | ----------- | --------------- | ----------- | -------------- | ------- | ------------------------------------- |
+| `4xl`  | `text-4xl`  | 36px / 2.25rem  | 1.2 (tight) | −0.025em       | 700     | Hero headline (marketing only)        |
+| `3xl`  | `text-3xl`  | 30px / 1.875rem | 1.25        | −0.02em        | 700     | Page titles                           |
+| `2xl`  | `text-2xl`  | 24px / 1.5rem   | 1.3         | −0.015em       | 600     | Section headings, modal titles        |
+| `xl`   | `text-xl`   | 20px / 1.25rem  | 1.4         | −0.01em        | 600     | Card headings, step titles            |
+| `lg`   | `text-lg`   | 18px / 1.125rem | 1.5         | 0              | 500     | Sub-headings, emphasized body         |
+| `base` | `text-base` | 16px / 1rem     | 1.6         | 0              | 400     | Body text, form values                |
+| `sm`   | `text-sm`   | 14px / 0.875rem | 1.5         | 0.01em         | 400/500 | Labels, secondary metadata            |
+| `xs`   | `text-xs`   | 12px / 0.75rem  | 1.4         | 0.02em         | 400     | Captions, timestamps, legal footnotes |
 
 ### Usage Rules
 
@@ -298,9 +298,9 @@ Inside `<LetterPreview>`, use the serif stack with formal document sizing:
 ```css
 .letter-preview {
   font-family: var(--font-serif);
-  font-size: 10.5pt;           /* matches printed A4 body */
+  font-size: 10.5pt; /* matches printed A4 body */
   line-height: 1.65;
-  color: #1a1a1a;              /* slightly warm black, not #000 */
+  color: #1a1a1a; /* slightly warm black, not #000 */
   letter-spacing: 0.005em;
 }
 
@@ -327,22 +327,22 @@ Inside `<LetterPreview>`, use the serif stack with formal document sizing:
 
 ### Tailwind Spacing Scale (relevant subset)
 
-| Token | Value | px | Common Use |
-|-------|-------|----|-----------|
-| `0.5` | 0.125rem | 2px | Icon optical nudge |
-| `1` | 0.25rem | 4px | Tight intra-component gap |
-| `1.5` | 0.375rem | 6px | Badge padding horizontal |
-| `2` | 0.5rem | 8px | Icon-to-text gap, small padding |
-| `3` | 0.75rem | 12px | Input vertical padding, small card padding |
-| `4` | 1rem | 16px | Standard element padding |
-| `5` | 1.25rem | 20px | Card padding (mobile) |
-| `6` | 1.5rem | 24px | Card padding (desktop), section gap |
-| `8` | 2rem | 32px | Large section padding, modal padding |
-| `10` | 2.5rem | 40px | Between-section spacing |
-| `12` | 3rem | 48px | Page-level vertical rhythm |
-| `16` | 4rem | 64px | Hero sections, large separation |
-| `20` | 5rem | 80px | Marketing section padding |
-| `24` | 6rem | 96px | Maximum section spacing |
+| Token | Value    | px   | Common Use                                 |
+| ----- | -------- | ---- | ------------------------------------------ |
+| `0.5` | 0.125rem | 2px  | Icon optical nudge                         |
+| `1`   | 0.25rem  | 4px  | Tight intra-component gap                  |
+| `1.5` | 0.375rem | 6px  | Badge padding horizontal                   |
+| `2`   | 0.5rem   | 8px  | Icon-to-text gap, small padding            |
+| `3`   | 0.75rem  | 12px | Input vertical padding, small card padding |
+| `4`   | 1rem     | 16px | Standard element padding                   |
+| `5`   | 1.25rem  | 20px | Card padding (mobile)                      |
+| `6`   | 1.5rem   | 24px | Card padding (desktop), section gap        |
+| `8`   | 2rem     | 32px | Large section padding, modal padding       |
+| `10`  | 2.5rem   | 40px | Between-section spacing                    |
+| `12`  | 3rem     | 48px | Page-level vertical rhythm                 |
+| `16`  | 4rem     | 64px | Hero sections, large separation            |
+| `20`  | 5rem     | 80px | Marketing section padding                  |
+| `24`  | 6rem     | 96px | Maximum section spacing                    |
 
 ### Component-Level Spacing Conventions
 
@@ -396,7 +396,7 @@ Letter preview area gets a fixed max-width constraint to simulate A4 proportions
 
 ```css
 .letter-preview-container {
-  max-width: 680px;   /* ~A4 at 96dpi screen representation */
+  max-width: 680px; /* ~A4 at 96dpi screen representation */
   margin: 0 auto;
 }
 ```
@@ -427,16 +427,16 @@ boxShadow: {
 
 ### Usage Rules
 
-| Shadow | Token | Use |
-|--------|-------|-----|
-| **xs** | `shadow-xs` | Subtle card lift, list item separation |
-| **sm** | `shadow-sm` | Default card, input on focus, hover state lift |
-| **md** | `shadow-md` | Dropdown menus, popovers, date pickers |
-| **lg** | `shadow-lg` | Modal dialogs, slide-over panels |
-| **xl** | `shadow-xl` | Command palette, full-page overlays |
-| **paper** | `shadow-paper` | Letter preview card — *see below* |
-| **focus** | `shadow-focus` | Used programmatically for focus rings |
-| **none** | `shadow-none` | Explicitly flat components, nav items |
+| Shadow    | Token          | Use                                            |
+| --------- | -------------- | ---------------------------------------------- |
+| **xs**    | `shadow-xs`    | Subtle card lift, list item separation         |
+| **sm**    | `shadow-sm`    | Default card, input on focus, hover state lift |
+| **md**    | `shadow-md`    | Dropdown menus, popovers, date pickers         |
+| **lg**    | `shadow-lg`    | Modal dialogs, slide-over panels               |
+| **xl**    | `shadow-xl`    | Command palette, full-page overlays            |
+| **paper** | `shadow-paper` | Letter preview card — _see below_              |
+| **focus** | `shadow-focus` | Used programmatically for focus rings          |
+| **none**  | `shadow-none`  | Explicitly flat components, nav items          |
 
 ### Letter Preview — Special Elevation
 
@@ -444,10 +444,10 @@ The `<LetterPreview>` component uses a distinct treatment to convey "this is a p
 
 ```css
 .letter-preview-card {
-  background-color: var(--color-paper);   /* #FAFAF7 — warm off-white */
-  box-shadow: var(--shadow-paper);         /* subtle lift + hairline border */
-  border: 1px solid rgb(0 0 0 / 0.06);    /* barely-there inset line */
-  border-radius: 2px;                      /* intentionally small — paper corners */
+  background-color: var(--color-paper); /* #FAFAF7 — warm off-white */
+  box-shadow: var(--shadow-paper); /* subtle lift + hairline border */
+  border: 1px solid rgb(0 0 0 / 0.06); /* barely-there inset line */
+  border-radius: 2px; /* intentionally small — paper corners */
 }
 ```
 
@@ -476,16 +476,16 @@ borderRadius: {
 
 ### Usage Rules
 
-| Radius | Token | Use |
-|--------|-------|-----|
-| `none` | `rounded-none` | Letter preview corners, table cells |
-| `xs` (4px) | `rounded-xs` | Inline code blocks, very small chips |
-| `sm` (6px) | `rounded-sm` | Secondary buttons (outlined style), small modifiers |
-| `md` (8px) | `rounded-md` | **Default for inputs, textareas, select, default buttons** |
-| `lg` (12px) | `rounded-lg` | **Default for cards, panels, modals** |
-| `xl` (16px) | `rounded-xl` | Large feature cards, expanded panels |
-| `2xl` (20px) | `rounded-2xl` | Marketing hero cards (use sparingly) |
-| `full` | `rounded-full` | **All badges, pills, avatar circles, toggle handles** |
+| Radius       | Token          | Use                                                        |
+| ------------ | -------------- | ---------------------------------------------------------- |
+| `none`       | `rounded-none` | Letter preview corners, table cells                        |
+| `xs` (4px)   | `rounded-xs`   | Inline code blocks, very small chips                       |
+| `sm` (6px)   | `rounded-sm`   | Secondary buttons (outlined style), small modifiers        |
+| `md` (8px)   | `rounded-md`   | **Default for inputs, textareas, select, default buttons** |
+| `lg` (12px)  | `rounded-lg`   | **Default for cards, panels, modals**                      |
+| `xl` (16px)  | `rounded-xl`   | Large feature cards, expanded panels                       |
+| `2xl` (20px) | `rounded-2xl`  | Marketing hero cards (use sparingly)                       |
+| `full`       | `rounded-full` | **All badges, pills, avatar circles, toggle handles**      |
 
 ### Rule of Thumb
 
@@ -503,18 +503,18 @@ borderRadius: {
 **Lucide** — ships with shadcn/ui. Do not introduce a second icon library. Lucide's consistent `1.5px` stroke weight gives a light, legible feel at all sizes.
 
 ```tsx
-import { Send, FileText, AlertCircle } from 'lucide-react';
+import { Send, FileText, AlertCircle } from "lucide-react";
 ```
 
 ### Size Rules
 
-| Size | px | Class | Use |
-|------|----|-------|-----|
-| **xs** | 14px | `size-3.5` | Dense metadata rows, sub-labels |
-| **sm** | 16px | `size-4` | Inline icons next to text, badges |
-| **md** | 20px | `size-5` | **Standard** — buttons, nav items, form elements |
-| **lg** | 24px | `size-6` | Prominent standalone icons, empty state illustrations |
-| **xl** | 32px | `size-8` | Feature icons in cards (outlined bg circle) |
+| Size   | px   | Class      | Use                                                   |
+| ------ | ---- | ---------- | ----------------------------------------------------- |
+| **xs** | 14px | `size-3.5` | Dense metadata rows, sub-labels                       |
+| **sm** | 16px | `size-4`   | Inline icons next to text, badges                     |
+| **md** | 20px | `size-5`   | **Standard** — buttons, nav items, form elements      |
+| **lg** | 24px | `size-6`   | Prominent standalone icons, empty state illustrations |
+| **xl** | 32px | `size-8`   | Feature icons in cards (outlined bg circle)           |
 
 **Default stroke width:** `strokeWidth={1.5}` — always explicit to prevent Lucide defaults changing between versions.
 
@@ -541,11 +541,11 @@ Always use flexbox alignment, not manual margin offsets:
 
 Custom SVG icons are permitted **only** for these cases. They must be wrapped as React components with size/color props matching the Lucide interface:
 
-| Icon | Purpose | Notes |
-|------|---------|-------|
-| `<LetterIcon>` | Letter/envelope metaphor in product branding | Distinct from Lucide's `Mail` — more formal |
-| `<SwissCrossIcon>` | Logo area and Swiss-market identity signals | Used in header/footer only; not a decorative element |
-| `<PostalStampIcon>` | Empty state in confirmation/tracking views | Use sparingly, one context only |
+| Icon                | Purpose                                      | Notes                                                |
+| ------------------- | -------------------------------------------- | ---------------------------------------------------- |
+| `<LetterIcon>`      | Letter/envelope metaphor in product branding | Distinct from Lucide's `Mail` — more formal          |
+| `<SwissCrossIcon>`  | Logo area and Swiss-market identity signals  | Used in header/footer only; not a decorative element |
+| `<PostalStampIcon>` | Empty state in confirmation/tracking views   | Use sparingly, one context only                      |
 
 All custom icons live in `components/icons/`.
 
@@ -555,7 +555,7 @@ All custom icons live in `components/icons/`.
 
 ### Philosophy
 
-Animation in Sendly is **functional, not expressive**. Motion confirms an action happened or guides attention — it never performs. The UI is used in stressful moments (sending an important legal letter). Bouncy or playful motion is wrong here.
+Animation in Episto is **functional, not expressive**. Motion confirms an action happened or guides attention — it never performs. The UI is used in stressful moments (sending an important legal letter). Bouncy or playful motion is wrong here.
 
 ### Duration Scale
 
@@ -571,9 +571,9 @@ transitionDuration: {
 
 ```css
 :root {
-  --duration-fast:      150ms;
-  --duration-normal:    200ms;
-  --duration-slow:      300ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
   --duration-deliberate: 500ms;
 }
 ```
@@ -594,21 +594,21 @@ transitionTimingFunction: {
 
 ### What Animates
 
-| Element | Animation | Duration | Easing |
-|---------|-----------|----------|--------|
-| Page transition | Fade opacity 0→1 | slow (300ms) | enter |
-| Dropdown / popover open | Fade + scale 0.97→1 | normal (200ms) | enter |
-| Dropdown / popover close | Fade + scale 1→0.97 | fast (150ms) | exit |
-| Modal enter | Fade + translateY(8px→0) | slow (300ms) | enter |
-| Modal exit | Fade | normal (200ms) | exit |
-| Toast notification enter | translateX(100%→0) | normal (200ms) | enter |
-| Toast notification exit | opacity 1→0 + translateY(0→-8px) | normal (200ms) | exit |
-| Button press | scale(1→0.98) | fast (150ms) | spring |
-| Toggle switch | translate handle | normal (200ms) | spring |
-| Progress step advance | width expand | deliberate (500ms) | inout |
-| Letter preview update | Subtle fade 0.7→1 | slow (300ms) | enter |
-| Skeleton shimmer | background-position sweep | 1.5s infinite | linear |
-| Skeleton → content | opacity 0→1 | normal (200ms) | enter |
+| Element                  | Animation                        | Duration           | Easing |
+| ------------------------ | -------------------------------- | ------------------ | ------ |
+| Page transition          | Fade opacity 0→1                 | slow (300ms)       | enter  |
+| Dropdown / popover open  | Fade + scale 0.97→1              | normal (200ms)     | enter  |
+| Dropdown / popover close | Fade + scale 1→0.97              | fast (150ms)       | exit   |
+| Modal enter              | Fade + translateY(8px→0)         | slow (300ms)       | enter  |
+| Modal exit               | Fade                             | normal (200ms)     | exit   |
+| Toast notification enter | translateX(100%→0)               | normal (200ms)     | enter  |
+| Toast notification exit  | opacity 1→0 + translateY(0→-8px) | normal (200ms)     | exit   |
+| Button press             | scale(1→0.98)                    | fast (150ms)       | spring |
+| Toggle switch            | translate handle                 | normal (200ms)     | spring |
+| Progress step advance    | width expand                     | deliberate (500ms) | inout  |
+| Letter preview update    | Subtle fade 0.7→1                | slow (300ms)       | enter  |
+| Skeleton shimmer         | background-position sweep        | 1.5s infinite      | linear |
+| Skeleton → content       | opacity 0→1                      | normal (200ms)     | enter  |
 
 ### What Does Not Animate
 
@@ -649,6 +649,7 @@ Always respect `prefers-reduced-motion`. Wrap all transitions:
 Every interactive element must implement all applicable states. None may be omitted.
 
 #### Default State (no interaction)
+
 ```
 Background: surface / transparent
 Border: border (1px, #E2E8F0) where applicable
@@ -657,6 +658,7 @@ Shadow: none or shadow-xs
 ```
 
 #### Hover State
+
 ```
 Background: surface-hover (#F1F5F9) for ghost/outline elements
             primary-hover (#16304F) for filled primary elements
@@ -667,6 +669,7 @@ Transition: background-color 150ms ease-out, box-shadow 150ms ease-out
 ```
 
 #### Focus State (keyboard and programmatic)
+
 ```
 Outline: none  (remove default browser outline)
 Ring: ring-2 ring-primary/50 ring-offset-2
@@ -679,10 +682,12 @@ All focusable elements must have a visible focus ring. The `ring-offset-2` ensur
 
 ```tsx
 // Tailwind class string for any interactive element
-className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2"
+className =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2";
 ```
 
 #### Active / Pressed State
+
 ```
 Transform: scale(0.98)
 Background: slightly darker than hover state
@@ -699,6 +704,7 @@ Transition: transform 150ms spring
 Do not apply active scale to: links, text inputs, textareas, checkboxes, radio buttons.
 
 #### Disabled State
+
 ```
 Opacity: 0.5
 Cursor: not-allowed
@@ -708,7 +714,8 @@ No hover/active state changes
 ```
 
 ```tsx
-className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none"
+className =
+  "disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none";
 ```
 
 **Important:** Disabled elements must still be keyboard-focusable if they need to communicate why they are disabled (e.g., via `aria-describedby`). Use `aria-disabled` rather than the `disabled` attribute in those cases.
@@ -718,6 +725,7 @@ className="disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-even
 Two patterns — choose based on context:
 
 **Spinner** — for immediate actions where result is expected within ~2s:
+
 ```tsx
 // Replace button label with spinner + "Processing…"
 // Use the Loader2 icon from Lucide, animate-spin
@@ -725,6 +733,7 @@ Two patterns — choose based on context:
 ```
 
 **Skeleton** — for content areas loading asynchronously:
+
 ```tsx
 // Skeleton shimmer: bg-surface-subtle + shimmer animation
 // Height should match the content it replaces exactly
@@ -732,17 +741,16 @@ Two patterns — choose based on context:
 
 ```css
 @keyframes shimmer {
-  0%   { background-position: -200% center; }
-  100% { background-position: 200% center; }
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    #F1F5F9 25%,
-    #E2E8F0 50%,
-    #F1F5F9 75%
-  );
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
   border-radius: var(--radius-md);
@@ -834,22 +842,22 @@ Dark mode is implemented via:
 }
 
 .dark {
-  --color-primary:        #93B4D8;  /* lighter for dark bg legibility */
-  --color-surface:        #0F172A;
-  --color-surface-subtle: #1E293B;
-  --color-surface-hover:  #1E293B;
-  --color-border:         #1E293B;
-  --color-border-strong:  #334155;
-  --color-text-primary:   #F1F5F9;
-  --color-text-secondary: #94A3B8;
-  --color-text-tertiary:  #475569;
+  --color-primary: #93b4d8; /* lighter for dark bg legibility */
+  --color-surface: #0f172a;
+  --color-surface-subtle: #1e293b;
+  --color-surface-hover: #1e293b;
+  --color-border: #1e293b;
+  --color-border-strong: #334155;
+  --color-text-primary: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-text-tertiary: #475569;
   /* ... etc. */
 }
 
 /* Letter preview is always light */
 .letter-preview-container {
-  --color-paper:          #FAFAF7;
-  --color-text-primary:   #0F172A;
+  --color-paper: #fafaf7;
+  --color-text-primary: #0f172a;
   color-scheme: light;
 }
 ```

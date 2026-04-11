@@ -1,6 +1,9 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+let enqueueRenderJob: ReturnType<typeof vi.fn>;
+let renderSnapshotToPdfMock: ReturnType<typeof vi.fn>;
+
 function makeSelectChain(result: unknown[]) {
   const chain: Record<string, unknown> = {};
   chain.from = vi.fn().mockReturnValue(chain);
@@ -25,6 +28,8 @@ describe("draft review route", () => {
 
   beforeEach(async () => {
     vi.resetModules();
+    enqueueRenderJob = vi.fn().mockResolvedValue(undefined);
+    renderSnapshotToPdfMock = vi.fn();
 
     const selectResults = [
       [
@@ -135,12 +140,7 @@ describe("draft review route", () => {
     }));
 
     vi.doMock("../src/modules/rendering/render.service.js", () => ({
-      renderSnapshotToPdf: vi.fn().mockResolvedValue({
-        pdfAssetId: "asset-1",
-        storageKey: "renders/draft-review/1.pdf",
-        sizeBytes: 1024,
-        pageCount: 6,
-      }),
+      renderSnapshotToPdf: renderSnapshotToPdfMock,
     }));
 
     vi.doMock("../src/modules/dispatch/dispatch-quote.service.js", () => ({
@@ -154,7 +154,9 @@ describe("draft review route", () => {
     }));
 
     vi.doMock("../src/queue/index.js", () => ({
-      getQueue: vi.fn(),
+      getQueue: vi.fn().mockReturnValue({
+        add: enqueueRenderJob,
+      }),
       QUEUE_NAMES: { RENDER_PDF: "render-pdf" },
     }));
 
@@ -202,7 +204,7 @@ describe("draft review route", () => {
     vi.resetModules();
   });
 
-  it("rejects review when the rendered letter exceeds five pages", async () => {
+  it("enqueues PDF rendering and returns the review snapshot without blocking on Puppeteer", async () => {
     const response = await app.inject({
       method: "POST",
       url: "/drafts/draft-review/review",
@@ -211,16 +213,25 @@ describe("draft review route", () => {
 
     const { transitionDraftStatus } = await import("../src/modules/drafting/draft.service.js");
 
-    expect(response.statusCode).toBe(400);
+    expect(response.statusCode).toBe(201);
     expect(response.json()).toMatchObject({
-      code: "VALIDATION_ERROR",
-      fields: [
-        {
-          field: "estimatedPages",
-          message: "Shorten the letter to 5 pages or fewer before continuing.",
-        },
-      ],
+      snapshot: {
+        id: "snapshot-review",
+        draftId: "draft-review",
+        priceCents: 505,
+      },
     });
+    expect(enqueueRenderJob).toHaveBeenCalledWith(
+      "render-pdf",
+      {
+        snapshotId: "snapshot-review",
+        draftId: "draft-review",
+      },
+      {
+        jobId: "snapshot-snapshot-review",
+      },
+    );
+    expect(renderSnapshotToPdfMock).not.toHaveBeenCalled();
     expect(transitionDraftStatus).toHaveBeenCalledWith(
       expect.anything(),
       "draft-review",
@@ -232,12 +243,6 @@ describe("draft review route", () => {
       "draft-review",
       "review-session",
       "rendering",
-    );
-    expect(transitionDraftStatus).toHaveBeenCalledWith(
-      expect.anything(),
-      "draft-review",
-      "review-session",
-      "collecting",
     );
     expect(transitionDraftStatus).not.toHaveBeenCalledWith(
       expect.anything(),

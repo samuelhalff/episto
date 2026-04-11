@@ -706,7 +706,7 @@ export class EpostDispatchAdapter {
           source: "provider",
         },
         {
-          label: "Sendly service",
+          label: "Episto service",
           amountCents: swissMailMarkupCents,
           source: "swiss_mail",
         },

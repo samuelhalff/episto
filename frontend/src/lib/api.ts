@@ -149,3 +149,13 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
 export function getApiUrl(path: string): string {
   return `${getApiBase()}${path}`;
 }
+
+export function getApiWebSocketUrl(path: string): string {
+  if (typeof window === "undefined") {
+    return getApiUrl(path);
+  }
+
+  const url = new URL(getApiUrl(path), window.location.href);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  return url.toString();
+}

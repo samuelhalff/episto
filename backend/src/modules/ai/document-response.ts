@@ -43,6 +43,8 @@ export interface AppliedDocumentResult {
 }
 
 const codeFencePattern = /^```(?:json)?\s*([\s\S]*?)```$/i;
+const PROMPT_SCAFFOLD_LINE_PATTERN =
+  /^\s*(?:user_message|user message|latest user message|user instructions?|assistant message|assistant response|recent conversation|conversation history|current fields|current draft fields|current letter body|drafted body|subject|intent|tone|sender|recipient|enclosure note)\s*:/i;
 
 function sanitizeParsedResponseByMode(parsed: unknown): unknown {
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
@@ -445,7 +447,86 @@ function sanitizeDocument(document: DocumentModel, locale?: string | null): Docu
     }),
   };
 
-  return stripLetterFramingDocument(sanitizedDocument, locale);
+  const strippedDocument = stripLetterFramingDocument(sanitizedDocument, locale);
+  assertNoPromptScaffolding(strippedDocument);
+  return strippedDocument;
+}
+
+function assertNoPromptScaffolding(document: DocumentModel) {
+  for (const segment of getPromptScaffoldSegments(document)) {
+    for (const line of segment.split(/\r?\n/)) {
+      const normalizedLine = normalizePromptScaffoldLine(line);
+      if (PROMPT_SCAFFOLD_LINE_PATTERN.test(normalizedLine)) {
+        throw new Error("Prompt scaffolding leaked into model response");
+      }
+    }
+  }
+}
+
+function normalizePromptScaffoldLine(line: string): string {
+  let current = line.normalize("NFKC").trimStart();
+
+  while (true) {
+    const next = cleanListItemText(
+      current
+        .replace(/^>\s*/, "")
+        .replace(/^#{1,6}\s*/, "")
+        .replace(/^(?:\*\*|__|\*|_|`|~)+/, "")
+        .trimStart(),
+    );
+
+    if (next === current) {
+      return next;
+    }
+
+    current = next.trimStart();
+  }
+}
+
+function getPromptScaffoldSegments(document: DocumentModel): string[] {
+  return document.blocks.flatMap((block) => {
+    if (block.type === "paragraph") {
+      return [block.text];
+    }
+
+    if (block.type === "list") {
+      return block.items.flatMap(collectListItemSegments);
+    }
+
+    return [...block.headers, ...block.rows.flat()];
+  });
+}
+
+function collectListItemSegments(item: ListItem): string[] {
+  return [item.text, ...(item.children?.flatMap(collectListItemSegments) ?? [])];
+}
+
+function cloneListItems(items: ListItem[]): ListItem[] {
+  return items.map((item) => ({
+    ...item,
+    spans: item.spans?.map((span) => ({ ...span })),
+    children: item.children ? cloneListItems(item.children) : undefined,
+  }));
+}
+
+function cloneTextRows(rows: string[][]): string[][] {
+  return rows.map((row) => [...row]);
+}
+
+function cloneInlineSpans(spans?: InlineSpan[]): InlineSpan[] | undefined {
+  return spans?.map((span) => ({ ...span }));
+}
+
+function cloneBlock(block: DocumentBlock): DocumentBlock {
+  if (block.type === "paragraph") {
+    return { ...block, spans: cloneInlineSpans(block.spans) };
+  }
+
+  if (block.type === "list") {
+    return { ...block, items: cloneListItems(block.items) };
+  }
+
+  return { ...block, headers: [...block.headers], rows: cloneTextRows(block.rows) };
 }
 
 function validateInlineSpans(text: string, spans: InlineSpan[]): InlineSpan[] {
@@ -486,32 +567,7 @@ function cloneDocument(document: DocumentModel): DocumentModel {
 }
 
 function cloneBlocks(blocks: DocumentBlock[]): DocumentBlock[] {
-  return blocks.map((block) => {
-    if (block.type === "paragraph") {
-      return { ...block, spans: block.spans?.map((span) => ({ ...span })) };
-    }
-
-    if (block.type === "list") {
-      return {
-        ...block,
-        items: block.items.map(cloneListItem),
-      };
-    }
-
-    return {
-      ...block,
-      headers: [...block.headers],
-      rows: block.rows.map((row) => [...row]),
-    };
-  });
-}
-
-function cloneListItem(item: ListItem): ListItem {
-  return {
-    ...item,
-    spans: item.spans?.map((span) => ({ ...span })),
-    children: item.children?.map(cloneListItem),
-  };
+  return blocks.map(cloneBlock);
 }
 
 function findLastParagraphIndex(blocks: DocumentBlock[]): number {

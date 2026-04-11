@@ -11,7 +11,7 @@ export function assertDispatchPolicyConstraints(
   const recipientCountry = constraints.recipientCountry?.trim().toUpperCase() ?? null;
 
   if (recipientCountry && recipientCountry !== "CH") {
-    throw validationError("Sendly can only send letters to Swiss recipient addresses.", [
+    throw validationError("Episto can only send letters to Swiss recipient addresses.", [
       {
         field: "recipient",
         message: "Recipient address must be in Switzerland.",

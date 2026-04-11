@@ -98,7 +98,7 @@ export function BodyStep({
   const updateDraft = useUpdateDraft(draftId);
   const composeFromContext = useComposeDraftFromContext(draftId);
   const conversation = useConversation(draftId);
-  const dictation = useDictation();
+  const dictation = useDictation({ draftId, fieldContext: "refinement" });
   const {
     isPending: isComposePending,
     isError: isComposeError,

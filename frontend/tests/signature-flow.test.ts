@@ -26,12 +26,20 @@ const renderServiceSource = readFileSync(
   path.join(repoRoot, "backend/src/modules/rendering/render.service.ts"),
   "utf8",
 );
+const signatureImageSource = readFileSync(
+  path.join(repoRoot, "backend/src/modules/rendering/signature-image.ts"),
+  "utf8",
+);
 const globalsSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/globals.css"),
   "utf8",
 );
 const sharedSchemas = readFileSync(
   path.join(repoRoot, "shared/src/schemas/index.ts"),
+  "utf8",
+);
+const letterContentSource = readFileSync(
+  path.join(repoRoot, "frontend/src/lib/letter-content.ts"),
   "utf8",
 );
 const draftFilesHookSource = readFileSync(
@@ -89,7 +97,8 @@ describe("signature canvas redesign", () => {
 
   it("backend PDF renderer supports drawn signature images from S3", () => {
     expect(renderServiceSource).toContain("signatureImageBase64");
-    expect(renderServiceSource).toContain("downloadObjectBuffer");
+    expect(renderServiceSource).toContain("loadSignatureImageBase64");
+    expect(signatureImageSource).toContain("downloadObjectBuffer");
     expect(renderServiceSource).toContain("signature-image");
   });
 
@@ -125,6 +134,11 @@ describe("signature canvas redesign", () => {
   it("WorkspacePreviewPane passes signatureUrl from preview data", () => {
     expect(previewPaneSource).toContain("signatureUrl={getSignatureFileUrl(");
     expect(previewPaneSource).toContain("signatureMode={previewData?.signatureMode}");
+  });
+
+  it("signature previews stay on a same-origin preview route", () => {
+    expect(letterContentSource).toContain("/preview");
+    expect(letterContentSource).not.toContain("/download");
   });
 });
 

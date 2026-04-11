@@ -13,7 +13,7 @@ import {
   DispatchQuoteSchema,
   PostalPostageSchema,
 } from "../dispatch-provider.ts";
-import { DRAFT_CONTENT_LIMITS } from "../limits.ts";
+import { DICTATION_LIMITS, DRAFT_CONTENT_LIMITS } from "../limits.ts";
 
 // ---------------------------------------------------------------------------
 // API input schemas (what the client sends)
@@ -77,6 +77,55 @@ export const CreateRecipientProfileInput = z.object({
 export const SendMessageInput = z.object({
   content: z.string().min(1).max(DRAFT_CONTENT_LIMITS.messageChars),
 });
+
+export const DictationFieldContextSchema = z.enum(["entry", "intake", "refinement"]);
+
+export const DictationSessionQuerySchema = z
+  .object({
+    locale: LocaleSchema,
+    fieldContext: DictationFieldContextSchema,
+    draftId: z.string().uuid().optional(),
+  })
+  .strict();
+
+export const DictationLiveClientEventSchema = z
+  .discriminatedUnion("type", [z.object({ type: z.literal("stop") }).strict()]);
+
+export const DictationLiveServerEventSchema = z.discriminatedUnion("type", [
+  z
+    .object({
+      type: z.literal("ready"),
+      sampleRateHz: z.literal(DICTATION_LIMITS.sampleRateHz),
+      maxCaptureSeconds: z.literal(DICTATION_LIMITS.maxCaptureSeconds),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("partial"),
+      text: z.string(),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("final"),
+      text: z.string(),
+    })
+    .strict(),
+  z
+    .object({
+      type: z.literal("error"),
+      code: z.string().min(1),
+      userMessage: z.string().min(1),
+    })
+    .strict(),
+  z.object({ type: z.literal("stopped") }).strict(),
+]);
+
+export const DictationTranscriptionResponseSchema = z
+  .object({
+    transcript: z.string(),
+  })
+  .strict();
 
 export const RecipientCompanySearchQueryInput = z.object({
   query: z.string().trim().min(2).max(120),
@@ -298,6 +347,13 @@ export type UpdateDraftInputType = z.infer<typeof UpdateDraftInput>;
 export type CreateSenderProfileInputType = z.infer<typeof CreateSenderProfileInput>;
 export type CreateRecipientProfileInputType = z.infer<typeof CreateRecipientProfileInput>;
 export type SendMessageInputType = z.infer<typeof SendMessageInput>;
+export type DictationFieldContext = z.infer<typeof DictationFieldContextSchema>;
+export type DictationSessionQuery = z.infer<typeof DictationSessionQuerySchema>;
+export type DictationLiveClientEvent = z.infer<typeof DictationLiveClientEventSchema>;
+export type DictationLiveServerEvent = z.infer<typeof DictationLiveServerEventSchema>;
+export type DictationTranscriptionResponse = z.infer<
+  typeof DictationTranscriptionResponseSchema
+>;
 export type RecipientCompanySearchQueryInputType = z.infer<
   typeof RecipientCompanySearchQueryInput
 >;

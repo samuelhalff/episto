@@ -27,6 +27,8 @@ function makeValidEnv(overrides?: Record<string, unknown>) {
     RESEND_API_KEY: "re_test_abc",
     AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
     AZURE_OPENAI_API_KEY: "key123",
+    AZURE_SPEECH_REGION: "switzerlandnorth",
+    AZURE_SPEECH_API_KEY: "speech-key-123",
     ...overrides,
   };
 }

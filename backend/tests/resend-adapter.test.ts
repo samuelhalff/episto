@@ -23,7 +23,7 @@ vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
     RESEND_API_KEY: "re_test_123",
     EMAIL_FROM: "contact@houle.ai",
-    APP_DISPLAY_NAME: "Sendly",
+    APP_DISPLAY_NAME: "Episto",
     SUPPORT_EMAIL: "contact@houle.ai",
   }),
 }));
@@ -48,7 +48,7 @@ describe("resend adapter", () => {
       text: "Receipt",
       attachments: [
         {
-          filename: "sendly-receipt.pdf",
+          filename: "episto-receipt.pdf",
           content: Buffer.from("pdf-bytes"),
           contentType: "application/pdf",
         },
@@ -59,11 +59,11 @@ describe("resend adapter", () => {
     expect(mocks.resendCtor).toHaveBeenCalledWith("re_test_123");
     expect(mocks.send).toHaveBeenCalledWith(
       expect.objectContaining({
-        from: "Sendly <contact@houle.ai>",
+        from: "Episto <contact@houle.ai>",
         replyTo: "contact@houle.ai",
         attachments: [
           expect.objectContaining({
-            filename: "sendly-receipt.pdf",
+            filename: "episto-receipt.pdf",
             contentType: "application/pdf",
           }),
         ],

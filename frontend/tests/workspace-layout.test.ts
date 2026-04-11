@@ -50,13 +50,14 @@ describe("workspace layout regressions", () => {
     expect(letterPreviewSource).toContain('variant?: "default" | "immersive"');
     expect(letterPreviewSource).toContain('variant = "default"');
     expect(letterPreviewSource).toContain('max-w-[980px]');
-    expect(letterPreviewSource).toContain("min-h-[640px]");
-    expect(letterPreviewSource).toContain("!isImmersive");
     expect(letterPreviewSource).toContain("letter-layout-shell");
     expect(letterPreviewSource).toContain("sender-block");
     expect(letterPreviewSource).toContain("dispatch-line");
     expect(letterPreviewSource).toContain("recipient-block");
     expect(letterPreviewSource).toContain("right-meta");
+    expect(letterPreviewSource).toContain("items-start justify-center overflow-auto");
+    expect(letterPreviewSource).toContain('containerType: "inline-size"');
+    expect(letterPreviewSource).toContain('variant="letter"');
     expect(letterPreviewSource).not.toContain('className="mt-6 ml-auto max-w-[260px] text-right"');
   });
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { routing } from "../i18n/routing";
+import { BRAND_NAME } from "../lib/brand";
 
 type SupportedLocale = (typeof routing.locales)[number];
 
@@ -66,7 +67,7 @@ export default function RootNotFound() {
           </div>
 
           <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-            Sendly
+            {BRAND_NAME}
           </p>
 
           <h1 className="mt-5 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">

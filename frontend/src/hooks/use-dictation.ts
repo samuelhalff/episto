@@ -1,16 +1,26 @@
 "use client";
 
 import {
-  useState,
-  useRef,
+  DictationLiveClientEventSchema,
+  DictationLiveServerEventSchema,
+  DictationTranscriptionResponseSchema,
+  type DictationFieldContext,
+} from "@swiss-mail/shared";
+import {
   useCallback,
   useEffect,
+  useRef,
+  useState,
   useSyncExternalStore,
 } from "react";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+import { getApiUrl, getApiWebSocketUrl } from "../lib/api";
+import {
+  buildWavBlob,
+  startDictationCapture,
+  supportsDictationCapture,
+  type DictationCaptureSession,
+} from "../lib/dictation-audio";
 
 export type DictationError =
   | "permission_denied"
@@ -19,74 +29,171 @@ export type DictationError =
   | "not_supported"
   | "aborted";
 
+export interface UseDictationOptions {
+  draftId?: string;
+  fieldContext: DictationFieldContext;
+}
+
 export interface UseDictationReturn {
-  /** False when the browser does not support the Web Speech API */
   isSupported: boolean;
   isRecording: boolean;
-  /** Partial recognition result (in-progress utterance) */
   interimText: string;
-  /** Committed recognition result (stable utterance) */
   finalText: string;
-  startRecording: (locale: string) => void;
-  stopRecording: () => void;
-  /** Reset finalText and interimText to empty */
+  startRecording: (locale: string) => Promise<void>;
+  stopRecording: () => Promise<void>;
   resetText: () => void;
   error: DictationError | null;
-}
-
-// ---------------------------------------------------------------------------
-// Web Speech API typings (not in all TS lib versions)
-// ---------------------------------------------------------------------------
-
-interface SpeechRecognitionEvent extends Event {
-  results: SpeechRecognitionResultList;
-  resultIndex: number;
-}
-
-interface SpeechRecognitionErrorEvent extends Event {
-  error: string;
-}
-
-interface SpeechRecognition extends EventTarget {
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onend: (() => void) | null;
-  start(): void;
-  stop(): void;
-  abort(): void;
-}
-
-declare global {
-  interface Window {
-    SpeechRecognition?: new () => SpeechRecognition;
-    webkitSpeechRecognition?: new () => SpeechRecognition;
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Hook
-// ---------------------------------------------------------------------------
-
-function getSpeechRecognitionConstructor(): (new () => SpeechRecognition) | null {
-  if (typeof window === "undefined") return null;
-  return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null;
 }
 
 function subscribeToStaticBrowserCapability() {
   return () => {};
 }
 
-function getSpeechRecognitionSupportSnapshot(): boolean {
-  return getSpeechRecognitionConstructor() !== null;
+function getDictationSupportSnapshot() {
+  return supportsDictationCapture();
 }
 
-export function useDictation(): UseDictationReturn {
+function appendTranscript(existing: string, next: string) {
+  const trimmedNext = next.trim();
+  if (!trimmedNext) {
+    return existing;
+  }
+
+  const trimmedExisting = existing.trim();
+  if (!trimmedExisting) {
+    return trimmedNext;
+  }
+
+  const normalizedExisting = trimmedExisting.toLocaleLowerCase("en-CH");
+  const normalizedNext = trimmedNext.toLocaleLowerCase("en-CH");
+  if (normalizedExisting.endsWith(normalizedNext)) {
+    return trimmedExisting;
+  }
+
+  return `${trimmedExisting} ${trimmedNext}`;
+}
+
+function createDelay(ms: number) {
+  return new Promise<void>((resolve) => {
+    window.setTimeout(resolve, ms);
+  });
+}
+
+function buildDictationQuery(locale: string, fieldContext: DictationFieldContext, draftId?: string) {
+  const params = new URLSearchParams({
+    locale,
+    fieldContext,
+  });
+
+  if (draftId) {
+    params.set("draftId", draftId);
+  }
+
+  return params.toString();
+}
+
+function closeSocket(socket: WebSocket | null) {
+  if (!socket) {
+    return;
+  }
+
+  if (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN) {
+    socket.close();
+  }
+}
+
+function mapStartError(error: unknown): DictationError {
+  if (
+    error instanceof Error &&
+    (error.message.includes("socket") || error.message.includes("Socket"))
+  ) {
+    return "network";
+  }
+
+  if (error instanceof DOMException) {
+    if (error.name === "NotAllowedError" || error.name === "SecurityError") {
+      return "permission_denied";
+    }
+
+    if (error.name === "AbortError") {
+      return "aborted";
+    }
+  }
+
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    (error as { name?: string }).name === "NotAllowedError"
+  ) {
+    return "permission_denied";
+  }
+
+  return "not_supported";
+}
+
+async function waitForSocketOpen(socket: WebSocket) {
+  if (socket.readyState === WebSocket.OPEN) {
+    return;
+  }
+
+  await new Promise<void>((resolve, reject) => {
+    const timeoutId = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("Dictation socket did not open in time."));
+    }, 5000);
+
+    const cleanup = () => {
+      window.clearTimeout(timeoutId);
+      socket.removeEventListener("open", handleOpen);
+      socket.removeEventListener("error", handleFailure);
+      socket.removeEventListener("close", handleFailure);
+    };
+
+    const handleOpen = () => {
+      cleanup();
+      resolve();
+    };
+
+    const handleFailure = () => {
+      cleanup();
+      reject(new Error("Dictation socket failed to open."));
+    };
+
+    socket.addEventListener("open", handleOpen);
+    socket.addEventListener("error", handleFailure);
+    socket.addEventListener("close", handleFailure);
+  });
+}
+
+async function requestBufferedTranscription(options: {
+  locale: string;
+  fieldContext: DictationFieldContext;
+  draftId?: string;
+  pcmAudio: Uint8Array;
+}) {
+  const query = buildDictationQuery(options.locale, options.fieldContext, options.draftId);
+  const response = await fetch(getApiUrl(`/v1/dictation/transcribe?${query}`), {
+    method: "POST",
+    credentials: "include",
+    headers: {
+      "Content-Type": "audio/wav",
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body: buildWavBlob(options.pcmAudio),
+  });
+
+  if (!response.ok) {
+    throw new Error("Buffered dictation transcription failed.");
+  }
+
+  return DictationTranscriptionResponseSchema.parse(await response.json()).transcript;
+}
+
+export function useDictation(options: UseDictationOptions): UseDictationReturn {
   const isSupported = useSyncExternalStore(
     subscribeToStaticBrowserCapability,
-    getSpeechRecognitionSupportSnapshot,
+    getDictationSupportSnapshot,
     () => false,
   );
   const [isRecording, setIsRecording] = useState(false);
@@ -94,94 +201,214 @@ export function useDictation(): UseDictationReturn {
   const [finalText, setFinalText] = useState("");
   const [error, setError] = useState<DictationError | null>(null);
 
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const captureRef = useRef<DictationCaptureSession | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const finalTextRef = useRef("");
+  const isRecordingRef = useRef(false);
+  const finalizingRef = useRef(false);
+  const stopRequestedRef = useRef(false);
+  const liveFailedRef = useRef(false);
+  const stopSignalRef = useRef<(() => void) | null>(null);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      recognitionRef.current?.abort();
-    };
+  const setRecordingState = useCallback((value: boolean) => {
+    isRecordingRef.current = value;
+    setIsRecording(value);
   }, []);
 
-  const startRecording = useCallback((locale: string) => {
-    const Ctor = getSpeechRecognitionConstructor();
-    if (!Ctor) {
-      setError("not_supported");
-      return;
-    }
-
-    // Stop any existing session first
-    recognitionRef.current?.abort();
-
-    const recognition = new Ctor();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = locale; // e.g. "de-CH", "fr-CH", "it-CH", "en-CH"
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let interim = "";
-      let final = "";
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const result = event.results[i];
-        if (!result) continue;
-        const transcript = result[0]?.transcript ?? "";
-        if (result.isFinal) {
-          final += transcript;
-        } else {
-          interim += transcript;
-        }
-      }
-
-      if (final) {
-        setFinalText((prev) => prev + final);
-      }
-      setInterimText(interim);
-    };
-
-    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
-      switch (event.error) {
-        case "not-allowed":
-        case "service-not-allowed":
-          setError("permission_denied");
-          break;
-        case "no-speech":
-          setError("no_speech");
-          break;
-        case "network":
-          setError("network");
-          break;
-        case "aborted":
-          setError("aborted");
-          break;
-        default:
-          setError("not_supported");
-      }
-      setIsRecording(false);
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-      setInterimText("");
-    };
-
-    recognitionRef.current = recognition;
-    setError(null);
-    setInterimText("");
-    setIsRecording(true);
-    recognition.start();
-  }, []);
-
-  const stopRecording = useCallback(() => {
-    recognitionRef.current?.stop();
-    setIsRecording(false);
-    setInterimText("");
+  const appendFinalText = useCallback((nextText: string) => {
+    setFinalText((current) => {
+      const merged = appendTranscript(current, nextText);
+      finalTextRef.current = merged;
+      return merged;
+    });
   }, []);
 
   const resetText = useCallback(() => {
+    finalTextRef.current = "";
     setFinalText("");
     setInterimText("");
   }, []);
+
+  const stopRecording = useCallback(async () => {
+    if (finalizingRef.current) {
+      return;
+    }
+
+    finalizingRef.current = true;
+    stopRequestedRef.current = true;
+    setInterimText("");
+
+    try {
+      const capture = captureRef.current;
+      captureRef.current = null;
+      const pcmAudio = capture ? await capture.stop() : new Uint8Array();
+      const socket = socketRef.current;
+      let shouldFallback = liveFailedRef.current;
+
+      if (socket?.readyState === WebSocket.OPEN) {
+        const stopSignal = new Promise<void>((resolve) => {
+          stopSignalRef.current = resolve;
+        });
+
+        socket.send(JSON.stringify(DictationLiveClientEventSchema.parse({ type: "stop" })));
+        await Promise.race([stopSignal, createDelay(1500)]);
+        closeSocket(socket);
+      } else if (socket) {
+        shouldFallback = true;
+        closeSocket(socket);
+      }
+
+      socketRef.current = null;
+      stopSignalRef.current?.();
+      stopSignalRef.current = null;
+
+      const hasLiveTranscript = finalTextRef.current.trim().length > 0;
+      if (pcmAudio.byteLength > 0 && (shouldFallback || !hasLiveTranscript)) {
+        try {
+          const transcript = await requestBufferedTranscription({
+            locale: localeRef.current,
+            fieldContext: options.fieldContext,
+            pcmAudio,
+            ...(options.draftId ? { draftId: options.draftId } : {}),
+          });
+
+          if (transcript.trim()) {
+            setError(null);
+            appendFinalText(transcript);
+          } else if (!hasLiveTranscript) {
+            setError("no_speech");
+          }
+        } catch {
+          if (!hasLiveTranscript) {
+            setError("network");
+          }
+        }
+      } else if (!hasLiveTranscript) {
+        setError("no_speech");
+      }
+    } finally {
+      setRecordingState(false);
+      finalizingRef.current = false;
+      stopRequestedRef.current = false;
+      liveFailedRef.current = false;
+    }
+  }, [appendFinalText, options.draftId, options.fieldContext, setRecordingState]);
+
+  const stopRecordingRef = useRef(stopRecording);
+  const localeRef = useRef("");
+
+  stopRecordingRef.current = stopRecording;
+
+  useEffect(() => {
+    return () => {
+      const capture = captureRef.current;
+      captureRef.current = null;
+      if (capture) {
+        void capture.abort();
+      }
+
+      closeSocket(socketRef.current);
+      socketRef.current = null;
+    };
+  }, []);
+
+  const startRecording = useCallback(
+    async (locale: string) => {
+      localeRef.current = locale;
+
+      if (!isSupported) {
+        setError("not_supported");
+        return;
+      }
+
+      if (isRecordingRef.current) {
+        await stopRecordingRef.current();
+      }
+
+      const query = buildDictationQuery(locale, options.fieldContext, options.draftId);
+      const socket = new WebSocket(getApiWebSocketUrl(`/v1/dictation/live?${query}`));
+      socketRef.current = socket;
+      liveFailedRef.current = false;
+      stopRequestedRef.current = false;
+      setError(null);
+      setInterimText("");
+
+      socket.onmessage = (event) => {
+        let payload: unknown;
+        try {
+          payload = JSON.parse(event.data);
+        } catch {
+          liveFailedRef.current = true;
+          return;
+        }
+
+        const parsed = DictationLiveServerEventSchema.safeParse(payload);
+        if (!parsed.success) {
+          liveFailedRef.current = true;
+          return;
+        }
+
+        switch (parsed.data.type) {
+          case "ready":
+            return;
+          case "partial":
+            setInterimText(parsed.data.text);
+            return;
+          case "final":
+            setInterimText("");
+            appendFinalText(parsed.data.text);
+            return;
+          case "error":
+            liveFailedRef.current = true;
+            setError("network");
+            if (!finalizingRef.current && !stopRequestedRef.current && isRecordingRef.current) {
+              void stopRecordingRef.current();
+            }
+            return;
+          case "stopped":
+            setInterimText("");
+            stopSignalRef.current?.();
+            stopSignalRef.current = null;
+        }
+      };
+
+      socket.onerror = () => {
+        liveFailedRef.current = true;
+      };
+
+      socket.onclose = () => {
+        socketRef.current = null;
+        stopSignalRef.current?.();
+        stopSignalRef.current = null;
+
+        if (!stopRequestedRef.current && isRecordingRef.current && !finalizingRef.current) {
+          liveFailedRef.current = true;
+          void stopRecordingRef.current();
+        }
+      };
+
+      try {
+        await waitForSocketOpen(socket);
+        const capture = await startDictationCapture({
+          onPcmChunk: (chunk) => {
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send(chunk);
+            }
+          },
+        });
+
+        captureRef.current = capture;
+        setRecordingState(true);
+      } catch (startError) {
+        closeSocket(socket);
+        socketRef.current = null;
+        setRecordingState(false);
+        setInterimText("");
+        setError(mapStartError(startError));
+      }
+    },
+    [appendFinalText, isSupported, options.draftId, options.fieldContext, setRecordingState],
+  );
 
   return {
     isSupported,

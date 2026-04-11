@@ -125,7 +125,9 @@ export function getAddressLines(
 export function getSignatureFileUrl(
   signatureFileId: string | null | undefined,
 ): string | null {
-  return signatureFileId ? getApiUrl(`/v1/files/${signatureFileId}/download`) : null;
+  // Signature previews must stay on the app origin because storage URLs may point to
+  // internal or HTTP-only object stores that browsers cannot load directly.
+  return signatureFileId ? getApiUrl(`/v1/files/${signatureFileId}/preview`) : null;
 }
 
 export function hasConcreteSignature(

@@ -1,11 +1,11 @@
-# Sendly Documentation
+# Episto Documentation
 
 > Formal letters from your phone — in minutes.
 
-This is the complete specification for Sendly, a mobile-first SaaS for AI-assisted formal-letter
+This is the complete specification for Episto, a mobile-first SaaS for AI-assisted formal-letter
 drafting, final PDF generation, and postal-provider submission for Switzerland.
 
-The implementation and launch-preparation name is **Sendly**. See [Naming & Identity](02-brand/naming-and-identity.md) for the current brand source of truth.
+The implementation and launch-preparation name is **Episto**. See [Naming & Identity](02-brand/naming-and-identity.md) for the current brand source of truth.
 
 ---
 
@@ -27,7 +27,7 @@ Pick the path that matches your role. Each leads through the docs in an order th
 ### 🛠️ Frontend Developer
 
 1. [Product Scope](01-vision/product-scope.md) — what we're building
-2. [Provider Submission Model](04-product/provider-submission-model.md) — what Sendly owns vs what the provider owns
+2. [Provider Submission Model](04-product/provider-submission-model.md) — what Episto owns vs what the provider owns
 3. [Design System](02-brand/design-system.md) — tokens to implement
 4. [Component Library](03-ux/component-library.md) — component specs
 5. [Page Specifications](03-ux/page-specifications.md) — routes and layouts
@@ -102,7 +102,7 @@ _Why this product exists and where it's going._
 
 ### 02 — Brand
 
-_How Sendly looks, sounds, and presents itself._
+_How Episto looks, sounds, and presents itself._
 
 | Document                                                  | Description                                           |
 | --------------------------------------------------------- | ----------------------------------------------------- |
@@ -135,7 +135,7 @@ _What the product does and how each feature works._
 | [document-template.md](04-product/document-template.md)                   | A4 template, PDF rules, multi-page                               |
 | [a4-template-specification.md](04-product/a4-template-specification.md)   | Swiss postal window mm dimensions                                |
 | [ai-provider-and-prompts.md](04-product/ai-provider-and-prompts.md)       | LLM provider decision, prompt architecture, safety               |
-| [dictation-and-speech.md](04-product/dictation-and-speech.md)             | Web Speech API, multilingual support                             |
+| [dictation-and-speech.md](04-product/dictation-and-speech.md)             | Azure AI Speech, backend-owned dictation                         |
 | [postal-dispatch.md](04-product/postal-dispatch.md)                       | Dispatch adapters, tracking, address validation                  |
 | [file-handling.md](04-product/file-handling.md)                           | Upload rules, storage, cleanup, limits                           |
 | [signatures-and-attachments.md](04-product/signatures-and-attachments.md) | Scope, formats, UX                                               |
@@ -210,7 +210,7 @@ _What we must never do. Read before writing any code._
 
 ## Document Conventions
 
-- **`Sendly`** — locked implementation and launch-preparation product name
+- **`Episto`** — locked implementation and launch-preparation product name
 - **Status: Decided** — locked; do not change without explicit review
 - **Status: Living document** — expected to evolve as implementation proceeds
 - **Status: Provisional** — decided for now; may change with new information

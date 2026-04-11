@@ -4,6 +4,11 @@ import {
   AddressDetails,
   AddressSearchResult,
   CreateRecipientProfileInput,
+  DictationFieldContextSchema,
+  DictationLiveClientEventSchema,
+  DictationLiveServerEventSchema,
+  DictationSessionQuerySchema,
+  DictationTranscriptionResponseSchema,
   DraftDispatchQuoteResponseSchema,
   DraftFilesResponseSchema,
   OrderStatusResponseSchema,
@@ -271,5 +276,64 @@ describe("shared contract schemas", () => {
     expect("source" in AddressSearchResult.shape).toBe(false);
     expect("source" in AddressDetails.shape).toBe(false);
     expect("countryCode" in AddressDetails.shape).toBe(false);
+  });
+
+  it("parses dictation session params for both draft-bound and entry contexts", () => {
+    const entry = DictationSessionQuerySchema.parse({
+      locale: "de-CH",
+      fieldContext: "entry",
+    });
+    const draftBound = DictationSessionQuerySchema.parse({
+      locale: "en-CH",
+      fieldContext: "refinement",
+      draftId: "11111111-1111-4111-8111-111111111111",
+    });
+
+    expect(entry.fieldContext).toBe("entry");
+    expect(draftBound.draftId).toBe("11111111-1111-4111-8111-111111111111");
+  });
+
+  it("rejects unknown dictation field contexts", () => {
+    expect(() =>
+      DictationFieldContextSchema.parse("body"),
+    ).toThrow();
+  });
+
+  it("parses the live dictation websocket event contract", () => {
+    expect(
+      DictationLiveServerEventSchema.parse({
+        type: "ready",
+        sampleRateHz: 16_000,
+        maxCaptureSeconds: 120,
+      }),
+    ).toEqual({
+      type: "ready",
+      sampleRateHz: 16_000,
+      maxCaptureSeconds: 120,
+    });
+
+    expect(
+      DictationLiveServerEventSchema.parse({
+        type: "final",
+        text: "Veuillez resilier mon abonnement.",
+      }),
+    ).toEqual({
+      type: "final",
+      text: "Veuillez resilier mon abonnement.",
+    });
+  });
+
+  it("parses the dictation control and fallback transcription contracts", () => {
+    expect(DictationLiveClientEventSchema.parse({ type: "stop" })).toEqual({
+      type: "stop",
+    });
+
+    expect(
+      DictationTranscriptionResponseSchema.parse({
+        transcript: "Please cancel my membership at Migros Fitnesspark.",
+      }),
+    ).toEqual({
+      transcript: "Please cancel my membership at Migros Fitnesspark.",
+    });
   });
 });

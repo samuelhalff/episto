@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+import { buildOrderReference } from "@swiss-mail/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
@@ -6,11 +7,13 @@ import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
 import { env } from "../../shared/config/index.js";
 import type { PaymentAttemptRow } from "../payments/payment.service.js";
 
-function resolvePersonName(value: {
-  firstName?: string | null;
-  lastName?: string | null;
-  company?: string | null;
-} | null): string {
+function resolvePersonName(
+  value: {
+    firstName?: string | null;
+    lastName?: string | null;
+    company?: string | null;
+  } | null,
+): string {
   if (!value) return "";
   return (
     [value.firstName, value.lastName].filter(Boolean).join(" ").trim() ||
@@ -57,11 +60,12 @@ export async function enqueueDispatchConfirmationEmail(
   if (!sessionRow?.email) return;
 
   const locale = sessionRow.locale ?? "en-CH";
-  const orderRef = `SM-${payment.draftId.slice(0, 8).toUpperCase()}`;
+  const orderRef = buildOrderReference(payment.draftId);
   const config = env();
-  const siteUrl = config.APP_PUBLIC_URL
-    ?? config.CORS_ORIGIN.split(",")[0]?.trim()
-    ?? config.CORS_ORIGIN;
+  const siteUrl =
+    config.APP_PUBLIC_URL ??
+    config.CORS_ORIGIN.split(",")[0]?.trim() ??
+    config.CORS_ORIGIN;
   const downloadUrl = `${siteUrl}/api/v1/orders/${rawOrderAccessToken}/pdf`;
 
   const senderProfilePromise = draft?.senderProfileId
