@@ -14,8 +14,8 @@ const senderStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/SenderStep.tsx"),
   "utf8",
 );
-const recipientStepSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/RecipientStep.tsx"),
+const recipientFormSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/RecipientForm.tsx"),
   "utf8",
 );
 const subjectStepSource = readFileSync(
@@ -24,6 +24,14 @@ const subjectStepSource = readFileSync(
 );
 const bodyStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/BodyStep.tsx"),
+  "utf8",
+);
+const bodyComposerSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/BodyComposer.tsx"),
+  "utf8",
+);
+const bodyPreviewSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/BodyPreview.tsx"),
   "utf8",
 );
 const composerSource = readFileSync(
@@ -46,9 +54,11 @@ describe("shared form controls", () => {
 
   it("applies the reusable form-control utility to draft and preview text entry", () => {
     expect(senderStepSource).toContain("app-form-control");
-    expect(recipientStepSource).toContain("app-form-control");
+    expect(recipientFormSource).toContain("app-form-control");
     expect(subjectStepSource).toContain("app-form-control");
-    expect(bodyStepSource).toContain("app-form-control");
+    expect(bodyStepSource).toContain('import { BodyComposer } from "./BodyComposer";');
+    expect(bodyComposerSource).toContain("<DraftComposer");
+    expect(bodyPreviewSource).toContain("app-form-control");
     expect(composerSource).toContain("app-form-control");
     expect(letterPreviewSource).toContain("app-form-control");
   });

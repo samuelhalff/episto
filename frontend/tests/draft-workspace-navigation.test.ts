@@ -66,6 +66,10 @@ const bodyStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/BodyStep.tsx"),
   "utf8",
 );
+const bodyStepControllerSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/useBodyStepController.ts"),
+  "utf8",
+);
 const attachmentsStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/AttachmentsStep.tsx"),
   "utf8",
@@ -250,9 +254,9 @@ describe("draft workspace navigation", () => {
       "const handlePreviewAction = onTogglePreview ?? (() => setShowPreview(true));",
     );
     expect(intakeStepSource).toContain("<LetterPreviewModal");
-    expect(bodyStepSource).toContain(
-      "const handlePreviewAction = onTogglePreview ?? (() => setShowPreview(true));",
-    );
-    expect(bodyStepSource).toContain("onClick={handlePreviewAction}");
+    expect(bodyStepControllerSource).toContain("if (onTogglePreview) {");
+    expect(bodyStepControllerSource).toContain('dispatch({ type: "set-show-preview", value: true });');
+    expect(bodyStepSource).toContain("onTogglePreview={handlePreviewAction}");
+    expect(bodyStepSource).toContain("<LetterPreviewModal");
   });
 });

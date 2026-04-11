@@ -14,6 +14,10 @@ const bodyStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/BodyStep.tsx"),
   "utf8",
 );
+const bodyStepControllerSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/useBodyStepController.ts"),
+  "utf8",
+);
 
 const bodyGenerationDialogSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/BodyGenerationDialog.tsx"),
@@ -23,15 +27,20 @@ const bodyGenerationDialogSource = readFileSync(
 describe("body generation dialog regressions", () => {
   it("uses a blocking dialog instead of the old inline drafting strip", () => {
     expect(bodyStepSource).toContain('import { BodyGenerationDialog } from "./BodyGenerationDialog";');
-    expect(bodyStepSource).toContain("const shouldShowBodyGenerationDialog =");
+    expect(bodyStepSource).toContain('import { BodyComposer } from "./BodyComposer";');
+    expect(bodyStepSource).toContain('import { BodyPreview } from "./BodyPreview";');
+    expect(bodyStepSource).toContain('import { useBodyStepController } from "./useBodyStepController";');
     expect(bodyStepSource).toContain("<BodyGenerationDialog");
     expect(bodyStepSource).not.toContain("conversation.streamingText ? (");
   });
 
   it("routes body-step loading through the extracted helper instead of ad-hoc inline flags", () => {
-    expect(bodyStepSource).toContain('import { getBodyLoadingState } from "./body-loading-state";');
-    expect(bodyStepSource).toContain("const loadingState = getBodyLoadingState({");
-    expect(bodyStepSource).toContain(
+    expect(bodyStepControllerSource).toContain('import { getBodyLoadingState } from "./body-loading-state";');
+    expect(bodyStepControllerSource).toContain("bodyStepReducer,");
+    expect(bodyStepControllerSource).toContain("initialBodyStepState,");
+    expect(bodyStepControllerSource).toContain("useReducer(bodyStepReducer, initialBodyStepState)");
+    expect(bodyStepControllerSource).toContain("const loadingState = getBodyLoadingState({");
+    expect(bodyStepControllerSource).toContain(
       "const shouldShowBodyGenerationDialog = loadingState.showBodyGenerationDialog;",
     );
   });
@@ -58,7 +67,9 @@ describe("body generation dialog regressions", () => {
     expect(bodyGenerationDialogSource).toContain("onClose");
     expect(bodyGenerationDialogSource).toContain("<SecondaryButton onClick={onClose} leadingVisual=\"hide\">");
     expect(bodyGenerationDialogSource).toContain("<SecondaryButton disabled");
-    expect(bodyStepSource).toContain("function handleDismissBodyGenerationDialog()");
+    expect(bodyStepControllerSource).toContain(
+      "const handleDismissBodyGenerationDialog = useCallback(",
+    );
     expect(bodyStepSource).toContain('closeLabel={tc("close")}');
     expect(bodyStepSource).toContain("onClose={handleDismissBodyGenerationDialog}");
   });

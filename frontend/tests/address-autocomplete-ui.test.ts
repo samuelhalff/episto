@@ -13,6 +13,10 @@ const recipientStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/RecipientStep.tsx"),
   "utf8",
 );
+const recipientFormSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/RecipientForm.tsx"),
+  "utf8",
+);
 const useApiSource = readFileSync(
   path.join(repoRoot, "frontend/src/hooks/use-api.ts"),
   "utf8",
@@ -29,9 +33,10 @@ const messagesSource = readFileSync(
 describe("address autocomplete UI", () => {
   it("wires a shared address autocomplete field into sender and recipient flows", () => {
     expect(senderStepSource).toContain("AddressAutocompleteField");
-    expect(recipientStepSource).toContain("AddressAutocompleteField");
+    expect(recipientStepSource).toContain('import { RecipientForm } from "./RecipientForm";');
+    expect(recipientFormSource).toContain("AddressAutocompleteField");
     expect(senderStepSource).toContain("onResolutionStateChange");
-    expect(recipientStepSource).toContain("onResolutionStateChange");
+    expect(recipientFormSource).toContain("onResolutionStateChange");
   });
 
   it("blocks sender and recipient progression while a selected address is still resolving", () => {
