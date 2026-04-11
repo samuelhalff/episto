@@ -2,126 +2,31 @@ import { describe, it, expect } from "vitest";
 import { renderTemplate } from "../src/workers/email-templates.js";
 
 describe("Email template rendering", () => {
-  // ---- dispatch-confirmation ----
+  // ---- dispatch-submitted ----
 
-  it("renders dispatch-confirmation with order data (en-CH)", () => {
-    const result = renderTemplate("dispatch-confirmation", "en-CH", {
-      orderRef: "ORD-12345",
-      deliveryType: "Standard",
-      brandName: "Sendly",
-      supportEmail: "contact@houle.ai",
-      downloadUrl: "https://houle.ai/api/v1/orders/token-123/pdf",
-      trackingNumber: "98.40.541881.00002354",
-      statementRetentionDays: 10,
-      recipientName: "Jane Doe",
-      amountCents: 965,
-      appPublicUrl: "https://houle.ai",
+  it("renders dispatch-submitted with a status link and shared footer data", () => {
+    const result = renderTemplate("dispatch-submitted", "en-CH", {
+      orderRef: "EP-12345",
+      statusUrl: "https://swissmail.ch/status/token-123",
+      downloadUrl: "https://swissmail.ch/api/v1/orders/token-123/pdf",
+      supportEmail: "support@test.com",
+      appPublicUrl: "https://swissmail.ch",
       legalEntityName: "West Bay SA",
-      legalEntityAddress: "Chemin du Pre-Roset 19, 1294 Genthod",
+      legalEntityAddress: "Test Address",
       legalEntityCountry: "Switzerland",
       legalEntityUidVat: "CHE-107.892.984",
     });
 
-    expect(result.subject).toContain("ORD-12345");
-    expect(result.subject).toContain("Order Confirmed");
-    expect(result.text).toContain("prepared for dispatch");
-    expect(result.text).toContain("Standard");
-    expect(result.text).toContain("10 days");
-    expect(result.text).toContain("contact@houle.ai");
-    expect(result.text).toContain("https://houle.ai/api/v1/orders/token-123/pdf");
-    expect(result.text).toContain("CHF 9.65");
-    // Tracking
-    expect(result.html).toContain("Track on Swiss Post");
-    expect(result.html).toContain("https://www.post.ch/swisspost-tracking");
-    expect(result.text).toContain("https://www.post.ch/swisspost-tracking");
-    // HTML structure
-    expect(result.html).toContain("ORD-12345");
-    expect(result.html).toContain("contact@houle.ai");
-    expect(result.html).toContain("Order confirmed");
-    expect(result.html).toContain("What happens next");
-    // Download link (secondary)
-    expect(result.html).toContain("Download Confirmation");
-    expect(result.html).toContain("https://houle.ai/api/v1/orders/token-123/pdf");
-    // Legal footer
+    expect(result.text).toContain("EP-12345");
+    expect(result.text).toContain("https://swissmail.ch/status/token-123");
+    expect(result.html).toContain("https://swissmail.ch/status/token-123");
     expect(result.html).toContain("West Bay SA");
-    expect(result.html).toContain("CHE-107.892.984");
-    expect(result.html).toContain("Privacy Policy");
-    expect(result.html).toContain("Terms of Service");
-    expect(result.html).toContain("Imprint");
-    // Policy links use app URL
-    expect(result.html).toContain("https://houle.ai/en-CH/privacy");
-    expect(result.html).toContain("https://houle.ai/en-CH/terms");
-    // Must NOT contain payment receipt language or status page
-    expect(result.text).not.toContain("receipt");
-    expect(result.text).not.toContain("Receipt");
-    expect(result.html).not.toContain("/status/");
   });
 
-  it("renders dispatch-confirmation without tracking when not available", () => {
-    const result = renderTemplate("dispatch-confirmation", "en-CH", {
-      orderRef: "ORD-NO-TRACK",
-      downloadUrl: "https://example.com/api/v1/orders/tok/pdf",
-      appPublicUrl: "https://example.com",
-    });
-
-    expect(result.html).not.toContain("Track on Swiss Post");
-    expect(result.html).not.toContain("post.ch/swisspost-tracking");
-    expect(result.html).toContain("Download Confirmation");
-  });
-
-  it("renders dispatch-confirmation in German (de-CH)", () => {
-    const result = renderTemplate("dispatch-confirmation", "de-CH", {
-      orderRef: "ORD-DE",
-      deliveryType: "Standard",
-      appPublicUrl: "https://example.com",
-    });
-
-    expect(result.subject).toContain("Bestellung bestätigt");
-    expect(result.text).toContain("Schweizerische Post");
-    expect(result.html).toContain("Datenschutz");
-  });
-
-  it("renders dispatch-confirmation in French (fr-CH)", () => {
-    const result = renderTemplate("dispatch-confirmation", "fr-CH", {
-      orderRef: "ORD-FR",
-      appPublicUrl: "https://example.com",
-    });
-
-    expect(result.subject).toContain("Commande confirmée");
-    expect(result.text).toContain("La Poste Suisse");
-    expect(result.html).toContain("Confidentialité");
-  });
-
-  it("renders dispatch-confirmation in Italian (it-CH)", () => {
-    const result = renderTemplate("dispatch-confirmation", "it-CH", {
-      orderRef: "ORD-IT",
-      appPublicUrl: "https://example.com",
-    });
-
-    expect(result.subject).toContain("Ordine confermato");
-    expect(result.text).toContain("Posta Svizzera");
-  });
-
-  it("falls back to en-CH for unsupported locale", () => {
-    const result = renderTemplate("dispatch-confirmation", "ja-JP", {
-      orderRef: "ORD-FALLBACK",
-      appPublicUrl: "https://example.com",
-    });
-
-    expect(result.subject).toContain("Order Confirmed");
-    expect(result.text).toContain("prepared for dispatch");
-  });
-
-  // ---- dispatch-submitted ----
-
-  it("renders dispatch-submitted with order ref (en-CH)", () => {
-    const result = renderTemplate("dispatch-submitted", "en-CH", {
-      orderRef: "ORD-99999",
-    });
-
-    expect(result.subject).toContain("submitted");
-    expect(result.text).toContain("ORD-99999");
-    expect(result.html).toContain("ORD-99999");
+  it("throws for removed dispatch-confirmation template", () => {
+    expect(() => renderTemplate("dispatch-confirmation", "en-CH", {})).toThrow(
+      "Unknown email template: dispatch-confirmation",
+    );
   });
 
   it("renders dispatch-submitted in German (de-CH)", () => {
@@ -237,28 +142,20 @@ describe("Email template rendering", () => {
 
   // ---- General ----
 
-  it("handles missing data gracefully (empty strings)", () => {
-    const result = renderTemplate("dispatch-confirmation", "en-CH", {});
-
-    expect(result.subject).toContain("Order Confirmed");
-    // Should not throw
-  });
-
   it("throws for unknown template", () => {
-    expect(() =>
-      renderTemplate("nonexistent-template", "en-CH", {}),
-    ).toThrow("Unknown email template: nonexistent-template");
+    expect(() => renderTemplate("nonexistent-template", "en-CH", {})).toThrow(
+      "Unknown email template: nonexistent-template",
+    );
   });
 
   it("throws for removed payment-receipt template", () => {
-    expect(() =>
-      renderTemplate("payment-receipt", "en-CH", {}),
-    ).toThrow("Unknown email template: payment-receipt");
+    expect(() => renderTemplate("payment-receipt", "en-CH", {})).toThrow(
+      "Unknown email template: payment-receipt",
+    );
   });
 
-  it("covers all 5 expected templates", () => {
+  it("covers all 4 expected templates", () => {
     const expectedTemplates = [
-      "dispatch-confirmation",
       "dispatch-submitted",
       "dispatch-accepted",
       "resume-link",
@@ -278,15 +175,13 @@ describe("Email template rendering", () => {
   });
 
   it("escapes HTML in user-provided values", () => {
-    const result = renderTemplate("dispatch-confirmation", "en-CH", {
+    const result = renderTemplate("dispatch-submitted", "en-CH", {
       orderRef: '<script>alert("xss")</script>',
-      recipientName: 'John "Danger" <Doe>',
       appPublicUrl: "https://example.com",
     });
 
     expect(result.html).not.toContain("<script>");
     expect(result.html).toContain("&lt;script&gt;");
-    expect(result.html).toContain("&lt;Doe&gt;");
   });
 
   it("encodes tracking number in Swiss Post URL", () => {
@@ -295,6 +190,8 @@ describe("Email template rendering", () => {
       trackingNumber: "98 40 5418 8100 0023 54",
     });
 
-    expect(result.html).toContain("formattedParcelCodes=98%2040%205418%208100%200023%2054");
+    expect(result.html).toContain(
+      "formattedParcelCodes=98%2040%205418%208100%200023%2054",
+    );
   });
 });

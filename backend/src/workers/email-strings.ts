@@ -112,34 +112,44 @@ export const DISPATCH_CONFIRMATION_STRINGS: Record<SupportedLocale, DispatchConf
 
 export interface DispatchSubmittedStrings {
   subject: string;
+  heading: string;
   body: string;
   orderLabel: string;
+  statusLabel: string;
   followUp: string;
 }
 
 export const DISPATCH_SUBMITTED_STRINGS: Record<SupportedLocale, DispatchSubmittedStrings> = {
   "en-CH": {
     subject: `${BRAND_NAME} – Your letter has been submitted`,
+    heading: "Letter submitted",
     body: "Your letter has been submitted to Swiss Post for processing.",
     orderLabel: "Order",
+    statusLabel: "View order status",
     followUp: "You will receive another notification if there are updates.",
   },
   "de-CH": {
     subject: `${BRAND_NAME} – Ihr Brief wurde eingereicht`,
+    heading: "Brief eingereicht",
     body: "Ihr Brief wurde zur Bearbeitung an die Schweizerische Post übergeben.",
     orderLabel: "Bestellung",
+    statusLabel: "Bestellstatus anzeigen",
     followUp: "Bei Statusänderungen erhalten Sie eine weitere Benachrichtigung.",
   },
   "fr-CH": {
     subject: `${BRAND_NAME} – Votre lettre a été soumise`,
+    heading: "Lettre soumise",
     body: "Votre lettre a été soumise à La Poste Suisse pour traitement.",
     orderLabel: "Commande",
+    statusLabel: "Voir le statut de la commande",
     followUp: "Vous serez notifié en cas de mise à jour.",
   },
   "it-CH": {
     subject: `${BRAND_NAME} – La sua lettera è stata inviata`,
+    heading: "Lettera inviata",
     body: "La sua lettera è stata trasmessa alla Posta Svizzera per la lavorazione.",
     orderLabel: "Ordine",
+    statusLabel: "Visualizza lo stato dell'ordine",
     followUp: "Riceverà un'ulteriore notifica in caso di aggiornamenti.",
   },
 };
