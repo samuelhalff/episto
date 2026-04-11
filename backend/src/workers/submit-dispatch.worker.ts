@@ -1,25 +1,21 @@
 import type { Job, Worker } from "bullmq";
-import { eq } from "drizzle-orm";
 import {
   createWorker,
   QUEUE_NAMES,
   type SubmitDispatchJob,
-  type SendEmailJob,
-  getQueue,
 } from "../queue/index.js";
 import { createLogger } from "../shared/logging/index.js";
-import { getDb, schema } from "../db/index.js";
+import { getDb } from "../db/index.js";
 import {
   createDispatchAttempt,
   getDispatchAttemptByPaymentAttemptId,
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs.js";
-import { enqueueDispatchAcceptedEmail } from "../modules/dispatch/dispatch-notifications.js";
+import { enqueueDispatchSubmittedEmail } from "../modules/dispatch/dispatch-notifications.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { recordEvent } from "../modules/analytics/index.js";
 import { buildDispatchPackage } from "../modules/dispatch/dispatch-package.service.js";
-import { enqueueDispatchConfirmationEmail } from "../modules/dispatch/dispatch-confirmation.js";
 import {
   canFinalizeDispatchResolution,
   settlePaymentForDispatchResolution,
@@ -105,6 +101,14 @@ export async function processSubmitDispatchJob(
     deliveryType: dispatchPackage.deliveryType,
   });
 
+  if (result.state !== "rejected") {
+    await enqueueDispatchSubmittedEmail(db, {
+      dispatchAttemptId: attempt.id,
+      draftId,
+      paymentId,
+    });
+  }
+
   if (result.state === "accepted" || result.state === "rejected") {
     try {
       const settlement = await settlePaymentForDispatchResolution(
@@ -132,49 +136,6 @@ export async function processSubmitDispatchJob(
         trackingNumber: result.trackingNumber ?? undefined,
         failureReason: result.failureReason ?? undefined,
       });
-
-      if (settlement.payment && settlement.rawOrderAccessToken) {
-        try {
-          await enqueueDispatchConfirmationEmail(
-            db,
-            settlement.payment,
-            settlement.rawOrderAccessToken,
-          );
-        } catch (confirmErr) {
-          logger.error(
-            {
-              draftId,
-              dispatchId: attempt.id,
-              err: confirmErr instanceof Error ? confirmErr.message : "Unknown error",
-            },
-            "Failed to enqueue dispatch confirmation email after dispatch settlement",
-          );
-        }
-      }
-
-      if (result.state === "accepted") {
-        try {
-          await enqueueDispatchAcceptedEmail(db, {
-            dispatchAttemptId: attempt.id,
-            draftId,
-            paymentId,
-            providerReference: result.providerReference ?? null,
-            trackingNumber: result.trackingNumber ?? null,
-          });
-        } catch (acceptedEmailErr) {
-          logger.error(
-            {
-              draftId,
-              dispatchId: attempt.id,
-              err:
-                acceptedEmailErr instanceof Error
-                  ? acceptedEmailErr.message
-                  : "Unknown error",
-            },
-            "Failed to enqueue accepted dispatch email",
-          );
-        }
-      }
     } catch (err) {
       logger.error(
         {
@@ -231,54 +192,19 @@ export async function processSubmitDispatchJob(
     }
   }
 
-  try {
-    const [draft] = await db
-      .select({ sessionId: schema.draftLetters.sessionId })
-      .from(schema.draftLetters)
-      .where(eq(schema.draftLetters.id, draftId))
-      .limit(1);
+  logger.info(
+    {
+      draftId,
+      dispatchId: attempt.id,
+      ref: result.providerReference,
+      state: result.state,
+    },
+    "Dispatch submission processed",
+  );
 
-    const [session] = draft
-      ? await db
-          .select()
-          .from(schema.sessions)
-          .where(eq(schema.sessions.id, draft.sessionId))
-          .limit(1)
-      : [];
-
-    if (session?.email && result.state !== "rejected") {
-      const emailQueue = getQueue(QUEUE_NAMES.SEND_EMAIL);
-      await emailQueue.add("dispatch-submitted", {
-        to: session.email,
-        template: "dispatch-submitted",
-        locale: session.locale,
-        data: { orderRef: draftId },
-      } satisfies SendEmailJob);
-    }
-
-    logger.info(
-      {
-        draftId,
-        dispatchId: attempt.id,
-        ref: result.providerReference,
-        state: result.state,
-      },
-      "Dispatch submission processed",
-    );
-
-    job.log(
-      `Dispatch processed: ref=${result.providerReference ?? "n/a"} state=${result.state}`,
-    );
-  } catch (err) {
-    logger.error(
-      {
-        draftId,
-        dispatchId: attempt.id,
-        err: err instanceof Error ? err.message : "Unknown error",
-      },
-      "Post-submit follow-up failed",
-    );
-  }
+  job.log(
+    `Dispatch processed: ref=${result.providerReference ?? "n/a"} state=${result.state}`,
+  );
 }
 
 export function startSubmitDispatchWorker(): Worker<SubmitDispatchJob> {

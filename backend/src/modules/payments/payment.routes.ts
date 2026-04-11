@@ -12,7 +12,7 @@ import {
   setPaymentIntentId,
   transitionPaymentState,
 } from "./payment.service.js";
-import { enqueueDispatchConfirmationEmail } from "../dispatch/dispatch-confirmation.js";
+import { enqueueDispatchSubmission } from "../dispatch/dispatch.jobs.js";
 import {
   createPaymentIntent,
   constructWebhookEvent,
@@ -21,7 +21,6 @@ import {
 } from "./adapters/stripe.adapter.js";
 import { recordEvent } from "../analytics/index.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
-import { enqueueDispatchSubmission } from "../dispatch/dispatch.jobs.js";
 import {
   resolveDisplayDispatchQuoteForDraft,
   resolvePaymentDispatchQuoteForDraft,
@@ -121,7 +120,7 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
         const chargeId =
           typeof intent.latest_charge === "string" ? intent.latest_charge : null;
 
-        const { rawOrderAccessToken } = await transitionPaymentState(
+        await transitionPaymentState(
           db,
           payment.id,
           "captured",
@@ -148,14 +147,6 @@ async function webhookRoutes(app: FastifyInstance): Promise<void> {
           paymentAttemptId: payment.id,
           amountCents: payment.amountCents,
         });
-
-        if (rawOrderAccessToken) {
-          try {
-            await enqueueDispatchConfirmationEmail(db, payment, rawOrderAccessToken);
-          } catch (err) {
-            request.log.error({ err }, "Failed to enqueue dispatch confirmation email");
-          }
-        }
         break;
       }
 
@@ -481,7 +472,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
           }
 
           if (stripeIntent.status === "succeeded") {
-            const { payment, rawOrderAccessToken } = await transitionPaymentState(
+            const { payment } = await transitionPaymentState(
               db,
               result.paymentAttemptId,
               "captured",
@@ -493,13 +484,6 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
             await enqueueDispatchIfSnapshotReady(payment.id, {
               suppressFailure: true,
             });
-            if (rawOrderAccessToken) {
-              try {
-                await enqueueDispatchConfirmationEmail(db, payment, rawOrderAccessToken);
-              } catch (err) {
-                request.log.error({ err }, "Failed to enqueue dispatch confirmation email");
-              }
-            }
             result = {
               ...result,
               paymentState: payment.state,
@@ -624,13 +608,6 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
             });
           }
 
-          if (result.rawOrderAccessToken) {
-            try {
-              await enqueueDispatchConfirmationEmail(db, payment, result.rawOrderAccessToken);
-            } catch (err) {
-              request.log.error({ err }, "Failed to enqueue dispatch confirmation email");
-            }
-          }
         }
       }
 

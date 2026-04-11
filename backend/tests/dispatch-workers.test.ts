@@ -19,6 +19,7 @@ const mocks = vi.hoisted(() => ({
   enqueueDispatchReconciliation: vi.fn(),
   enqueueDispatchConfirmationEmail: vi.fn(),
   enqueueDispatchAcceptedEmail: vi.fn(),
+  enqueueDispatchSubmittedEmail: vi.fn(),
   acquireRedisLock: vi.fn(),
   logger: {
     info: vi.fn(),
@@ -114,12 +115,9 @@ vi.mock("../src/modules/dispatch/dispatch.jobs.js", () => ({
   enqueueDispatchReconciliation: mocks.enqueueDispatchReconciliation,
 }));
 
-vi.mock("../src/modules/dispatch/dispatch-confirmation.js", () => ({
-  enqueueDispatchConfirmationEmail: mocks.enqueueDispatchConfirmationEmail,
-}));
-
 vi.mock("../src/modules/dispatch/dispatch-notifications.js", () => ({
   enqueueDispatchAcceptedEmail: mocks.enqueueDispatchAcceptedEmail,
+  enqueueDispatchSubmittedEmail: mocks.enqueueDispatchSubmittedEmail,
 }));
 
 vi.mock("../src/workers/dispatch-settlement.js", () => ({
@@ -149,6 +147,7 @@ describe("dispatch workers", () => {
     mocks.enqueueDispatchReconciliation.mockReset();
     mocks.enqueueDispatchConfirmationEmail.mockReset();
     mocks.enqueueDispatchAcceptedEmail.mockReset();
+    mocks.enqueueDispatchSubmittedEmail.mockReset();
     mocks.acquireRedisLock.mockReset().mockResolvedValue({
       release: vi.fn().mockResolvedValue(undefined),
     });
@@ -307,7 +306,7 @@ describe("dispatch workers", () => {
     expect(mocks.emailQueueAdd).not.toHaveBeenCalled();
   });
 
-  it("queues the dispatch confirmation email when worker settlement performs the first capture", async () => {
+  it("queues dispatch-submitted but not dispatch-accepted when provider acceptance is immediate", async () => {
     mocks.currentDb = createDbMock([
       [{ sessionId: "session-3" }],
       [{ email: "user@example.com" }],
@@ -347,21 +346,16 @@ describe("dispatch workers", () => {
 
     await expect(processSubmitDispatchJob(job as never)).resolves.toBeUndefined();
 
-    expect(mocks.enqueueDispatchConfirmationEmail).toHaveBeenCalledWith(
-      mocks.currentDb,
+    expect(mocks.enqueueDispatchSubmittedEmail).toHaveBeenCalledWith(
+      expect.anything(),
       expect.objectContaining({
-        id: "payment-2a",
+        dispatchAttemptId: "dispatch-2a",
         draftId: "draft-2a",
+        paymentId: "payment-2a",
       }),
-      "order-token-2a",
     );
-    expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(mocks.currentDb, {
-      dispatchAttemptId: "dispatch-2a",
-      draftId: "draft-2a",
-      paymentId: "payment-2a",
-      providerReference: "provider-2a",
-      trackingNumber: null,
-    });
+    expect(mocks.enqueueDispatchAcceptedEmail).not.toHaveBeenCalled();
+    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
   });
 
   it("enqueues reconciliation after a non-terminal submission so provider confirmation can continue", async () => {
@@ -511,7 +505,7 @@ describe("dispatch workers", () => {
     );
   });
 
-  it("queues the dispatch confirmation email after reconciliation when capture first happens there", async () => {
+  it("queues dispatch-accepted email when reconciliation settles acceptance", async () => {
     mocks.currentDb = createDbMock([[]]);
     mocks.getDispatchAttempt.mockResolvedValue({
       id: "dispatch-5",
@@ -550,14 +544,6 @@ describe("dispatch workers", () => {
 
     await expect(processReconcileDispatchJob(job as never)).resolves.toBeUndefined();
 
-    expect(mocks.enqueueDispatchConfirmationEmail).toHaveBeenCalledWith(
-      mocks.currentDb,
-      expect.objectContaining({
-        id: "payment-5",
-        draftId: "draft-5",
-      }),
-      "order-token-5",
-    );
     expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(mocks.currentDb, {
       dispatchAttemptId: "dispatch-5",
       draftId: "draft-5",
@@ -565,5 +551,6 @@ describe("dispatch workers", () => {
       providerReference: "provider-5",
       trackingNumber: "track-5",
     });
+    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
   });
 });

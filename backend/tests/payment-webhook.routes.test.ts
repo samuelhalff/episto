@@ -50,10 +50,6 @@ vi.mock("../src/modules/dispatch/dispatch.jobs.js", () => ({
   enqueueDispatchSubmission: mocks.enqueueDispatchSubmission,
 }));
 
-vi.mock("../src/modules/dispatch/dispatch-confirmation.js", () => ({
-  enqueueDispatchConfirmationEmail: mocks.enqueueDispatchConfirmationEmail,
-}));
-
 vi.mock("../src/modules/analytics/index.js", () => ({
   recordEvent: mocks.recordEvent,
 }));
@@ -171,45 +167,34 @@ describe("payment webhook routes", () => {
     await tamperedApp.close();
   });
 
-  it("waits for dispatch confirmation email queueing before completing the webhook response", async () => {
-    let resolveConfirmationQueue: (() => void) | undefined;
-
+  it("does not enqueue a Swiss Mail dispatch email from payment capture", async () => {
     mocks.constructWebhookEvent.mockReturnValue({
       type: "payment_intent.succeeded",
       data: {
         object: {
-          id: "pi_2",
-          metadata: {
-            draftId: "draft-2",
-            paymentAttemptId: "payment-2",
-          },
-          latest_charge: "ch_2",
+          id: "pi_1",
+          metadata: { draftId: "draft-1", paymentAttemptId: "payment-1" },
+          latest_charge: "ch_1",
         },
       },
     });
+
     mocks.getPaymentAttemptById.mockResolvedValue({
-      id: "payment-2",
-      draftId: "draft-2",
+      id: "payment-1",
+      draftId: "draft-1",
       amountCents: 625,
       state: "pending",
     });
     mocks.transitionPaymentState.mockResolvedValue({
-      payment: { id: "payment-2", state: "captured" },
-      rawOrderAccessToken: "order-token-2",
+      payment: { id: "payment-1", state: "captured" },
+      rawOrderAccessToken: null,
     });
     mocks.getLatestSnapshot.mockResolvedValue({
-      id: "snapshot-2",
-      renderedPdfAssetId: "pdf-2",
+      id: "snapshot-1",
+      renderedPdfAssetId: "pdf-1",
     });
-    mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
-    mocks.enqueueDispatchConfirmationEmail.mockReturnValue(
-      new Promise<void>((resolve) => {
-        resolveConfirmationQueue = resolve;
-      }),
-    );
 
-    let settled = false;
-    const responsePromise = app.inject({
+    const response = await app.inject({
       method: "POST",
       url: "/webhooks/stripe",
       payload: { ok: true },
@@ -218,18 +203,13 @@ describe("payment webhook routes", () => {
         "stripe-signature": "signature",
       },
     });
-    responsePromise.then(() => {
-      settled = true;
-    });
 
-    await vi.waitFor(() => {
-      expect(mocks.enqueueDispatchConfirmationEmail).toHaveBeenCalledOnce();
-    });
-    expect(settled).toBe(false);
-
-    resolveConfirmationQueue?.();
-
-    const response = await responsePromise;
     expect(response.statusCode).toBe(200);
+    expect(mocks.enqueueDispatchSubmission).toHaveBeenCalledWith({
+      draftId: "draft-1",
+      snapshotId: "snapshot-1",
+      paymentId: "payment-1",
+    });
+    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
   });
 });

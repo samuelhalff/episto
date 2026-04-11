@@ -71,10 +71,6 @@ vi.mock("../src/modules/dispatch/dispatch.jobs.js", () => ({
   enqueueDispatchSubmission: mocks.enqueueDispatchSubmission,
 }));
 
-vi.mock("../src/modules/dispatch/dispatch-confirmation.js", () => ({
-  enqueueDispatchConfirmationEmail: mocks.enqueueDispatchConfirmationEmail,
-}));
-
 vi.mock("../src/modules/dispatch/dispatch-quote.service.js", () => ({
   resolveDisplayDispatchQuoteForDraft: mocks.resolveDisplayDispatchQuoteForDraft,
   resolvePaymentDispatchQuoteForDraft: mocks.resolvePaymentDispatchQuoteForDraft,
@@ -601,17 +597,7 @@ describe("payment checkout routes", () => {
       snapshotId: "snapshot-2",
       paymentId: "payment-old",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).toHaveBeenCalledWith(
-      mocks.db,
-      expect.objectContaining({
-        id: "payment-old",
-        draftId: "draft-1",
-        sessionId: "session-1",
-        state: "captured",
-        amountCents: 625,
-      }),
-      "order-token",
-    );
+    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
     expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({
       paymentAttemptId: "payment-old",
@@ -668,13 +654,7 @@ describe("payment checkout routes", () => {
       snapshotId: "snapshot-3",
       paymentId: "payment-old",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).toHaveBeenCalledWith(
-      mocks.db,
-      expect.objectContaining({
-        id: "payment-old",
-      }),
-      "order-token",
-    );
+    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({
       paymentAttemptId: "payment-old",
       clientSecret: null,
@@ -835,14 +815,7 @@ describe("payment checkout routes", () => {
       snapshotId: "snapshot-status",
       paymentId: "payment-status-pending",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).toHaveBeenCalledWith(
-      mocks.db,
-      expect.objectContaining({
-        id: "payment-status-pending",
-        state: "captured",
-      }),
-      "order-token",
-    );
+    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({
       payment: {
         state: "captured",

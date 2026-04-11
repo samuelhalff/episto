@@ -16,8 +16,8 @@ describe("payment_intent.succeeded webhook handler", () => {
     expect(succeededBlock).toContain("enqueueDispatchSubmission");
   });
 
-  it("sends dispatch confirmation email on capture", () => {
-    expect(succeededBlock).toContain("enqueueDispatchConfirmationEmail");
+  it("does not send dispatch confirmation email on capture", () => {
+    expect(succeededBlock).not.toContain("enqueueDispatchConfirmationEmail");
   });
 
   it("retrieves the latest snapshot for dispatch", () => {

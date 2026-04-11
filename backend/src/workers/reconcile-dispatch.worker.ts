@@ -10,7 +10,6 @@ import {
 } from "../modules/dispatch/dispatch.service.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { enqueueDispatchAcceptedEmail } from "../modules/dispatch/dispatch-notifications.js";
-import { enqueueDispatchConfirmationEmail } from "../modules/dispatch/dispatch-confirmation.js";
 import { acquireRedisLock } from "../shared/redis-lock.js";
 import {
   canFinalizeDispatchResolution,
@@ -108,24 +107,6 @@ export async function processReconcileDispatchJob(
         trackingNumber: status.trackingNumber,
         failureReason: status.failureReason ?? undefined,
       });
-
-      if (settlement.payment && settlement.rawOrderAccessToken) {
-        try {
-          await enqueueDispatchConfirmationEmail(
-            db,
-            settlement.payment,
-            settlement.rawOrderAccessToken,
-          );
-        } catch (confirmErr) {
-          logger.error(
-            {
-              dispatchAttemptId,
-              err: confirmErr instanceof Error ? confirmErr.message : "Unknown error",
-            },
-            "Failed to enqueue dispatch confirmation email after reconciliation",
-          );
-        }
-      }
 
       if (status.state === "accepted" && settlement.payment) {
         try {
