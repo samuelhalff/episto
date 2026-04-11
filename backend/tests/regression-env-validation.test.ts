@@ -88,9 +88,7 @@ describe("regression: env validation accepts valid configs", () => {
     expect(result.success).toBe(false);
     if (!result.success) {
       const messages = result.error.issues.map((i) => i.message);
-      expect(
-        messages.some((m) => m.includes("EPOST_SUBMISSION_MODE=live")),
-      ).toBe(true);
+      expect(messages.some((m) => m.includes("EPOST_SUBMISSION_MODE=live"))).toBe(true);
     }
   });
 
