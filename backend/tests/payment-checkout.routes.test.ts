@@ -18,6 +18,7 @@ const mocks = vi.hoisted(() => ({
   setPaymentIntentId: vi.fn(),
   createPaymentIntent: vi.fn(),
   getPaymentIntentForCheckout: vi.fn(),
+  updatePaymentIntentReceiptDetails: vi.fn(),
   resolvePaymentDispatchQuoteForDraft: vi.fn(),
   resolveDisplayDispatchQuoteForDraft: vi.fn(),
   getLatestSnapshot: vi.fn(),
@@ -58,6 +59,7 @@ vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
   createPaymentIntent: mocks.createPaymentIntent,
   constructWebhookEvent: vi.fn(),
   getPaymentIntentForCheckout: mocks.getPaymentIntentForCheckout,
+  updatePaymentIntentReceiptDetails: mocks.updatePaymentIntentReceiptDetails,
 }));
 
 vi.mock("../src/modules/rendering/snapshot.service.js", () => ({
@@ -210,6 +212,14 @@ describe("payment checkout routes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(mocks.getPaymentIntentForCheckout).toHaveBeenCalledWith("pi_existing");
+    expect(mocks.updatePaymentIntentReceiptDetails).toHaveBeenCalledWith("pi_existing", {
+      customerEmail: "payer@example.com",
+      orderRef: expect.stringMatching(/^EP-/),
+      draftId: "draft-1",
+      sessionId: "session-1",
+      paymentAttemptId: "payment-existing",
+      deliveryType: "standard",
+    });
     expect(mocks.transitionPaymentState).not.toHaveBeenCalled();
     expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({

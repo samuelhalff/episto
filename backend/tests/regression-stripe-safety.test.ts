@@ -132,6 +132,9 @@ describe("regression: Stripe safety gate preserves test-mode functionality", () 
       draftId: "draft-1",
       sessionId: "session-1",
       paymentAttemptId: "pa-1",
+      customerEmail: "payer@example.com",
+      orderRef: "EP-DRAFT-1",
+      deliveryType: "standard",
     });
     expect(result.paymentIntentId).toBe("pi_test_123");
     expect(result.clientSecret).toBe("pi_test_123_secret");

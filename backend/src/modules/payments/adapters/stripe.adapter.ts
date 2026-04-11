@@ -78,6 +78,10 @@ function getStripe(): Stripe {
   return _stripe;
 }
 
+function buildStripeReceiptDescription(orderRef: string): string {
+  return `Swiss Mail order ${orderRef}`;
+}
+
 // ---------------------------------------------------------------------------
 // Create PaymentIntent
 // ---------------------------------------------------------------------------
@@ -89,6 +93,8 @@ export async function createPaymentIntent(
     sessionId: string;
     paymentAttemptId: string;
     customerEmail: string;
+    orderRef: string;
+    deliveryType: "standard" | "registered";
   },
 ): Promise<{ paymentIntentId: string; clientSecret: string }> {
   try {
@@ -99,10 +105,13 @@ export async function createPaymentIntent(
         // Stripe sends the payment receipt to this email automatically.
         // Our app does NOT generate or send a custom payment receipt.
         receipt_email: metadata.customerEmail,
+        description: buildStripeReceiptDescription(metadata.orderRef),
         metadata: {
           draftId: metadata.draftId,
           sessionId: metadata.sessionId,
           paymentAttemptId: metadata.paymentAttemptId,
+          orderRef: metadata.orderRef,
+          deliveryType: metadata.deliveryType,
         },
         // Automatic capture is required to support Twint and other immediate-capture
         // methods. Stripe filters out Twint when capture_method is set to non-automatic.
@@ -120,6 +129,40 @@ export async function createPaymentIntent(
       paymentIntentId: intent.id,
       clientSecret: intent.client_secret,
     };
+  } catch (err) {
+    if (err instanceof AppError) {
+      throw err;
+    }
+    if (err instanceof Stripe.errors.StripeError) {
+      throw mapStripeError(err);
+    }
+    throw providerOutageError("Stripe", err);
+  }
+}
+
+export async function updatePaymentIntentReceiptDetails(
+  paymentIntentId: string,
+  metadata: {
+    customerEmail: string;
+    orderRef: string;
+    draftId: string;
+    sessionId: string;
+    paymentAttemptId: string;
+    deliveryType: "standard" | "registered";
+  },
+): Promise<void> {
+  try {
+    await getStripe().paymentIntents.update(paymentIntentId, {
+      receipt_email: metadata.customerEmail,
+      description: buildStripeReceiptDescription(metadata.orderRef),
+      metadata: {
+        draftId: metadata.draftId,
+        sessionId: metadata.sessionId,
+        paymentAttemptId: metadata.paymentAttemptId,
+        orderRef: metadata.orderRef,
+        deliveryType: metadata.deliveryType,
+      },
+    });
   } catch (err) {
     if (err instanceof AppError) {
       throw err;

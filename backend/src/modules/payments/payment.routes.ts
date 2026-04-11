@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
+import { buildOrderReference } from "@swiss-mail/shared";
 import { z } from "zod";
 import { eq, and } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
@@ -16,6 +17,7 @@ import {
   createPaymentIntent,
   constructWebhookEvent,
   getPaymentIntentForCheckout,
+  updatePaymentIntentReceiptDetails,
 } from "./adapters/stripe.adapter.js";
 import { recordEvent } from "../analytics/index.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
@@ -254,6 +256,7 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
       const { draftId } = request.params;
 
       const body = CheckoutBody.parse(request.body);
+      const orderRef = buildOrderReference(draftId);
 
       // Verify draft belongs to this session
       const [draft] = await db
@@ -327,6 +330,8 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
             sessionId: session.id,
             paymentAttemptId: payment.id,
             customerEmail: body.email,
+            orderRef,
+            deliveryType: draft.deliveryType,
           });
 
           await setPaymentIntentId(tx, payment.id, stripeResult.paymentIntentId);
@@ -425,6 +430,21 @@ export async function paymentRoutes(app: FastifyInstance): Promise<void> {
                 userMessage: "The payment request was invalid.",
                 userAction: "Please try again or use a different payment method.",
               });
+            }
+
+            try {
+              await updatePaymentIntentReceiptDetails(result.stripePaymentIntentId, {
+                customerEmail: body.email,
+                orderRef,
+                draftId,
+                sessionId: session.id,
+                paymentAttemptId: result.paymentAttemptId,
+                deliveryType: draft.deliveryType,
+              });
+            } catch (error) {
+              const stripeError = error instanceof Error ? error.message : String(error);
+              await recreateCheckoutFromStaleStripeIntent(stripeError);
+              continue;
             }
 
             result = {
