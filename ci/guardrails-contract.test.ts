@@ -32,6 +32,20 @@ describe("coverage and CI guardrails", () => {
     expect(vitestConfigSource).toContain("statements: 70");
   });
 
+  it("keeps frontend coverage exclusions narrow enough to measure product code", () => {
+    expect(vitestConfigSource).not.toContain('"frontend/src/app/**"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/components/**"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/hooks/use-api.ts"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/hooks/use-checkout.ts"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/hooks/use-draft.ts"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/hooks/use-session.ts"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/hooks/use-pricing.ts"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/lib/api.ts"');
+    expect(vitestConfigSource).not.toContain('"frontend/src/lib/letter-content.ts"');
+    expect(vitestConfigSource).toContain('"frontend/src/i18n/**"');
+    expect(vitestConfigSource).toContain('"frontend/src/proxy.ts"');
+  });
+
   it("adds coverage, file-size, and migration rollback jobs to CI", () => {
     expect(workflowSource).toContain("coverage:");
     expect(workflowSource).toContain("npm test -- --coverage");
