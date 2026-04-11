@@ -1,0 +1,2 @@
+npm run check:file-sizes -- --staged
+npx lint-staged

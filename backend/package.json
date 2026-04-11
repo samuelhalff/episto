@@ -15,6 +15,7 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "node dist/db/migrate.js",
     "db:migrate:dev": "drizzle-kit migrate",
+    "db:test-latest-rollback": "tsx src/scripts/verify-latest-migration-rollback.ts",
     "db:studio": "drizzle-kit studio",
     "start:prod": "npm run db:migrate && node dist/server.js"
   },
