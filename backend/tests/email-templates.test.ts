@@ -65,11 +65,11 @@ describe("Email template rendering", () => {
     expect(result.html).toContain("https://www.post.ch/swisspost-tracking");
     expect(result.html).toContain("Track on Swiss Post");
     // Download link
-    expect(result.text).toContain("Download Confirmation");
+    expect(result.text).toContain("Download letter (PDF)");
     expect(result.text).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
-    expect(result.html).toContain("Download Confirmation");
+    expect(result.html).toContain("Download letter (PDF)");
     expect(result.html).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
-    expect(result.text).toContain("10 days");
+    expect(result.text).toContain("Your letter PDF is available for download for 10 days.");
     // Must NOT contain status page link
     expect(result.html).not.toContain("/status/");
     // Legal footer

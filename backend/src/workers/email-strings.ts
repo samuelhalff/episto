@@ -87,8 +87,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Reference",
     trackingLabel: "Tracking number",
     trackOnPostLabel: "Track on Swiss Post",
-    downloadLabel: "Download Confirmation",
-    retentionNotice: "Your confirmation document is available for download for {days} days.",
+    downloadLabel: "Download letter (PDF)",
+    retentionNotice: "Your letter PDF is available for download for {days} days.",
     supportLine: "Questions? Contact us at",
   },
   "de-CH": {
@@ -99,8 +99,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Referenz",
     trackingLabel: "Sendungsnummer",
     trackOnPostLabel: "Bei der Post verfolgen",
-    downloadLabel: "Bestätigung herunterladen",
-    retentionNotice: "Ihr Bestätigungsdokument steht {days} Tage zum Download bereit.",
+    downloadLabel: "Brief als PDF herunterladen",
+    retentionNotice: "Ihr Brief als PDF steht {days} Tage lang zum Download bereit.",
     supportLine: "Fragen? Kontaktieren Sie uns unter",
   },
   "fr-CH": {
@@ -111,8 +111,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Référence",
     trackingLabel: "Numéro de suivi",
     trackOnPostLabel: "Suivre sur La Poste",
-    downloadLabel: "Télécharger la confirmation",
-    retentionNotice: "Votre document de confirmation est disponible au téléchargement pendant {days} jours.",
+    downloadLabel: "Télécharger la lettre (PDF)",
+    retentionNotice: "Votre lettre au format PDF est disponible au téléchargement pendant {days} jours.",
     supportLine: "Des questions ? Contactez-nous à",
   },
   "it-CH": {
@@ -123,8 +123,8 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
     referenceLabel: "Riferimento",
     trackingLabel: "Numero di tracciamento",
     trackOnPostLabel: "Traccia su La Posta",
-    downloadLabel: "Scarica la conferma",
-    retentionNotice: "Il documento di conferma è disponibile per il download per {days} giorni.",
+    downloadLabel: "Scarica la lettera (PDF)",
+    retentionNotice: "Il PDF della sua lettera è disponibile per il download per {days} giorni.",
     supportLine: "Domande? Ci contatti all'indirizzo",
   },
 };
