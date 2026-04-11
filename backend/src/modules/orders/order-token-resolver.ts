@@ -1,19 +1,13 @@
-import { errors } from "jose";
 import { eq } from "drizzle-orm";
 
 import { schema } from "../../db/index.js";
 import type { Db } from "../../db/index.js";
 import { hashResumeToken } from "../sessions/session.service.js";
-import { verifyOrderAccessToken } from "./order-access-token.js";
-
-function isResolvableOrderAccessTokenError(error: unknown): boolean {
-  return (
-    error instanceof errors.JOSEError ||
-    (error instanceof Error &&
-      (/^JWT\b/i.test(error.message) ||
-        error.message === "Invalid signed order access token payload"))
-  );
-}
+import {
+  OrderAccessTokenExpiredError,
+  OrderAccessTokenVerificationError,
+  verifyOrderAccessToken,
+} from "./order-access-token.js";
 
 async function findActivePaymentById(db: Db, paymentAttemptId: string) {
   const [payment] = await db
@@ -41,13 +35,22 @@ async function findActivePaymentByTokenHash(db: Db, orderToken: string) {
   return payment;
 }
 
-async function resolveSignedPaymentAttemptId(orderToken: string): Promise<string | null> {
+type SignedTokenResolution =
+  | { kind: "verified"; paymentAttemptId: string }
+  | { kind: "expired" }
+  | { kind: "fallback" };
+
+async function resolveSignedToken(orderToken: string): Promise<SignedTokenResolution> {
   try {
     const claims = await verifyOrderAccessToken(orderToken);
-    return claims.paymentAttemptId;
+    return { kind: "verified", paymentAttemptId: claims.paymentAttemptId };
   } catch (error) {
-    if (isResolvableOrderAccessTokenError(error)) {
-      return null;
+    if (error instanceof OrderAccessTokenExpiredError) {
+      return { kind: "expired" };
+    }
+
+    if (error instanceof OrderAccessTokenVerificationError) {
+      return { kind: "fallback" };
     }
 
     throw error;
@@ -55,10 +58,14 @@ async function resolveSignedPaymentAttemptId(orderToken: string): Promise<string
 }
 
 export async function resolveOrderAccessPayment(db: Db, orderToken: string) {
-  const paymentAttemptId = await resolveSignedPaymentAttemptId(orderToken);
+  const signedToken = await resolveSignedToken(orderToken);
 
-  if (paymentAttemptId) {
-    return findActivePaymentById(db, paymentAttemptId);
+  if (signedToken.kind === "verified") {
+    return findActivePaymentById(db, signedToken.paymentAttemptId);
+  }
+
+  if (signedToken.kind === "expired") {
+    return null;
   }
 
   return findActivePaymentByTokenHash(db, orderToken);

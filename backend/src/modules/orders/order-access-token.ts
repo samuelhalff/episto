@@ -8,6 +8,20 @@ const ORDER_ACCESS_AUDIENCE = "order-access";
 const ORDER_ACCESS_ISSUER = "swiss-mail";
 const encoder = new TextEncoder();
 
+export class OrderAccessTokenExpiredError extends Error {
+  constructor(options?: { cause?: unknown }) {
+    super("Signed order access token expired", options);
+    this.name = "OrderAccessTokenExpiredError";
+  }
+}
+
+export class OrderAccessTokenVerificationError extends Error {
+  constructor(message: string, options?: { cause?: unknown }) {
+    super(message, options);
+    this.name = "OrderAccessTokenVerificationError";
+  }
+}
+
 // Vitest's Node environment may not expose Web Crypto; jose requires it.
 if (!globalThis.crypto) {
   globalThis.crypto = webcrypto;
@@ -42,14 +56,23 @@ export async function verifyOrderAccessToken(token: string): Promise<{
     }));
   } catch (error) {
     if (error instanceof errors.JWTExpired) {
-      throw new Error("JWT expired");
+      throw new OrderAccessTokenExpiredError({ cause: error });
+    }
+
+    if (error instanceof errors.JOSEError) {
+      throw new OrderAccessTokenVerificationError(
+        "Signed order access token verification failed",
+        { cause: error },
+      );
     }
 
     throw error;
   }
 
   if (typeof payload.sub !== "string" || typeof payload.exp !== "number") {
-    throw new Error("Invalid signed order access token payload");
+    throw new OrderAccessTokenVerificationError(
+      "Signed order access token payload is invalid",
+    );
   }
 
   return {

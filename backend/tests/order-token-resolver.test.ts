@@ -1,13 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const verifyOrderAccessToken = vi.fn();
+const hashResumeToken = vi.fn((token: string) => `hashed:${token}`);
+
+class OrderAccessTokenExpiredError extends Error {}
+class OrderAccessTokenVerificationError extends Error {}
 
 vi.mock("../src/modules/orders/order-access-token.js", () => ({
+  OrderAccessTokenExpiredError,
+  OrderAccessTokenVerificationError,
   verifyOrderAccessToken,
 }));
 
 vi.mock("../src/modules/sessions/session.service.js", () => ({
-  hashResumeToken: (token: string) => `hashed:${token}`,
+  hashResumeToken,
 }));
 
 function makeSelectChain(rows: unknown[]) {
@@ -23,6 +29,7 @@ function makeSelectChain(rows: unknown[]) {
 describe("resolveOrderAccessPayment", () => {
   beforeEach(() => {
     verifyOrderAccessToken.mockReset();
+    hashResumeToken.mockClear();
   });
 
   it("prefers the signed token payload when verification succeeds", async () => {
@@ -64,7 +71,9 @@ describe("resolveOrderAccessPayment", () => {
       ),
     };
 
-    verifyOrderAccessToken.mockRejectedValue(new Error("JWT verification failed"));
+    verifyOrderAccessToken.mockRejectedValue(
+      new OrderAccessTokenVerificationError("invalid signed order access token"),
+    );
 
     const { resolveOrderAccessPayment } = await import(
       "../src/modules/orders/order-token-resolver.js"
@@ -73,6 +82,27 @@ describe("resolveOrderAccessPayment", () => {
     const payment = await resolveOrderAccessPayment(db as never, "legacy-token");
 
     expect(payment?.id).toBe("payment-legacy");
+    expect(hashResumeToken).toHaveBeenCalledWith("legacy-token");
+  });
+
+  it("returns null for expired signed tokens without trying the legacy hash lookup", async () => {
+    const db = {
+      select: vi.fn(),
+    };
+
+    verifyOrderAccessToken.mockRejectedValue(
+      new OrderAccessTokenExpiredError("signed order access token expired"),
+    );
+
+    const { resolveOrderAccessPayment } = await import(
+      "../src/modules/orders/order-token-resolver.js"
+    );
+
+    await expect(
+      resolveOrderAccessPayment(db as never, "expired-signed-token"),
+    ).resolves.toBeNull();
+    expect(hashResumeToken).not.toHaveBeenCalled();
+    expect(db.select).not.toHaveBeenCalled();
   });
 
   it("surfaces signed-token lookup failures instead of swallowing them", async () => {
