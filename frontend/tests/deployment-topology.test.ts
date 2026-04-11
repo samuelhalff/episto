@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -20,6 +20,11 @@ const nextConfigSource = readFileSync(
   path.join(repoRoot, "frontend/next.config.ts"),
   "utf8",
 );
+
+afterEach(() => {
+  vi.resetModules();
+  delete process.env.NEXT_PUBLIC_SENTRY_DSN;
+});
 
 function getServiceBlock(source: string, service: string): string {
   const match = source.match(
@@ -78,6 +83,16 @@ describe("deployment topology", () => {
   it("allows the production API origin through the frontend CSP", () => {
     expect(nextConfigSource).toContain(
       "connect-src 'self' https://api.stripe.com https://api.swissmail.ch ws: wss:",
+    );
+  });
+
+  it("adds the Sentry ingest origin to connect-src when a public DSN is configured", async () => {
+    process.env.NEXT_PUBLIC_SENTRY_DSN = "https://public@example.ingest.sentry.io/123";
+
+    const { buildContentSecurityPolicy } = await import("../next.config");
+
+    expect(buildContentSecurityPolicy(false)).toContain(
+      "https://example.ingest.sentry.io",
     );
   });
 });

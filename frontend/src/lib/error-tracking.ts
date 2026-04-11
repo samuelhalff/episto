@@ -1,5 +1,9 @@
 import * as Sentry from "@sentry/nextjs";
-import { hasFrontendSentryDsn } from "./sentry-config";
+import {
+  hasFrontendSentryDsn,
+  sanitizeObservabilityMetadata,
+  sanitizeObservabilityPath,
+} from "./sentry-config";
 
 export interface FrontendErrorContext {
   errorFamily?: string;
@@ -23,13 +27,13 @@ function withErrorTrackingScope(
       scope.setTag("component", context.component);
     }
     if (context?.route) {
-      scope.setTag("route", context.route);
+      scope.setTag("route", sanitizeObservabilityPath(context.route));
     }
     if (context?.errorFamily) {
       scope.setTag("error_family", context.errorFamily);
     }
     if (context?.extra) {
-      scope.setContext("safe_metadata", context.extra);
+      scope.setContext("safe_metadata", sanitizeObservabilityMetadata(context.extra));
     }
 
     callback();

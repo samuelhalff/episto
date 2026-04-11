@@ -47,12 +47,31 @@ export function buildContentSecurityPolicy(isDevelopment: boolean): string {
     ...(isDevelopment ? ["'unsafe-eval'"] : []),
     "https://js.stripe.com",
   ].join(" ");
+  const sentryConnectOrigin = (() => {
+    const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+
+    if (!sentryDsn) {
+      return null;
+    }
+
+    try {
+      return new URL(sentryDsn).origin;
+    } catch {
+      return null;
+    }
+  })();
+  const connectSrc = [
+    "connect-src 'self' https://api.stripe.com https://api.swissmail.ch ws: wss:",
+    sentryConnectOrigin,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return [
     "default-src 'self'",
     scriptSrc,
     "frame-src https://js.stripe.com https://hooks.stripe.com",
-    "connect-src 'self' https://api.stripe.com https://api.swissmail.ch ws: wss:",
+    connectSrc,
     "img-src 'self' data: https:",
     "style-src 'self' 'unsafe-inline'",
     "font-src 'self'",
