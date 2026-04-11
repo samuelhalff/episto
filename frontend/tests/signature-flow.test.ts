@@ -34,6 +34,14 @@ const sharedSchemas = readFileSync(
   path.join(repoRoot, "shared/src/schemas/index.ts"),
   "utf8",
 );
+const draftFilesHookSource = readFileSync(
+  path.join(repoRoot, "frontend/src/hooks/use-draft-files.ts"),
+  "utf8",
+);
+const previewPaneSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/WorkspacePreviewPane.tsx"),
+  "utf8",
+);
 
 describe("signature canvas redesign", () => {
   it("old SignaturePicker is deleted", () => {
@@ -98,5 +106,44 @@ describe("signature canvas redesign", () => {
     expect(globalsSource).toContain("@font-face");
     expect(globalsSource).toContain('font-family: "Allura Signature"');
     expect(globalsSource).toContain(".signature-script");
+  });
+
+  it("uploadFile reads from query cache to avoid stale closure race", () => {
+    expect(draftFilesHookSource).toContain("queryClient.getQueryData");
+    expect(draftFilesHookSource).toContain("queryKeys.draftFiles(draftId)");
+    // Should depend on queryClient+draftId, not closure-captured attachments/signature
+    expect(draftFilesHookSource).toMatch(
+      /uploadFile\s*=\s*useCallback\([\s\S]*?\[uploadMutation,\s*queryClient,\s*draftId\]/,
+    );
+  });
+
+  it("removeMutation uses optimistic cache update", () => {
+    expect(draftFilesHookSource).toContain("cancelQueries");
+    expect(draftFilesHookSource).toContain("setQueryData");
+    expect(draftFilesHookSource).toMatch(
+      /files\.filter\(\(f\)\s*=>\s*f\.id\s*!==\s*fileId\)/,
+    );
+  });
+
+  it("file upload/remove invalidates preview and draft queries", () => {
+    const previewInvalidations = draftFilesHookSource.match(
+      /invalidateQueries.*draftPreview/g,
+    );
+    const draftInvalidations = draftFilesHookSource.match(
+      /invalidateQueries.*queryKeys\.draft\(draftId\)/g,
+    );
+    // Both onSuccess handlers (upload + remove) should invalidate preview
+    expect(previewInvalidations?.length).toBeGreaterThanOrEqual(2);
+    expect(draftInvalidations?.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("handleDrawnSignature awaits the upload (not fire-and-forget)", () => {
+    expect(logisticsStepSource).toContain("await files.uploadFile(file");
+    expect(logisticsStepSource).not.toMatch(/void files\.uploadFile\(/);
+  });
+
+  it("WorkspacePreviewPane passes signatureUrl from preview data", () => {
+    expect(previewPaneSource).toContain("signatureUrl={getSignatureFileUrl(");
+    expect(previewPaneSource).toContain("signatureMode={previewData?.signatureMode}");
   });
 });

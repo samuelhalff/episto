@@ -140,11 +140,6 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
     [files],
   );
 
-  const existingTotalBytes = useMemo(
-    () => files.reduce((sum, f) => sum + (f.sizeBytes ?? 0), 0),
-    [files],
-  );
-
   const uploadMutation = useMutation({
     mutationFn: async ({
       file,
@@ -170,6 +165,8 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
       setUploadProgress(0);
       setValidationError(null);
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draft(draftId) });
     },
     onError: (error) => {
       setUploadProgress(0);
@@ -186,11 +183,32 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
   const removeMutation = useMutation({
     mutationFn: (fileId: string) =>
       apiFetch<void>(`/v1/drafts/${draftId}/files/${fileId}`, { method: "DELETE" }),
-    onMutate: (fileId) => {
+    onMutate: async (fileId) => {
       setRemovingFileId(fileId);
+
+      // Optimistically remove the file from cache so subsequent uploadFile
+      // calls see the updated state immediately (no stale-closure race).
+      await queryClient.cancelQueries({ queryKey: queryKeys.draftFiles(draftId) });
+      const previous = queryClient.getQueryData<DraftFilesResponse>(
+        queryKeys.draftFiles(draftId),
+      );
+      if (previous) {
+        queryClient.setQueryData<DraftFilesResponse>(queryKeys.draftFiles(draftId), {
+          ...previous,
+          files: previous.files.filter((f) => f.id !== fileId),
+        });
+      }
+      return { previous };
     },
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
+      void queryClient.invalidateQueries({ queryKey: queryKeys.draft(draftId) });
+    },
+    onError: (_err, _fileId, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(queryKeys.draftFiles(draftId), context.previous);
+      }
     },
     onSettled: () => {
       setRemovingFileId(null);
@@ -199,13 +217,33 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
 
   const uploadFile = useCallback(
     async (file: File, kind: "attachment" | "signature"): Promise<FileAsset> => {
+      // Read current state from the query cache rather than closure variables.
+      // After optimistic removal the cache is already updated, but the React
+      // component hasn't re-rendered yet so hook-level derived values are stale.
+      const cached = queryClient.getQueryData<DraftFilesResponse>(
+        queryKeys.draftFiles(draftId),
+      );
+      const currentFiles = cached?.files ?? [];
+      const currentAttachments = currentFiles.filter(
+        (f) => f.kind === FileAssetKind.attachment,
+      );
+      const currentSignature = currentFiles.some(
+        (f) => f.kind === FileAssetKind.signature,
+      );
+      const currentTotalBytes = currentFiles.reduce(
+        (sum, f) => sum + (f.sizeBytes ?? 0),
+        0,
+      );
+      const currentConstraints =
+        cached?.attachmentConstraints ?? DEFAULT_ATTACHMENT_CONSTRAINTS;
+
       const error = validateFile(
         file,
         kind,
-        attachments,
-        Boolean(signature),
-        existingTotalBytes,
-        attachmentConstraints,
+        currentAttachments,
+        currentSignature,
+        currentTotalBytes,
+        currentConstraints,
       );
       if (error) {
         setValidationError(error);
@@ -214,7 +252,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
       setValidationError(null);
       return uploadMutation.mutateAsync({ file, kind });
     },
-    [uploadMutation, attachments, signature, existingTotalBytes, attachmentConstraints],
+    [uploadMutation, queryClient, draftId],
   );
 
   const removeFile = useCallback(
