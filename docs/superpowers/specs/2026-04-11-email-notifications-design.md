@@ -32,7 +32,7 @@ That overlap creates noisy customer messaging, inconsistent template data, and c
 
 ## Root-cause summary
 
-The current implementation has four material problems:
+The current implementation has five material problems:
 
 1. **An obsolete app-level email concept still exists.**  
    `dispatch-confirmation` behaves like a product order-confirmation email, but it is queued from payment capture and also from later dispatch-settlement paths.
@@ -145,8 +145,8 @@ All Swiss Mail dispatch emails must be fed by one shared backend payload builder
 Every dispatch email gets the same base context:
 
 - formatted order reference
-- order-status URL
-- PDF/statement download URL when the order-access token exists
+- signed order-status URL
+- PDF/statement download URL when the signed order-access token is available for the email
 - sender name
 - recipient name
 - delivery type
