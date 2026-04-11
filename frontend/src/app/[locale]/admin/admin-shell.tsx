@@ -8,6 +8,7 @@ import { usePathname, useSearchParams } from "next/navigation";
 import { useAdminAuth } from "./admin-auth-context";
 import { AdminSidebar } from "./admin-sidebar";
 import { AdminTopBar } from "./admin-top-bar";
+import { env } from "@/lib/env";
 import {
   buildAdminMicrosoftLoginUrl,
   getAdminAuthErrorMessage,
@@ -33,12 +34,7 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   const handleMicrosoftLogin = useCallback(() => {
     setLoading(true);
-    window.location.assign(
-      buildAdminMicrosoftLoginUrl(
-        process.env.NEXT_PUBLIC_API_URL ?? "/api",
-        sanitizedReturnTo,
-      ),
-    );
+    window.location.assign(buildAdminMicrosoftLoginUrl(env.NEXT_PUBLIC_API_URL, sanitizedReturnTo));
   }, [sanitizedReturnTo]);
 
   if (!ready) {

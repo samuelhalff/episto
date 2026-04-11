@@ -149,6 +149,8 @@ function getJsonLdNode(element: React.ReactElement) {
 }
 
 afterEach(() => {
+  vi.resetModules();
+
   if (originalSiteUrl === undefined) {
     delete process.env.NEXT_PUBLIC_SITE_URL;
     return;

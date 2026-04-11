@@ -3,6 +3,7 @@ import { z } from "zod";
 import { eq, or, ilike } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { AppError } from "../../shared/errors/index.js";
+import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { recordSupportEvent } from "./index.js";
 import { createRefund } from "../payments/adapters/stripe.adapter.js";
 import { transitionPaymentState } from "../payments/payment.service.js";
@@ -230,7 +231,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "refund_requested",
-        actor: request.admin!.actor,
+        actor: getRequiredAdmin(request).actor,
         details: { reason: body.reason, paymentId: payment.id },
       });
 
@@ -270,7 +271,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "refund_initiated",
-        actor: request.admin!.actor,
+        actor: getRequiredAdmin(request).actor,
         details: { refundId, paymentId: payment.id, reason: body.reason },
       });
 

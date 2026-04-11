@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 // ---------------------------------------------------------------------------
 // Mock heavy dependencies before importing the module under test
@@ -124,7 +125,7 @@ describe("adminHealthRoutes", () => {
     };
     const reply = makeMockReply();
 
-    await capturedHandler!(req, reply);
+    await assertDefined(capturedHandler, "Expected admin health handler")(req, reply);
 
     expect(reply.status).toHaveBeenCalledWith(200);
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
@@ -159,7 +160,7 @@ describe("adminHealthRoutes", () => {
     };
     const reply = makeMockReply();
 
-    await capturedHandler!(req, reply);
+    await assertDefined(capturedHandler, "Expected admin health handler")(req, reply);
 
     // Still 200 — status is surfaced per-service, not via HTTP status code
     expect(reply.status).toHaveBeenCalledWith(200);
@@ -186,7 +187,7 @@ describe("adminHealthRoutes", () => {
       log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
     };
     const reply = makeMockReply();
-    await capturedHandler!(req, reply);
+    await assertDefined(capturedHandler, "Expected admin health handler")(req, reply);
 
     expect(reply.status).toHaveBeenCalledWith(200);
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
@@ -209,7 +210,7 @@ describe("adminHealthRoutes", () => {
       log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
     };
     const reply = makeMockReply();
-    await capturedHandler!(req, reply);
+    await assertDefined(capturedHandler, "Expected admin health handler")(req, reply);
 
     expect(reply.status).toHaveBeenCalledWith(200);
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;

@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { AdminEscalationLevel, AdminSuspiciousCase } from "@swiss-mail/shared";
 import { adminPost } from "./admin-api";
 import { PanelError, SectionPanel } from "./admin-metric-panels";
-import { getAdminPagePath } from "../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 
 const ESCALATION_OPTIONS: Array<{
   value: AdminEscalationLevel;

@@ -1,10 +1,21 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
+    "baseUrl": ".",
     "jsx": "preserve",
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "incremental": true,
+    "paths": {
+      "@swiss-mail/shared": ["../shared/src/index.ts"],
+      "@swiss-mail/shared/*": ["../shared/src/*"],
+      "@/*": ["./src/*"],
+      "@/components/*": ["./src/components/*"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/hooks/*": ["./src/hooks/*"],
+      "@/app/*": ["./src/app/*"],
+      "@/i18n/*": ["./src/i18n/*"]
+    },
     "plugins": [
       {
         "name": "next"

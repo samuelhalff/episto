@@ -5,7 +5,7 @@ import { Menu, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "./admin-auth-context";
-import { getAdminPagePath } from "../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 
 function getAdminDisplayName(
   admin: ReturnType<typeof useAdminAuth>["admin"],

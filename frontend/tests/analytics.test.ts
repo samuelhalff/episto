@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { assertDefined } from "./assert-defined";
 import {
   trackEvent,
   setFrontendAnalyticsSink,
@@ -50,7 +51,7 @@ describe("frontend analytics", () => {
         source: "homepage-cta",
       });
 
-      expect(recordedEvents[0]!.event).toBe("draft_entry_started");
+      expect(assertDefined(recordedEvents[0]).event).toBe("draft_entry_started");
     });
 
     it("tracks file upload events", () => {
@@ -76,7 +77,7 @@ describe("frontend analytics", () => {
         reason: "missing_sender",
       });
 
-      expect(recordedEvents[0]!.event).toBe("review_blocked");
+      expect(assertDefined(recordedEvents[0]).event).toBe("review_blocked");
     });
 
     it("tracks checkout_started with pricing", () => {

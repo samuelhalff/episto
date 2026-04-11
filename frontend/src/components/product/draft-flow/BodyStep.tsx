@@ -18,9 +18,9 @@ import {
   useDraft,
   useDraftFiles,
   useUpdateDraft,
-} from "../../../hooks/use-api";
-import { useDictation } from "../../../hooks/use-dictation";
-import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
+} from "@/hooks/use-api";
+import { useDictation } from "@/hooks/use-dictation";
+import { useQueuedAutosave } from "@/hooks/use-queued-autosave";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { BodyGenerationDialog } from "./BodyGenerationDialog";
 import { getBodyLoadingState } from "./body-loading-state";

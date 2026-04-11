@@ -3,7 +3,7 @@ import { z } from "zod";
 import { eq, and, gte, sql } from "drizzle-orm";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
-import { requireSession } from "../sessions/session.middleware.js";
+import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { notFoundError, AppError } from "../../shared/errors/index.js";
 import { createMessage, listMessages } from "./message.service.js";
 import { handleAiMessage } from "../ai/index.js";
@@ -61,7 +61,7 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
     "/drafts/:id/messages",
     { preHandler: [requireSession] },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { id: draftId } = request.params;
 
@@ -155,7 +155,7 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { id: draftId } = request.params;
 

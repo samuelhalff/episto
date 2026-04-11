@@ -24,6 +24,12 @@ vi.mock("../src/modules/sessions/session.middleware.js", () => ({
   requireSession: async (request: { session?: { id: string } }) => {
     request.session = { id: "session-1" };
   },
+  getRequiredSession: (request: { session?: { id: string } }) => {
+    if (!request.session) {
+      throw new Error("Expected mocked session");
+    }
+    return request.session;
+  },
 }));
 
 vi.mock("../src/modules/dispatch/dispatch.service.js", () => ({

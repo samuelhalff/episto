@@ -6,7 +6,7 @@ import {
   getSessionByResumeToken,
   updateSession,
 } from "./session.service.js";
-import { requireSession, COOKIE_NAME } from "./session.middleware.js";
+import { requireSession, getRequiredSession, COOKIE_NAME } from "./session.middleware.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { z } from "zod";
 import {
@@ -101,7 +101,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
     "/sessions/current",
     { preHandler: [requireSession] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
 
       // Count drafts for this session
@@ -129,7 +129,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
     "/sessions/current",
     { preHandler: [requireSession] },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const UpdateSessionBody = z
         .object({

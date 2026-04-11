@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as addressSearchService from "../src/modules/drafting/address-search.service.js";
+import { assertDefined } from "./assert-defined";
 
 const { getRecipientCompanyDetails, searchRecipientCompanies } = addressSearchService;
 const addressSearchExports = addressSearchService as typeof addressSearchService & {
@@ -18,6 +19,14 @@ vi.mock("../src/shared/config/index.js", () => ({
     GEO_ADMIN_API_BASE_URL: "https://api3.geo.admin.ch",
   }),
 }));
+
+function getSearchAddresses() {
+  return assertDefined(addressSearchExports.searchAddresses, "Expected searchAddresses export");
+}
+
+function getAddressDetails() {
+  return assertDefined(addressSearchExports.getAddressDetails, "Expected getAddressDetails export");
+}
 
 function createGeoAdminSearchResponse(label: string, officialFeatureId: string) {
   return {
@@ -133,7 +142,7 @@ describe("address autocomplete", () => {
   it("rejects too-short address queries", async () => {
     expect(addressSearchExports.searchAddresses).toBeTypeOf("function");
 
-    await expect(addressSearchExports.searchAddresses!("Ba")).rejects.toMatchObject({
+    await expect(getSearchAddresses()("Ba")).rejects.toMatchObject({
       code: "VALIDATION_ERROR",
     });
   });
@@ -149,7 +158,7 @@ describe("address autocomplete", () => {
       ),
     } as Response);
 
-    const results = (await addressSearchExports.searchAddresses!("Bahnhofstrasse")) as Array<{
+    const results = (await getSearchAddresses()("Bahnhofstrasse")) as Array<{
       id: string;
       label: string;
       primaryText: string;
@@ -193,12 +202,13 @@ describe("address autocomplete", () => {
         json: async () => createOfficialAddressDetailResponse(),
       } as Response);
 
-    const [result] = (await addressSearchExports.searchAddresses!("Bahnhofstrasse")) as Array<{
+    const [result] = (await getSearchAddresses()("Bahnhofstrasse")) as Array<{
       id: string;
     }>;
+    const resultId = assertDefined(result, "Expected geo.admin search result").id;
 
-    await expect(addressSearchExports.getAddressDetails!(result!.id)).resolves.toEqual({
-      id: result!.id,
+    await expect(getAddressDetails()(resultId)).resolves.toEqual({
+      id: resultId,
       label: "Bahnhofstrasse 1, 8001 Zürich",
       addressLine1: "Bahnhofstrasse 1",
       postalCode: "8001",
@@ -216,7 +226,7 @@ describe("address autocomplete", () => {
     expect(addressSearchExports.getAddressDetails).toBeTypeOf("function");
     const fetchSpy = vi.spyOn(globalThis, "fetch");
 
-    await expect(addressSearchExports.getAddressDetails!("abc123")).rejects.toMatchObject({
+    await expect(getAddressDetails()("abc123")).rejects.toMatchObject({
       code: "VALIDATION_ERROR",
     });
     expect(fetchSpy).not.toHaveBeenCalled();
@@ -243,12 +253,13 @@ describe("address autocomplete", () => {
           }),
       } as Response);
 
-    const [result] = (await addressSearchExports.searchAddresses!("Bahnhofstr")) as Array<{
+    const [result] = (await getSearchAddresses()("Bahnhofstr")) as Array<{
       id: string;
     }>;
+    const resultId = assertDefined(result, "Expected geo.admin search result").id;
 
-    await expect(addressSearchExports.getAddressDetails!(result!.id)).resolves.toEqual({
-      id: result!.id,
+    await expect(getAddressDetails()(resultId)).resolves.toEqual({
+      id: resultId,
       label: "Bahnhofstrasse, 7323 Wangs",
       addressLine1: "Bahnhofstrasse",
       postalCode: "7323",
@@ -275,11 +286,12 @@ describe("address autocomplete", () => {
           }),
       } as Response);
 
-    const [result] = (await addressSearchExports.searchAddresses!("Bahnhofstrasse")) as Array<{
+    const [result] = (await getSearchAddresses()("Bahnhofstrasse")) as Array<{
       id: string;
     }>;
+    const resultId = assertDefined(result, "Expected geo.admin search result").id;
 
-    await expect(addressSearchExports.getAddressDetails!(result!.id)).rejects.toMatchObject({
+    await expect(getAddressDetails()(resultId)).rejects.toMatchObject({
       code: "PROVIDER_OUTAGE",
     });
   });

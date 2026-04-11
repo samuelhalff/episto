@@ -2,10 +2,10 @@
 
 import { use } from "react";
 import { useTranslations } from "next-intl";
-import { useDraft, useDraftFiles, useLetterPreview } from "../../../../../hooks/use-api";
+import { useDraft, useDraftFiles, useLetterPreview } from "@/hooks/use-api";
 import { Loader2 } from "lucide-react";
-import { useDispatchQuote } from "../../../../../hooks/use-dispatch-quote";
-import { ReviewPageReady } from "../../../../../components/product/review/ReviewPageReady";
+import { useDispatchQuote } from "@/hooks/use-dispatch-quote";
+import { ReviewPageReady } from "@/components/product/review/ReviewPageReady";
 
 export default function ReviewPage({ params }: { params: Promise<{ draftId: string }> }) {
   const { draftId } = use(params);

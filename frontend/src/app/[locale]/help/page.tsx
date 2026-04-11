@@ -1,15 +1,15 @@
 import { getTranslations } from "next-intl/server";
-import type { Locale } from "../../../i18n/routing";
+import type { Locale } from "@/i18n/routing";
 import { HelpCircle, Mail } from "lucide-react";
-import { FinalCTABand } from "../../../components/marketing/FinalCTABand";
-import { JsonLd } from "../../../components/marketing/JsonLd";
-import { MarketingLayout } from "../../../components/marketing/MarketingLayout";
+import { FinalCTABand } from "@/components/marketing/FinalCTABand";
+import { JsonLd } from "@/components/marketing/JsonLd";
+import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import {
   MarketingActionLink,
   MarketingCard,
   MarketingSection,
-} from "../../../components/marketing/primitives";
-import { buildFaqJsonLd, buildMarketingMetadata } from "../../../lib/marketing-seo";
+} from "@/components/marketing/primitives";
+import { buildFaqJsonLd, buildMarketingMetadata } from "@/lib/marketing-seo";
 
 export async function generateMetadata({
   params,

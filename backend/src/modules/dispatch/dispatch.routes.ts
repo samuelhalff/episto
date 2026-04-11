@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
-import { requireSession } from "../sessions/session.middleware.js";
+import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { getDispatchForDraft } from "./dispatch.service.js";
 import { isMockEpostProviderName } from "./adapters/epost-submission-mode.js";
@@ -24,7 +24,7 @@ export async function dispatchRoutes(app: FastifyInstance): Promise<void> {
     },
     async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
       const db = getDb();
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const { id } = request.params;
 
       const [draft] = await db

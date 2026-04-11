@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 const paymentIntentsCreate = vi.fn();
 const paymentIntentsUpdate = vi.fn();
@@ -95,7 +96,7 @@ describe("createPaymentIntent", () => {
       deliveryType: "standard",
     });
 
-    const [createPayload] = paymentIntentsCreate.mock.calls[0]!;
+    const [createPayload] = assertDefined(paymentIntentsCreate.mock.calls[0]);
 
     expect(createPayload).toEqual(
       expect.objectContaining({

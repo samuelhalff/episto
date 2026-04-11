@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
-import * as appSchema from "../../src/db/schema.js";
+import * as appSchema from "../../src/db/schema/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const migrationsDir = path.resolve(__dirname, "../../drizzle");

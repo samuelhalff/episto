@@ -5,8 +5,8 @@ import type { AddressSearchResultType } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
 import { Loader2, Search } from "lucide-react";
 
-import { useAddressDetails, useAddressSearch } from "../../../hooks/use-api";
-import { getApiErrorCode, getApiErrorUserMessage } from "../../../lib/api";
+import { useAddressDetails, useAddressSearch } from "@/hooks/use-api";
+import { getApiErrorCode, getApiErrorUserMessage } from "@/lib/api";
 
 export interface AddressResolutionState {
   isResolving: boolean;

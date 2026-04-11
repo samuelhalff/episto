@@ -11,10 +11,10 @@ import {
   useRecipientCompanySearch,
   useSetRecipient,
   useUpdateDraft,
-} from "../../../hooks/use-api";
-import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
-import { ApiError } from "../../../lib/api";
-import { captureError } from "../../../lib/error-tracking";
+} from "@/hooks/use-api";
+import { useQueuedAutosave } from "@/hooks/use-queued-autosave";
+import { ApiError } from "@/lib/api";
+import { captureError } from "@/lib/error-tracking";
 import { DraftShell, Card, FieldIconBadge, PrimaryButton, SegmentedControl } from "./ui";
 import {
   AddressAutocompleteField,

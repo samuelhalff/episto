@@ -7,25 +7,25 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { useDraft, useCheckout, useSession } from "../../../../../hooks/use-api";
-import { Link, useRouter } from "../../../../../i18n/navigation";
+import { useDraft, useCheckout, useSession } from "@/hooks/use-api";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
-import { FlowHeader } from "../../../../../components/product/FlowHeader";
-import { FlowActionDock } from "../../../../../components/product/FlowActionDock";
-import { PriceSummary } from "../../../../../components/product/PriceSummary";
+import { FlowHeader } from "@/components/product/FlowHeader";
+import { FlowActionDock } from "@/components/product/FlowActionDock";
+import { PriceSummary } from "@/components/product/PriceSummary";
 import {
   StripePaymentForm,
   type StripePaymentFormLoadRecoveryReason,
-} from "../../../../../components/product/StripePaymentForm";
-import { ActionButton, ActionLink } from "../../../../../components/product/ActionButton";
-import { captureError } from "../../../../../lib/error-tracking";
-import { normalizeLetterSubject } from "../../../../../lib/letter-content";
-import { getApiErrorCode, getApiErrorUserMessage } from "../../../../../lib/api";
-import { getCustomerFlowBackPath } from "../../../../../lib/customer-flow";
-import { useTheme } from "../../../../../lib/theme";
+} from "@/components/product/StripePaymentForm";
+import { ActionButton, ActionLink } from "@/components/product/ActionButton";
+import { captureError } from "@/lib/error-tracking";
+import { normalizeLetterSubject } from "@/lib/letter-content";
+import { env } from "@/lib/env";
+import { getApiErrorCode, getApiErrorUserMessage } from "@/lib/api";
+import { getCustomerFlowBackPath } from "@/lib/customer-flow";
+import { useTheme } from "@/lib/theme";
 
-const stripePublishableKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ?? "";
-const stripePromise = stripePublishableKey ? loadStripe(stripePublishableKey) : null;
+const stripePromise = loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 const STRIPE_LOCALE_MAP: Record<string, "de" | "fr" | "it" | "en"> = {
   "de-CH": "de",
@@ -36,10 +36,6 @@ const STRIPE_LOCALE_MAP: Record<string, "de" | "fr" | "it" | "en"> = {
 
 function toStripeLocale(locale: string): "de" | "fr" | "it" | "en" {
   return STRIPE_LOCALE_MAP[locale] ?? "de";
-}
-
-function hasConfiguredStripePublishableKey(value: string): boolean {
-  return /^pk_(test|live)_/.test(value) && !/replace_me|placeholder/i.test(value);
 }
 
 function getStripeAppearance(theme: "light" | "dark") {
@@ -119,8 +115,6 @@ export default function CheckoutPage({
   const router = useRouter();
   const { theme } = useTheme();
   const session = useSession();
-  const hasConfiguredStripeFrontend =
-    hasConfiguredStripePublishableKey(stripePublishableKey);
   const [submittedCheckoutEmail, setSubmittedCheckoutEmail] = useState<string | null>(null);
   const [paymentRecoveryMessage, setPaymentRecoveryMessage] = useState<string | null>(null);
 
@@ -191,14 +185,13 @@ export default function CheckoutPage({
     getApiErrorUserMessage(checkout.error) ?? (checkout.error ? t("paymentError") : null);
   const hasBlockingPricingError =
     Boolean(checkoutErrorMessage) && !checkout.pricing && !checkout.clientSecret;
-  const hasBlockingStripeConfigurationError =
-    checkoutErrorCode === "STRIPE_NOT_CONFIGURED" || !hasConfiguredStripeFrontend;
+  const hasBlockingStripeConfigurationError = checkoutErrorCode === "STRIPE_NOT_CONFIGURED";
   const showCheckoutBlockedState =
     !checkout.clientSecret &&
     (hasBlockingPricingError || hasBlockingStripeConfigurationError);
   const checkoutBlockedTitle =
     checkoutErrorMessage ??
-    (!hasConfiguredStripeFrontend ? t("paymentConfigError") : null);
+    (hasBlockingStripeConfigurationError ? t("paymentConfigError") : null);
   const pricingPendingMessage = canRequestQuote ? null : t("pricingPending");
   const isPricingPending = Boolean(pricingPendingMessage);
 
@@ -420,7 +413,7 @@ export default function CheckoutPage({
             </div>
           )}
 
-          {stripeOptions && stripePromise && (
+          {stripeOptions && (
             <Elements stripe={stripePromise} options={stripeOptions}>
               <StripePaymentForm
                 priceCents={checkout.pricing?.totalCents ?? 0}
@@ -441,12 +434,6 @@ export default function CheckoutPage({
                 }
               />
             </Elements>
-          )}
-
-          {checkout.clientSecret && !stripePromise && (
-            <div className="rounded-3xl border border-destructive/20 bg-destructive/5 p-6">
-              <p className="text-sm text-destructive">{t("paymentConfigError")}</p>
-            </div>
           )}
 
           {!showCheckoutBlockedState ? (

@@ -21,7 +21,7 @@ import {
   providerRateMatrixVersions,
   providerRateMatrixEntries,
   draftQuoteCache,
-} from "./schema.js";
+} from "./schema/index.js";
 
 // ---------------------------------------------------------------------------
 // Insert schemas — validate data before DB writes

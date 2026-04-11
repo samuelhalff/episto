@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import { env } from "../shared/config/index.js";
-import * as schema from "./schema.js";
+import * as schema from "./schema/index.js";
 
 let _db: ReturnType<typeof drizzle<typeof schema>> | undefined;
 let _pool: pg.Pool | undefined;

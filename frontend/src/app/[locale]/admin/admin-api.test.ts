@@ -1,17 +1,27 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import {
-  adminFetch,
-  adminLogout,
-  fetchAdminAuthSession,
-} from "./admin-api";
+
+function ensureFrontendEnv() {
+  process.env.NEXT_PUBLIC_SITE_URL ??= "https://example.test";
+  process.env.NEXT_PUBLIC_API_URL ??= "/api";
+  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ??= "pk_test_example";
+  process.env.NEXT_PUBLIC_APP_ENV ??= "test";
+}
+
+async function loadAdminApiModule() {
+  ensureFrontendEnv();
+  vi.resetModules();
+  return import("./admin-api");
+}
 
 describe("admin-api", () => {
   afterEach(() => {
     vi.unstubAllGlobals();
+    vi.resetModules();
     delete process.env.NEXT_PUBLIC_API_URL;
   });
 
   it("does not send Authorization headers for admin fetches", async () => {
+    const { adminFetch } = await loadAdminApiModule();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ ok: true }),
@@ -29,6 +39,7 @@ describe("admin-api", () => {
   });
 
   it("checks the backend admin session with browser credentials", async () => {
+    const { fetchAdminAuthSession } = await loadAdminApiModule();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ authenticated: true }),
@@ -47,6 +58,7 @@ describe("admin-api", () => {
 
   it("normalizes a bare backend origin to the /api base for admin requests", async () => {
     process.env.NEXT_PUBLIC_API_URL = "http://localhost:4000";
+    const { fetchAdminAuthSession } = await loadAdminApiModule();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ authenticated: false, microsoftSsoEnabled: false }),
@@ -66,6 +78,7 @@ describe("admin-api", () => {
   it("keeps browser admin requests on the same-origin /api proxy even with a public API origin", async () => {
     process.env.NEXT_PUBLIC_API_URL = "https://api.swissmail.ch";
     vi.stubGlobal("window", { location: { origin: "https://swissmail.ch" } });
+    const { fetchAdminAuthSession } = await loadAdminApiModule();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ authenticated: false, microsoftSsoEnabled: false }),
@@ -83,6 +96,7 @@ describe("admin-api", () => {
   });
 
   it("posts to the backend logout endpoint with browser credentials", async () => {
+    const { adminLogout } = await loadAdminApiModule();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ ok: true }),

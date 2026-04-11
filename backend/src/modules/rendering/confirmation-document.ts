@@ -44,38 +44,40 @@ interface ConfirmationCopy {
   noteBundle: string;
 }
 
-const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
-  "en-CH": {
-    eyebrow: BRAND_NAME,
-    title: "Dispatch statement",
-    issuedOn: "Issued on",
-    orderRef: "Order reference",
-    dispatchStatus: "Status",
-    deliveryType: "Delivery type",
-    providerReference: "Provider reference",
-    trackingNumber: "Tracking number",
-    attachments: "Attachments",
-    sender: "Sender",
-    recipient: "Recipient",
-    subject: "Subject",
-    notAvailable: "Not available",
-    dispatchStates: {
-      queued: "Queued",
-      submitted: "Submitted",
-      accepted: "Accepted",
-      reconciled: "Confirmed",
-      rejected: "Rejected",
-      unknown: "Pending clarification",
-    },
-    deliveryTypes: {
-      standard: "Standard post",
-      registered: "Registered post",
-    },
-    noteCurrent: "This statement reflects the current dispatch record.",
-    noteLive:
-      "Provider identifiers are shown exactly as returned by the dispatch integration.",
-    noteBundle: "The exact letter PDF follows on the next page.",
+const DEFAULT_COPY: ConfirmationCopy = {
+  eyebrow: BRAND_NAME,
+  title: "Dispatch statement",
+  issuedOn: "Issued on",
+  orderRef: "Order reference",
+  dispatchStatus: "Status",
+  deliveryType: "Delivery type",
+  providerReference: "Provider reference",
+  trackingNumber: "Tracking number",
+  attachments: "Attachments",
+  sender: "Sender",
+  recipient: "Recipient",
+  subject: "Subject",
+  notAvailable: "Not available",
+  dispatchStates: {
+    queued: "Queued",
+    submitted: "Submitted",
+    accepted: "Accepted",
+    reconciled: "Confirmed",
+    rejected: "Rejected",
+    unknown: "Pending clarification",
   },
+  deliveryTypes: {
+    standard: "Standard post",
+    registered: "Registered post",
+  },
+  noteCurrent: "This statement reflects the current dispatch record.",
+  noteLive:
+    "Provider identifiers are shown exactly as returned by the dispatch integration.",
+  noteBundle: "The exact letter PDF follows on the next page.",
+};
+
+const COPY = {
+  "en-CH": DEFAULT_COPY,
   "de-CH": {
     eyebrow: BRAND_NAME,
     title: "Versandnachweis",
@@ -169,10 +171,10 @@ const COPY: Record<ConfirmationLocale, ConfirmationCopy> = {
       "Gli identificativi del fornitore sono riportati esattamente come restituiti dall'integrazione di spedizione.",
     noteBundle: "Il PDF esatto della lettera inizia alla pagina successiva.",
   },
-};
+} satisfies Record<ConfirmationLocale, ConfirmationCopy>;
 
 function getCopy(locale: ConfirmationLocale): ConfirmationCopy {
-  return COPY[locale as keyof typeof COPY]!;
+  return COPY[locale as keyof typeof COPY] ?? DEFAULT_COPY;
 }
 
 function escapeHtml(value: string): string {

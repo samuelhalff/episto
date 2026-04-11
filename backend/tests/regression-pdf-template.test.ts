@@ -12,6 +12,7 @@
  */
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import type { SnapshotData } from "@swiss-mail/shared";
+import { assertDefined } from "./assert-defined";
 
 vi.mock("node:fs", () => ({
   readFileSync: vi.fn().mockReturnValue(Buffer.from("fake-font-data")),
@@ -102,7 +103,7 @@ describe("regression: PDF letter template renders all elements", () => {
       /<div class="sender-block">[\s\S]*?<\/div>/,
     );
     expect(senderBlockMatch).not.toBeNull();
-    expect(senderBlockMatch![0]).toContain("Postfach 42");
+    expect(assertDefined(senderBlockMatch)[0]).toContain("Postfach 42");
   });
 
   it("omits sender.addressLine2 from the sender block when null", async () => {
@@ -128,7 +129,7 @@ describe("regression: PDF letter template renders all elements", () => {
       /<div class="sender-block">[\s\S]*?<\/div>/,
     );
     expect(senderBlockMatch).not.toBeNull();
-    expect(senderBlockMatch![0]).not.toContain("null");
+    expect(assertDefined(senderBlockMatch)[0]).not.toContain("null");
   });
 
   it("includes recipient.addressLine2 in the recipient block when present", async () => {
@@ -143,7 +144,7 @@ describe("regression: PDF letter template renders all elements", () => {
       /<div class="recipient-block">[\s\S]*?<\/div>/,
     );
     expect(recipientBlockMatch).not.toBeNull();
-    expect(recipientBlockMatch![0]).toContain("Postfach 100");
+    expect(assertDefined(recipientBlockMatch)[0]).toContain("Postfach 100");
   });
 
   it("renders the full recipient block with company, department, name, and address", async () => {

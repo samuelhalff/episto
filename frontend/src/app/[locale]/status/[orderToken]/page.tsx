@@ -4,15 +4,15 @@ import { use } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Loader2, Package, PenLine, AlertCircle } from "lucide-react";
-import { Link } from "../../../../i18n/navigation";
-import { apiFetch } from "../../../../lib/api";
+import { Link } from "@/i18n/navigation";
+import { apiFetch } from "@/lib/api";
 import { OrderStatusResponseSchema, queryKeys } from "@swiss-mail/shared";
 import type { OrderStatusResponse } from "@swiss-mail/shared";
-import { BrandMark } from "../../../../components/branding/BrandMark";
-import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
-import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
-import { DispatchConfirmation } from "../../../../components/product/DispatchConfirmation";
-import { ProtectedPdfDownloadButton } from "../../../../components/product/ProtectedPdfDownloadButton";
+import { BrandMark } from "@/components/branding/BrandMark";
+import { CustomerSiteMenu } from "@/components/layout/CustomerSiteMenu";
+import { HeaderLanguageMenu } from "@/components/layout/HeaderLanguageMenu";
+import { DispatchConfirmation } from "@/components/product/DispatchConfirmation";
+import { ProtectedPdfDownloadButton } from "@/components/product/ProtectedPdfDownloadButton";
 
 function useOrderStatus(orderToken: string) {
   return useQuery({

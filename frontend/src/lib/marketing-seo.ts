@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { routing } from "../i18n/routing";
-import { BRAND_NAME, SITE_URL } from "./brand";
+import { BRAND_NAME } from "./brand";
+import { env } from "./env";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -24,7 +25,7 @@ export const NO_INDEX_METADATA: Metadata = {
 };
 
 export function getSiteUrl() {
-  return (process.env.NEXT_PUBLIC_SITE_URL ?? SITE_URL).replace(/\/+$/, "");
+  return env.NEXT_PUBLIC_SITE_URL;
 }
 
 function normalizePathname(pathname: string) {

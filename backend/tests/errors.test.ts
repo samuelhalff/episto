@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { assertDefined } from "./assert-defined";
 import {
   AppError,
   statusForFamily,
@@ -56,7 +57,7 @@ describe("AppError", () => {
       fields: [{ field: "email", message: "required" }],
     });
     expect(err.fields).toHaveLength(1);
-    expect(err.fields![0].field).toBe("email");
+    expect(assertDefined(err.fields?.[0]).field).toBe("email");
   });
 
   it("stores cause via Error options", () => {

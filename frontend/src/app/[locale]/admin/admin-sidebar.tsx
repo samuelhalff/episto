@@ -13,9 +13,9 @@ import {
   Activity,
   X,
 } from "lucide-react";
-import { BrandMark } from "../../../components/branding/BrandMark";
+import { BrandMark } from "@/components/branding/BrandMark";
 import { useAdminAuth } from "./admin-auth-context";
-import { getAdminPagePath } from "../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 
 const NAV_SECTIONS = [
   {

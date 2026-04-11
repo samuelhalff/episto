@@ -9,7 +9,7 @@ import {
   useDispatchInfo,
   PAYMENT_SUCCESS_STATES,
   PAYMENT_FAILURE_STATES,
-} from "../../../../../hooks/use-payment-status";
+} from "@/hooks/use-payment-status";
 import {
   CheckCircle2,
   AlertCircle,
@@ -22,14 +22,14 @@ import {
   PenLine,
   Loader2,
 } from "lucide-react";
-import { ActionLink } from "../../../../../components/product/ActionButton";
-import { ConfirmationEmailNotice } from "../../../../../components/product/ConfirmationEmailNotice";
-import { ProtectedPdfDownloadButton } from "../../../../../components/product/ProtectedPdfDownloadButton";
-import { DispatchConfirmation } from "../../../../../components/product/DispatchConfirmation";
-import { FlowHeader } from "../../../../../components/product/FlowHeader";
-import { getCustomerFlowPath } from "../../../../../lib/customer-flow";
-import { getAppButtonClassName } from "../../../../../components/ui/app-button";
-import { StatusBadge } from "../../../../../components/ui/status-badge";
+import { ActionLink } from "@/components/product/ActionButton";
+import { ConfirmationEmailNotice } from "@/components/product/ConfirmationEmailNotice";
+import { ProtectedPdfDownloadButton } from "@/components/product/ProtectedPdfDownloadButton";
+import { DispatchConfirmation } from "@/components/product/DispatchConfirmation";
+import { FlowHeader } from "@/components/product/FlowHeader";
+import { getCustomerFlowPath } from "@/lib/customer-flow";
+import { getAppButtonClassName } from "@/components/ui/app-button";
+import { StatusBadge } from "@/components/ui/status-badge";
 
 // ---------------------------------------------------------------------------
 // Timeline Step

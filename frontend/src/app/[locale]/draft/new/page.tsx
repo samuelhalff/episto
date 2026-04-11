@@ -18,21 +18,21 @@ import {
   type LucideIcon,
 } from "lucide-react";
 
-import { Link, useRouter } from "../../../../i18n/navigation";
-import { routing } from "../../../../i18n/routing";
-import { ConfirmDialog } from "../../../../components/product/ConfirmDialog";
-import { BrandMark } from "../../../../components/branding/BrandMark";
-import { CustomerSiteMenu } from "../../../../components/layout/CustomerSiteMenu";
-import { HeaderLanguageMenu } from "../../../../components/layout/HeaderLanguageMenu";
-import { AppButton } from "../../../../components/ui/app-button";
-import { useDictation } from "../../../../hooks/use-dictation";
-import { ApiError, apiFetch } from "../../../../lib/api";
-import { ActionButton, ActionLink } from "../../../../components/product/ActionButton";
+import { Link, useRouter } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
+import { ConfirmDialog } from "@/components/product/ConfirmDialog";
+import { BrandMark } from "@/components/branding/BrandMark";
+import { CustomerSiteMenu } from "@/components/layout/CustomerSiteMenu";
+import { HeaderLanguageMenu } from "@/components/layout/HeaderLanguageMenu";
+import { AppButton } from "@/components/ui/app-button";
+import { useDictation } from "@/hooks/use-dictation";
+import { ApiError, apiFetch } from "@/lib/api";
+import { ActionButton, ActionLink } from "@/components/product/ActionButton";
 import {
   findRecoverableDraft,
   shouldForceFreshEntry,
-} from "../../../../lib/new-draft-entry";
-import { primePendingDraftTurn } from "../../../../lib/pending-draft-turn";
+} from "@/lib/new-draft-entry";
+import { primePendingDraftTurn } from "@/lib/pending-draft-turn";
 
 type BootstrapState =
   | { kind: "loading" }

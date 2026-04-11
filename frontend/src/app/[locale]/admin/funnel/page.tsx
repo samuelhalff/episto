@@ -32,6 +32,7 @@ export default function FunnelPage() {
     refetchInterval: REFETCH_MS,
     enabled: authenticated,
   });
+  const funnelData = funnel.data;
 
   return (
     <div className="space-y-6">
@@ -48,14 +49,14 @@ export default function FunnelPage() {
           <PanelLoading />
         ) : funnel.error ? (
           <PanelError message="Failed to load funnel data" />
-        ) : funnel.data ? (
+        ) : funnelData ? (
           <div className="space-y-1">
-            {funnel.data.steps.length === 0 ? (
+            {funnelData.steps.length === 0 ? (
               <p className="py-8 text-center text-xs" style={{ color: "var(--app-muted)" }}>
                 No funnel data for this period
               </p>
-            ) : funnel.data.steps.map((step, i) => {
-              const maxCount = funnel.data!.steps[0]?.count ?? 1;
+            ) : funnelData.steps.map((step, i) => {
+              const maxCount = funnelData.steps[0]?.count ?? 1;
               const pct = maxCount > 0 ? Math.round((step.count / maxCount) * 100) : 0;
               return (
                 <div key={step.stage}>
@@ -75,7 +76,7 @@ export default function FunnelPage() {
                         style={{
                           width: `${Math.max(pct, 2)}%`,
                           background: "var(--app-fg)",
-                          opacity: 0.15 + 0.6 * (1 - i / Math.max(funnel.data!.steps.length - 1, 1)),
+                          opacity: 0.15 + 0.6 * (1 - i / Math.max(funnelData.steps.length - 1, 1)),
                         }}
                       >
                         <span
@@ -94,7 +95,7 @@ export default function FunnelPage() {
                     </span>
                   </div>
                   {/* Dropoff indicator between stages */}
-                  {i < funnel.data!.steps.length - 1 && step.dropOffPercent != null && step.dropOffPercent > 0 && (
+                  {i < funnelData.steps.length - 1 && step.dropOffPercent != null && step.dropOffPercent > 0 && (
                     <div className="flex items-center gap-3 pb-1">
                       <span className="w-24" />
                       <span className="text-[11px]" style={{ color: "var(--app-muted)" }}>
@@ -106,10 +107,10 @@ export default function FunnelPage() {
               );
             })}
             <div className="mt-3 text-right">
-              <span className="text-xs font-medium" style={{ color: "var(--app-muted)" }}>
-                Overall conversion: {funnel.data.overallConversionPercent}%
-              </span>
-            </div>
+                <span className="text-xs font-medium" style={{ color: "var(--app-muted)" }}>
+                  Overall conversion: {funnelData.overallConversionPercent}%
+                </span>
+              </div>
           </div>
         ) : null}
       </SectionPanel>

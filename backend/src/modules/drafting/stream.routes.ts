@@ -14,7 +14,7 @@
 
 import type { FastifyInstance } from "fastify";
 import { getDb } from "../../db/index.js";
-import { requireSession } from "../sessions/session.middleware.js";
+import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { getDraftById } from "./draft.service.js";
 import { subscribeDraft, unsubscribeDraft } from "./draft-events.js";
 import type { DraftEventHandler } from "./draft-events.js";
@@ -26,7 +26,7 @@ export async function streamRoutes(app: FastifyInstance): Promise<void> {
     "/drafts/:draftId/stream",
     { preHandler: [requireSession] },
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 

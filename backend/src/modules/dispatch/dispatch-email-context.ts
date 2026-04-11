@@ -71,7 +71,11 @@ export async function buildDispatchEmailContext(
   if (!session?.email) return null;
 
   const config = env();
-  const siteUrl = config.APP_PUBLIC_URL ?? config.CORS_ORIGIN.split(",")[0]!.trim();
+  const fallbackOrigin = config.CORS_ORIGIN.split(",")[0]?.trim();
+  const siteUrl = config.APP_PUBLIC_URL ?? fallbackOrigin;
+  if (!siteUrl) {
+    return null;
+  }
   const token = await issueOrderAccessToken({
     paymentAttemptId: payment.id,
     expiresAt: payment.orderAccessTokenExpiresAt,

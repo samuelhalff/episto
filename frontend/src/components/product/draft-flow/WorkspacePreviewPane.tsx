@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Expand, Loader2, RefreshCw, X } from "lucide-react";
-import { useDraft } from "../../../hooks/use-api";
-import { useLetterPreview } from "../../../hooks/use-letter-preview";
+import { useDraft } from "@/hooks/use-api";
+import { useLetterPreview } from "@/hooks/use-letter-preview";
 import { LetterPreview } from "../LetterPreview";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
-import { getSignatureFileUrl } from "../../../lib/letter-content";
+import { getSignatureFileUrl } from "@/lib/letter-content";
 
 interface WorkspacePreviewPaneProps {
   draftId: string;

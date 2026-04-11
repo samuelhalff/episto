@@ -6,7 +6,7 @@ import { queryKeys } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
-import { getAdminPagePath } from "../../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminOverview, fetchAdminRetention } from "../admin-api";
 import { PanelError, PanelLoading } from "../admin-metric-panels";

@@ -9,10 +9,10 @@ import {
   useUpdateDraft,
   useReviewDraft,
   useTransitionDraft,
-} from "../../../hooks/use-api";
-import type { UseLetterPreviewReturn } from "../../../hooks/use-letter-preview";
+} from "@/hooks/use-api";
+import type { UseLetterPreviewReturn } from "@/hooks/use-letter-preview";
 import type { FileAsset } from "@swiss-mail/shared";
-import { useRouter } from "../../../i18n/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { FlowHeader } from "../FlowHeader";
 import { FlowActionDock } from "../FlowActionDock";
 import { LetterPreview } from "../LetterPreview";
@@ -22,16 +22,16 @@ import { DraftStepMenu } from "../DraftStepMenu";
 import { StatusBadge } from "../../ui/status-badge";
 import { ReviewSummaryCard, type ReviewSummaryItem } from "./ReviewSummaryCard";
 import { useReviewPrimaryActionState } from "./review-action-state";
-import { formatCentsAsCHF } from "../../../hooks/use-pricing";
-import { captureError } from "../../../lib/error-tracking";
-import { getApiErrorUserMessage } from "../../../lib/api";
-import { getCustomerFlowPath } from "../../../lib/customer-flow";
+import { formatCentsAsCHF } from "@/hooks/use-pricing";
+import { captureError } from "@/lib/error-tracking";
+import { getApiErrorUserMessage } from "@/lib/api";
+import { getCustomerFlowPath } from "@/lib/customer-flow";
 import {
   getAddressLines,
   getSignatureFileUrl,
   hasConcreteSignature,
   normalizeLetterSubject,
-} from "../../../lib/letter-content";
+} from "@/lib/letter-content";
 
 interface ReviewPageReadyProps {
   draftId: string;
@@ -55,8 +55,7 @@ export function ReviewPageReady({
   const transitionDraft = useTransitionDraft(draftId);
   const router = useRouter();
   const [backError, setBackError] = useState<string | null>(null);
-
-  const draftData = draft.data!;
+  const draftData = draft.data;
   const previewData = preview.previewData;
   const previewLocale = previewData?.locale ?? draftData?.locale ?? "de-CH";
   const normalizedDraftSubject = normalizeLetterSubject(
@@ -86,13 +85,15 @@ export function ReviewPageReady({
   const hasAttachments = attachmentCount > 0;
   const hasSignature = hasConcreteSignature(signatureMode, signatureFileId);
   const allComplete = hasSender && hasRecipient && hasBody && hasSubject;
-  const isRenderPending = ["reviewed", "rendering"].includes(draftData.status);
+  const isRenderPending = draftData
+    ? ["reviewed", "rendering"].includes(draftData.status)
+    : false;
   const canRequestQuote = allComplete && !isRenderPending;
   const quoteErrorMessage = getApiErrorUserMessage(quote.error);
 
-  const alreadyPrepared = ["ready", "submitted", "dispatched", "closed"].includes(
-    draftData.status,
-  );
+  const alreadyPrepared = draftData
+    ? ["ready", "submitted", "dispatched", "closed"].includes(draftData.status)
+    : false;
   const isSubmittingReview = reviewDraft.isPending || updateDraft.isPending;
   const reviewActionState = useReviewPrimaryActionState({
     allComplete,
@@ -147,16 +148,19 @@ export function ReviewPageReady({
   );
 
   const previewDraft = useMemo(
-    () => ({
-      ...draftData,
-      locale: previewLocale,
-      deliveryType: displayDeliveryType,
-      subject: displaySubject,
-      body: displayBody,
-      enclosureNote: displayEnclosureNote,
-      signatureMode,
-      signatureAssetId: signatureFileId,
-    }),
+    () =>
+      draftData
+        ? {
+            ...draftData,
+            locale: previewLocale,
+            deliveryType: displayDeliveryType,
+            subject: displaySubject,
+            body: displayBody,
+            enclosureNote: displayEnclosureNote,
+            signatureMode,
+            signatureAssetId: signatureFileId,
+          }
+        : null,
     [
       draftData,
       displayBody,
@@ -171,14 +175,14 @@ export function ReviewPageReady({
 
   const desktopStepAction = useMemo(
     () =>
-      !alreadyPrepared ? (
+      draftData && !alreadyPrepared ? (
         <DraftStepMenu draftId={draftId} draft={draftData} triggerStyle="toolbar" />
       ) : null,
     [alreadyPrepared, draftData, draftId],
   );
 
   const handleProceedToPayment = useCallback(() => {
-    if (!reviewActionState.canProceed) return;
+    if (!draftData || !reviewActionState.canProceed) return;
 
     if (alreadyPrepared) {
       router.push(`/draft/${draftId}/checkout`);
@@ -233,7 +237,7 @@ export function ReviewPageReady({
   ]);
 
   const handleBackToDraft = useCallback(() => {
-    if (transitionDraft.isPending) return;
+    if (!draftData || transitionDraft.isPending) return;
     setBackError(null);
 
     void transitionDraft
@@ -248,7 +252,11 @@ export function ReviewPageReady({
           route: `/draft/${draftId}/review`,
         });
       });
-  }, [draftId, router, tc, transitionDraft]);
+  }, [draftData, draftId, router, tc, transitionDraft]);
+
+  if (!draftData || !previewDraft) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">

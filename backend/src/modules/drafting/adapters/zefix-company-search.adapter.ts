@@ -128,7 +128,10 @@ export class ZefixCompanySearchAdapter implements CompanySearchAdapter {
       throw providerOutageError("Official company registry details", parsed.error);
     }
 
-    const company = Array.isArray(parsed.data) ? parsed.data[0]! : parsed.data;
+    const company = Array.isArray(parsed.data) ? parsed.data[0] : parsed.data;
+    if (!company) {
+      throw providerOutageError("Official company registry details");
+    }
     const address = company.address ?? null;
 
     return {

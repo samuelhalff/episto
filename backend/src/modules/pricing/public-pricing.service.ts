@@ -84,7 +84,14 @@ function selectSingleCandidateOrThrow(
     );
   }
 
-  return versions[0]!;
+  const [onlyVersion] = versions;
+  if (!onlyVersion) {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the active provider rate matrix selection is missing.",
+    );
+  }
+
+  return onlyVersion;
 }
 
 function pricingUnavailableError(message = PRICING_UNAVAILABLE_MESSAGE): AppError {
@@ -276,8 +283,13 @@ export function buildPublicPricingResponse(args: {
       config.PRICE_REGISTERED_MARKUP_CENTS,
     ),
   );
-  const standard = standardExamples[0]!;
-  const registered = registeredExamples[0]!;
+  const [standard] = standardExamples;
+  const [registered] = registeredExamples;
+  if (!standard || !registered) {
+    throw pricingUnavailableError(
+      "Public pricing is unavailable because the active provider rate matrix is missing required examples.",
+    );
+  }
 
   if (registered.providerQuotedCents < standard.providerQuotedCents) {
     throw pricingUnavailableError(

@@ -45,6 +45,12 @@ vi.mock("../src/modules/sessions/session.middleware.js", () => ({
   requireSession: async (request: { session?: { id: string; locale: string } }) => {
     request.session = { id: "session-1", locale: "de-CH" };
   },
+  getRequiredSession: (request: { session?: { id: string; locale: string } }) => {
+    if (!request.session) {
+      throw new Error("Expected mocked session");
+    }
+    return request.session;
+  },
 }));
 
 vi.mock("../src/modules/payments/payment.service.js", () => ({

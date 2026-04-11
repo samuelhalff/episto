@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
@@ -76,11 +77,15 @@ describe("signature canvas redesign", () => {
     expect(logisticsStepSource).not.toContain("sigInputRef");
   });
 
-  it("SignatureCanvas wraps react-signature-canvas with DPR scaling", () => {
-    expect(signatureCanvasSource).toContain("react-signature-canvas");
+  it("SignatureCanvas wraps signature_pad with DPR scaling", () => {
+    expect(signatureCanvasSource).toContain('from "signature_pad"');
+    expect(signatureCanvasSource).toContain("new SignaturePad(");
+    expect(signatureCanvasSource).not.toContain("react-signature-canvas");
     expect(signatureCanvasSource).toContain("devicePixelRatio");
     expect(signatureCanvasSource).toContain("ResizeObserver");
+    expect(signatureCanvasSource).toContain("<canvas");
     expect(signatureCanvasSource).toContain("onSignature");
+    expect(signatureCanvasSource).not.toContain("@ts-expect-error");
   });
 
   it("SignatureSection offers typed and drawn mode toggle", () => {
@@ -179,7 +184,7 @@ describe("signature atomic replacement (v2 simplification)", () => {
       /handleDrawnSignature\s*=\s*useCallback\(([\s\S]*?)\n\s*\[/,
     );
     expect(handler).not.toBeNull();
-    expect(handler![1]).not.toContain("removeFile");
+    expect(assertDefined(handler)[1]).not.toContain("removeFile");
   });
 
   it("frontend validateFile does not reject duplicate signatures", () => {
@@ -197,7 +202,7 @@ describe("signature atomic replacement (v2 simplification)", () => {
       /removeMutation[\s\S]*?onSuccess:\s*\(\)\s*=>\s*\{([\s\S]*?)\}/,
     );
     expect(removeOnSuccess).not.toBeNull();
-    expect(removeOnSuccess![1]).not.toContain("queryKeys.draft(draftId)");
+    expect(assertDefined(removeOnSuccess)[1]).not.toContain("queryKeys.draft(draftId)");
   });
 
   it("SignatureSection shows saved signature with redraw option", () => {

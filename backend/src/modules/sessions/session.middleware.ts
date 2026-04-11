@@ -63,4 +63,19 @@ export async function requireSession(
   request.session = session;
 }
 
+export function getRequiredSession(request: FastifyRequest): SessionRow {
+  if (!request.session) {
+    throw new AppError({
+      family: "validation_error",
+      statusCode: 401,
+      code: "SESSION_REQUIRED",
+      message: "Request session missing after session middleware",
+      userMessage: "Your session has expired or is missing.",
+      userAction: "Please start a new letter.",
+    });
+  }
+
+  return request.session;
+}
+
 export { COOKIE_NAME };

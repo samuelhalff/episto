@@ -23,3 +23,5 @@ shared/coverage/
 .fuse_hidden*
 test-results/
 screenshots/
+tmp-*
+*.tmp.html

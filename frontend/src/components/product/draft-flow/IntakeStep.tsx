@@ -3,10 +3,10 @@
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Calendar, FileText, Hash, Lightbulb, Mail, RotateCcw } from "lucide-react";
-import { useConversation } from "../../../hooks/use-conversation";
-import { useDraft, useDraftFiles, useUpdateDraft } from "../../../hooks/use-api";
-import { useDictation } from "../../../hooks/use-dictation";
-import { useQueuedAutosave } from "../../../hooks/use-queued-autosave";
+import { useConversation } from "@/hooks/use-conversation";
+import { useDraft, useDraftFiles, useUpdateDraft } from "@/hooks/use-api";
+import { useDictation } from "@/hooks/use-dictation";
+import { useQueuedAutosave } from "@/hooks/use-queued-autosave";
 import {
   ComposerBadge,
   ComposerIconButton,

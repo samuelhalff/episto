@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 /**
  * Tests for message cursor format and rate limit constants.
@@ -21,7 +22,7 @@ describe("Message cursor format", () => {
 
     expect(parts[0]).toBe("2024-01-15T10:30:00.000Z");
     expect(parts[1]).toBe("abc-123");
-    expect(new Date(parts[0]!).toISOString()).toBe("2024-01-15T10:30:00.000Z");
+    expect(new Date(assertDefined(parts[0])).toISOString()).toBe("2024-01-15T10:30:00.000Z");
   });
 
   it("handles edge case: empty cursor parts", () => {

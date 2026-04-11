@@ -2,10 +2,10 @@
 
 import { use, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { apiFetch } from "../../../../lib/api";
-import { useRouter } from "../../../../i18n/navigation";
+import { apiFetch } from "@/lib/api";
+import { useRouter } from "@/i18n/navigation";
 import { Loader2 } from "lucide-react";
-import { RecoveryScreen } from "../../../../components/product/RecoveryScreen";
+import { RecoveryScreen } from "@/components/product/RecoveryScreen";
 
 // ---------------------------------------------------------------------------
 // Resume Page

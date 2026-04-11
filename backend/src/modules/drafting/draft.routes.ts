@@ -1,7 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
-import { requireSession } from "../sessions/session.middleware.js";
+import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import {
   createDraft,
   getDraftById,
@@ -62,7 +62,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       },
     },
     async (request: FastifyRequest, reply: FastifyReply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
 
       const draft = await createDraft(db, session.id, session.locale);
@@ -75,7 +75,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
 
   // GET /drafts — list drafts for current session
   app.get("/drafts", async (request: FastifyRequest, reply: FastifyReply) => {
-    const session = request.session!;
+    const session = getRequiredSession(request);
     const db = getDb();
 
     const drafts = await listDraftsBySession(db, session.id);
@@ -89,7 +89,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       request: FastifyRequest<{ Params: { draftId: string } }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -127,7 +127,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       request: FastifyRequest<{ Params: { draftId: string } }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -145,7 +145,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       request: FastifyRequest<{ Params: { draftId: string } }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -162,7 +162,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       request: FastifyRequest<{ Params: { draftId: string } }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -203,7 +203,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
       const { status } = TransitionBody.parse(request.body);
@@ -233,7 +233,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
   app.put<{ Params: { draftId: string } }>(
     "/drafts/:draftId/sender",
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -263,7 +263,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
   app.put<{ Params: { draftId: string } }>(
     "/drafts/:draftId/recipient",
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -305,7 +305,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       request: FastifyRequest<{ Params: { draftId: string } }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -319,22 +319,36 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         throw validationError("Required fields missing for review", missingFields);
       }
 
+      const senderProfileId = draft.senderProfileId;
+      if (!senderProfileId) {
+        throw validationError("Sender profile not found", [
+          { field: "sender", message: "Sender profile not found" },
+        ]);
+      }
+
       // Fetch sender profile
       const [sender] = await db
         .select()
         .from(schema.senderProfiles)
-        .where(eq(schema.senderProfiles.id, draft.senderProfileId!))
+        .where(eq(schema.senderProfiles.id, senderProfileId))
         .limit(1);
       if (!sender)
         throw validationError("Sender profile not found", [
           { field: "sender", message: "Sender profile not found" },
         ]);
 
+      const recipientProfileId = draft.recipientProfileId;
+      if (!recipientProfileId) {
+        throw validationError("Recipient profile not found", [
+          { field: "recipient", message: "Recipient profile not found" },
+        ]);
+      }
+
       // Fetch recipient profile
       const [recipient] = await db
         .select()
         .from(schema.recipientProfiles)
-        .where(eq(schema.recipientProfiles.id, draft.recipientProfileId!))
+        .where(eq(schema.recipientProfiles.id, recipientProfileId))
         .limit(1);
       if (!recipient)
         throw validationError("Recipient profile not found", [
@@ -474,7 +488,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       request: FastifyRequest<{ Params: { draftId: string } }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -559,6 +573,8 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         | "standard"
         | "registered";
       const resolvedDisplayQuote = await resolveDisplayDispatchQuoteForDraft(db, draftId);
+      const previewUpdatedAt =
+        snapshotData && latestSnapshot ? latestSnapshot.createdAt : draft.updatedAt;
 
       reply.send({
         preview: {
@@ -575,9 +591,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           signatureFileId,
           attachmentCount,
           priceCents: resolvedDisplayQuote.quote.totalCents,
-          updatedAt: snapshotData
-            ? latestSnapshot!.createdAt.toISOString()
-            : draft.updatedAt.toISOString(),
+          updatedAt: previewUpdatedAt.toISOString(),
         },
       });
     },

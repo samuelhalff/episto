@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import Fastify, { type FastifyInstance } from "fastify";
 import { eq } from "drizzle-orm";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 // ---------------------------------------------------------------------------
 // Draft preview HTTP route test (mocked dependencies, no real DB required)
@@ -35,6 +36,12 @@ describe("draft preview route", () => {
     }));
 
     vi.doMock("../src/modules/sessions/session.middleware.js", () => ({
+      getRequiredSession: vi.fn().mockImplementation((request: { session?: unknown }) => {
+        if (!request.session) {
+          throw new Error("Expected mocked session");
+        }
+        return request.session;
+      }),
       requireSession: vi.fn().mockImplementation(
         async (request: { session?: unknown }) => {
           request.session = {
@@ -782,7 +789,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
     const after = Date.now();
 
     expect(result.meta.expiresAt).not.toBeNull();
-    const expiresMs = result.meta.expiresAt!.getTime();
+    const expiresMs = assertDefined(result.meta.expiresAt).getTime();
     // Default TTL is 30 minutes; assert expiresAt is roughly generatedAt + TTL
     const expectedMin = before + 29 * 60 * 1000;
     const expectedMax = after + 31 * 60 * 1000;
@@ -796,6 +803,6 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       .where(eq(schema.draftQuoteCache.draftId, draftId))
       .limit(1);
     expect(cached?.expiresAt).not.toBeNull();
-    expect(cached!.expiresAt!.getTime()).toBeGreaterThanOrEqual(expectedMin);
+    expect(assertDefined(assertDefined(cached).expiresAt).getTime()).toBeGreaterThanOrEqual(expectedMin);
   });
 });

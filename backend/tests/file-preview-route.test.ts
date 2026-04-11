@@ -48,6 +48,12 @@ describe("file preview route", () => {
     }));
 
     vi.doMock("../src/modules/sessions/session.middleware.js", () => ({
+      getRequiredSession: vi.fn().mockImplementation((request: { session?: unknown }) => {
+        if (!request.session) {
+          throw new Error("Expected mocked session");
+        }
+        return request.session;
+      }),
       requireSession: vi.fn().mockImplementation(
         async (request: { session?: unknown }) => {
           request.session = {

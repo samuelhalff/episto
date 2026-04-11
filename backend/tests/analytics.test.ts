@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 // Mock logging before import
 vi.mock("../src/shared/logging/index.js", () => ({
@@ -112,9 +113,9 @@ describe("analytics module", () => {
       recordEvent({ event: "checkout_started", draftId: "draft-1", deliveryType: "standard", priceCents: 490 });
 
       expect(recordedEvents).toHaveLength(3);
-      expect(recordedEvents[0]!.event).toBe("draft_created");
-      expect(recordedEvents[1]!.event).toBe("review_reached");
-      expect(recordedEvents[2]!.event).toBe("checkout_started");
+      expect(assertDefined(recordedEvents[0]).event).toBe("draft_created");
+      expect(assertDefined(recordedEvents[1]).event).toBe("review_reached");
+      expect(assertDefined(recordedEvents[2]).event).toBe("checkout_started");
     });
 
     it("never throws even when the sink throws", () => {
@@ -160,8 +161,8 @@ describe("analytics module", () => {
         reasonCategory: "timeout",
       });
 
-      expect(recordedEvents[0]!.event).toBe("dispatch_submitted");
-      expect(recordedEvents[1]!.event).toBe("dispatch_ambiguous");
+      expect(assertDefined(recordedEvents[0]).event).toBe("dispatch_submitted");
+      expect(assertDefined(recordedEvents[1]).event).toBe("dispatch_ambiguous");
     });
   });
 

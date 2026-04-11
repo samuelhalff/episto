@@ -6,6 +6,7 @@ import type {
 } from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError, validationError, AppError } from "../../shared/errors/index.js";
+import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { enqueueDispatchReconciliation } from "../dispatch/dispatch.jobs.js";
 import { recordSupportEvent } from "./index.js";
 import { canManuallyReconcileDispatch } from "./admin-actions.routes.js";
@@ -265,7 +266,7 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
         draftId: dispatch.draftId,
         sessionId: draft?.sessionId ?? null,
         eventType: "reconciliation_requested",
-        actor: request.admin!.actor,
+        actor: getRequiredAdmin(request).actor,
         details: {
           dispatchAttemptId: dispatch.id,
           providerReference: dispatch.providerReference,

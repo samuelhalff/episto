@@ -33,11 +33,20 @@ export interface EmailLayoutConfig {
   supportEmail: string;
 }
 
-const FOOTER_STRINGS: Record<
-  string,
-  { privacy: string; terms: string; imprint: string }
-> = {
-  "en-CH": { privacy: "Privacy Policy", terms: "Terms of Service", imprint: "Imprint" },
+interface FooterStrings {
+  privacy: string;
+  terms: string;
+  imprint: string;
+}
+
+const DEFAULT_FOOTER_STRINGS: FooterStrings = {
+  privacy: "Privacy Policy",
+  terms: "Terms of Service",
+  imprint: "Imprint",
+};
+
+const FOOTER_STRINGS = {
+  "en-CH": DEFAULT_FOOTER_STRINGS,
   "de-CH": { privacy: "Datenschutz", terms: "Nutzungsbedingungen", imprint: "Impressum" },
   "fr-CH": {
     privacy: "Confidentialité",
@@ -47,8 +56,8 @@ const FOOTER_STRINGS: Record<
   "it-CH": { privacy: "Privacy", terms: "Condizioni", imprint: "Colophon" },
 };
 
-function footerStrings(locale: string) {
-  return FOOTER_STRINGS[locale] ?? FOOTER_STRINGS["en-CH"]!;
+function footerStrings(locale: string): FooterStrings {
+  return FOOTER_STRINGS[locale as keyof typeof FOOTER_STRINGS] ?? DEFAULT_FOOTER_STRINGS;
 }
 
 export function wrapEmailHtml(config: EmailLayoutConfig, bodyHtml: string): string {

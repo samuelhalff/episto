@@ -3,8 +3,9 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import { getLocale } from "next-intl/server";
 import { AppProviders } from "../components/ui/AppProviders";
+import { env } from "../lib/env";
 import { getThemeInitScript } from "../lib/theme-script";
-import { BRAND_NAME, SITE_URL } from "../lib/brand";
+import { BRAND_NAME } from "../lib/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   title: `${BRAND_NAME} — Send formal letters via Swiss Post`,
   description:
     "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? SITE_URL),
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   manifest: "/manifest.json",
 };
 

@@ -53,3 +53,18 @@ export async function requireAdmin(
     userAction: null,
   });
 }
+
+export function getRequiredAdmin(request: FastifyRequest): Omit<AdminSessionClaims, "exp"> {
+  if (!request.admin) {
+    throw new AppError({
+      family: "validation_error",
+      statusCode: 401,
+      code: "ADMIN_AUTH_REQUIRED",
+      message: "Admin session missing after admin middleware",
+      userMessage: "Authentication required.",
+      userAction: null,
+    });
+  }
+
+  return request.admin;
+}

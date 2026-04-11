@@ -8,7 +8,7 @@ import { queryKeys } from "@swiss-mail/shared";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminSessions } from "../admin-api";
 import { SectionPanel, PanelLoading, PanelError } from "../admin-metric-panels";
-import { getAdminPagePath } from "../../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 
 const PAGE_SIZE = 20;
 

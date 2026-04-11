@@ -1,4 +1,4 @@
-import { normalizeApiBase } from "../../../lib/api";
+import { normalizeApiBase } from "@/lib/api";
 
 export interface AdminSessionStatus {
   authenticated: boolean;

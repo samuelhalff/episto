@@ -82,8 +82,8 @@ vi.mock("../src/i18n/navigation", async () => {
 });
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const pricingPageClientSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/marketing/PricingPageClient.tsx"),
+const pricingTiersSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/PricingTiers.tsx"),
   "utf8",
 );
 
@@ -387,11 +387,11 @@ describe("pricing page presentation", () => {
 
 describe("pricing page source contract", () => {
   it("drops the legacy unit-input cards in favor of sync and matrix-backed sections", () => {
-    expect(pricingPageClientSource).toContain('t("syncStatusTitle")');
-    expect(pricingPageClientSource).toContain('t("matrixExamplesTitle")');
-    expect(pricingPageClientSource).not.toContain('t("serviceCardTitle")');
-    expect(pricingPageClientSource).not.toContain('t("providerCardTitle")');
-    expect(pricingPageClientSource).not.toContain('t("referenceCardTitle")');
+    expect(pricingTiersSource).toContain('t("syncStatusTitle")');
+    expect(pricingTiersSource).toContain('t("matrixExamplesTitle")');
+    expect(pricingTiersSource).not.toContain('t("serviceCardTitle")');
+    expect(pricingTiersSource).not.toContain('t("providerCardTitle")');
+    expect(pricingTiersSource).not.toContain('t("referenceCardTitle")');
   });
 });
 

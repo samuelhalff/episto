@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { assertDefined } from "./assert-defined";
 import {
   canTransitionDispatch,
   assertTransitionDispatch,
@@ -132,7 +133,7 @@ describe("Mock ePost submission", () => {
   it("generates a mock provider reference", () => {
     const result = submitMockEpostDelivery(mockPackage);
     expect(result.providerReference).toBeTruthy();
-    expect(isMockEpostProviderReference(result.providerReference!)).toBe(true);
+    expect(isMockEpostProviderReference(assertDefined(result.providerReference))).toBe(true);
   });
 
   it("produces deterministic references for the same package", () => {
@@ -143,7 +144,7 @@ describe("Mock ePost submission", () => {
 
   it("mock status lookup returns accepted", () => {
     const result = submitMockEpostDelivery(mockPackage);
-    const status = lookupMockEpostStatus(result.providerReference!);
+    const status = lookupMockEpostStatus(assertDefined(result.providerReference));
     expect(status.state).toBe("accepted");
   });
 

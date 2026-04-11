@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 import { useAdminAuth } from "../admin-auth-context";
 import { PanelError, SectionPanel } from "../admin-metric-panels";
-import { getAdminPagePath } from "../../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 
 function getInitials(label: string): string {
   const parts = label.split(/\s+/).filter(Boolean);

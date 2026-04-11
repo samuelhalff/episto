@@ -9,16 +9,16 @@ import {
   useDraftFiles,
   useReviewDraft,
   useLetterPreview,
-} from "../../../hooks/use-api";
-import { usePricing } from "../../../hooks/use-pricing";
-import { useRouter } from "../../../i18n/navigation";
+} from "@/hooks/use-api";
+import { usePricing } from "@/hooks/use-pricing";
+import { useRouter } from "@/i18n/navigation";
 import {
   normalizeLetterSubject,
   getRecipientDisplayName,
   getSenderDisplayName,
   getSignatureFileUrl,
-} from "../../../lib/letter-content";
-import { useTheme } from "../../../lib/theme";
+} from "@/lib/letter-content";
+import { useTheme } from "@/lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { SignatureSection } from "../SignatureSection";
 import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton } from "./ui";

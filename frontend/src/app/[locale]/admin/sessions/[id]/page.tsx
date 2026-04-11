@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
 import { adminPost, fetchAdminSession } from "../../admin-api";
 import { PanelError, PanelLoading, SectionPanel } from "../../admin-metric-panels";
-import { getAdminPagePath } from "../../../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 
 export default function SessionDetailPage() {
   const pathname = usePathname();

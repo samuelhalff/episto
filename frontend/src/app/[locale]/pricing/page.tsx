@@ -1,13 +1,13 @@
 import { getTranslations } from "next-intl/server";
-import type { Locale } from "../../../i18n/routing";
-import { JsonLd } from "../../../components/marketing/JsonLd";
-import { MarketingHero } from "../../../components/marketing/MarketingHero";
-import { MarketingLayout } from "../../../components/marketing/MarketingLayout";
+import type { Locale } from "@/i18n/routing";
+import { JsonLd } from "@/components/marketing/JsonLd";
+import { MarketingHero } from "@/components/marketing/MarketingHero";
+import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import {
   PricingBreakdownSection,
   PricingHeroPanel,
-} from "../../../components/marketing/PricingPageClient";
-import { buildMarketingMetadata, buildServiceJsonLd } from "../../../lib/marketing-seo";
+} from "@/components/marketing/PricingPageClient";
+import { buildMarketingMetadata, buildServiceJsonLd } from "@/lib/marketing-seo";
 
 export async function generateMetadata({
   params,

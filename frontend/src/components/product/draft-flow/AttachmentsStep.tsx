@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useDraft, useDraftFiles, useUpdateDraft } from "../../../hooks/use-api";
+import { useDraft, useDraftFiles, useUpdateDraft } from "@/hooks/use-api";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";

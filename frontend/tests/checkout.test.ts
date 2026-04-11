@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 import deCH from "../src/messages/de-CH.json";
 import enCH from "../src/messages/en-CH.json";
@@ -145,7 +146,7 @@ describe("checkout footer actions", () => {
   });
 
   it("renders a blocked checkout state when Stripe is not configured with real keys", () => {
-    expect(checkoutPageSource).toContain("hasConfiguredStripePublishableKey");
+    expect(checkoutPageSource).toContain("loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)");
     expect(checkoutPageSource).toContain('checkoutErrorCode === "STRIPE_NOT_CONFIGURED"');
     expect(checkoutPageSource).toContain('t("paymentBlockedEnvironmentBody")');
   });
@@ -153,7 +154,7 @@ describe("checkout footer actions", () => {
   it("orders payment methods as Twint, card, Apple Pay, then Google Pay", () => {
     const match = stripePaymentFormSource.match(/paymentMethodOrder:\s*\[([^\]]+)\]/);
     expect(match).not.toBeNull();
-    const methods = match![1]
+    const methods = assertDefined(match)[1]
       .split(",")
       .map((s: string) => s.trim().replace(/['"]/g, ""));
     expect(methods).toEqual(["twint", "card", "apple_pay", "google_pay"]);

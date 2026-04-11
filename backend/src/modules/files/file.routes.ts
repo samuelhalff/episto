@@ -7,7 +7,7 @@ import {
   isAllowedUploadMimeType,
 } from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
-import { requireSession } from "../sessions/session.middleware.js";
+import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
 import {
   assertUploadMimeMatchesContent,
@@ -50,7 +50,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       },
     },
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { id: draftId } = request.params;
       const [draft] = await db
@@ -253,7 +253,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     "/drafts/:id/files",
     { preHandler: [requireSession] },
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { id: draftId } = request.params;
 
@@ -272,7 +272,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     "/drafts/:id/files/:fileId",
     { preHandler: [requireSession] },
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { id: draftId, fileId } = request.params;
 
@@ -324,7 +324,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     "/files/:fileId/preview",
     { preHandler: [requireSession] },
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { fileId } = request.params;
 
@@ -348,7 +348,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     "/files/:fileId/download",
     { preHandler: [requireSession] },
     async (request, reply) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { fileId } = request.params;
 

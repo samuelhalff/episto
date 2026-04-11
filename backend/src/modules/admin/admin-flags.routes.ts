@@ -7,6 +7,7 @@ import type {
 } from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { recordSupportEvent } from "./index.js";
 
 const SUPPORTED_ESCALATION_LEVELS = [
@@ -398,7 +399,7 @@ export async function adminFlagsRoutes(app: FastifyInstance): Promise<void> {
       await recordSupportEvent(db, {
         sessionId: id,
         eventType: "escalation_marked",
-        actor: request.admin!.actor,
+        actor: getRequiredAdmin(request).actor,
         details: {
           level: body.level,
           note: body.note.trim(),

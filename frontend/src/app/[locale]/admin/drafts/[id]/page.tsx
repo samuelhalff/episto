@@ -7,7 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
 import { adminPost, fetchAdminDraftCase, fetchAdminDraftTimeline } from "../../admin-api";
 import { MetricCard, PanelError, PanelLoading, SectionPanel } from "../../admin-metric-panels";
-import { getAdminPagePath } from "../../../../../lib/admin-paths";
+import { getAdminPagePath } from "@/lib/admin-paths";
 
 interface ViewedDraftResponse {
   draft: {

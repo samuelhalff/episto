@@ -5,15 +5,15 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const paymentRoutesSource = readFileSync(
-  path.join(repoRoot, "backend/src/modules/payments/payment.routes.ts"),
+const paymentCheckoutRoutesSource = readFileSync(
+  path.join(repoRoot, "backend/src/modules/payments/payment-checkout.routes.ts"),
   "utf8",
 );
 
 describe("checkout quote routing", () => {
   it("uses the payment quote resolver instead of the old direct dispatch helper", () => {
-    expect(paymentRoutesSource).toContain("resolvePaymentDispatchQuoteForDraft");
-    expect(paymentRoutesSource).not.toContain(
+    expect(paymentCheckoutRoutesSource).toContain("resolvePaymentDispatchQuoteForDraft");
+    expect(paymentCheckoutRoutesSource).not.toContain(
       "const quote = await getDispatchQuoteForDraft(db, draftId);",
     );
   });

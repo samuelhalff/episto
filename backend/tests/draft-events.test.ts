@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { assertDefined } from "./assert-defined";
 import {
   emitDraftEvent,
   subscribeDraft,
@@ -124,9 +125,9 @@ describe("draft event bus", () => {
     });
 
     expect(events).toHaveLength(3);
-    expect(events[0]![0]).toBe("ai_token");
-    expect(events[1]![0]).toBe("ai_token");
-    expect(events[2]![0]).toBe("ai_message_complete");
+    expect(assertDefined(events[0])[0]).toBe("ai_token");
+    expect(assertDefined(events[1])[0]).toBe("ai_token");
+    expect(assertDefined(events[2])[0]).toBe("ai_message_complete");
 
     unsubscribeDraft(draftId, orderHandler);
   });

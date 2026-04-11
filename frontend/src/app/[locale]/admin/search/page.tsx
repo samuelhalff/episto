@@ -9,7 +9,7 @@ import { queryKeys } from "@swiss-mail/shared";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminSearch } from "../admin-api";
 import { PanelError, PanelLoading, SectionPanel } from "../admin-metric-panels";
-import { getAdminSearchResultPath } from "../../../../lib/admin-paths";
+import { getAdminSearchResultPath } from "@/lib/admin-paths";
 
 export default function SearchPage() {
   const pathname = usePathname();

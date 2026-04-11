@@ -1,6 +1,7 @@
 import { captureError } from "./error-tracking";
+import { env } from "./env";
 
-export function normalizeApiBase(apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/api"): string {
+export function normalizeApiBase(apiBase: string): string {
   const trimmedBase = apiBase.replace(/\/$/, "");
 
   try {
@@ -17,7 +18,7 @@ export function normalizeApiBase(apiBase = process.env.NEXT_PUBLIC_API_URL ?? "/
 }
 
 export function getApiBase(): string {
-  const normalized = normalizeApiBase();
+  const normalized = normalizeApiBase(env.NEXT_PUBLIC_API_URL);
 
   // Keep browser traffic on the site origin so session cookies survive
   // mobile webviews and refreshes even when production exposes a public API host.

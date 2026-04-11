@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
-import { DraftWorkspaceClient } from "../../../../../components/product/draft-flow/DraftWorkspaceClient";
-import { isDraftWorkspaceStepSlug } from "../../../../../components/product/draft-flow/steps";
+import { DraftWorkspaceClient } from "@/components/product/draft-flow/DraftWorkspaceClient";
+import { isDraftWorkspaceStepSlug } from "@/components/product/draft-flow/steps";
 
 export default async function DraftWorkspaceStepPage({
   params,

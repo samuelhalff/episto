@@ -1,4 +1,4 @@
-import { DraftWorkspaceClient } from "../../../../components/product/draft-flow/DraftWorkspaceClient";
+import { DraftWorkspaceClient } from "@/components/product/draft-flow/DraftWorkspaceClient";
 
 export default async function DraftWorkspacePage({
   params,

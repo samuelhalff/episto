@@ -10,7 +10,7 @@ import type { FastifyInstance, FastifyRequest } from "fastify";
 
 import { getDb } from "../../db/index.js";
 import { AppError, validationError } from "../../shared/errors/index.js";
-import { requireSession } from "../sessions/session.middleware.js";
+import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import {
   createLiveDictationSession,
   resolveDictationContext,
@@ -120,7 +120,7 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
           ]);
         }
 
-        const context = await resolveDictationContext(getDb(), request.session!.id, query);
+        const context = await resolveDictationContext(getDb(), getRequiredSession(request).id, query);
         const transcript = await transcribeBufferedDictation({
           audioBuffer,
           locale: context.locale,
@@ -141,7 +141,7 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
       (connection, request: FastifyRequest) => {
         void (async () => {
           const query = parseDictationQuery(request.query);
-          const context = await resolveDictationContext(getDb(), request.session!.id, query);
+          const context = await resolveDictationContext(getDb(), getRequiredSession(request).id, query);
           const liveSession = await createLiveDictationSession({
             locale: context.locale,
             hints: context.hints,

@@ -3,6 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 import deCH from "../src/messages/de-CH.json";
 import enCH from "../src/messages/en-CH.json";
@@ -155,7 +156,9 @@ describe("checkout-payment-contract StripePaymentForm", () => {
   it("paymentMethodOrder contract: twint, card, apple_pay, google_pay", () => {
     const match = stripePaymentFormSource.match(/paymentMethodOrder:\s*\[([^\]]+)\]/);
     expect(match).not.toBeNull();
-    const methods = match![1].split(",").map((s: string) => s.trim().replace(/['"]/g, ""));
+    const methods = assertDefined(match)[1]
+      .split(",")
+      .map((s: string) => s.trim().replace(/['"]/g, ""));
     expect(methods).toEqual(["twint", "card", "apple_pay", "google_pay"]);
   });
 

@@ -3,6 +3,7 @@ import React, { act } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { renderToString } from "react-dom/server";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) =>
@@ -107,7 +108,7 @@ describe("ThemeProvider hydration", () => {
     let root: ReturnType<typeof hydrateRoot> | undefined;
     await act(async () => {
       root = hydrateRoot(
-        container!,
+        assertDefined(container),
         React.createElement(ThemeProvider, null, React.createElement(ThemeToggle)),
       );
       await Promise.resolve();

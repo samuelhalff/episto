@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import * as schema from "../src/db/schema.js";
+import * as schema from "../src/db/schema/index.js";
 import {
   insertSessionSchema,
   insertDraftLetterSchema,

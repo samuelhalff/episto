@@ -7,7 +7,7 @@ import {
 } from "@swiss-mail/shared";
 
 import { getDb } from "../../db/index.js";
-import { requireSession } from "../sessions/session.middleware.js";
+import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { getDraftById } from "./draft.service.js";
 import {
@@ -38,7 +38,7 @@ export async function addressSearchRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -70,7 +70,7 @@ export async function addressSearchRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -102,7 +102,7 @@ export async function addressSearchRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 
@@ -134,7 +134,7 @@ export async function addressSearchRoutes(app: FastifyInstance): Promise<void> {
       }>,
       reply: FastifyReply,
     ) => {
-      const session = request.session!;
+      const session = getRequiredSession(request);
       const db = getDb();
       const { draftId } = request.params;
 

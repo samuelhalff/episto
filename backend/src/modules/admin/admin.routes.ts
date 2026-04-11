@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
-import { requireAdmin } from "../../shared/middleware/require-admin.js";
+import { requireAdmin, getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import {
   recordSupportEvent,
   listSupportEventsForDraft,
@@ -148,7 +148,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "content_access",
-        actor: request.admin!.actor,
+        actor: getRequiredAdmin(request).actor,
         details: { reason: body.reason },
       });
 

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { assertDefined } from "./assert-defined";
 
 // ---------------------------------------------------------------------------
 // Mock heavy dependencies before importing the module under test
@@ -89,7 +90,7 @@ describe("adminOverviewRoutes", () => {
     await adminOverviewRoutes(mockApp as unknown as Parameters<typeof adminOverviewRoutes>[0]);
 
     const reply = makeMockReply();
-    await capturedHandler!(undefined, reply);
+    await assertDefined(capturedHandler, "Expected admin overview handler")(undefined, reply);
 
     expect(reply.status).toHaveBeenCalledWith(200);
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
@@ -113,7 +114,7 @@ describe("adminOverviewRoutes", () => {
     await adminOverviewRoutes(mockApp as unknown as Parameters<typeof adminOverviewRoutes>[0]);
 
     const reply = makeMockReply();
-    await capturedHandler!(undefined, reply);
+    await assertDefined(capturedHandler, "Expected admin overview handler")(undefined, reply);
 
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
     const dispatch = body.dispatch as Record<string, number>;
@@ -152,7 +153,7 @@ describe("adminOverviewRoutes", () => {
     await adminOverviewRoutes(mockApp as unknown as Parameters<typeof adminOverviewRoutes>[0]);
 
     const reply = makeMockReply();
-    await capturedHandler!(undefined, reply);
+    await assertDefined(capturedHandler, "Expected admin overview handler")(undefined, reply);
 
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
     const dispatch = body.dispatch as Record<string, number>;
@@ -183,7 +184,7 @@ describe("adminOverviewRoutes", () => {
     await adminOverviewRoutes(mockApp as unknown as Parameters<typeof adminOverviewRoutes>[0]);
 
     const reply = makeMockReply();
-    await capturedHandler!(undefined, reply);
+    await assertDefined(capturedHandler, "Expected admin overview handler")(undefined, reply);
 
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
     expect(body.ambiguousDispatchQueue).toBe(7);
@@ -205,7 +206,7 @@ describe("adminOverviewRoutes", () => {
     await adminOverviewRoutes(mockApp as unknown as Parameters<typeof adminOverviewRoutes>[0]);
 
     const reply = makeMockReply();
-    await capturedHandler!(undefined, reply);
+    await assertDefined(capturedHandler, "Expected admin overview handler")(undefined, reply);
 
     expect(reply.status).toHaveBeenCalledWith(500);
     const body = reply.send.mock.calls[0][0] as { error: { code: string; message: string } };
@@ -224,7 +225,7 @@ describe("adminOverviewRoutes", () => {
     await adminOverviewRoutes(mockApp as unknown as Parameters<typeof adminOverviewRoutes>[0]);
 
     const reply = makeMockReply();
-    await capturedHandler!(undefined, reply);
+    await assertDefined(capturedHandler, "Expected admin overview handler")(undefined, reply);
 
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
     const ts = body.generatedAt as string;

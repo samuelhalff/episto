@@ -2,8 +2,8 @@
 
 import { startTransition, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useDraft, useUpdateDraft } from "../../../hooks/use-api";
-import { normalizeLetterSubject } from "../../../lib/letter-content";
+import { useDraft, useUpdateDraft } from "@/hooks/use-api";
+import { normalizeLetterSubject } from "@/lib/letter-content";
 import { DraftShell, Card, PrimaryButton } from "./ui";
 import { showStepErrorToast } from "./step-feedback";
 import { mergeDraftWorkspaceState } from "./workspace-state";

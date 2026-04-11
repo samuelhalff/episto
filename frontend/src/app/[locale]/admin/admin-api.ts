@@ -1,7 +1,7 @@
 // Admin dashboard types matching backend response shapes.
 // See docs/06-build-packs/admin-build-pack.md for full spec.
 
-import { getApiBase } from "../../../lib/api";
+import { getApiBase } from "@/lib/api";
 import {
   type AdminSessionStatus,
 } from "./admin-auth-client";

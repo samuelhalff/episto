@@ -2,9 +2,9 @@
 
 import { startTransition, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useDraft, useSession } from "../../../hooks/use-api";
-import { useMediaQuery } from "../../../hooks/use-media-query";
-import { useVisualViewport } from "../../../hooks/use-visual-viewport";
+import { useDraft, useSession } from "@/hooks/use-api";
+import { useMediaQuery } from "@/hooks/use-media-query";
+import { useVisualViewport } from "@/hooks/use-visual-viewport";
 import { RecoveryScreen } from "../RecoveryScreen";
 import { StepNavProvider, PreviewPanelProvider } from "./step-nav-context";
 import { StepOverlay } from "./StepOverlay";
@@ -32,12 +32,12 @@ import {
   isDraftWorkspaceStepLocked,
   resolveDraftWorkspaceStepSlug,
 } from "./steps";
-import { usePathname, useRouter } from "../../../i18n/navigation";
-import { ApiError } from "../../../lib/api";
+import { usePathname, useRouter } from "@/i18n/navigation";
+import { ApiError } from "@/lib/api";
 import {
   getPreviousCustomerFlowStep,
   isDraftWorkspaceCustomerFlowStep,
-} from "../../../lib/customer-flow";
+} from "@/lib/customer-flow";
 import {
   readPreviewPanelPreference,
   writePreviewPanelPreference,
