@@ -13,6 +13,7 @@ vi.mock("../src/shared/config/index.js", () => ({
 
 import { EpostDispatchAdapter } from "../src/modules/dispatch/adapters/epost.adapter.js";
 import type { DispatchPackage } from "@swiss-mail/shared";
+import type { EpostHttpClientLike } from "../src/modules/dispatch/adapters/epost-types.js";
 
 const basePackage: DispatchPackage = {
   draftId: "11111111-1111-4111-8111-111111111111",
@@ -54,8 +55,11 @@ const basePackage: DispatchPackage = {
 
 describe("EpostDispatchAdapter mock submission mode", () => {
   it("returns an accepted mock ePost delivery without calling the live submission endpoint", async () => {
-    const adapter = new EpostDispatchAdapter({ submissionMode: "mock" });
-    const requestJson = vi.spyOn(adapter as never, "requestJson");
+    const httpClient = {
+      requestJson: vi.fn(),
+      createPricingPreview: vi.fn(),
+    } satisfies EpostHttpClientLike;
+    const adapter = new EpostDispatchAdapter({ submissionMode: "mock", httpClient });
 
     await expect(adapter.submit(basePackage)).resolves.toMatchObject({
       state: "accepted",
@@ -64,16 +68,22 @@ describe("EpostDispatchAdapter mock submission mode", () => {
       failureReason: null,
     });
 
-    expect(requestJson).not.toHaveBeenCalled();
+    expect(httpClient.requestJson).not.toHaveBeenCalled();
   });
 
   it("returns a deterministic accepted status lookup for mock references", async () => {
-    const adapter = new EpostDispatchAdapter({ submissionMode: "mock" });
+    const httpClient = {
+      requestJson: vi.fn(),
+      createPricingPreview: vi.fn(),
+    } satisfies EpostHttpClientLike;
+    const adapter = new EpostDispatchAdapter({ submissionMode: "mock", httpClient });
 
     await expect(adapter.checkStatus("EPR-T-R-0D2D6C40F706")).resolves.toMatchObject({
       state: "accepted",
       providerReference: "EPR-T-R-0D2D6C40F706",
       trackingNumber: expect.any(String),
     });
+
+    expect(httpClient.requestJson).not.toHaveBeenCalled();
   });
 });
