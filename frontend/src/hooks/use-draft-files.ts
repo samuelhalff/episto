@@ -68,7 +68,6 @@ function validateFile(
   file: File,
   kind: "attachment" | "signature",
   existingAttachments: FileAsset[],
-  hasSignature: boolean,
   existingTotalBytes: number,
   attachmentConstraints: DraftAttachmentConstraints,
 ): string | null {
@@ -98,9 +97,7 @@ function validateFile(
     return `Maximum ${attachmentConstraints.maxAttachmentsPerDraft} attachments per draft.`;
   }
 
-  if (kind === "signature" && hasSignature) {
-    return "Only one signature image is allowed per draft.";
-  }
+  // Signature uniqueness is handled server-side via atomic replacement
 
   if (existingTotalBytes + file.size > attachmentConstraints.maxTotalBytes) {
     return `Total upload would exceed ${Math.round(attachmentConstraints.maxTotalBytes / 1024 / 1024)} MB limit.`;
@@ -161,12 +158,19 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
       setUploadProgress(100);
       return result.file;
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       setUploadProgress(0);
       setValidationError(null);
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.draft(draftId) });
+      // Signature uploads also set signatureMode server-side; refresh draft
+      // but use exact match to avoid cascading to quote/messages sub-queries
+      if (variables.kind === "signature") {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.draft(draftId),
+          exact: true,
+        });
+      }
     },
     onError: (error) => {
       setUploadProgress(0);
@@ -203,7 +207,6 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftFiles(draftId) });
       void queryClient.invalidateQueries({ queryKey: queryKeys.draftPreview(draftId) });
-      void queryClient.invalidateQueries({ queryKey: queryKeys.draft(draftId) });
     },
     onError: (_err, _fileId, context) => {
       if (context?.previous) {
@@ -217,18 +220,12 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
 
   const uploadFile = useCallback(
     async (file: File, kind: "attachment" | "signature"): Promise<FileAsset> => {
-      // Read current state from the query cache rather than closure variables.
-      // After optimistic removal the cache is already updated, but the React
-      // component hasn't re-rendered yet so hook-level derived values are stale.
       const cached = queryClient.getQueryData<DraftFilesResponse>(
         queryKeys.draftFiles(draftId),
       );
       const currentFiles = cached?.files ?? [];
       const currentAttachments = currentFiles.filter(
         (f) => f.kind === FileAssetKind.attachment,
-      );
-      const currentSignature = currentFiles.some(
-        (f) => f.kind === FileAssetKind.signature,
       );
       const currentTotalBytes = currentFiles.reduce(
         (sum, f) => sum + (f.sizeBytes ?? 0),
@@ -241,7 +238,6 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
         file,
         kind,
         currentAttachments,
-        currentSignature,
         currentTotalBytes,
         currentConstraints,
       );

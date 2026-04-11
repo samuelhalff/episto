@@ -42,6 +42,10 @@ const previewPaneSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/WorkspacePreviewPane.tsx"),
   "utf8",
 );
+const fileRoutesSource = readFileSync(
+  path.join(repoRoot, "backend/src/modules/files/file.routes.ts"),
+  "utf8",
+);
 
 describe("signature canvas redesign", () => {
   it("old SignaturePicker is deleted", () => {
@@ -96,12 +100,6 @@ describe("signature canvas redesign", () => {
     expect(signatureCanvasSource).toContain("setTimeout(exportSignature");
   });
 
-  it("handleDrawnSignature removes existing signature before re-uploading", () => {
-    expect(logisticsStepSource).toContain("files.removeFile");
-    expect(logisticsStepSource).toMatch(/if\s*\(files\.signature\)\s*\{[\s\S]*?removeFile/);
-    expect(logisticsStepSource).toContain("files.uploadFile(file");
-  });
-
   it("ships a local handwritten font for typed signatures", () => {
     expect(globalsSource).toContain("@font-face");
     expect(globalsSource).toContain('font-family: "Allura Signature"');
@@ -111,7 +109,6 @@ describe("signature canvas redesign", () => {
   it("uploadFile reads from query cache to avoid stale closure race", () => {
     expect(draftFilesHookSource).toContain("queryClient.getQueryData");
     expect(draftFilesHookSource).toContain("queryKeys.draftFiles(draftId)");
-    // Should depend on queryClient+draftId, not closure-captured attachments/signature
     expect(draftFilesHookSource).toMatch(
       /uploadFile\s*=\s*useCallback\([\s\S]*?\[uploadMutation,\s*queryClient,\s*draftId\]/,
     );
@@ -125,25 +122,79 @@ describe("signature canvas redesign", () => {
     );
   });
 
-  it("file upload/remove invalidates preview and draft queries", () => {
-    const previewInvalidations = draftFilesHookSource.match(
-      /invalidateQueries.*draftPreview/g,
-    );
-    const draftInvalidations = draftFilesHookSource.match(
-      /invalidateQueries.*queryKeys\.draft\(draftId\)/g,
-    );
-    // Both onSuccess handlers (upload + remove) should invalidate preview
-    expect(previewInvalidations?.length).toBeGreaterThanOrEqual(2);
-    expect(draftInvalidations?.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it("handleDrawnSignature awaits the upload (not fire-and-forget)", () => {
-    expect(logisticsStepSource).toContain("await files.uploadFile(file");
-    expect(logisticsStepSource).not.toMatch(/void files\.uploadFile\(/);
-  });
-
   it("WorkspacePreviewPane passes signatureUrl from preview data", () => {
     expect(previewPaneSource).toContain("signatureUrl={getSignatureFileUrl(");
     expect(previewPaneSource).toContain("signatureMode={previewData?.signatureMode}");
+  });
+});
+
+describe("signature atomic replacement (v2 simplification)", () => {
+  it("backend handles signature replacement atomically in a transaction", () => {
+    expect(fileRoutesSource).toContain("db.transaction(async (tx)");
+    expect(fileRoutesSource).toContain("signatureMode");
+    expect(fileRoutesSource).toContain('status: "deleted"');
+    expect(fileRoutesSource).not.toContain("SIGNATURE_LIMIT_REACHED");
+  });
+
+  it("backend sets signatureMode to drawn on signature upload", () => {
+    expect(fileRoutesSource).toMatch(/signatureMode:\s*"drawn"/);
+  });
+
+  it("backend uploads new file to S3 before touching DB", () => {
+    const uploadIdx = fileRoutesSource.indexOf("await uploadObject(storageKey");
+    const txIdx = fileRoutesSource.indexOf("db.transaction(async (tx)");
+    expect(uploadIdx).toBeGreaterThan(-1);
+    expect(txIdx).toBeGreaterThan(-1);
+    expect(uploadIdx).toBeLessThan(txIdx);
+  });
+
+  it("backend cleans up old S3 object after transaction commits", () => {
+    const txEndIdx = fileRoutesSource.indexOf("return newRow;");
+    const cleanupIdx = fileRoutesSource.indexOf(
+      "Failed to delete replaced signature from storage",
+    );
+    expect(txEndIdx).toBeGreaterThan(-1);
+    expect(cleanupIdx).toBeGreaterThan(-1);
+    expect(cleanupIdx).toBeGreaterThan(txEndIdx);
+  });
+
+  it("frontend handleDrawnSignature is a single upload call (no remove step)", () => {
+    expect(logisticsStepSource).toContain("await files.uploadFile(file");
+    // No removeFile in the drawn signature handler
+    const handler = logisticsStepSource.match(
+      /handleDrawnSignature\s*=\s*useCallback\(([\s\S]*?)\n\s*\[/,
+    );
+    expect(handler).not.toBeNull();
+    expect(handler![1]).not.toContain("removeFile");
+  });
+
+  it("frontend validateFile does not reject duplicate signatures", () => {
+    expect(draftFilesHookSource).toContain("Signature uniqueness is handled server-side");
+    expect(draftFilesHookSource).not.toContain(
+      "Only one signature image is allowed per draft",
+    );
+  });
+
+  it("file mutations do not cascade-invalidate quote queries", () => {
+    // Upload uses exact:true for draft query to avoid prefix-matching sub-queries
+    expect(draftFilesHookSource).toContain("exact: true");
+    // Remove does NOT invalidate the draft query at all
+    const removeOnSuccess = draftFilesHookSource.match(
+      /removeMutation[\s\S]*?onSuccess:\s*\(\)\s*=>\s*\{([\s\S]*?)\}/,
+    );
+    expect(removeOnSuccess).not.toBeNull();
+    expect(removeOnSuccess![1]).not.toContain("queryKeys.draft(draftId)");
+  });
+
+  it("SignatureSection shows saved signature with redraw option", () => {
+    expect(signatureSectionSource).toContain("signatureUrl");
+    expect(signatureSectionSource).toContain("isRedrawing");
+    expect(signatureSectionSource).toContain("handleRedraw");
+    expect(signatureSectionSource).toContain("showSavedSignature");
+  });
+
+  it("LogisticsStep passes signatureUrl to SignatureSection", () => {
+    expect(logisticsStepSource).toContain("getSignatureFileUrl");
+    expect(logisticsStepSource).toContain("signatureUrl={signatureUrl}");
   });
 });

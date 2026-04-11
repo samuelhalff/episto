@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { Check, Loader2, PenLine, Type } from "lucide-react";
+import { Check, Loader2, PenLine, RefreshCw, Type } from "lucide-react";
 import { SignatureCanvas } from "./SignatureCanvas";
 
 type SignatureMode = "typed" | "drawn" | null;
@@ -11,6 +11,7 @@ interface SignatureSectionProps {
   signerName: string;
   currentMode: SignatureMode;
   hasDrawnAsset: boolean;
+  signatureUrl: string | null;
   isUploading: boolean;
   onSelectMode: (mode: SignatureMode) => void;
   onDrawnSignature: (blob: Blob) => void;
@@ -22,6 +23,7 @@ export function SignatureSection({
   signerName,
   currentMode,
   hasDrawnAsset,
+  signatureUrl,
   isUploading,
   onSelectMode,
   onDrawnSignature,
@@ -30,14 +32,30 @@ export function SignatureSection({
 }: SignatureSectionProps) {
   const t = useTranslations("draft");
   const [localMode, setLocalMode] = useState<SignatureMode>(currentMode);
+  const [isRedrawing, setIsRedrawing] = useState(false);
 
   const handleModeSelect = useCallback(
     (mode: SignatureMode) => {
       setLocalMode(mode);
+      setIsRedrawing(false);
       onSelectMode(mode);
     },
     [onSelectMode],
   );
+
+  const handleRedraw = useCallback(() => {
+    setIsRedrawing(true);
+  }, []);
+
+  const handleDrawnSignatureInternal = useCallback(
+    (blob: Blob) => {
+      onDrawnSignature(blob);
+      setIsRedrawing(false);
+    },
+    [onDrawnSignature],
+  );
+
+  const showSavedSignature = hasDrawnAsset && signatureUrl && !isRedrawing && !isUploading;
 
   const modeOptions = [
     {
@@ -115,21 +133,39 @@ export function SignatureSection({
 
       {localMode === "drawn" && (
         <div className="space-y-3">
-          <SignatureCanvas
-            onSignature={onDrawnSignature}
-            onClear={onClearDrawn}
-            disabled={isUploading}
-          />
+          {showSavedSignature ? (
+            <div className="relative rounded-2xl border border-[var(--app-border)] bg-white p-4">
+              <img
+                src={signatureUrl}
+                alt={t("signatureImageAlt")}
+                className="mx-auto max-h-24 max-w-full object-contain"
+              />
+              <div className="mt-3 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
+                  <Check className="h-3 w-3" />
+                  {t("signatureSaved")}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleRedraw}
+                  className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                >
+                  <RefreshCw className="h-3.5 w-3.5" />
+                  {t("signatureRedraw")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <SignatureCanvas
+              onSignature={handleDrawnSignatureInternal}
+              onClear={onClearDrawn}
+              disabled={isUploading}
+            />
+          )}
           {isUploading && (
             <div className="flex items-center gap-2 text-xs text-zinc-500">
               <Loader2 className="h-3 w-3 animate-spin" />
               {t("signatureUploading")}
-            </div>
-          )}
-          {hasDrawnAsset && !isUploading && (
-            <div className="flex items-center gap-2 text-xs text-emerald-600 dark:text-emerald-400">
-              <Check className="h-3 w-3" />
-              {t("signatureSaved")}
             </div>
           )}
         </div>

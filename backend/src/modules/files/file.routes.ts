@@ -9,11 +9,9 @@ import {
 import { getDb, schema } from "../../db/index.js";
 import { requireSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
-import { AppError } from "../../shared/errors/index.js";
 import {
   assertUploadMimeMatchesContent,
   attachmentStorageKey,
-  createFileAsset,
   deleteFileAsset,
   getDraftAttachmentConstraints,
   getDraftUploadTotalBytes,
@@ -124,7 +122,12 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       // Check per-draft limits
       const existingFiles = await db
-        .select({ id: schema.fileAssets.id, kind: schema.fileAssets.kind })
+        .select({
+          id: schema.fileAssets.id,
+          kind: schema.fileAssets.kind,
+          storageKey: schema.fileAssets.storageKey,
+          sizeBytes: schema.fileAssets.sizeBytes,
+        })
         .from(schema.fileAssets)
         .where(
           and(
@@ -143,22 +146,16 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         }
       }
 
-      if (kind === "signature") {
-        const signatureCount = existingFiles.filter((f) => f.kind === "signature").length;
-        if (signatureCount >= FILE_LIMITS.maxSignaturesPerDraft) {
-          throw new AppError({
-            family: "policy_refusal",
-            statusCode: 422,
-            code: "SIGNATURE_LIMIT_REACHED",
-            message: "Maximum 1 signature per draft",
-            userMessage: "Only one signature is allowed per letter.",
-            userAction: "Remove the existing signature before adding a new one.",
-          });
-        }
-      }
+      // For signatures, find existing one for atomic replacement
+      const existingSignature =
+        kind === "signature"
+          ? existingFiles.find((f) => f.kind === "signature") ?? null
+          : null;
 
+      // Subtract old signature bytes when replacing (it will be removed)
       const existingTotalBytes = await getDraftUploadTotalBytes(db, draftId, session.id);
-      if (existingTotalBytes + sizeBytes > FILE_LIMITS.totalDraftUploadBytes) {
+      const effectiveTotal = existingTotalBytes - (existingSignature?.sizeBytes ?? 0);
+      if (effectiveTotal + sizeBytes > FILE_LIMITS.totalDraftUploadBytes) {
         throw validationError("Total upload exceeds maximum size of 20 MB", [
           { field: "file", message: "Total uploads per draft cannot exceed 20 MB" },
         ]);
@@ -171,33 +168,69 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
           ? attachmentStorageKey(session.id, fileId)
           : signatureStorageKey(session.id, fileId);
 
-      // Upload to S3-compatible storage
+      // Upload new file to S3 first (safe: no DB changes yet)
       await uploadObject(storageKey, buffer, mimeType);
 
-      // Create DB record
-      const row = await createFileAsset(db, {
-        sessionId: session.id,
-        draftId,
-        kind,
-        storageKey,
-        originalFilename: fileName,
-        mimeType,
-        sizeBytes,
+      // All DB operations in a single transaction
+      const row = await db.transaction(async (tx) => {
+        const [newRow] = await tx
+          .insert(schema.fileAssets)
+          .values({
+            sessionId: session.id,
+            draftId,
+            kind,
+            storageKey,
+            originalFilename: fileName,
+            mimeType,
+            sizeBytes,
+            status: "active",
+          })
+          .returning();
+
+        if (!newRow) throw new Error("Failed to create file asset");
+
+        if (kind === "signature") {
+          // Atomically set new signature + mode, soft-delete old signature
+          await tx
+            .update(schema.draftLetters)
+            .set({
+              signatureAssetId: newRow.id,
+              signatureMode: "drawn",
+              updatedAt: new Date(),
+            })
+            .where(
+              and(
+                eq(schema.draftLetters.id, draftId),
+                eq(schema.draftLetters.sessionId, session.id),
+              ),
+            );
+
+          if (existingSignature) {
+            await tx
+              .update(schema.fileAssets)
+              .set({ status: "deleted", deletedAt: new Date() })
+              .where(
+                and(
+                  eq(schema.fileAssets.id, existingSignature.id),
+                  eq(schema.fileAssets.sessionId, session.id),
+                ),
+              );
+          }
+        }
+
+        return newRow;
       });
 
-      if (kind === "signature") {
-        await db
-          .update(schema.draftLetters)
-          .set({
-            signatureAssetId: row.id,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(schema.draftLetters.id, draftId),
-              eq(schema.draftLetters.sessionId, session.id),
-            ),
+      // Best-effort cleanup of replaced signature from S3
+      if (existingSignature) {
+        try {
+          await deleteObject(existingSignature.storageKey);
+        } catch {
+          request.log.warn(
+            { fileId: existingSignature.id, storageKey: existingSignature.storageKey },
+            "Failed to delete replaced signature from storage",
           );
+        }
       }
 
       reply.status(201).send({

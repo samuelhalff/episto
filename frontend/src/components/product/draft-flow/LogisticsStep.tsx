@@ -16,6 +16,7 @@ import {
   normalizeLetterSubject,
   getRecipientDisplayName,
   getSenderDisplayName,
+  getSignatureFileUrl,
 } from "../../../lib/letter-content";
 import { useTheme } from "../../../lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
@@ -71,6 +72,7 @@ export function LogisticsStep({
 
   const currentSignatureMode = draft.data?.signatureMode ?? null;
   const hasDrawnAsset = Boolean(files.signature);
+  const signatureUrl = getSignatureFileUrl(files.signature?.id ?? null);
 
   useEffect(() => {
     if (attachmentCount > 0) {
@@ -90,9 +92,6 @@ export function LogisticsStep({
 
   const handleDrawnSignature = useCallback(
     async (blob: Blob) => {
-      if (files.signature) {
-        await files.removeFile(files.signature.id);
-      }
       const file = new File([blob], "signature.png", { type: "image/png" });
       await files.uploadFile(file, "signature");
     },
@@ -103,8 +102,7 @@ export function LogisticsStep({
     if (files.signature) {
       void files.removeFile(files.signature.id);
     }
-    void updateDraft.mutateAsync({ signatureAssetId: null });
-  }, [files, updateDraft]);
+  }, [files]);
 
   async function handleSelectDelivery(type: "standard" | "registered") {
     if (type === deliveryType || isDeliverySelectionPending) {
@@ -331,6 +329,7 @@ export function LogisticsStep({
               signerName={signatureDisplayName}
               currentMode={currentSignatureMode as "typed" | "drawn" | null}
               hasDrawnAsset={hasDrawnAsset}
+              signatureUrl={signatureUrl}
               isUploading={files.isUploading}
               onSelectMode={handleSelectSignatureMode}
               onDrawnSignature={handleDrawnSignature}
