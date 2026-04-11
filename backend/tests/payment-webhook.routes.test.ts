@@ -10,7 +10,6 @@ const mocks = vi.hoisted(() => ({
   constructWebhookEvent: vi.fn(),
   getLatestSnapshot: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
-  enqueueDispatchConfirmationEmail: vi.fn(),
   recordEvent: vi.fn(),
 }));
 
@@ -104,7 +103,6 @@ describe("payment webhook routes", () => {
       renderedPdfAssetId: "pdf-1",
     });
     mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
-    mocks.enqueueDispatchConfirmationEmail.mockResolvedValue(undefined);
 
     const response = await app.inject({
       method: "POST",
@@ -210,6 +208,5 @@ describe("payment webhook routes", () => {
       snapshotId: "snapshot-1",
       paymentId: "payment-1",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
   });
 });

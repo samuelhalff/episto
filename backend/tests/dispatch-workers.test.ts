@@ -17,7 +17,6 @@ const mocks = vi.hoisted(() => ({
   updateDraftStatusForDispatchResolution: vi.fn(),
   updateDraftStatusForDispatchSubmission: vi.fn(),
   enqueueDispatchReconciliation: vi.fn(),
-  enqueueDispatchConfirmationEmail: vi.fn(),
   enqueueDispatchAcceptedEmail: vi.fn(),
   enqueueDispatchSubmittedEmail: vi.fn(),
   acquireRedisLock: vi.fn(),
@@ -145,7 +144,6 @@ describe("dispatch workers", () => {
     mocks.updateDraftStatusForDispatchResolution.mockReset();
     mocks.updateDraftStatusForDispatchSubmission.mockReset();
     mocks.enqueueDispatchReconciliation.mockReset();
-    mocks.enqueueDispatchConfirmationEmail.mockReset();
     mocks.enqueueDispatchAcceptedEmail.mockReset();
     mocks.enqueueDispatchSubmittedEmail.mockReset();
     mocks.acquireRedisLock.mockReset().mockResolvedValue({
@@ -355,7 +353,6 @@ describe("dispatch workers", () => {
       }),
     );
     expect(mocks.enqueueDispatchAcceptedEmail).not.toHaveBeenCalled();
-    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
   });
 
   it("enqueues reconciliation after a non-terminal submission so provider confirmation can continue", async () => {
@@ -551,6 +548,5 @@ describe("dispatch workers", () => {
       providerReference: "provider-5",
       trackingNumber: "track-5",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
   });
 });

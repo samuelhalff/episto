@@ -23,7 +23,6 @@ const mocks = vi.hoisted(() => ({
   resolveDisplayDispatchQuoteForDraft: vi.fn(),
   getLatestSnapshot: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
-  enqueueDispatchConfirmationEmail: vi.fn(),
   recordEvent: vi.fn(),
 }));
 
@@ -141,7 +140,6 @@ describe("payment checkout routes", () => {
     });
     mocks.getLatestSnapshot.mockResolvedValue(null);
     mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
-    mocks.enqueueDispatchConfirmationEmail.mockResolvedValue(undefined);
     mocks.setPaymentIntentId.mockResolvedValue(undefined);
     mocks.transitionPaymentState.mockResolvedValue({
       payment: {
@@ -450,7 +448,6 @@ describe("payment checkout routes", () => {
     });
 
     expect(response.statusCode).toBe(500);
-    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
   });
 
   it("retries dispatch enqueue when checkout is reopened after authorized reconciliation failed", async () => {
@@ -597,7 +594,6 @@ describe("payment checkout routes", () => {
       snapshotId: "snapshot-2",
       paymentId: "payment-old",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
     expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({
       paymentAttemptId: "payment-old",
@@ -654,7 +650,6 @@ describe("payment checkout routes", () => {
       snapshotId: "snapshot-3",
       paymentId: "payment-old",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({
       paymentAttemptId: "payment-old",
       clientSecret: null,
@@ -741,7 +736,6 @@ describe("payment checkout routes", () => {
     mocks.getLatestSnapshot.mockReset();
     mocks.transitionPaymentState.mockReset();
     mocks.enqueueDispatchSubmission.mockReset();
-    mocks.enqueueDispatchConfirmationEmail.mockReset();
 
     mocks.getPaymentForDraft.mockResolvedValueOnce({
       id: "payment-status-pending",
@@ -815,7 +809,6 @@ describe("payment checkout routes", () => {
       snapshotId: "snapshot-status",
       paymentId: "payment-status-pending",
     });
-    expect(mocks.enqueueDispatchConfirmationEmail).not.toHaveBeenCalled();
     expect(response.json()).toMatchObject({
       payment: {
         state: "captured",
