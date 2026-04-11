@@ -1,6 +1,6 @@
 import { webcrypto } from "node:crypto";
 
-import { SignJWT, jwtVerify } from "jose";
+import { errors, SignJWT, jwtVerify } from "jose";
 
 import { env } from "../../shared/config/index.js";
 
@@ -8,6 +8,7 @@ const ORDER_ACCESS_AUDIENCE = "order-access";
 const ORDER_ACCESS_ISSUER = "swiss-mail";
 const encoder = new TextEncoder();
 
+// Vitest's Node environment may not expose Web Crypto; jose requires it.
 if (!globalThis.crypto) {
   globalThis.crypto = webcrypto;
 }
@@ -40,11 +41,7 @@ export async function verifyOrderAccessToken(token: string): Promise<{
       issuer: ORDER_ACCESS_ISSUER,
     }));
   } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.message.includes('"exp" claim timestamp check failed') ||
-        error.message.toLowerCase().includes("expired"))
-    ) {
+    if (error instanceof errors.JWTExpired) {
       throw new Error("JWT expired");
     }
 

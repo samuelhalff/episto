@@ -3,7 +3,7 @@ import path from "node:path";
 import { z } from "zod";
 import dotenv from "dotenv";
 
-import { PostalPostageSchema } from "@swiss-mail/shared";
+import { BRAND_NAME, PostalPostageSchema } from "@swiss-mail/shared";
 
 /**
  * Environment configuration schema.
@@ -40,12 +40,12 @@ export const EnvSchema = z
     // Stripe
     STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
     STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
-    ORDER_ACCESS_TOKEN_SECRET: z.string().min(32),
 
     // Session
     SESSION_TTL_HOURS: z.coerce.number().int().positive().default(72),
     RESUME_INACTIVITY_HOURS: z.coerce.number().int().positive().default(48),
     ORDER_ACCESS_DAYS: z.coerce.number().int().positive().default(90),
+    ORDER_ACCESS_TOKEN_SECRET: z.string().min(32),
 
     // Retention
     CONTENT_RETENTION_DAYS: z.coerce.number().int().positive().default(7),
@@ -107,14 +107,11 @@ export const EnvSchema = z
 
     // Email
     RESEND_API_KEY: z.string().startsWith("re_"),
-    APP_DISPLAY_NAME: z.string().min(1).default("Sendly"),
+    APP_DISPLAY_NAME: z.string().min(1).default(BRAND_NAME),
     EMAIL_FROM: z.string().email().default("noreply@swissmail.ch"),
     SUPPORT_EMAIL: z.string().email().default("support@swissmail.ch"),
     LEGAL_ENTITY_NAME: z.string().min(1).default("West Bay SA"),
-    LEGAL_ENTITY_ADDRESS_LINE_1: z
-      .string()
-      .min(1)
-      .default("Chemin du Pre-Roset 19"),
+    LEGAL_ENTITY_ADDRESS_LINE_1: z.string().min(1).default("Chemin du Pre-Roset 19"),
     LEGAL_ENTITY_ADDRESS_LINE_2: z.string().min(1).default("1294 Genthod"),
     LEGAL_ENTITY_COUNTRY: z.string().min(1).default("Switzerland"),
     LEGAL_ENTITY_UID_VAT: z.string().min(1).default("CHE-107.892.984"),
@@ -268,8 +265,8 @@ export const EnvSchema = z
     (data) => {
       const adminSsoRequested = Boolean(
         data.ADMIN_MICROSOFT_CLIENT_ID ||
-          data.ADMIN_MICROSOFT_CLIENT_SECRET ||
-          data.ADMIN_MICROSOFT_REDIRECT_URI,
+        data.ADMIN_MICROSOFT_CLIENT_SECRET ||
+        data.ADMIN_MICROSOFT_REDIRECT_URI,
       );
 
       if (!adminSsoRequested) {
@@ -278,11 +275,11 @@ export const EnvSchema = z
 
       return Boolean(
         data.ADMIN_SESSION_SECRET &&
-          data.ADMIN_MICROSOFT_CLIENT_ID &&
-          data.ADMIN_MICROSOFT_CLIENT_SECRET &&
-          data.ADMIN_MICROSOFT_REDIRECT_URI &&
-          data.ADMIN_MICROSOFT_TENANT_ID &&
-          data.ADMIN_MICROSOFT_TENANT_ID !== "common",
+        data.ADMIN_MICROSOFT_CLIENT_ID &&
+        data.ADMIN_MICROSOFT_CLIENT_SECRET &&
+        data.ADMIN_MICROSOFT_REDIRECT_URI &&
+        data.ADMIN_MICROSOFT_TENANT_ID &&
+        data.ADMIN_MICROSOFT_TENANT_ID !== "common",
       );
     },
     {
