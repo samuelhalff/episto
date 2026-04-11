@@ -8,6 +8,7 @@ import { useLetterPreview } from "../../../hooks/use-letter-preview";
 import { LetterPreview } from "../LetterPreview";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
+import { getSignatureFileUrl } from "../../../lib/letter-content";
 
 interface WorkspacePreviewPaneProps {
   draftId: string;
@@ -123,6 +124,8 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
               draft={draft.data}
               senderProfile={previewData?.sender}
               recipientProfile={previewData?.recipient}
+              signatureMode={previewData?.signatureMode}
+              signatureUrl={getSignatureFileUrl(previewData?.signatureFileId)}
               variant="default"
               showHeader={false}
             />

@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { useLetterPreview } from "../../hooks/use-letter-preview";
 import { useDraft } from "../../hooks/use-api";
+import { getSignatureFileUrl } from "../../lib/letter-content";
 import { getAppButtonClassName } from "../ui/app-button";
 import {
   getSheetSurfaceClassName,
@@ -77,6 +78,8 @@ export function LetterPreviewModal({
               draft={draft.data}
               senderProfile={previewData?.sender}
               recipientProfile={previewData?.recipient}
+              signatureMode={previewData?.signatureMode}
+              signatureUrl={getSignatureFileUrl(previewData?.signatureFileId)}
               variant="immersive"
             />
           </div>
