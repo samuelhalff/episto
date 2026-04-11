@@ -224,7 +224,7 @@ Flow:
 
 Flow:
 
-1. User receives **immediate** confirmation email with a secure "Order Status" link (separate from draft resume link).
+1. Stripe sends the payment receipt immediately; Swiss Mail dispatch-status emails carry the signed "Order Status" link, and legacy hashed links remain readable during transition.
 2. Clicks link → `/status/:orderToken` → shows current dispatch status and receipt.
 3. This link is valid for 90 days (configurable), independent of the original drafting session TTL (configurable — see `docs/08-guardrails/open-decisions.md`).
 4. Status shown using canonical `DispatchState` values (from `system-contracts.md` §3.3):

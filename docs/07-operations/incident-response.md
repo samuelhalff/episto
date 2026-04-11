@@ -14,23 +14,23 @@ Handle production incidents quickly, truthfully, and with a clear audit trail. N
 
 ## Incident classes
 
-| Severity | Definition | Examples | Target response |
-|---|---|---|---|
-| `SEV-1` | Core production path unavailable or unsafe | Payments failing broadly, dispatch submissions failing broadly, data exposure suspicion, corrupted PDFs sent | Immediate |
-| `SEV-2` | Major degradation with workaround | AI drafting unavailable but manual editing still works, provider reconciliation backlog, confirmation emails failing | Within 30 min |
-| `SEV-3` | Limited degradation or internal tooling issue | Admin search degraded, delayed analytics, localized rendering bug with workaround | Same business day |
-| `SEV-4` | Low-risk defect or operational follow-up | Noisy alert, cosmetic admin issue, stale dashboard metric | Planned backlog |
+| Severity | Definition                                    | Examples                                                                                                                                   | Target response   |
+| -------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------- |
+| `SEV-1`  | Core production path unavailable or unsafe    | Payments failing broadly, dispatch submissions failing broadly, data exposure suspicion, corrupted PDFs sent                               | Immediate         |
+| `SEV-2`  | Major degradation with workaround             | AI drafting unavailable but manual editing still works, provider reconciliation backlog, payment receipt or dispatch-status email failures | Within 30 min     |
+| `SEV-3`  | Limited degradation or internal tooling issue | Admin search degraded, delayed analytics, localized rendering bug with workaround                                                          | Same business day |
+| `SEV-4`  | Low-risk defect or operational follow-up      | Noisy alert, cosmetic admin issue, stale dashboard metric                                                                                  | Planned backlog   |
 
 ---
 
 ## Who does what
 
-| Role | Responsibility |
-|---|---|
-| Incident lead | Owns triage, severity, timeline, and final decision-making during the incident |
-| Technical responder | Investigates application, queue, provider, and infrastructure behavior |
-| Support/comms owner | Updates support replies and any user-facing incident notice |
-| Scribe | Maintains the incident timeline with timestamps, facts, actions, and open questions |
+| Role                | Responsibility                                                                      |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| Incident lead       | Owns triage, severity, timeline, and final decision-making during the incident      |
+| Technical responder | Investigates application, queue, provider, and infrastructure behavior              |
+| Support/comms owner | Updates support replies and any user-facing incident notice                         |
+| Scribe              | Maintains the incident timeline with timestamps, facts, actions, and open questions |
 
 For MVP, one person may hold multiple roles, but the responsibilities still apply.
 

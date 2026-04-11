@@ -171,8 +171,9 @@ export interface TransitionPaymentResult {
   payment: PaymentAttemptRow;
   /**
    * Raw order access token, present only when transitioning to 'captured'
-   * for the first time. Callers (webhook, email worker) should include
-   * this in the confirmation email as the order status URL parameter.
+   * for the first time. It exists for first capture and legacy compatibility;
+   * new customer-facing emails should use signed order-access tokens issued on
+   * demand instead of exposing this raw token directly.
    */
   rawOrderAccessToken: string | null;
 }
