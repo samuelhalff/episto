@@ -1,4 +1,4 @@
-import { captureError } from "./error-tracking";
+import { captureException } from "./error-tracking";
 import { env } from "./env";
 
 export function normalizeApiBase(apiBase: string): string {
@@ -128,7 +128,7 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
     const error = new ApiError(res.status, body, { path, method });
 
     if (res.status >= 500) {
-      captureError(error, {
+      captureException(error, {
         component: "apiFetch",
         errorFamily: "request_failure",
         extra: {

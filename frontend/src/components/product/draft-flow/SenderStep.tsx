@@ -11,7 +11,7 @@ import {
 } from "@/hooks/use-api";
 import { useQueuedAutosave } from "@/hooks/use-queued-autosave";
 import { ApiError } from "@/lib/api";
-import { captureError } from "@/lib/error-tracking";
+import { captureException } from "@/lib/error-tracking";
 import { DraftShell, Card, FieldIconBadge, PrimaryButton } from "./ui";
 import {
   AddressAutocompleteField,
@@ -192,7 +192,7 @@ export function SenderStep({
         id: "sender-step-save-error",
         title: userMessage ?? t("stepSaveFailed"),
       });
-      captureError(error instanceof Error ? error : new Error(String(error)), {
+      captureException(error instanceof Error ? error : new Error(String(error)), {
         component: "SenderStep",
         errorFamily: "validation_error",
       });

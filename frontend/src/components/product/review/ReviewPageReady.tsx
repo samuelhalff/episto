@@ -23,7 +23,7 @@ import { StatusBadge } from "../../ui/status-badge";
 import { ReviewSummaryCard, type ReviewSummaryItem } from "./ReviewSummaryCard";
 import { useReviewPrimaryActionState } from "./review-action-state";
 import { formatCentsAsCHF } from "@/hooks/use-pricing";
-import { captureError } from "@/lib/error-tracking";
+import { captureException } from "@/lib/error-tracking";
 import { getApiErrorUserMessage } from "@/lib/api";
 import { getCustomerFlowPath } from "@/lib/customer-flow";
 import {
@@ -218,7 +218,7 @@ export function ReviewPageReady({
         router.push(`/draft/${draftId}/checkout`);
       })
       .catch((err: unknown) => {
-        captureError(err instanceof Error ? err : new Error(String(err)), {
+        captureException(err instanceof Error ? err : new Error(String(err)), {
           component: "ReviewPageReady",
           route: `/draft/${draftId}/review`,
         });
@@ -247,7 +247,7 @@ export function ReviewPageReady({
       })
       .catch((err: unknown) => {
         setBackError(getApiErrorUserMessage(err) ?? tc("error"));
-        captureError(err instanceof Error ? err : new Error(String(err)), {
+        captureException(err instanceof Error ? err : new Error(String(err)), {
           component: "ReviewPageReady",
           route: `/draft/${draftId}/review`,
         });

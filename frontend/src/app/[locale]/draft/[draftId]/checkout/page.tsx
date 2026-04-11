@@ -18,7 +18,7 @@ import {
   type StripePaymentFormLoadRecoveryReason,
 } from "@/components/product/StripePaymentForm";
 import { ActionButton, ActionLink } from "@/components/product/ActionButton";
-import { captureError } from "@/lib/error-tracking";
+import { captureException } from "@/lib/error-tracking";
 import { normalizeLetterSubject } from "@/lib/letter-content";
 import { env } from "@/lib/env";
 import { getApiErrorCode, getApiErrorUserMessage } from "@/lib/api";
@@ -207,7 +207,7 @@ export default function CheckoutPage({
         }
       })
       .catch((err: unknown) => {
-        captureError(err instanceof Error ? err : new Error(String(err)), {
+        captureException(err instanceof Error ? err : new Error(String(err)), {
           component: "CheckoutPage",
           route: `/draft/${draftId}/checkout`,
         });

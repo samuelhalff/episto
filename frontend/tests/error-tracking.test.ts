@@ -1,108 +1,122 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import {
-  captureError,
-  captureMessage,
-  setFrontendErrorTrackingSink,
-  resetFrontendErrorTrackingSink,
-  type FrontendErrorTrackingSink,
-  type FrontendErrorContext,
-} from "../src/lib/error-tracking";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
-describe("frontend error-tracking module", () => {
-  let mockSink: FrontendErrorTrackingSink;
-  let capturedErrors: Array<{ error: Error; context?: FrontendErrorContext }>;
-  let capturedMessages: Array<{ message: string; level: string; context?: FrontendErrorContext }>;
+const BASE_ENV = {
+  NEXT_PUBLIC_SITE_URL: "https://swissmail.test",
+  NEXT_PUBLIC_API_URL: "/api",
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_example",
+  NEXT_PUBLIC_APP_ENV: "test" as const,
+};
 
-  beforeEach(() => {
-    capturedErrors = [];
-    capturedMessages = [];
-    mockSink = {
-      captureError: vi.fn((error: Error, context?: FrontendErrorContext) => {
-        capturedErrors.push({ error, context });
-      }),
-      captureMessage: vi.fn((message: string, level: string, context?: FrontendErrorContext) => {
-        capturedMessages.push({ message, level, context });
-      }),
-    };
-    setFrontendErrorTrackingSink(mockSink);
+function createScopeMock() {
+  return {
+    setTag: vi.fn(),
+    setContext: vi.fn(),
+  };
+}
+
+async function loadErrorTrackingModule(envOverrides?: {
+  NEXT_PUBLIC_SENTRY_DSN?: string | undefined;
+}) {
+  vi.resetModules();
+
+  const scope = createScopeMock();
+  const sentry = {
+    withScope: vi.fn((callback: (scope: ReturnType<typeof createScopeMock>) => void) => callback(scope)),
+    captureException: vi.fn(),
+    captureMessage: vi.fn(),
+  };
+
+  vi.doMock("@sentry/nextjs", () => sentry);
+  vi.doMock("../src/lib/env", () => ({
+    env: {
+      ...BASE_ENV,
+      ...envOverrides,
+    },
+  }));
+
+  const mod = await import("../src/lib/error-tracking");
+  return { mod, scope, sentry };
+}
+
+afterEach(() => {
+  vi.resetModules();
+  vi.restoreAllMocks();
+  vi.doUnmock("@sentry/nextjs");
+  vi.doUnmock("../src/lib/env");
+});
+
+describe("frontend error tracking", () => {
+  it("acts as a typed no-op when NEXT_PUBLIC_SENTRY_DSN is unset", async () => {
+    const { mod, sentry } = await loadErrorTrackingModule({ NEXT_PUBLIC_SENTRY_DSN: undefined });
+
+    mod.captureException(new Error("Component crashed"), {
+      component: "ComposerPanel",
+      route: "/en-CH/draft/draft-1",
+      errorFamily: "rendering_failure",
+      extra: { status: 500 },
+    });
+    mod.captureMessage("Slow API response", "warning", {
+      component: "ComposerPanel",
+    });
+
+    expect(sentry.withScope).not.toHaveBeenCalled();
+    expect(sentry.captureException).not.toHaveBeenCalled();
+    expect(sentry.captureMessage).not.toHaveBeenCalled();
   });
 
-  afterEach(() => {
-    resetFrontendErrorTrackingSink();
+  it("captures exceptions with safe tags and metadata when Sentry is enabled", async () => {
+    const { mod, scope, sentry } = await loadErrorTrackingModule({
+      NEXT_PUBLIC_SENTRY_DSN: "https://public@example.ingest.sentry.io/123",
+    });
+    const error = new Error("Component crashed");
+
+    mod.captureException(error, {
+      component: "ComposerPanel",
+      route: "/en-CH/draft/draft-1",
+      errorFamily: "rendering_failure",
+      extra: {
+        status: 500,
+        retryable: true,
+      },
+    });
+
+    expect(sentry.withScope).toHaveBeenCalledOnce();
+    expect(scope.setTag).toHaveBeenCalledWith("component", "ComposerPanel");
+    expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/draft-1");
+    expect(scope.setTag).toHaveBeenCalledWith("error_family", "rendering_failure");
+    expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", {
+      status: 500,
+      retryable: true,
+    });
+    expect(sentry.captureException).toHaveBeenCalledWith(error);
   });
 
-  describe("captureError", () => {
-    it("captures an error with context", () => {
-      const error = new Error("Component crashed");
-      captureError(error, {
-        component: "ConversationPanel",
-        route: "/en-CH/draft/abc",
-        errorFamily: "rendering_failure",
-      });
-
-      expect(mockSink.captureError).toHaveBeenCalledOnce();
-      expect(capturedErrors).toHaveLength(1);
-      expect(capturedErrors[0].error.message).toBe("Component crashed");
-      expect(capturedErrors[0].context?.component).toBe("ConversationPanel");
+  it("captures warning messages through the Sentry message API", async () => {
+    const { mod, scope, sentry } = await loadErrorTrackingModule({
+      NEXT_PUBLIC_SENTRY_DSN: "https://public@example.ingest.sentry.io/123",
     });
 
-    it("captures an error without context", () => {
-      captureError(new Error("no context"));
-      expect(capturedErrors).toHaveLength(1);
-      expect(capturedErrors[0].context).toBeUndefined();
+    mod.captureMessage("Slow API response", "warning", {
+      component: "apiFetch",
+      extra: { status: 503 },
     });
 
-    it("never throws when sink fails", () => {
-      setFrontendErrorTrackingSink({
-        captureError: () => {
-          throw new Error("Sink failure");
-        },
-        captureMessage: vi.fn(),
-      });
-      expect(() => captureError(new Error("test"))).not.toThrow();
-    });
+    expect(sentry.withScope).toHaveBeenCalledOnce();
+    expect(scope.setTag).toHaveBeenCalledWith("component", "apiFetch");
+    expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", { status: 503 });
+    expect(sentry.captureMessage).toHaveBeenCalledWith("Slow API response", "warning");
   });
 
-  describe("captureMessage", () => {
-    it("captures a warning", () => {
-      captureMessage("Slow API response", "warning", { route: "/draft/new" });
-
-      expect(capturedMessages).toHaveLength(1);
-      expect(capturedMessages[0].level).toBe("warning");
+  it("never throws if the Sentry SDK itself fails", async () => {
+    const { mod, sentry } = await loadErrorTrackingModule({
+      NEXT_PUBLIC_SENTRY_DSN: "https://public@example.ingest.sentry.io/123",
     });
 
-    it("defaults to error level", () => {
-      captureMessage("something broke");
-      expect(capturedMessages[0].level).toBe("error");
+    sentry.withScope.mockImplementation(() => {
+      throw new Error("Sentry exploded");
     });
 
-    it("never throws when sink fails", () => {
-      setFrontendErrorTrackingSink({
-        captureError: vi.fn(),
-        captureMessage: () => {
-          throw new Error("Sink failure");
-        },
-      });
-      expect(() => captureMessage("test")).not.toThrow();
-    });
-  });
-
-  describe("sink replacement", () => {
-    it("uses custom sink", () => {
-      const custom: FrontendErrorTrackingSink = {
-        captureError: vi.fn(),
-        captureMessage: vi.fn(),
-      };
-      setFrontendErrorTrackingSink(custom);
-      captureError(new Error("custom sink"));
-
-      expect(custom.captureError).toHaveBeenCalledOnce();
-      expect(mockSink.captureError).not.toHaveBeenCalled();
-    });
-
-    it("reverts on reset", () => {
-      resetFrontendErrorTrackingSink();
-      expect(() => captureError(new Error("default sink"))).not.toThrow();
-    });
+    expect(() => mod.captureException(new Error("boom"))).not.toThrow();
+    expect(() => mod.captureMessage("warn", "warning")).not.toThrow();
   });
 });

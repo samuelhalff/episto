@@ -5,7 +5,7 @@ import type { StripeError } from "@stripe/stripe-js";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Lock, Mail, ShieldCheck, Truck } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { captureError, captureMessage } from "../../lib/error-tracking";
+import { captureException, captureMessage } from "../../lib/error-tracking";
 import { BRAND_NAME } from "../../lib/brand";
 import { ActionButton } from "./ActionButton";
 import { FlowActionDock } from "./FlowActionDock";
@@ -149,7 +149,7 @@ export function StripePaymentForm({
         context,
       );
     } else {
-      captureError(new Error(message), context);
+      captureException(new Error(message), context);
       captureMessage(
         "Stripe PaymentElement load error did not match terminal-intent recovery",
         "warning",

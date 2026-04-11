@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import { captureError } from "../lib/error-tracking";
+import { captureException } from "../lib/error-tracking";
 
 interface UseQueuedAutosaveOptions<T> {
   value: T;
@@ -65,7 +65,7 @@ export function useQueuedAutosave<T>({
       });
 
       queueRef.current = queuedSave.catch((error: unknown) => {
-        captureError(error instanceof Error ? error : new Error(String(error)), {
+        captureException(error instanceof Error ? error : new Error(String(error)), {
           component,
           errorFamily: "autosave_failure",
         });

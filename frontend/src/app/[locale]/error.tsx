@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { RecoveryScreen } from "../../components/product/RecoveryScreen";
-import { captureError } from "../../lib/error-tracking";
+import { captureException } from "../../lib/error-tracking";
 
 export default function Error({
   error,
@@ -15,7 +15,7 @@ export default function Error({
   const t = useTranslations("common");
 
   useEffect(() => {
-    captureError(error, {
+    captureException(error, {
       component: "ErrorBoundary",
       route: typeof window !== "undefined" ? window.location.pathname : undefined,
     });

@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
 import dotenv from "dotenv";
 
@@ -116,4 +117,6 @@ function createConfig(): NextConfig {
   };
 }
 
-export default withNextIntl(createConfig());
+export default withSentryConfig(withNextIntl(createConfig()), {
+  silent: !process.env.CI,
+});

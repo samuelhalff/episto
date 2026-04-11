@@ -24,7 +24,7 @@ describe("stripe payment loaderror handling", () => {
   });
 
   it("captures the Stripe loaderror details and surfaces a user-visible error state", () => {
-    expect(stripePaymentFormSource).toContain("captureError(");
+    expect(stripePaymentFormSource).toContain("captureException(");
     expect(stripePaymentFormSource).toContain("loadErrorEvent.error.message");
     expect(stripePaymentFormSource).toContain("setPaymentElementLoadFailed(true)");
   });

@@ -13,7 +13,7 @@ import {
 } from "@/hooks/use-api";
 import { useQueuedAutosave } from "@/hooks/use-queued-autosave";
 import { ApiError } from "@/lib/api";
-import { captureError } from "@/lib/error-tracking";
+import { captureException } from "@/lib/error-tracking";
 import { showStepErrorToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 import { getRecipientStepValidation } from "./step-validation";
@@ -355,7 +355,7 @@ export function RecipientStep({
         id: "recipient-step-save-error",
         title: userMessage ?? t("stepSaveFailed"),
       });
-      captureError(error instanceof Error ? error : new Error(String(error)), {
+      captureException(error instanceof Error ? error : new Error(String(error)), {
         component: "RecipientStep",
         errorFamily: "validation_error",
       });
