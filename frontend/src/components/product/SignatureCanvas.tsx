@@ -15,6 +15,8 @@ const MIN_CANVAS_WIDTH = 200;
 const CANVAS_HEIGHT = 160;
 const DPR_CLAMP = 2;
 const EXPORT_BG = "#ffffff";
+/** Wait this long after the last stroke before exporting (ms). */
+const STROKE_DEBOUNCE_MS = 800;
 
 export function SignatureCanvas({
   onSignature,
@@ -24,6 +26,7 @@ export function SignatureCanvas({
   const t = useTranslations("draft");
   const containerRef = useRef<HTMLDivElement>(null);
   const padRef = useRef<SignaturePad>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
 
   const resizeCanvas = useCallback(() => {
@@ -60,14 +63,16 @@ export function SignatureCanvas({
     return () => observer.disconnect();
   }, [resizeCanvas]);
 
-  function handleEnd() {
-    const pad = padRef.current;
-    if (!pad || pad.isEmpty()) {
-      setIsEmpty(true);
-      return;
-    }
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
 
-    setIsEmpty(false);
+  function exportSignature() {
+    const pad = padRef.current;
+    if (!pad || pad.isEmpty()) return;
+
     const trimmed = pad.getTrimmedCanvas();
     const exportCanvas = document.createElement("canvas");
     exportCanvas.width = trimmed.width;
@@ -84,6 +89,19 @@ export function SignatureCanvas({
       "image/png",
       1,
     );
+  }
+
+  function handleEnd() {
+    const pad = padRef.current;
+    if (!pad || pad.isEmpty()) {
+      setIsEmpty(true);
+      return;
+    }
+    setIsEmpty(false);
+
+    // Debounce: wait for user to finish all strokes before uploading
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(exportSignature, STROKE_DEBOUNCE_MS);
   }
 
   function handleClear() {

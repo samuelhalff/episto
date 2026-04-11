@@ -89,7 +89,11 @@ export function LogisticsStep({
   );
 
   const handleDrawnSignature = useCallback(
-    (blob: Blob) => {
+    async (blob: Blob) => {
+      // Remove existing signature first so validation allows the replacement
+      if (files.signature) {
+        await files.removeFile(files.signature.id);
+      }
       const file = new File([blob], "signature.png", { type: "image/png" });
       void files.uploadFile(file, "signature");
     },

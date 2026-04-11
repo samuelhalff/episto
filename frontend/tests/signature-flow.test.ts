@@ -81,6 +81,19 @@ describe("signature canvas redesign", () => {
     expect(renderServiceSource).toContain("signature-image");
   });
 
+  it("SignatureCanvas debounces stroke-end to avoid duplicate uploads", () => {
+    expect(signatureCanvasSource).toContain("STROKE_DEBOUNCE_MS");
+    expect(signatureCanvasSource).toContain("debounceRef");
+    expect(signatureCanvasSource).toContain("clearTimeout");
+    expect(signatureCanvasSource).toContain("setTimeout(exportSignature");
+  });
+
+  it("handleDrawnSignature removes existing signature before re-uploading", () => {
+    expect(logisticsStepSource).toContain("files.removeFile");
+    expect(logisticsStepSource).toMatch(/if\s*\(files\.signature\)\s*\{[\s\S]*?removeFile/);
+    expect(logisticsStepSource).toContain("files.uploadFile(file");
+  });
+
   it("ships a local handwritten font for typed signatures", () => {
     expect(globalsSource).toContain("@font-face");
     expect(globalsSource).toContain('font-family: "Allura Signature"');
