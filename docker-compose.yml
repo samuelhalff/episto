@@ -92,6 +92,9 @@ services:
       CORS_ORIGIN: https://ark-fid.ddns.net,http://localhost:5000
       NODE_ENV: development
       PORT: "4000"
+      ORDER_ACCESS_TOKEN_SECRET: ${ORDER_ACCESS_TOKEN_SECRET:-dev-order-access-secret-at-least-32-chars}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-switzerlandnorth}
+      AZURE_SPEECH_API_KEY: ${AZURE_SPEECH_API_KEY:-dev-speech-key}
       ADDRESS_SEARCH_PROVIDER: ${ADDRESS_SEARCH_PROVIDER:-geo_admin}
       ADDRESS_SEARCH_TIMEOUT_MS: ${ADDRESS_SEARCH_TIMEOUT_MS:-8000}
       GEO_ADMIN_API_BASE_URL: ${GEO_ADMIN_API_BASE_URL:-https://api3.geo.admin.ch}
@@ -135,6 +138,9 @@ services:
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
       NODE_ENV: development
+      ORDER_ACCESS_TOKEN_SECRET: ${ORDER_ACCESS_TOKEN_SECRET:-dev-order-access-secret-at-least-32-chars}
+      AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-switzerlandnorth}
+      AZURE_SPEECH_API_KEY: ${AZURE_SPEECH_API_KEY:-dev-speech-key}
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
     command: npx tsx watch backend/src/workers/runner.ts
@@ -188,7 +194,7 @@ services:
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: ${NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:-pk_test_placeholder}
       NEXT_PUBLIC_APP_ENV: development
     command: >
-      sh -c "
+      sh -ec "
       lock_hash=$$(sha256sum /app/package-lock.json | awk '{print $$1}');
       cache_hash=$$(cat /app/node_modules/.package-lock.sha256 2>/dev/null || true);
       if [ ! -d /app/node_modules/next ] || [ \"$$lock_hash\" != \"$$cache_hash\" ]; then
@@ -196,7 +202,8 @@ services:
         npm ci --include=dev --no-fund --no-audit &&
         printf '%s' \"$$lock_hash\" > /app/node_modules/.package-lock.sha256;
       fi;
-      find .next -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true;
+      find /app/frontend/.next -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true;
+      cd /app/frontend &&
       npm run dev
       "
     depends_on:

@@ -10,7 +10,10 @@ function isAbsoluteUrl(value: string): boolean {
 }
 
 export const FrontendEnvSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z.string().url().transform((value) => value.replace(/\/+$/, "")),
+  NEXT_PUBLIC_SITE_URL: z
+    .string()
+    .url()
+    .transform((value) => value.replace(/\/+$/, "")),
   NEXT_PUBLIC_API_URL: z
     .string()
     .min(1)
@@ -33,8 +36,18 @@ export const FrontendEnvSchema = z.object({
 
 export type FrontendEnv = z.infer<typeof FrontendEnvSchema>;
 
-export function parseFrontendEnv(source: Record<string, string | undefined>): FrontendEnv {
+export function parseFrontendEnv(
+  source: Record<string, string | undefined>,
+): FrontendEnv {
   return FrontendEnvSchema.parse(source);
 }
 
-export const env = parseFrontendEnv(process.env);
+const rawFrontendEnv = {
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+  NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
+};
+
+export const env = parseFrontendEnv(rawFrontendEnv);

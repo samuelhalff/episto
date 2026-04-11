@@ -7,6 +7,7 @@ WORKDIR /app
 
 # Copy workspace manifests and tsconfig (shared extends ../tsconfig.base.json)
 COPY package.json package-lock.json tsconfig.base.json tsconfig.json ./
+COPY .husky/install.mjs ./.husky/install.mjs
 COPY shared/package.json ./shared/
 COPY frontend/package.json ./frontend/
 

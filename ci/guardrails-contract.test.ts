@@ -20,6 +20,18 @@ const preCommitPath = path.join(repoRoot, ".husky/pre-commit");
 const preCommitSource = existsSync(preCommitPath)
   ? readFileSync(preCommitPath, "utf8")
   : "";
+const huskyInstallPath = path.join(repoRoot, ".husky/install.mjs");
+const huskyInstallSource = existsSync(huskyInstallPath)
+  ? readFileSync(huskyInstallPath, "utf8")
+  : "";
+const backendDockerfileSource = readFileSync(
+  path.join(repoRoot, "backend/Dockerfile"),
+  "utf8",
+);
+const frontendDockerfileSource = readFileSync(
+  path.join(repoRoot, "frontend/Dockerfile"),
+  "utf8",
+);
 
 describe("coverage and CI guardrails", () => {
   it("enables frontend coverage thresholds in vitest", () => {
@@ -55,12 +67,20 @@ describe("coverage and CI guardrails", () => {
     expect(workflowSource).toContain("migration-rollback:");
   });
 
-  it("wires husky and lint-staged through the pre-commit hook", () => {
-    expect(packageJson.scripts?.prepare).toBe("husky");
+  it("wires husky and lint-staged through the pre-commit hook without breaking prod installs", () => {
+    expect(packageJson.scripts?.prepare).toBe("node .husky/install.mjs");
     expect(packageJson.scripts?.["check:file-sizes"]).toBeDefined();
     expect(packageJson.devDependencies?.husky).toBeDefined();
     expect(packageJson.devDependencies?.["lint-staged"]).toBeDefined();
     expect(packageJson.devDependencies?.["@vitest/coverage-v8"]).toBeDefined();
+    expect(huskyInstallSource).toContain('await import("husky")');
+    expect(huskyInstallSource).toContain("process.exit(0)");
+    expect(backendDockerfileSource).toContain(
+      "COPY .husky/install.mjs ./.husky/install.mjs",
+    );
+    expect(frontendDockerfileSource).toContain(
+      "COPY .husky/install.mjs ./.husky/install.mjs",
+    );
     expect(preCommitSource).toContain("npm run check:file-sizes -- --staged");
     expect(preCommitSource).toContain("npx lint-staged");
   });

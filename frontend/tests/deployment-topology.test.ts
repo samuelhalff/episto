@@ -46,7 +46,9 @@ describe("deployment topology", () => {
     const minioBlock = getServiceBlock(dockerComposeSource, "minio");
 
     expect(proxyBlock).toContain('- "5000:5000"');
-    expect(proxyBlock).toContain("./nginx/ark-fid-proxy.conf:/etc/nginx/conf.d/default.conf:ro");
+    expect(proxyBlock).toContain(
+      "./nginx/ark-fid-proxy.conf:/etc/nginx/conf.d/default.conf:ro",
+    );
     expect(frontendBlock).toContain("restart: unless-stopped");
     expect(backendBlock).toContain("restart: unless-stopped");
     expect(backendBlock).toContain("npm run db:migrate:dev -w backend");
@@ -54,6 +56,30 @@ describe("deployment topology", () => {
     expect(postgresBlock).toContain("restart: unless-stopped");
     expect(redisBlock).toContain("restart: unless-stopped");
     expect(minioBlock).toContain("restart: unless-stopped");
+  });
+
+  it("keeps the dev backend and worker startable when local env files lag new required keys", () => {
+    const backendBlock = getServiceBlock(dockerComposeSource, "backend");
+    const workerBlock = getServiceBlock(dockerComposeSource, "worker");
+
+    expect(backendBlock).toContain(
+      "ORDER_ACCESS_TOKEN_SECRET: ${ORDER_ACCESS_TOKEN_SECRET:-dev-order-access-secret-at-least-32-chars}",
+    );
+    expect(backendBlock).toContain(
+      "AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-switzerlandnorth}",
+    );
+    expect(backendBlock).toContain(
+      "AZURE_SPEECH_API_KEY: ${AZURE_SPEECH_API_KEY:-dev-speech-key}",
+    );
+    expect(workerBlock).toContain(
+      "ORDER_ACCESS_TOKEN_SECRET: ${ORDER_ACCESS_TOKEN_SECRET:-dev-order-access-secret-at-least-32-chars}",
+    );
+    expect(workerBlock).toContain(
+      "AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-switzerlandnorth}",
+    );
+    expect(workerBlock).toContain(
+      "AZURE_SPEECH_API_KEY: ${AZURE_SPEECH_API_KEY:-dev-speech-key}",
+    );
   });
 
   it("keeps the production compose file on public nginx 80/443", () => {
@@ -67,12 +93,16 @@ describe("deployment topology", () => {
     expect(proxyBlock).toContain('- "80:80"');
     expect(proxyBlock).toContain('- "443:443"');
     expect(proxyBlock).not.toContain('- "5000:5000"');
-    expect(proxyBlock).toContain("./nginx/swissmail-proxy.conf:/etc/nginx/conf.d/default.conf:ro");
+    expect(proxyBlock).toContain(
+      "./nginx/swissmail-proxy.conf:/etc/nginx/conf.d/default.conf:ro",
+    );
     expect(frontendBlock).toContain("NEXT_PUBLIC_SITE_URL: https://swissmail.ch");
     expect(frontendBlock).toContain("NEXT_PUBLIC_API_URL: https://api.swissmail.ch");
     expect(frontendBlock).toContain("NEXT_PUBLIC_APP_ENV: production");
     expect(frontendBlock).not.toContain('- "3000:3000"');
-    expect(backendBlock).toContain("CORS_ORIGIN: https://swissmail.ch,https://www.swissmail.ch");
+    expect(backendBlock).toContain(
+      "CORS_ORIGIN: https://swissmail.ch,https://www.swissmail.ch",
+    );
     expect(backendBlock).toContain("/api/readiness");
     expect(backendBlock).not.toContain('- "4000:4000"');
     expect(postgresBlock).toContain("restart: unless-stopped");

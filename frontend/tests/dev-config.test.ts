@@ -73,6 +73,13 @@ describe("frontend dev hot reload configuration", () => {
     );
     expect(dockerComposeSource).toContain("[ ! -d /app/node_modules/next ]");
     expect(dockerComposeSource).toContain("/app/node_modules/.package-lock.sha256");
-    expect(dockerComposeSource).toContain("find .next");
+    expect(dockerComposeSource).toContain("find /app/frontend/.next");
+  });
+
+  it("keeps frontend dev bootstrapping inside the frontend workspace after dependency refresh", () => {
+    expect(dockerComposeSource).toContain('sh -ec "');
+    expect(dockerComposeSource).toContain("find /app/frontend/.next");
+    expect(dockerComposeSource).toMatch(/cd \/app\/frontend[\s\S]*npm run dev/);
+    expect(dockerComposeSource).not.toContain("npm run dev -w frontend");
   });
 });
