@@ -320,7 +320,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           </ol>
         </div>
 
-        {/* Email notice */}
+        {/* Payment receipt notice */}
         <ConfirmationEmailNotice
           eyebrow={t("emailNoticeEyebrow")}
           title={t("emailNotice")}

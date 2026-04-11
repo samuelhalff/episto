@@ -56,9 +56,9 @@ Without an email address, these cannot be delivered. "Optional email" creates su
 
 ---
 
-## Email templates
+## Swiss Mail email templates
 
-All email templates must be:
+All Swiss Mail email templates must be:
 
 - Responsive (mobile-first)
 - Plain-text fallback included
@@ -72,12 +72,18 @@ All email templates must be:
 
 At launch, the product may send:
 
-- payment receipt
+- payment receipt (Stripe)
 - dispatch submitted
 - dispatch accepted
 - dispatch under review / ambiguous
 - refund confirmed
 - resume link
+
+Launch ownership rules:
+
+- Stripe is the payment receipt sender for launch.
+- Swiss Mail sends dispatch-submitted, later accepted/rejected updates, and refund/resume emails.
+- The secure order-status link is carried by signed order-access tokens in Swiss Mail dispatch emails.
 
 Do not add abandoned-cart drips, marketing sequences, or "your letter is on the way" claims in
 MVP transactional email.
@@ -86,37 +92,15 @@ MVP transactional email.
 
 ### Template 1: Payment receipt
 
+**Sender:** Stripe
 **Trigger:** `PaymentState` transitions to `captured`
-**Timing:** Sent immediately on capture confirmation from Stripe webhook
+**Timing:** Stripe sends the receipt on successful capture using the checkout email.
 
-**Subject (i18n key):** `email.receipt.subject` → e.g., "Your Episto payment receipt – {formattedTotal}"
-
-**Content:**
-
-- Episto logo / header
-- "Thank you for your order."
-- Order reference number
-- Date and time of payment
-- Itemized price breakdown (same as checkout summary)
-- Total charged in CHF
-- Delivery type (Standard / Registered)
-- Recipient name (first + last, no address)
-- Sender name
-- Secure order-status link for the paid order
-- Dispatch status is communicated separately; this receipt must not overstate postal progress
-- One-sentence refund policy
-- Link to support
-
-**Must NOT include:**
-
-- Letter body or content
-- Full recipient address
-- Dispatch tracking link (tracking is only available if provider supplies it)
-- Any claim of delivery or acceptance
+Swiss Mail does not send a duplicate app-level payment receipt at launch. The confirmation page must describe this as a payment receipt, while dispatch progress remains a separate Swiss Mail email flow.
 
 ---
 
-### Template 2: Dispatch confirmation
+### Template 2: Dispatch submitted
 
 **Trigger:** `DispatchState` transitions to `submitted` (job handed to dispatch queue / provider)
 **Timing:** Sent when backend receives submission acknowledgment from dispatch adapter

@@ -46,11 +46,13 @@ Do not introduce a parallel `session_tokens` or `audit_events` schema unless the
 While **Drafting Sessions** are ephemeral (72h), **Paid Orders** require longer-term access for status checks and receipt downloads.
 
 ### Order Access Token
+
 - **Scope:** Read-only access to a specific `order_id` (status, receipt, final PDF).
-- **Delivery:** Sent in the "Payment Receipt" email immediately upon success.
+- **Delivery:** Sent in Swiss Mail dispatch emails that carry the order-status link after payment succeeds.
 - **TTL:** 90 days (configurable via `ORDER_ACCESS_DAYS`).
-- **Mechanism:** A distinct JWT or signed URL param (separate from the session cookie).
-- **UX:** Clicking the link in the receipt opens the "Order Status" page. It does *not* resurrect the editable draft session.
+- **Mechanism:** Signed order links, not raw one-time values that must be emailed at payment capture.
+- **Compatibility:** During the transition, the order-status route accepts both signed tokens and legacy hashed links.
+- **UX:** Clicking the link opens the "Order Status" page. It does _not_ resurrect the editable draft session.
 
 ---
 
@@ -194,10 +196,10 @@ If a session expires while payment, refund, or dispatch reconciliation is still 
 
 ## Still open
 
-| Decision | Status |
-|---|---|
-| Exact guest resume TTL | Locked: 72 hours (`SESSION_TTL_HOURS=72`) |
-| Exact draft/content expiry TTL | Locked: 7 days after last activity (`CONTENT_RETENTION_DAYS=7`) |
-| Exact cookie name | Locked: `__Host-session` |
-| Resume email inactivity trigger | Locked: 48 hours (`RESUME_INACTIVITY_HOURS=48`) |
-| Whether admin can invalidate a guest session manually in MVP | Open but non-blocking |
+| Decision                                                     | Status                                                          |
+| ------------------------------------------------------------ | --------------------------------------------------------------- |
+| Exact guest resume TTL                                       | Locked: 72 hours (`SESSION_TTL_HOURS=72`)                       |
+| Exact draft/content expiry TTL                               | Locked: 7 days after last activity (`CONTENT_RETENTION_DAYS=7`) |
+| Exact cookie name                                            | Locked: `__Host-session`                                        |
+| Resume email inactivity trigger                              | Locked: 48 hours (`RESUME_INACTIVITY_HOURS=48`)                 |
+| Whether admin can invalidate a guest session manually in MVP | Open but non-blocking                                           |

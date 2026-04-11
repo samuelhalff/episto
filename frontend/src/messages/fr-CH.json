@@ -753,9 +753,9 @@
     "stateAccepted": "Acceptée pour l'envoi",
     "stateRejected": "L'envoi a été refusé — nous enquêtons",
     "stateUnknown": "Le statut est en cours de confirmation — nous vous informerons par e-mail",
-    "emailNoticeEyebrow": "Confirmation de commande",
-    "emailNotice": "Un e-mail de confirmation a été envoyé à votre adresse",
-    "emailNoticeDetail": "Vous recevrez une autre mise à jour si le statut d'envoi évolue.",
+    "emailNoticeEyebrow": "Reçu de paiement",
+    "emailNotice": "Un reçu de paiement a été envoyé à votre adresse e-mail",
+    "emailNoticeDetail": "Vous recevrez aussi un e-mail d'envoi si le statut change.",
     "stickyCtaLabel": "Envoyer une autre lettre",
     "downloadLetter": "Télécharger la confirmation",
     "downloadUnavailable": "Le document de confirmation n'est plus disponible."

@@ -753,9 +753,9 @@
     "stateAccepted": "Zum Versand angenommen",
     "stateRejected": "Versand wurde abgelehnt — wir untersuchen dies",
     "stateUnknown": "Status wird bestätigt — wir informieren Sie per E-Mail",
-    "emailNoticeEyebrow": "Bestellbestätigung",
-    "emailNotice": "Eine Bestätigungs-E-Mail wurde an Ihre E-Mail-Adresse gesendet",
-    "emailNoticeDetail": "Sie erhalten eine weitere Mitteilung, wenn sich der Versandstatus ändert.",
+    "emailNoticeEyebrow": "Zahlungsbeleg",
+    "emailNotice": "Ein Zahlungsbeleg wurde an Ihre E-Mail-Adresse gesendet",
+    "emailNoticeDetail": "Sie erhalten auch eine Versand-E-Mail, wenn sich der Status ändert.",
     "stickyCtaLabel": "Weiteren Brief senden",
     "downloadLetter": "Bestätigung herunterladen",
     "downloadUnavailable": "Das Bestätigungsdokument ist nicht mehr verfügbar."

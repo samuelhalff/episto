@@ -1685,13 +1685,13 @@ Users may accidentally navigate away during payment processing:
 **Scenario: User taps browser back during Stripe processing:**
 
 - Intercept with `beforeunload` event: browser shows standard "Leave site?" confirmation.
-- If user confirms leaving: payment may still succeed via Stripe webhook. The confirmation email serves as the fallback receipt.
+- If user confirms leaving: payment may still succeed via Stripe webhook. The Stripe payment receipt remains the fallback payment proof.
 - If user stays: processing continues normally.
 
 **Scenario: User closes tab during processing:**
 
 - Payment may complete in the background (Stripe processes server-side).
-- If payment succeeds: confirmation email is sent. User can return via order-status link.
+- If payment succeeds: Stripe sends the payment receipt. User can return via the order-status link from later Swiss Mail dispatch email.
 - If payment fails: no charge. Draft remains available.
 
 **Scenario: User's internet drops mid-payment:**
@@ -1859,16 +1859,16 @@ Download bundle rules:
 `<Card variant="info">`:
 
 - Mail icon + "A payment receipt has been sent to {email}"
-- `text-xs text-secondary` "You'll also receive a dispatch update when your letter is processed."
+- `text-xs text-secondary` "You'll also receive a dispatch email if the status changes."
 
 **Multiple email timeline (defined in `docs/04-product/email-flows.md`):**
-The system sends up to 3 separate emails, NOT a single "confirmation":
+The customer-facing sequence is Stripe receipt first, then Swiss Mail dispatch emails only when dispatch state changes:
 
-1. **Payment receipt** — sent immediately when `PaymentState` → `captured`. Contains: amount, reference number, order-status link.
-2. **Dispatch accepted** — sent when `DispatchState` → `accepted` (if the provider supplies an acceptance signal). Contains: updated status, tracking reference if available.
+1. **Payment receipt** — sent by Stripe when `PaymentState` → `captured`.
+2. **Dispatch submitted / accepted** — sent by Swiss Mail when the dispatch pipeline enters a real new state worth reporting.
 3. **Dispatch rejected** (error case) — sent when `DispatchState` → `rejected`. Contains: explanation, next steps, support contact.
 
-The confirmation page copy must reflect this: say "A payment receipt has been sent" (specific), NOT "A confirmation has been sent" (vague). The word "confirmation" implies dispatch success, which we cannot guarantee at this point.
+The confirmation notice must say "payment receipt", not generic "confirmation email". The word "confirmation" implies dispatch success, which we cannot guarantee at this point.
 
 #### 9.8 "Send another letter" CTA
 

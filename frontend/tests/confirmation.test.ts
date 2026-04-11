@@ -96,6 +96,30 @@ const locales = [
   { name: "it-CH", data: itCH },
 ] as const;
 
+const EXPECTED_EMAIL_NOTICE_COPY = {
+  "en-CH": {
+    emailNoticeEyebrow: "Payment receipt",
+    emailNotice: "A payment receipt has been sent to your email",
+    emailNoticeDetail: "You'll also receive a dispatch email if the status changes.",
+  },
+  "de-CH": {
+    emailNoticeEyebrow: "Zahlungsbeleg",
+    emailNotice: "Ein Zahlungsbeleg wurde an Ihre E-Mail-Adresse gesendet",
+    emailNoticeDetail:
+      "Sie erhalten auch eine Versand-E-Mail, wenn sich der Status ändert.",
+  },
+  "fr-CH": {
+    emailNoticeEyebrow: "Reçu de paiement",
+    emailNotice: "Un reçu de paiement a été envoyé à votre adresse e-mail",
+    emailNoticeDetail: "Vous recevrez aussi un e-mail d'envoi si le statut change.",
+  },
+  "it-CH": {
+    emailNoticeEyebrow: "Ricevuta di pagamento",
+    emailNotice: "Una ricevuta di pagamento è stata inviata al tuo indirizzo e-mail",
+    emailNoticeDetail: "Riceverai anche un'e-mail di spedizione se lo stato cambia.",
+  },
+} as const;
+
 describe("confirmation i18n keys", () => {
   for (const locale of locales) {
     describe(locale.name, () => {
@@ -114,6 +138,18 @@ describe("confirmation i18n keys", () => {
           expect(confirmation[key].length).toBeGreaterThan(0);
         });
       }
+
+      it("uses the approved payment receipt email notice copy", () => {
+        expect(confirmation.emailNoticeEyebrow).toBe(
+          EXPECTED_EMAIL_NOTICE_COPY[locale.name].emailNoticeEyebrow,
+        );
+        expect(confirmation.emailNotice).toBe(
+          EXPECTED_EMAIL_NOTICE_COPY[locale.name].emailNotice,
+        );
+        expect(confirmation.emailNoticeDetail).toBe(
+          EXPECTED_EMAIL_NOTICE_COPY[locale.name].emailNoticeDetail,
+        );
+      });
     });
   }
 
@@ -144,7 +180,9 @@ describe("confirmation page regressions", () => {
 
   it("keeps confirmation timeline states readable in dark mode without duplicate icon imports", () => {
     expect(confirmationPageSource).not.toContain("HelpCircle as HelpCircleIcon");
-    expect(confirmationPageSource).toContain("dark:bg-emerald-500/15 dark:text-emerald-300");
+    expect(confirmationPageSource).toContain(
+      "dark:bg-emerald-500/15 dark:text-emerald-300",
+    );
     expect(confirmationPageSource).toContain("dark:bg-zinc-800 dark:text-zinc-500");
     expect(confirmationPageSource).toContain("text-zinc-400 dark:text-zinc-500");
   });

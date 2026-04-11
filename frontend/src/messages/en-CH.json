@@ -753,9 +753,9 @@
     "stateAccepted": "Accepted for dispatch",
     "stateRejected": "Dispatch was rejected — we're investigating",
     "stateUnknown": "Status is being confirmed — we'll update you by email",
-    "emailNoticeEyebrow": "Order confirmation",
-    "emailNotice": "A confirmation email has been sent to your email",
-    "emailNoticeDetail": "You will receive another update if your dispatch status changes.",
+    "emailNoticeEyebrow": "Payment receipt",
+    "emailNotice": "A payment receipt has been sent to your email",
+    "emailNoticeDetail": "You'll also receive a dispatch email if the status changes.",
     "stickyCtaLabel": "Send another letter",
     "downloadLetter": "Download confirmation",
     "downloadUnavailable": "The confirmation document is no longer available."
