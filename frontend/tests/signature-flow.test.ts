@@ -27,6 +27,14 @@ const renderServiceSource = readFileSync(
   path.join(repoRoot, "backend/src/modules/rendering/render.service.ts"),
   "utf8",
 );
+const renderTemplateSource = readFileSync(
+  path.join(repoRoot, "backend/src/modules/rendering/render-template.ts"),
+  "utf8",
+);
+const renderPipelineSource = readFileSync(
+  path.join(repoRoot, "backend/src/modules/rendering/render-snapshot-pipeline.ts"),
+  "utf8",
+);
 const signatureImageSource = readFileSync(
   path.join(repoRoot, "backend/src/modules/rendering/signature-image.ts"),
   "utf8",
@@ -101,10 +109,11 @@ describe("signature canvas redesign", () => {
   });
 
   it("backend PDF renderer supports drawn signature images from S3", () => {
-    expect(renderServiceSource).toContain("signatureImageBase64");
-    expect(renderServiceSource).toContain("loadSignatureImageBase64");
+    expect(renderServiceSource).toContain('from "./render-template.js"');
+    expect(renderTemplateSource).toContain("signatureImageBase64");
+    expect(renderPipelineSource).toContain("loadSignatureImageBase64");
     expect(signatureImageSource).toContain("downloadObjectBuffer");
-    expect(renderServiceSource).toContain("signature-image");
+    expect(renderPipelineSource).toContain("renderLetterHtml");
   });
 
   it("SignatureCanvas debounces stroke-end to avoid duplicate uploads", () => {
