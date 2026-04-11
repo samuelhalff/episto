@@ -20,6 +20,7 @@ That overlap creates noisy customer messaging, inconsistent template data, and c
 - Use one clean, consistent Swiss Mail email structure across letter types.
 - Remove duplicate or overlapping Swiss Mail success emails.
 - Ensure Stripe always receives the customer's email plus a usable order reference.
+- Ensure later Swiss Mail dispatch emails can include a stable order-status link without depending on a capture-time app receipt.
 - Align confirmation-page copy with the real email sequence.
 
 ## Non-goals
@@ -44,6 +45,9 @@ The current implementation has four material problems:
 
 4. **Stripe receipt details are not fully maintained.**  
    The app sets `receipt_email` when first creating a PaymentIntent, but it does not set a clear receipt-facing reference/description and does not update an existing pending PaymentIntent when checkout is resumed.
+
+5. **Order-status link delivery is coupled to the wrong lifecycle moment.**  
+   The current raw order-access token is only exposed when payment first transitions to `captured`. If the app no longer sends a capture-time receipt email, later dispatch emails do not have a clean way to include a stable order-status link.
 
 ## Considered approaches
 
@@ -107,7 +111,32 @@ The design follows Stripe's documented behavior:
 
 This task does **not** add a second Swiss Mail receipt email as a hedge against Stripe.
 
-### 3. Shared dispatch email payload builder
+### 3. Order-status link contract
+
+The implementation will include an order-link redesign so later Swiss Mail emails can generate stable order-status links without depending on the one-time raw token exposed during capture.
+
+#### Design direction
+
+The order-status link must move from a one-time raw token delivery model to a signed order-access token model that can be issued whenever a customer email needs it.
+
+That signed token must:
+
+- identify the paid order or payment attempt
+- carry an expiry aligned with the configured order-access window
+- be verifiable by the backend without relying on a raw token that only existed at first capture
+- remain valid across multiple later emails so earlier links do not break when a later status email is sent
+
+#### Scope effect
+
+This means the task is not only an email cleanup. It also updates the order-access-link contract so that:
+
+- the first Swiss Mail dispatch email can include the order-status URL
+- later accepted/rejected/refund emails can include a stable link to the same order surface
+- the product no longer depends on an app-sent payment receipt just to deliver a usable order link
+
+The existing order-status route remains the customer-facing destination. The redesign is about token issuance and verification, not about changing the route.
+
+### 4. Shared dispatch email payload builder
 
 All Swiss Mail dispatch emails must be fed by one shared backend payload builder instead of ad hoc per-worker data assembly.
 
@@ -141,7 +170,7 @@ Standard and registered letters use the same template structure.
 
 The customer should see one coherent template family, not different email shapes per letter type.
 
-### 4. Trigger ownership and deduplication
+### 5. Trigger ownership and deduplication
 
 Email responsibility moves to the dispatch/status boundary.
 
@@ -174,7 +203,7 @@ Examples:
 
 This aligns the implementation with the repo's idempotency rules and removes retry-driven duplicate sends.
 
-### 5. Template cleanup
+### 6. Template cleanup
 
 The template family is simplified:
 
@@ -187,7 +216,7 @@ The template family is simplified:
 
 The shared email layout stays in place; the cleanup is about data completeness and template ownership, not a cosmetic rebrand.
 
-### 6. Frontend copy alignment
+### 7. Frontend copy alignment
 
 The confirmation page and locale messages must say **payment receipt**, not vague **confirmation email** wording.
 
@@ -201,7 +230,7 @@ This keeps the UI honest:
 - payment receipt = payment truth
 - later dispatch email = dispatch truth
 
-### 7. Error handling
+### 8. Error handling
 
 This cleanup must not introduce success-shaped fallbacks.
 
@@ -209,16 +238,17 @@ This cleanup must not introduce success-shaped fallbacks.
 - If required base context for a Swiss Mail dispatch email is missing, the system must fail/log that path rather than send a partial email that looks complete.
 - No new code may collapse ambiguous dispatch outcomes into accepted/delivered wording.
 
-### 8. Test strategy
+### 9. Test strategy
 
 Implementation will start with failing tests for the current regressions:
 
 1. payment routes no longer queue `dispatch-confirmation`
 2. Stripe PaymentIntent creation includes `receipt_email` plus order-reference description/metadata
 3. reused pending PaymentIntents are updated before reuse
-4. `dispatch-submitted` uses complete shared payload data and a deterministic job ID
-5. standard and registered letters share the same base template structure, with only real provider fields differing
-6. confirmation-page copy and locale strings say **payment receipt**, not generic confirmation email
+4. order-status tokens can be issued from later dispatch-email paths and still resolve valid order links
+5. `dispatch-submitted` uses complete shared payload data and a deterministic job ID
+6. standard and registered letters share the same base template structure, with only real provider fields differing
+7. confirmation-page copy and locale strings say **payment receipt**, not generic confirmation email
 
 The sequence under test becomes:
 
@@ -233,12 +263,15 @@ Expected implementation areas:
 
 - `backend/src/modules/payments/adapters/stripe.adapter.ts`
 - `backend/src/modules/payments/payment.routes.ts`
+- `backend/src/modules/payments/payment.service.ts`
 - `backend/src/modules/dispatch/dispatch-confirmation.ts` (removal or replacement)
 - `backend/src/modules/dispatch/dispatch-notifications.ts`
 - `backend/src/workers/submit-dispatch.worker.ts`
 - `backend/src/workers/reconcile-dispatch.worker.ts`
 - `backend/src/workers/email-templates.ts`
 - `backend/src/workers/email-strings.ts`
+- `backend/src/modules/orders/order.routes.ts`
+- order-access-token helpers used by payment/order/email flows
 - frontend confirmation page and locale message files
 - targeted backend/frontend tests covering queueing, templates, Stripe payloads, and copy
 
@@ -248,6 +281,7 @@ Proceed with a cleanup that:
 
 - removes the extra Swiss Mail "order confirmed" email layer
 - keeps Stripe as the receipt sender with stronger receipt metadata
+- re-homes order-status links behind a signed order-access token flow that later dispatch emails can issue safely
 - keeps Swiss Mail focused on dispatch-status updates only
 - unifies all dispatch email payloads through one shared builder
 - suppresses duplicate dispatch emails with deterministic queue identities
