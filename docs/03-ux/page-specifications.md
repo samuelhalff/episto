@@ -1852,7 +1852,7 @@ Download bundle rules:
 - QR code encoding `/status/{orderToken}` URL (the paid-order status route, not the draft resume route)
 - Caption: `text-xs text-secondary` "Scan to view your order status on another device"
 - Not required for MVP if token-based access is not in first release
-- **Important:** The QR code is a **secondary** convenience mechanism. The primary access path is the order-status link in the receipt email (see §9.7). Do not build the QR code as the sole or primary way to access order status.
+- **Important:** The QR code is a **secondary** convenience mechanism. The primary access path is the signed order-status link carried in Swiss Mail dispatch emails after payment succeeds, with legacy hashed links accepted during the transition (see §9.7). Do not build the QR code as the sole or primary way to access order status.
 
 #### 9.7 Email Notice — Multiple Emails
 
