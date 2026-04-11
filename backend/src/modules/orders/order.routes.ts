@@ -3,11 +3,11 @@ import { desc, eq } from "drizzle-orm";
 import { OrderStatusResponseSchema } from "@swiss-mail/shared";
 import { getDb, schema } from "../../db/index.js";
 import { AppError, notFoundError } from "../../shared/errors/index.js";
-import { hashResumeToken } from "../sessions/session.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { recordEvent } from "../analytics/index.js";
 import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-mode.js";
 import { isStatementWithinRetentionWindow } from "./order-access-window.js";
+import { resolveOrderAccessPayment } from "./order-token-resolver.js";
 
 /**
  * Resolve an order access token to its payment attempt.
@@ -18,18 +18,7 @@ async function resolveOrderToken(
   db: ReturnType<typeof getDb>,
   orderToken: string,
 ): Promise<typeof schema.paymentAttempts.$inferSelect | null> {
-  const tokenHash = hashResumeToken(orderToken);
-  const [payment] = await db
-    .select()
-    .from(schema.paymentAttempts)
-    .where(eq(schema.paymentAttempts.orderAccessTokenHash, tokenHash))
-    .limit(1);
-
-  if (!payment) return null;
-  if (!payment.orderAccessTokenExpiresAt) return null;
-  if (payment.orderAccessTokenExpiresAt < new Date()) return null;
-
-  return payment;
+  return resolveOrderAccessPayment(db, orderToken);
 }
 
 function ipKey(req: FastifyRequest): string {
