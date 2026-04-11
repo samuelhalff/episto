@@ -36,4 +36,52 @@ describe("frontend sentry config", () => {
     });
     expect(sanitized.transaction).toBe("/resume/[token]");
   });
+
+  it("redacts traced transactions before sending them", () => {
+    const options = createSentryInitOptions(
+      "https://public@example.ingest.sentry.io/123",
+    );
+    const beforeSendTransaction = Reflect.get(options, "beforeSendTransaction");
+    const transactionEvent = {
+      type: "transaction",
+      transaction: "/resume/secret-token",
+      request: {
+        url: "https://swissmail.ch/status/order-token?next=/resume/secret-token",
+      },
+      spans: [
+        {
+          span_id: "0123456789abcdef",
+          trace_id: "fedcba9876543210fedcba9876543210",
+          start_timestamp: 1,
+          timestamp: 2,
+          description: "GET /resume/secret-token",
+          data: {
+            url: "https://swissmail.ch/status/order-token",
+            route: "/status/order-token",
+          },
+        },
+      ],
+    };
+
+    expect(beforeSendTransaction).toBeTypeOf("function");
+    if (typeof beforeSendTransaction !== "function") {
+      throw new Error("beforeSendTransaction should be configured.");
+    }
+
+    const sanitized = beforeSendTransaction(transactionEvent);
+
+    expect(sanitized.request?.url).toBe(
+      "https://swissmail.ch/status/[token]?next=%2Fresume%2F%5Btoken%5D",
+    );
+    expect(sanitized.transaction).toBe("/resume/[token]");
+    expect(sanitized.spans).toEqual([
+      expect.objectContaining({
+        description: "GET /resume/[token]",
+        data: {
+          url: "https://swissmail.ch/status/[token]",
+          route: "/status/[token]",
+        },
+      }),
+    ]);
+  });
 });

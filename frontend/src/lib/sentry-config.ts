@@ -1,4 +1,4 @@
-import type { ErrorEvent } from "@sentry/nextjs";
+import type { ErrorEvent, SpanJSON, TransactionEvent } from "@sentry/core";
 import { env } from "./env";
 
 const FRONTEND_TRACES_SAMPLE_RATE = 0.1;
@@ -15,7 +15,16 @@ const TOKENIZED_PATH_PATTERNS = [
   /(\/api\/v1\/resume\/)([^/?#]+)/g,
   /(\/api\/v1\/orders\/)([^/?#]+)/g,
 ];
-const PATH_METADATA_KEYS = new Set(["path", "pathname", "route", "url", "to", "from", "next"]);
+const PATH_METADATA_KEYS = new Set([
+  "path",
+  "pathname",
+  "route",
+  "url",
+  "to",
+  "from",
+  "next",
+]);
+const PATH_METADATA_SUFFIXES = [".path", ".pathname", ".route", ".target", ".url"];
 
 export function getFrontendSentryDsn(): string | null {
   return env.NEXT_PUBLIC_SENTRY_DSN ?? null;
@@ -58,7 +67,7 @@ export function sanitizeObservabilityMetadata(
   metadata: Record<string, string | number | boolean>,
 ): Record<string, string | number | boolean> {
   const sanitizedEntries = Object.entries(metadata).map(([key, value]) => {
-    if (typeof value === "string" && PATH_METADATA_KEYS.has(key)) {
+    if (typeof value === "string" && shouldSanitizeMetadataKey(key)) {
       return [key, sanitizeObservabilityPath(value)] as const;
     }
 
@@ -68,9 +77,30 @@ export function sanitizeObservabilityMetadata(
   return Object.fromEntries(sanitizedEntries);
 }
 
-function sanitizeLooseMetadata(metadata: Record<string, unknown>): Record<string, unknown> {
+function shouldSanitizeMetadataKey(key: string): boolean {
+  return (
+    PATH_METADATA_KEYS.has(key) ||
+    PATH_METADATA_SUFFIXES.some((suffix) => key.endsWith(suffix))
+  );
+}
+
+function sanitizeLooseMetadata(
+  metadata: Record<string, unknown>,
+): Record<string, unknown> {
   const sanitizedEntries = Object.entries(metadata).map(([key, value]) => {
-    if (typeof value === "string" && PATH_METADATA_KEYS.has(key)) {
+    if (typeof value === "string" && shouldSanitizeMetadataKey(key)) {
+      return [key, sanitizeObservabilityPath(value)] as const;
+    }
+
+    return [key, value] as const;
+  });
+
+  return Object.fromEntries(sanitizedEntries);
+}
+
+function sanitizeSpanAttributes(attributes: SpanJSON["data"]): SpanJSON["data"] {
+  const sanitizedEntries = Object.entries(attributes).map(([key, value]) => {
+    if (typeof value === "string" && shouldSanitizeMetadataKey(key)) {
       return [key, sanitizeObservabilityPath(value)] as const;
     }
 
@@ -84,7 +114,19 @@ function isMetadataRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function stripSentryPii(event: ErrorEvent): ErrorEvent {
+function sanitizeSpan(span: SpanJSON): SpanJSON {
+  if (typeof span.description === "string") {
+    span.description = sanitizeObservabilityPath(span.description);
+  }
+
+  if (span.data) {
+    span.data = sanitizeSpanAttributes(span.data);
+  }
+
+  return span;
+}
+
+function stripSentryPii<T extends ErrorEvent | TransactionEvent>(event: T): T {
   if (event.user) {
     delete event.user.email;
     delete event.user.ip_address;
@@ -108,8 +150,13 @@ function stripSentryPii(event: ErrorEvent): ErrorEvent {
     event.tags.route = sanitizeObservabilityPath(String(event.tags.route));
   }
 
-  if (isMetadataRecord(event.contexts?.safe_metadata)) {
-    event.contexts.safe_metadata = sanitizeLooseMetadata(event.contexts.safe_metadata);
+  const contexts = event.contexts as
+    | (typeof event.contexts & {
+        safe_metadata?: Record<string, unknown>;
+      })
+    | undefined;
+  if (isMetadataRecord(contexts?.safe_metadata)) {
+    contexts.safe_metadata = sanitizeLooseMetadata(contexts.safe_metadata);
   }
 
   if (Array.isArray(event.breadcrumbs)) {
@@ -118,6 +165,10 @@ function stripSentryPii(event: ErrorEvent): ErrorEvent {
         breadcrumb.data = sanitizeLooseMetadata(breadcrumb.data);
       }
     }
+  }
+
+  if (Array.isArray(event.spans)) {
+    event.spans = event.spans.map((span: SpanJSON) => sanitizeSpan(span));
   }
 
   return event;
@@ -130,5 +181,6 @@ export function createSentryInitOptions(dsn: string) {
     sendDefaultPii: false,
     tracesSampleRate: FRONTEND_TRACES_SAMPLE_RATE,
     beforeSend: stripSentryPii,
+    beforeSendTransaction: stripSentryPii,
   };
 }
