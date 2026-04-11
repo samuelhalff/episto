@@ -224,20 +224,22 @@ Flow:
 
 Flow:
 
-1. Stripe sends the payment receipt immediately; Swiss Mail dispatch-status emails carry the signed "Order Status" link, and legacy hashed links remain readable during transition.
-2. Clicks link → `/status/:orderToken` → shows current dispatch status and receipt.
-3. This link is valid for 90 days (configurable), independent of the original drafting session TTL (configurable — see `docs/08-guardrails/open-decisions.md`).
-4. Status shown using canonical `DispatchState` values (from `system-contracts.md` §3.3):
+1. Stripe sends the payment receipt immediately.
+2. Swiss Mail dispatch-status emails carry the signed "Order Status" link.
+3. During transition, legacy hashed links remain readable as a fallback.
+4. User clicks the link → `/status/:orderToken` → shows current dispatch status and receipt.
+5. This link is valid for 90 days (configurable), independent of the original drafting session TTL (configurable — see `docs/08-guardrails/open-decisions.md`).
+6. Status shown using canonical `DispatchState` values (from `system-contracts.md` §3.3):
    - `queued` → "Your letter is queued for dispatch"
    - `submitted` → "Submitted for dispatch"
    - `accepted` → "Accepted for dispatch" (letter is in provider's possession — not yet delivered)
    - `rejected` → "Dispatch was rejected" (with next steps)
    - `unknown` → "Status is being confirmed" (honest ambiguity — never collapse to success)
    - `reconciled` → "Status confirmed: [outcome]"
-5. "In transit" and "Delivered" are **not** canonical states. Do not show these labels.
+7. "In transit" and "Delivered" are **not** canonical states. Do not show these labels.
    Further delivery progress (physical transit, delivery confirmation) is entirely provider-dependent
    and may not be available — see `docs/08-guardrails/provider-certainties.md`.
-6. Reference number is shown with a tooltip: "This is a provider reference number. It is not a tracking link unless your delivery type supports tracking."
+8. Reference number is shown with a tooltip: "This is a provider reference number. It is not a tracking link unless your delivery type supports tracking."
 
 ## Template Browsing Flow
 

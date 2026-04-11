@@ -171,9 +171,9 @@ export interface TransitionPaymentResult {
   payment: PaymentAttemptRow;
   /**
    * Raw order access token, present only when transitioning to 'captured'
-   * for the first time. It exists for first capture and legacy compatibility;
-   * new customer-facing emails should use signed order-access tokens issued on
-   * demand instead of exposing this raw token directly.
+   * for the first time because it must be hashed and persisted to the DB.
+   * Customer-facing emails must not embed this raw token directly; dispatch
+   * notifications should use signed order-access tokens issued on demand.
    */
   rawOrderAccessToken: string | null;
 }
