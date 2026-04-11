@@ -13,41 +13,45 @@
 ## File Structure
 
 ### New files
-| File | Responsibility |
-|------|---------------|
-| `frontend/src/components/product/SignatureCanvas.tsx` | Canvas drawing component wrapping react-signature-canvas. Handles responsive sizing, devicePixelRatio, trimmed export, clear/redo, dark-mode-safe canvas background. ~180 lines. |
+
+| File                                                   | Responsibility                                                                                                                                                                        |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frontend/src/components/product/SignatureCanvas.tsx`  | Canvas drawing component wrapping react-signature-canvas. Handles responsive sizing, devicePixelRatio, trimmed export, clear/redo, dark-mode-safe canvas background. ~180 lines.      |
 | `frontend/src/components/product/SignatureSection.tsx` | Mode picker (typed/drawn) + renders either Allura preview or SignatureCanvas. Lives inside LogisticsStep. Replaces old SignaturePicker.tsx and the inline signature card. ~200 lines. |
-| `frontend/tests/signature-canvas.test.ts` | Unit tests for SignatureSection and canvas integration |
+| `frontend/tests/signature-canvas.test.ts`              | Unit tests for SignatureSection and canvas integration                                                                                                                                |
 
 ### Modified files
-| File | Changes |
-|------|---------|
-| `shared/src/schemas/index.ts` | Add `"drawn"` to signatureMode enum in DraftLetterSchema and SnapshotDataSchema |
-| `shared/src/contracts/index.ts` | Add `"drawn"` to signatureMode in update contract |
-| `frontend/src/hooks/use-letter-preview.ts` | Add `"drawn"` to signatureMode type |
-| `frontend/src/lib/letter-content.ts` | Update `hasConcreteSignature` to handle `"drawn"` |
-| `frontend/src/components/product/LetterPreview.tsx` | Render drawn/image signatures as `<img>` from asset URL instead of always rendering Allura text |
-| `frontend/src/components/product/draft-flow/LogisticsStep.tsx` | Replace inline signature card with `<SignatureSection>`, remove signature bootstrap logic |
-| `frontend/src/components/product/review/ReviewPageReady.tsx` | Add "drawn" to signature display logic |
-| `backend/src/modules/rendering/render.service.ts` | For drawn mode: load signature asset from S3, embed as base64 `<img>` in HTML. Keep typed mode unchanged. |
-| `frontend/src/messages/en-CH.json` | Add drawn-mode i18n keys, remove image-upload keys |
-| `frontend/src/messages/de-CH.json` | Same |
-| `frontend/src/messages/fr-CH.json` | Same |
-| `frontend/src/messages/it-CH.json` | Same |
-| `docs/04-product/signatures-and-attachments.md` | Rewrite signature scope: typed + drawn (image upload removed) |
-| `docs/08-guardrails/open-decisions.md` | Update signature decision record |
+
+| File                                                           | Changes                                                                                                   |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `shared/src/schemas/index.ts`                                  | Add `"drawn"` to signatureMode enum in DraftLetterSchema and SnapshotDataSchema                           |
+| `shared/src/contracts/index.ts`                                | Add `"drawn"` to signatureMode in update contract                                                         |
+| `frontend/src/hooks/use-letter-preview.ts`                     | Add `"drawn"` to signatureMode type                                                                       |
+| `frontend/src/lib/letter-content.ts`                           | Update `hasConcreteSignature` to handle `"drawn"`                                                         |
+| `frontend/src/components/product/LetterPreview.tsx`            | Render drawn/image signatures as `<img>` from asset URL instead of always rendering Allura text           |
+| `frontend/src/components/product/draft-flow/LogisticsStep.tsx` | Replace inline signature card with `<SignatureSection>`, remove signature bootstrap logic                 |
+| `frontend/src/components/product/review/ReviewPageReady.tsx`   | Add "drawn" to signature display logic                                                                    |
+| `backend/src/modules/rendering/render.service.ts`              | For drawn mode: load signature asset from S3, embed as base64 `<img>` in HTML. Keep typed mode unchanged. |
+| `frontend/src/messages/en-CH.json`                             | Add drawn-mode i18n keys, remove image-upload keys                                                        |
+| `frontend/src/messages/de-CH.json`                             | Same                                                                                                      |
+| `frontend/src/messages/fr-CH.json`                             | Same                                                                                                      |
+| `frontend/src/messages/it-CH.json`                             | Same                                                                                                      |
+| `docs/04-product/signatures-and-attachments.md`                | Rewrite signature scope: typed + drawn (image upload removed)                                             |
+| `docs/08-guardrails/open-decisions.md`                         | Update signature decision record                                                                          |
 
 ### Deleted files
-| File | Reason |
-|------|--------|
-| `frontend/src/components/product/SignaturePicker.tsx` | Replaced by SignatureSection.tsx |
-| `frontend/tests/signature-flow.test.ts` | Replaced by signature-canvas.test.ts |
+
+| File                                                  | Reason                               |
+| ----------------------------------------------------- | ------------------------------------ |
+| `frontend/src/components/product/SignaturePicker.tsx` | Replaced by SignatureSection.tsx     |
+| `frontend/tests/signature-flow.test.ts`               | Replaced by signature-canvas.test.ts |
 
 ---
 
 ## Task 1: Install react-signature-canvas
 
 **Files:**
+
 - Modify: `package.json` (root)
 - Modify: `frontend/package.json`
 
@@ -85,6 +89,7 @@ git commit -m "chore: install react-signature-canvas for drawn signature support
 ## Task 2: Update shared schemas — add "drawn" to signatureMode
 
 **Files:**
+
 - Modify: `shared/src/schemas/index.ts` (lines with signatureMode enum)
 - Modify: `shared/src/contracts/index.ts` (line 33)
 - Test: `shared/tests/letter-layout.test.ts` (add schema validation test)
@@ -121,10 +126,13 @@ Expected: FAIL — "drawn" not in enum.
 - [ ] **Step 3: Update DraftLetterSchema**
 
 In `shared/src/schemas/index.ts`, change:
+
 ```typescript
 signatureMode: z.enum(["typed", "image"]).nullable(),
 ```
+
 to:
+
 ```typescript
 signatureMode: z.enum(["typed", "drawn"]).nullable(),
 ```
@@ -134,10 +142,13 @@ Do this in **both** places: the DraftLetterSchema (~line 148) and the SnapshotDa
 - [ ] **Step 4: Update contracts**
 
 In `shared/src/contracts/index.ts`, change:
+
 ```typescript
 signatureMode: z.enum(["typed", "image"]).nullable().optional(),
 ```
+
 to:
+
 ```typescript
 signatureMode: z.enum(["typed", "drawn"]).nullable().optional(),
 ```
@@ -162,6 +173,7 @@ git commit -m "feat(shared): add 'drawn' to signatureMode enum, drop 'image'"
 ## Task 3: Update frontend types and helpers
 
 **Files:**
+
 - Modify: `frontend/src/hooks/use-letter-preview.ts` (line 42)
 - Modify: `frontend/src/lib/letter-content.ts` (lines 131-140)
 - Modify: `frontend/src/components/product/review/ReviewPageReady.tsx` (lines 120-127)
@@ -169,10 +181,13 @@ git commit -m "feat(shared): add 'drawn' to signatureMode enum, drop 'image'"
 - [ ] **Step 1: Update LetterPreviewData type**
 
 In `frontend/src/hooks/use-letter-preview.ts`, change line 42:
+
 ```typescript
 signatureMode: "typed" | "image" | null;
 ```
+
 to:
+
 ```typescript
 signatureMode: "typed" | "drawn" | null;
 ```
@@ -227,9 +242,11 @@ git commit -m "feat(frontend): update signature types and helpers for drawn mode
 ## Task 4: Build SignatureCanvas component
 
 **Files:**
+
 - Create: `frontend/src/components/product/SignatureCanvas.tsx`
 
 This is the core canvas wrapper. It:
+
 - Wraps `react-signature-canvas` in a responsive container
 - Handles devicePixelRatio for crisp rendering
 - Always uses a white canvas background (dark-mode-safe — the canvas simulates paper)
@@ -401,6 +418,7 @@ git commit -m "feat(frontend): add SignatureCanvas component wrapping react-sign
 ## Task 5: Build SignatureSection component
 
 **Files:**
+
 - Create: `frontend/src/components/product/SignatureSection.tsx`
 
 This replaces the old read-only signature card in LogisticsStep AND the old SignaturePicker.tsx. It shows a mode toggle (typed vs drawn) and renders the appropriate sub-component.
@@ -495,9 +513,7 @@ export function SignatureSection({
 
       {/* Typed preview */}
       {resolvedMode === "typed" && (
-        <div
-          className="rounded-[28px] border border-[var(--app-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,249,240,0.92)_100%)] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] dark:bg-[linear-gradient(180deg,rgba(21,28,37,0.96)_0%,rgba(16,22,31,0.92)_100%)]"
-        >
+        <div className="rounded-[28px] border border-[var(--app-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.96)_0%,rgba(255,249,240,0.92)_100%)] px-5 py-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.75)] dark:bg-[linear-gradient(180deg,rgba(21,28,37,0.96)_0%,rgba(16,22,31,0.92)_100%)]">
           <p className="signature-script text-zinc-700 dark:text-zinc-100">
             {signerName || t("preview.placeholder")}
           </p>
@@ -576,7 +592,9 @@ function ModeCard({
       ].join(" ")}
     >
       <div className="flex items-center gap-2">
-        <span className={isSelected ? "text-amber-600 dark:text-amber-300" : "text-zinc-400"}>
+        <span
+          className={isSelected ? "text-amber-600 dark:text-amber-300" : "text-zinc-400"}
+        >
           {isSwitching ? <Loader2 className="h-4 w-4 animate-spin" /> : icon}
         </span>
         <span className="text-sm font-semibold">{label}</span>
@@ -610,6 +628,7 @@ git commit -m "feat(frontend): add SignatureSection with typed/drawn mode toggle
 ## Task 6: Wire SignatureSection into LogisticsStep
 
 **Files:**
+
 - Modify: `frontend/src/components/product/draft-flow/LogisticsStep.tsx`
 
 Remove: old signature bootstrap useEffect, old read-only signature card.
@@ -624,6 +643,7 @@ Replace the signature section in LogisticsStep. Key changes:
 3. Import and wire `SignatureSection`
 
 In the imports section, add:
+
 ```typescript
 import { SignatureSection } from "../SignatureSection";
 ```
@@ -689,6 +709,7 @@ Replace the signature `<section>` block (lines 311-334) with:
 ```
 
 Also update `handleReview` to remove the forced "typed" override (lines 120-126). Remove:
+
 ```typescript
 if (draft.data?.signatureMode !== "typed") {
   reviewUpdates.signatureMode = "typed";
@@ -718,6 +739,7 @@ git commit -m "feat(frontend): wire SignatureSection into LogisticsStep, remove 
 ## Task 7: Update LetterPreview to render drawn signatures
 
 **Files:**
+
 - Modify: `frontend/src/components/product/LetterPreview.tsx` (lines 95-99, 349-371)
 
 Currently `shouldShowGeneratedSignature` is true for any non-null signatureMode, and it always renders Allura text. We need to branch: typed → Allura text, drawn → `<img>` from asset URL.
@@ -725,72 +747,74 @@ Currently `shouldShowGeneratedSignature` is true for any non-null signatureMode,
 - [ ] **Step 1: Update LetterPreview**
 
 Add `signatureUrl` prop and update signature rendering. Add import:
+
 ```typescript
 import { getSignatureFileUrl } from "../../lib/letter-content";
 ```
 
 After `resolvedSignatureMode` (line 96), add:
+
 ```typescript
-const signatureAssetUrl = getSignatureFileUrl(
-  draft.signatureAssetId,
-);
+const signatureAssetUrl = getSignatureFileUrl(draft.signatureAssetId);
 const isDrawnSignature = resolvedSignatureMode === "drawn" && Boolean(signatureAssetUrl);
 ```
 
 Replace the signature rendering block (lines 349-371) with:
 
 ```tsx
-{shouldShowGeneratedSignature ? (
-  <div style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}>
-    {isDrawnSignature ? (
-      <>
-        <img
-          src={signatureAssetUrl!}
-          alt=""
-          style={{
-            maxHeight: ptToPageCqw(LETTER_LAYOUT_PT.signatureScript * 1.5),
-            maxWidth: "50%",
-            objectFit: "contain",
-          }}
-        />
-        <p
-          className="signature-name"
-          style={{
-            marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
-            fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
-            color: LETTER_COLORS.signatureName,
-          }}
-        >
-          {signatureDisplayName}
-        </p>
-      </>
-    ) : (
-      <>
-        <p
-          className="signature-script"
-          style={{
-            fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureScript),
-            lineHeight: 0.9,
-            transform: "rotate(-1.5deg)",
-            color: LETTER_COLORS.signatureScript,
-          }}
-        >
-          {signatureDisplayName}
-        </p>
-        <p
-          className="signature-name"
-          style={{
-            marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
-            fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
-            color: LETTER_COLORS.signatureName,
-          }}
-        >
-          {signatureDisplayName}
-        </p>
-      </>
-    )}
-  </div>
-) : null}
+{
+  shouldShowGeneratedSignature ? (
+    <div style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}>
+      {isDrawnSignature ? (
+        <>
+          <img
+            src={signatureAssetUrl!}
+            alt=""
+            style={{
+              maxHeight: ptToPageCqw(LETTER_LAYOUT_PT.signatureScript * 1.5),
+              maxWidth: "50%",
+              objectFit: "contain",
+            }}
+          />
+          <p
+            className="signature-name"
+            style={{
+              marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
+              fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
+              color: LETTER_COLORS.signatureName,
+            }}
+          >
+            {signatureDisplayName}
+          </p>
+        </>
+      ) : (
+        <>
+          <p
+            className="signature-script"
+            style={{
+              fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureScript),
+              lineHeight: 0.9,
+              transform: "rotate(-1.5deg)",
+              color: LETTER_COLORS.signatureScript,
+            }}
+          >
+            {signatureDisplayName}
+          </p>
+          <p
+            className="signature-name"
+            style={{
+              marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
+              fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
+              color: LETTER_COLORS.signatureName,
+            }}
+          >
+            {signatureDisplayName}
+          </p>
+        </>
+      )}
+    </div>
+  ) : null;
+}
 ```
 
 - [ ] **Step 2: Verify typecheck**
@@ -813,9 +837,11 @@ git commit -m "feat(frontend): render drawn signature as image in LetterPreview"
 ## Task 8: Update backend PDF renderer for drawn signatures
 
 **Files:**
+
 - Modify: `backend/src/modules/rendering/render.service.ts` (lines 237-244, 343-362)
 
 For drawn mode, the renderer must:
+
 1. Load the signature file asset from S3
 2. Convert to base64 data URL
 3. Embed as `<img>` in the signature block HTML
@@ -847,13 +873,17 @@ async function loadSignatureImageBase64(
     const mime = contentType || asset.mimeType || "image/png";
     return `data:${mime};base64,${buffer.toString("base64")}`;
   } catch (err) {
-    logger.warn({ signatureAssetId, err }, "Failed to load signature image for PDF render");
+    logger.warn(
+      { signatureAssetId, err },
+      "Failed to load signature image for PDF render",
+    );
     return null;
   }
 }
 ```
 
 Add the import at the top:
+
 ```typescript
 import { downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
 ```
@@ -861,6 +891,7 @@ import { downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
 - [ ] **Step 2: Update renderLetterHtml to accept signature image**
 
 Change the function signature:
+
 ```typescript
 export function renderLetterHtml(data: SnapshotData, signatureImageBase64?: string | null): string {
 ```
@@ -890,22 +921,27 @@ if (data.signatureMode && signatureName) {
 After the `.signature-name` CSS rule (around line 362), add:
 
 ```css
-    .signature-image {
-      max-height: 25mm;
-      max-width: 60mm;
-      object-fit: contain;
-    }
+.signature-image {
+  max-height: 25mm;
+  max-width: 60mm;
+  object-fit: contain;
+}
 ```
 
 - [ ] **Step 4: Update renderSnapshotToPdf to load signature image**
 
 In `renderSnapshotToPdf` (line 636), change:
+
 ```typescript
 const html = renderLetterHtml(snapshotData);
 ```
+
 to:
+
 ```typescript
-const signatureImageBase64 = await loadSignatureImageBase64(snapshotData.signatureAssetId);
+const signatureImageBase64 = await loadSignatureImageBase64(
+  snapshotData.signatureAssetId,
+);
 const html = renderLetterHtml(snapshotData, signatureImageBase64);
 ```
 
@@ -929,6 +965,7 @@ git commit -m "feat(backend): render drawn signature as embedded image in PDF"
 ## Task 9: Delete old SignaturePicker and update tests
 
 **Files:**
+
 - Delete: `frontend/src/components/product/SignaturePicker.tsx`
 - Delete: `frontend/tests/signature-flow.test.ts`
 - Create: `frontend/tests/signature-canvas.test.ts`
@@ -982,10 +1019,7 @@ const renderServiceSource = readFileSync(
   "utf-8",
 );
 
-const globalsSource = readFileSync(
-  resolve(__dirname, "../src/app/globals.css"),
-  "utf-8",
-);
+const globalsSource = readFileSync(resolve(__dirname, "../src/app/globals.css"), "utf-8");
 
 describe("signature canvas integration", () => {
   it("ships Allura handwriting font for typed signatures", () => {
@@ -1054,6 +1088,7 @@ git commit -m "test(frontend): replace old signature tests with canvas integrati
 ## Task 10: Update i18n messages
 
 **Files:**
+
 - Modify: `frontend/src/messages/en-CH.json`
 - Modify: `frontend/src/messages/de-CH.json`
 - Modify: `frontend/src/messages/fr-CH.json`
@@ -1090,6 +1125,7 @@ Replace the `signature` block with:
 ```
 
 Add to the `review` section:
+
 ```json
 "drawnSignature": "Drawn signature"
 ```
@@ -1206,6 +1242,7 @@ git commit -m "i18n: add drawn signature messages in all 4 locales, remove image
 ## Task 11: Update docs
 
 **Files:**
+
 - Modify: `docs/04-product/signatures-and-attachments.md`
 - Modify: `docs/08-guardrails/open-decisions.md`
 
@@ -1244,7 +1281,7 @@ Replace the signature scope section (~lines 36-45):
 
 **Locked choice:** Two modes: typed (cursive font) and drawn (on-screen canvas).
 
-See [`../04-product/signatures-and-attachments.md`](../04-product/signatures-and-attachments.md).
+See [`../../04-product/signatures-and-attachments.md`](../../04-product/signatures-and-attachments.md).
 
 **Option A (typed only) rejected** — too weak for the perceived trust level.
 **Option B (typed + upload) superseded** — drawn signature is higher quality than upload for most users.

@@ -2,11 +2,12 @@
 
 > A premium formal-letter product with integrated Swiss postal submission.
 
-Describe what you need. Swiss Mail drafts the letter, generates the final PDF, and submits it with
-the required metadata to the Swiss Post API path. Swiss Mail does not operate its own print-and-mail
-workflow.
+Describe what you need. Swiss Mail drafts the letter, generates the dispatch-ready PDF, collects
+payment, and submits the resulting package through the configured postal adapter. Swiss Mail does
+not operate its own print-and-mail workflow.
 
-**Status:** Documentation phase — pre-implementation gate not yet cleared.
+**Status:** Core product implementation is complete. Current work is pre-launch hardening, provider
+onboarding, and live cutover readiness.
 
 ---
 
@@ -117,9 +118,10 @@ docs/
 └── 08-guardrails/              # Rules and constraints
 ```
 
-### Prepared foundation
+### Current repository state
 
-- TypeScript boundaries now exist for `frontend/`, `backend/`, and `shared/`
-- `shared/src/enums.ts` and `shared/src/errors.ts` mirror the locked canonical docs
-- `shared/src/query-keys.ts` centralizes the documented React Query key shape
-- `shared/src/contracts/` and `shared/src/schemas/` are reserved entry points only; feature contracts and Zod schemas still require doc-backed implementation work
+- `frontend/`, `backend/`, and `shared/` are implemented and wired together through shared contracts
+- Guest drafting, preview, review, checkout, confirmation, resume, and order-status flows are live in
+  the app codebase
+- Rendering, files, payments, retention, analytics, admin tooling, and queue workers are implemented
+- Postal dispatch remains adapter-driven and mock-by-default until explicit Swiss Post cutover
