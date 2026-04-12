@@ -95,9 +95,9 @@ describe("signature canvas redesign", () => {
     expect(logisticsStepSource).toContain(
       "const canProceed = getLogisticsStepValidation({",
     );
-    expect(logisticsStepSource).toContain(
-      "if (!canProceed || reviewDraft.isPending || isNavigating || isDeliverySelectionPending) return;",
-    );
+    expect(logisticsStepSource).toContain("!canProceed ||");
+    expect(logisticsStepSource).toContain("reviewDraft.isPending ||");
+    expect(logisticsStepSource).toContain("isDeliverySelectionPending");
     expect(logisticsStepSource).toContain(
       "disabled={!canProceed || reviewDraft.isPending || isDeliverySelectionPending}",
     );

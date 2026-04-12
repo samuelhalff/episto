@@ -40,10 +40,13 @@
     "jose": "^6.2.2",
     "microsoft-cognitiveservices-speech-sdk": "^1.49.0",
     "openai": "^6.32.0",
+    "pdf-lib": "^1.17.1",
     "pg": "^8.20.0",
     "pino": "^9.0.0",
     "pino-pretty": "^11.3.0",
     "postgres": "^3.4.0",
+    "puppeteer": "^24.40.0",
+    "puppeteer-core": "^24.40.0",
     "resend": "^4.0.0",
     "stripe": "^16.0.0",
     "zod": "^3.23.0"
