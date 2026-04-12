@@ -167,20 +167,21 @@ back without its upstream `frontend`, `backend`, and infrastructure containers a
 Current deployment target: **standalone VPS + `docker-compose.prod.yml`**.
 
 - Public HTTPS terminates in the `proxy` container on `80`/`443`
-- `swissmail.ch` and `www.swissmail.ch` route to `frontend:3000`
-- `api.swissmail.ch` routes to `backend:4000`
+- The public frontend host(s) route to `frontend:3000`
+- The public API path/host routes to `backend:4000`, driven by the production env file
 - `5000` is dev-only and must not be exposed in production
-- `docker-compose.prod.yml` mounts `nginx/swissmail-proxy.conf` and expects a certificate in
-  `/etc/letsencrypt/live/swissmail.ch/` that covers `swissmail.ch`, `www.swissmail.ch`, and
-  `api.swissmail.ch`
+- `docker-compose.prod.yml` renders its nginx config from `nginx/render-prod-proxy.sh` using
+  `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_URL`, optional `PUBLIC_FRONTEND_SERVER_NAMES`, and
+  optional `PUBLIC_TLS_CERT_NAME`
 
 Before calling production infrastructure ready, verify:
 
-1. The VPS has valid DNS for `swissmail.ch`, `www.swissmail.ch`, and `api.swissmail.ch`
-2. TLS files exist under `/etc/letsencrypt/live/swissmail.ch/`
+1. The VPS has valid DNS for the hostnames referenced by `NEXT_PUBLIC_SITE_URL`,
+   `NEXT_PUBLIC_API_URL`, and `PUBLIC_FRONTEND_SERVER_NAMES`
+2. TLS files exist under `/etc/letsencrypt/live/<PUBLIC_TLS_CERT_NAME or NEXT_PUBLIC_SITE_URL host>/`
 3. `SWISSMAIL_ENV_FILE=/etc/swissmail/production.env docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml up -d --build`
    brings up healthy `frontend`, `backend`, `worker`, `zefix-proxy`, and `proxy` containers
-4. Public `443` serves the frontend and `api.swissmail.ch` serves backend `/api/*` routes
+4. Public `443` serves the frontend and the configured same-host `/api/*` path or API host serves backend routes
 5. `frontend:3000` and `backend:4000` stay internal-only and are not exposed as public entry points
 
 ---
@@ -239,18 +240,28 @@ All secrets and environment-specific values are injected as environment variable
 
 ### Frontend (build-time and runtime)
 
-| Variable                             | Description                          | Example                     |
-| ------------------------------------ | ------------------------------------ | --------------------------- |
-| `NEXT_PUBLIC_API_URL`                | Backend API URL (exposed to browser) | `https://api.swissmail.ch`  |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key               | `pk_live_...`               |
-| `NEXT_PUBLIC_SENTRY_DSN`             | Sentry DSN for frontend              | `https://...@sentry.io/...` |
-| `NEXT_PUBLIC_APP_ENV`                | App environment label                | `production`                |
+| Variable                             | Description                          | Example                              |
+| ------------------------------------ | ------------------------------------ | ------------------------------------ |
+| `NEXT_PUBLIC_API_URL`                | Backend API URL (exposed to browser) | `/api` or `https://api.swissmail.ch` |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key               | `pk_live_...`                        |
+| `NEXT_PUBLIC_SENTRY_DSN`             | Sentry DSN for frontend              | `https://...@sentry.io/...`          |
+| `NEXT_PUBLIC_APP_ENV`                | App environment label                | `production`                         |
+
+### Public proxy routing (production compose)
+
+| Variable                       | Description                                                  | Example                         |
+| ------------------------------ | ------------------------------------------------------------ | ------------------------------- |
+| `PUBLIC_FRONTEND_SERVER_NAMES` | Optional nginx `server_name` list for frontend hosts         | `swissmail.ch www.swissmail.ch` |
+| `PUBLIC_TLS_CERT_NAME`         | Optional LetsEncrypt live directory name for proxy TLS files | `swissmail.ch`                  |
 
 ### Notes
 
 - `NEXT_PUBLIC_*` variables are embedded at build time. They must not contain secrets.
 - The production compose stack expects the same external env file to drive both Compose interpolation
   and container runtime injection. Keep it outside the repo, e.g. `/etc/swissmail/production.env`.
+- Leave `PUBLIC_FRONTEND_SERVER_NAMES` and `PUBLIC_TLS_CERT_NAME` empty unless the proxy should
+  serve additional frontend aliases or the certificate directory name differs from the
+  `NEXT_PUBLIC_SITE_URL` host.
 - `DATABASE_URL`, `STRIPE_SECRET_KEY`, and `SESSION_SECRET` are the highest-sensitivity variables. Rotate immediately if compromised.
 - Use separate values for staging and production for every variable.
 

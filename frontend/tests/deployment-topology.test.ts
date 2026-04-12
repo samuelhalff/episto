@@ -16,14 +16,10 @@ const dockerComposeProdSource = readFileSync(
   "utf8",
 );
 
-const nextConfigSource = readFileSync(
-  path.join(repoRoot, "frontend/next.config.ts"),
-  "utf8",
-);
-
 afterEach(() => {
   vi.resetModules();
   delete process.env.NEXT_PUBLIC_SENTRY_DSN;
+  delete process.env.NEXT_PUBLIC_API_URL;
 });
 
 function getServiceBlock(source: string, service: string): string {
@@ -82,7 +78,7 @@ describe("deployment topology", () => {
     );
   });
 
-  it("keeps the production compose file on public nginx 80/443", () => {
+  it("keeps the production compose file env-driven on public nginx 80/443", () => {
     const proxyBlock = getServiceBlock(dockerComposeProdSource, "proxy");
     const frontendBlock = getServiceBlock(dockerComposeProdSource, "frontend");
     const backendBlock = getServiceBlock(dockerComposeProdSource, "backend");
@@ -96,10 +92,21 @@ describe("deployment topology", () => {
     expect(proxyBlock).toContain('- "443:443"');
     expect(proxyBlock).not.toContain('- "5000:5000"');
     expect(proxyBlock).toContain(
-      "./nginx/swissmail-proxy.conf:/etc/nginx/conf.d/default.conf:ro",
+      "./nginx/render-prod-proxy.sh:/etc/nginx/render-prod-proxy.sh:ro",
     );
-    expect(frontendBlock).toContain("NEXT_PUBLIC_SITE_URL: https://swissmail.ch");
-    expect(frontendBlock).toContain("NEXT_PUBLIC_API_URL: https://api.swissmail.ch");
+    expect(proxyBlock).toContain(
+      "NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL is required}",
+    );
+    expect(proxyBlock).toContain(
+      "PUBLIC_FRONTEND_SERVER_NAMES: ${PUBLIC_FRONTEND_SERVER_NAMES:-}",
+    );
+    expect(proxyBlock).toContain("PUBLIC_TLS_CERT_NAME: ${PUBLIC_TLS_CERT_NAME:-}");
+    expect(frontendBlock).toContain(
+      "NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL is required}",
+    );
+    expect(frontendBlock).toContain(
+      "NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}",
+    );
     expect(frontendBlock).toContain("NEXT_PUBLIC_APP_ENV: production");
     expect(frontendBlock).not.toContain('- "3000:3000"');
     expect(dockerComposeProdSource).toContain(
@@ -109,7 +116,7 @@ describe("deployment topology", () => {
       "path: ${SWISSMAIL_ENV_FILE:-/etc/swissmail/production.env}",
     );
     expect(backendBlock).toContain(
-      "CORS_ORIGIN: https://swissmail.ch,https://www.swissmail.ch",
+      "CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required}",
     );
     expect(backendBlock).toContain('TRUST_PROXY: "true"');
     expect(backendBlock).toContain("ZEFIX_PROXY_BASE_URL: http://zefix-proxy:8081");
@@ -125,10 +132,23 @@ describe("deployment topology", () => {
     expect(zefixProxyBlock).toContain("restart: unless-stopped");
   });
 
-  it("allows the production API origin through the frontend CSP", () => {
-    expect(nextConfigSource).toContain(
-      "connect-src 'self' https://api.stripe.com https://api.swissmail.ch ws: wss:",
+  it("does not hardcode a production API origin in the frontend CSP", async () => {
+    process.env.NEXT_PUBLIC_API_URL = "/api";
+
+    const { buildContentSecurityPolicy } = await import("../next.config");
+
+    expect(buildContentSecurityPolicy(false)).toContain(
+      "connect-src 'self' https://api.stripe.com ws: wss:",
     );
+    expect(buildContentSecurityPolicy(false)).not.toContain("https://api.swissmail.ch");
+  });
+
+  it("adds the configured absolute API origin to the frontend CSP", async () => {
+    process.env.NEXT_PUBLIC_API_URL = "https://api.ark-fid.ddns.net";
+
+    const { buildContentSecurityPolicy } = await import("../next.config");
+
+    expect(buildContentSecurityPolicy(false)).toContain("https://api.ark-fid.ddns.net");
   });
 
   it("adds the Sentry ingest origin to connect-src when a public DSN is configured", async () => {
