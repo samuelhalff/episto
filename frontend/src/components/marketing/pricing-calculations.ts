@@ -12,9 +12,10 @@ export function getPageBounds(
   examples: PricingExample[],
 ): { min: number; max: number } | undefined {
   if (examples.length === 0) return undefined;
-  const first = examples[0].pageCount;
-  const last = examples[examples.length - 1].pageCount;
-  return { min: first, max: last };
+  const pageCounts = examples.map((e) => e.pageCount);
+  const min = Math.min(...pageCounts);
+  const max = Math.max(...pageCounts);
+  return { min, max };
 }
 
 export function getPerPageIncrementDisplayPrice(

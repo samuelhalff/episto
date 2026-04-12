@@ -26,6 +26,16 @@ describe("pricing calculations", () => {
     expect(getPageBounds(examples)).toEqual({ min: 2, max: 4 });
   });
 
+  it("returns min/max regardless of input order", () => {
+    const examples: PricingExample[] = [
+      { pageCount: 5, totalCents: 2500, displayPrice: "CHF 25.00" },
+      { pageCount: 1, totalCents: 500, displayPrice: "CHF 5.00" },
+      { pageCount: 3, totalCents: 1500, displayPrice: "CHF 15.00" },
+    ];
+
+    expect(getPageBounds(examples)).toEqual({ min: 1, max: 5 });
+  });
+
   it("returns a per-page +CHF display price when increments are even and consecutive", () => {
     const examples: PricingExample[] = [
       { pageCount: 1, totalCents: 490, displayPrice: "CHF 4.90" },
