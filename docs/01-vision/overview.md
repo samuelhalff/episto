@@ -132,7 +132,7 @@ hosting choices are now locked.
 The following items have been **locked** since the initial documentation phase:
 retention durations (configurable defaults), email provider (Resend), AI provider (Azure-hosted
 model API), dispatch provider path (direct Swiss Post API), hosting topology
-(Infomaniak-centered), auth approach (guest-first, no accounts), monitoring baseline (structured
+(VPS with Docker Compose), auth approach (guest-first, no accounts), monitoring baseline (structured
 logs + error tracking), queue strategy (BullMQ + Redis), validation (shared Zod schemas).
 
 See [Open Decisions](../08-guardrails/open-decisions.md) for the full locked vs open register.

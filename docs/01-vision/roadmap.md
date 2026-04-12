@@ -33,7 +33,7 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | Category                 | Status                                                                                            |
 | ------------------------ | ------------------------------------------------------------------------------------------------- |
 | Dispatch provider path   | ✅ Locked — ePost / KLARA oneAPI (`api.epost.ch`)                                                 |
-| Hosting topology         | ✅ Locked — Infomaniak-centered topology                                                          |
+| Hosting topology         | ✅ Locked — VPS with Docker Compose                                                               |
 | Exact pricing            | ✅ Locked — provider quote + configurable Episto markup                                           |
 | Payment capture strategy | ✅ Locked — authorize first, capture after provider acceptance                                    |
 | Retention durations      | ✅ Locked — recommended defaults with configurable env vars                                       |

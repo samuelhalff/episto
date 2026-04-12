@@ -11,40 +11,41 @@
 
 Every row marked **Locked** is a hard constraint for implementation. Do not open alternatives without an explicit decision record.
 
-| Area | Status | Decision |
-|---|---|---|
-| Frontend framework | **Locked** | Next.js + TypeScript |
-| Styling | **Locked** | Tailwind CSS |
-| UI primitives | **Locked** | shadcn/ui — primitives only (`components/ui/`) |
-| Product UI layer | **Locked** | Custom Swiss Mail components (`components/product/`, `components/marketing/`) |
-| Server state (frontend) | **Locked** | React Query (TanStack Query v5) |
-| Form state (frontend) | **Locked** | React Hook Form + Zod resolvers |
-| UI state (frontend) | **Locked** | React `useState` / `useReducer` — no global store for MVP |
-| API client (frontend) | **Locked** | Typed `fetch` wrapper, endpoints from `shared/` |
-| Routing | **Locked** | Next.js App Router |
-| Backend runtime | **Locked** | Node.js + TypeScript |
-| Architecture style | **Locked** | Modular monolith |
-| Database | **Locked** | PostgreSQL |
-| ORM / query builder | **Locked** | Drizzle ORM + `drizzle-kit` |
-| Object storage | **Locked** | S3-compatible on Infomaniak (see hosting topology below) |
-| Payments | **Locked** | Stripe |
-| Text AI provider | **Locked** | Azure OpenAI / Azure AI Foundry Models API |
-| Speech-to-text provider | **Locked** | Azure AI Speech |
-| Dispatch provider path | **Locked** | ePost / KLARA oneAPI (`api.epost.ch`) |
-| PDF generation | **Locked** | Puppeteer (HTML/CSS → PDF) |
-| Async job queue | **Locked** | BullMQ + Redis |
-| Validation library | **Locked** | Zod (used in `shared/`; bridged to DB via `drizzle-zod`) |
-| Structured logging | **Locked** | JSON-structured application logs (`pino` preferred; exact library selection remains open) |
-| Shared contracts | **Locked** | TypeScript schemas in `shared/` — single source of truth |
-| Transactional email | **Locked** | Resend |
-| Auth (future accounts) | **Open** | Standard session/auth solution only when accounts are added |
-| Hosting topology | **Locked** | Infomaniak-centered topology; exact SKUs remain operational validation items |
+| Area                    | Status     | Decision                                                                                  |
+| ----------------------- | ---------- | ----------------------------------------------------------------------------------------- |
+| Frontend framework      | **Locked** | Next.js + TypeScript                                                                      |
+| Styling                 | **Locked** | Tailwind CSS                                                                              |
+| UI primitives           | **Locked** | shadcn/ui — primitives only (`components/ui/`)                                            |
+| Product UI layer        | **Locked** | Custom Swiss Mail components (`components/product/`, `components/marketing/`)             |
+| Server state (frontend) | **Locked** | React Query (TanStack Query v5)                                                           |
+| Form state (frontend)   | **Locked** | React Hook Form + Zod resolvers                                                           |
+| UI state (frontend)     | **Locked** | React `useState` / `useReducer` — no global store for MVP                                 |
+| API client (frontend)   | **Locked** | Typed `fetch` wrapper, endpoints from `shared/`                                           |
+| Routing                 | **Locked** | Next.js App Router                                                                        |
+| Backend runtime         | **Locked** | Node.js + TypeScript                                                                      |
+| Architecture style      | **Locked** | Modular monolith                                                                          |
+| Database                | **Locked** | PostgreSQL                                                                                |
+| ORM / query builder     | **Locked** | Drizzle ORM + `drizzle-kit`                                                               |
+| Object storage          | **Locked** | S3-compatible (MinIO in dev/prod, swappable to external provider)                         |
+| Payments                | **Locked** | Stripe                                                                                    |
+| Text AI provider        | **Locked** | Azure OpenAI / Azure AI Foundry Models API                                                |
+| Speech-to-text provider | **Locked** | Azure AI Speech                                                                           |
+| Dispatch provider path  | **Locked** | ePost / KLARA oneAPI (`api.epost.ch`)                                                     |
+| PDF generation          | **Locked** | Puppeteer (HTML/CSS → PDF)                                                                |
+| Async job queue         | **Locked** | BullMQ + Redis                                                                            |
+| Validation library      | **Locked** | Zod (used in `shared/`; bridged to DB via `drizzle-zod`)                                  |
+| Structured logging      | **Locked** | JSON-structured application logs (`pino` preferred; exact library selection remains open) |
+| Shared contracts        | **Locked** | TypeScript schemas in `shared/` — single source of truth                                  |
+| Transactional email     | **Locked** | Resend                                                                                    |
+| Auth (future accounts)  | **Open**   | Standard session/auth solution only when accounts are added                               |
+| Hosting topology        | **Locked** | VPS with Docker Compose (all services on one host)                                        |
 
 ---
 
 ## Three-Option Review: Hosting Topology
 
 ### Option A — Fully Managed Split
+
 - Frontend: Vercel or equivalent
 - Backend: separate managed host
 - Managed Postgres + managed object storage
@@ -52,45 +53,50 @@ Every row marked **Locked** is a hard constraint for implementation. Do not open
 **Pros:** fast start, simple vendor defaults  
 **Cons:** more vendors, more operational fragmentation, higher cost at scale
 
-### Option B — Infomaniak-Centered ✅ LOCKED
+### Option B — VPS with Docker Compose ✅ LOCKED
 
-All core infrastructure on Infomaniak products: compute, database/queue hosting, and object
-storage.
+All services run as containers on a single VPS via `docker-compose.prod.yml`.
 
-**Pros:** strong budget alignment, simpler provider story, stated hosting preference  
-**Cons:** exact product selection and operational validation still needed
+**Pros:** simple operations, full control, low cost, single-host deployment  
+**Cons:** vertical scaling only; horizontal scaling is a post-MVP concern
 
-### Option C — Self-Managed VPS
-Maximum control, own servers.
+### Option C — Managed Kubernetes
 
-**Pros:** maximum control  
-**Cons:** worst operational burden, slower launch, weaker reliability at MVP stage — **rejected for MVP**
+Kubernetes-based hosting (self-managed or vendor-managed).
+
+**Pros:** horizontal scaling, managed infrastructure  
+**Cons:** operational complexity disproportionate to MVP needs — **rejected for MVP**
 
 **Outcome:** Option B — LOCKED.
 
 Locked topology direction:
-- Infomaniak Public Cloud Managed Kubernetes for frontend, backend, and worker
-- Infomaniak-hosted PostgreSQL and Redis on private network
-- Infomaniak S3-compatible object storage for files and renders
+
+- All services defined in `docker-compose.prod.yml` driven by environment file
+- nginx proxy for TLS termination and same-host `/api` routing
+- PostgreSQL and Redis as containers on the same host
+- S3-compatible object storage (MinIO or external provider)
 
 Operational caveat:
-- Code still targets standard PostgreSQL, Redis, and S3 interfaces
-- If a managed Infomaniak DB SKU is not validated in time, run PostgreSQL/Redis on dedicated
-  Infomaniak compute without changing app code
+
+- Code targets standard PostgreSQL, Redis, and S3 interfaces — infrastructure remains swappable
+- Migration to managed services or multi-host deployment is a post-MVP concern
 
 ---
 
 ## Three-Option Review: Async Job Queue
 
 ### Option A — No queue, synchronous only
+
 **Pros:** simplest conceptually  
 **Cons:** blocking for rendering, dispatch, retries, cleanup, and email — unsuitable
 
 ### Option B — BullMQ + Redis ✅ LOCKED
+
 **Pros:** proven pattern, enough structure without over-engineering, good observability  
 **Cons:** adds Redis operational dependency
 
 ### Option C — Heavier workflow engine (Temporal, etc.)
+
 **Pros:** advanced orchestration  
 **Cons:** too heavy for current MVP — **rejected**
 
@@ -101,14 +107,17 @@ Operational caveat:
 ## Three-Option Review: Validation Strategy
 
 ### Option A — Manual frontend + backend validation separately
+
 **Pros:** no extra library  
 **Cons:** guaranteed drift between layers — **rejected**
 
 ### Option B — Shared Zod schemas in `shared/` ✅ LOCKED
+
 **Pros:** strong shared contracts, fast AI-assisted implementation, zero drift when used correctly  
 **Cons:** requires schema ownership discipline
 
 ### Option C — Separate contract spec (OpenAPI, Protobuf, etc.)
+
 **Pros:** formal contract-first path  
 **Cons:** more tooling complexity than needed right now — **deferred post-MVP**
 
@@ -119,18 +128,21 @@ Operational caveat:
 ## Three-Option Review: ORM / Query Builder
 
 ### Option A — Drizzle ORM ✅ LOCKED
+
 TypeScript-native schema definitions, SQL-like query builder, `drizzle-kit` migrations, first-class `drizzle-zod` bridge.
 
 **Pros:** TypeScript-first, SQL-transparent, lightweight, Zod bridge with no duplication  
 **Cons:** younger ecosystem (adequate for this stack)
 
 ### Option B — Prisma
+
 Own `.prisma` DSL, separate Rust query engine.
 
 **Pros:** excellent type safety, large ecosystem  
 **Cons:** non-TypeScript schema DSL conflicts with TypeScript-first principle; runtime weight; painful for complex queries — **rejected**
 
 ### Option C — Knex + manual types
+
 **Pros:** full SQL control  
 **Cons:** no generated types, guaranteed hand-type drift — **rejected**
 
@@ -141,16 +153,19 @@ Own `.prisma` DSL, separate Rust query engine.
 ## Three-Option Review: PDF Generation
 
 ### Option A — Puppeteer (headless Chromium) ✅ LOCKED
+
 Renders HTML/CSS to PDF using the same engine that drives Chrome.
 
 **Pros:** pixel-accurate for web-defined layouts, supports A4 print CSS, no new template language  
 **Cons:** heavier process (~150 MB binary), requires running in backend job worker not request cycle
 
 ### Option B — WeasyPrint / wkhtmltopdf
+
 **Pros:** lighter  
 **Cons:** Python dependency, inconsistent CSS support, legacy tooling — **rejected**
 
 ### Option C — LaTeX / dedicated typesetting engine
+
 **Pros:** professional typographic output  
 **Cons:** massive learning curve, separate template language, not worth for formal-letter layout — **rejected**
 
@@ -164,74 +179,75 @@ These are the recommended npm packages for each locked technology decision. Use 
 
 ### Frontend
 
-| Purpose | Package | Why |
-|---------|---------|-----|
-| React Query | `@tanstack/react-query` | Locked — server state |
-| Form state | `react-hook-form` + `@hookform/resolvers` | Locked — form + Zod bridge |
-| Validation | `zod` | Locked — shared schemas |
-| i18n | `next-intl` | Best Next.js App Router i18n; supports `[locale]/` routing, message files, server components |
-| Date formatting | `Intl.DateTimeFormat` (built-in) | Zero-dependency; locale-aware |
-| Currency formatting | `Intl.NumberFormat` (built-in) | Zero-dependency; locale-aware |
-| Animations | `framer-motion` | Required by micro-interactions spec; `AnimatePresence`, `layout`, `drag` |
-| Toast notifications | `sonner` | Lightweight; works with shadcn/ui; replaces custom toast |
-| SEO / meta | `next/head` + `next-sitemap` | SSR meta tags + sitemap generation |
-| JSON-LD structured data | `next-seo` or hand-rolled `<script type="application/ld+json">` | Keep it simple |
-| Icons | `lucide-react` | Ships with shadcn/ui — do not add a second icon library |
-| Scroll animations (marketing) | `IntersectionObserver` (built-in) | Zero-dependency; no animation library needed for marketing page reveals |
-| Address autocomplete | None on the frontend; backend geo.admin adapter | Frontend stays on normalized `/api` contracts while backend owns Swiss federal address-search integration |
-| Stripe | `@stripe/stripe-js` + `@stripe/react-stripe-js` | Locked — Stripe Elements for checkout |
+| Purpose                       | Package                                                         | Why                                                                                                       |
+| ----------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| React Query                   | `@tanstack/react-query`                                         | Locked — server state                                                                                     |
+| Form state                    | `react-hook-form` + `@hookform/resolvers`                       | Locked — form + Zod bridge                                                                                |
+| Validation                    | `zod`                                                           | Locked — shared schemas                                                                                   |
+| i18n                          | `next-intl`                                                     | Best Next.js App Router i18n; supports `[locale]/` routing, message files, server components              |
+| Date formatting               | `Intl.DateTimeFormat` (built-in)                                | Zero-dependency; locale-aware                                                                             |
+| Currency formatting           | `Intl.NumberFormat` (built-in)                                  | Zero-dependency; locale-aware                                                                             |
+| Animations                    | `framer-motion`                                                 | Required by micro-interactions spec; `AnimatePresence`, `layout`, `drag`                                  |
+| Toast notifications           | `sonner`                                                        | Lightweight; works with shadcn/ui; replaces custom toast                                                  |
+| SEO / meta                    | `next/head` + `next-sitemap`                                    | SSR meta tags + sitemap generation                                                                        |
+| JSON-LD structured data       | `next-seo` or hand-rolled `<script type="application/ld+json">` | Keep it simple                                                                                            |
+| Icons                         | `lucide-react`                                                  | Ships with shadcn/ui — do not add a second icon library                                                   |
+| Scroll animations (marketing) | `IntersectionObserver` (built-in)                               | Zero-dependency; no animation library needed for marketing page reveals                                   |
+| Address autocomplete          | None on the frontend; backend geo.admin adapter                 | Frontend stays on normalized `/api` contracts while backend owns Swiss federal address-search integration |
+| Stripe                        | `@stripe/stripe-js` + `@stripe/react-stripe-js`                 | Locked — Stripe Elements for checkout                                                                     |
 
 ### Backend
 
-| Purpose | Package | Why |
-|---------|---------|-----|
-| HTTP framework | `fastify` | Faster than Express; built-in schema validation; TypeScript-friendly; production-proven |
-| ORM | `drizzle-orm` + `drizzle-kit` + `drizzle-zod` | Locked — TypeScript-native, Zod bridge |
-| PostgreSQL driver | `postgres` (porsager/postgres) | Lightweight; used with Drizzle |
-| Job queue | `bullmq` + `ioredis` | Locked — async jobs |
-| PDF rendering | `puppeteer` | Locked — HTML/CSS to PDF |
-| Object storage | `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner` | S3-compatible; works with MinIO and Infomaniak |
-| Payments | `stripe` | Locked — Stripe Node.js SDK |
-| Logging | `pino` + `pino-pretty` (dev only) | Locked direction — structured JSON logs |
-| Error tracking | `@sentry/node` | Production error tracking and alerting |
-| Rate limiting | `@fastify/rate-limit` | Per-route rate limiting |
-| CORS | `@fastify/cors` | Same-origin CORS policy |
-| Helmet (security headers) | `@fastify/helmet` | HSTS, X-Frame-Options, CSP |
-| Multipart uploads | `@fastify/multipart` | File upload handling with stream support |
-| WebSocket transport | `@fastify/websocket` | Same-origin live audio streaming to backend-owned dictation routes |
-| Cookie handling | `@fastify/cookie` | HttpOnly secure session cookies |
-| CSRF protection | Custom `X-Requested-With` hook | Same-origin mutation protection; all mutating requests (except webhooks) must include `X-Requested-With: XMLHttpRequest` |
-| Cron scheduling | `bullmq` repeatable jobs | No separate cron library needed; BullMQ handles scheduled retention jobs |
-| Email (adapter) | `resend` | Locked transactional email provider |
-| Speech-to-text | `microsoft-cognitiveservices-speech-sdk` | Locked — Azure AI Speech for live dictation, phrase lists, and buffered fallback transcription |
-| UUID generation | `crypto.randomUUID()` (built-in Node.js) | Zero-dependency; CSPRNG-backed |
-| Token generation | `crypto.randomBytes(32).toString('base64url')` (built-in) | 256-bit entropy; URL-safe |
-| Token hashing | `crypto.createHash('sha256')` (built-in) | For resume token storage |
+| Purpose                   | Package                                                   | Why                                                                                                                      |
+| ------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| HTTP framework            | `fastify`                                                 | Faster than Express; built-in schema validation; TypeScript-friendly; production-proven                                  |
+| ORM                       | `drizzle-orm` + `drizzle-kit` + `drizzle-zod`             | Locked — TypeScript-native, Zod bridge                                                                                   |
+| PostgreSQL driver         | `postgres` (porsager/postgres)                            | Lightweight; used with Drizzle                                                                                           |
+| Job queue                 | `bullmq` + `ioredis`                                      | Locked — async jobs                                                                                                      |
+| PDF rendering             | `puppeteer`                                               | Locked — HTML/CSS to PDF                                                                                                 |
+| Object storage            | `@aws-sdk/client-s3` + `@aws-sdk/s3-request-presigner`    | S3-compatible; works with MinIO and any S3-compatible provider                                                           |
+| Payments                  | `stripe`                                                  | Locked — Stripe Node.js SDK                                                                                              |
+| Logging                   | `pino` + `pino-pretty` (dev only)                         | Locked direction — structured JSON logs                                                                                  |
+| Error tracking            | `@sentry/node`                                            | Production error tracking and alerting                                                                                   |
+| Rate limiting             | `@fastify/rate-limit`                                     | Per-route rate limiting                                                                                                  |
+| CORS                      | `@fastify/cors`                                           | Same-origin CORS policy                                                                                                  |
+| Helmet (security headers) | `@fastify/helmet`                                         | HSTS, X-Frame-Options, CSP                                                                                               |
+| Multipart uploads         | `@fastify/multipart`                                      | File upload handling with stream support                                                                                 |
+| WebSocket transport       | `@fastify/websocket`                                      | Same-origin live audio streaming to backend-owned dictation routes                                                       |
+| Cookie handling           | `@fastify/cookie`                                         | HttpOnly secure session cookies                                                                                          |
+| CSRF protection           | Custom `X-Requested-With` hook                            | Same-origin mutation protection; all mutating requests (except webhooks) must include `X-Requested-With: XMLHttpRequest` |
+| Cron scheduling           | `bullmq` repeatable jobs                                  | No separate cron library needed; BullMQ handles scheduled retention jobs                                                 |
+| Email (adapter)           | `resend`                                                  | Locked transactional email provider                                                                                      |
+| Speech-to-text            | `microsoft-cognitiveservices-speech-sdk`                  | Locked — Azure AI Speech for live dictation, phrase lists, and buffered fallback transcription                           |
+| UUID generation           | `crypto.randomUUID()` (built-in Node.js)                  | Zero-dependency; CSPRNG-backed                                                                                           |
+| Token generation          | `crypto.randomBytes(32).toString('base64url')` (built-in) | 256-bit entropy; URL-safe                                                                                                |
+| Token hashing             | `crypto.createHash('sha256')` (built-in)                  | For resume token storage                                                                                                 |
 
 ### Shared
 
-| Purpose | Package | Why |
-|---------|---------|-----|
-| Validation | `zod` | Canonical shared schemas |
+| Purpose        | Package     | Why                                        |
+| -------------- | ----------- | ------------------------------------------ |
+| Validation     | `zod`       | Canonical shared schemas                   |
 | Type utilities | `type-fest` | Useful TypeScript utility types (optional) |
 
 ### Dev tooling
 
-| Purpose | Package | Why |
-|---------|---------|-----|
-| Testing | `vitest` | Fast, TypeScript-native, Vite-powered |
-| E2E testing | `playwright` | Cross-browser; includes Chromium |
-| Linting | `eslint` + `@typescript-eslint/*` | Standard |
-| Formatting | `prettier` + `prettier-plugin-tailwindcss` | Consistent formatting + Tailwind class sorting |
-| Bundle analysis | `@next/bundle-analyzer` | Enforce performance budgets |
-| Git hooks | `lefthook` | Lightweight alternative to husky; runs lint/typecheck pre-commit |
-| DB migrations | `drizzle-kit` | Locked — Drizzle migration CLI |
+| Purpose         | Package                                    | Why                                                              |
+| --------------- | ------------------------------------------ | ---------------------------------------------------------------- |
+| Testing         | `vitest`                                   | Fast, TypeScript-native, Vite-powered                            |
+| E2E testing     | `playwright`                               | Cross-browser; includes Chromium                                 |
+| Linting         | `eslint` + `@typescript-eslint/*`          | Standard                                                         |
+| Formatting      | `prettier` + `prettier-plugin-tailwindcss` | Consistent formatting + Tailwind class sorting                   |
+| Bundle analysis | `@next/bundle-analyzer`                    | Enforce performance budgets                                      |
+| Git hooks       | `lefthook`                                 | Lightweight alternative to husky; runs lint/typecheck pre-commit |
+| DB migrations   | `drizzle-kit`                              | Locked — Drizzle migration CLI                                   |
 
 ---
 
 ## Build vs Buy Summary
 
 **Buy or adopt:**
+
 - UI primitive foundation (shadcn/ui)
 - Payments (Stripe)
 - Database hosting (managed PostgreSQL)
@@ -241,6 +257,7 @@ These are the recommended npm packages for each locked technology decision. Use 
 - Puppeteer for PDF
 
 **Build custom:**
+
 - Product drafting workspace
 - Preview and conversation coordination
 - Dispatch state machine
@@ -264,9 +281,9 @@ No "temporary" substitutions. No "we'll switch later" workarounds.
 
 ## Cross-References
 
-| Document | Relationship |
-|---|---|
-| `docs/05-architecture/database-schema.md` | Full Drizzle schema, enums, migration strategy |
-| `docs/05-architecture/backend-architecture.md` | Module structure consuming this stack |
-| `docs/05-architecture/frontend-architecture.md` | Frontend state management expansion |
-| `docs/05-architecture/system-contracts.md` | Zod schemas and TypeScript enums in `shared/` |
+| Document                                        | Relationship                                   |
+| ----------------------------------------------- | ---------------------------------------------- |
+| `docs/05-architecture/database-schema.md`       | Full Drizzle schema, enums, migration strategy |
+| `docs/05-architecture/backend-architecture.md`  | Module structure consuming this stack          |
+| `docs/05-architecture/frontend-architecture.md` | Frontend state management expansion            |
+| `docs/05-architecture/system-contracts.md`      | Zod schemas and TypeScript enums in `shared/`  |

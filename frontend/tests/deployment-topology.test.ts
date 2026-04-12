@@ -48,7 +48,7 @@ describe("deployment topology", () => {
 
     expect(proxyBlock).toContain('- "5000:5000"');
     expect(proxyBlock).toContain(
-      "./nginx/ark-fid-proxy.conf:/etc/nginx/conf.d/default.conf:ro",
+      "./nginx/dev-proxy.conf:/etc/nginx/conf.d/default.conf:ro",
     );
     expect(frontendBlock).toContain("restart: unless-stopped");
     expect(backendBlock).toContain("restart: unless-stopped");

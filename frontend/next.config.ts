@@ -125,7 +125,7 @@ function createConfig(): NextConfig {
     reactStrictMode: true,
     output: "standalone",
     distDir,
-    allowedDevOrigins: ["ark-fid.ddns.net"],
+    allowedDevOrigins: ["localhost"],
     experimental: {
       serverComponentsHmrCache: false,
     },

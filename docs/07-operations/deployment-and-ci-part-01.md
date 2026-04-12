@@ -125,7 +125,7 @@ services:
     image: nginx:alpine
     ports: ["5000:5000"]
     volumes:
-      - ./nginx/ark-fid-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/dev-proxy.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on: [frontend, backend]
     restart: unless-stopped
 
@@ -231,7 +231,7 @@ All secrets and environment-specific values are injected as environment variable
 | `ADMIN_MICROSOFT_CLIENT_ID`         | Microsoft app registration client ID for admin login. Must come from the dedicated WestBay admin app registration, not the temporary AI `AZURE_*` app.                                                                                | _(secret / env-specific)_                                       |
 | `ADMIN_MICROSOFT_CLIENT_SECRET`     | Microsoft app registration client secret for admin login                                                                                                                                                                              | _(secret)_                                                      |
 | `ADMIN_MICROSOFT_TENANT_ID`         | WestBay tenant ID — must be an explicit tenant, never `"common"`                                                                                                                                                                      | _(secret / env-specific)_                                       |
-| `ADMIN_MICROSOFT_REDIRECT_URI`      | Fallback backend callback URL for admin Microsoft login. Runtime prefers the current request origin when constructing the OAuth callback, but the Azure app registration must still allow the public and local callback URLs you use. | `https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback` |
+| `ADMIN_MICROSOFT_REDIRECT_URI`      | Fallback backend callback URL for admin Microsoft login. Runtime prefers the current request origin when constructing the OAuth callback, but the Azure app registration must still allow the public and local callback URLs you use. | `http://localhost:5000/api/v1/admin/auth/microsoft/callback`    |
 | `DISPATCH_RATE_MATRIX_REFRESH_CRON` | Daily cron for refreshing the stored dispatch rate matrix used by non-checkout pricing displays                                                                                                                                       | `5 6 * * *`                                                     |
 | `NODE_ENV`                          | Runtime environment                                                                                                                                                                                                                   | `production` / `development` / `test`                           |
 | `PORT`                              | HTTP port (backend)                                                                                                                                                                                                                   | `4000`                                                          |

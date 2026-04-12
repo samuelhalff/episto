@@ -61,14 +61,14 @@ unknowns.
 
 ### File limits — LOCKED: provisional defaults (GAP-9)
 
-| Parameter | Locked provisional value |
-|---|---|
-| Max file size per attachment | 5 MB |
-| Max attachments per draft | 5 |
-| Max total upload per draft | 20 MB |
-| Max signature image | 2 MB |
-| Max body characters | 10,000 |
-| Max subject characters | 200 |
+| Parameter                    | Locked provisional value |
+| ---------------------------- | ------------------------ |
+| Max file size per attachment | 5 MB                     |
+| Max attachments per draft    | 5                        |
+| Max total upload per draft   | 20 MB                    |
+| Max signature image          | 2 MB                     |
+| Max body characters          | 10,000                   |
+| Max subject characters       | 200                      |
 
 All values are configurable via environment variables. See
 [`../04-product/file-handling.md`](../04-product/file-handling.md).
@@ -80,6 +80,7 @@ All values are configurable via environment variables. See
 **Locked direction:** Short-lived content, longer-lived minimal transactional metadata.
 
 Provisional guidance:
+
 - Session and resume tokens: 24–72 hours
 - Order access tokens (sent in receipt): 30+ days
 - Files and rendered PDFs: ~7 days
@@ -122,6 +123,7 @@ See [`../04-product/postal-dispatch.md`](../04-product/postal-dispatch.md).
 using an official Swiss business registry source. Person lookup is manual-only.
 
 Operational direction:
+
 - use official company search for business recipients
 - keep registry credentials server-side only; browser access goes through Swiss Mail backend-owned
   infrastructure instead of direct third-party calls
@@ -144,6 +146,7 @@ conversation history). Provider-side thread or conversation IDs may be stored fo
 but they are **not** the source of truth.
 
 Operational direction:
+
 - store provider conversation/thread identifiers and retention metadata with the draft/session
 - when the provider thread is still valid, reuse it
 - when the provider thread has expired, recreate provider context from canonical app state instead of
@@ -276,13 +279,14 @@ a high-stakes product boundary.
 **Locked choice:** Resend for all transactional email.
 
 **Why Resend over Postmark:**
+
 - React Email native integration — template authoring and compilation in one ecosystem
 - Cleaner TypeScript SDK with better error types
 - $0 up to 3,000 emails/month (covers the entire MVP runway); $20/mo after
 - EU data region available; DPA available on request
 - Deliverability is production-grade and has closed the gap with Postmark for transactional volume
 
-**Option B (hosting vendor mail) rejected** — Infomaniak's mail product is not designed for
+**Option B (hosting vendor mail) rejected** — vendor mail products are not designed for
 programmatic transactional sending at the reliability level required.
 **Option C (custom mail infrastructure) rejected** — operational burden, no deliverability benefit.
 
@@ -297,14 +301,14 @@ outside the adapter.
 configurable via environment variables and must not be hardcoded. Final values require explicit
 approval before launch.
 
-| Item | Recommended default | Rationale |
-|---|---|---|
-| Session cookie + resume token | 72 hours | Enough for abandonment recovery; not long enough to become a liability |
-| Draft content + files | 7 days after last activity | Covers support window and dispatch confirmation lag |
-| Rendered PDFs | 24 hours after dispatch confirmation | No reason to retain after confirmed handoff |
-| Payment + dispatch metadata | 7 years | Swiss accounting obligation (OR 3rd and 4th AML cycle); do not delete |
-| Support/audit events | 3 years | Dispute resolution window |
-| Resume link auto-send trigger | 48 hours of inactivity (no payment) | Not too soon to feel spammy; not so late the user has forgotten |
+| Item                          | Recommended default                  | Rationale                                                              |
+| ----------------------------- | ------------------------------------ | ---------------------------------------------------------------------- |
+| Session cookie + resume token | 72 hours                             | Enough for abandonment recovery; not long enough to become a liability |
+| Draft content + files         | 7 days after last activity           | Covers support window and dispatch confirmation lag                    |
+| Rendered PDFs                 | 24 hours after dispatch confirmation | No reason to retain after confirmed handoff                            |
+| Payment + dispatch metadata   | 7 years                              | Swiss accounting obligation (OR 3rd and 4th AML cycle); do not delete  |
+| Support/audit events          | 3 years                              | Dispute resolution window                                              |
+| Resume link auto-send trigger | 48 hours of inactivity (no payment)  | Not too soon to feel spammy; not so late the user has forgotten        |
 
 Config keys: `SESSION_TTL_HOURS`, `CONTENT_RETENTION_DAYS`, `PDF_RETENTION_HOURS_POST_DISPATCH`,
 `METADATA_RETENTION_YEARS`, `RESUME_INACTIVITY_HOURS`.
@@ -319,11 +323,13 @@ Do not hardcode any duration in application logic.
 interaction through a dedicated adapter. The frontend never talks to Azure directly.
 
 **Locked defaults:**
+
 - Drafting and revision: `gpt-4.1`
 - Classification, extraction, and follow-up generation: `gpt-4.1-mini`
 - Exact deployment names, region, and API version stay in environment config, not in business logic
 
 **Why this over alternatives:**
+
 - Matches the chosen Microsoft/Azure procurement path
 - Keeps AI credentials, rate limits, and auditability inside one enterprise platform
 - Preserves the existing backend-owned adapter pattern and SSE streaming model
@@ -352,6 +358,7 @@ SmartSend or partner-provider fallbacks unless a newer decision record explicitl
 one.
 
 **Rules:**
+
 - Build and evolve the adapter only from current provider-issued docs plus live validated tenant
   behavior captured in `swiss-post-appendix.md`
 - Keep tracking/reference behavior honest until Swiss Post confirms what each returned identifier
@@ -372,27 +379,21 @@ guesswork or old legacy material.
 
 ---
 
-### Hosting topology — LOCKED: Infomaniak-centered production base
+### Hosting topology — LOCKED: VPS with Docker Compose
 
-**Locked choice:** Production infrastructure is Infomaniak-centered. Swiss Mail runs primarily on
-Infomaniak-hosted compute and storage rather than a split multi-vendor MVP.
+**Locked choice:** Production infrastructure runs on a single VPS with Docker Compose. All services
+(frontend, backend, worker, nginx proxy, PostgreSQL, Redis, MinIO) run as containers on one host.
 
 **Locked topology direction:**
-- Frontend, backend, and worker run on Infomaniak Public Cloud Managed Kubernetes
-- PostgreSQL runs on Infomaniak-hosted compute/private network
-- Redis runs on Infomaniak-hosted compute/private network
-- Files and rendered PDFs live in Infomaniak S3-compatible object storage
-- TLS termination and ingress are managed on the Infomaniak side first; add Cloudflare only if a
-  later explicit decision requires it
 
-**Operational rule:** Do not assume a specific managed database SKU is launch-ready unless it is
-validated during provisioning. If needed, run PostgreSQL and Redis on dedicated Infomaniak compute
-instances first. The application code still targets standard PostgreSQL, Redis, and S3 interfaces
-so infrastructure remains swappable.
+- All services defined in `docker-compose.prod.yml`, driven by `/etc/swissmail/production.env`
+- nginx proxy handles TLS termination, same-host `/api` routing, and static asset serving
+- `render-prod-proxy.sh` generates nginx config from environment variables at container start
+- PostgreSQL and Redis run as containers on the same host
+- Files and rendered PDFs live in S3-compatible object storage (MinIO or external provider)
 
-**Option A (managed multi-vendor split) rejected** — conflicts with the chosen hosting direction and
-weakens the operational/provider story.
-**Option C (self-managed VPS-heavy topology) rejected** — too much operational drag for MVP.
+**Operational rule:** The application targets standard PostgreSQL, Redis, and S3 interfaces so
+infrastructure remains swappable. Migration to managed services or Kubernetes is a post-MVP concern.
 
 ---
 
@@ -417,17 +418,20 @@ when session email is collected, cancelled if payment completes first.
 markup.
 
 **Rationale:**
+
 - Keeps checkout truthful to real provider economics instead of faking static launch totals
 - Preserves a configurable Swiss Mail margin without inventing unsupported provider surcharges
 - Keeps payment capture, receipts, and support handling aligned with the actual charged amount
 
 **Locked exclusions at launch:**
+
 - no page-count surcharge
 - no attachment surcharge
 - no coupon/promotion system
 - no color-printing tier
 
 Config keys:
+
 - `PRICE_STANDARD_MARKUP_CENTS`
 - `PRICE_REGISTERED_MARKUP_CENTS`
 
