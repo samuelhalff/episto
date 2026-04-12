@@ -38,4 +38,3 @@ docker-compose.yml
 docker-compose.prod.yml
 README.md
 TASKS.md
-current-prompt.md
