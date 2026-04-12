@@ -8,11 +8,14 @@ const messages = {
   addressSearchLabel: "Address search",
   addressSearchPlaceholder: "Search for an address",
   addressSearchHint: "Start typing to search.",
-  addressSearchSourceNote: "Source: Federal Office of Topography (swisstopo) via geo.admin.ch.",
+  addressSearchSourceNote:
+    "Source: Federal Office of Topography (swisstopo) via geo.admin.ch.",
   addressSearchApplyingSelection: "Applying the selected address...",
   addressSearchUnavailable:
     "Address search is temporarily unavailable. You can still enter the address manually below.",
   addressSearchNoResults: "No addresses found.",
+  addressSearchSelectionRequired:
+    "Choose an address suggestion or clear the search field to continue with manual entry below.",
   searchingAddresses: "Searching addresses",
 } as const;
 
@@ -33,12 +36,14 @@ vi.mock("../src/hooks/use-api", () => ({
 import { AddressAutocompleteField } from "../src/components/product/draft-flow/AddressAutocompleteField";
 import { ApiError } from "../src/lib/api";
 
-function createQueryState(overrides: {
-  data?: unknown;
-  error?: unknown;
-  isLoading?: boolean;
-  isFetching?: boolean;
-} = {}) {
+function createQueryState(
+  overrides: {
+    data?: unknown;
+    error?: unknown;
+    isLoading?: boolean;
+    isFetching?: boolean;
+  } = {},
+) {
   return {
     data: undefined,
     error: null,
@@ -84,7 +89,8 @@ describe("address autocomplete runtime behavior", () => {
         error: new ApiError(503, {
           error: {
             code: "PROVIDER_OUTAGE",
-            userMessage: "An external service is temporarily unavailable. Please try again shortly.",
+            userMessage:
+              "An external service is temporarily unavailable. Please try again shortly.",
           },
         }),
       }),
@@ -94,7 +100,9 @@ describe("address autocomplete runtime behavior", () => {
 
     expect(screen.getByText(messages.addressSearchUnavailable)).toBeTruthy();
     expect(
-      screen.queryByText("An external service is temporarily unavailable. Please try again shortly."),
+      screen.queryByText(
+        "An external service is temporarily unavailable. Please try again shortly.",
+      ),
     ).toBeNull();
     expect(screen.queryByText(messages.addressSearchSourceNote)).toBeNull();
   });
@@ -135,6 +143,40 @@ describe("address autocomplete runtime behavior", () => {
     expect(screen.getByText("Bahnhofstrasse 1, 8001 Zürich")).toBeTruthy();
   });
 
+  it("keeps the address-selection warning below the suggestion list", () => {
+    mocks.useAddressSearch.mockReturnValue(
+      createQueryState({
+        data: [
+          {
+            id: "addr:test-token",
+            label: "Bahnhofstrasse 1, 8001 Zürich",
+            primaryText: "Bahnhofstrasse 1",
+            secondaryText: "8001 Zürich",
+          },
+        ],
+      }),
+    );
+
+    renderField();
+
+    fireEvent.change(screen.getByRole("textbox"), {
+      target: { value: "Bahnhofstrasse" },
+    });
+
+    const resultButton = screen.getByRole("button", { name: /Bahnhofstrasse 1/i });
+    const selectionRequiredNote = screen.getByText(
+      messages.addressSearchSelectionRequired,
+    );
+
+    expect(
+      Boolean(
+        resultButton.compareDocumentPosition(selectionRequiredNote) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+      ),
+    ).toBe(true);
+    expect(selectionRequiredNote.className).toContain("bg-amber-50/80");
+  });
+
   it("keeps other API error messages unchanged", () => {
     mocks.useAddressSearch.mockReturnValue(
       createQueryState({
@@ -150,7 +192,9 @@ describe("address autocomplete runtime behavior", () => {
 
     renderField();
 
-    expect(screen.getByText("Enter at least 3 characters to search for an address.")).toBeTruthy();
+    expect(
+      screen.getByText("Enter at least 3 characters to search for an address."),
+    ).toBeTruthy();
     expect(screen.queryByText(messages.addressSearchUnavailable)).toBeNull();
   });
 });

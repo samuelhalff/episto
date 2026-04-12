@@ -93,7 +93,7 @@ export function AddressAutocompleteField({
     onResolutionStateChange?.({
       isResolving: isResolvingSelection,
       requiresSelection,
-      selectedLabel: isResolvingSelection ? selectedSuggestion?.label ?? null : null,
+      selectedLabel: isResolvingSelection ? (selectedSuggestion?.label ?? null) : null,
     });
   }, [
     isResolvingSelection,
@@ -177,7 +177,9 @@ export function AddressAutocompleteField({
       </div>
 
       <div className="space-y-1">
-        <p className="text-sm text-zinc-500 dark:text-zinc-300">{t("addressSearchHint")}</p>
+        <p className="text-sm text-zinc-500 dark:text-zinc-300">
+          {t("addressSearchHint")}
+        </p>
         {!hasProviderOutage ? (
           <p className="text-[11px] leading-5 text-zinc-400 dark:text-zinc-500">
             {t("addressSearchSourceNote")}
@@ -202,20 +204,12 @@ export function AddressAutocompleteField({
       ) : null}
 
       {errorMessage ? (
-        <p className="text-sm text-amber-700 dark:text-amber-300">
-          {errorMessage}
-        </p>
+        <p className="text-sm text-amber-700 dark:text-amber-300">{errorMessage}</p>
       ) : null}
 
       {shouldShowNoResults ? (
         <p className="text-sm text-zinc-500 dark:text-zinc-300">
           {t("addressSearchNoResults")}
-        </p>
-      ) : null}
-
-      {requiresSelection && !isLoading && !errorMessage ? (
-        <p className="text-sm text-amber-700 dark:text-amber-300">
-          {t("addressSearchSelectionRequired")}
         </p>
       ) : null}
 
@@ -242,6 +236,12 @@ export function AddressAutocompleteField({
             ))}
           </div>
         </div>
+      ) : null}
+
+      {requiresSelection && !isLoading && !errorMessage ? (
+        <p className="rounded-2xl border border-amber-200/80 bg-amber-50/80 px-3 py-2 text-xs leading-5 text-amber-800 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-200">
+          {t("addressSearchSelectionRequired")}
+        </p>
       ) : null}
     </div>
   );
