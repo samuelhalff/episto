@@ -120,7 +120,7 @@ const mockProviderBreakdown: PricingProvider = {
 describe("pricing simulator runtime", () => {
   afterEach(() => cleanup());
 
-  it("uses larger touch targets for the page stepper buttons", () => {
+  it("uses wider page stepper buttons without increasing their height", () => {
     render(
       React.createElement(PricingSimulator, {
         loading: false,
@@ -132,9 +132,9 @@ describe("pricing simulator runtime", () => {
     const decreaseButton = screen.getByRole("button", { name: "Decrease pages" });
     const increaseButton = screen.getByRole("button", { name: "Increase pages" });
 
-    expect(decreaseButton.className).toContain("h-12");
+    expect(decreaseButton.className).toContain("h-10");
     expect(decreaseButton.className).toContain("w-12");
-    expect(increaseButton.className).toContain("h-12");
+    expect(increaseButton.className).toContain("h-10");
     expect(increaseButton.className).toContain("w-12");
   });
 

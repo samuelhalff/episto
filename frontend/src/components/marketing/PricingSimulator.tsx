@@ -43,7 +43,7 @@ function StepperButton({
       disabled={disabled}
       onClick={onClick}
       className={cx(
-        "inline-flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:w-11 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300 dark:hover:text-zinc-50",
+        "inline-flex h-10 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 sm:w-11 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300 dark:hover:text-zinc-50",
       )}
     >
       {children}
@@ -191,7 +191,7 @@ export function PricingSimulator({
                 setPageCount((current) => clamp(current - 1, minPageCount, maxPageCount))
               }
             >
-              <Minus className="h-4 w-4" />
+              <Minus className="h-5 w-5" />
             </StepperButton>
             <Input
               value={String(safePageCount)}
@@ -206,7 +206,7 @@ export function PricingSimulator({
                 setPageCount((current) => clamp(current + 1, minPageCount, maxPageCount))
               }
             >
-              <Plus className="h-4 w-4" />
+              <Plus className="h-5 w-5" />
             </StepperButton>
           </div>
           <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
