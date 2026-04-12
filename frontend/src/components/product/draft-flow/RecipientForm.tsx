@@ -5,11 +5,15 @@ import { Building2, MapPin, Plus, Search, User } from "lucide-react";
 import type { FormEvent } from "react";
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
-import { AddressAutocompleteField, type AddressResolutionState } from "./AddressAutocompleteField";
+import { AppToggleGroup } from "../../ui/app-toggle-group";
+import {
+  AddressAutocompleteField,
+  type AddressResolutionState,
+} from "./AddressAutocompleteField";
 import { AddressFields } from "./AddressFields";
 import { RecipientCompanySearchField } from "./RecipientCompanySearchField";
 import { RecipientSelectedCompanySummary } from "./RecipientSelectedCompanySummary";
-import { Card, FieldIconBadge, SegmentedControl } from "./ui";
+import { Card, FieldIconBadge } from "./ui";
 
 interface RecipientFormProps {
   draftId: string;
@@ -116,8 +120,10 @@ export function RecipientForm({
             : "sticky top-0 z-10 -mx-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"
         }
       >
-        <SegmentedControl
+        <AppToggleGroup
+          ariaLabel={`${t("personLabel")} / ${t("companyLabel")}`}
           options={recipientModeOptions}
+          variant="segmented"
           value={isCompany ? "company" : "person"}
           onChange={(value) => onCompanyModeChange(value === "company")}
         />
@@ -128,7 +134,11 @@ export function RecipientForm({
           <div className="space-y-6">
             <div className="flex items-start gap-4">
               <FieldIconBadge>
-                {isCompany ? <Building2 className="h-6 w-6" /> : <User className="h-6 w-6" />}
+                {isCompany ? (
+                  <Building2 className="h-6 w-6" />
+                ) : (
+                  <User className="h-6 w-6" />
+                )}
               </FieldIconBadge>
               <div className={`flex-1 ${isCompany ? "space-y-2" : "space-y-1"}`}>
                 <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">

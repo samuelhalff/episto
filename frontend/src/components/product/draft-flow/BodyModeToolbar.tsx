@@ -3,7 +3,7 @@
 import { Pencil, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 import { memo, useMemo } from "react";
-import { SegmentedControl } from "./ui";
+import { AppToggleGroup } from "../../ui/app-toggle-group";
 import type { EditMode } from "./bodyStepReducer";
 
 interface BodyModeToolbarProps {
@@ -43,8 +43,10 @@ export const BodyModeToolbar = memo(function BodyModeToolbar({
     <div className={className}>
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <SegmentedControl
+          <AppToggleGroup
+            ariaLabel={`${aiLabel} / ${manualLabel}`}
             options={modeOptions}
+            variant="segmented"
             value={editMode}
             onChange={onModeChange}
           />

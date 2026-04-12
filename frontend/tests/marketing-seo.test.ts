@@ -370,6 +370,46 @@ describe("marketing seo plumbing", () => {
 
     expect(markup).toContain("Source: Federal Office of Topography");
     expect(markup).toContain("geo.admin.ch");
+    expect(markup).toContain("West Bay SA");
+    expect(markup).toContain("support@swissmail.ch");
+    expect(markup).toContain("Swiss Post");
+  });
+
+  it("renders the terms page with the no-same-day-deadline warning and Swiss Post references", async () => {
+    const { default: TermsPage } = await marketingRouteModules.terms();
+    const termsPage = await TermsPage({
+      params: Promise.resolve({ locale: "en-CH" }),
+    });
+    const markup = renderToStaticMarkup(termsPage);
+
+    expect(markup).toContain("At least one day is required");
+    expect(markup).toContain("deadline that expires on the day your order is confirmed");
+    expect(markup).toContain("https://www.swisspost.ch/gtc");
+    expect(markup).toContain("The English version prevails");
+  });
+
+  it("shows the English reference notice on non-English legal routes", async () => {
+    const { default: TermsPage } = await marketingRouteModules.terms();
+    const termsPage = await TermsPage({
+      params: Promise.resolve({ locale: "de-CH" }),
+    });
+    const markup = renderToStaticMarkup(termsPage);
+
+    expect(markup).toContain("English reference version");
+    expect(markup).toContain("The English version prevails");
+  });
+
+  it("renders the imprint with real operator details instead of placeholders", async () => {
+    const { default: ImprintPage } = await marketingRouteModules.imprint();
+    const imprintPage = await ImprintPage({
+      params: Promise.resolve({ locale: "en-CH" }),
+    });
+    const markup = renderToStaticMarkup(imprintPage);
+
+    expect(markup).toContain("West Bay SA");
+    expect(markup).toContain("CHE-107.892.984");
+    expect(markup).toContain("support@swissmail.ch");
+    expect(markup).toContain("episto.ch");
   });
 
   it("includes only marketing routes in the sitemap", async () => {

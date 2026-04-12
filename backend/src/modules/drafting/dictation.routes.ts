@@ -1,4 +1,4 @@
-import fastifyWebsocket from "@fastify/websocket";
+import fastifyWebsocket, { type WebSocket } from "@fastify/websocket";
 import {
   DICTATION_LIMITS,
   DictationLiveClientEventSchema,
@@ -58,14 +58,12 @@ function getSocketUserMessage(error: unknown) {
     return error.userMessage;
   }
 
-  return error instanceof Error ? error.message : "Voice input is temporarily unavailable.";
+  return error instanceof Error
+    ? error.message
+    : "Voice input is temporarily unavailable.";
 }
 
-function normalizeRawMessage(rawMessage: unknown): Buffer | string | null {
-  if (typeof rawMessage === "string") {
-    return rawMessage;
-  }
-
+function normalizeRawMessage(rawMessage: unknown): Buffer | null {
   if (Buffer.isBuffer(rawMessage)) {
     return rawMessage;
   }
@@ -79,6 +77,15 @@ function normalizeRawMessage(rawMessage: unknown): Buffer | string | null {
   }
 
   return null;
+}
+
+function normalizeTextMessage(rawMessage: unknown): string | null {
+  if (typeof rawMessage === "string") {
+    return rawMessage;
+  }
+
+  const message = normalizeRawMessage(rawMessage);
+  return message ? message.toString("utf8") : null;
 }
 
 export async function dictationRoutes(app: FastifyInstance): Promise<void> {
@@ -120,7 +127,11 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
           ]);
         }
 
-        const context = await resolveDictationContext(getDb(), getRequiredSession(request).id, query);
+        const context = await resolveDictationContext(
+          getDb(),
+          getRequiredSession(request).id,
+          query,
+        );
         const transcript = await transcribeBufferedDictation({
           audioBuffer,
           locale: context.locale,
@@ -138,113 +149,150 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
     dictationApp.get(
       "/dictation/live",
       { websocket: true, preHandler: [requireSession] },
-      (connection, request: FastifyRequest) => {
-        void (async () => {
+      (socket: WebSocket, request: FastifyRequest) => {
+        let socketClosed = false;
+
+        const liveSessionPromise = (async () => {
           const query = parseDictationQuery(request.query);
-          const context = await resolveDictationContext(getDb(), getRequiredSession(request).id, query);
+          const context = await resolveDictationContext(
+            getDb(),
+            getRequiredSession(request).id,
+            query,
+          );
           const liveSession = await createLiveDictationSession({
             locale: context.locale,
             hints: context.hints,
             callbacks: {
               onPartial: (text) => {
-                sendSocketEvent(connection.socket, {
+                sendSocketEvent(socket, {
                   type: "partial",
                   text,
                 });
               },
               onFinal: (text) => {
-                sendSocketEvent(connection.socket, {
+                sendSocketEvent(socket, {
                   type: "final",
                   text,
                 });
               },
               onError: (error) => {
-                sendSocketEvent(connection.socket, {
+                sendSocketEvent(socket, {
                   type: "error",
                   code: "DICTATION_PROVIDER_UNAVAILABLE",
                   userMessage: getSocketUserMessage(error),
                 });
-                closeSocket(connection.socket);
+                closeSocket(socket);
               },
               onStopped: () => {
-                sendSocketEvent(connection.socket, {
+                sendSocketEvent(socket, {
                   type: "stopped",
                 });
-                closeSocket(connection.socket);
+                closeSocket(socket);
               },
             },
           });
 
-          sendSocketEvent(connection.socket, {
+          if (socketClosed) {
+            await liveSession.close();
+            return null;
+          }
+
+          sendSocketEvent(socket, {
             type: "ready",
             sampleRateHz: DICTATION_LIMITS.sampleRateHz,
             maxCaptureSeconds: DICTATION_LIMITS.maxCaptureSeconds,
           });
 
-          connection.socket.on(
-            "message",
-            (rawMessage: Buffer | string | ArrayBuffer | Buffer[]) => {
-              const message = normalizeRawMessage(rawMessage);
-
-            if (typeof message === "string") {
-              let parsedMessage: unknown;
-              try {
-                parsedMessage = JSON.parse(message);
-              } catch {
-                sendSocketEvent(connection.socket, {
-                  type: "error",
-                  code: "DICTATION_CONTROL_INVALID",
-                  userMessage: "The dictation session control message was invalid.",
-                });
-                closeSocket(connection.socket);
-                return;
-              }
-
-              const parsedJson = DictationLiveClientEventSchema.safeParse(parsedMessage);
-              if (!parsedJson.success) {
-                sendSocketEvent(connection.socket, {
-                  type: "error",
-                  code: "DICTATION_CONTROL_INVALID",
-                  userMessage: "The dictation session control message was invalid.",
-                });
-                closeSocket(connection.socket);
-                return;
-              }
-
-              if (parsedJson.data.type === "stop") {
-                void liveSession.stop().catch((error) => {
-                  sendSocketEvent(connection.socket, {
-                    type: "error",
-                    code: "DICTATION_PROVIDER_UNAVAILABLE",
-                    userMessage: getSocketUserMessage(error),
-                  });
-                  closeSocket(connection.socket);
-                });
-              }
-
-              return;
-            }
-
-            if (message) {
-              liveSession.writeAudio(message);
-            }
-            },
-          );
-
-          connection.socket.on("close", () => {
-            void liveSession.close();
-          });
-
-          connection.socket.on("error", () => {
-            void liveSession.close();
-          });
+          return liveSession;
         })().catch((error) => {
-          sendSocketEvent(connection.socket, {
+          sendSocketEvent(socket, {
             type: "error",
             code: "DICTATION_PROVIDER_UNAVAILABLE",
             userMessage: getSocketUserMessage(error),
           });
-          closeSocket(connection.socket);
+          closeSocket(socket);
+          return null;
+        });
+
+        socket.on(
+          "message",
+          (rawMessage: Buffer | string | ArrayBuffer | Buffer[], isBinary: boolean) => {
+            void liveSessionPromise.then((liveSession) => {
+              if (!liveSession) {
+                return;
+              }
+
+              if (!isBinary) {
+                const message = normalizeTextMessage(rawMessage);
+                if (!message) {
+                  sendSocketEvent(socket, {
+                    type: "error",
+                    code: "DICTATION_CONTROL_INVALID",
+                    userMessage: "The dictation session control message was invalid.",
+                  });
+                  closeSocket(socket);
+                  return;
+                }
+
+                let parsedMessage: unknown;
+                try {
+                  parsedMessage = JSON.parse(message);
+                } catch {
+                  sendSocketEvent(socket, {
+                    type: "error",
+                    code: "DICTATION_CONTROL_INVALID",
+                    userMessage: "The dictation session control message was invalid.",
+                  });
+                  closeSocket(socket);
+                  return;
+                }
+
+                const parsedJson =
+                  DictationLiveClientEventSchema.safeParse(parsedMessage);
+                if (!parsedJson.success) {
+                  sendSocketEvent(socket, {
+                    type: "error",
+                    code: "DICTATION_CONTROL_INVALID",
+                    userMessage: "The dictation session control message was invalid.",
+                  });
+                  closeSocket(socket);
+                  return;
+                }
+
+                if (parsedJson.data.type === "stop") {
+                  void liveSession.stop().catch((error) => {
+                    sendSocketEvent(socket, {
+                      type: "error",
+                      code: "DICTATION_PROVIDER_UNAVAILABLE",
+                      userMessage: getSocketUserMessage(error),
+                    });
+                    closeSocket(socket);
+                  });
+                }
+
+                return;
+              }
+
+              const message = normalizeRawMessage(rawMessage);
+              if (message) {
+                liveSession.writeAudio(message);
+              }
+            });
+          },
+        );
+
+        socket.on("close", () => {
+          socketClosed = true;
+          void liveSessionPromise.then(async (liveSession) => {
+            await liveSession?.close();
+          });
+        });
+
+        socket.on("error", () => {
+          socketClosed = true;
+          void liveSessionPromise.then(async (liveSession) => {
+            await liveSession?.close();
+          });
         });
       },
     );

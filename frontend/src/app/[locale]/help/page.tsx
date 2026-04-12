@@ -1,7 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import { HelpCircle, Mail } from "lucide-react";
-import { FinalCTABand } from "@/components/marketing/FinalCTABand";
 import { JsonLd } from "@/components/marketing/JsonLd";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import {
@@ -102,13 +101,6 @@ export default async function HelpPage({
               {t("contactResponseTime")}
             </p>
           </MarketingCard>
-        </MarketingSection>
-
-        <MarketingSection className="pt-0">
-          <FinalCTABand
-            title={tm("ctaTitle")}
-            primaryAction={{ href: "/draft/new", label: tm("ctaButton") }}
-          />
         </MarketingSection>
       </MarketingLayout>
     </>

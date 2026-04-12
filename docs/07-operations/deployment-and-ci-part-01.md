@@ -178,8 +178,8 @@ Before calling production infrastructure ready, verify:
 
 1. The VPS has valid DNS for `swissmail.ch`, `www.swissmail.ch`, and `api.swissmail.ch`
 2. TLS files exist under `/etc/letsencrypt/live/swissmail.ch/`
-3. `docker compose -f docker-compose.prod.yml up -d --build` brings up healthy `frontend`,
-   `backend`, `worker`, and `proxy` containers
+3. `SWISSMAIL_ENV_FILE=/etc/swissmail/production.env docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml up -d --build`
+   brings up healthy `frontend`, `backend`, `worker`, `zefix-proxy`, and `proxy` containers
 4. Public `443` serves the frontend and `api.swissmail.ch` serves backend `/api/*` routes
 5. `frontend:3000` and `backend:4000` stay internal-only and are not exposed as public entry points
 
@@ -249,6 +249,8 @@ All secrets and environment-specific values are injected as environment variable
 ### Notes
 
 - `NEXT_PUBLIC_*` variables are embedded at build time. They must not contain secrets.
+- The production compose stack expects the same external env file to drive both Compose interpolation
+  and container runtime injection. Keep it outside the repo, e.g. `/etc/swissmail/production.env`.
 - `DATABASE_URL`, `STRIPE_SECRET_KEY`, and `SESSION_SECRET` are the highest-sensitivity variables. Rotate immediately if compromised.
 - Use separate values for staging and production for every variable.
 

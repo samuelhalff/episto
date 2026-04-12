@@ -45,7 +45,9 @@ export function FieldIconBadge({
   className?: string;
 }) {
   return (
-    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-muted-strong)] shadow-sm ${className}`}>
+    <div
+      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-muted-strong)] shadow-sm ${className}`}
+    >
       {children}
     </div>
   );
@@ -137,7 +139,11 @@ export function PrimaryButton({
       disabled={disabled}
       loading={loading}
       variant={tone === "warning" ? "warning" : "primary"}
-      trailingIcon={!disabled && !loading && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
+      trailingIcon={
+        !disabled && !loading && !hideIcon
+          ? (icon ?? <ArrowRight className="h-4 w-4" />)
+          : null
+      }
     >
       <span>{children}</span>
     </AppButton>
@@ -155,11 +161,11 @@ export function SecondaryButton({
   leadingVisual = "back",
 }: SecondaryButtonProps) {
   const leadingIcon =
-    leadingVisual === "none"
-      ? null
-      : leadingVisual === "hide"
-        ? <X className="h-4 w-4" />
-        : <ArrowLeft className="h-4 w-4" />;
+    leadingVisual === "none" ? null : leadingVisual === "hide" ? (
+      <X className="h-4 w-4" />
+    ) : (
+      <ArrowLeft className="h-4 w-4" />
+    );
 
   return (
     <AppButton
@@ -170,50 +176,14 @@ export function SecondaryButton({
       disabled={disabled}
       loading={loading}
       leadingIcon={!disabled && !loading ? leadingIcon : null}
-      trailingIcon={!disabled && !loading && !hideIcon ? icon ?? <ArrowRight className="h-4 w-4" /> : null}
+      trailingIcon={
+        !disabled && !loading && !hideIcon
+          ? (icon ?? <ArrowRight className="h-4 w-4" />)
+          : null
+      }
     >
       <span>{children}</span>
     </AppButton>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// SegmentedControl — reusable pill toggle used across all steps
-// ---------------------------------------------------------------------------
-
-interface SegmentedOption<V extends string = string> {
-  value: V;
-  label: string;
-  icon: ReactNode;
-}
-
-export function SegmentedControl<V extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: readonly SegmentedOption<V>[];
-  value: V;
-  onChange: (value: V) => void;
-}) {
-  return (
-    <div className="inline-flex rounded-full border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-1 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          className={`app-choice-pill gap-1.5 px-3.5 py-1.5 text-[9px] font-bold uppercase tracking-widest ${
-            value === option.value
-              ? "app-choice-pill-active shadow-sm"
-              : "text-[var(--app-muted)] hover:text-[var(--app-fg)]"
-          }`}
-        >
-          {option.icon}
-          {option.label}
-        </button>
-      ))}
-    </div>
   );
 }
 
@@ -240,9 +210,13 @@ export function ThreadActionCard({
       density="thin"
       className="space-y-3 bg-[var(--app-surface)]"
     >
-      {title ? <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</p> : null}
+      {title ? (
+        <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</p>
+      ) : null}
       {description ? (
-        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">{description}</p>
+        <p className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+          {description}
+        </p>
       ) : null}
       <div className="w-full sm:max-w-sm">
         <PrimaryButton onClick={onAction} disabled={disabled}>

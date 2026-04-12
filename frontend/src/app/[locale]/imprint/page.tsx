@@ -2,6 +2,18 @@ import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import { Header } from "@/components/marketing/Header";
 import { Footer } from "@/components/marketing/Footer";
+import {
+  LegalDefinitionList,
+  LegalPageStack,
+  LegalParagraph,
+  LegalReferenceNotice,
+  LegalSection,
+} from "@/components/marketing/LegalContent";
+import {
+  LEGAL_OPERATOR,
+  LEGAL_SERVICE_NAME,
+  LEGAL_WEBSITE_HOST,
+} from "@/lib/legal-config";
 import { buildMarketingMetadata } from "@/lib/marketing-seo";
 
 export async function generateMetadata({
@@ -27,6 +39,7 @@ export default async function ImprintPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "legal" });
+  const isEnglishReference = locale === "en-CH";
 
   return (
     <>
@@ -34,63 +47,52 @@ export default async function ImprintPage({
       <main id="main-content" className="px-4 pb-16 pt-16 sm:px-6 md:pt-24">
         <article className="mx-auto max-w-3xl">
           <header className="mb-10">
+            {!isEnglishReference ? (
+              <LegalReferenceNotice>
+                English reference version. Reviewed translations are not yet published.
+              </LegalReferenceNotice>
+            ) : null}
             <h1 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
               {t("imprintTitle")}
             </h1>
           </header>
 
-          <div className="space-y-6">
-            <section className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">{t("operatedBy")}</p>
-              <p className="mt-2 text-lg font-semibold text-zinc-950 dark:text-zinc-50">
-                {t("companyName")}
-              </p>
-              <p className="mt-1 text-sm italic text-zinc-500 dark:text-zinc-400">
-                {t("legalReviewNote")}
-              </p>
-            </section>
+          <LegalPageStack>
+            <LegalSection title="Service">
+              <LegalParagraph>
+                {LEGAL_SERVICE_NAME} is operated by {LEGAL_OPERATOR.companyName}.
+              </LegalParagraph>
+            </LegalSection>
 
-            <section className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6">
-              <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-                {t("contactTitle")}
-              </h2>
-              <div className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-                <p>
-                  {t("contactEmail")}:{" "}
-                  <span className="italic text-zinc-400 dark:text-zinc-500">
-                    {t("legalReviewNote")}
-                  </span>
-                </p>
-              </div>
-            </section>
-
-            <section className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6">
-              <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-                {t("commercialRegister")}
-              </h2>
-              <p className="mt-2 text-sm italic text-zinc-500 dark:text-zinc-400">
-                {t("legalReviewNote")}
-              </p>
-            </section>
-
-            <section className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6">
-              <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-                {t("vatNumber")}
-              </h2>
-              <p className="mt-2 text-sm italic text-zinc-500 dark:text-zinc-400">
-                {t("legalReviewNote")}
-              </p>
-            </section>
-
-            <section className="rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6">
-              <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
-                {t("disputeResolution")}
-              </h2>
-              <p className="mt-2 text-sm italic text-zinc-500 dark:text-zinc-400">
-                {t("legalReviewNote")}
-              </p>
-            </section>
-          </div>
+            <LegalSection title="Operator details">
+              <LegalDefinitionList
+                items={[
+                  { label: "Operator", value: LEGAL_OPERATOR.companyName },
+                  {
+                    label: "Address",
+                    value: (
+                      <span className="whitespace-pre-line">
+                        {LEGAL_OPERATOR.addressLines.join("\n")}
+                      </span>
+                    ),
+                  },
+                  {
+                    label: "Support email",
+                    value: (
+                      <a
+                        href={`mailto:${LEGAL_OPERATOR.supportEmail}`}
+                        className="font-medium text-primary underline underline-offset-4"
+                      >
+                        {LEGAL_OPERATOR.supportEmail}
+                      </a>
+                    ),
+                  },
+                  { label: "Website", value: LEGAL_WEBSITE_HOST },
+                  { label: "UID / VAT", value: LEGAL_OPERATOR.uidVat },
+                ]}
+              />
+            </LegalSection>
+          </LegalPageStack>
         </article>
       </main>
       <Footer />

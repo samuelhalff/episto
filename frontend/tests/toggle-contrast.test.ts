@@ -4,14 +4,25 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-);
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const cardsSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/cards.tsx"),
+  "utf8",
+);
+
+const appToggleGroupSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/ui/app-toggle-group.tsx"),
+  "utf8",
+);
+
+const bodyModeToolbarSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/BodyModeToolbar.tsx"),
+  "utf8",
+);
+
+const recipientFormSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/RecipientForm.tsx"),
   "utf8",
 );
 
@@ -21,16 +32,29 @@ const themeToggleSource = readFileSync(
 );
 
 describe("toggle contrast regressions", () => {
-  it("keeps segmented controls visibly defined in light mode through shell contrast", () => {
-    expect(cardsSource).toContain("bg-[var(--app-surface-soft)]");
-    expect(cardsSource).toContain("shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]");
-    expect(cardsSource).toContain('value === option.value');
-    expect(cardsSource).toContain('"app-choice-pill-active shadow-sm"');
+  it("keeps shared segmented controls visibly defined in light mode through shell contrast", () => {
+    expect(appToggleGroupSource).toContain("bg-[var(--app-surface-soft)]");
+    expect(appToggleGroupSource).toContain(
+      "shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]",
+    );
+    expect(appToggleGroupSource).toContain('"app-choice-pill-active shadow-sm"');
+    expect(cardsSource).not.toContain("export function SegmentedControl");
+  });
+
+  it("routes draft-flow selectors through the shared app toggle component", () => {
+    expect(recipientFormSource).toContain("AppToggleGroup");
+    expect(bodyModeToolbarSource).toContain("AppToggleGroup");
   });
 
   it("keeps the theme toggle track visible in light mode through contrast instead of a hard border", () => {
-    expect(themeToggleSource).toContain("app-field-surface");
-    expect(themeToggleSource).toContain("shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]");
-    expect(themeToggleSource).toContain("dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]");
+    expect(themeToggleSource).toContain("AppToggleGroup");
+    expect(themeToggleSource).toContain('variant="theme"');
+    expect(appToggleGroupSource).toContain("app-field-surface");
+    expect(appToggleGroupSource).toContain(
+      "shadow-[inset_0_1px_1px_rgba(255,255,255,0.35)]",
+    );
+    expect(appToggleGroupSource).toContain(
+      "dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.04)]",
+    );
   });
 });

@@ -86,9 +86,11 @@ describe("deployment topology", () => {
     const proxyBlock = getServiceBlock(dockerComposeProdSource, "proxy");
     const frontendBlock = getServiceBlock(dockerComposeProdSource, "frontend");
     const backendBlock = getServiceBlock(dockerComposeProdSource, "backend");
+    const workerBlock = getServiceBlock(dockerComposeProdSource, "worker");
     const postgresBlock = getServiceBlock(dockerComposeProdSource, "postgres");
     const redisBlock = getServiceBlock(dockerComposeProdSource, "redis");
     const minioBlock = getServiceBlock(dockerComposeProdSource, "minio");
+    const zefixProxyBlock = getServiceBlock(dockerComposeProdSource, "zefix-proxy");
 
     expect(proxyBlock).toContain('- "80:80"');
     expect(proxyBlock).toContain('- "443:443"');
@@ -100,14 +102,27 @@ describe("deployment topology", () => {
     expect(frontendBlock).toContain("NEXT_PUBLIC_API_URL: https://api.swissmail.ch");
     expect(frontendBlock).toContain("NEXT_PUBLIC_APP_ENV: production");
     expect(frontendBlock).not.toContain('- "3000:3000"');
+    expect(dockerComposeProdSource).toContain(
+      "docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml up -d --build",
+    );
+    expect(dockerComposeProdSource).toContain(
+      "path: ${SWISSMAIL_ENV_FILE:-/etc/swissmail/production.env}",
+    );
     expect(backendBlock).toContain(
       "CORS_ORIGIN: https://swissmail.ch,https://www.swissmail.ch",
     );
+    expect(backendBlock).toContain('TRUST_PROXY: "true"');
+    expect(backendBlock).toContain("ZEFIX_PROXY_BASE_URL: http://zefix-proxy:8081");
+    expect(backendBlock).toContain("zefix-proxy:");
     expect(backendBlock).toContain("/api/readiness");
     expect(backendBlock).not.toContain('- "4000:4000"');
+    expect(workerBlock).toContain("ZEFIX_PROXY_BASE_URL: http://zefix-proxy:8081");
+    expect(zefixProxyBlock).toContain("context: ./services/zefix-proxy");
+    expect(zefixProxyBlock).toContain('  - "8081"');
     expect(postgresBlock).toContain("restart: unless-stopped");
     expect(redisBlock).toContain("restart: unless-stopped");
     expect(minioBlock).toContain("restart: unless-stopped");
+    expect(zefixProxyBlock).toContain("restart: unless-stopped");
   });
 
   it("allows the production API origin through the frontend CSP", () => {

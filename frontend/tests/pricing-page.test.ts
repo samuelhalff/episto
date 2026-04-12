@@ -254,10 +254,12 @@ function createPricingMessages() {
       faqTitle: "Common questions",
       faqBody: "REMOVE ME FAQ BODY",
       faq1a:
-        "If dispatch is rejected before your payment is completed, you are not charged.",
-      faq2a: "If a refund is due, we tell you when it is completed.",
-      faq3a: "No. Pricing is per letter.",
-      faq4a: "The total shown before payment is the amount you approve.",
+        "Only after the postal provider accepts the letter for dispatch. If the submission is rejected before that, you are not charged.",
+      faq2a:
+        "Yes, if the problem was caused by our service before or during dispatch submission. Once Swiss Post has accepted the letter, there is no refund for a change of mind or for postal issues after handoff. Any approved refund is returned to the original payment method.",
+      faq3a:
+        "The price covers one letter: drafting support, final PDF creation, printing, dispatch submission handling, and payment processing. Pricing is per letter, and each order is charged separately.",
+      faq4a: "Yes. The price shown before payment is the full amount in CHF you approve.",
       checkoutTruth: "REMOVE ME CHECKOUT BODY",
     },
   } satisfies Record<string, unknown>;

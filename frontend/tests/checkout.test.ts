@@ -98,6 +98,13 @@ describe("checkout i18n keys", () => {
 });
 
 describe("checkout footer actions", () => {
+  it("warns users not to rely on same-day confirmation for an expiring deadline", () => {
+    const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
+
+    expect(checkout.legalConsent).toContain("same day");
+    expect(checkout.legalConsent).toContain("deadline");
+  });
+
   it("keeps checkout blocked on payment creation failures even when pricing is already present", () => {
     expect(checkoutPageSource).toContain("showCheckoutBlockedState");
     expect(checkoutPageSource).toContain('t("pricingBlockedEnvironmentBody")');
@@ -146,7 +153,9 @@ describe("checkout footer actions", () => {
   });
 
   it("renders a blocked checkout state when Stripe is not configured with real keys", () => {
-    expect(checkoutPageSource).toContain("loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)");
+    expect(checkoutPageSource).toContain(
+      "loadStripe(env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)",
+    );
     expect(checkoutPageSource).toContain('checkoutErrorCode === "STRIPE_NOT_CONFIGURED"');
     expect(checkoutPageSource).toContain('t("paymentBlockedEnvironmentBody")');
   });
