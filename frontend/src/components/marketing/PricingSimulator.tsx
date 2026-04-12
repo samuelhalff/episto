@@ -23,6 +23,8 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
 
+const LETTER_MAX_PAGE_COUNT = 5;
+
 function StepperButton({
   ariaLabel,
   children,
@@ -208,7 +210,7 @@ export function PricingSimulator({
             </StepperButton>
           </div>
           <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
-            {t("pageLimitNote", { maxPages: maxPageCount })}
+            {t("pageLimitNote", { maxPages: LETTER_MAX_PAGE_COUNT })}
           </p>
         </div>
       </div>

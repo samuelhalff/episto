@@ -120,7 +120,7 @@ const mockProviderBreakdown: PricingProvider = {
 describe("pricing simulator runtime", () => {
   afterEach(() => cleanup());
 
-  it("updates the live total when letter type or page count changes", async () => {
+  it("shows the fixed 5-page product limit while updating the live total", async () => {
     const user = userEvent.setup();
     const props: React.ComponentProps<typeof PricingSimulator> = {
       loading: false,
@@ -133,7 +133,7 @@ describe("pricing simulator runtime", () => {
     expect(screen.getByRole("radiogroup", { name: "Letter type" })).toBeTruthy();
     expect(screen.getByText("Standard · 1 page")).toBeTruthy();
     expect(screen.getByText("CHF 4.95")).toBeTruthy();
-    expect(screen.getByText("Maximum 3 pages")).toBeTruthy();
+    expect(screen.getByText("Maximum 5 pages")).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "Increase pages" }));
     expect(screen.getByText("Standard · 2 pages")).toBeTruthy();
@@ -166,6 +166,6 @@ describe("pricing simulator runtime", () => {
       (screen.getByRole("button", { name: "Increase pages" }) as HTMLButtonElement)
         .disabled,
     ).toBe(true);
-    expect(screen.getByText("Maximum 3 pages")).toBeTruthy();
+    expect(screen.getByText("Maximum 5 pages")).toBeTruthy();
   });
 });
