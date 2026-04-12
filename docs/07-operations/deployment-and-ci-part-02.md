@@ -65,11 +65,11 @@ Required CI secrets:
 
 ### Production secrets
 
-For the Infomaniak-centered deployment:
+For the VPS deployment:
 
-- Preferred: **platform-level environment variable injection** through the chosen Infomaniak control plane or Kubernetes secret mechanism.
-- If operating multiple clusters/services, consider **HashiCorp Vault** (community edition) for centralized secret management.
-- Minimum: secrets in a `.env` file at `/etc/swissmail/production.env`, not in the repo, not readable by the www user.
+- Secrets live in `/etc/swissmail/production.env`, outside the repo, readable only by the deploy user.
+- `docker-compose.prod.yml` injects this file into all containers via `env_file`.
+- Do not store secrets in Docker images, Dockerfiles, or version control.
 
 ### Secret rotation procedure
 
@@ -97,11 +97,9 @@ For the Infomaniak-centered deployment:
 3. Route traffic to new container.
 4. Stop old container(s).
 
-On Infomaniak Managed Kubernetes: use rolling updates with readiness probes and one extra replica
-before draining old pods.
-
-If PostgreSQL/Redis are self-hosted on Infomaniak compute, deploy them separately from application
-pods and keep restart windows explicit.
+On the VPS with docker-compose: use `docker compose -f docker-compose.prod.yml up -d --build` which
+recreates changed containers while keeping healthy ones running. The proxy container handles
+in-flight requests during the brief restart window.
 
 ### Health check endpoint
 
@@ -282,8 +280,7 @@ This is admin-only (admin auth gated, see Section 11).
 
 - **Frequency:** Daily automated backups.
 - **Retention:** 30 days for backups unless operations policy changes; this is infrastructure-backup retention, not application-content retention. See `docs/05-architecture/data-model.md`.
-- **Mechanism:** Managed backup feature if the chosen Infomaniak PostgreSQL SKU supports it, or
-  `pg_dump` cron job to object storage if self-managed.
+- **Mechanism:** `pg_dump` cron job to object storage.
 - **Restore test:** Monthly manual restore test to a temporary database; verify row counts and migration state.
 - **Point-in-time recovery:** Enabled if the hosting provider supports WAL archiving.
 

@@ -463,9 +463,8 @@ jobs:
     steps:
       - name: Deploy to production
         run: |
-          # Platform-specific deployment command
-          # e.g., SSH to host and pull new image, or Infomaniak API call
           echo "Deploy ${{ github.ref_name }} to production"
+          # SSH to VPS and run: docker compose -f docker-compose.prod.yml up -d --build
 ```
 
 ### Parallelism
