@@ -52,7 +52,70 @@ map \$http_upgrade \$connection_upgrade {
   '' '';
 }
 
+map \$http_x_forwarded_proto \$forwarded_proto {
+  default \$http_x_forwarded_proto;
+  '' \$scheme;
+}
+
+map \$http_x_forwarded_host \$forwarded_host {
+  default \$http_x_forwarded_host;
+  '' \$host;
+}
+
+map \$http_x_forwarded_port \$forwarded_port {
+  default \$http_x_forwarded_port;
+  '' \$server_port;
+}
+
 resolver 127.0.0.11 valid=10s ipv6=off;
+
+server {
+  listen 5000;
+  server_name $HTTP_SERVER_NAMES;
+
+  client_max_body_size 50M;
+
+  proxy_set_header Host              \$host;
+  proxy_set_header X-Real-IP         \$remote_addr;
+  proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Host  \$forwarded_host;
+  proxy_set_header X-Forwarded-Port  \$forwarded_port;
+  proxy_set_header X-Forwarded-Proto \$forwarded_proto;
+  proxy_set_header Forwarded         "host=\$forwarded_host;proto=\$forwarded_proto";
+  proxy_http_version 1.1;
+  proxy_redirect off;
+
+  location = /.well-known/apple-developer-merchantid-domain-association {
+    root /var/www;
+    default_type application/octet-stream;
+  }
+
+  location ~ ^/api/v1/drafts/[^/]+/stream {
+    set \$backend_upstream http://backend:4000;
+    proxy_pass \$backend_upstream;
+    proxy_set_header Connection '';
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_read_timeout 300s;
+    chunked_transfer_encoding on;
+  }
+
+  location /api/ {
+    set \$backend_upstream http://backend:4000;
+    proxy_pass \$backend_upstream;
+    proxy_set_header Upgrade    \$http_upgrade;
+    proxy_set_header Connection \$connection_upgrade;
+    proxy_read_timeout 600s;
+    proxy_send_timeout 600s;
+  }
+
+  location / {
+    set \$frontend_upstream http://frontend:3000;
+    proxy_pass \$frontend_upstream;
+    proxy_set_header Upgrade    \$http_upgrade;
+    proxy_set_header Connection \$connection_upgrade;
+  }
+}
 
 server {
   listen 80;
