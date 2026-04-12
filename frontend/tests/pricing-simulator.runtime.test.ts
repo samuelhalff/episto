@@ -1,0 +1,144 @@
+// @vitest-environment jsdom
+
+import { cleanup, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+vi.mock("../src/i18n/navigation", async () => {
+  const React = await import("react");
+
+  return {
+    Link: ({ href, children, ...props }: Record<string, unknown>) =>
+      React.createElement(
+        "a",
+        { href: typeof href === "string" ? href : String(href ?? "#"), ...props },
+        children,
+      ),
+  };
+});
+
+import { PricingSimulator } from "../src/components/marketing/PricingSimulator";
+import type { PricingProvider } from "../src/components/marketing/pricing-types";
+
+globalThis.React = React;
+
+const t = (key: string, values?: Record<string, string | number | Date>) => {
+  const messages: Record<string, string> = {
+    simulatorTitle: "Pricing simulator",
+    letterTypeLabel: "Letter type",
+    pagesLabel: "Pages",
+    increasePagesLabel: "Increase pages",
+    decreasePagesLabel: "Decrease pages",
+    standardOptionTitle: "Standard",
+    registeredOptionTitle: "Registered",
+    standardAdditionalPageLabel: "Each additional page",
+    registeredUpgradeLabel: "Registered delivery",
+    registeredAdditionalPageLabel: "Each additional page",
+    pageSingular: "page",
+    pagePlural: "pages",
+    priceUnavailable: "Price unavailable",
+  };
+
+  return (messages[key] ?? key).replace("{pages}", String(values?.pages ?? ""));
+};
+
+const mockProviderBreakdown: PricingProvider = {
+  providerName: "ePost",
+  note: "Public pricing examples come from the active stored provider rate matrix.",
+  sourceUrl: "https://www.epost.example/pricing",
+  verifiedDate: "2026-04-07",
+  referenceScenario: {
+    shippingCountry: "CH",
+    envelopeSize: "C5",
+    windowLocation: "RIGHT",
+    duplex: false,
+    attachmentMode: "none",
+    standardPostage: "A_POST",
+    registeredPostage: "REGISTERED",
+  },
+  pageCountExamples: {
+    standard: [
+      {
+        pageCount: 1,
+        providerQuotedCents: 155,
+        providerQuotedDisplayPrice: "CHF 1.55",
+        totalCents: 495,
+        displayPrice: "CHF 4.95",
+        currency: "CHF",
+      },
+      {
+        pageCount: 2,
+        providerQuotedCents: 170,
+        providerQuotedDisplayPrice: "CHF 1.70",
+        totalCents: 510,
+        displayPrice: "CHF 5.10",
+        currency: "CHF",
+      },
+      {
+        pageCount: 3,
+        providerQuotedCents: 185,
+        providerQuotedDisplayPrice: "CHF 1.85",
+        totalCents: 525,
+        displayPrice: "CHF 5.25",
+        currency: "CHF",
+      },
+    ],
+    registered: [
+      {
+        pageCount: 1,
+        providerQuotedCents: 578,
+        providerQuotedDisplayPrice: "CHF 5.78",
+        totalCents: 918,
+        displayPrice: "CHF 9.18",
+        currency: "CHF",
+      },
+      {
+        pageCount: 2,
+        providerQuotedCents: 593,
+        providerQuotedDisplayPrice: "CHF 5.93",
+        totalCents: 933,
+        displayPrice: "CHF 9.33",
+        currency: "CHF",
+      },
+      {
+        pageCount: 3,
+        providerQuotedCents: 608,
+        providerQuotedDisplayPrice: "CHF 6.08",
+        totalCents: 948,
+        displayPrice: "CHF 9.48",
+        currency: "CHF",
+      },
+    ],
+  },
+  pricesExcludeVat: true,
+  currency: "CHF",
+};
+
+describe("pricing simulator runtime", () => {
+  afterEach(() => cleanup());
+
+  it("updates the live total when letter type or page count changes", async () => {
+    const user = userEvent.setup();
+
+    render(
+      React.createElement(PricingSimulator, {
+        loading: false,
+        provider: mockProviderBreakdown,
+        registeredSurchargeDisplayPrice: "CHF 4.23",
+        t,
+      }),
+    );
+
+    expect(screen.getByText("Standard · 1 page")).toBeTruthy();
+    expect(screen.getByText("CHF 4.95")).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "Increase pages" }));
+    expect(screen.getByText("Standard · 2 pages")).toBeTruthy();
+    expect(screen.getByText("CHF 5.10")).toBeTruthy();
+
+    await user.click(screen.getByRole("radio", { name: "Registered" }));
+    expect(screen.getByText("Registered · 2 pages")).toBeTruthy();
+    expect(screen.getByText("CHF 9.33")).toBeTruthy();
+  });
+});
