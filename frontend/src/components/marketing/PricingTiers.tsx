@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  getPerPageIncrementDisplayPrice,
-  getExampleForPageCount,
-  getPageBounds,
-} from "./pricing-calculations";
+import { getPerPageIncrementDisplayPrice } from "./pricing-calculations";
 import { MarketingCard, MarketingNotice, MarketingSection } from "./primitives";
 import { PriceAmount } from "./pricing-shared";
 import type { PricingExample, PricingProvider, PricingTier } from "./pricing-types";

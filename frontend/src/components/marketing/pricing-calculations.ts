@@ -29,7 +29,7 @@ export function getPerPageIncrementDisplayPrice(
   });
 
   const firstIncrement = increments[0];
-  if (firstIncrement === null || firstIncrement === undefined || firstIncrement < 0) {
+  if (firstIncrement === null || firstIncrement === undefined || firstIncrement <= 0) {
     return undefined;
   }
 
