@@ -12,7 +12,7 @@ interface ThemeToggleProps {
 
 export function ThemeToggle({ compact = false }: ThemeToggleProps) {
   const t = useTranslations("common");
-  const { setTheme, theme } = useTheme();
+  const { hasResolvedTheme, setTheme, theme } = useTheme();
   const options = [
     {
       value: "light" as const,
@@ -33,9 +33,10 @@ export function ThemeToggle({ compact = false }: ThemeToggleProps) {
       ariaLabel={t("theme")}
       options={options}
       variant="theme"
-      value={theme}
+      value={hasResolvedTheme ? theme : undefined}
       onChange={setTheme}
       compact={compact}
+      disabled={!hasResolvedTheme}
     />
   );
 }

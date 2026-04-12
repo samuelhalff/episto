@@ -129,9 +129,8 @@ describe("dispatch notifications", () => {
         ),
     };
 
-    const { enqueueDispatchSubmittedEmail } = await import(
-      "../src/modules/dispatch/dispatch-notifications.js"
-    );
+    const { enqueueDispatchSubmittedEmail } =
+      await import("../src/modules/dispatch/dispatch-notifications.js");
 
     await enqueueDispatchSubmittedEmail(db as never, {
       dispatchAttemptId: "dispatch-1",
@@ -139,17 +138,19 @@ describe("dispatch notifications", () => {
       paymentId: "payment-1",
     });
 
+    const submittedJob = mocks.add.mock.calls[0]?.[1];
+
     expect(mocks.add).toHaveBeenCalledWith(
       "dispatch-submitted",
       expect.objectContaining({
         template: "dispatch-submitted",
         data: expect.objectContaining({
           orderRef: expect.any(String),
-          statusUrl: expect.stringContaining("/status/"),
         }),
       }),
       { jobId: "dispatch-submitted-dispatch-1" },
     );
+    expect(submittedJob?.data).not.toHaveProperty("statusUrl");
   });
 
   it("uses a BullMQ-safe job id for accepted-dispatch emails", async () => {
@@ -161,9 +162,8 @@ describe("dispatch notifications", () => {
         .mockImplementationOnce(makeSessionSelectChain),
     };
 
-    const { enqueueDispatchAcceptedEmail } = await import(
-      "../src/modules/dispatch/dispatch-notifications.js"
-    );
+    const { enqueueDispatchAcceptedEmail } =
+      await import("../src/modules/dispatch/dispatch-notifications.js");
 
     await enqueueDispatchAcceptedEmail(db as never, {
       dispatchAttemptId: "dispatch-1",
@@ -173,12 +173,11 @@ describe("dispatch notifications", () => {
       trackingNumber: "98.40.541881.00002354",
     });
 
-    expect(mocks.add).toHaveBeenCalledWith(
-      "dispatch-accepted",
-      expect.any(Object),
-      {
-        jobId: "dispatch-accepted-dispatch-1",
-      },
-    );
+    const acceptedJob = mocks.add.mock.calls[0]?.[1];
+
+    expect(mocks.add).toHaveBeenCalledWith("dispatch-accepted", expect.any(Object), {
+      jobId: "dispatch-accepted-dispatch-1",
+    });
+    expect(acceptedJob?.data).not.toHaveProperty("statusUrl");
   });
 });

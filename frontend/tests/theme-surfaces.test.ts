@@ -30,6 +30,10 @@ const themeToggleSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/ThemeToggle.tsx"),
   "utf8",
 );
+const appToggleGroupSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/ui/app-toggle-group.tsx"),
+  "utf8",
+);
 
 const marketingHeaderSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/Header.tsx"),
@@ -95,7 +99,8 @@ describe("theme surface regressions", () => {
   });
 
   it("keeps reusable theme and privacy controls on shared surface treatments", () => {
-    expect(themeToggleSource).toContain("app-list-item");
+    expect(themeToggleSource).toContain("AppToggleGroup");
+    expect(appToggleGroupSource).toContain("app-list-item");
     expect(themeToggleSource).not.toContain("bg-white/90");
     expect(privacyNoticeSource).toContain("app-sticky-bar");
     expect(privacyNoticeSource).toContain("inset-x-4");

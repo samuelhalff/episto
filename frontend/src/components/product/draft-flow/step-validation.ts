@@ -1,3 +1,5 @@
+import { hasConcreteSignature } from "@/lib/letter-content";
+
 function hasText(value: string): boolean {
   return value.trim().length > 0;
 }
@@ -39,7 +41,9 @@ export function getRecipientStepValidation(input: {
   isResolvingSelection: boolean;
   requiresAddressSelection: boolean;
 }) {
-  const hasIdentity = input.isCompany ? hasText(input.companyName) : hasText(input.fullName);
+  const hasIdentity = input.isCompany
+    ? hasText(input.companyName)
+    : hasText(input.fullName);
   const isCompanySearchMode = input.isCompany && !input.showManual;
   const hasVisibleAddress = !isCompanySearchMode && hasCompleteAddress(input);
 
@@ -51,5 +55,23 @@ export function getRecipientStepValidation(input: {
       !input.isResolvingSelection &&
       !input.requiresAddressSelection &&
       (!input.isCompany || input.showManual || input.hasSelectedCompany),
+  };
+}
+
+export function getLogisticsStepValidation(input: {
+  hasSubject: boolean;
+  hasBody: boolean;
+  hasSender: boolean;
+  hasRecipient: boolean;
+  signatureMode: "typed" | "drawn" | null;
+  signatureFileId: string | null;
+}) {
+  return {
+    canProceed:
+      input.hasSubject &&
+      input.hasBody &&
+      input.hasSender &&
+      input.hasRecipient &&
+      hasConcreteSignature(input.signatureMode, input.signatureFileId),
   };
 }

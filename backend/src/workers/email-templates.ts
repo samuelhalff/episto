@@ -41,6 +41,8 @@ export interface RenderedEmail {
   text: string;
 }
 
+type DeliveryType = "standard" | "registered";
+
 function readString(data: Record<string, unknown>, key: string, fallback = ""): string {
   const value = data[key];
   return typeof value === "string" ? value : fallback;
@@ -79,6 +81,32 @@ function replaceRetentionDays(template: string, days: number): string {
   return template.replace("{days}", String(days));
 }
 
+function readDeliveryType(data: Record<string, unknown>): DeliveryType | null {
+  const value = data.deliveryType;
+  return value === "standard" || value === "registered" ? value : null;
+}
+
+function formatDeliveryTypeLabel(
+  locale: string,
+  deliveryType: DeliveryType | null,
+): string {
+  if (!deliveryType) {
+    return "";
+  }
+
+  switch (resolveLocale(locale)) {
+    case "de-CH":
+      return deliveryType === "registered" ? "Einschreiben" : "A-Post";
+    case "fr-CH":
+      return deliveryType === "registered" ? "Courrier recommande" : "Courrier standard";
+    case "it-CH":
+      return deliveryType === "registered" ? "Raccomandata" : "Posta standard";
+    case "en-CH":
+    default:
+      return deliveryType === "registered" ? "Registered mail" : "Standard mail";
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Template: dispatch-submitted
 // ---------------------------------------------------------------------------
@@ -90,21 +118,71 @@ function renderDispatchSubmitted(
   const s = DISPATCH_SUBMITTED_STRINGS[resolveLocale(locale)];
   const config = layoutConfig(locale, data);
   const orderRef = readString(data, "orderRef");
-  const statusUrl = readString(data, "statusUrl");
+  const deliveryType = formatDeliveryTypeLabel(locale, readDeliveryType(data));
+  const senderName = readString(data, "senderName");
+  const recipientName = readString(data, "recipientName");
+  const downloadUrl = readString(data, "downloadUrl");
+  const statementRetentionDays = readInteger(data, "statementRetentionDays", 10);
+  const supportEmail = readString(data, "supportEmail");
 
-  const rows = detailRow(s.orderLabel, orderRef);
+  const rows = [
+    detailRow(s.orderLabel, orderRef),
+    deliveryType ? detailRow(s.deliveryTypeLabel, deliveryType) : "",
+    senderName ? detailRow(s.senderLabel, senderName) : "",
+    recipientName ? detailRow(s.recipientLabel, recipientName) : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   const bodyParts = [
     heading(s.heading),
     paragraph(escapeHtml(s.body)),
     detailTable(rows),
-    primaryButton(statusUrl, s.statusLabel),
-    mutedText(escapeHtml(s.followUp)),
   ];
+
+  if (downloadUrl) {
+    bodyParts.push(sectionDivider());
+    bodyParts.push(
+      `<p style="margin:0 0 8px;">${secondaryLink(downloadUrl, s.downloadLabel)}</p>`,
+    );
+    bodyParts.push(
+      mutedText(
+        escapeHtml(replaceRetentionDays(s.retentionNotice, statementRetentionDays)),
+      ),
+    );
+  }
+
+  bodyParts.push(mutedText(escapeHtml(s.followUp)));
+
+  if (supportEmail) {
+    bodyParts.push(sectionDivider());
+    bodyParts.push(
+      mutedText(
+        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#1a1a1a;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
+      ),
+    );
+  }
 
   return {
     subject: s.subject,
-    text: [s.body, `${s.orderLabel}: ${orderRef}`, "", statusUrl, "", s.followUp].join("\n"),
+    text: [
+      s.body,
+      `${s.orderLabel}: ${orderRef}`,
+      deliveryType ? `${s.deliveryTypeLabel}: ${deliveryType}` : null,
+      senderName ? `${s.senderLabel}: ${senderName}` : null,
+      recipientName ? `${s.recipientLabel}: ${recipientName}` : null,
+      "",
+      downloadUrl ? `${s.downloadLabel}: ${downloadUrl}` : null,
+      downloadUrl
+        ? replaceRetentionDays(s.retentionNotice, statementRetentionDays)
+        : null,
+      "",
+      s.followUp,
+      "",
+      supportEmail ? `${s.supportLine} ${supportEmail}` : null,
+    ]
+      .filter((line): line is string => line !== null)
+      .join("\n"),
     html: wrapEmailHtml(config, bodyParts.join("\n")),
   };
 }
@@ -120,16 +198,24 @@ function renderDispatchAccepted(
   const s = DISPATCH_ACCEPTED_STRINGS[resolveLocale(locale)];
   const config = layoutConfig(locale, data);
   const orderRef = readString(data, "orderRef");
+  const deliveryType = readDeliveryType(data);
+  const deliveryTypeLabel = formatDeliveryTypeLabel(locale, deliveryType);
+  const senderName = readString(data, "senderName");
+  const recipientName = readString(data, "recipientName");
   const providerReference = readString(data, "providerReference");
   const trackingNumber = readString(data, "trackingNumber");
   const downloadUrl = readString(data, "downloadUrl");
   const statementRetentionDays = readInteger(data, "statementRetentionDays", 10);
   const supportEmail = readString(data, "supportEmail");
+  const showTracking = deliveryType === "registered" && Boolean(trackingNumber);
 
   const rows = [
     detailRow(s.orderLabel, orderRef),
+    deliveryTypeLabel ? detailRow(s.deliveryTypeLabel, deliveryTypeLabel) : "",
+    senderName ? detailRow(s.senderLabel, senderName) : "",
+    recipientName ? detailRow(s.recipientLabel, recipientName) : "",
     providerReference ? detailRow(s.referenceLabel, providerReference) : "",
-    trackingNumber ? detailRow(s.trackingLabel, trackingNumber) : "",
+    showTracking ? detailRow(s.trackingLabel, trackingNumber) : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -140,7 +226,7 @@ function renderDispatchAccepted(
     detailTable(rows),
   ];
 
-  if (trackingNumber) {
+  if (showTracking) {
     const trackUrl = swissPostTrackingUrl(trackingNumber);
     bodyParts.push(primaryButton(trackUrl, s.trackOnPostLabel));
   }
@@ -173,9 +259,12 @@ function renderDispatchAccepted(
     s.body,
     "",
     `${s.orderLabel}: ${orderRef}`,
+    deliveryTypeLabel ? `${s.deliveryTypeLabel}: ${deliveryTypeLabel}` : null,
+    senderName ? `${s.senderLabel}: ${senderName}` : null,
+    recipientName ? `${s.recipientLabel}: ${recipientName}` : null,
     providerReference ? `${s.referenceLabel}: ${providerReference}` : null,
-    trackingNumber ? `${s.trackingLabel}: ${trackingNumber}` : null,
-    trackingNumber
+    showTracking ? `${s.trackingLabel}: ${trackingNumber}` : null,
+    showTracking
       ? `${s.trackOnPostLabel}: ${swissPostTrackingUrl(trackingNumber)}`
       : null,
     "",

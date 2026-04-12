@@ -10,7 +10,9 @@ export const DEFAULT_LOCALE: SupportedLocale = "en-CH";
 
 export function resolveLocale(locale: string): SupportedLocale {
   const supported: SupportedLocale[] = ["de-CH", "fr-CH", "it-CH", "en-CH"];
-  return (supported.includes(locale as SupportedLocale) ? locale : DEFAULT_LOCALE) as SupportedLocale;
+  return (
+    supported.includes(locale as SupportedLocale) ? locale : DEFAULT_LOCALE
+  ) as SupportedLocale;
 }
 
 // ---------------------------------------------------------------------------
@@ -22,42 +24,72 @@ export interface DispatchSubmittedStrings {
   heading: string;
   body: string;
   orderLabel: string;
-  statusLabel: string;
+  deliveryTypeLabel: string;
+  senderLabel: string;
+  recipientLabel: string;
+  downloadLabel: string;
+  retentionNotice: string;
   followUp: string;
+  supportLine: string;
 }
 
-export const DISPATCH_SUBMITTED_STRINGS: Record<SupportedLocale, DispatchSubmittedStrings> = {
+export const DISPATCH_SUBMITTED_STRINGS: Record<
+  SupportedLocale,
+  DispatchSubmittedStrings
+> = {
   "en-CH": {
     subject: `${BRAND_NAME} – Your letter has been submitted`,
     heading: "Letter submitted",
     body: "Your letter has been submitted to Swiss Post for processing.",
     orderLabel: "Order",
-    statusLabel: "View order status",
+    deliveryTypeLabel: "Delivery type",
+    senderLabel: "Sender",
+    recipientLabel: "Recipient",
+    downloadLabel: "Download letter (PDF)",
+    retentionNotice: "Your letter PDF is available for download for {days} days.",
     followUp: "You will receive another notification if there are updates.",
+    supportLine: "Questions? Contact us at",
   },
   "de-CH": {
     subject: `${BRAND_NAME} – Ihr Brief wurde eingereicht`,
     heading: "Brief eingereicht",
     body: "Ihr Brief wurde zur Bearbeitung an die Schweizerische Post übergeben.",
     orderLabel: "Bestellung",
-    statusLabel: "Bestellstatus anzeigen",
+    deliveryTypeLabel: "Versandart",
+    senderLabel: "Absender",
+    recipientLabel: "Empfaenger",
+    downloadLabel: "Brief als PDF herunterladen",
+    retentionNotice: "Ihr Brief als PDF steht {days} Tage lang zum Download bereit.",
     followUp: "Bei Statusänderungen erhalten Sie eine weitere Benachrichtigung.",
+    supportLine: "Fragen? Kontaktieren Sie uns unter",
   },
   "fr-CH": {
     subject: `${BRAND_NAME} – Votre lettre a été soumise`,
     heading: "Lettre soumise",
     body: "Votre lettre a été soumise à La Poste Suisse pour traitement.",
     orderLabel: "Commande",
-    statusLabel: "Voir le statut de la commande",
+    deliveryTypeLabel: "Mode d'envoi",
+    senderLabel: "Expediteur",
+    recipientLabel: "Destinataire",
+    downloadLabel: "Télécharger la lettre (PDF)",
+    retentionNotice:
+      "Votre lettre au format PDF est disponible au téléchargement pendant {days} jours.",
     followUp: "Vous serez notifié en cas de mise à jour.",
+    supportLine: "Des questions ? Contactez-nous à",
   },
   "it-CH": {
     subject: `${BRAND_NAME} – La sua lettera è stata inviata`,
     heading: "Lettera inviata",
     body: "La sua lettera è stata trasmessa alla Posta Svizzera per la lavorazione.",
     orderLabel: "Ordine",
-    statusLabel: "Visualizza lo stato dell'ordine",
+    deliveryTypeLabel: "Tipo di invio",
+    senderLabel: "Mittente",
+    recipientLabel: "Destinatario",
+    downloadLabel: "Scarica la lettera (PDF)",
+    retentionNotice:
+      "Il PDF della sua lettera è disponibile per il download per {days} giorni.",
     followUp: "Riceverà un'ulteriore notifica in caso di aggiornamenti.",
+    supportLine: "Domande? Ci contatti all'indirizzo",
   },
 };
 
@@ -70,6 +102,9 @@ export interface DispatchAcceptedStrings {
   heading: string;
   body: string;
   orderLabel: string;
+  deliveryTypeLabel: string;
+  senderLabel: string;
+  recipientLabel: string;
   referenceLabel: string;
   trackingLabel: string;
   trackOnPostLabel: string;
@@ -78,56 +113,71 @@ export interface DispatchAcceptedStrings {
   supportLine: string;
 }
 
-export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAcceptedStrings> = {
-  "en-CH": {
-    subject: `${BRAND_NAME} – Your letter has been accepted by Swiss Post`,
-    heading: "Letter accepted by Swiss Post",
-    body: "Swiss Post has confirmed acceptance of your letter for processing and delivery.",
-    orderLabel: "Order",
-    referenceLabel: "Reference",
-    trackingLabel: "Tracking number",
-    trackOnPostLabel: "Track on Swiss Post",
-    downloadLabel: "Download letter (PDF)",
-    retentionNotice: "Your letter PDF is available for download for {days} days.",
-    supportLine: "Questions? Contact us at",
-  },
-  "de-CH": {
-    subject: `${BRAND_NAME} – Ihr Brief wurde von der Post akzeptiert`,
-    heading: "Brief von der Post akzeptiert",
-    body: "Die Schweizerische Post hat den Eingang Ihres Briefes zur Verarbeitung und Zustellung bestätigt.",
-    orderLabel: "Bestellung",
-    referenceLabel: "Referenz",
-    trackingLabel: "Sendungsnummer",
-    trackOnPostLabel: "Bei der Post verfolgen",
-    downloadLabel: "Brief als PDF herunterladen",
-    retentionNotice: "Ihr Brief als PDF steht {days} Tage lang zum Download bereit.",
-    supportLine: "Fragen? Kontaktieren Sie uns unter",
-  },
-  "fr-CH": {
-    subject: `${BRAND_NAME} – Votre lettre a été acceptée par La Poste`,
-    heading: "Lettre acceptée par La Poste",
-    body: "La Poste Suisse a confirmé la réception de votre lettre pour traitement et livraison.",
-    orderLabel: "Commande",
-    referenceLabel: "Référence",
-    trackingLabel: "Numéro de suivi",
-    trackOnPostLabel: "Suivre sur La Poste",
-    downloadLabel: "Télécharger la lettre (PDF)",
-    retentionNotice: "Votre lettre au format PDF est disponible au téléchargement pendant {days} jours.",
-    supportLine: "Des questions ? Contactez-nous à",
-  },
-  "it-CH": {
-    subject: `${BRAND_NAME} – La sua lettera è stata accettata dalla Posta`,
-    heading: "Lettera accettata dalla Posta",
-    body: "La Posta Svizzera ha confermato l'accettazione della sua lettera per la lavorazione e la consegna.",
-    orderLabel: "Ordine",
-    referenceLabel: "Riferimento",
-    trackingLabel: "Numero di tracciamento",
-    trackOnPostLabel: "Traccia su La Posta",
-    downloadLabel: "Scarica la lettera (PDF)",
-    retentionNotice: "Il PDF della sua lettera è disponibile per il download per {days} giorni.",
-    supportLine: "Domande? Ci contatti all'indirizzo",
-  },
-};
+export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAcceptedStrings> =
+  {
+    "en-CH": {
+      subject: `${BRAND_NAME} – Your letter has been accepted by Swiss Post`,
+      heading: "Letter accepted by Swiss Post",
+      body: "Swiss Post has confirmed acceptance of your letter for processing and delivery.",
+      orderLabel: "Order",
+      deliveryTypeLabel: "Delivery type",
+      senderLabel: "Sender",
+      recipientLabel: "Recipient",
+      referenceLabel: "Reference",
+      trackingLabel: "Tracking number",
+      trackOnPostLabel: "Track on Swiss Post",
+      downloadLabel: "Download letter (PDF)",
+      retentionNotice: "Your letter PDF is available for download for {days} days.",
+      supportLine: "Questions? Contact us at",
+    },
+    "de-CH": {
+      subject: `${BRAND_NAME} – Ihr Brief wurde von der Post akzeptiert`,
+      heading: "Brief von der Post akzeptiert",
+      body: "Die Schweizerische Post hat den Eingang Ihres Briefes zur Verarbeitung und Zustellung bestätigt.",
+      orderLabel: "Bestellung",
+      deliveryTypeLabel: "Versandart",
+      senderLabel: "Absender",
+      recipientLabel: "Empfaenger",
+      referenceLabel: "Referenz",
+      trackingLabel: "Sendungsnummer",
+      trackOnPostLabel: "Bei der Post verfolgen",
+      downloadLabel: "Brief als PDF herunterladen",
+      retentionNotice: "Ihr Brief als PDF steht {days} Tage lang zum Download bereit.",
+      supportLine: "Fragen? Kontaktieren Sie uns unter",
+    },
+    "fr-CH": {
+      subject: `${BRAND_NAME} – Votre lettre a été acceptée par La Poste`,
+      heading: "Lettre acceptée par La Poste",
+      body: "La Poste Suisse a confirmé la réception de votre lettre pour traitement et livraison.",
+      orderLabel: "Commande",
+      deliveryTypeLabel: "Mode d'envoi",
+      senderLabel: "Expediteur",
+      recipientLabel: "Destinataire",
+      referenceLabel: "Référence",
+      trackingLabel: "Numéro de suivi",
+      trackOnPostLabel: "Suivre sur La Poste",
+      downloadLabel: "Télécharger la lettre (PDF)",
+      retentionNotice:
+        "Votre lettre au format PDF est disponible au téléchargement pendant {days} jours.",
+      supportLine: "Des questions ? Contactez-nous à",
+    },
+    "it-CH": {
+      subject: `${BRAND_NAME} – La sua lettera è stata accettata dalla Posta`,
+      heading: "Lettera accettata dalla Posta",
+      body: "La Posta Svizzera ha confermato l'accettazione della sua lettera per la lavorazione e la consegna.",
+      orderLabel: "Ordine",
+      deliveryTypeLabel: "Tipo di invio",
+      senderLabel: "Mittente",
+      recipientLabel: "Destinatario",
+      referenceLabel: "Riferimento",
+      trackingLabel: "Numero di tracciamento",
+      trackOnPostLabel: "Traccia su La Posta",
+      downloadLabel: "Scarica la lettera (PDF)",
+      retentionNotice:
+        "Il PDF della sua lettera è disponibile per il download per {days} giorni.",
+      supportLine: "Domande? Ci contatti all'indirizzo",
+    },
+  };
 
 // ---------------------------------------------------------------------------
 // resume-link

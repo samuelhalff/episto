@@ -83,7 +83,8 @@ Launch ownership rules:
 
 - Stripe is the payment receipt sender for launch.
 - Swiss Mail sends dispatch-submitted, later accepted/rejected updates, and refund/resume emails.
-- The secure order-status link is carried by signed order-access tokens in Swiss Mail dispatch emails.
+- Swiss Mail dispatch emails do not link back to Swiss Mail order-status pages at launch.
+- Only registered-mail acceptance emails may include a Swiss Post tracking link when a real tracking number exists.
 
 Do not add abandoned-cart drips, marketing sequences, or "your letter is on the way" claims in
 MVP transactional email.
@@ -111,7 +112,6 @@ Swiss Mail does not send a duplicate app-level payment receipt at launch. The co
 
 - "Your letter has been submitted to Swiss Post for processing."
 - Order reference number
-- Secure order-status link for later status checks
 - Estimated delivery timeframe, if and only if the dispatch provider supplies a deterministic estimate — otherwise omit entirely; do not invent a timeframe
 - "You will receive another notification if there are updates to your letter's status."
 - Link to support
@@ -131,8 +131,9 @@ Swiss Mail does not send a duplicate app-level payment receipt at launch. The co
 
 - "Swiss Post has accepted your letter submission for further processing."
 - Order reference number
-- Secure order-status link for later status checks
 - Tracking reference number, if the provider supplies one — clearly labeled as "reference number" not "tracking number" unless real tracking is available
+- Registered letters may include a Swiss Post tracking link only when the provider supplies a real postal tracking number
+- Standard and registered letters otherwise use the same template structure; tracking is the only differentiator when it exists
 - Disclaimer: "Standard letters are not individually tracked. Registered letters include delivery confirmation."
 - Link to support
 
@@ -178,7 +179,6 @@ deterministically yet
 
 - "We've submitted your letter, but Swiss Post has not confirmed the outcome yet."
 - Order reference number
-- Secure order-status link for later status checks
 - "No action is needed from you right now."
 - "We'll update you as soon as the status is confirmed."
 - Link to support
@@ -201,7 +201,6 @@ This template must not imply rejection, refund, delivery, or provider acceptance
 - "A full refund of {formattedRefundAmount} has been issued to your original payment method."
 - "Refunds typically appear within 5–10 business days, depending on your card issuer."
 - Order reference number
-- Secure order-status link for the paid order
 - "If you believe this is an error or need assistance, please contact support."
 - Link to support
 

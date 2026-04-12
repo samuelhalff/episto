@@ -7,7 +7,11 @@ import { env } from "../../shared/config/index.js";
 import { issueOrderAccessToken } from "../orders/order-access-token.js";
 
 function resolvePersonName(
-  value: { firstName?: string | null; lastName?: string | null; company?: string | null } | null,
+  value: {
+    firstName?: string | null;
+    lastName?: string | null;
+    company?: string | null;
+  } | null,
 ): string {
   return (
     [value?.firstName, value?.lastName].filter(Boolean).join(" ").trim() ||
@@ -85,7 +89,6 @@ export async function buildDispatchEmailContext(
     to: session.email,
     locale: session.locale ?? "en-CH",
     orderRef: buildOrderReference(args.draftId),
-    statusUrl: `${siteUrl}/status/${token}`,
     downloadUrl: `${siteUrl}/api/v1/orders/${token}/pdf`,
     deliveryType: draft.deliveryType,
     senderName: resolvePersonName(sender ?? null),

@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import { env } from "../../../shared/config/index.js";
+import { BRAND_NAME } from "../../../shared/brand.js";
 import { AppError, providerOutageError } from "../../../shared/errors/index.js";
 
 // ---------------------------------------------------------------------------
@@ -78,8 +79,13 @@ function getStripe(): Stripe {
   return _stripe;
 }
 
-function buildStripeReceiptDescription(orderRef: string): string {
-  return `Swiss Mail order ${orderRef}`;
+function buildStripeReceiptDescription(
+  orderRef: string,
+  deliveryType: "standard" | "registered",
+): string {
+  const deliveryLabel =
+    deliveryType === "registered" ? "registered letter" : "standard letter";
+  return `${BRAND_NAME} order ${orderRef} (${deliveryLabel})`;
 }
 
 // ---------------------------------------------------------------------------
@@ -105,7 +111,10 @@ export async function createPaymentIntent(
         // Stripe sends the payment receipt to this email automatically.
         // Our app does NOT generate or send a custom payment receipt.
         receipt_email: metadata.customerEmail,
-        description: buildStripeReceiptDescription(metadata.orderRef),
+        description: buildStripeReceiptDescription(
+          metadata.orderRef,
+          metadata.deliveryType,
+        ),
         metadata: {
           draftId: metadata.draftId,
           sessionId: metadata.sessionId,
@@ -154,7 +163,10 @@ export async function updatePaymentIntentReceiptDetails(
   try {
     await getStripe().paymentIntents.update(paymentIntentId, {
       receipt_email: metadata.customerEmail,
-      description: buildStripeReceiptDescription(metadata.orderRef),
+      description: buildStripeReceiptDescription(
+        metadata.orderRef,
+        metadata.deliveryType,
+      ),
       metadata: {
         draftId: metadata.draftId,
         sessionId: metadata.sessionId,
@@ -188,7 +200,8 @@ export async function getPaymentIntentForCheckout(
     return {
       status: intent.status,
       clientSecret: intent.client_secret ?? null,
-      latestChargeId: typeof intent.latest_charge === "string" ? intent.latest_charge : null,
+      latestChargeId:
+        typeof intent.latest_charge === "string" ? intent.latest_charge : null,
     };
   } catch (err) {
     if (err instanceof AppError) {

@@ -25,6 +25,10 @@ const appToggleGroupSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/ui/app-toggle-group.tsx"),
   "utf8",
 );
+const inputSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/ui/input.tsx"),
+  "utf8",
+);
 const menuTriggerSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/layout/MenuTriggerButton.tsx"),
   "utf8",
@@ -95,9 +99,21 @@ describe("shared button system", () => {
   });
 
   it("routes reusable selector pills and menu CTAs through shared action classes", () => {
-    expect(appToggleGroupSource).toContain("app-choice-pill");
+    expect(appToggleGroupSource).toContain("ToggleGroupItem");
+    expect(appToggleGroupSource).toContain("bg-[var(--action-choice-active-bg)]");
+    expect(appToggleGroupSource).toContain("text-[var(--action-choice-active-fg)]");
     expect(languageSwitcherSource).toContain("AppToggleGroup");
     expect(siteMenuPanelSource).toContain("getAppButtonClassName");
+  });
+
+  it("uses the yellow app accent for shared shadcn input focus states", () => {
+    expect(inputSource).toContain(
+      "focus-visible:border-[var(--action-choice-active-border)]",
+    );
+    expect(inputSource).toContain(
+      "focus-visible:ring-[var(--action-choice-active-border)]",
+    );
+    expect(inputSource).not.toContain("focus-visible:ring-zinc-300");
   });
 
   it("routes menu open and close triggers through the shared secondary action tokens", () => {

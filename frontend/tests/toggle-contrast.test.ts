@@ -37,7 +37,13 @@ describe("toggle contrast regressions", () => {
     expect(appToggleGroupSource).toContain(
       "shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]",
     );
-    expect(appToggleGroupSource).toContain('"app-choice-pill-active shadow-sm"');
+    expect(appToggleGroupSource).toContain("rounded-xl");
+    expect(appToggleGroupSource).toContain("rounded-lg");
+    expect(appToggleGroupSource).toContain("bg-[var(--action-choice-active-bg)]");
+    expect(appToggleGroupSource).toContain("text-[var(--action-choice-active-fg)]");
+    expect(appToggleGroupSource).toContain(
+      "outline-[var(--action-choice-active-border)]",
+    );
     expect(cardsSource).not.toContain("export function SegmentedControl");
   });
 

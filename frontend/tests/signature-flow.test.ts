@@ -56,7 +56,10 @@ const draftFilesHookSource = readFileSync(
   "utf8",
 );
 const previewPaneSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/WorkspacePreviewPane.tsx"),
+  path.join(
+    repoRoot,
+    "frontend/src/components/product/draft-flow/WorkspacePreviewPane.tsx",
+  ),
   "utf8",
 );
 const fileRoutesSource = readFileSync(
@@ -67,7 +70,9 @@ const fileRoutesSource = readFileSync(
 describe("signature canvas redesign", () => {
   it("old SignaturePicker is deleted", () => {
     expect(
-      existsSync(path.join(repoRoot, "frontend/src/components/product/SignaturePicker.tsx")),
+      existsSync(
+        path.join(repoRoot, "frontend/src/components/product/SignaturePicker.tsx"),
+      ),
     ).toBe(false);
   });
 
@@ -83,6 +88,19 @@ describe("signature canvas redesign", () => {
     expect(logisticsStepSource).not.toContain("signatureImage");
     expect(logisticsStepSource).not.toContain("handleUploadSignature");
     expect(logisticsStepSource).not.toContain("sigInputRef");
+  });
+
+  it("LogisticsStep blocks review until logistics validation passes", () => {
+    expect(logisticsStepSource).toContain("getLogisticsStepValidation");
+    expect(logisticsStepSource).toContain(
+      "const canProceed = getLogisticsStepValidation({",
+    );
+    expect(logisticsStepSource).toContain(
+      "if (!canProceed || reviewDraft.isPending || isNavigating || isDeliverySelectionPending) return;",
+    );
+    expect(logisticsStepSource).toContain(
+      "disabled={!canProceed || reviewDraft.isPending || isDeliverySelectionPending}",
+    );
   });
 
   it("SignatureCanvas wraps signature_pad with DPR scaling", () => {

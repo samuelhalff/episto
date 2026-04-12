@@ -29,4 +29,28 @@ describe("AppToggleGroup", () => {
 
     expect(onChange).toHaveBeenCalledWith("company");
   });
+
+  it("keeps the theme toggle visually neutral until the selected value is resolved", () => {
+    render(
+      React.createElement(AppToggleGroup, {
+        ariaLabel: "Theme",
+        value: undefined,
+        variant: "theme",
+        onChange: vi.fn(),
+        options: [
+          { value: "light", label: "Light" },
+          { value: "dark", label: "Dark" },
+        ],
+      }),
+    );
+
+    expect(screen.queryByText("Light")).toBeNull();
+    expect(screen.queryByText("Dark")).toBeNull();
+    expect(screen.getByRole("radio", { name: "Light" }).getAttribute("data-state")).toBe(
+      "off",
+    );
+    expect(screen.getByRole("radio", { name: "Dark" }).getAttribute("data-state")).toBe(
+      "off",
+    );
+  });
 });

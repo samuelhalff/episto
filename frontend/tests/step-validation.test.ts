@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  getLogisticsStepValidation,
   getRecipientStepValidation,
   getSenderStepValidation,
 } from "../src/components/product/draft-flow/step-validation";
@@ -60,6 +61,41 @@ describe("draft step validation", () => {
         hasSelectedCompany: true,
         isResolvingSelection: false,
         requiresAddressSelection: false,
+      }).canProceed,
+    ).toBe(true);
+  });
+
+  it("requires a selected concrete signature before review", () => {
+    expect(
+      getLogisticsStepValidation({
+        hasSubject: true,
+        hasBody: true,
+        hasSender: true,
+        hasRecipient: true,
+        signatureMode: null,
+        signatureFileId: null,
+      }).canProceed,
+    ).toBe(false);
+
+    expect(
+      getLogisticsStepValidation({
+        hasSubject: true,
+        hasBody: true,
+        hasSender: true,
+        hasRecipient: true,
+        signatureMode: "drawn",
+        signatureFileId: null,
+      }).canProceed,
+    ).toBe(false);
+
+    expect(
+      getLogisticsStepValidation({
+        hasSubject: true,
+        hasBody: true,
+        hasSender: true,
+        hasRecipient: true,
+        signatureMode: "typed",
+        signatureFileId: null,
       }).canProceed,
     ).toBe(true);
   });

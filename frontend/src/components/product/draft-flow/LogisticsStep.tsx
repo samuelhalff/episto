@@ -24,6 +24,7 @@ import { SignatureSection } from "../SignatureSection";
 import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
+import { getLogisticsStepValidation } from "./step-validation";
 
 type StepProps = DraftWorkspaceStepShellProps;
 
@@ -63,7 +64,6 @@ export function LogisticsStep({
   const hasBody = Boolean(draft.data?.body?.trim());
   const hasSender = Boolean(senderName.trim());
   const hasRecipient = Boolean(recipientName.trim());
-  const canReview = hasSubject && hasBody && hasSender && hasRecipient;
 
   const attachmentCount = files.attachments.length;
   const registeredPrice = pricing.data?.registered?.displayPrice ?? t("priceUnavailable");
@@ -71,8 +71,17 @@ export function LogisticsStep({
   const isDeliverySelectionPending = pendingDeliveryType !== null;
 
   const currentSignatureMode = draft.data?.signatureMode ?? null;
-  const hasDrawnAsset = Boolean(files.signature);
-  const signatureUrl = getSignatureFileUrl(files.signature?.id ?? null);
+  const signatureFileId = files.signature?.id ?? null;
+  const hasDrawnAsset = Boolean(signatureFileId);
+  const signatureUrl = getSignatureFileUrl(signatureFileId);
+  const canProceed = getLogisticsStepValidation({
+    hasSubject,
+    hasBody,
+    hasSender,
+    hasRecipient,
+    signatureMode: currentSignatureMode,
+    signatureFileId,
+  }).canProceed;
 
   useEffect(() => {
     if (attachmentCount > 0) {
@@ -118,7 +127,13 @@ export function LogisticsStep({
   }
 
   async function handleReview() {
-    if (reviewDraft.isPending || isNavigating || isDeliverySelectionPending) return;
+    if (
+      !canProceed ||
+      reviewDraft.isPending ||
+      isNavigating ||
+      isDeliverySelectionPending
+    )
+      return;
     try {
       const reviewUpdates: {
         subject?: string;
@@ -174,10 +189,12 @@ export function LogisticsStep({
       primaryAction={
         <PrimaryButton
           onClick={handleReview}
-          disabled={!canReview || reviewDraft.isPending || isDeliverySelectionPending}
-          loading={reviewDraft.isPending || isDeliverySelectionPending || Boolean(isNavigating)}
-          tone={canReview ? "primary" : "warning"}
-          hideIcon={!canReview}
+          disabled={!canProceed || reviewDraft.isPending || isDeliverySelectionPending}
+          loading={
+            reviewDraft.isPending || isDeliverySelectionPending || Boolean(isNavigating)
+          }
+          tone={canProceed ? "primary" : "warning"}
+          hideIcon={!canProceed}
         >
           {t("continueToReview")}
         </PrimaryButton>
@@ -239,7 +256,7 @@ export function LogisticsStep({
                   ) : null}
                 </div>
                 <div
-                  className={`text-sm font-semibold ${
+                  className={`shrink-0 whitespace-nowrap text-sm font-semibold ${
                     deliveryType === "registered"
                       ? "text-emerald-700 dark:text-amber-50"
                       : "text-zinc-900 dark:text-zinc-100"
@@ -298,7 +315,7 @@ export function LogisticsStep({
                   ) : null}
                 </div>
                 <div
-                  className={`text-sm font-semibold ${
+                  className={`shrink-0 whitespace-nowrap text-sm font-semibold ${
                     deliveryType === "standard"
                       ? "text-emerald-700 dark:text-amber-50"
                       : "text-zinc-900 dark:text-zinc-100"

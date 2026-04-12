@@ -1,6 +1,13 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
 import {
@@ -18,6 +25,7 @@ import { showStepErrorToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 import { getRecipientStepValidation } from "./step-validation";
 import { RecipientForm } from "./RecipientForm";
+import { getInitialRecipientFormState } from "./recipient-form-state";
 import { DraftShell, PrimaryButton } from "./ui";
 import {
   getDraftWorkspaceState,
@@ -27,21 +35,6 @@ import {
 
 interface StepProps extends DraftWorkspaceStepShellProps {
   onNext: () => void;
-}
-
-function getRecipientPreviewName(recipient: {
-  firstName: string | null;
-  lastName: string | null;
-  company: string | null;
-}): string {
-  if (recipient.company?.trim()) {
-    return recipient.company.trim();
-  }
-
-  return [recipient.firstName ?? "", recipient.lastName ?? ""]
-    .map((part) => part.trim())
-    .filter(Boolean)
-    .join(" ");
 }
 
 export function RecipientStep({
@@ -62,7 +55,7 @@ export function RecipientStep({
   const updateDraft = useUpdateDraft(draftId);
 
   const [isFormFocused, setIsFormFocused] = useState(false);
-  const [isCompany, setIsCompany] = useState(false);
+  const [isCompany, setIsCompany] = useState<boolean | null>(null);
   const [showManual, setShowManual] = useState(false);
   const [fullName, setFullName] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -72,41 +65,50 @@ export function RecipientStep({
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [requiresAddressSelection, setRequiresAddressSelection] = useState(false);
-  const [pendingAddressSelectionLabel, setPendingAddressSelectionLabel] = useState<string | null>(
-    null,
-  );
+  const [pendingAddressSelectionLabel, setPendingAddressSelectionLabel] = useState<
+    string | null
+  >(null);
   const [areCompanyResultsVisible, setAreCompanyResultsVisible] = useState(false);
   const hasHydratedRef = useRef(false);
   const lastAutofilledCompanyIdRef = useRef<string | null>(null);
+  const isModeResolved = isCompany !== null;
+  const isCompanyValue = isCompany === true;
 
-  const recipientForm = useMemo(
-    () =>
-      ({
-        isCompany,
-        showManual,
-        fullName,
-        companyName,
-        selectedCompany,
-        addressLine1,
-        postalCode,
-        city,
-      }) satisfies RecipientDraftFormState,
-    [
-      addressLine1,
-      city,
-      companyName,
-      fullName,
+  const recipientForm = useMemo(() => {
+    if (!isModeResolved) {
+      return null;
+    }
+
+    return {
       isCompany,
-      postalCode,
-      selectedCompany,
       showManual,
-    ],
-  );
+      fullName,
+      companyName,
+      selectedCompany,
+      addressLine1,
+      postalCode,
+      city,
+    } satisfies RecipientDraftFormState;
+  }, [
+    addressLine1,
+    city,
+    companyName,
+    fullName,
+    isCompany,
+    isModeResolved,
+    postalCode,
+    selectedCompany,
+    showManual,
+  ]);
 
   const recipientAutosave = useQueuedAutosave({
     value: recipientForm,
     component: "RecipientStep",
     save: async (nextForm) => {
+      if (!nextForm) {
+        return;
+      }
+
       await updateDraft.mutateAsync({
         metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
           recipientForm: nextForm,
@@ -118,19 +120,19 @@ export function RecipientStep({
   const companySearch = useRecipientCompanySearch(
     draftId,
     companyName,
-    isCompany && !showManual,
+    isCompanyValue && !showManual,
   );
   const companyDetails = useRecipientCompanyDetails(
     draftId,
     selectedCompany?.id ?? "",
-    Boolean(isCompany && showManual && selectedCompany?.id),
+    Boolean(isCompanyValue && showManual && selectedCompany?.id),
   );
   const companySearchResults = companySearch.data ?? [];
   const displayedCompanySearchResults = companySearchResults.slice(0, 5);
   const shouldShowCompanySearchResults =
-    isCompany && !showManual && companyName.trim().length >= 2;
+    isCompanyValue && !showManual && companyName.trim().length >= 2;
   const companySelectionHint =
-    isCompany && showManual && companyName.trim().length > 0
+    isCompanyValue && showManual && companyName.trim().length > 0
       ? t("companySelectedHint")
       : null;
   const selectedCompanyRegistryRef =
@@ -149,15 +151,18 @@ export function RecipientStep({
     [selectedCompany],
   );
 
-  const handleSelectCompany = useCallback((result: RecipientCompanySearchResultType) => {
-    setCompanyName(result.name);
-    setSelectedCompany(result);
-    if (!city.trim() && result.legalSeat) {
-      setCity(result.legalSeat);
-    }
-    lastAutofilledCompanyIdRef.current = null;
-    setShowManual(true);
-  }, [city]);
+  const handleSelectCompany = useCallback(
+    (result: RecipientCompanySearchResultType) => {
+      setCompanyName(result.name);
+      setSelectedCompany(result);
+      if (!city.trim() && result.legalSeat) {
+        setCity(result.legalSeat);
+      }
+      lastAutofilledCompanyIdRef.current = null;
+      setShowManual(true);
+    },
+    [city],
+  );
 
   const handleEditCompanySelection = useCallback(() => {
     setSelectedCompany(null);
@@ -169,70 +174,37 @@ export function RecipientStep({
     if (hasHydratedRef.current) return;
 
     const workspaceState = getDraftWorkspaceState(draft.data?.metadata);
-    const savedRecipientForm = workspaceState.recipientForm;
-
-    if (savedRecipientForm) {
-      startTransition(() => {
-        setIsCompany(savedRecipientForm.isCompany);
-        setShowManual(savedRecipientForm.showManual);
-        setFullName(savedRecipientForm.fullName);
-        setCompanyName(savedRecipientForm.companyName);
-        setSelectedCompany(savedRecipientForm.selectedCompany ?? null);
-        setAddressLine1(savedRecipientForm.addressLine1);
-        setPostalCode(savedRecipientForm.postalCode);
-        setCity(savedRecipientForm.city);
-      });
-      recipientAutosave.markPersisted(savedRecipientForm);
-      hasHydratedRef.current = true;
-      return;
-    }
-
-    if (preview.previewData?.recipient) {
-      const recipientName = getRecipientPreviewName(preview.previewData.recipient);
-      const parts = recipientName.split(" ");
-      const recipientPreview = {
-        isCompany:
-          Boolean(preview.previewData.recipient.company?.trim()) || parts.length < 2,
-        showManual:
-          Boolean(preview.previewData.recipient.company?.trim()) || parts.length >= 2,
-        fullName: preview.previewData.recipient.company?.trim() ? "" : recipientName,
-        companyName: preview.previewData.recipient.company?.trim()
-          ? recipientName
-          : parts.length >= 2
-            ? ""
-            : recipientName,
-        selectedCompany: null,
-        addressLine1: preview.previewData.recipient.addressLine1 ?? "",
-        postalCode: preview.previewData.recipient.postalCode ?? "",
-        city: preview.previewData.recipient.city ?? "",
-      } satisfies RecipientDraftFormState;
-
-      startTransition(() => {
-        setIsCompany(recipientPreview.isCompany);
-        setShowManual(recipientPreview.showManual);
-        setFullName(recipientPreview.fullName);
-        setCompanyName(recipientPreview.companyName);
-        setAddressLine1(recipientPreview.addressLine1);
-        setPostalCode(recipientPreview.postalCode);
-        setCity(recipientPreview.city);
-      });
-      recipientAutosave.markPersisted(recipientPreview);
-      hasHydratedRef.current = true;
-      return;
-    }
-
-    recipientAutosave.markPersisted({
-      isCompany: false,
-      showManual: false,
-      fullName: "",
-      companyName: "",
-      selectedCompany: null,
-      addressLine1: "",
-      postalCode: "",
-      city: "",
+    const initialRecipientForm = getInitialRecipientFormState({
+      savedRecipientForm: workspaceState.recipientForm ?? null,
+      previewRecipient: preview.previewData?.recipient ?? null,
+      isDraftLoading: draft.isLoading && !draft.data,
+      isPreviewLoading: preview.isLoading,
     });
+
+    if (!initialRecipientForm) {
+      return;
+    }
+
+    startTransition(() => {
+      setIsCompany(initialRecipientForm.isCompany);
+      setShowManual(initialRecipientForm.showManual);
+      setFullName(initialRecipientForm.fullName);
+      setCompanyName(initialRecipientForm.companyName);
+      setSelectedCompany(initialRecipientForm.selectedCompany ?? null);
+      setAddressLine1(initialRecipientForm.addressLine1);
+      setPostalCode(initialRecipientForm.postalCode);
+      setCity(initialRecipientForm.city);
+    });
+    recipientAutosave.markPersisted(initialRecipientForm);
     hasHydratedRef.current = true;
-  }, [draft.data?.metadata, preview.previewData?.recipient, recipientAutosave]);
+  }, [
+    draft.data,
+    draft.data?.metadata,
+    draft.isLoading,
+    preview.isLoading,
+    preview.previewData?.recipient,
+    recipientAutosave,
+  ]);
 
   useEffect(() => {
     if (!selectedCompany?.id || !companyDetails.data) {
@@ -290,23 +262,27 @@ export function RecipientStep({
   ]);
 
   const isResolvingSelection = pendingAddressSelectionLabel !== null;
-  const canProceed = getRecipientStepValidation({
-    isCompany,
-    showManual,
-    fullName,
-    companyName,
-    addressLine1,
-    postalCode,
-    city,
-    hasSelectedCompany: selectedCompany !== null,
-    isResolvingSelection,
-    requiresAddressSelection,
-  }).canProceed;
+  const canProceed =
+    getRecipientStepValidation({
+      isCompany: isCompanyValue,
+      showManual,
+      fullName,
+      companyName,
+      addressLine1,
+      postalCode,
+      city,
+      hasSelectedCompany: selectedCompany !== null,
+      isResolvingSelection,
+      requiresAddressSelection,
+    }).canProceed && isModeResolved;
 
-  const handleFocusChange = useCallback((focused: boolean) => {
-    setIsFormFocused(focused);
-    onInputFocusChange?.(focused);
-  }, [onInputFocusChange]);
+  const handleFocusChange = useCallback(
+    (focused: boolean) => {
+      setIsFormFocused(focused);
+      onInputFocusChange?.(focused);
+    },
+    [onInputFocusChange],
+  );
 
   const handleResolvedAddress = useCallback(
     (nextAddress: { addressLine1: string; postalCode: string; city: string }) => {
@@ -317,14 +293,17 @@ export function RecipientStep({
     [],
   );
 
-  const handleResolutionStateChange = useCallback((state: {
-    isResolving: boolean;
-    selectedLabel: string | null;
-    requiresSelection: boolean;
-  }) => {
-    setPendingAddressSelectionLabel(state.isResolving ? state.selectedLabel : null);
-    setRequiresAddressSelection(state.requiresSelection);
-  }, []);
+  const handleResolutionStateChange = useCallback(
+    (state: {
+      isResolving: boolean;
+      selectedLabel: string | null;
+      requiresSelection: boolean;
+    }) => {
+      setPendingAddressSelectionLabel(state.isResolving ? state.selectedLabel : null);
+      setRequiresAddressSelection(state.requiresSelection);
+    },
+    [],
+  );
 
   async function handleNext() {
     if (!canProceed || setRecipient.isPending || isResolvingSelection) return;
@@ -333,10 +312,14 @@ export function RecipientStep({
 
     try {
       const parts = fullName.trim().split(/\s+/);
+      if (!recipientForm) {
+        return;
+      }
+
       await setRecipient.mutateAsync({
-        firstName: isCompany ? undefined : (parts[0] ?? ""),
-        lastName: isCompany ? undefined : parts.slice(1).join(" "),
-        companyName: isCompany ? companyName.trim() : undefined,
+        firstName: isCompanyValue ? undefined : (parts[0] ?? ""),
+        lastName: isCompanyValue ? undefined : parts.slice(1).join(" "),
+        companyName: isCompanyValue ? companyName.trim() : undefined,
         addressLine1: addressLine1.trim(),
         postalCode: postalCode.trim(),
         city: city.trim(),
@@ -380,7 +363,9 @@ export function RecipientStep({
         <PrimaryButton
           onClick={handleNext}
           disabled={!canProceed || setRecipient.isPending || isResolvingSelection}
-          loading={setRecipient.isPending || Boolean(isNavigating) || isResolvingSelection}
+          loading={
+            setRecipient.isPending || Boolean(isNavigating) || isResolvingSelection
+          }
           tone={canProceed ? "primary" : "warning"}
           hideIcon={!canProceed}
         >
@@ -392,7 +377,11 @@ export function RecipientStep({
         <RecipientForm
           draftId={draftId}
           isCompactViewport={isCompactViewport}
-          isCompany={isCompany}
+          isModeResolved={isModeResolved}
+          selectedMode={
+            isModeResolved ? (isCompanyValue ? "company" : "person") : undefined
+          }
+          isCompany={isCompanyValue}
           showManual={showManual}
           fullName={fullName}
           companyName={companyName}

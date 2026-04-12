@@ -49,9 +49,8 @@ describe("createPaymentIntent", () => {
       client_secret: "cs_test_1",
     });
 
-    const { createPaymentIntent } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { createPaymentIntent } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
 
     await createPaymentIntent(625, {
       draftId: "draft-1",
@@ -83,9 +82,8 @@ describe("createPaymentIntent", () => {
       client_secret: "cs_test_1",
     });
 
-    const { createPaymentIntent } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { createPaymentIntent } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
 
     await createPaymentIntent(625, {
       draftId: "draft-1",
@@ -101,7 +99,7 @@ describe("createPaymentIntent", () => {
     expect(createPayload).toEqual(
       expect.objectContaining({
         receipt_email: "payer@example.com",
-        description: "Swiss Mail order EP-ORDER-1",
+        description: "Episto order EP-ORDER-1 (standard letter)",
         metadata: expect.objectContaining({
           orderRef: "EP-ORDER-1",
           deliveryType: "standard",
@@ -113,9 +111,8 @@ describe("createPaymentIntent", () => {
   it("updates receipt details on a reused pending intent", async () => {
     paymentIntentsUpdate.mockResolvedValue({ id: "pi_existing" });
 
-    const { updatePaymentIntentReceiptDetails } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { updatePaymentIntentReceiptDetails } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
 
     await updatePaymentIntentReceiptDetails("pi_existing", {
       customerEmail: "payer@example.com",
@@ -130,7 +127,7 @@ describe("createPaymentIntent", () => {
       "pi_existing",
       expect.objectContaining({
         receipt_email: "payer@example.com",
-        description: "Swiss Mail order EP-ORDER-1",
+        description: "Episto order EP-ORDER-1 (registered letter)",
         metadata: expect.objectContaining({
           orderRef: "EP-ORDER-1",
           deliveryType: "registered",

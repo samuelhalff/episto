@@ -18,6 +18,8 @@ import { Card, FieldIconBadge } from "./ui";
 interface RecipientFormProps {
   draftId: string;
   isCompactViewport?: boolean | undefined;
+  isModeResolved: boolean;
+  selectedMode?: "person" | "company" | undefined;
   isCompany: boolean;
   showManual: boolean;
   fullName: string;
@@ -63,6 +65,8 @@ function resizeTextarea(event: FormEvent<HTMLTextAreaElement>) {
 export function RecipientForm({
   draftId,
   isCompactViewport,
+  isModeResolved,
+  selectedMode,
   isCompany,
   showManual,
   fullName,
@@ -124,137 +128,164 @@ export function RecipientForm({
           ariaLabel={`${t("personLabel")} / ${t("companyLabel")}`}
           options={recipientModeOptions}
           variant="segmented"
-          value={isCompany ? "company" : "person"}
+          value={selectedMode}
           onChange={(value) => onCompanyModeChange(value === "company")}
+          disabled={!isModeResolved}
         />
       </div>
 
       <div className="space-y-4">
         <Card isCompactViewport={isCompactViewport} density="thin">
-          <div className="space-y-6">
-            <div className="flex items-start gap-4">
-              <FieldIconBadge>
-                {isCompany ? (
-                  <Building2 className="h-6 w-6" />
-                ) : (
+          {!isModeResolved ? (
+            <div className="space-y-6" aria-hidden="true">
+              <div className="flex items-start gap-4">
+                <FieldIconBadge>
                   <User className="h-6 w-6" />
-                )}
-              </FieldIconBadge>
-              <div className={`flex-1 ${isCompany ? "space-y-2" : "space-y-1"}`}>
-                <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                  {isCompany ? t("companyNameLabel") : t("fullName")}
+                </FieldIconBadge>
+                <div className="flex-1 space-y-2">
+                  <div className="h-3 w-24 rounded-full bg-[var(--app-border)]/80" />
+                  <div className="app-field-surface h-12 w-full rounded-2xl opacity-70" />
                 </div>
-
-                {isCompany && showManual && selectedCompany ? (
-                  <RecipientSelectedCompanySummary
-                    selectedCompany={selectedCompany}
-                    registryRef={selectedCompanyRegistryRef}
-                    onEdit={onEditCompanySelection}
-                  />
-                ) : isCompany && !showManual ? (
-                  <RecipientCompanySearchField
-                    companyName={companyName}
-                    isLoading={isCompanySearchLoading}
-                    isFetching={isCompanySearchFetching}
-                    error={companySearchError}
-                    areResultsVisible={areCompanyResultsVisible}
-                    results={companySearchResults}
-                    shouldShowResults={shouldShowCompanySearchResults}
-                    onChange={onCompanyNameChange}
-                    onFocusChange={onFocusChange}
-                    onSelect={onSelectCompany}
-                  />
-                ) : isCompany ? (
-                  <textarea
-                    name="recipientCompanyName"
-                    autoComplete="organization"
-                    value={companyName}
-                    onChange={(event) => onCompanyNameChange(event.target.value)}
-                    onFocus={() => onFocusChange(true)}
-                    onBlur={() => onFocusChange(false)}
-                    onInput={resizeTextarea}
-                    placeholder={t("companyNameLabel")}
-                    rows={1}
-                    className="app-form-control w-full resize-none overflow-hidden bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                  />
-                ) : (
-                  <textarea
-                    name="recipientFullName"
-                    autoComplete="name"
-                    value={fullName}
-                    onChange={(event) => onFullNameChange(event.target.value)}
-                    onFocus={() => onFocusChange(true)}
-                    onBlur={() => onFocusChange(false)}
-                    onInput={resizeTextarea}
-                    placeholder={t("fullName")}
-                    rows={1}
-                    className="app-form-control w-full resize-none overflow-hidden bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                  />
-                )}
               </div>
-            </div>
-
-            {(showManual || !isCompany) && (
               <div className="flex items-start gap-4">
                 <FieldIconBadge>
                   <MapPin className="h-6 w-6" />
                 </FieldIconBadge>
-                <div className="flex-1 space-y-4">
-                  {companySelectionHint ? (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-300">
-                      {companySelectionHint}
-                    </p>
-                  ) : null}
-                  <AddressAutocompleteField
-                    draftId={draftId}
-                    inputName="recipientAddressSearch"
-                    currentAddress={{ addressLine1, postalCode, city }}
-                    onResolvedAddress={onResolvedAddress}
-                    onResolutionStateChange={onResolutionStateChange}
-                    onFocusChange={onFocusChange}
-                  />
-                  <AddressFields
-                    namePrefix="recipient"
-                    addressLine1={addressLine1}
-                    postalCode={postalCode}
-                    city={city}
-                    onAddressLine1Change={onAddressLine1Change}
-                    onPostalCodeChange={onPostalCodeChange}
-                    onCityChange={onCityChange}
-                    isResolvingSelection={isResolvingSelection}
-                    pendingSelectionLabel={pendingAddressSelectionLabel}
-                    onFocusChange={onFocusChange}
-                  />
+                <div className="flex-1 space-y-3">
+                  <div className="app-field-surface h-11 w-full rounded-2xl opacity-70" />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="app-field-surface h-11 rounded-2xl opacity-70" />
+                    <div className="app-field-surface h-11 rounded-2xl opacity-70" />
+                  </div>
                 </div>
               </div>
-            )}
+            </div>
+          ) : (
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <FieldIconBadge>
+                  {isCompany ? (
+                    <Building2 className="h-6 w-6" />
+                  ) : (
+                    <User className="h-6 w-6" />
+                  )}
+                </FieldIconBadge>
+                <div className={`flex-1 ${isCompany ? "space-y-2" : "space-y-1"}`}>
+                  <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                    {isCompany ? t("companyNameLabel") : t("fullName")}
+                  </div>
 
-            {isCompany && !showManual ? (
-              <div className="pl-16">
-                <button
-                  type="button"
-                  onClick={onShowManual}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:text-emerald-700"
-                >
-                  <Plus className="h-3 w-3" />
-                  {t("enterAddressManually")}
-                </button>
+                  {isCompany && showManual && selectedCompany ? (
+                    <RecipientSelectedCompanySummary
+                      selectedCompany={selectedCompany}
+                      registryRef={selectedCompanyRegistryRef}
+                      onEdit={onEditCompanySelection}
+                    />
+                  ) : isCompany && !showManual ? (
+                    <RecipientCompanySearchField
+                      companyName={companyName}
+                      isLoading={isCompanySearchLoading}
+                      isFetching={isCompanySearchFetching}
+                      error={companySearchError}
+                      areResultsVisible={areCompanyResultsVisible}
+                      results={companySearchResults}
+                      shouldShowResults={shouldShowCompanySearchResults}
+                      onChange={onCompanyNameChange}
+                      onFocusChange={onFocusChange}
+                      onSelect={onSelectCompany}
+                    />
+                  ) : isCompany ? (
+                    <textarea
+                      name="recipientCompanyName"
+                      autoComplete="organization"
+                      value={companyName}
+                      onChange={(event) => onCompanyNameChange(event.target.value)}
+                      onFocus={() => onFocusChange(true)}
+                      onBlur={() => onFocusChange(false)}
+                      onInput={resizeTextarea}
+                      placeholder={t("companyNameLabel")}
+                      rows={1}
+                      className="app-form-control w-full resize-none overflow-hidden bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                    />
+                  ) : (
+                    <textarea
+                      name="recipientFullName"
+                      autoComplete="name"
+                      value={fullName}
+                      onChange={(event) => onFullNameChange(event.target.value)}
+                      onFocus={() => onFocusChange(true)}
+                      onBlur={() => onFocusChange(false)}
+                      onInput={resizeTextarea}
+                      placeholder={t("fullName")}
+                      rows={1}
+                      className="app-form-control w-full resize-none overflow-hidden bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                    />
+                  )}
+                </div>
               </div>
-            ) : null}
 
-            {isCompany && showManual && !selectedCompany ? (
-              <div className="pl-16">
-                <button
-                  type="button"
-                  onClick={onEditCompanySelection}
-                  className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-600"
-                >
-                  <Search className="h-3 w-3" />
-                  {t("backToSearch")}
-                </button>
-              </div>
-            ) : null}
-          </div>
+              {(showManual || !isCompany) && (
+                <div className="flex items-start gap-4">
+                  <FieldIconBadge>
+                    <MapPin className="h-6 w-6" />
+                  </FieldIconBadge>
+                  <div className="flex-1 space-y-4">
+                    {companySelectionHint ? (
+                      <p className="text-sm text-zinc-500 dark:text-zinc-300">
+                        {companySelectionHint}
+                      </p>
+                    ) : null}
+                    <AddressAutocompleteField
+                      draftId={draftId}
+                      inputName="recipientAddressSearch"
+                      currentAddress={{ addressLine1, postalCode, city }}
+                      onResolvedAddress={onResolvedAddress}
+                      onResolutionStateChange={onResolutionStateChange}
+                      onFocusChange={onFocusChange}
+                    />
+                    <AddressFields
+                      namePrefix="recipient"
+                      addressLine1={addressLine1}
+                      postalCode={postalCode}
+                      city={city}
+                      onAddressLine1Change={onAddressLine1Change}
+                      onPostalCodeChange={onPostalCodeChange}
+                      onCityChange={onCityChange}
+                      isResolvingSelection={isResolvingSelection}
+                      pendingSelectionLabel={pendingAddressSelectionLabel}
+                      onFocusChange={onFocusChange}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {isCompany && !showManual ? (
+                <div className="pl-16">
+                  <button
+                    type="button"
+                    onClick={onShowManual}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 hover:text-emerald-700"
+                  >
+                    <Plus className="h-3 w-3" />
+                    {t("enterAddressManually")}
+                  </button>
+                </div>
+              ) : null}
+
+              {isCompany && showManual && !selectedCompany ? (
+                <div className="pl-16">
+                  <button
+                    type="button"
+                    onClick={onEditCompanySelection}
+                    className="flex items-center gap-1 text-[11px] font-semibold text-zinc-400 hover:text-zinc-600"
+                  >
+                    <Search className="h-3 w-3" />
+                    {t("backToSearch")}
+                  </button>
+                </div>
+              ) : null}
+            </div>
+          )}
         </Card>
       </div>
     </section>
