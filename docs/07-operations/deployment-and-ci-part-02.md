@@ -340,8 +340,8 @@ Frontend Next.js adds headers via `next.config.js` for static/SSR responses.
 
 ### CORS policy
 
-Frontend and backend are served on sibling public origins in production (`swissmail.ch` and
-`api.swissmail.ch`). CORS is configured via `@fastify/cors`:
+The production topology serves the API under `/api` on the same origin as the frontend.
+CORS is configured via `@fastify/cors`:
 
 ```ts
 // backend/src/plugins/cors.ts

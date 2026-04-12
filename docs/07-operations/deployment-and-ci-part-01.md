@@ -240,12 +240,12 @@ All secrets and environment-specific values are injected as environment variable
 
 ### Frontend (build-time and runtime)
 
-| Variable                             | Description                          | Example                              |
-| ------------------------------------ | ------------------------------------ | ------------------------------------ |
-| `NEXT_PUBLIC_API_URL`                | Backend API URL (exposed to browser) | `/api` or `https://api.swissmail.ch` |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key               | `pk_live_...`                        |
-| `NEXT_PUBLIC_SENTRY_DSN`             | Sentry DSN for frontend              | `https://...@sentry.io/...`          |
-| `NEXT_PUBLIC_APP_ENV`                | App environment label                | `production`                         |
+| Variable                             | Description                          | Example                     |
+| ------------------------------------ | ------------------------------------ | --------------------------- |
+| `NEXT_PUBLIC_API_URL`                | Backend API URL (exposed to browser) | `/api`                      |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key               | `pk_live_...`               |
+| `NEXT_PUBLIC_SENTRY_DSN`             | Sentry DSN for frontend              | `https://...@sentry.io/...` |
+| `NEXT_PUBLIC_APP_ENV`                | App environment label                | `production`                |
 
 ### Public proxy routing (production compose)
 
