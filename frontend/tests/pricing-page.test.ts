@@ -164,7 +164,6 @@ const requiredPricingKeys = [
   "registeredOptionTitle",
   "priceCaption",
   "standardAdditionalPageLabel",
-  "registeredUpgradeLabel",
   "registeredAdditionalPageLabel",
   "simulatorTitle",
   "letterTypeLabel",
@@ -173,6 +172,7 @@ const requiredPricingKeys = [
   "decreasePagesLabel",
   "pageSingular",
   "pagePlural",
+  "pageLimitNote",
   "includedCardTitle",
   "excludedCardTitle",
   "faqTitle",
@@ -183,6 +183,7 @@ const removedPricingKeys = [
   "pricingTableTitle",
   "summaryCardBody",
   "priceChangeListTitle",
+  "registeredUpgradeLabel",
   "standardLongerLetterLabel",
   "registeredLongerLetterLabel",
   "checkoutTruth",
@@ -231,7 +232,6 @@ function createPricingMessages() {
       priceCaption: "1-page letter",
       priceChangeListTitle: "REMOVE ME PRICE CHANGE TITLE",
       standardAdditionalPageLabel: "Each additional page",
-      registeredUpgradeLabel: "Registered delivery",
       registeredAdditionalPageLabel: "Each additional page",
       simulatorTitle: "Pricing simulator",
       letterTypeLabel: "Letter type",
@@ -240,6 +240,7 @@ function createPricingMessages() {
       decreasePagesLabel: "Decrease pages",
       pageSingular: "page",
       pagePlural: "pages",
+      pageLimitNote: "Maximum {maxPages} pages",
       standardLongerLetterLabel: "REMOVE ME STANDARD RANGE LABEL",
       registeredLongerLetterLabel: "REMOVE ME REGISTERED RANGE LABEL",
       includedCardEyebrow: "REMOVE ME INCLUDED EYEBROW",
@@ -383,11 +384,12 @@ describe("pricing page presentation", () => {
     expect(markup).toContain("Registered");
     expect(markup).toContain("1-page letter");
     expect(additionalPageMatches).toHaveLength(3);
-    expect(markup).toContain("Registered delivery");
     expect(markup).toContain("CHF 4.95");
     expect(markup).toContain("CHF 9.18");
-    expect(markup).toContain("+CHF 4.23");
     expect(incrementMatches).toHaveLength(3);
+    expect(markup).toContain("Maximum 5 pages");
+    expect(markup).not.toContain("Registered delivery");
+    expect(markup).not.toContain("+CHF 4.23");
     expect(markup).toContain("What&#x27;s included");
     expect(markup).toContain("What&#x27;s not included");
     expect(markup).toContain("Common questions");
@@ -412,6 +414,7 @@ describe("pricing page presentation", () => {
     expect(markup).toContain("Pricing simulator");
     expect(markup).toContain("Standard · 1 page");
     expect(markup).toContain("Each additional page");
+    expect(markup).toContain("Maximum 5 pages");
     expect(markup).not.toContain("Price examples by page count");
     expect(markup).not.toContain("<table");
   });
@@ -449,17 +452,18 @@ describe("pricing page source contract", () => {
     expect(pricingTiersSource).toContain('t("registeredOptionTitle")');
     expect(pricingTiersSource).toContain('t("priceCaption")');
     expect(pricingTiersSource).toContain('t("standardAdditionalPageLabel")');
-    expect(pricingTiersSource).toContain('t("registeredUpgradeLabel")');
     expect(pricingTiersSource).toContain('t("registeredAdditionalPageLabel")');
     expect(pricingTiersSource).toContain("PricingSimulator");
-    expect(pricingTiersSource).toContain("PricingValueRow");
-    expect(pricingTiersSource).toContain('tone="inverse"');
+    expect(pricingTiersSource).toContain('tone="soft"');
+    expect(pricingTiersSource).not.toContain('tone="contrast"');
+    expect(pricingTiersSource).not.toContain("registeredSurchargeDisplayPrice");
     expect(pricingSimulatorSource).toContain("PricingValueRow");
+    expect(pricingSimulatorSource).toContain('t("pageLimitNote",');
+    expect(pricingSimulatorSource).toContain('role="radiogroup"');
+    expect(pricingSimulatorSource).toContain('role="radio"');
+    expect(pricingSimulatorSource).not.toContain("ToggleGroup");
     expect(pricingSharedSource).toContain("grid-cols-[minmax(0,1fr)_auto]");
     expect(pricingSharedSource).toContain("items-baseline");
-    expect(pricingSharedSource).toContain('tone = "default"');
-    expect(pricingSharedSource).toContain("text-white/75 dark:text-zinc-300");
-    expect(pricingSharedSource).toContain("text-white dark:text-zinc-50");
     expect(pricingSharedSource).not.toContain(
       'className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 rounded-2xl px-4 py-3"',
     );
@@ -472,6 +476,7 @@ describe("pricing page source contract", () => {
     expect(pricingTiersSource).not.toContain('t("priceChangeListTitle")');
     expect(pricingTiersSource).not.toContain('t("standardLongerLetterLabel")');
     expect(pricingTiersSource).not.toContain('t("registeredLongerLetterLabel")');
+    expect(pricingTiersSource).not.toContain('t("registeredUpgradeLabel")');
     expect(pricingTiersSource).not.toContain('t("pricingExamplesTitle")');
     expect(pricingTiersSource).not.toContain('t("pricingExamplesBody")');
     expect(pricingTiersSource).not.toContain('t("standardExamplesTitle")');

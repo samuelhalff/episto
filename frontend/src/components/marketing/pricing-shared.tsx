@@ -36,26 +36,19 @@ export function PriceAmount({
 export function PricingValueRow({
   label,
   value,
-  highlight,
   labelClassName,
-  tone = "default",
   valueClassName,
 }: {
   label: ReactNode;
   value: ReactNode;
-  highlight?: boolean;
   labelClassName?: string;
-  tone?: "default" | "inverse";
   valueClassName?: string;
 }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4">
       <span
         className={cx(
-          "min-w-0 text-sm leading-6",
-          tone === "inverse"
-            ? "text-white/75 dark:text-zinc-300"
-            : "text-zinc-600 dark:text-zinc-400",
+          "min-w-0 text-sm leading-6 text-zinc-600 dark:text-zinc-400",
           labelClassName,
         )}
       >
@@ -63,12 +56,7 @@ export function PricingValueRow({
       </span>
       <span
         className={cx(
-          "shrink-0 text-right text-sm font-semibold",
-          highlight
-            ? "text-amber-700 dark:text-amber-400"
-            : tone === "inverse"
-              ? "text-white dark:text-zinc-50"
-              : "text-zinc-950 dark:text-zinc-50",
+          "shrink-0 text-right text-sm font-semibold text-zinc-950 dark:text-zinc-50",
           valueClassName,
         )}
       >

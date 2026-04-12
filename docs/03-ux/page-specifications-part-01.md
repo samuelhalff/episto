@@ -192,10 +192,9 @@ Single card (max-width `lg`, centred):
 
 - Headline price: "From **{formattedBasePrice}** per letter" — `text-4xl font-bold`
 - `<Badge>` "No subscription" (accent colour)
-- Line-item table:
-  - Base service fee — {formattedBasePrice}
-  - Standard delivery — included
-  - Registered delivery — + {formattedRegisteredSurcharge}
+- Supporting copy:
+  - Standard letter pricing starts at {formattedBasePrice}
+  - Registered delivery is available in the dedicated pricing flow and at checkout
 - Note: `text-xs text-secondary` "Prices include VAT where applicable."
 - CTA: `<Button size="lg" className="w-full">` "Start your letter" → `/draft/new`
 
@@ -418,7 +417,6 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
   - direct increment rows only
 - Approved increment rows:
   - Standard: `Each additional page`
-  - Registered: `Registered delivery`
   - Registered: `Each additional page`
 - Do not add a supporting paragraph above or below the blocks.
 
@@ -427,12 +425,13 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 - Card title: `Pricing simulator`
 - No intro paragraph.
 - Controls:
-  - `Letter type` segmented toggle
+  - `Letter type` radio-card selector matching the app delivery choice pattern
   - `Pages` compact stepper
 - Result area:
   - live summary like `Standard · 3 pages`
   - total price on the right
   - one short note for `Each additional page`
+  - one small note that letters are limited to 5 pages
 - Do not use a table, comparison grid, dropdown, or horizontal-scroll pricing area.
 - Do not show freshness, sync, provider, or reference wording in this area.
 

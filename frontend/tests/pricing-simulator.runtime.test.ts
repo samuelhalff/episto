@@ -33,14 +33,16 @@ const t = (key: string, values?: Record<string, string | number | Date>) => {
     standardOptionTitle: "Standard",
     registeredOptionTitle: "Registered",
     standardAdditionalPageLabel: "Each additional page",
-    registeredUpgradeLabel: "Registered delivery",
     registeredAdditionalPageLabel: "Each additional page",
     pageSingular: "page",
     pagePlural: "pages",
+    pageLimitNote: "Maximum {maxPages} pages",
     priceUnavailable: "Price unavailable",
   };
 
-  return (messages[key] ?? key).replace("{pages}", String(values?.pages ?? ""));
+  return (messages[key] ?? key)
+    .replace("{pages}", String(values?.pages ?? ""))
+    .replace("{maxPages}", String(values?.maxPages ?? ""));
 };
 
 const mockProviderBreakdown: PricingProvider = {
@@ -128,8 +130,10 @@ describe("pricing simulator runtime", () => {
 
     render(React.createElement(PricingSimulator, props));
 
+    expect(screen.getByRole("radiogroup", { name: "Letter type" })).toBeTruthy();
     expect(screen.getByText("Standard · 1 page")).toBeTruthy();
     expect(screen.getByText("CHF 4.95")).toBeTruthy();
+    expect(screen.getByText("Maximum 3 pages")).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "Increase pages" }));
     expect(screen.getByText("Standard · 2 pages")).toBeTruthy();
@@ -138,5 +142,30 @@ describe("pricing simulator runtime", () => {
     await user.click(screen.getByRole("radio", { name: "Registered" }));
     expect(screen.getByText("Registered · 2 pages")).toBeTruthy();
     expect(screen.getByText("CHF 9.33")).toBeTruthy();
+  });
+
+  it("caps the simulator at the highest available page example", async () => {
+    const user = userEvent.setup();
+
+    render(
+      React.createElement(PricingSimulator, {
+        loading: false,
+        provider: mockProviderBreakdown,
+        t,
+      }),
+    );
+
+    const increaseButton = screen.getByRole("button", { name: "Increase pages" });
+
+    await user.click(increaseButton);
+    await user.click(increaseButton);
+
+    expect(screen.getByText("Standard · 3 pages")).toBeTruthy();
+    expect(screen.getByText("CHF 5.25")).toBeTruthy();
+    expect(
+      (screen.getByRole("button", { name: "Increase pages" }) as HTMLButtonElement)
+        .disabled,
+    ).toBe(true);
+    expect(screen.getByText("Maximum 3 pages")).toBeTruthy();
   });
 });

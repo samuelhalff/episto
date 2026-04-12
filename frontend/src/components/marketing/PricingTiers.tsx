@@ -47,18 +47,18 @@ function PricingOptionCard({
   t: TranslationFn;
 }) {
   return (
-    <div className="min-w-0 rounded-[1.75rem] bg-white/10 p-5 dark:bg-white/5">
-      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-white/70 dark:text-amber-200/80">
+    <div className="marketing-surface-muted min-w-0 rounded-[1.75rem] p-5">
+      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-600 dark:text-zinc-300">
         {title}
       </p>
-      <div className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-white dark:text-zinc-50">
+      <div className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
         <PriceAmount
           loading={loading}
           value={totalDisplayPrice}
           fallback={t("priceUnavailable")}
         />
       </div>
-      <p className="mt-2 text-sm leading-6 text-white/70 dark:text-zinc-300">
+      <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
         {t("priceCaption")}
       </p>
 
@@ -67,11 +67,11 @@ function PricingOptionCard({
           {priceChanges.map((item) => (
             <div
               key={item.label}
-              className="rounded-2xl bg-black/10 px-4 py-3 dark:bg-zinc-950/30"
+              className="rounded-2xl bg-[var(--app-surface-soft)]/85 px-4 py-3 dark:bg-zinc-950/30"
             >
               <PricingValueRow
                 label={item.label}
-                tone="inverse"
+                labelClassName="text-zinc-600 dark:text-zinc-300"
                 value={
                   <PriceAmount
                     loading={loading}
@@ -92,14 +92,12 @@ function PricingTotalsCard({
   loading,
   provider,
   registered,
-  registeredSurchargeDisplayPrice,
   standard,
   t,
 }: {
   loading: boolean;
   provider: PricingProvider | null;
   registered: PricingTier | null;
-  registeredSurchargeDisplayPrice: string | undefined;
   standard: PricingTier | null;
   t: TranslationFn;
 }) {
@@ -120,13 +118,6 @@ function PricingTotalsCard({
 
   const registeredPriceChanges = [
     createPriceChange({
-      label: t("registeredUpgradeLabel"),
-      loading,
-      value: registeredSurchargeDisplayPrice
-        ? `+${registeredSurchargeDisplayPrice}`
-        : undefined,
-    }),
-    createPriceChange({
       label: t("registeredAdditionalPageLabel"),
       loading,
       value: registeredPerPageIncrement,
@@ -134,8 +125,8 @@ function PricingTotalsCard({
   ].filter((item): item is PriceChangeItem => item !== null);
 
   return (
-    <MarketingCard tone="contrast">
-      <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white dark:text-zinc-50 md:text-4xl">
+    <MarketingCard tone="soft">
+      <h2 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
         {t("summaryCardTitle")}
       </h2>
 
@@ -163,7 +154,6 @@ export function PricingTiersSection({
   loading,
   provider,
   registered,
-  registeredSurchargeDisplayPrice,
   showMissingPricingNotice,
   showPriceSections,
   standard,
@@ -172,7 +162,6 @@ export function PricingTiersSection({
   loading: boolean;
   provider: PricingProvider | null;
   registered: PricingTier | null;
-  registeredSurchargeDisplayPrice: string | undefined;
   showMissingPricingNotice: boolean;
   showPriceSections: boolean;
   standard: PricingTier | null;
@@ -193,7 +182,6 @@ export function PricingTiersSection({
               loading={loading}
               provider={provider}
               registered={registered}
-              registeredSurchargeDisplayPrice={registeredSurchargeDisplayPrice}
               standard={standard}
               t={t}
             />

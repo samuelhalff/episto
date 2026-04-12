@@ -34,7 +34,6 @@ export function PricingBreakdownSection() {
         loading={pricing.isLoading}
         provider={provider}
         registered={registered}
-        registeredSurchargeDisplayPrice={pricing.data?.registeredSurchargeDisplayPrice}
         showMissingPricingNotice={showMissingPricingNotice}
         showPriceSections={showPriceSections}
         standard={standard}
