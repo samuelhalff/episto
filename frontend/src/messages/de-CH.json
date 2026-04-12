@@ -64,8 +64,8 @@
     "pricingTitle": "Einfache, transparente Preise",
     "pricingFrom": "Ab {price} pro Brief",
     "pricingFromFallback": "Transparente Preise pro Brief",
-    "pricingNotes": "Referenztotal basierend auf {printedPages} gedruckter Seite, {physicalSheets} A4-Blatt, {envelopeFormat}-Couvert plus {service} Episto Service.",
-    "pricingNotesFallback": "Standard- und Einschreiben-Preise werden vor der Zahlung gezeigt.",
+    "pricingNotes": "Basierend auf einem 1-seitigen Brief. Der genaue Total erscheint vor der Zahlung.",
+    "pricingNotesFallback": "Der genaue Total erscheint vor der Zahlung.",
     "ctaTitle": "Bereit, Ihren Brief zu versenden?",
     "ctaButton": "Jetzt schreiben",
     "nav": {
@@ -807,7 +807,7 @@
     },
     "pricing": {
       "title": "Preise — Episto",
-      "description": "Sehen Sie öffentliche Beispieltotale für Standard- und Einschreiben-Briefe, häufige Aufpreise wie längere Briefe und wie der Checkout Ihren finalen Total neu berechnet."
+      "description": "Transparente Preise für Standard- und Einschreiben-Briefe, mit einem Preisrechner und dem genauen Total vor der Zahlung."
     },
     "help": {
       "title": "Hilfe — Episto",

@@ -64,8 +64,8 @@
     "pricingTitle": "Simple, transparent pricing",
     "pricingFrom": "From {price} per letter",
     "pricingFromFallback": "Transparent per-letter pricing",
-    "pricingNotes": "Reference total based on {printedPages} printed page, {physicalSheets} A4 sheet, {envelopeFormat} envelope, plus {service} Episto service.",
-    "pricingNotesFallback": "Standard and registered totals are shown before payment.",
+    "pricingNotes": "Based on a 1-page letter. Exact total before payment.",
+    "pricingNotesFallback": "Exact total shown before payment.",
     "ctaTitle": "Ready to send your letter?",
     "ctaButton": "Start writing",
     "nav": {
@@ -807,7 +807,7 @@
     },
     "pricing": {
       "title": "Pricing — Episto",
-      "description": "See public example totals for standard and registered letters, common add-ons like longer letters, and how checkout recalculates your final total."
+      "description": "Transparent pricing for standard and registered letters, with a live simulator and the exact total before payment."
     },
     "help": {
       "title": "Help — Episto",

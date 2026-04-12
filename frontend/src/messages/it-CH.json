@@ -64,8 +64,8 @@
     "pricingTitle": "Prezzi semplici e trasparenti",
     "pricingFrom": "Da {price} per lettera",
     "pricingFromFallback": "Prezzi chiari per lettera",
-    "pricingNotes": "Totale di riferimento basato su {printedPages} pagina stampata, {physicalSheets} foglio A4, busta {envelopeFormat}, piu {service} di servizio Episto.",
-    "pricingNotesFallback": "I totali standard e raccomandata vengono mostrati prima del pagamento.",
+    "pricingNotes": "Basato su una lettera di una pagina. Il totale esatto appare prima del pagamento.",
+    "pricingNotesFallback": "Il totale esatto appare prima del pagamento.",
     "ctaTitle": "Pronto a inviare la Sua lettera?",
     "ctaButton": "Iniziare a scrivere",
     "nav": {
@@ -807,7 +807,7 @@
     },
     "pricing": {
       "title": "Prezzi — Episto",
-      "description": "Consulti totali pubblici di esempio per lettere standard e raccomandate, supplementi frequenti come lettere piu lunghe e il modo in cui il checkout ricalcola il totale finale."
+      "description": "Prezzi trasparenti per lettere standard e raccomandate, con un simulatore e il totale esatto prima del pagamento."
     },
     "help": {
       "title": "Aiuto — Episto",

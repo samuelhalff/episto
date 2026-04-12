@@ -13,7 +13,7 @@ interface MarketingHeroProps {
   subtitle: string;
   primaryAction: HeroAction;
   secondaryAction?: HeroAction;
-  panel: ReactNode;
+  panel?: ReactNode;
 }
 
 export function MarketingHero({
@@ -24,6 +24,8 @@ export function MarketingHero({
   secondaryAction,
   panel,
 }: MarketingHeroProps) {
+  const hasPanel = panel !== undefined && panel !== null;
+
   return (
     <section className="relative overflow-hidden px-6 pb-8 pt-10 md:pb-12 md:pt-14 lg:pb-14 lg:pt-20">
       <div
@@ -34,7 +36,13 @@ export function MarketingHero({
         aria-hidden="true"
         className="pointer-events-none absolute left-1/2 top-16 -z-10 h-52 w-52 -translate-x-1/2 rounded-full bg-amber-200/35 blur-3xl md:top-24 md:h-72 md:w-72"
       />
-      <div className="mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12">
+      <div
+        className={
+          hasPanel
+            ? "mx-auto grid max-w-7xl items-center gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-12"
+            : "mx-auto max-w-7xl"
+        }
+      >
         <div className="animate-rise-in">
           <MarketingBadge className="text-amber-700 dark:text-amber-300">
             <Sparkles className="h-4 w-4" />
@@ -66,7 +74,9 @@ export function MarketingHero({
           </div>
         </div>
 
-        <div className="marketing-surface-soft rounded-4xl p-5 md:p-6">{panel}</div>
+        {hasPanel ? (
+          <div className="marketing-surface-soft rounded-4xl p-5 md:p-6">{panel}</div>
+        ) : null}
       </div>
     </section>
   );

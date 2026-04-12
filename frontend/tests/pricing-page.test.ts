@@ -112,6 +112,10 @@ const pricingSharedSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/pricing-shared.tsx"),
   "utf8",
 );
+const pricingSimulatorSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/PricingSimulator.tsx"),
+  "utf8",
+);
 
 globalThis.React = React;
 
@@ -125,6 +129,33 @@ const localeMessages = {
   "en-CH": enCH,
   "fr-CH": frCH,
   "it-CH": itCH,
+} as const;
+
+const expectedSeoPricingDescriptions = {
+  "de-CH":
+    "Transparente Preise für Standard- und Einschreiben-Briefe, mit einem Preisrechner und dem genauen Total vor der Zahlung.",
+  "en-CH":
+    "Transparent pricing for standard and registered letters, with a live simulator and the exact total before payment.",
+  "fr-CH":
+    "Tarifs transparents pour les lettres standard et recommandées, avec un simulateur et le total exact avant le paiement.",
+  "it-CH":
+    "Prezzi trasparenti per lettere standard e raccomandate, con un simulatore e il totale esatto prima del pagamento.",
+} as const;
+
+const expectedMarketingPricingNotes = {
+  "de-CH":
+    "Basierend auf einem 1-seitigen Brief. Der genaue Total erscheint vor der Zahlung.",
+  "en-CH": "Based on a 1-page letter. Exact total before payment.",
+  "fr-CH": "Basé sur une lettre d’une page. Le total exact apparaît avant le paiement.",
+  "it-CH":
+    "Basato su una lettera di una pagina. Il totale esatto appare prima del pagamento.",
+} as const;
+
+const expectedMarketingPricingNotesFallback = {
+  "de-CH": "Der genaue Total erscheint vor der Zahlung.",
+  "en-CH": "Exact total shown before payment.",
+  "fr-CH": "Le total exact apparaît avant le paiement.",
+  "it-CH": "Il totale esatto appare prima del pagamento.",
 } as const;
 
 const requiredPricingKeys = [
@@ -422,10 +453,18 @@ describe("pricing page source contract", () => {
     expect(pricingTiersSource).toContain('t("registeredAdditionalPageLabel")');
     expect(pricingTiersSource).toContain("PricingSimulator");
     expect(pricingTiersSource).toContain("PricingValueRow");
+    expect(pricingTiersSource).toContain('tone="inverse"');
+    expect(pricingSimulatorSource).toContain("PricingValueRow");
     expect(pricingSharedSource).toContain("grid-cols-[minmax(0,1fr)_auto]");
     expect(pricingSharedSource).toContain("items-baseline");
+    expect(pricingSharedSource).toContain('tone = "default"');
+    expect(pricingSharedSource).toContain("text-white/75 dark:text-zinc-300");
+    expect(pricingSharedSource).toContain("text-white dark:text-zinc-50");
     expect(pricingSharedSource).not.toContain(
       'className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 rounded-2xl px-4 py-3"',
+    );
+    expect(pricingSimulatorSource).not.toContain(
+      'className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4"',
     );
     expect(pricingTiersSource).not.toContain('t("pricingTableTitle")');
     expect(pricingTiersSource).not.toContain('t("summaryCardBody")');
@@ -485,6 +524,28 @@ describe("pricing page locales", () => {
           getNestedString(localeData as Record<string, unknown>, ["pricing", key]),
         ).toBeUndefined();
       }
+
+      expect(
+        getNestedString(localeData as Record<string, unknown>, [
+          "seo",
+          "pricing",
+          "description",
+        ]),
+      ).toBe(expectedSeoPricingDescriptions[localeName as keyof typeof localeMessages]);
+      expect(
+        getNestedString(localeData as Record<string, unknown>, [
+          "marketing",
+          "pricingNotes",
+        ]),
+      ).toBe(expectedMarketingPricingNotes[localeName as keyof typeof localeMessages]);
+      expect(
+        getNestedString(localeData as Record<string, unknown>, [
+          "marketing",
+          "pricingNotesFallback",
+        ]),
+      ).toBe(
+        expectedMarketingPricingNotesFallback[localeName as keyof typeof localeMessages],
+      );
     });
   }
 });

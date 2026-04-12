@@ -3,10 +3,7 @@ import type { Locale } from "@/i18n/routing";
 import { JsonLd } from "@/components/marketing/JsonLd";
 import { MarketingHero } from "@/components/marketing/MarketingHero";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import {
-  PricingBreakdownSection,
-  PricingHeroPanel,
-} from "@/components/marketing/PricingPageClient";
+import { PricingBreakdownSection } from "@/components/marketing/PricingPageClient";
 import { buildMarketingMetadata, buildServiceJsonLd } from "@/lib/marketing-seo";
 
 export async function generateMetadata({
@@ -37,14 +34,14 @@ export default async function PricingPage({
 
   return (
     <>
-        <JsonLd
-          data={buildServiceJsonLd({
-            locale,
-            title: seo("pricing.title"),
-            description: seo("pricing.description"),
-            pathname: "/pricing",
-          })}
-        />
+      <JsonLd
+        data={buildServiceJsonLd({
+          locale,
+          title: seo("pricing.title"),
+          description: seo("pricing.description"),
+          pathname: "/pricing",
+        })}
+      />
       <MarketingLayout>
         <MarketingHero
           eyebrow={t("noHiddenFees")}
@@ -52,7 +49,6 @@ export default async function PricingPage({
           subtitle={t("subtitle")}
           primaryAction={{ href: "/draft/new", label: t("cta") }}
           secondaryAction={{ href: "/help", label: tm("nav.help") }}
-          panel={<PricingHeroPanel />}
         />
         <PricingBreakdownSection />
       </MarketingLayout>

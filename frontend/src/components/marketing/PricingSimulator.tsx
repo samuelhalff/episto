@@ -9,7 +9,7 @@ import {
   getPerPageIncrementDisplayPrice,
 } from "./pricing-calculations";
 import { MarketingCard, MarketingNotice } from "./primitives";
-import { PriceAmount } from "./pricing-shared";
+import { PriceAmount, PricingValueRow } from "./pricing-shared";
 import type { PricingProvider } from "./pricing-types";
 import { Input } from "../ui/input";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
@@ -154,18 +154,18 @@ export function PricingSimulator({
 
       {bounds ? (
         <div className="mt-6 rounded-3xl border border-zinc-200/80 bg-white px-5 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4">
-            <p className="min-w-0 text-sm font-medium leading-6 text-zinc-700 dark:text-zinc-200">
-              {summary}
-            </p>
-            <div className="shrink-0 text-right text-xl font-semibold tracking-[-0.03em] text-zinc-950 dark:text-zinc-50">
+          <PricingValueRow
+            label={summary}
+            labelClassName="font-medium text-zinc-700 dark:text-zinc-200"
+            valueClassName="text-xl tracking-[-0.03em]"
+            value={
               <PriceAmount
                 loading={loading}
                 value={selectedExample?.displayPrice}
                 fallback={t("priceUnavailable")}
               />
-            </div>
-          </div>
+            }
+          />
 
           {loading || perPageIncrement ? (
             <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">

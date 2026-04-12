@@ -71,6 +71,7 @@ function PricingOptionCard({
             >
               <PricingValueRow
                 label={item.label}
+                tone="inverse"
                 value={
                   <PriceAmount
                     loading={loading}

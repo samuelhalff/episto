@@ -64,8 +64,8 @@
     "pricingTitle": "Des prix simples et transparents",
     "pricingFrom": "Dès {price} par lettre",
     "pricingFromFallback": "Tarification claire par lettre",
-    "pricingNotes": "Total de reference base sur {printedPages} page imprimee, {physicalSheets} feuille A4, une enveloppe {envelopeFormat}, plus {service} de service Episto.",
-    "pricingNotesFallback": "Les totaux standard et recommandé sont affichés avant le paiement.",
+    "pricingNotes": "Basé sur une lettre d’une page. Le total exact apparaît avant le paiement.",
+    "pricingNotesFallback": "Le total exact apparaît avant le paiement.",
     "ctaTitle": "Prêt à envoyer votre lettre ?",
     "ctaButton": "Commencer à écrire",
     "nav": {
@@ -807,7 +807,7 @@
     },
     "pricing": {
       "title": "Tarifs — Episto",
-      "description": "Consultez des totaux publics d'exemple pour les lettres standard et recommandees, les supplements frequents comme une lettre plus longue et la facon dont le checkout recalcule le total final."
+      "description": "Tarifs transparents pour les lettres standard et recommandées, avec un simulateur et le total exact avant le paiement."
     },
     "help": {
       "title": "Aide — Episto",
