@@ -16,6 +16,11 @@ const dockerComposeProdSource = readFileSync(
   "utf8",
 );
 
+const renderProdProxySource = readFileSync(
+  path.join(repoRoot, "nginx/render-prod-proxy.sh"),
+  "utf8",
+);
+
 afterEach(() => {
   vi.resetModules();
   delete process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -149,6 +154,16 @@ describe("deployment topology", () => {
     const { buildContentSecurityPolicy } = await import("../next.config");
 
     expect(buildContentSecurityPolicy(false)).toContain("https://api.ark-fid.ddns.net");
+  });
+
+  it("keeps same-host /api proxying even when a dedicated API host is configured", () => {
+    expect(renderProdProxySource).toContain("location /api/ {");
+    expect(renderProdProxySource).toContain(
+      'if [ -n "$API_HOST" ] && [ "$API_HOST" != "$CANONICAL_HOST" ]; then',
+    );
+    expect(renderProdProxySource).not.toContain(
+      'if [ -z "$API_HOST" ] || [ "$API_HOST" = "$CANONICAL_HOST" ]; then',
+    );
   });
 
   it("adds the Sentry ingest origin to connect-src when a public DSN is configured", async () => {

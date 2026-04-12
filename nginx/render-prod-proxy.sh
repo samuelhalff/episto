@@ -113,10 +113,6 @@ cat >> /etc/nginx/conf.d/default.conf <<'EOF'
     root /var/www;
     default_type application/octet-stream;
   }
-EOF
-
-if [ -z "$API_HOST" ] || [ "$API_HOST" = "$CANONICAL_HOST" ]; then
-  cat >> /etc/nginx/conf.d/default.conf <<'EOF'
 
   location ~ ^/api/v1/drafts/[^/]+/stream {
     set $backend_upstream http://backend:4000;
@@ -137,7 +133,6 @@ if [ -z "$API_HOST" ] || [ "$API_HOST" = "$CANONICAL_HOST" ]; then
     proxy_send_timeout 600s;
   }
 EOF
-fi
 
 cat >> /etc/nginx/conf.d/default.conf <<'EOF'
 
