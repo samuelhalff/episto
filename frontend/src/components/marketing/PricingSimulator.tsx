@@ -43,7 +43,7 @@ function StepperButton({
       disabled={disabled}
       onClick={onClick}
       className={cx(
-        "inline-flex h-10 w-10 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300 dark:hover:text-zinc-50",
+        "inline-flex h-12 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 sm:h-11 sm:w-11 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300 dark:hover:text-zinc-50",
       )}
     >
       {children}

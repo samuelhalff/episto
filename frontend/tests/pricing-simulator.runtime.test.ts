@@ -120,6 +120,24 @@ const mockProviderBreakdown: PricingProvider = {
 describe("pricing simulator runtime", () => {
   afterEach(() => cleanup());
 
+  it("uses larger touch targets for the page stepper buttons", () => {
+    render(
+      React.createElement(PricingSimulator, {
+        loading: false,
+        provider: mockProviderBreakdown,
+        t,
+      }),
+    );
+
+    const decreaseButton = screen.getByRole("button", { name: "Decrease pages" });
+    const increaseButton = screen.getByRole("button", { name: "Increase pages" });
+
+    expect(decreaseButton.className).toContain("h-12");
+    expect(decreaseButton.className).toContain("w-12");
+    expect(increaseButton.className).toContain("h-12");
+    expect(increaseButton.className).toContain("w-12");
+  });
+
   it("shows the fixed 5-page product limit while updating the live total", async () => {
     const user = userEvent.setup();
     const props: React.ComponentProps<typeof PricingSimulator> = {
