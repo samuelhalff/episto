@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type * as PricingHooks from "../src/hooks/use-pricing";
 
 import deCH from "../src/messages/de-CH.json";
 import enCH from "../src/messages/en-CH.json";
@@ -64,9 +65,14 @@ vi.mock("next-intl", () => {
   };
 });
 
-vi.mock("../src/hooks/use-pricing", () => ({
-  usePricing: () => pricingState.value,
-}));
+vi.mock("../src/hooks/use-pricing", async (importOriginal) => {
+  const actual = await importOriginal<typeof PricingHooks>();
+
+  return {
+    ...actual,
+    usePricing: () => pricingState.value,
+  };
+});
 
 vi.mock("../src/i18n/navigation", async () => {
   const React = await import("react");
@@ -82,8 +88,28 @@ vi.mock("../src/i18n/navigation", async () => {
 });
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+const pricingHeroSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/PricingHero.tsx"),
+  "utf8",
+);
 const pricingTiersSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/PricingTiers.tsx"),
+  "utf8",
+);
+const pricingPageClientSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/PricingPageClient.tsx"),
+  "utf8",
+);
+const pricingPageRouteSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/pricing/page.tsx"),
+  "utf8",
+);
+const pricingFaqSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/PricingFaq.tsx"),
+  "utf8",
+);
+const pricingSharedSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/pricing-shared.tsx"),
   "utf8",
 );
 
@@ -102,36 +128,41 @@ const localeMessages = {
 } as const;
 
 const requiredPricingKeys = [
-  "totalsSharedSourceNote",
-  "compositionTitle",
-  "compositionBody",
-  "serviceStandardFeeLabel",
-  "serviceRegisteredFeeLabel",
-  "referenceAssumptionsTitle",
-  "referenceAssumptionsBody",
-  "assumptionCountryLabel",
-  "assumptionEnvelopeLabel",
-  "assumptionWindowLabel",
-  "assumptionDuplexLabel",
-  "duplexFalseValue",
-  "assumptionAttachmentLabel",
-  "attachmentNoneValue",
-  "assumptionStandardPostageLabel",
-  "assumptionRegisteredPostageLabel",
-  "syncStatusTitle",
-  "syncFreshLabel",
-  "syncStaleLabel",
-  "syncSourceLabel",
-  "syncLastSyncedLabel",
-  "syncFreshBody",
-  "syncStaleBody",
-  "matrixExamplesTitle",
-  "matrixExamplesBody",
-  "standardExamplesTitle",
-  "registeredExamplesTitle",
-  "pagesColumnLabel",
-  "providerQuoteColumnLabel",
-  "totalColumnLabel",
+  "summaryCardTitle",
+  "standardOptionTitle",
+  "registeredOptionTitle",
+  "priceCaption",
+  "standardAdditionalPageLabel",
+  "registeredUpgradeLabel",
+  "registeredAdditionalPageLabel",
+  "simulatorTitle",
+  "letterTypeLabel",
+  "pagesLabel",
+  "increasePagesLabel",
+  "decreasePagesLabel",
+  "pageSingular",
+  "pagePlural",
+  "includedCardTitle",
+  "excludedCardTitle",
+  "faqTitle",
+] as const;
+
+const removedPricingKeys = [
+  "heroPanelBody",
+  "pricingTableTitle",
+  "summaryCardBody",
+  "priceChangeListTitle",
+  "standardLongerLetterLabel",
+  "registeredLongerLetterLabel",
+  "checkoutTruth",
+  "includedCardEyebrow",
+  "includedCardBody",
+  "excludedCardEyebrow",
+  "excludedCardBody",
+  "faqEyebrow",
+  "faqBody",
+  "comparisonTitle",
+  "comparisonBody",
 ] as const;
 
 function getNestedString(
@@ -160,44 +191,62 @@ function createPricingMessages() {
     ...enCH,
     pricing: {
       ...enCH.pricing,
-      syncStatusTitle: "Stored pricing status",
-      syncFreshLabel: "Up to date",
-      syncStaleLabel: "Needs refresh",
-      syncSourceLabel: "Source",
-      syncLastSyncedLabel: "Last synced",
-      totalsSharedSourceNote:
-        "These public totals use the same stored provider pricing source shown in the app.",
-      compositionTitle: "What makes up the price",
-      compositionBody:
-        "Episto service plus the stored provider reference totals for standard and registered dispatch.",
-      serviceStandardFeeLabel: "Episto service (standard)",
-      serviceRegisteredFeeLabel: "Episto service (registered)",
-      referenceAssumptionsTitle: "Reference assumptions",
-      referenceAssumptionsBody:
-        "These public examples cover Swiss domestic letters with the fixed provider-side settings the stored matrix currently supports.",
-      assumptionCountryLabel: "Destination",
-      assumptionEnvelopeLabel: "Envelope",
-      assumptionWindowLabel: "Window",
-      assumptionDuplexLabel: "Printing",
-      duplexFalseValue: "Simplex only",
-      assumptionAttachmentLabel: "Attachment mode",
-      attachmentNoneValue: "No attachment",
-      assumptionStandardPostageLabel: "Standard postage mapping",
-      assumptionRegisteredPostageLabel: "Registered postage mapping",
-      syncFreshBody:
-        "These prices come from the latest stored provider sync used by Episto.",
-      syncStaleBody:
-        "These prices come from the last successful provider sync and may be outdated until the next refresh.",
-      matrixExamplesTitle: "Matrix-backed page-count examples",
-      matrixExamplesBody:
-        "These example totals come from the stored Swiss domestic no-attachment matrix only.",
-      standardExamplesTitle: "Standard examples",
-      registeredExamplesTitle: "Registered examples",
-      pagesColumnLabel: "Pages",
-      providerQuoteColumnLabel: "Provider quote",
-      totalColumnLabel: "Episto total",
+      heroPanelBody: "REMOVE ME HERO BODY",
+      pricingTableTitle: "REMOVE ME SUMMARY EYEBROW",
+      summaryCardTitle: "Choose your delivery",
+      summaryCardBody: "REMOVE ME SUMMARY BODY",
+      standardOptionTitle: "Standard",
+      registeredOptionTitle: "Registered",
+      priceCaption: "1-page letter",
+      priceChangeListTitle: "REMOVE ME PRICE CHANGE TITLE",
+      standardAdditionalPageLabel: "Each additional page",
+      registeredUpgradeLabel: "Registered delivery",
+      registeredAdditionalPageLabel: "Each additional page",
+      simulatorTitle: "Pricing simulator",
+      letterTypeLabel: "Letter type",
+      pagesLabel: "Pages",
+      increasePagesLabel: "Increase pages",
+      decreasePagesLabel: "Decrease pages",
+      pageSingular: "page",
+      pagePlural: "pages",
+      standardLongerLetterLabel: "REMOVE ME STANDARD RANGE LABEL",
+      registeredLongerLetterLabel: "REMOVE ME REGISTERED RANGE LABEL",
+      includedCardEyebrow: "REMOVE ME INCLUDED EYEBROW",
+      includedCardTitle: "What's included",
+      includedCardBody: "REMOVE ME INCLUDED BODY",
+      excludedCardEyebrow: "REMOVE ME EXCLUDED EYEBROW",
+      excludedCardTitle: "What's not included",
+      excludedCardBody: "REMOVE ME EXCLUDED BODY",
+      excludedTranslation: "Translation or localisation review",
+      faqEyebrow: "REMOVE ME FAQ EYEBROW",
+      faqTitle: "Common questions",
+      faqBody: "REMOVE ME FAQ BODY",
+      faq1a:
+        "If dispatch is rejected before your payment is completed, you are not charged.",
+      faq2a: "If a refund is due, we tell you when it is completed.",
+      faq3a: "No. Pricing is per letter.",
+      faq4a: "The total shown before payment is the amount you approve.",
+      checkoutTruth: "REMOVE ME CHECKOUT BODY",
     },
   } satisfies Record<string, unknown>;
+}
+
+function createPageCountExamples(
+  providerQuotedCentsByPage: number[],
+  markupCents: number,
+) {
+  return providerQuotedCentsByPage.map((providerQuotedCents, index) => {
+    const totalCents = providerQuotedCents + markupCents;
+
+    return {
+      pageCount: index + 1,
+      providerQuotedCents,
+      providerQuotedDisplayPrice: formatCHF(providerQuotedCents),
+      totalCents,
+      displayPrice: formatCHF(totalCents),
+      currency: "CHF",
+    };
+  });
 }
 
 function createPricingData({
@@ -209,24 +258,25 @@ function createPricingData({
   standardMarkupCents?: number;
   registeredMarkupCents?: number;
 } = {}) {
-  const standardProviderQuotedCents = 155;
-  const standardFivePageProviderQuotedCents = 215;
-  const registeredProviderQuotedCents = 578;
-  const registeredFivePageProviderQuotedCents = 638;
-  const standardTotalCents = standardProviderQuotedCents + standardMarkupCents;
-  const standardFivePageTotalCents =
-    standardFivePageProviderQuotedCents + standardMarkupCents;
-  const registeredTotalCents = registeredProviderQuotedCents + registeredMarkupCents;
-  const registeredFivePageTotalCents =
-    registeredFivePageProviderQuotedCents + registeredMarkupCents;
+  const standardExamples = createPageCountExamples(
+    [155, 170, 185, 200, 215],
+    standardMarkupCents,
+  );
+  const registeredExamples = createPageCountExamples(
+    [578, 593, 608, 623, 638],
+    registeredMarkupCents,
+  );
+  const standardTotalCents = standardExamples[0]?.totalCents ?? 0;
+  const registeredTotalCents = registeredExamples[0]?.totalCents ?? 0;
 
   return {
     standard: {
       totalCents: standardTotalCents,
       displayPrice: formatCHF(standardTotalCents),
       currency: "CHF",
-      providerQuotedCents: standardProviderQuotedCents,
-      providerQuotedDisplayPrice: formatCHF(standardProviderQuotedCents),
+      providerQuotedCents: standardExamples[0]?.providerQuotedCents ?? 0,
+      providerQuotedDisplayPrice:
+        standardExamples[0]?.providerQuotedDisplayPrice ?? formatCHF(0),
       swissMailMarkupCents: standardMarkupCents,
       swissMailMarkupDisplayPrice: formatCHF(standardMarkupCents),
     },
@@ -234,8 +284,9 @@ function createPricingData({
       totalCents: registeredTotalCents,
       displayPrice: formatCHF(registeredTotalCents),
       currency: "CHF",
-      providerQuotedCents: registeredProviderQuotedCents,
-      providerQuotedDisplayPrice: formatCHF(registeredProviderQuotedCents),
+      providerQuotedCents: registeredExamples[0]?.providerQuotedCents ?? 0,
+      providerQuotedDisplayPrice:
+        registeredExamples[0]?.providerQuotedDisplayPrice ?? formatCHF(0),
       swissMailMarkupCents: registeredMarkupCents,
       swissMailMarkupDisplayPrice: formatCHF(registeredMarkupCents),
     },
@@ -261,42 +312,8 @@ function createPricingData({
         registeredPostage: "REGISTERED",
       },
       pageCountExamples: {
-        standard: [
-          {
-            pageCount: 1,
-            providerQuotedCents: standardProviderQuotedCents,
-            providerQuotedDisplayPrice: formatCHF(standardProviderQuotedCents),
-            totalCents: standardTotalCents,
-            displayPrice: formatCHF(standardTotalCents),
-            currency: "CHF",
-          },
-          {
-            pageCount: 5,
-            providerQuotedCents: standardFivePageProviderQuotedCents,
-            providerQuotedDisplayPrice: formatCHF(standardFivePageProviderQuotedCents),
-            totalCents: standardFivePageTotalCents,
-            displayPrice: formatCHF(standardFivePageTotalCents),
-            currency: "CHF",
-          },
-        ],
-        registered: [
-          {
-            pageCount: 1,
-            providerQuotedCents: registeredProviderQuotedCents,
-            providerQuotedDisplayPrice: formatCHF(registeredProviderQuotedCents),
-            totalCents: registeredTotalCents,
-            displayPrice: formatCHF(registeredTotalCents),
-            currency: "CHF",
-          },
-          {
-            pageCount: 5,
-            providerQuotedCents: registeredFivePageProviderQuotedCents,
-            providerQuotedDisplayPrice: formatCHF(registeredFivePageProviderQuotedCents),
-            totalCents: registeredFivePageTotalCents,
-            displayPrice: formatCHF(registeredFivePageTotalCents),
-            currency: "CHF",
-          },
-        ],
+        standard: standardExamples,
+        registered: registeredExamples,
       },
       pricesExcludeVat: true,
       currency: "CHF",
@@ -325,40 +342,47 @@ describe("pricing page presentation", () => {
     };
   });
 
-  it("renders a sync status block with stale pricing metadata and matrix-backed examples", () => {
-    pricingState.value = {
-      data: createPricingData({ freshness: "stale" }),
-      isLoading: false,
-      isError: false,
-    };
-
+  it("renders minimal pricing cards with direct per-page increments and no filler copy", () => {
     const markup = renderPricingSections();
+    const additionalPageMatches = markup.match(/Each additional page/g) ?? [];
+    const incrementMatches = markup.match(/\+CHF 0\.15/g) ?? [];
 
-    expect(markup).toContain("Stored pricing status");
-    expect(markup).toContain("Needs refresh");
-    expect(markup).toContain("ePost active rate matrix");
-    expect(markup).toContain("Last synced");
-    expect(markup).toContain("Matrix-backed page-count examples");
+    expect(markup).toContain("Choose your delivery");
+    expect(markup).toContain("Standard");
+    expect(markup).toContain("Registered");
+    expect(markup).toContain("1-page letter");
+    expect(additionalPageMatches).toHaveLength(3);
+    expect(markup).toContain("Registered delivery");
     expect(markup).toContain("CHF 4.95");
-    expect(markup).toContain("CHF 9.78");
+    expect(markup).toContain("CHF 9.18");
+    expect(markup).toContain("+CHF 4.23");
+    expect(incrementMatches).toHaveLength(3);
+    expect(markup).toContain("What&#x27;s included");
+    expect(markup).toContain("What&#x27;s not included");
+    expect(markup).toContain("Common questions");
+    expect(markup).not.toContain("REMOVE ME HERO BODY");
+    expect(markup).not.toContain("REMOVE ME SUMMARY EYEBROW");
+    expect(markup).not.toContain("REMOVE ME SUMMARY BODY");
+    expect(markup).not.toContain("REMOVE ME PRICE CHANGE TITLE");
+    expect(markup).not.toContain("REMOVE ME STANDARD RANGE LABEL");
+    expect(markup).not.toContain("REMOVE ME REGISTERED RANGE LABEL");
+    expect(markup).not.toContain("REMOVE ME INCLUDED EYEBROW");
+    expect(markup).not.toContain("REMOVE ME INCLUDED BODY");
+    expect(markup).not.toContain("REMOVE ME EXCLUDED EYEBROW");
+    expect(markup).not.toContain("REMOVE ME EXCLUDED BODY");
+    expect(markup).not.toContain("REMOVE ME FAQ EYEBROW");
+    expect(markup).not.toContain("REMOVE ME FAQ BODY");
+    expect(markup).not.toContain("REMOVE ME CHECKOUT BODY");
   });
 
-  it("shows separate Episto service rows when standard and registered markups differ", () => {
-    pricingState.value = {
-      data: createPricingData({
-        standardMarkupCents: 340,
-        registeredMarkupCents: 410,
-      }),
-      isLoading: false,
-      isError: false,
-    };
-
+  it("renders a pricing simulator instead of the old examples table", () => {
     const markup = renderPricingSections();
 
-    expect(markup).toContain("Episto service (standard)");
-    expect(markup).toContain("Episto service (registered)");
-    expect(markup).toContain("CHF 3.40");
-    expect(markup).toContain("CHF 4.10");
+    expect(markup).toContain("Pricing simulator");
+    expect(markup).toContain("Standard · 1 page");
+    expect(markup).toContain("Each additional page");
+    expect(markup).not.toContain("Price examples by page count");
+    expect(markup).not.toContain("<table");
   });
 
   it("shows the pricing unavailable body only once and hides price-bearing sections when pricing is missing", () => {
@@ -379,29 +403,87 @@ describe("pricing page presentation", () => {
 
     expect(matchCount).toBe(1);
     expect(markup).not.toContain(enCH.pricing.priceUnavailable);
-    expect(markup).not.toContain(enCH.pricing.summaryCardTitle);
-    expect(markup).not.toContain(enCH.pricing.compositionTitle);
-    expect(markup).not.toContain(enCH.pricing.comparisonTitle);
+    expect(markup).not.toContain("Choose your delivery");
+    expect(markup).not.toContain("Pricing simulator");
   });
 });
 
 describe("pricing page source contract", () => {
-  it("drops the legacy unit-input cards in favor of sync and matrix-backed sections", () => {
-    expect(pricingTiersSource).toContain('t("syncStatusTitle")');
-    expect(pricingTiersSource).toContain('t("matrixExamplesTitle")');
-    expect(pricingTiersSource).not.toContain('t("serviceCardTitle")');
-    expect(pricingTiersSource).not.toContain('t("providerCardTitle")');
-    expect(pricingTiersSource).not.toContain('t("referenceCardTitle")');
+  it("removes filler pricing copy and keeps pricing rows on a shared baseline-aligned layout", () => {
+    expect(pricingPageClientSource).not.toContain("showComparison");
+    expect(pricingPageRouteSource).not.toContain("panel={<PricingHeroPanel />}");
+    expect(pricingHeroSource).not.toContain('t("heroPanelBody")');
+    expect(pricingHeroSource).toContain("return null");
+    expect(pricingTiersSource).toContain('t("standardOptionTitle")');
+    expect(pricingTiersSource).toContain('t("registeredOptionTitle")');
+    expect(pricingTiersSource).toContain('t("priceCaption")');
+    expect(pricingTiersSource).toContain('t("standardAdditionalPageLabel")');
+    expect(pricingTiersSource).toContain('t("registeredUpgradeLabel")');
+    expect(pricingTiersSource).toContain('t("registeredAdditionalPageLabel")');
+    expect(pricingTiersSource).toContain("PricingSimulator");
+    expect(pricingTiersSource).toContain("PricingValueRow");
+    expect(pricingSharedSource).toContain("grid-cols-[minmax(0,1fr)_auto]");
+    expect(pricingSharedSource).toContain("items-baseline");
+    expect(pricingSharedSource).not.toContain(
+      'className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4 rounded-2xl px-4 py-3"',
+    );
+    expect(pricingTiersSource).not.toContain('t("pricingTableTitle")');
+    expect(pricingTiersSource).not.toContain('t("summaryCardBody")');
+    expect(pricingTiersSource).not.toContain('t("addOnsTitle")');
+    expect(pricingTiersSource).not.toContain('t("priceChangeListTitle")');
+    expect(pricingTiersSource).not.toContain('t("standardLongerLetterLabel")');
+    expect(pricingTiersSource).not.toContain('t("registeredLongerLetterLabel")');
+    expect(pricingTiersSource).not.toContain('t("pricingExamplesTitle")');
+    expect(pricingTiersSource).not.toContain('t("pricingExamplesBody")');
+    expect(pricingTiersSource).not.toContain('t("standardExamplesTitle")');
+    expect(pricingTiersSource).not.toContain('t("registeredExamplesTitle")');
+    expect(pricingTiersSource).not.toContain('t("pagesColumnLabel")');
+    expect(pricingTiersSource).not.toContain('t("exampleTotalColumnLabel")');
+    expect(pricingTiersSource).not.toContain("overflow-x-auto");
+    expect(pricingTiersSource).not.toContain('t("checkoutTruth")');
+    expect(pricingTiersSource).not.toContain('t("syncStatusTitle")');
+    expect(pricingTiersSource).not.toContain('t("serviceStandardFeeLabel")');
+    expect(pricingTiersSource).not.toContain('t("providerStandardQuoteLabel")');
+    expect(pricingFaqSource).not.toContain("SectionLabel");
+    expect(pricingFaqSource).not.toContain('t("includedCardEyebrow")');
+    expect(pricingFaqSource).not.toContain('t("includedCardBody")');
+    expect(pricingFaqSource).not.toContain('t("excludedCardEyebrow")');
+    expect(pricingFaqSource).not.toContain('t("excludedCardBody")');
+    expect(pricingFaqSource).not.toContain('t("faqEyebrow")');
+    expect(pricingFaqSource).not.toContain('t("faqBody")');
+    expect(pricingFaqSource).not.toContain("overflow-x-auto");
+    expect(pricingFaqSource).toContain("text-emerald-700 dark:text-emerald-300");
+    expect(pricingFaqSource).toContain("text-red-700 dark:text-red-300");
+    expect(pricingFaqSource).toContain("dark:bg-amber-950 dark:text-amber-200");
+    expect(pricingFaqSource).toContain('<MarketingCard className="h-full">');
+    expect(pricingSharedSource).toContain(
+      "flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3",
+    );
+    expect(pricingSharedSource).toContain("inline-flex h-6 w-6 shrink-0");
+    expect(pricingSharedSource).toContain("bg-emerald-100 text-emerald-700");
+    expect(pricingSharedSource).toContain("bg-red-100 text-red-700");
+    expect(pricingSharedSource).toContain("dark:bg-emerald-950 dark:text-emerald-200");
+    expect(pricingSharedSource).toContain("dark:bg-red-950 dark:text-red-200");
+    expect(pricingSharedSource).not.toContain(
+      "dark:bg-emerald-400/15 dark:text-emerald-300",
+    );
+    expect(pricingSharedSource).not.toContain("dark:bg-red-400/15 dark:text-red-300");
   });
 });
 
 describe("pricing page locales", () => {
   for (const [localeName, localeData] of Object.entries(localeMessages)) {
-    it(`${localeName} defines the sync and matrix pricing copy`, () => {
+    it(`${localeName} defines the approved minimal pricing keys`, () => {
       for (const key of requiredPricingKeys) {
         expect(
           getNestedString(localeData as Record<string, unknown>, ["pricing", key]),
         ).toBeDefined();
+      }
+
+      for (const key of removedPricingKeys) {
+        expect(
+          getNestedString(localeData as Record<string, unknown>, ["pricing", key]),
+        ).toBeUndefined();
       }
     });
   }

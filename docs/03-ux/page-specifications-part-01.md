@@ -385,7 +385,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 ### SEO
 
 - **Title:** `Pricing — Episto`
-- **Meta description:** `Transparent public reference pricing from the stored Episto pricing source, with freshness status and standard vs registered totals.`
+- **Meta description:** `Transparent public pricing for standard and registered letters, with a live simulator and exact total confirmation before payment.`
 - **Structured data:** Could include `Offer` / pricing schema when prices are locked
 
 ### Layout
@@ -403,58 +403,46 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 #### 3.1 Hero
 
 - `<h1>` "Simple, honest pricing"
-- Subheading: "Public reference totals from the same stored pricing source Episto uses in the app, with the key assumptions shown plainly."
-- Hero panel may show the current "from" price, but the detail work belongs below the fold.
+- Subheading: short 3-4 word line that says pricing is visible upfront.
+- No hero-side pricing panel or explainer box.
 
-#### 3.2 Sync-status banner
+#### 3.2 Primary totals card
 
-- Dedicated banner immediately under the hero
-- Must show:
-  - pricing source / provider label
-  - last synced timestamp
-  - freshness badge (`fresh` or `stale`)
-- If stale, keep the prices visible but show a prominent warning that the figures come from the last successful provider sync and may be outdated until the next refresh.
+- Card title: `Choose your delivery`
+- Show two equal blocks only:
+  - `Standard`
+  - `Registered`
+- Each block should show:
+  - one clear total price
+  - caption: `1-page letter`
+  - direct increment rows only
+- Approved increment rows:
+  - Standard: `Each additional page`
+  - Registered: `Registered delivery`
+  - Registered: `Each additional page`
+- Do not add a supporting paragraph above or below the blocks.
 
-#### 3.3 Primary totals card
+#### 3.3 Pricing simulator
 
-- Show only the decision-making totals:
-  - standard total
-  - registered add-on
-  - registered total
-- Add one short note that the page uses the same stored pricing source as the app.
-- Add one short note that checkout recalculates the exact total from the user’s real draft, pages, attachments, and delivery choice.
+- Card title: `Pricing simulator`
+- No intro paragraph.
+- Controls:
+  - `Letter type` segmented toggle
+  - `Pages` compact stepper
+- Result area:
+  - live summary like `Standard · 3 pages`
+  - total price on the right
+  - one short note for `Each additional page`
+- Do not use a table, comparison grid, dropdown, or horizontal-scroll pricing area.
+- Do not show freshness, sync, provider, or reference wording in this area.
 
-#### 3.4 Pricing detail area
+Do **not** invent line items or add-ons the stored public data cannot prove.
 
-Two cards / tables:
+#### 3.4 What's Included / What's Not Included
 
-1. **What makes up the price**
-   - Episto service fee (standard)
-   - Episto service fee (registered)
-   - provider standard reference total
-   - provider registered reference total
+Two cards with titles only, no eyebrow labels and no body paragraphs.
 
-2. **Matrix-backed assumptions and examples**
-   - fixed provider-side assumptions currently proven by the stored matrix
-   - matrix-backed page-count examples for standard and registered dispatch
-   - source link and verified-date support copy
-
-Do **not** show synthetic raw provider component rows if the active stored matrix cannot prove them.
-
-#### 3.5 Comparison table — Standard vs Registered
-
-| Feature                       | Standard                         | Registered                                          |
-| ----------------------------- | -------------------------------- | --------------------------------------------------- |
-| Service level wording         | Standard postal delivery         | Registered postal delivery                          |
-| Provider reference / tracking | Only if the provider supplies it | Only if the provider supplies it                    |
-| Confirmation language         | Never imply tracking by default  | Stronger wording only when the provider confirms it |
-| Price                         | {formattedStandardPrice}         | {formattedRegisteredPrice}                          |
-
-> **Note:** Delivery estimates and tracking capability must not be fabricated. See `../08-guardrails/provider-certainties.md`. If the provider cannot supply deterministic wording, omit it.
-
-#### 3.6 What's Included / What's Not Included
-
-Icon+text list:
+Included list:
 
 - Drafting assistance and structured review
 - Swiss-standard letter formatting
@@ -465,22 +453,25 @@ Icon+text list:
 Honest counter-list:
 
 - Legal advice or review
-- Guaranteed delivery outcomes
-- Translation (letters drafted in the language you write in)
+- Guaranteed delivery or guaranteed tracking
+- Translation or localisation review
+- Custom document design work
 
-#### 3.7 FAQ (Pricing-specific)
+#### 3.5 FAQ (Pricing-specific)
 
+- Title: `Common questions`
+- No eyebrow and no intro paragraph.
 - "Do I pay if my letter is rejected?" (dispatch rejection scenario — honest answer)
 - "Can I get a refund?"
 - "Are there volume discounts?"
 - "Is VAT included in the prices shown?"
 
-#### 3.8 CTA Band
+#### 3.6 CTA Band
 
 "Try it — you only pay when you're ready to send."  
 → `/draft/new`
 
-#### 3.9 `<SiteFooter>`
+#### 3.7 `<SiteFooter>`
 
 ---
 
@@ -494,6 +485,6 @@ If no stored pricing snapshot is available: show one muted notice "Pricing infor
 
 ### Stale State
 
-If a stored snapshot exists but is stale, still show the last successful prices, timestamp, and an explicit stale warning in the sync banner.
+If a stored snapshot exists but is stale, still show the last successful prices and keep checkout confirmation truthful. Do not add a dedicated sync banner, freshness badge, or last-synced timestamp to the public pricing page.
 
 ---
