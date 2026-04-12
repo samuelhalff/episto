@@ -135,6 +135,23 @@ describe("deployment topology", () => {
     expect(redisBlock).toContain("restart: unless-stopped");
     expect(minioBlock).toContain("restart: unless-stopped");
     expect(zefixProxyBlock).toContain("restart: unless-stopped");
+
+    // Infrastructure credentials must come from env vars, not be hardcoded
+    expect(postgresBlock).toContain(
+      "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}",
+    );
+    expect(postgresBlock).not.toContain("POSTGRES_PASSWORD: swissmail");
+    expect(minioBlock).toContain(
+      "${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}",
+    );
+    expect(minioBlock).not.toContain("MINIO_ROOT_PASSWORD: minioadmin");
+    expect(backendBlock).not.toContain("swissmail:swissmail@postgres");
+    expect(backendBlock).not.toContain("S3_SECRET_KEY: minioadmin");
+
+    // Network isolation: infra on internal, proxy-facing services on proxy
+    expect(dockerComposeProdSource).toContain("networks:");
+    expect(dockerComposeProdSource).toContain("internal:");
+    expect(dockerComposeProdSource).toContain("proxy:");
   });
 
   it("renders a plain-http 5000 handoff listener that preserves upstream forwarded headers", () => {

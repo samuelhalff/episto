@@ -169,7 +169,8 @@ Current deployment target: **standalone VPS + `docker-compose.prod.yml`**.
 - Public HTTPS terminates in the `proxy` container on `80`/`443`
 - The public frontend host(s) route to `frontend:3000`
 - The public API path/host routes to `backend:4000`, driven by the production env file
-- `5000` is dev-only and must not be exposed in production
+- Local `5000` remains available as a plain-http handoff when an upstream edge proxy forwards into
+  the host instead of terminating directly in Docker
 - `docker-compose.prod.yml` renders its nginx config from `nginx/render-prod-proxy.sh` using
   `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_API_URL`, optional `PUBLIC_FRONTEND_SERVER_NAMES`, and
   optional `PUBLIC_TLS_CERT_NAME`
@@ -182,7 +183,9 @@ Before calling production infrastructure ready, verify:
 3. `SWISSMAIL_ENV_FILE=/etc/swissmail/production.env docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml up -d --build`
    brings up healthy `frontend`, `backend`, `worker`, `zefix-proxy`, and `proxy` containers
 4. Public `443` serves the frontend and the configured same-host `/api/*` path or API host serves backend routes
-5. `frontend:3000` and `backend:4000` stay internal-only and are not exposed as public entry points
+5. The local upstream handoff on `5000` responds when the edge proxy forwards `Host`,
+   `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Port`
+6. `frontend:3000` and `backend:4000` stay internal-only and are not exposed as public entry points
 
 ---
 
