@@ -57,7 +57,6 @@ export function PricingSimulator({
 }: {
   loading: boolean;
   provider: PricingProvider;
-  registeredSurchargeDisplayPrice: string | undefined;
   t: (key: string, values?: TranslationValues) => string;
 }) {
   const [deliveryType, setDeliveryType] = React.useState<"standard" | "registered">(

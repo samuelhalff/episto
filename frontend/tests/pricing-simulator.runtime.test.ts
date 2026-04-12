@@ -120,15 +120,13 @@ describe("pricing simulator runtime", () => {
 
   it("updates the live total when letter type or page count changes", async () => {
     const user = userEvent.setup();
+    const props: React.ComponentProps<typeof PricingSimulator> = {
+      loading: false,
+      provider: mockProviderBreakdown,
+      t,
+    };
 
-    render(
-      React.createElement(PricingSimulator, {
-        loading: false,
-        provider: mockProviderBreakdown,
-        registeredSurchargeDisplayPrice: "CHF 4.23",
-        t,
-      }),
-    );
+    render(React.createElement(PricingSimulator, props));
 
     expect(screen.getByText("Standard · 1 page")).toBeTruthy();
     expect(screen.getByText("CHF 4.95")).toBeTruthy();
