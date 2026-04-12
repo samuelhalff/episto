@@ -11,7 +11,7 @@ configuration.
 
 - Product name: **Episto**
 - Primary public domain: **`swissmail.ch`**
-- Public API domain: **`api.swissmail.ch`**
+- API routing: same-host `/api` path (no separate API subdomain)
 - Transactional email addresses:
   - `noreply@swissmail.ch`
   - `support@swissmail.ch`
@@ -22,7 +22,7 @@ configuration.
 
 - Use `Episto` in all user-facing strings and documentation unless a route or system contract
   requires a localized translation of the name, which is not currently planned.
-- Use `swissmail.ch` in public URL examples and `api.swissmail.ch` in API URL examples.
+- Use `swissmail.ch` in public URL examples. The API is served from the same host under `/api`.
 - Do not keep parallel placeholder variants such as `[ProductName]` or `[domain]` in live specs.
 - Do not re-open naming exploration inside implementation docs.
 

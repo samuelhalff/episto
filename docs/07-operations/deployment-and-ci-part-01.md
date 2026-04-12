@@ -74,7 +74,7 @@ To avoid port drift, treat these assignments as canonical:
 
 | Port         | Owner                          | Meaning                                                                     |
 | ------------ | ------------------------------ | --------------------------------------------------------------------------- |
-| `80` / `443` | Public domain edge             | Normal public HTTP/HTTPS for `ark-fid.ddns.net` and production domains      |
+| `80` / `443` | Public domain edge             | Public HTTP/HTTPS for the configured production domain                      |
 | `5000`       | Local Swiss Mail proxy handoff | Plain HTTP listener on the host for the upstream edge proxy to forward into |
 | `3000`       | Internal frontend service      | Next.js app behind the local proxy only                                     |
 | `4000`       | Internal backend service       | Fastify API behind the local proxy only                                     |
