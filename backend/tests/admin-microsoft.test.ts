@@ -6,7 +6,8 @@ vi.mock("../src/shared/config/index.js", () => ({
     ADMIN_MICROSOFT_CLIENT_ID: "swiss-mail-client-id",
     ADMIN_MICROSOFT_CLIENT_SECRET: "swiss-mail-client-secret",
     ADMIN_MICROSOFT_TENANT_ID: "common",
-    ADMIN_MICROSOFT_REDIRECT_URI: "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
+    ADMIN_MICROSOFT_REDIRECT_URI:
+      "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
   }),
 }));
 
@@ -42,7 +43,7 @@ describe("admin-microsoft helpers", () => {
 
     const result = await exchangeMicrosoftCodeForTokens(
       "code-123",
-      "https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback",
+      "https://app.example.com/api/v1/admin/auth/microsoft/callback",
     );
 
     expect(fetchMock).toHaveBeenCalledWith(
@@ -61,7 +62,7 @@ describe("admin-microsoft helpers", () => {
     expect(body.get("client_secret")).toBe("swiss-mail-client-secret");
     expect(body.get("code")).toBe("code-123");
     expect(body.get("redirect_uri")).toBe(
-      "https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback",
+      "https://app.example.com/api/v1/admin/auth/microsoft/callback",
     );
     expect(body.get("grant_type")).toBe("authorization_code");
     expect(result).toEqual({

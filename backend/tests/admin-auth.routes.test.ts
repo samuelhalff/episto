@@ -18,7 +18,8 @@ vi.mock("../src/shared/config/index.js", () => ({
     ADMIN_MICROSOFT_CLIENT_ID: "swiss-mail-client-id",
     ADMIN_MICROSOFT_CLIENT_SECRET: "swiss-mail-client-secret",
     ADMIN_MICROSOFT_TENANT_ID: "westbaysa-tenant",
-    ADMIN_MICROSOFT_REDIRECT_URI: "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
+    ADMIN_MICROSOFT_REDIRECT_URI:
+      "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
     ADMIN_SESSION_SECRET: "admin-session-secret-at-least-32-characters",
     ADMIN_SESSION_TTL_HOURS: 12,
   }),
@@ -118,14 +119,14 @@ describe("adminAuthRoutes", () => {
       method: "GET",
       url: "/admin/auth/microsoft/login?returnTo=%2Fen-CH%2Fhealth",
       headers: {
-        host: "ark-fid.ddns.net",
+        host: "app.example.com",
         "x-forwarded-proto": "https",
       },
     });
 
     expect(response.statusCode).toBe(302);
     expect(response.headers.location).toContain(
-      encodeURIComponent("https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback"),
+      encodeURIComponent("https://app.example.com/api/v1/admin/auth/microsoft/callback"),
     );
     expect(response.headers.location).not.toContain(
       encodeURIComponent("http://localhost:4000/api/v1/admin/auth/microsoft/callback"),
@@ -160,9 +161,7 @@ describe("adminAuthRoutes", () => {
     expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({ ok: true });
     expect(response.headers["set-cookie"]).toEqual(
-      expect.arrayContaining([
-        expect.stringContaining(`${ADMIN_SESSION_COOKIE_NAME}=;`),
-      ]),
+      expect.arrayContaining([expect.stringContaining(`${ADMIN_SESSION_COOKIE_NAME}=;`)]),
     );
   });
 
@@ -191,7 +190,7 @@ describe("adminAuthRoutes", () => {
       url: "/admin/auth/microsoft/callback?code=code-123&state=state-123",
       headers: {
         cookie: `${ADMIN_OAUTH_STATE_COOKIE_NAME}=${stateToken}`,
-        host: "ark-fid.ddns.net",
+        host: "app.example.com",
         "x-forwarded-proto": "https",
       },
     });
@@ -200,7 +199,7 @@ describe("adminAuthRoutes", () => {
     expect(response.headers.location).toBe("/en-CH/sessions");
     expect(exchangeMicrosoftCodeForTokens).toHaveBeenCalledWith(
       "code-123",
-      "https://ark-fid.ddns.net/api/v1/admin/auth/microsoft/callback",
+      "https://app.example.com/api/v1/admin/auth/microsoft/callback",
     );
     expect(response.headers["set-cookie"]).toEqual(
       expect.arrayContaining([
@@ -272,7 +271,7 @@ describe("adminAuthRoutes", () => {
       url: "/admin/auth/microsoft/callback?code=code-123&state=state-123",
       headers: {
         cookie: `${ADMIN_OAUTH_STATE_COOKIE_NAME}=${stateToken}`,
-        host: "ark-fid.ddns.net",
+        host: "app.example.com",
         "x-forwarded-proto": "https",
       },
     });

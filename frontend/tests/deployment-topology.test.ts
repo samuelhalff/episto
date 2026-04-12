@@ -83,7 +83,7 @@ describe("deployment topology", () => {
     );
   });
 
-  it("keeps the production compose file env-driven on public nginx 80/443", () => {
+  it("keeps the production compose file env-driven with the required local 5000 handoff", () => {
     const proxyBlock = getServiceBlock(dockerComposeProdSource, "proxy");
     const frontendBlock = getServiceBlock(dockerComposeProdSource, "frontend");
     const backendBlock = getServiceBlock(dockerComposeProdSource, "backend");
@@ -95,7 +95,7 @@ describe("deployment topology", () => {
 
     expect(proxyBlock).toContain('- "80:80"');
     expect(proxyBlock).toContain('- "443:443"');
-    expect(proxyBlock).not.toContain('- "5000:5000"');
+    expect(proxyBlock).toContain('- "5000:5000"');
     expect(proxyBlock).toContain(
       "./nginx/render-prod-proxy.sh:/etc/nginx/render-prod-proxy.sh:ro",
     );
@@ -137,6 +137,28 @@ describe("deployment topology", () => {
     expect(zefixProxyBlock).toContain("restart: unless-stopped");
   });
 
+  it("renders a plain-http 5000 handoff listener that preserves upstream forwarded headers", () => {
+    expect(renderProdProxySource).toContain("listen 5000;");
+    expect(renderProdProxySource).toContain(
+      "map \\$http_x_forwarded_proto \\$forwarded_proto {",
+    );
+    expect(renderProdProxySource).toContain(
+      "map \\$http_x_forwarded_host \\$forwarded_host {",
+    );
+    expect(renderProdProxySource).toContain(
+      "map \\$http_x_forwarded_port \\$forwarded_port {",
+    );
+    expect(renderProdProxySource).toContain(
+      "proxy_set_header X-Forwarded-Host  \\$forwarded_host;",
+    );
+    expect(renderProdProxySource).toContain(
+      "proxy_set_header X-Forwarded-Port  \\$forwarded_port;",
+    );
+    expect(renderProdProxySource).toContain(
+      "proxy_set_header X-Forwarded-Proto \\$forwarded_proto;",
+    );
+  });
+
   it("does not hardcode a production API origin in the frontend CSP", async () => {
     process.env.NEXT_PUBLIC_API_URL = "/api";
 
@@ -149,11 +171,11 @@ describe("deployment topology", () => {
   });
 
   it("adds the configured absolute API origin to the frontend CSP", async () => {
-    process.env.NEXT_PUBLIC_API_URL = "https://api.ark-fid.ddns.net";
+    process.env.NEXT_PUBLIC_API_URL = "https://api.app.example.com";
 
     const { buildContentSecurityPolicy } = await import("../next.config");
 
-    expect(buildContentSecurityPolicy(false)).toContain("https://api.ark-fid.ddns.net");
+    expect(buildContentSecurityPolicy(false)).toContain("https://api.app.example.com");
   });
 
   it("keeps same-host /api proxying even when a dedicated API host is configured", () => {
