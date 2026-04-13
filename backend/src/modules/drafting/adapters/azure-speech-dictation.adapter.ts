@@ -3,6 +3,7 @@ import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
 
 import { env } from "../../../shared/config/index.js";
 import { providerOutageError } from "../../../shared/errors/index.js";
+import { extractBufferedWavPcm } from "./buffered-wav-audio.js";
 
 const PCM_BITS_PER_SAMPLE = 16;
 const BATCH_TRANSCRIPTION_GRACE_MS = 15_000;
@@ -218,6 +219,7 @@ export async function transcribeBufferedWav(options: {
   locale: string;
   hints: string[];
 }): Promise<string> {
+  const pcmAudio = extractBufferedWavPcm(options.audioBuffer);
   const pushStream = createPushStream();
   const recognizer = createRecognizer(options.locale, pushStream, options.hints);
   const segments: string[] = [];
@@ -274,7 +276,7 @@ export async function transcribeBufferedWav(options: {
 
     recognizer.startContinuousRecognitionAsync(
       () => {
-        pushStream.write(toArrayBuffer(options.audioBuffer));
+        pushStream.write(toArrayBuffer(pcmAudio));
         pushStream.close();
       },
       (error) => {
