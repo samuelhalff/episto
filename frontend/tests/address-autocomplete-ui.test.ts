@@ -33,7 +33,9 @@ const messagesSource = readFileSync(
 describe("address autocomplete UI", () => {
   it("wires a shared address autocomplete field into sender and recipient flows", () => {
     expect(senderStepSource).toContain("AddressAutocompleteField");
-    expect(recipientStepSource).toContain('import { RecipientForm } from "./RecipientForm";');
+    expect(recipientStepSource).toContain(
+      'import { RecipientForm } from "./RecipientForm";',
+    );
     expect(recipientFormSource).toContain("AddressAutocompleteField");
     expect(senderStepSource).toContain("onResolutionStateChange");
     expect(recipientFormSource).toContain("onResolutionStateChange");
@@ -65,6 +67,7 @@ describe("address autocomplete UI", () => {
     expect(messagesSource).toContain('"addressSearchHint"');
     expect(messagesSource).toContain('"addressSearchApplyingSelection"');
     expect(messagesSource).toContain('"addressSearchSourceNote"');
+    expect(messagesSource).toContain('"addressSearchClear"');
     expect(messagesSource).toContain('"addressFieldsLoadingSelection"');
     expect(messagesSource).toContain('"searchingAddresses"');
     expect(messagesSource).toContain('"addressSearchUnavailable"');

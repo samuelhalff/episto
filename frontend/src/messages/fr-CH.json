@@ -378,6 +378,7 @@
     "addressSearchHint": "Commencez à saisir pour remplir l’adresse plus vite. Vous pouvez toujours modifier les champs ci-dessous.",
     "addressSearchApplyingSelection": "Application de l’adresse sélectionnée...",
     "addressSearchSourceNote": "Source : Office fédéral de topographie (swisstopo) via geo.admin.ch.",
+    "addressSearchClear": "Effacer",
     "addressFieldsLoadingSelection": "L’adresse sélectionnée est en cours de chargement dans les champs ci-dessous.",
     "searchingAddresses": "Suggestions d’adresse",
     "addressSearchUnavailable": "La recherche d’adresse est temporairement indisponible. Vous pouvez quand même saisir l’adresse manuellement ci-dessous.",

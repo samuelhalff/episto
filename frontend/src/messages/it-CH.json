@@ -378,6 +378,7 @@
     "addressSearchHint": "Inizia a digitare per compilare l’indirizzo più rapidamente. Puoi comunque modificare i campi qui sotto.",
     "addressSearchApplyingSelection": "Applicazione dell’indirizzo selezionato...",
     "addressSearchSourceNote": "Fonte: Ufficio federale di topografia (swisstopo) tramite geo.admin.ch.",
+    "addressSearchClear": "Cancella",
     "addressFieldsLoadingSelection": "L’indirizzo selezionato viene caricato nei campi qui sotto.",
     "searchingAddresses": "Suggerimenti indirizzo",
     "addressSearchUnavailable": "La ricerca dell’indirizzo è temporaneamente non disponibile. Puoi comunque inserire l’indirizzo manualmente qui sotto.",

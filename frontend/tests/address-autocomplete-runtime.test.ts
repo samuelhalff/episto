@@ -8,11 +8,15 @@ const messages = {
   addressSearchLabel: "Address search",
   addressSearchPlaceholder: "Search for an address",
   addressSearchHint: "Start typing to search.",
-  addressSearchSourceNote: "Source: Federal Office of Topography (swisstopo) via geo.admin.ch.",
+  addressSearchSourceNote:
+    "Source: Federal Office of Topography (swisstopo) via geo.admin.ch.",
   addressSearchApplyingSelection: "Applying the selected address...",
   addressSearchUnavailable:
     "Address search is temporarily unavailable. You can still enter the address manually below.",
   addressSearchNoResults: "No addresses found.",
+  addressSearchSelectionRequired:
+    "Choose an address suggestion or clear the search field to continue with manual entry below.",
+  addressSearchClear: "Clear",
   searchingAddresses: "Searching addresses",
 } as const;
 
@@ -33,12 +37,14 @@ vi.mock("../src/hooks/use-api", () => ({
 import { AddressAutocompleteField } from "../src/components/product/draft-flow/AddressAutocompleteField";
 import { ApiError } from "../src/lib/api";
 
-function createQueryState(overrides: {
-  data?: unknown;
-  error?: unknown;
-  isLoading?: boolean;
-  isFetching?: boolean;
-} = {}) {
+function createQueryState(
+  overrides: {
+    data?: unknown;
+    error?: unknown;
+    isLoading?: boolean;
+    isFetching?: boolean;
+  } = {},
+) {
   return {
     data: undefined,
     error: null,
@@ -84,7 +90,8 @@ describe("address autocomplete runtime behavior", () => {
         error: new ApiError(503, {
           error: {
             code: "PROVIDER_OUTAGE",
-            userMessage: "An external service is temporarily unavailable. Please try again shortly.",
+            userMessage:
+              "An external service is temporarily unavailable. Please try again shortly.",
           },
         }),
       }),
@@ -94,7 +101,9 @@ describe("address autocomplete runtime behavior", () => {
 
     expect(screen.getByText(messages.addressSearchUnavailable)).toBeTruthy();
     expect(
-      screen.queryByText("An external service is temporarily unavailable. Please try again shortly."),
+      screen.queryByText(
+        "An external service is temporarily unavailable. Please try again shortly.",
+      ),
     ).toBeNull();
     expect(screen.queryByText(messages.addressSearchSourceNote)).toBeNull();
   });
@@ -103,6 +112,45 @@ describe("address autocomplete runtime behavior", () => {
     renderField();
 
     expect(screen.getByText(messages.addressSearchSourceNote)).toBeTruthy();
+  });
+
+  it("swaps the helper copy for a single manual-entry hint and clears the query on demand", () => {
+    mocks.useAddressSearch.mockReturnValue(
+      createQueryState({
+        data: [
+          {
+            id: "addr:test-token",
+            label: "Bahnhofstrasse 1, 8001 Zürich",
+            primaryText: "Bahnhofstrasse 1",
+            secondaryText: "8001 Zürich",
+          },
+        ],
+      }),
+    );
+
+    renderField();
+
+    const sourceNote = screen.getByText(messages.addressSearchSourceNote);
+    const clearButton = screen.getByRole("button", { name: messages.addressSearchClear });
+    const input = screen.getByRole("textbox") as HTMLInputElement;
+
+    expect(sourceNote.className).toContain("text-[10px]");
+    expect(clearButton.disabled).toBe(true);
+
+    fireEvent.change(input, {
+      target: { value: "Bahnhofstrasse" },
+    });
+
+    expect(screen.getByText(messages.addressSearchSelectionRequired)).toBeTruthy();
+    expect(screen.queryByText(messages.addressSearchHint)).toBeNull();
+    expect(clearButton.disabled).toBe(false);
+
+    fireEvent.click(clearButton);
+
+    expect(input.value).toBe("");
+    expect(screen.getByText(messages.addressSearchHint)).toBeTruthy();
+    expect(screen.queryByText(messages.addressSearchSelectionRequired)).toBeNull();
+    expect(clearButton.disabled).toBe(true);
   });
 
   it("shows an applying state while the selected address details are still loading", () => {
@@ -150,7 +198,9 @@ describe("address autocomplete runtime behavior", () => {
 
     renderField();
 
-    expect(screen.getByText("Enter at least 3 characters to search for an address.")).toBeTruthy();
+    expect(
+      screen.getByText("Enter at least 3 characters to search for an address."),
+    ).toBeTruthy();
     expect(screen.queryByText(messages.addressSearchUnavailable)).toBeNull();
   });
 });

@@ -6,13 +6,7 @@ import {
   DictationTranscriptionResponseSchema,
   type DictationFieldContext,
 } from "@swiss-mail/shared";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  useSyncExternalStore,
-} from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { getApiUrl, getApiWebSocketUrl } from "../lib/api";
 import {
@@ -76,21 +70,16 @@ function appendTranscript(existing: string, next: string) {
 }
 
 function createDelay(ms: number) {
-  return new Promise<void>((resolve) => {
-    window.setTimeout(resolve, ms);
-  });
+  return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 }
 
-function buildDictationQuery(locale: string, fieldContext: DictationFieldContext, draftId?: string) {
-  const params = new URLSearchParams({
-    locale,
-    fieldContext,
-  });
-
-  if (draftId) {
-    params.set("draftId", draftId);
-  }
-
+function buildDictationQuery(
+  locale: string,
+  fieldContext: DictationFieldContext,
+  draftId?: string,
+) {
+  const params = new URLSearchParams({ locale, fieldContext });
+  if (draftId) params.set("draftId", draftId);
   return params.toString();
 }
 
@@ -99,7 +88,10 @@ function closeSocket(socket: WebSocket | null) {
     return;
   }
 
-  if (socket.readyState === WebSocket.CONNECTING || socket.readyState === WebSocket.OPEN) {
+  if (
+    socket.readyState === WebSocket.CONNECTING ||
+    socket.readyState === WebSocket.OPEN
+  ) {
     socket.close();
   }
 }
@@ -134,40 +126,6 @@ function mapStartError(error: unknown): DictationError {
   return "not_supported";
 }
 
-async function waitForSocketOpen(socket: WebSocket) {
-  if (socket.readyState === WebSocket.OPEN) {
-    return;
-  }
-
-  await new Promise<void>((resolve, reject) => {
-    const timeoutId = window.setTimeout(() => {
-      cleanup();
-      reject(new Error("Dictation socket did not open in time."));
-    }, 5000);
-
-    const cleanup = () => {
-      window.clearTimeout(timeoutId);
-      socket.removeEventListener("open", handleOpen);
-      socket.removeEventListener("error", handleFailure);
-      socket.removeEventListener("close", handleFailure);
-    };
-
-    const handleOpen = () => {
-      cleanup();
-      resolve();
-    };
-
-    const handleFailure = () => {
-      cleanup();
-      reject(new Error("Dictation socket failed to open."));
-    };
-
-    socket.addEventListener("open", handleOpen);
-    socket.addEventListener("error", handleFailure);
-    socket.addEventListener("close", handleFailure);
-  });
-}
-
 async function requestBufferedTranscription(options: {
   locale: string;
   fieldContext: DictationFieldContext;
@@ -178,7 +136,11 @@ async function requestBufferedTranscription(options: {
   const timeoutId = window.setTimeout(() => {
     abortController.abort();
   }, BUFFERED_TRANSCRIPTION_TIMEOUT_MS);
-  const query = buildDictationQuery(options.locale, options.fieldContext, options.draftId);
+  const query = buildDictationQuery(
+    options.locale,
+    options.fieldContext,
+    options.draftId,
+  );
   try {
     const response = await fetch(getApiUrl(`/v1/dictation/transcribe?${query}`), {
       method: "POST",
@@ -215,6 +177,7 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
   const captureRef = useRef<DictationCaptureSession | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const finalTextRef = useRef("");
+  const attemptBaseFinalTextRef = useRef("");
   const attemptIdRef = useRef(0);
   const currentAttemptFinalTextRef = useRef("");
   const isRecordingRef = useRef(false);
@@ -228,16 +191,16 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
     setIsRecording(value);
   }, []);
 
-  const appendFinalText = useCallback((nextText: string) => {
-    setFinalText((current) => {
-      const merged = appendTranscript(current, nextText);
-      finalTextRef.current = merged;
-      return merged;
-    });
+  const commitCurrentAttemptText = useCallback((nextText: string) => {
+    const merged = appendTranscript(attemptBaseFinalTextRef.current, nextText);
+    currentAttemptFinalTextRef.current = nextText.trim();
+    finalTextRef.current = merged;
+    setFinalText(merged);
   }, []);
 
   const resetText = useCallback(() => {
     finalTextRef.current = "";
+    attemptBaseFinalTextRef.current = "";
     currentAttemptFinalTextRef.current = "";
     setFinalText("");
     setInterimText("");
@@ -266,7 +229,9 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
           stopSignalRef.current = resolve;
         });
 
-        socket.send(JSON.stringify(DictationLiveClientEventSchema.parse({ type: "stop" })));
+        socket.send(
+          JSON.stringify(DictationLiveClientEventSchema.parse({ type: "stop" })),
+        );
         await Promise.race([stopSignal, createDelay(1500)]);
         closeSocket(socket);
       } else if (socket) {
@@ -294,7 +259,7 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
 
           if (transcript.trim()) {
             setError(null);
-            appendFinalText(transcript);
+            commitCurrentAttemptText(transcript);
           } else if (!hasLiveTranscript) {
             setError("no_speech");
           }
@@ -317,7 +282,12 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
         liveFailedRef.current = false;
       }
     }
-  }, [appendFinalText, options.draftId, options.fieldContext, setRecordingState]);
+  }, [
+    commitCurrentAttemptText,
+    options.draftId,
+    options.fieldContext,
+    setRecordingState,
+  ]);
 
   const stopRecordingRef = useRef(stopRecording);
   const localeRef = useRef("");
@@ -352,6 +322,7 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
 
       const attemptId = attemptIdRef.current + 1;
       attemptIdRef.current = attemptId;
+      attemptBaseFinalTextRef.current = finalTextRef.current;
       currentAttemptFinalTextRef.current = "";
       const query = buildDictationQuery(locale, options.fieldContext, options.draftId);
       const socket = new WebSocket(getApiWebSocketUrl(`/v1/dictation/live?${query}`));
@@ -360,6 +331,30 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       stopRequestedRef.current = false;
       setError(null);
       setInterimText("");
+      const queuedAudioChunks: Uint8Array[] = [];
+      let capture: DictationCaptureSession | null = null;
+      let socketOpened = socket.readyState === WebSocket.OPEN;
+
+      const flushQueuedAudio = () => {
+        if (attemptId !== attemptIdRef.current || socket.readyState !== WebSocket.OPEN) {
+          return;
+        }
+
+        for (const chunk of queuedAudioChunks) {
+          socket.send(chunk);
+        }
+
+        queuedAudioChunks.length = 0;
+      };
+
+      socket.onopen = () => {
+        if (attemptId !== attemptIdRef.current) {
+          return;
+        }
+
+        socketOpened = true;
+        flushQueuedAudio();
+      };
 
       socket.onmessage = (event) => {
         if (attemptId !== attemptIdRef.current) {
@@ -388,11 +383,9 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
             return;
           case "final":
             setInterimText("");
-            currentAttemptFinalTextRef.current = appendTranscript(
-              currentAttemptFinalTextRef.current,
-              parsed.data.text,
+            commitCurrentAttemptText(
+              appendTranscript(currentAttemptFinalTextRef.current, parsed.data.text),
             );
-            appendFinalText(parsed.data.text);
             return;
           case "error":
             liveFailedRef.current = true;
@@ -418,6 +411,11 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
         }
 
         liveFailedRef.current = true;
+
+        if (!socketOpened) {
+          closeSocket(socket);
+          socketRef.current = null;
+        }
       };
 
       socket.onclose = () => {
@@ -428,6 +426,11 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
         socketRef.current = null;
         stopSignalRef.current?.();
         stopSignalRef.current = null;
+
+        if (!socketOpened) {
+          liveFailedRef.current = true;
+          return;
+        }
 
         if (
           !stopRequestedRef.current &&
@@ -440,12 +443,18 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       };
 
       try {
-        await waitForSocketOpen(socket);
-        const capture = await startDictationCapture({
+        capture = await startDictationCapture({
           onPcmChunk: (chunk) => {
-            if (attemptId === attemptIdRef.current && socket.readyState === WebSocket.OPEN) {
-              socket.send(chunk);
+            if (attemptId !== attemptIdRef.current) {
+              return;
             }
+
+            if (socket.readyState === WebSocket.OPEN) {
+              socket.send(chunk);
+              return;
+            }
+
+            queuedAudioChunks.push(chunk);
           },
         });
 
@@ -461,6 +470,10 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
           return;
         }
 
+        if (capture) {
+          await capture.abort();
+        }
+
         closeSocket(socket);
         socketRef.current = null;
         setRecordingState(false);
@@ -468,7 +481,13 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
         setError(mapStartError(startError));
       }
     },
-    [appendFinalText, isSupported, options.draftId, options.fieldContext, setRecordingState],
+    [
+      commitCurrentAttemptText,
+      isSupported,
+      options.draftId,
+      options.fieldContext,
+      setRecordingState,
+    ],
   );
 
   return {

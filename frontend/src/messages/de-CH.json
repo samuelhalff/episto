@@ -378,6 +378,7 @@
     "addressSearchHint": "Beginne zu tippen, um die Adresse schneller zu übernehmen. Du kannst die Felder unten weiterhin bearbeiten.",
     "addressSearchApplyingSelection": "Die ausgewählte Adresse wird übernommen...",
     "addressSearchSourceNote": "Quelle: Bundesamt für Landestopografie (swisstopo) via geo.admin.ch.",
+    "addressSearchClear": "Leeren",
     "addressFieldsLoadingSelection": "Die ausgewählte Adresse wird in die Felder unten geladen.",
     "searchingAddresses": "Adressvorschläge",
     "addressSearchUnavailable": "Die Adresssuche ist vorübergehend nicht verfügbar. Du kannst die Adresse unten weiterhin manuell eingeben.",

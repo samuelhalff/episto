@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => {
     static CLOSING = 2;
     static CLOSED = 3;
     static instances: MockWebSocket[] = [];
+    static autoOpen = true;
 
     readonly url: string;
     readyState = MockWebSocket.CONNECTING;
@@ -34,7 +35,9 @@ const mocks = vi.hoisted(() => {
     constructor(url: string) {
       this.url = url;
       MockWebSocket.instances.push(this);
-      queueMicrotask(() => this.open());
+      if (MockWebSocket.autoOpen) {
+        queueMicrotask(() => this.open());
+      }
     }
 
     addEventListener(
@@ -122,6 +125,7 @@ function latestSocket() {
 describe("useDictation", () => {
   beforeEach(() => {
     mocks.MockWebSocket.instances.length = 0;
+    mocks.MockWebSocket.autoOpen = true;
     mocks.startDictationCapture.mockReset();
     vi.stubGlobal("WebSocket", mocks.MockWebSocket as unknown as typeof WebSocket);
     vi.stubGlobal("fetch", vi.fn());
@@ -216,6 +220,45 @@ describe("useDictation", () => {
     );
     expect(result.current.error).toBeNull();
     expect(result.current.isRecording).toBe(false);
+  });
+
+  it("replaces the current attempt transcript when buffered fallback covers audio that already produced live final text", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({ transcript: "First sentence. Second dictated sentence." }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    const stopCapture = vi.fn().mockResolvedValue(new Uint8Array([6, 6, 6]));
+    mocks.startDictationCapture.mockResolvedValue({
+      stop: stopCapture,
+      abort: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const { result } = renderHook(() => useDictation({ fieldContext: "entry" }));
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+
+    act(() => {
+      latestSocket()?.emitMessage({ type: "final", text: "First sentence." });
+      latestSocket()?.emitError();
+      latestSocket()?.close();
+    });
+
+    await waitFor(() => {
+      expect(result.current.finalText).toBe("First sentence. Second dictated sentence.");
+    });
+
+    expect(stopCapture).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.error).toBeNull();
   });
 
   it("falls back to buffered transcription when live dictation stops without a final transcript", async () => {
@@ -356,5 +399,97 @@ describe("useDictation", () => {
 
     expect(result.current.error).toBe("permission_denied");
     expect(result.current.isRecording).toBe(false);
+  });
+
+  it("starts microphone capture before the live socket finishes opening and flushes queued audio once ready", async () => {
+    mocks.MockWebSocket.autoOpen = false;
+
+    const stopCapture = vi.fn().mockResolvedValue(new Uint8Array([1, 2, 3]));
+    mocks.startDictationCapture.mockImplementation(async ({ onPcmChunk }) => {
+      onPcmChunk(new Uint8Array([4, 5, 6]));
+      return {
+        stop: stopCapture,
+        abort: vi.fn().mockResolvedValue(undefined),
+      };
+    });
+
+    const { result } = renderHook(() => useDictation({ fieldContext: "entry" }));
+
+    let startPromise: Promise<void> | undefined;
+    await act(async () => {
+      startPromise = result.current.startRecording("de-CH");
+      await Promise.resolve();
+    });
+
+    expect(mocks.startDictationCapture).toHaveBeenCalledTimes(1);
+
+    const socket = latestSocket();
+    expect(socket?.send).not.toHaveBeenCalled();
+
+    await act(async () => {
+      socket?.open();
+      if (!startPromise) {
+        throw new Error("Expected startRecording to return a promise");
+      }
+      await startPromise;
+    });
+
+    const firstPayload = socket?.send.mock.calls[0]?.[0];
+    expect(firstPayload).toBeInstanceOf(Uint8Array);
+    expect(Array.from(firstPayload as Uint8Array)).toEqual([4, 5, 6]);
+    expect(result.current.isRecording).toBe(true);
+  });
+
+  it("keeps recording and falls back to buffered transcription when the live socket fails before opening", async () => {
+    mocks.MockWebSocket.autoOpen = false;
+
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ transcript: "Buffered fallback still works." }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const stopCapture = vi.fn().mockResolvedValue(new Uint8Array([8, 8, 8]));
+    mocks.startDictationCapture.mockResolvedValue({
+      stop: stopCapture,
+      abort: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const { result } = renderHook(() => useDictation({ fieldContext: "entry" }));
+
+    const startPromise = result.current.startRecording("de-CH");
+    const socket = latestSocket();
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    act(() => {
+      socket?.emitError();
+      socket?.close();
+    });
+
+    await act(async () => {
+      await startPromise;
+    });
+
+    expect(result.current.isRecording).toBe(true);
+    expect(result.current.error).toBeNull();
+
+    await act(async () => {
+      await result.current.stopRecording();
+    });
+
+    expect(stopCapture).toHaveBeenCalledTimes(1);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.test/v1/dictation/transcribe?locale=de-CH&fieldContext=entry",
+      expect.objectContaining({
+        method: "POST",
+      }),
+    );
+    expect(result.current.finalText).toBe("Buffered fallback still works.");
+    expect(result.current.error).toBeNull();
   });
 });

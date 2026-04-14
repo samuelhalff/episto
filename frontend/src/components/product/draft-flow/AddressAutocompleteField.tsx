@@ -44,6 +44,7 @@ export function AddressAutocompleteField({
   const [hasUserInteracted, setHasUserInteracted] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] =
     useState<AddressSearchResultType | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const lastAppliedSuggestionIdRef = useRef<string | null>(null);
 
   const addressSummary = useMemo(() => {
@@ -93,7 +94,7 @@ export function AddressAutocompleteField({
     onResolutionStateChange?.({
       isResolving: isResolvingSelection,
       requiresSelection,
-      selectedLabel: isResolvingSelection ? selectedSuggestion?.label ?? null : null,
+      selectedLabel: isResolvingSelection ? (selectedSuggestion?.label ?? null) : null,
     });
   }, [
     isResolvingSelection,
@@ -131,6 +132,20 @@ export function AddressAutocompleteField({
     !addressSearch.isFetching &&
     !addressSearch.error &&
     results.length === 0;
+  const canClearQuery = query.trim().length > 0;
+
+  const helperMessage =
+    errorMessage ??
+    (shouldShowNoResults
+      ? t("addressSearchNoResults")
+      : requiresSelection && !isLoading
+        ? t("addressSearchSelectionRequired")
+        : t("addressSearchHint"));
+  const helperClassName = errorMessage
+    ? "text-sm text-amber-700 dark:text-amber-300"
+    : requiresSelection && !isLoading
+      ? "text-sm text-amber-700 dark:text-amber-300"
+      : "text-sm text-zinc-500 dark:text-zinc-300";
 
   function handleQueryChange(value: string) {
     setHasUserInteracted(true);
@@ -149,37 +164,56 @@ export function AddressAutocompleteField({
     lastAppliedSuggestionIdRef.current = null;
   }
 
+  function handleClearQuery() {
+    setHasUserInteracted(true);
+    setDraftQuery("");
+    setSelectedSuggestion(null);
+    lastAppliedSuggestionIdRef.current = null;
+    inputRef.current?.focus();
+  }
+
   return (
     <div className="space-y-3">
       <div className="space-y-1">
         <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
           {t("addressSearchLabel")}
         </div>
-        <div className="relative" aria-busy={isLoading}>
-          <input
-            name={inputName}
-            autoComplete="off"
-            inputMode="search"
-            spellCheck={false}
-            value={query}
-            onChange={(event) => handleQueryChange(event.target.value)}
-            onFocus={() => onFocusChange?.(true)}
-            onBlur={() => onFocusChange?.(false)}
-            placeholder={t("addressSearchPlaceholder")}
-            className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 pr-8 font-medium text-zinc-700 placeholder:text-zinc-300 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
-          />
-          {isLoading ? (
-            <Loader2 className="pointer-events-none absolute right-0 top-1 h-5 w-5 animate-spin text-zinc-300 dark:text-zinc-500" />
-          ) : (
-            <Search className="pointer-events-none absolute right-0 top-1 h-5 w-5 text-zinc-300 dark:text-zinc-600" />
-          )}
+        <div className="flex items-end gap-3">
+          <div className="relative flex-1" aria-busy={isLoading}>
+            <input
+              ref={inputRef}
+              name={inputName}
+              autoComplete="off"
+              inputMode="search"
+              spellCheck={false}
+              value={query}
+              onChange={(event) => handleQueryChange(event.target.value)}
+              onFocus={() => onFocusChange?.(true)}
+              onBlur={() => onFocusChange?.(false)}
+              placeholder={t("addressSearchPlaceholder")}
+              className="app-form-control w-full border-b border-zinc-100 bg-transparent pb-1 pr-8 font-medium text-zinc-700 placeholder:text-zinc-300 focus:outline-none dark:border-zinc-700 dark:text-zinc-200 dark:placeholder:text-zinc-500"
+            />
+            {isLoading ? (
+              <Loader2 className="pointer-events-none absolute right-0 top-1 h-5 w-5 animate-spin text-zinc-300 dark:text-zinc-500" />
+            ) : (
+              <Search className="pointer-events-none absolute right-0 top-1 h-5 w-5 text-zinc-300 dark:text-zinc-600" />
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={handleClearQuery}
+            disabled={!canClearQuery}
+            className="inline-flex min-h-10 shrink-0 items-center rounded-full border border-zinc-200 bg-white px-3.5 py-2 text-xs font-semibold text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-600 dark:hover:bg-zinc-900"
+          >
+            {t("addressSearchClear")}
+          </button>
         </div>
       </div>
 
       <div className="space-y-1">
-        <p className="text-sm text-zinc-500 dark:text-zinc-300">{t("addressSearchHint")}</p>
+        <p className={helperClassName}>{helperMessage}</p>
         {!hasProviderOutage ? (
-          <p className="text-[11px] leading-5 text-zinc-400 dark:text-zinc-500">
+          <p className="text-[10px] leading-4 text-zinc-400 dark:text-zinc-500">
             {t("addressSearchSourceNote")}
           </p>
         ) : null}
@@ -199,24 +233,6 @@ export function AddressAutocompleteField({
             {selectedSuggestion.label}
           </p>
         </div>
-      ) : null}
-
-      {errorMessage ? (
-        <p className="text-sm text-amber-700 dark:text-amber-300">
-          {errorMessage}
-        </p>
-      ) : null}
-
-      {shouldShowNoResults ? (
-        <p className="text-sm text-zinc-500 dark:text-zinc-300">
-          {t("addressSearchNoResults")}
-        </p>
-      ) : null}
-
-      {requiresSelection && !isLoading && !errorMessage ? (
-        <p className="text-sm text-amber-700 dark:text-amber-300">
-          {t("addressSearchSelectionRequired")}
-        </p>
       ) : null}
 
       {shouldShowResults ? (

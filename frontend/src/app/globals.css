@@ -422,10 +422,10 @@
 
   .homepage-hero-shell {
     background:
-      radial-gradient(circle at 16% 18%, rgba(250, 204, 21, 0.08), transparent 28%),
-      radial-gradient(circle at 84% 14%, rgba(245, 158, 11, 0.05), transparent 26%),
-      radial-gradient(circle at 74% 100%, rgba(250, 204, 21, 0.02), transparent 38%),
-      linear-gradient(180deg, #fdfbf8 0%, #faf6ef 58%, #f6efe5 100%);
+      radial-gradient(circle at 16% 18%, rgba(250, 204, 21, 0.05), transparent 26%),
+      radial-gradient(circle at 84% 14%, rgba(245, 158, 11, 0.03), transparent 24%),
+      radial-gradient(circle at 74% 100%, rgba(250, 204, 21, 0.01), transparent 34%),
+      linear-gradient(180deg, #fffdfa 0%, #fdfbf8 54%, #fbf8f2 100%);
   }
 
   .dark .homepage-hero-shell {

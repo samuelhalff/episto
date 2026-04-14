@@ -98,20 +98,25 @@ describe("shared button system", () => {
     expect(globalsCssSource).toContain("--action-primary-hover:");
     expect(globalsCssSource).toContain("--action-secondary-bg:");
     expect(globalsCssSource).toContain("--action-secondary-border:");
-    expect(globalsCssSource).toContain("--action-secondary-border: rgba(24, 24, 27, 0.16);");
+    expect(globalsCssSource).toContain(
+      "--action-secondary-border: rgba(24, 24, 27, 0.16);",
+    );
     expect(globalsCssSource).toContain("background-color: var(--action-primary-bg);");
     expect(globalsCssSource).toContain("background-color: var(--action-secondary-bg);");
   });
 
   it("gives shared secondary actions an explicit neutral border", () => {
-    expect(globalsCssSource).toContain("border: 1px solid var(--action-secondary-border);");
+    expect(globalsCssSource).toContain(
+      "border: 1px solid var(--action-secondary-border);",
+    );
   });
 
-  it("keeps the homepage hero secondary action as a ghost button in light theme", () => {
+  it("keeps the homepage hero secondary action as a dark outlined ghost button in light theme", () => {
     expect(marketingPrimitivesSource).toContain("bg-transparent");
-    expect(marketingPrimitivesSource).toContain("border-amber-300/60");
-    expect(marketingPrimitivesSource).toContain("hover:border-amber-300/80");
-    expect(marketingPrimitivesSource).toContain("hover:bg-transparent");
+    expect(marketingPrimitivesSource).toContain("border-zinc-950");
+    expect(marketingPrimitivesSource).toContain("text-zinc-950");
+    expect(marketingPrimitivesSource).toContain("hover:border-zinc-950");
+    expect(marketingPrimitivesSource).toContain("hover:bg-zinc-950/[0.03]");
   });
 
   it("routes reusable selector pills and menu CTAs through shared action classes", () => {
