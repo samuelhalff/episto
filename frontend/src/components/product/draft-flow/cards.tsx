@@ -37,22 +37,6 @@ interface ActionCardProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   unselectedClassName?: string | undefined;
 }
 
-export function FieldIconBadge({
-  children,
-  className = "",
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-[var(--app-surface-soft)] text-[var(--app-muted-strong)] shadow-sm ${className}`}
-    >
-      {children}
-    </div>
-  );
-}
-
 export function ActionCard({
   children,
   className = "",

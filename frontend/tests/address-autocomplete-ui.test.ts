@@ -17,6 +17,21 @@ const recipientFormSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/RecipientForm.tsx"),
   "utf8",
 );
+const addressAutocompleteFieldSource = readFileSync(
+  path.join(
+    repoRoot,
+    "frontend/src/components/product/draft-flow/AddressAutocompleteField.tsx",
+  ),
+  "utf8",
+);
+const draftFlowCardsSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/cards.tsx"),
+  "utf8",
+);
+const draftFlowUiSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/ui.tsx"),
+  "utf8",
+);
 const useApiSource = readFileSync(
   path.join(repoRoot, "frontend/src/hooks/use-api.ts"),
   "utf8",
@@ -80,5 +95,21 @@ describe("address autocomplete UI", () => {
     expect(addressFieldsSource).toContain("pendingSelectionLabel");
     expect(addressFieldsSource).toContain('aria-busy="true"');
     expect(addressFieldsSource).not.toContain('role="status"');
+  });
+
+  it("moves large search-form icons into compact title rows so the inputs keep full width", () => {
+    expect(senderStepSource).not.toContain("FieldIconBadge");
+    expect(senderStepSource).toContain('User className="h-3.5 w-3.5');
+    expect(recipientFormSource).not.toContain("FieldIconBadge");
+    expect(recipientFormSource).toContain('Building2 className="h-3.5 w-3.5');
+    expect(addressAutocompleteFieldSource).toContain("MapPin");
+    expect(addressAutocompleteFieldSource).toContain("justify-between");
+    expect(addressAutocompleteFieldSource).toContain("px-2");
+    expect(addressAutocompleteFieldSource).not.toContain(
+      'className="flex items-end gap-3"',
+    );
+    expect(recipientFormSource).not.toContain('className="pl-16"');
+    expect(draftFlowCardsSource).not.toContain("export function FieldIconBadge");
+    expect(draftFlowUiSource).not.toContain("FieldIconBadge");
   });
 });

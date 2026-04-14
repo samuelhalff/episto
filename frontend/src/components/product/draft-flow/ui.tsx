@@ -10,7 +10,6 @@ export {
   Card,
   ActionCard,
   DashedCard,
-  FieldIconBadge,
   PrimaryButton,
   SecondaryButton,
   ThreadActionCard,

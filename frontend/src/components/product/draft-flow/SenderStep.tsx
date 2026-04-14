@@ -1,8 +1,15 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslations } from "next-intl";
-import { User, MapPin } from "lucide-react";
+import { User } from "lucide-react";
 import {
   useDraft,
   useLetterPreview,
@@ -12,7 +19,7 @@ import {
 import { useQueuedAutosave } from "@/hooks/use-queued-autosave";
 import { ApiError } from "@/lib/api";
 import { captureException } from "@/lib/error-tracking";
-import { DraftShell, Card, FieldIconBadge, PrimaryButton } from "./ui";
+import { DraftShell, Card, PrimaryButton } from "./ui";
 import {
   AddressAutocompleteField,
   type AddressResolutionState,
@@ -61,9 +68,9 @@ export function SenderStep({
   const [postalCode, setPostalCode] = useState("");
   const [city, setCity] = useState("");
   const [requiresAddressSelection, setRequiresAddressSelection] = useState(false);
-  const [pendingAddressSelectionLabel, setPendingAddressSelectionLabel] = useState<string | null>(
-    null,
-  );
+  const [pendingAddressSelectionLabel, setPendingAddressSelectionLabel] = useState<
+    string | null
+  >(null);
   const hasHydratedRef = useRef(false);
 
   const senderForm = useMemo(
@@ -236,59 +243,50 @@ export function SenderStep({
           <div className="space-y-4">
             <Card isCompactViewport={isCompactViewport} density="thin">
               <div className="space-y-6">
-                <div className="flex items-start gap-4">
-                  <FieldIconBadge>
-                    <User className="h-6 w-6" />
-                  </FieldIconBadge>
-                  <div className="flex-1 space-y-1">
-                    <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                      {t("fullName")}
-                    </div>
-                    <textarea
-                      name="senderName"
-                      autoComplete="name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      onFocus={() => handleFocusChange(true)}
-                      onBlur={() => handleFocusChange(false)}
-                      onInput={(e) => {
-                        const target = e.target as HTMLTextAreaElement;
-                        target.style.height = "auto";
-                        target.style.height = `${target.scrollHeight}px`;
-                      }}
-                      placeholder={t("fullName")}
-                      rows={1}
-                      className="app-form-control w-full resize-none overflow-hidden bg-transparent font-bold text-zinc-900 focus:outline-none placeholder:text-zinc-200 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-                    />
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                    <User className="h-3.5 w-3.5 shrink-0" />
+                    <span>{t("fullName")}</span>
                   </div>
+                  <textarea
+                    name="senderName"
+                    autoComplete="name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    onFocus={() => handleFocusChange(true)}
+                    onBlur={() => handleFocusChange(false)}
+                    onInput={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      target.style.height = "auto";
+                      target.style.height = `${target.scrollHeight}px`;
+                    }}
+                    placeholder={t("fullName")}
+                    rows={1}
+                    className="app-form-control w-full resize-none overflow-hidden bg-transparent font-bold text-zinc-900 focus:outline-none placeholder:text-zinc-200 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                  />
                 </div>
 
-                <div className="flex items-start gap-4">
-                  <FieldIconBadge>
-                    <MapPin className="h-6 w-6" />
-                  </FieldIconBadge>
-                  <div className="flex-1 space-y-4">
-                    <AddressAutocompleteField
-                      draftId={draftId}
-                      inputName="senderAddressSearch"
-                      currentAddress={{ addressLine1, postalCode, city }}
-                      onResolvedAddress={handleResolvedAddress}
-                      onResolutionStateChange={handleResolutionStateChange}
-                      onFocusChange={handleFocusChange}
-                    />
-                    <AddressFields
-                      namePrefix="sender"
-                      addressLine1={addressLine1}
-                      postalCode={postalCode}
-                      city={city}
-                      onAddressLine1Change={setAddressLine1}
-                      onPostalCodeChange={setPostalCode}
-                      onCityChange={setCity}
-                      isResolvingSelection={isResolvingSelection}
-                      pendingSelectionLabel={pendingAddressSelectionLabel}
-                      onFocusChange={handleFocusChange}
-                    />
-                  </div>
+                <div className="space-y-4">
+                  <AddressAutocompleteField
+                    draftId={draftId}
+                    inputName="senderAddressSearch"
+                    currentAddress={{ addressLine1, postalCode, city }}
+                    onResolvedAddress={handleResolvedAddress}
+                    onResolutionStateChange={handleResolutionStateChange}
+                    onFocusChange={handleFocusChange}
+                  />
+                  <AddressFields
+                    namePrefix="sender"
+                    addressLine1={addressLine1}
+                    postalCode={postalCode}
+                    city={city}
+                    onAddressLine1Change={setAddressLine1}
+                    onPostalCodeChange={setPostalCode}
+                    onCityChange={setCity}
+                    isResolvingSelection={isResolvingSelection}
+                    pendingSelectionLabel={pendingAddressSelectionLabel}
+                    onFocusChange={handleFocusChange}
+                  />
                 </div>
               </div>
             </Card>
