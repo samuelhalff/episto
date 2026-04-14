@@ -2,12 +2,10 @@ import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import { HelpCircle, Mail } from "lucide-react";
 import { JsonLd } from "@/components/marketing/JsonLd";
+import { HelpPageCta } from "@/components/marketing/HelpPageCta";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
-import {
-  MarketingActionLink,
-  MarketingCard,
-  MarketingSection,
-} from "@/components/marketing/primitives";
+import { buildHelpFaqs } from "@/components/marketing/faq-content";
+import { MarketingCard, MarketingSection } from "@/components/marketing/primitives";
 import {
   MarketingBody,
   MarketingHeading,
@@ -40,16 +38,7 @@ export default async function HelpPage({
   const t = await getTranslations({ locale, namespace: "help" });
   const tm = await getTranslations({ locale, namespace: "marketing" });
 
-  const faqs = [
-    { question: t("faq1q"), answer: t("faq1a") },
-    { question: t("faq2q"), answer: t("faq2a") },
-    { question: t("faq3q"), answer: t("faq3a") },
-    { question: t("faq4q"), answer: t("faq4a") },
-    { question: t("faq5q"), answer: t("faq5a") },
-    { question: t("faq6q"), answer: t("faq6a") },
-    { question: t("faq7q"), answer: t("faq7a") },
-    { question: t("faq8q"), answer: t("faq8a") },
-  ];
+  const faqs = buildHelpFaqs(t);
 
   return (
     <>
@@ -73,21 +62,19 @@ export default async function HelpPage({
           </div>
           <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:mt-12 md:grid-cols-2 md:gap-5">
             {faqs.map((faq) => (
-              <FaqCard key={faq.question} question={faq.question} answer={faq.answer} />
+              <FaqCard key={faq.id} question={faq.question} answer={faq.answer} />
             ))}
           </div>
         </MarketingSection>
 
         {/* Write a letter CTA */}
         <MarketingSection spacing="tight">
-          <div className="mx-auto max-w-2xl text-center">
-            <MarketingActionLink
-              href="/draft/new"
-              className="cta-sheen sm:px-8 sm:py-4 sm:text-base"
-            >
-              {tm("ctaButton")}
-            </MarketingActionLink>
-          </div>
+          <HelpPageCta
+            eyebrow={t("ctaEyebrow")}
+            title={t("ctaTitle")}
+            body={t("ctaBody")}
+            actionLabel={tm("ctaButton")}
+          />
         </MarketingSection>
 
         {/* Contact — below FAQs */}

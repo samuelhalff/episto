@@ -96,6 +96,8 @@ describe("page spacing contracts", () => {
     expect(helpPageSource).toContain('spacing="compact"');
     expect(helpPageSource).toContain('spacing="tight"');
     expect(helpPageSource).toContain("trimTop");
+    expect(helpPageSource).toContain("HelpPageCta");
+    expect(helpPageSource).not.toContain('className="mx-auto max-w-2xl text-center"');
 
     expect(pricingTiersSource).toContain('spacing="tight"');
     expect(pricingTiersSource).toContain("trimTop");

@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "node",
-    include: ["**/*.test.ts"],
+    include: ["**/*.test.{ts,tsx}"],
     env: {
       NEXT_PUBLIC_SITE_URL: "https://example.test",
       NEXT_PUBLIC_API_URL: "/api",
