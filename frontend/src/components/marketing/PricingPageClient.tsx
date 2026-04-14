@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { usePricing } from "@/hooks/use-pricing";
+import { buildPricingFaqs } from "./faq-content";
 import { PricingCtaSection } from "./PricingCta";
 import { PricingFaqSection } from "./PricingFaq";
 export { PricingHeroPanel } from "./PricingHero";
@@ -10,6 +11,7 @@ import { PricingTiersSection } from "./PricingTiers";
 
 export function PricingBreakdownSection() {
   const t = useTranslations("pricing");
+  const helpT = useTranslations("help");
   const pricing = usePricing();
   const standard = pricing.data?.standard ?? null;
   const registered = pricing.data?.registered ?? null;
@@ -18,15 +20,7 @@ export function PricingBreakdownSection() {
   const showPriceSections = pricing.isLoading || hasPricingData;
   const showMissingPricingNotice =
     pricing.isError && !pricing.isLoading && !hasPricingData;
-  const pricingFaqs = useMemo(
-    () => [
-      { question: t("faq1q"), answer: t("faq1a") },
-      { question: t("faq2q"), answer: t("faq2a") },
-      { question: t("faq3q"), answer: t("faq3a") },
-      { question: t("faq4q"), answer: t("faq4a") },
-    ],
-    [t],
-  );
+  const pricingFaqs = useMemo(() => buildPricingFaqs(helpT), [helpT]);
 
   return (
     <>

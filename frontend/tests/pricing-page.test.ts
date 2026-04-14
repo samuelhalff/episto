@@ -442,6 +442,15 @@ describe("pricing page presentation", () => {
     expect(markup).not.toContain("Choose your delivery");
     expect(markup).not.toContain("Pricing simulator");
   });
+
+  it("renders pricing FAQs from the shared help namespace when pricing-local FAQ keys are absent", () => {
+    const markup = renderPricingSections();
+
+    expect(markup).toContain(enCH.help.faq5q);
+    expect(markup).toContain(enCH.help.faq5a);
+    expect(markup).toContain(enCH.help.faq7q);
+    expect(markup).toContain(enCH.help.faq8q);
+  });
 });
 
 describe("pricing page source contract", () => {
@@ -472,6 +481,12 @@ describe("pricing page source contract", () => {
     expect(pricingSimulatorSource).not.toContain(
       'className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4"',
     );
+    expect(pricingPageClientSource).toContain('useTranslations("help")');
+    expect(pricingPageClientSource).toContain("buildPricingFaqs");
+    expect(pricingPageClientSource).not.toContain('t("faq1q")');
+    expect(pricingPageClientSource).not.toContain('t("faq2q")');
+    expect(pricingPageClientSource).not.toContain('t("faq3q")');
+    expect(pricingPageClientSource).not.toContain('t("faq4q")');
     expect(pricingTiersSource).not.toContain('t("pricingTableTitle")');
     expect(pricingTiersSource).not.toContain('t("summaryCardBody")');
     expect(pricingTiersSource).not.toContain('t("addOnsTitle")');
