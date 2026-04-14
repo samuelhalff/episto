@@ -2,9 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminRetention } from "../admin-api";
-import { MetricCard, SectionPanel, PanelLoading, PanelError } from "../admin-metric-panels";
+import {
+  MetricCard,
+  SectionPanel,
+  PanelLoading,
+  PanelError,
+} from "../admin-metric-panels";
 
 export default function RetentionPage() {
   const { authenticated } = useAdminAuth();
@@ -17,7 +23,7 @@ export default function RetentionPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
         Retention
       </h1>

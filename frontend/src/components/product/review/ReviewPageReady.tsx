@@ -5,11 +5,7 @@ import { useTranslations } from "next-intl";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { DraftLetter, DispatchQuote } from "@swiss-mail/shared";
 import { ChevronRight, ArrowLeft } from "lucide-react";
-import {
-  useUpdateDraft,
-  useReviewDraft,
-  useTransitionDraft,
-} from "@/hooks/use-api";
+import { useUpdateDraft, useReviewDraft, useTransitionDraft } from "@/hooks/use-api";
 import type { UseLetterPreviewReturn } from "@/hooks/use-letter-preview";
 import type { FileAsset } from "@swiss-mail/shared";
 import { useRouter } from "@/i18n/navigation";
@@ -25,6 +21,10 @@ import { useReviewPrimaryActionState } from "./review-action-state";
 import { formatCentsAsCHF } from "@/hooks/use-pricing";
 import { captureException } from "@/lib/error-tracking";
 import { getApiErrorUserMessage } from "@/lib/api";
+import {
+  APP_PAGE_STACK_CLASS_NAME,
+  APP_WIDE_PAGE_SHELL_CLASS_NAME,
+} from "@/components/layout/page-spacing";
 import { getCustomerFlowPath } from "@/lib/customer-flow";
 import {
   getAddressLines,
@@ -269,7 +269,11 @@ export function ReviewPageReady({
 
       <main
         id="main-content"
-        className="mx-auto max-w-7xl space-y-8 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-[calc(12rem+env(safe-area-inset-bottom))]"
+        className={[
+          APP_WIDE_PAGE_SHELL_CLASS_NAME,
+          APP_PAGE_STACK_CLASS_NAME,
+          "pb-[calc(11rem+env(safe-area-inset-bottom))] lg:pb-[calc(12rem+env(safe-area-inset-bottom))]",
+        ].join(" ")}
       >
         <div className="max-w-2xl">
           <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
@@ -313,7 +317,9 @@ export function ReviewPageReady({
             <ReviewSummaryCard
               title={t("summaryTitle")}
               description={t("reviewReadOnly")}
-              statusTone={isRenderPending ? "warning" : allComplete ? "success" : "warning"}
+              statusTone={
+                isRenderPending ? "warning" : allComplete ? "success" : "warning"
+              }
               statusLabel={
                 isRenderPending
                   ? t("calculatingPrice")
@@ -367,11 +373,7 @@ export function ReviewPageReady({
           <>
             {!alreadyPrepared ? (
               <div className="lg:hidden">
-                <DraftStepMenu
-                  draftId={draftId}
-                  draft={draftData}
-                  fullWidth
-                />
+                <DraftStepMenu draftId={draftId} draft={draftData} fullWidth />
               </div>
             ) : null}
             <ActionButton

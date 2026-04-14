@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { MarketingActionLink, MarketingBadge } from "./primitives";
+import { MarketingBody, MarketingHeading } from "./typography";
 
 interface HeroAction {
   href: string;
@@ -48,12 +49,15 @@ export function MarketingHero({
             <Sparkles className="h-4 w-4" />
             {eyebrow}
           </MarketingBadge>
-          <h1 className="mt-6 max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.05em] text-zinc-950 dark:text-zinc-50 sm:text-5xl md:text-6xl">
+          <MarketingHeading
+            as="h1"
+            className="mt-6 max-w-4xl text-4xl font-semibold leading-[0.98] tracking-[-0.05em] sm:text-5xl md:text-6xl"
+          >
             {title}
-          </h1>
-          <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-600 dark:text-zinc-300 md:text-lg md:leading-8">
+          </MarketingHeading>
+          <MarketingBody className="mt-5 max-w-2xl text-base leading-7 md:text-lg md:leading-8">
             {subtitle}
-          </p>
+          </MarketingBody>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
             <MarketingActionLink
               href={primaryAction.href}

@@ -1,8 +1,10 @@
 import { useTranslations } from "next-intl";
+import { Suspense } from "react";
 import { Link } from "../../i18n/navigation";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { MarketingCard } from "./primitives";
+import { MarketingMeta } from "./typography";
 
 export function Footer() {
   const t = useTranslations("marketing");
@@ -15,33 +17,56 @@ export function Footer() {
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10">
         <MarketingCard className="flex flex-col gap-5 rounded-3xl p-5 md:flex-row md:items-center md:justify-between">
-          <nav
+          <MarketingMeta
+            as="nav"
             aria-label="Footer navigation"
-            className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-zinc-500 dark:text-zinc-400"
+            tone="muted"
+            className="flex flex-wrap gap-x-6 gap-y-3 text-sm"
           >
-            <Link href="/help" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+            <Link
+              href="/help"
+              className="transition-colors hover:text-zinc-950 dark:hover:text-white"
+            >
               {t("footer.help")}
             </Link>
-            <Link href="/privacy" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+            <Link
+              href="/privacy"
+              className="transition-colors hover:text-zinc-950 dark:hover:text-white"
+            >
               {t("footer.privacy")}
             </Link>
-            <Link href="/terms" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+            <Link
+              href="/terms"
+              className="transition-colors hover:text-zinc-950 dark:hover:text-white"
+            >
               {t("footer.terms")}
             </Link>
-            <Link href="/imprint" className="transition-colors hover:text-zinc-950 dark:hover:text-white">
+            <Link
+              href="/imprint"
+              className="transition-colors hover:text-zinc-950 dark:hover:text-white"
+            >
               {t("footer.imprint")}
             </Link>
-          </nav>
+          </MarketingMeta>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <ThemeToggle compact />
-            <LanguageSwitcher />
+            <ThemeToggle className="w-full justify-between sm:w-auto" />
+            <Suspense
+              fallback={
+                <div
+                  aria-hidden="true"
+                  className="min-h-12 w-full sm:min-w-[10.5rem] sm:w-auto"
+                />
+              }
+            >
+              <LanguageSwitcher variant="menu" className="w-full sm:w-auto" />
+            </Suspense>
           </div>
         </MarketingCard>
 
-        <p className="text-center text-sm text-zinc-400 dark:text-zinc-500 md:text-left">
+        <MarketingMeta className="text-center text-sm md:text-left">
           {t("footer.copyright")}
-        </p>
+        </MarketingMeta>
       </div>
     </footer>
   );

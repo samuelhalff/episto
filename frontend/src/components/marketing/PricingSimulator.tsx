@@ -11,6 +11,12 @@ import {
 import { MarketingCard, MarketingNotice } from "./primitives";
 import { PriceAmount, PricingValueRow } from "./pricing-shared";
 import type { PricingProvider } from "./pricing-types";
+import {
+  getMarketingBodyToneClassName,
+  MarketingBody,
+  MarketingHeading,
+  MarketingMeta,
+} from "./typography";
 import { Input } from "../ui/input";
 
 type TranslationValues = Record<string, string | number | Date>;
@@ -43,7 +49,8 @@ function StepperButton({
       disabled={disabled}
       onClick={onClick}
       className={cx(
-        "inline-flex h-10 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white text-zinc-700 shadow-sm transition hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 sm:w-11 dark:border-zinc-800 dark:bg-zinc-950/40 dark:text-zinc-300 dark:hover:text-zinc-50",
+        "inline-flex h-10 w-12 items-center justify-center rounded-xl border border-zinc-200 bg-white shadow-sm transition hover:text-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 sm:w-11 dark:border-zinc-800 dark:bg-zinc-950/40 dark:hover:text-zinc-50",
+        getMarketingBodyToneClassName("label"),
       )}
     >
       {children}
@@ -88,8 +95,14 @@ function DeliveryTypeSelector({
             className={cx(
               "w-full rounded-2.5xl px-4 py-3 text-left text-sm transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60",
               selected
-                ? "bg-zinc-950 text-white shadow-lg dark:bg-amber-400 dark:text-zinc-950"
-                : "app-panel text-zinc-600 hover:bg-[var(--app-surface-soft)] dark:text-zinc-300",
+                ? cx(
+                    "bg-zinc-950 shadow-lg dark:bg-amber-400",
+                    getMarketingBodyToneClassName("contrast"),
+                  )
+                : cx(
+                    "app-panel hover:bg-[var(--app-surface-soft)]",
+                    getMarketingBodyToneClassName("default"),
+                  ),
             )}
           >
             <div className="flex items-center gap-3">
@@ -97,22 +110,22 @@ function DeliveryTypeSelector({
                 className={cx(
                   "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-lg border",
                   selected
-                    ? "border-white/40 bg-white/15 text-white dark:border-zinc-950/20 dark:bg-zinc-950/10 dark:text-zinc-950"
+                    ? cx(
+                        "border-white/40 bg-white/15 dark:border-zinc-950/20 dark:bg-zinc-950/10",
+                        getMarketingBodyToneClassName("contrast"),
+                      )
                     : "border-zinc-300 bg-white text-transparent dark:border-zinc-700 dark:bg-zinc-950",
                 )}
               >
                 <CheckCircle2 className="h-3.5 w-3.5" />
               </span>
-              <span
-                className={cx(
-                  "min-w-0 font-semibold",
-                  selected
-                    ? "text-white dark:text-zinc-950"
-                    : "text-zinc-900 dark:text-zinc-50",
-                )}
+              <MarketingBody
+                as="span"
+                tone={selected ? "inherit" : "emphasis"}
+                className="min-w-0 font-semibold"
               >
                 {option.label}
-              </span>
+              </MarketingBody>
             </div>
           </button>
         );
@@ -162,15 +175,15 @@ export function PricingSimulator({
 
   return (
     <MarketingCard tone="muted">
-      <h3 className="text-2xl font-semibold tracking-[-0.03em] text-zinc-950 dark:text-zinc-50">
+      <MarketingHeading as="h3" className="text-2xl font-semibold tracking-[-0.03em]">
         {t("simulatorTitle")}
-      </h3>
+      </MarketingHeading>
 
       <div className="mt-6 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
-          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <MarketingBody as="p" tone="label" className="text-sm font-medium">
             {t("letterTypeLabel")}
-          </p>
+          </MarketingBody>
           <DeliveryTypeSelector
             disabled={loading}
             selectedType={deliveryType}
@@ -180,9 +193,9 @@ export function PricingSimulator({
         </div>
 
         <div className="min-w-0">
-          <p className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+          <MarketingBody as="p" tone="label" className="text-sm font-medium">
             {t("pagesLabel")}
-          </p>
+          </MarketingBody>
           <div className="mt-2 flex items-center gap-2">
             <StepperButton
               ariaLabel={t("decreasePagesLabel")}
@@ -209,9 +222,9 @@ export function PricingSimulator({
               <Plus className="h-5 w-5" />
             </StepperButton>
           </div>
-          <p className="mt-2 text-xs leading-5 text-zinc-500 dark:text-zinc-400">
+          <MarketingMeta tone="muted" className="mt-2 text-xs leading-5">
             {t("pageLimitNote", { maxPages: LETTER_MAX_PAGE_COUNT })}
-          </p>
+          </MarketingMeta>
         </div>
       </div>
 
@@ -219,7 +232,7 @@ export function PricingSimulator({
         <div className="mt-6 rounded-3xl border border-zinc-200/80 bg-white px-5 py-4 dark:border-zinc-800 dark:bg-zinc-950/30">
           <PricingValueRow
             label={summary}
-            labelClassName="font-medium text-zinc-700 dark:text-zinc-200"
+            labelClassName="font-medium"
             valueClassName="text-xl tracking-[-0.03em]"
             value={
               <PriceAmount
@@ -231,21 +244,21 @@ export function PricingSimulator({
           />
 
           {loading || perPageIncrement ? (
-            <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+            <MarketingBody className="mt-2 text-sm leading-6">
               {additionalPageLabel}{" "}
-              <span className="font-medium text-zinc-950 dark:text-zinc-50">
+              <MarketingBody as="span" tone="emphasis" className="font-medium">
                 <PriceAmount
                   loading={loading}
                   value={perPageIncrement}
                   fallback={t("priceUnavailable")}
                 />
-              </span>
-            </p>
+              </MarketingBody>
+            </MarketingBody>
           ) : null}
         </div>
       ) : (
-        <MarketingNotice className="mt-6 text-zinc-600 dark:text-zinc-300">
-          {t("priceUnavailable")}
+        <MarketingNotice className="mt-6">
+          <MarketingBody>{t("priceUnavailable")}</MarketingBody>
         </MarketingNotice>
       )}
     </MarketingCard>

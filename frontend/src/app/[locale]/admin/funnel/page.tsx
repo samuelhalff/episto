@@ -12,6 +12,7 @@ import {
   PanelLoading,
   PanelError,
 } from "../admin-metric-panels";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 
 const REFETCH_MS = 15_000;
 
@@ -35,7 +36,7 @@ export default function FunnelPage() {
   const funnelData = funnel.data;
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
           Funnel Analysis
@@ -52,65 +53,77 @@ export default function FunnelPage() {
         ) : funnelData ? (
           <div className="space-y-1">
             {funnelData.steps.length === 0 ? (
-              <p className="py-8 text-center text-xs" style={{ color: "var(--app-muted)" }}>
+              <p
+                className="py-8 text-center text-xs"
+                style={{ color: "var(--app-muted)" }}
+              >
                 No funnel data for this period
               </p>
-            ) : funnelData.steps.map((step, i) => {
-              const maxCount = funnelData.steps[0]?.count ?? 1;
-              const pct = maxCount > 0 ? Math.round((step.count / maxCount) * 100) : 0;
-              return (
-                <div key={step.stage}>
-                  <div className="flex items-center gap-3 py-2">
-                    <span
-                      className="w-24 shrink-0 text-right text-xs font-medium"
-                      style={{ color: "var(--app-fg)" }}
-                    >
-                      {step.stage}
-                    </span>
-                    <div
-                      className="h-8 flex-1 overflow-hidden rounded"
-                      style={{ background: "var(--app-surface-muted)" }}
-                    >
-                      <div
-                        className="flex h-full items-center rounded px-3 transition-all duration-500"
-                        style={{
-                          width: `${Math.max(pct, 2)}%`,
-                          background: "var(--app-fg)",
-                          opacity: 0.15 + 0.6 * (1 - i / Math.max(funnelData.steps.length - 1, 1)),
-                        }}
+            ) : (
+              funnelData.steps.map((step, i) => {
+                const maxCount = funnelData.steps[0]?.count ?? 1;
+                const pct = maxCount > 0 ? Math.round((step.count / maxCount) * 100) : 0;
+                return (
+                  <div key={step.stage}>
+                    <div className="flex items-center gap-3 py-2">
+                      <span
+                        className="w-24 shrink-0 text-right text-xs font-medium"
+                        style={{ color: "var(--app-fg)" }}
                       >
-                        <span
-                          className="text-xs font-medium"
-                          style={{ color: "var(--app-fg)" }}
+                        {step.stage}
+                      </span>
+                      <div
+                        className="h-8 flex-1 overflow-hidden rounded"
+                        style={{ background: "var(--app-surface-muted)" }}
+                      >
+                        <div
+                          className="flex h-full items-center rounded px-3 transition-all duration-500"
+                          style={{
+                            width: `${Math.max(pct, 2)}%`,
+                            background: "var(--app-fg)",
+                            opacity:
+                              0.15 +
+                              0.6 * (1 - i / Math.max(funnelData.steps.length - 1, 1)),
+                          }}
                         >
-                          {step.count}
-                        </span>
+                          <span
+                            className="text-xs font-medium"
+                            style={{ color: "var(--app-fg)" }}
+                          >
+                            {step.count}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <span
-                      className="w-14 text-right font-mono text-xs"
-                      style={{ color: "var(--app-muted)" }}
-                    >
-                      {pct}%
-                    </span>
-                  </div>
-                  {/* Dropoff indicator between stages */}
-                  {i < funnelData.steps.length - 1 && step.dropOffPercent != null && step.dropOffPercent > 0 && (
-                    <div className="flex items-center gap-3 pb-1">
-                      <span className="w-24" />
-                      <span className="text-[11px]" style={{ color: "var(--app-muted)" }}>
-                        ↓ {step.dropOffPercent}% drop-off
+                      <span
+                        className="w-14 text-right font-mono text-xs"
+                        style={{ color: "var(--app-muted)" }}
+                      >
+                        {pct}%
                       </span>
                     </div>
-                  )}
-                </div>
-              );
-            })}
+                    {/* Dropoff indicator between stages */}
+                    {i < funnelData.steps.length - 1 &&
+                      step.dropOffPercent != null &&
+                      step.dropOffPercent > 0 && (
+                        <div className="flex items-center gap-3 pb-1">
+                          <span className="w-24" />
+                          <span
+                            className="text-[11px]"
+                            style={{ color: "var(--app-muted)" }}
+                          >
+                            ↓ {step.dropOffPercent}% drop-off
+                          </span>
+                        </div>
+                      )}
+                  </div>
+                );
+              })
+            )}
             <div className="mt-3 text-right">
-                <span className="text-xs font-medium" style={{ color: "var(--app-muted)" }}>
-                  Overall conversion: {funnelData.overallConversionPercent}%
-                </span>
-              </div>
+              <span className="text-xs font-medium" style={{ color: "var(--app-muted)" }}>
+                Overall conversion: {funnelData.overallConversionPercent}%
+              </span>
+            </div>
           </div>
         ) : null}
       </SectionPanel>

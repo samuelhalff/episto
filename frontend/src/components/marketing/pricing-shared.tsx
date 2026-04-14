@@ -3,16 +3,21 @@
 import type { ReactNode } from "react";
 import { Check, X } from "lucide-react";
 import { cx } from "./primitives";
+import { MarketingBody, MarketingMeta } from "./typography";
 
 export function SyncDetail({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-white/70 px-4 py-4 dark:bg-zinc-950/30">
-      <dt className="text-xs font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+      <MarketingMeta
+        as="dt"
+        tone="muted"
+        className="text-xs font-semibold uppercase tracking-[0.14em]"
+      >
         {label}
-      </dt>
-      <dd className="mt-2 text-sm font-medium text-zinc-950 dark:text-zinc-50">
+      </MarketingMeta>
+      <MarketingBody as="dd" tone="emphasis" className="mt-2 text-sm font-medium">
         {value}
-      </dd>
+      </MarketingBody>
     </div>
   );
 }
@@ -46,21 +51,15 @@ export function PricingValueRow({
 }) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-4">
-      <span
-        className={cx(
-          "min-w-0 text-sm leading-6 text-zinc-600 dark:text-zinc-400",
-          labelClassName,
-        )}
-      >
-        {label}
+      <span className={cx("min-w-0", labelClassName)}>
+        <MarketingBody as="span" tone="soft" className="text-sm leading-6">
+          {label}
+        </MarketingBody>
       </span>
-      <span
-        className={cx(
-          "shrink-0 text-right text-sm font-semibold text-zinc-950 dark:text-zinc-50",
-          valueClassName,
-        )}
-      >
-        {value}
+      <span className={cx("shrink-0 text-right", valueClassName)}>
+        <MarketingBody as="span" tone="emphasis" className="text-sm font-semibold">
+          {value}
+        </MarketingBody>
       </span>
     </div>
   );
@@ -87,9 +86,9 @@ function PricingListItem({
       >
         {icon}
       </span>
-      <span className="text-sm leading-6 text-zinc-700 dark:text-zinc-200">
+      <MarketingBody as="span" tone="strong" className="text-sm leading-6">
         {children}
-      </span>
+      </MarketingBody>
     </div>
   );
 }

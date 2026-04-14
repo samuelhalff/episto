@@ -83,6 +83,18 @@ describe("deployment topology", () => {
     );
   });
 
+  it("does not reuse the backend HTTP healthcheck for the standalone worker", () => {
+    const workerBlock = getServiceBlock(dockerComposeSource, "worker");
+    const workerProdBlock = getServiceBlock(dockerComposeProdSource, "worker");
+
+    expect(workerBlock).toContain("healthcheck:");
+    expect(workerBlock).toContain("disable: true");
+    expect(workerBlock).not.toContain("/api/readiness");
+    expect(workerProdBlock).toContain("healthcheck:");
+    expect(workerProdBlock).toContain("disable: true");
+    expect(workerProdBlock).not.toContain("/api/readiness");
+  });
+
   it("keeps the production compose file env-driven with the required local 5000 handoff", () => {
     const proxyBlock = getServiceBlock(dockerComposeProdSource, "proxy");
     const frontendBlock = getServiceBlock(dockerComposeProdSource, "frontend");

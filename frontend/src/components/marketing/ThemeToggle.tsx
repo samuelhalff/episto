@@ -8,22 +8,23 @@ import { useTheme } from "../../lib/theme";
 
 interface ThemeToggleProps {
   compact?: boolean;
+  className?: string | undefined;
 }
 
-export function ThemeToggle({ compact = false }: ThemeToggleProps) {
+export function ThemeToggle({ compact = false, className }: ThemeToggleProps) {
   const t = useTranslations("common");
   const { hasResolvedTheme, setTheme, theme } = useTheme();
   const options = [
     {
       value: "light" as const,
       label: t("themeLight"),
-      icon: <Sun className="h-3.5 w-3.5" />,
+      icon: <Sun className="h-4 w-4" strokeWidth={1.9} />,
       ariaLabel: t("themeLight"),
     },
     {
       value: "dark" as const,
       label: t("themeDark"),
-      icon: <Moon className="h-3.5 w-3.5" />,
+      icon: <Moon className="h-4 w-4" strokeWidth={1.9} />,
       ariaLabel: t("themeDark"),
     },
   ];
@@ -36,6 +37,7 @@ export function ThemeToggle({ compact = false }: ThemeToggleProps) {
       value={hasResolvedTheme ? theme : undefined}
       onChange={setTheme}
       compact={compact}
+      className={className}
       disabled={!hasResolvedTheme}
     />
   );

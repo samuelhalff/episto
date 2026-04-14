@@ -85,76 +85,80 @@
     "homepage": {
       "hero": {
         "badge": "Built for important letters",
-        "title": "Serious letters — professionally prepared, ready to send",
-        "subtitle": "Describe what you need. We guide you to a clear formal letter that you can review carefully before it goes out.",
-        "body": "Episto helps you prepare important correspondence without a trip to the post office — from first draft to postal submission in Switzerland.",
+        "title": "Your letter, no printer or stamp needed",
+        "subtitle": "Describe what you need. We draft the first version, you review it, and we get it ready to send by post in Switzerland.",
         "primaryCta": "Write your letter now",
         "secondaryCta": "See how it works",
-        "proof": "No account required · Clear total before payment · Privacy-conscious infrastructure"
+        "proof": "No account required · Clear total before payment · Your details stay private",
+        "steps": {
+          "describe": "Describe the situation",
+          "review": "Review the draft",
+          "send": "Send when it is ready"
+        }
       },
       "trustStrip": {
-        "postal": "Postal delivery in Switzerland",
-        "privacy": "Privacy-conscious infrastructure",
-        "encryption": "Encrypted in transit and at rest",
-        "noAccount": "Start without a subscription or account"
+        "postal": "Sent by post in Switzerland",
+        "privacy": "Your details stay private",
+        "encryption": "Kept safe from start to finish",
+        "noAccount": "Start without an account"
       },
       "howItWorks": {
         "eyebrow": "How it works",
-        "title": "Three steps to a serious letter",
-        "intro": "Stay in control from start to finish: describe the situation, review the wording, then pay and send when it looks right.",
+        "title": "From your situation to a finished letter",
+        "intro": "You explain the situation, review the draft, and send only when everything reads the way it should.",
         "steps": {
           "describe": {
             "title": "Describe the situation",
-            "body": "Write or dictate what the letter needs to do — a cancellation, a complaint, or an official request."
+            "body": "Write or dictate what happened in your own words. We use that to draft the letter."
           },
           "review": {
             "title": "Review the draft",
-            "body": "See a clean formal draft, adjust the tone and details, and check everything before moving on."
+            "body": "Read the letter, adjust the tone, and edit any detail before you continue."
           },
           "send": {
-            "title": "Start dispatch",
-            "body": "When it looks right, confirm the total, pay securely, and we prepare the final PDF for postal submission. Printing and handover require at least one day at the earliest."
+            "title": "Send when it is ready",
+            "body": "Approve the total, pay securely, and we get your letter ready to send."
           }
         }
       },
       "confidence": {
-        "eyebrow": "Why it feels reliable",
-        "title": "More confidence before you send",
-        "intro": "Episto does not replace your judgement — it gives your letter a professional frame and keeps you in control before dispatch.",
+        "eyebrow": "Why people trust it",
+        "title": "You stay in control at every step",
+        "intro": "Episto helps with structure and wording. What the letter says, when it is ready, and whether you send it all stay in your hands.",
         "cards": {
           "structured": {
-            "title": "Properly structured",
-            "body": "Your situation becomes a formal letter with a clear structure instead of a rushed message."
+            "title": "It reads like a proper letter",
+            "body": "Your points are turned into a clear formal structure instead of a hurried message."
           },
           "review": {
-            "title": "Reviewed before dispatch",
-            "body": "You can inspect the content, tone, and details before payment and postal submission begin."
+            "title": "You check every detail",
+            "body": "Check the wording, addresses, and attachments before you pay or send it."
           },
           "privacy": {
-            "title": "Handled with care",
-            "body": "We keep the flow transparent, show the total before payment, and present the service with privacy-conscious wording."
+            "title": "Price and process stay clear",
+            "body": "You see the total before payment, and we explain plainly how your letter is handled."
           }
         }
       },
       "useCases": {
-        "eyebrow": "Typical use cases",
-        "title": "For the letters you should not keep postponing",
-        "intro": "When the matter is serious, a well-prepared letter often carries more weight than a quick message.",
+        "eyebrow": "Common use cases",
+        "title": "When Episto can help",
+        "intro": "People usually come here when the matter is important and a quick message is no longer enough.",
         "cancellation": {
           "title": "Cancel a subscription",
-          "description": "End memberships or service contracts with a formal written notice."
+          "description": "End a membership or service contract with a proper written notice."
         },
         "lease": {
           "title": "End a lease",
-          "description": "Write a clear notice to your landlord or property manager with the right formal tone."
+          "description": "Write a formal notice to your landlord or property manager without starting from a blank page."
         },
         "complaint": {
           "title": "File a complaint",
-          "description": "Set out the problem in a way that is factual, complete, and taken seriously."
+          "description": "Set out the problem calmly and clearly so the other side takes it seriously."
         },
         "authority": {
           "title": "Write to an authority",
-          "description": "Prepare official correspondence so it reads as organised and professional from the start."
+          "description": "Prepare an official letter that sounds organised, respectful, and complete from the start."
         }
       }
     }

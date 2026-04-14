@@ -61,17 +61,12 @@ vi.mock("next-intl/server", () => {
     );
 
   return {
-    async getTranslations({
-      namespace,
-    }: {
-      locale?: string;
-      namespace?: string;
-    }) {
-      const base = namespace
-        ? getNested(i18nState.messages, namespace)
-        : i18nState.messages;
-
+    async getTranslations(arg?: string | { locale?: string; namespace?: string }) {
+      const namespace = typeof arg === "string" ? arg : arg?.namespace;
       return (key: string, values?: Record<string, unknown>) => {
+        const base = namespace
+          ? getNested(i18nState.messages, namespace)
+          : i18nState.messages;
         const value = getNested(base, key);
 
         if (typeof value !== "string") {
@@ -136,6 +131,10 @@ const primitivesSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/primitives.tsx"),
   "utf8",
 );
+const pageSpacingSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/layout/page-spacing.ts"),
+  "utf8",
+);
 const finalCtaBandSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/FinalCTABand.tsx"),
   "utf8",
@@ -154,6 +153,13 @@ const marketingIconTokenPath = path.join(
 );
 const marketingIconTokenSource = existsSync(marketingIconTokenPath)
   ? readFileSync(marketingIconTokenPath, "utf8")
+  : "";
+const marketingFeatureSectionPath = path.join(
+  repoRoot,
+  "frontend/src/components/marketing/MarketingFeatureSection.tsx",
+);
+const marketingFeatureSectionSource = existsSync(marketingFeatureSectionPath)
+  ? readFileSync(marketingFeatureSectionPath, "utf8")
   : "";
 const homepageComponentPaths = {
   hero: path.join(repoRoot, "frontend/src/components/marketing/HomepageHero.tsx"),
@@ -179,10 +185,12 @@ const requiredHomepageKeys = [
   "marketing.homepage.hero.badge",
   "marketing.homepage.hero.title",
   "marketing.homepage.hero.subtitle",
-  "marketing.homepage.hero.body",
   "marketing.homepage.hero.primaryCta",
   "marketing.homepage.hero.secondaryCta",
   "marketing.homepage.hero.proof",
+  "marketing.homepage.hero.steps.describe",
+  "marketing.homepage.hero.steps.review",
+  "marketing.homepage.hero.steps.send",
   "marketing.homepage.trustStrip.postal",
   "marketing.homepage.trustStrip.privacy",
   "marketing.homepage.trustStrip.encryption",
@@ -256,9 +264,9 @@ async function renderHomePageWithMessages(locale: LocaleKey, messages: MessageTr
 
 describe("marketing homepage shared visual primitives", () => {
   it("standardizes marketing section rhythm without the old desktop outlier", () => {
-    expect(primitivesSource).toContain("py-16");
-    expect(primitivesSource).toContain("lg:py-24");
-    expect(primitivesSource).not.toContain("lg:py-28");
+    expect(primitivesSource).toContain("getMarketingSectionClassName");
+    expect(pageSpacingSource).toContain('base: "px-4 py-16 sm:px-6 sm:py-20 lg:py-24"');
+    expect(pageSpacingSource).not.toContain("lg:py-28");
   });
 
   it("provides a shared padded marketing icon token", () => {
@@ -266,6 +274,158 @@ describe("marketing homepage shared visual primitives", () => {
     expect(marketingIconTokenSource).toContain("h-12 w-12");
     expect(marketingIconTokenSource).toContain("rounded-full");
     expect(marketingIconTokenSource).toContain("size-5");
+  });
+
+  it("provides shared landing-page primitives for repeated section structures", () => {
+    expect(primitivesSource).toContain("export function SectionHeader");
+    expect(primitivesSource).toContain("export function SectionGrid");
+    expect(primitivesSource).toContain("export function MarketingInfoPill");
+  });
+
+  it("supports richer icon tones for landing-page pills and feature cards", () => {
+    expect(marketingIconTokenSource).toContain("export type MarketingIconTone");
+    expect(marketingIconTokenSource).toContain("text-sky-700");
+    expect(marketingIconTokenSource).toContain("text-emerald-700");
+    expect(marketingIconTokenSource).toContain("text-amber-700");
+    expect(marketingIconTokenSource).toContain("text-rose-700");
+  });
+
+  it("restores the hero as a full-height split section with stronger contrast and a visual companion panel", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(heroSource).toContain("min-h-[calc(100svh-5rem)]");
+    expect(heroSource).toContain("lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]");
+    expect(heroSource).toContain('variant="heroSecondary"');
+    expect(heroSource).toContain("text-white");
+    expect(heroSource).toContain("paper-noise");
+  });
+
+  it("avoids numeric badges in the landing-page step visuals", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+    const howItWorksSource = readFileSync(homepageComponentPaths.howItWorks, "utf8");
+
+    expect(heroSource).not.toContain('padStart(2, "0")');
+    expect(howItWorksSource).not.toContain('padStart(2, "0")');
+  });
+
+  it("replaces the hero's blue cast with shared charcoal-and-amber styling", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(heroSource).toContain("homepage-hero-shell");
+    expect(heroSource).toContain("homepage-hero-badge");
+    expect(heroSource).toContain('variant="heroSecondary"');
+    expect(heroSource).not.toContain("backgroundImage:");
+    expect(heroSource).not.toContain("#1e3a5f");
+    expect(heroSource).not.toContain("#27466f");
+    expect(globalsCssSource).toContain(".homepage-hero-shell");
+    expect(globalsCssSource).toContain(".homepage-hero-badge");
+    expect(globalsCssSource).not.toContain(".homepage-hero-secondary");
+    expect(primitivesSource).toContain('"heroSecondary"');
+    expect(primitivesSource).toContain("border-amber-200/30");
+    expect(primitivesSource).toContain("bg-amber-200/10");
+    expect(primitivesSource).toContain("text-amber-50");
+  });
+
+  it("keeps hero preview labels in a hero-owned translation namespace", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(heroSource).toContain("homepage.hero.steps");
+    expect(heroSource).not.toContain("homepage.howItWorks.steps");
+  });
+
+  it("stacks the trust strip as full-width rows on mobile while preserving the desktop wrap", () => {
+    const trustStripSource = readFileSync(homepageComponentPaths.trustStrip, "utf8");
+
+    expect(trustStripSource).toContain(
+      "flex max-w-7xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center",
+    );
+    expect(trustStripSource).toContain("flex w-full items-center gap-3 rounded-full");
+    expect(trustStripSource).toContain("sm:w-auto");
+  });
+
+  it("uses the shared amber icon token for subtle trust-strip contrast", () => {
+    const trustStripSource = readFileSync(homepageComponentPaths.trustStrip, "utf8");
+
+    expect(trustStripSource).toContain('className="h-9 w-9 [&>svg]:size-4"');
+    expect(trustStripSource).toContain('tone="amber"');
+    expect(marketingIconTokenSource).toContain(
+      "bg-amber-50 text-amber-700 dark:bg-amber-500/20 dark:text-amber-100",
+    );
+    expect(trustStripSource).not.toContain("<MarketingInfoPill");
+  });
+
+  it("keeps the confidence section on a muted surface so the page rhythm still alternates", () => {
+    const messages = readLocaleMessages("en-CH");
+    const confidenceMarkup = renderWithMessages(ConfidenceBlock, messages);
+
+    expect(confidenceMarkup).toContain("bg-[var(--app-surface-muted)]/55");
+  });
+
+  it("routes the three mid-page homepage blocks through one shared feature section wrapper", () => {
+    const howItWorksSource = readFileSync(homepageComponentPaths.howItWorks, "utf8");
+    const confidenceSource = readFileSync(homepageComponentPaths.confidence, "utf8");
+    const useCasesSource = readFileSync(homepageComponentPaths.useCases, "utf8");
+
+    expect(existsSync(marketingFeatureSectionPath)).toBe(true);
+    expect(marketingFeatureSectionSource).toContain(
+      "export function MarketingFeatureSection",
+    );
+    expect(marketingFeatureSectionSource).toContain("<SectionHeader");
+    expect(marketingFeatureSectionSource).toContain("<SectionGrid");
+    expect(marketingFeatureSectionSource).toContain("<MarketingFeatureCard");
+    expect(howItWorksSource).toContain("<MarketingFeatureSection");
+    expect(confidenceSource).toContain("<MarketingFeatureSection");
+    expect(useCasesSource).toContain("<MarketingFeatureSection");
+  });
+
+  it("uses distinct light-and-dark-safe icon tones and drops numeric step badges in the shared mid-page sections", () => {
+    const messages = readLocaleMessages("en-CH");
+    const howItWorksMarkup = renderWithMessages(HowItWorksSteps, messages);
+    const confidenceMarkup = renderWithMessages(ConfidenceBlock, messages);
+    const useCasesMarkup = renderWithMessages(UseCaseGrid, messages);
+
+    expect(howItWorksMarkup).not.toContain(">01<");
+    expect(howItWorksMarkup).toContain("bg-sky-50");
+    expect(howItWorksMarkup).toContain("dark:bg-sky-500/20");
+    expect(confidenceMarkup).toContain("bg-emerald-50");
+    expect(confidenceMarkup).toContain("dark:bg-emerald-500/20");
+    expect(useCasesMarkup).toContain("bg-amber-50");
+    expect(useCasesMarkup).toContain("dark:bg-amber-500/20");
+  });
+
+  it("uses clearer English headings for the three mid-page sections", () => {
+    const messages = readLocaleMessages("en-CH");
+
+    expect(getNestedValue(messages, "marketing.homepage.howItWorks.title")).toBe(
+      "From your situation to a finished letter",
+    );
+    expect(getNestedValue(messages, "marketing.homepage.confidence.title")).toBe(
+      "You stay in control at every step",
+    );
+    expect(getNestedValue(messages, "marketing.homepage.useCases.title")).toBe(
+      "When Episto can help",
+    );
+  });
+
+  it("uses direct trust headings across the non-English confidence sections", () => {
+    expect(
+      getNestedValue(readLocaleMessages("de-CH"), "marketing.homepage.confidence.title"),
+    ).toBe("Sie behalten in jedem Schritt die Kontrolle");
+    expect(
+      getNestedValue(readLocaleMessages("fr-CH"), "marketing.homepage.confidence.title"),
+    ).toBe("Vous gardez la main à chaque étape");
+    expect(
+      getNestedValue(readLocaleMessages("it-CH"), "marketing.homepage.confidence.title"),
+    ).toBe("Mantiene il controllo in ogni passaggio");
+  });
+
+  it("avoids vague use-case section titles in customer-facing locales", () => {
+    expect(
+      getNestedValue(readLocaleMessages("fr-CH"), "marketing.homepage.useCases.title"),
+    ).toBe("Quand Episto peut vous aider");
+    expect(
+      getNestedValue(readLocaleMessages("it-CH"), "marketing.homepage.useCases.title"),
+    ).toBe("Quando Episto può aiutarLa");
   });
 
   it("uses the primary yellow cta band treatment with enforced dark body contrast", () => {
@@ -325,7 +485,7 @@ describe("marketing homepage shared visual primitives", () => {
         Component: HomepageHero,
         keys: [
           "marketing.homepage.hero.title",
-          "marketing.homepage.hero.body",
+          "marketing.homepage.hero.subtitle",
           "marketing.homepage.hero.secondaryCta",
           "marketing.homepage.hero.proof",
         ],
@@ -395,6 +555,39 @@ describe("marketing homepage shared visual primitives", () => {
       expect(copyIndex).toBeGreaterThan(previousIndex);
       previousIndex = copyIndex;
     }
+  });
+
+  it("keeps the homepage hero to one supporting paragraph under the title", () => {
+    const heroMessages = {
+      marketing: {
+        homepage: {
+          hero: {
+            badge: "Built for important letters",
+            title: "Your letter, no printer or stamp needed",
+            subtitle:
+              "Describe what you need. We draft the first version, you review it, and we prepare it for postal dispatch in Switzerland.",
+            body: "This older second paragraph should not render anymore.",
+            primaryCta: "Write your letter now",
+            secondaryCta: "See how it works",
+            proof: "No account required",
+            steps: {
+              describe: "Describe",
+              review: "Review",
+              send: "Send",
+            },
+          },
+        },
+      },
+    } satisfies MessageTree;
+
+    const markup = renderWithMessages(HomepageHero, heroMessages);
+
+    expect(markup).toContain(
+      String(getNestedValue(heroMessages, "marketing.homepage.hero.subtitle")),
+    );
+    expect(markup).not.toContain(
+      String(getNestedValue(heroMessages, "marketing.homepage.hero.body")),
+    );
   });
 
   it("covers the full new homepage translation surface in every locale", async () => {

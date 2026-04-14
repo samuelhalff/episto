@@ -6,6 +6,7 @@ import { queryKeys } from "@swiss-mail/shared";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { getAdminPagePath } from "@/lib/admin-paths";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminOverview, fetchAdminRetention } from "../admin-api";
@@ -37,10 +38,7 @@ export default function OverviewPage() {
     enabled: authenticated,
   });
 
-  const generatedAt =
-    overview.data?.generatedAt ??
-    retention.data?.generatedAt ??
-    null;
+  const generatedAt = overview.data?.generatedAt ?? retention.data?.generatedAt ?? null;
 
   const quickActions = [
     {
@@ -70,7 +68,7 @@ export default function OverviewPage() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
           <h2 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
@@ -114,7 +112,10 @@ export default function OverviewPage() {
           />
         ) : null}
 
-        <AdminQuickActionPanel title={t("overview.quickActions.title")} actions={quickActions} />
+        <AdminQuickActionPanel
+          title={t("overview.quickActions.title")}
+          actions={quickActions}
+        />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
@@ -128,24 +129,48 @@ export default function OverviewPage() {
               title={t("overview.dispatchStates")}
               entries={[
                 { label: t("states.queued"), value: overview.data.dispatch.queued ?? 0 },
-                { label: t("states.submitted"), value: overview.data.dispatch.submitted ?? 0 },
-                { label: t("states.accepted"), value: overview.data.dispatch.accepted ?? 0 },
-                { label: t("states.rejected"), value: overview.data.dispatch.rejected ?? 0 },
-                { label: t("states.unknown"), value: overview.data.dispatch.unknown ?? 0 },
-                { label: t("states.reconciled"), value: overview.data.dispatch.reconciled ?? 0 },
+                {
+                  label: t("states.submitted"),
+                  value: overview.data.dispatch.submitted ?? 0,
+                },
+                {
+                  label: t("states.accepted"),
+                  value: overview.data.dispatch.accepted ?? 0,
+                },
+                {
+                  label: t("states.rejected"),
+                  value: overview.data.dispatch.rejected ?? 0,
+                },
+                {
+                  label: t("states.unknown"),
+                  value: overview.data.dispatch.unknown ?? 0,
+                },
+                {
+                  label: t("states.reconciled"),
+                  value: overview.data.dispatch.reconciled ?? 0,
+                },
               ]}
             />
             <AdminStateBreakdownPanel
               title={t("overview.paymentStates")}
               entries={[
-                { label: t("states.pending"), value: overview.data.payments.pending ?? 0 },
-                { label: t("states.captured"), value: overview.data.payments.captured ?? 0 },
+                {
+                  label: t("states.pending"),
+                  value: overview.data.payments.pending ?? 0,
+                },
+                {
+                  label: t("states.captured"),
+                  value: overview.data.payments.captured ?? 0,
+                },
                 { label: t("states.failed"), value: overview.data.payments.failed ?? 0 },
                 {
                   label: t("states.refundPending"),
                   value: overview.data.payments.refund_pending ?? 0,
                 },
-                { label: t("states.refunded"), value: overview.data.payments.refunded ?? 0 },
+                {
+                  label: t("states.refunded"),
+                  value: overview.data.payments.refunded ?? 0,
+                },
               ]}
             />
             <AdminPriorityQueuesPanel

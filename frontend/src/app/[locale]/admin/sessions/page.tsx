@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminSessions } from "../admin-api";
 import { SectionPanel, PanelLoading, PanelError } from "../admin-metric-panels";
@@ -33,12 +34,10 @@ export default function SessionsPage() {
     enabled: authenticated,
   });
 
-  const totalPages = sessions.data
-    ? Math.ceil(sessions.data.total / PAGE_SIZE)
-    : 0;
+  const totalPages = sessions.data ? Math.ceil(sessions.data.total / PAGE_SIZE) : 0;
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
           Sessions
@@ -46,7 +45,10 @@ export default function SessionsPage() {
         <div className="flex items-center gap-3">
           <select
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setPage(1);
+            }}
             className="rounded-lg border px-3 py-1.5 text-xs"
             style={{
               background: "var(--app-surface-muted)",
@@ -103,7 +105,10 @@ export default function SessionsPage() {
                           {s.id.slice(0, 8)}…
                         </Link>
                       </td>
-                      <td className="py-2.5 pr-4 text-xs" style={{ color: "var(--app-muted)" }}>
+                      <td
+                        className="py-2.5 pr-4 text-xs"
+                        style={{ color: "var(--app-muted)" }}
+                      >
                         {s.locale ?? "—"}
                       </td>
                       <td
@@ -112,7 +117,10 @@ export default function SessionsPage() {
                       >
                         {s.email ?? "—"}
                       </td>
-                      <td className="py-2.5 pr-4 text-xs" style={{ color: "var(--app-fg)" }}>
+                      <td
+                        className="py-2.5 pr-4 text-xs"
+                        style={{ color: "var(--app-fg)" }}
+                      >
                         {s.draftCount}
                       </td>
                       <td className="py-2.5 pr-4 text-xs">
@@ -137,22 +145,27 @@ export default function SessionsPage() {
                             background: s.paymentState
                               ? "rgba(34,197,94,0.1)"
                               : "var(--app-surface-muted)",
-                            color: s.paymentState
-                              ? "var(--app-fg)"
-                              : "var(--app-muted)",
+                            color: s.paymentState ? "var(--app-fg)" : "var(--app-muted)",
                           }}
                         >
                           {s.paymentState ?? "—"}
                         </span>
                       </td>
-                      <td className="py-2.5 text-xs" style={{ color: "var(--app-muted)" }}>
+                      <td
+                        className="py-2.5 text-xs"
+                        style={{ color: "var(--app-muted)" }}
+                      >
                         {new Date(s.createdAt).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}
                   {sessions.data.sessions.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="py-8 text-center text-sm" style={{ color: "var(--app-muted)" }}>
+                      <td
+                        colSpan={7}
+                        className="py-8 text-center text-sm"
+                        style={{ color: "var(--app-muted)" }}
+                      >
                         No sessions found
                       </td>
                     </tr>

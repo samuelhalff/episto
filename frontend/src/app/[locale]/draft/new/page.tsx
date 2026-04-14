@@ -1,38 +1,32 @@
 "use client";
 
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  startTransition,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import {
+  mergeDraftWorkspaceState,
+  queryKeys,
+  type DraftLetter,
+  type Session,
+} from "@swiss-mail/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
-import type { ConversationMessage, DraftLetter, Session } from "@swiss-mail/shared";
-import { queryKeys } from "@swiss-mail/shared";
-import {
-  Building2,
-  FileWarning,
-  Home,
-  Loader2,
-  Mic,
-  Send,
-  Square,
-  XCircle,
-  type LucideIcon,
-} from "lucide-react";
 
-import { Link, useRouter } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
-import { ConfirmDialog } from "@/components/product/ConfirmDialog";
 import { BrandMark } from "@/components/branding/BrandMark";
 import { CustomerSiteMenu } from "@/components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "@/components/layout/HeaderLanguageMenu";
-import { AppButton } from "@/components/ui/app-button";
-import { useDictation } from "@/hooks/use-dictation";
-import { ApiError, apiFetch } from "@/lib/api";
 import { ActionButton, ActionLink } from "@/components/product/ActionButton";
-import {
-  findRecoverableDraft,
-  shouldForceFreshEntry,
-} from "@/lib/new-draft-entry";
-import { primePendingDraftTurn } from "@/lib/pending-draft-turn";
+import { ConfirmDialog } from "@/components/product/ConfirmDialog";
+import { Link, useRouter } from "@/i18n/navigation";
+import { routing } from "@/i18n/routing";
+import { ApiError, apiFetch } from "@/lib/api";
+import { findRecoverableDraft, shouldForceFreshEntry } from "@/lib/new-draft-entry";
 
 type BootstrapState =
   | { kind: "loading" }
@@ -40,24 +34,13 @@ type BootstrapState =
   | { kind: "resume"; draft: DraftLetter }
   | { kind: "error"; message: string };
 
-type QuickStartConfig = {
+type PendingStartAction = "resume" | "fresh" | null;
+
+interface UseCasePromptConfig {
   slug: string;
   aliases: string[];
-  label: string;
   prompt: string;
-  icon: LucideIcon;
-};
-
-type ConversationMessagePayload = Omit<ConversationMessage, "createdAt"> & {
-  createdAt: string | Date;
-};
-
-type PendingStartAction =
-  | "resume"
-  | "fresh"
-  | "composer"
-  | `quick-start:${string}`
-  | null;
+}
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof ApiError) {
@@ -102,10 +85,6 @@ function normalizeDraft(draft: DraftLetter): DraftLetter {
   };
 }
 
-function getQuickStartAction(slug: string): `quick-start:${string}` {
-  return `quick-start:${slug}`;
-}
-
 export default function NewDraftPage() {
   const tc = useTranslations("common");
   const tr = useTranslations("resume");
@@ -114,8 +93,6 @@ export default function NewDraftPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  const dictation = useDictation({ fieldContext: "entry" });
-  const { finalText: dictatedComposerText, resetText: resetDictationText } = dictation;
   const sessionLocale = routing.locales.includes(
     locale as (typeof routing.locales)[number],
   )
@@ -124,88 +101,143 @@ export default function NewDraftPage() {
 
   const [state, setState] = useState<BootstrapState>({ kind: "loading" });
   const [retryCount, setRetryCount] = useState(0);
-  const [composerValue, setComposerValue] = useState("");
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [pendingStartAction, setPendingStartAction] = useState<PendingStartAction>(null);
   const [showConfirmFresh, setShowConfirmFresh] = useState(false);
   const runIdRef = useRef(0);
-  const useCasePrefillAppliedRef = useRef(false);
   const freshEntryStartedRef = useRef(false);
-  const isStartingDraft = pendingStartAction !== null;
   const forceFreshEntry = shouldForceFreshEntry(searchParams);
+  const isStartingDraft = pendingStartAction !== null;
 
-  const quickStarts = useMemo<QuickStartConfig[]>(
-    () => [
-      {
-        slug: "contract-termination",
-        aliases: ["insurance-cancellation", "subscription-cancellation"],
-        label: td("intakeQuickActionCancel"),
-        prompt: td("intakeQuickActionCancelPrompt"),
-        icon: XCircle,
-      },
-      {
-        slug: "lease-cancellation",
-        aliases: [],
-        label: td("intakeQuickActionLease"),
-        prompt: td("intakeQuickActionLeasePrompt"),
-        icon: Home,
-      },
-      {
-        slug: "formal-complaint",
-        aliases: [],
-        label: td("intakeQuickActionComplaint"),
-        prompt: td("intakeQuickActionComplaintPrompt"),
-        icon: FileWarning,
-      },
-      {
-        slug: "official-correspondence",
-        aliases: ["authority-letter"],
-        label: td("intakeQuickActionAuthority"),
-        prompt: td("intakeQuickActionAuthorityPrompt"),
-        icon: Building2,
-      },
-    ],
-    [td],
-  );
-
-  const requestedUseCase = searchParams.get("useCase");
   const suggestedPrompt = useMemo(() => {
+    const requestedUseCase = searchParams.get("useCase");
     if (!requestedUseCase) {
       return null;
     }
 
+    const prompts: UseCasePromptConfig[] = [
+      {
+        slug: "contract-termination",
+        aliases: ["insurance-cancellation", "subscription-cancellation"],
+        prompt: td("intakeQuickActionCancelPrompt"),
+      },
+      {
+        slug: "lease-cancellation",
+        aliases: [],
+        prompt: td("intakeQuickActionLeasePrompt"),
+      },
+      {
+        slug: "formal-complaint",
+        aliases: [],
+        prompt: td("intakeQuickActionComplaintPrompt"),
+      },
+      {
+        slug: "official-correspondence",
+        aliases: ["authority-letter"],
+        prompt: td("intakeQuickActionAuthorityPrompt"),
+      },
+    ];
+
     const normalizedUseCase = requestedUseCase.trim().toLowerCase();
-    const quickStart = quickStarts.find(
+    const selectedPrompt = prompts.find(
       (item) =>
         item.slug === normalizedUseCase || item.aliases.includes(normalizedUseCase),
     );
 
-    return quickStart?.prompt ?? td("intakeQuickActionOtherPrompt");
-  }, [quickStarts, requestedUseCase, td]);
+    return selectedPrompt?.prompt ?? td("intakeQuickActionOtherPrompt");
+  }, [searchParams, td]);
 
-  useEffect(() => {
-    if (!suggestedPrompt || useCasePrefillAppliedRef.current) {
-      return;
-    }
+  const startDraft = useCallback(
+    async (options?: {
+      forceNewSession?: boolean;
+      pendingAction?: Exclude<PendingStartAction, null>;
+      initialIntakeInput?: string;
+    }) => {
+      if (isStartingDraft) {
+        return;
+      }
 
-    setComposerValue((current) => current || suggestedPrompt);
-    useCasePrefillAppliedRef.current = true;
-  }, [suggestedPrompt]);
+      const forceNewSession = options?.forceNewSession ?? false;
+      const nextPendingAction = options?.pendingAction ?? "fresh";
+      const initialIntakeInput = options?.initialIntakeInput?.trim() ?? "";
 
-  useEffect(() => {
-    const spokenText = dictatedComposerText.trim();
-    if (!spokenText) {
-      return;
-    }
+      setSubmissionError(null);
+      setPendingStartAction(nextPendingAction);
 
-    setComposerValue(
-      (current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`,
-    );
-    resetDictationText();
-  }, [dictatedComposerText, resetDictationText]);
+      try {
+        const mustCreateSession =
+          forceNewSession || (state.kind === "ready" && !state.hasActiveSession);
+
+        if (mustCreateSession) {
+          const { session } = await apiFetch<{ session: Session }>("/v1/sessions", {
+            method: "POST",
+            body: JSON.stringify({ locale: sessionLocale }),
+          });
+          queryClient.setQueryData(queryKeys.session("current"), session);
+
+          if (state.kind === "ready") {
+            setState({ kind: "ready", hasActiveSession: true });
+          }
+        }
+
+        const { draft } = await apiFetch<{ draft: DraftLetter }>("/v1/drafts", {
+          method: "POST",
+          body: JSON.stringify({}),
+        });
+
+        let seededDraft = normalizeDraft(draft);
+
+        if (initialIntakeInput) {
+          const { draft: updatedDraft } = await apiFetch<{ draft: DraftLetter }>(
+            `/v1/drafts/${draft.id}`,
+            {
+              method: "PATCH",
+              body: JSON.stringify({
+                metadata: mergeDraftWorkspaceState(seededDraft.metadata, {
+                  intakeInput: initialIntakeInput,
+                }),
+              }),
+            },
+          );
+
+          seededDraft = normalizeDraft(updatedDraft);
+        }
+
+        queryClient.setQueryData(queryKeys.draft(seededDraft.id), seededDraft);
+
+        startTransition(() => {
+          router.replace(`/draft/${seededDraft.id}`);
+        });
+      } catch (error) {
+        if (!forceFreshEntry) {
+          try {
+            const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
+            const existingDraft = findRecoverableDraft(drafts);
+            if (existingDraft) {
+              setPendingStartAction(null);
+              setState({ kind: "resume", draft: existingDraft });
+              return;
+            }
+          } catch {
+            // Ignore fallback lookup failures and show the original error.
+          }
+        }
+
+        const message = getErrorMessage(error);
+        if (state.kind === "resume") {
+          setSubmissionError(message);
+        } else {
+          setState({ kind: "error", message });
+        }
+        setPendingStartAction(null);
+      }
+    },
+    [forceFreshEntry, isStartingDraft, queryClient, router, sessionLocale, state],
+  );
 
   useEffect(() => {
     const runId = ++runIdRef.current;
+    freshEntryStartedRef.current = false;
 
     async function getRecoverableDraft(): Promise<DraftLetter | null> {
       try {
@@ -228,6 +260,7 @@ export default function NewDraftPage() {
             "/v1/sessions/current",
           );
           queryClient.setQueryData(queryKeys.session("current"), session);
+
           if (!forceFreshEntry) {
             const existingDraft = await getRecoverableDraft();
             if (existingDraft) {
@@ -272,111 +305,20 @@ export default function NewDraftPage() {
     void bootstrap();
   }, [forceFreshEntry, queryClient, retryCount]);
 
-  const startDraft = useCallback(
-    async (options?: {
-      forceNewSession?: boolean;
-      initialMessage?: string;
-      pendingAction?: Exclude<PendingStartAction, null>;
-    }) => {
-      if (isStartingDraft) {
-        return;
-      }
-
-      const initialMessage = options?.initialMessage?.trim() ?? "";
-      const forceNewSession = options?.forceNewSession ?? false;
-      const nextPendingAction =
-        options?.pendingAction ?? (initialMessage ? "composer" : "fresh");
-
-      setSubmissionError(null);
-      setPendingStartAction(nextPendingAction);
-
-      try {
-        const mustCreateSession =
-          forceNewSession || (state.kind === "ready" && !state.hasActiveSession);
-
-        if (mustCreateSession) {
-          const { session } = await apiFetch<{ session: Session }>("/v1/sessions", {
-            method: "POST",
-            body: JSON.stringify({ locale: sessionLocale }),
-          });
-          queryClient.setQueryData(queryKeys.session("current"), session);
-
-          if (state.kind === "ready") {
-            setState({ kind: "ready", hasActiveSession: true });
-          }
-        }
-
-        const { draft } = await apiFetch<{ draft: DraftLetter }>("/v1/drafts", {
-          method: "POST",
-          body: JSON.stringify({}),
-        });
-        const seededDraft = normalizeDraft(draft);
-        queryClient.setQueryData(queryKeys.draft(draft.id), seededDraft);
-
-        if (initialMessage) {
-          const response = await apiFetch<{ message: ConversationMessagePayload }>(
-            `/v1/drafts/${draft.id}/messages`,
-            {
-              method: "POST",
-              body: JSON.stringify({ content: initialMessage }),
-            },
-          );
-
-          const seededMessage: ConversationMessage = {
-            ...response.message,
-            createdAt:
-              response.message.createdAt instanceof Date
-                ? response.message.createdAt
-                : new Date(response.message.createdAt),
-          };
-
-          queryClient.setQueryData<ConversationMessage[]>(
-            queryKeys.draftMessages(draft.id),
-            [seededMessage],
-          );
-          primePendingDraftTurn({ draftId: draft.id, messageId: seededMessage.id });
-        }
-
-        startTransition(() => {
-          router.replace(`/draft/${draft.id}`);
-        });
-      } catch (error) {
-        try {
-          const { drafts } = await apiFetch<{ drafts: DraftLetter[] }>("/v1/drafts");
-          const existingDraft = findRecoverableDraft(drafts);
-          if (!forceFreshEntry && existingDraft) {
-            setPendingStartAction(null);
-            setState({ kind: "resume", draft: existingDraft });
-            return;
-          }
-        } catch {
-          // Ignore fallback lookup failures and show the original error.
-        }
-
-        setSubmissionError(getErrorMessage(error));
-        setPendingStartAction(null);
-      }
-    },
-    [forceFreshEntry, isStartingDraft, queryClient, router, sessionLocale, state],
-  );
-
   useEffect(() => {
-    if (!forceFreshEntry || state.kind !== "ready" || freshEntryStartedRef.current) {
+    if (state.kind !== "ready" || freshEntryStartedRef.current) {
       return;
     }
 
     freshEntryStartedRef.current = true;
-    void startDraft({ forceNewSession: true, pendingAction: "fresh" });
-  }, [forceFreshEntry, startDraft, state]);
+    const startOptions = suggestedPrompt ? { initialIntakeInput: suggestedPrompt } : {};
 
-  function handleEntrySubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!composerValue.trim()) {
-      return;
-    }
-
-    void startDraft({ initialMessage: composerValue });
-  }
+    void startDraft({
+      forceNewSession: forceFreshEntry || !state.hasActiveSession,
+      pendingAction: "fresh",
+      ...startOptions,
+    });
+  }, [forceFreshEntry, startDraft, state, suggestedPrompt]);
 
   if (state.kind === "resume") {
     const updatedAt = new Intl.DateTimeFormat(locale, {
@@ -442,7 +384,15 @@ export default function NewDraftPage() {
               cancelLabel={tc("cancel")}
               confirmLoading={pendingStartAction === "fresh"}
               onConfirm={() => {
-                void startDraft({ forceNewSession: true, pendingAction: "fresh" });
+                const startOptions = suggestedPrompt
+                  ? { initialIntakeInput: suggestedPrompt }
+                  : {};
+
+                void startDraft({
+                  forceNewSession: true,
+                  pendingAction: "fresh",
+                  ...startOptions,
+                });
               }}
               onCancel={() => {
                 if (isStartingDraft) {
@@ -478,6 +428,7 @@ export default function NewDraftPage() {
               <ActionButton
                 className="sm:flex-1"
                 onClick={() => {
+                  freshEntryStartedRef.current = false;
                   setState({ kind: "loading" });
                   setRetryCount((count) => count + 1);
                 }}
@@ -494,170 +445,25 @@ export default function NewDraftPage() {
     );
   }
 
-  if (state.kind === "loading") {
-    return (
-      <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
-        <EntryHeader />
-
-        <main className="flex min-h-[calc(100vh-73px)] items-center justify-center">
-          <div className="text-center">
-            <div className="mx-auto h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-            <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
-              {tc("loading")}
-            </p>
-          </div>
-        </main>
-      </div>
-    );
-  }
-
-  const helperText = dictation.error
-    ? td("dictationError")
-    : dictation.isRecording
-      ? dictation.interimText || td("voicePrimaryHint")
-      : null;
-
   return (
     <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">
       <EntryHeader />
 
-      <main
-        id="main-content"
-        className="mx-auto flex min-h-[calc(100vh-73px)] max-w-4xl items-center px-4 py-10 sm:px-6"
-      >
-        <div className="w-full rounded-[2rem] border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92 sm:p-8">
-          <div className="max-w-2xl">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-              {tc("appName")}
-            </p>
-            <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-4xl">
-              {td("entryTitle")}
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-zinc-500 dark:text-zinc-400 sm:text-base">
-              {td("entrySubtitle")}
-            </p>
-          </div>
-
-          <form onSubmit={handleEntrySubmit} className="mt-8 space-y-4">
-            <label className="block">
-              <span className="sr-only">{td("entryTitle")}</span>
-              <textarea
-                autoFocus
-                rows={6}
-                value={composerValue}
-                onChange={(event) => {
-                  setComposerValue(event.target.value);
-                  setSubmissionError(null);
-                }}
-                placeholder={td("messagePlaceholder")}
-                className="app-form-control w-full resize-none rounded-[1.75rem] border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-5 py-4 text-base leading-7 text-[var(--app-fg)] placeholder:text-[var(--app-muted)] focus:border-[var(--app-border-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--app-border)]"
-              />
-            </label>
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-3">
-                <AppButton
-                  type="button"
-                  size="md"
-                  variant={dictation.isRecording ? "warning" : "secondary"}
-                  leadingIcon={
-                    dictation.isRecording ? (
-                      <Square className="h-4 w-4" />
-                    ) : (
-                      <Mic className="h-4 w-4" />
-                    )
-                  }
-                  onClick={() => {
-                    if (dictation.isRecording) {
-                      dictation.stopRecording();
-                      return;
-                    }
-
-                    dictation.startRecording(locale);
-                  }}
-                >
-                  {dictation.isRecording ? td("stopDictation") : td("startDictation")}
-                </AppButton>
-                {helperText ? (
-                  <p className="text-sm text-[var(--app-muted)]">{helperText}</p>
-                ) : null}
-              </div>
-
-              <ActionButton
-                type="submit"
-                loading={pendingStartAction === "composer"}
-                disabled={!composerValue.trim() || isStartingDraft}
-                leadingIcon={
-                  pendingStartAction === "composer" ? null : <Send className="h-4 w-4" />
-                }
-              >
-                {td("entryStart")}
-              </ActionButton>
-            </div>
-
-            {submissionError ? (
-              <p role="alert" className="text-sm text-destructive">
-                {submissionError}
-              </p>
-            ) : null}
-          </form>
-
-          <div className="mt-8 border-t border-zinc-200/80 pt-8 dark:border-zinc-800">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-                {td("entryCommonTypes")}
-              </span>
-              <div className="h-px flex-1 bg-zinc-200/80 dark:bg-zinc-800" />
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-2">
-              {quickStarts.map((quickStart) => {
-                const Icon = quickStart.icon;
-                return (
-                  <button
-                    key={quickStart.slug}
-                    type="button"
-                    disabled={isStartingDraft}
-                    onClick={() => {
-                      setComposerValue(quickStart.prompt);
-                      void startDraft({
-                        initialMessage: quickStart.prompt,
-                        pendingAction: getQuickStartAction(quickStart.slug),
-                      });
-                    }}
-                    className="app-list-item group rounded-[1.5rem] px-5 py-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-70"
-                  >
-                    <div className="flex items-start gap-3">
-                      <span className="app-field-surface inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl text-[var(--app-muted-strong)]">
-                        {pendingStartAction === getQuickStartAction(quickStart.slug) ? (
-                          <Loader2 className="h-5 w-5 animate-spin" />
-                        ) : (
-                          <Icon className="h-5 w-5" />
-                        )}
-                      </span>
-                      <div>
-                        <p className="text-sm font-semibold text-[var(--app-fg)] transition-colors group-hover:text-[var(--app-fg)]">
-                          {quickStart.label}
-                        </p>
-                        <p className="mt-1 text-sm leading-6 text-[var(--app-muted)]">
-                          {quickStart.prompt}
-                        </p>
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="mt-8 space-y-3">
-            <p className="text-sm leading-6 text-zinc-500 dark:text-zinc-400">
-              {td("entryAttachmentsHint")}
-            </p>
-            <p className="text-xs leading-5 text-zinc-400 dark:text-zinc-500">
-              {td("entrySessionNotice")}
-            </p>
-          </div>
+      <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
+        <div className="w-full max-w-lg rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
+          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            {tc("appName")}
+          </p>
+          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
+            {td("entryTitle")}
+          </h1>
+          <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+            {td("entrySubtitle")}
+          </p>
+          <div className="mx-auto mt-8 h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="mt-4 text-sm text-zinc-500 dark:text-zinc-400">
+            {pendingStartAction === "fresh" ? tc("loading") : tc("loading")}
+          </p>
         </div>
       </main>
     </div>

@@ -18,6 +18,7 @@ import {
   SheetTitle,
 } from "../ui/sheet";
 import { cx } from "./primitives";
+import { MarketingBody, MarketingHeading } from "./typography";
 
 export function Header() {
   const t = useTranslations("marketing");
@@ -33,21 +34,27 @@ export function Header() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
         <Link
           href="/"
-          className="inline-flex min-w-0 items-center gap-3 text-lg font-semibold tracking-tight text-zinc-950 transition-colors dark:text-zinc-50 sm:text-xl"
+          className="inline-flex min-w-0 items-center gap-3 transition-colors"
         >
           <BrandMark className="h-10 w-10 shrink-0" />
-          <span className="truncate">{tc("appName")}</span>
+          <MarketingHeading
+            as="span"
+            className="truncate text-lg font-semibold tracking-tight sm:text-xl"
+          >
+            {tc("appName")}
+          </MarketingHeading>
         </Link>
 
-        <nav
+        <MarketingBody
+          as="nav"
           aria-label="Main navigation"
-          className="marketing-surface hidden items-center gap-1 rounded-2xl p-1.5 md:flex"
+          className="marketing-surface hidden items-center gap-1 rounded-2xl p-1.5 text-sm md:flex"
         >
           <Link
             href="/pricing"
             className={cx(
-              "rounded-xl px-4 py-2 text-sm text-zinc-600 transition-colors",
-              "hover:bg-zinc-50 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white",
+              "rounded-xl px-4 py-2 transition-colors",
+              "hover:bg-zinc-50 hover:text-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-white",
             )}
           >
             {t("nav.pricing")}
@@ -55,13 +62,13 @@ export function Header() {
           <Link
             href="/help"
             className={cx(
-              "rounded-xl px-4 py-2 text-sm text-zinc-600 transition-colors",
-              "hover:bg-zinc-50 hover:text-zinc-950 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white",
+              "rounded-xl px-4 py-2 transition-colors",
+              "hover:bg-zinc-50 hover:text-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-white",
             )}
           >
             {t("nav.help")}
           </Link>
-        </nav>
+        </MarketingBody>
 
         <div className="flex items-center gap-2">
           <div className="hidden md:block">
@@ -97,11 +104,18 @@ export function Header() {
           <SheetHeader className="px-5 pb-5 pt-5">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <SheetTitle className="text-base font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-                  {tc("appName")}
+                <SheetTitle>
+                  <MarketingHeading
+                    as="span"
+                    className="text-base font-semibold tracking-tight"
+                  >
+                    {tc("appName")}
+                  </MarketingHeading>
                 </SheetTitle>
-                <SheetDescription className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                  {t("nav.writeLetter")}
+                <SheetDescription className="mt-1">
+                  <MarketingBody as="span" tone="muted" className="text-sm">
+                    {t("nav.writeLetter")}
+                  </MarketingBody>
                 </SheetDescription>
               </div>
               <MenuTriggerButton

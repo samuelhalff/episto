@@ -51,7 +51,7 @@ export default async function HelpPage({
       <JsonLd data={buildFaqJsonLd(faqs)} />
       <MarketingLayout>
         {/* FAQ Section */}
-        <MarketingSection className="pb-10 pt-12 sm:pt-16 md:pb-14 md:pt-20">
+        <MarketingSection spacing="compact">
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-4xl md:text-5xl">
               {t("faqTitle")}
@@ -68,7 +68,7 @@ export default async function HelpPage({
         </MarketingSection>
 
         {/* Write a letter CTA */}
-        <MarketingSection className="py-8 sm:py-10 md:py-12">
+        <MarketingSection spacing="tight">
           <div className="mx-auto max-w-2xl text-center">
             <MarketingActionLink
               href="/draft/new"
@@ -80,7 +80,7 @@ export default async function HelpPage({
         </MarketingSection>
 
         {/* Contact — below FAQs */}
-        <MarketingSection className="pb-12 pt-0 md:pb-16">
+        <MarketingSection spacing="compact" trimTop>
           <MarketingCard className="mx-auto max-w-2xl rounded-2xl p-6 text-center sm:rounded-3xl sm:p-8 md:p-10">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-500/10">
               <Mail className="h-6 w-6 text-amber-600 dark:text-amber-400" />

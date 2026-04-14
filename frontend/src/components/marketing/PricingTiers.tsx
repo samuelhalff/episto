@@ -5,6 +5,7 @@ import { MarketingCard, MarketingNotice, MarketingSection } from "./primitives";
 import { PriceAmount, PricingValueRow } from "./pricing-shared";
 import { PricingSimulator } from "./PricingSimulator";
 import type { PricingProvider, PricingTier } from "./pricing-types";
+import { MarketingBody, MarketingHeading } from "./typography";
 
 type TranslationValues = Record<string, string | number | Date>;
 type TranslationFn = (key: string, values?: TranslationValues) => string;
@@ -48,19 +49,26 @@ function PricingOptionCard({
 }) {
   return (
     <div className="marketing-surface-muted min-w-0 rounded-[1.75rem] p-5">
-      <p className="text-sm font-semibold uppercase tracking-[0.14em] text-zinc-600 dark:text-zinc-300">
+      <MarketingBody
+        as="p"
+        tone="label"
+        className="text-sm font-semibold uppercase tracking-[0.14em]"
+      >
         {title}
-      </p>
-      <div className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
+      </MarketingBody>
+      <MarketingHeading
+        as="div"
+        className="mt-3 text-3xl font-semibold tracking-[-0.04em]"
+      >
         <PriceAmount
           loading={loading}
           value={totalDisplayPrice}
           fallback={t("priceUnavailable")}
         />
-      </div>
-      <p className="mt-2 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+      </MarketingHeading>
+      <MarketingBody className="mt-2 text-sm leading-6">
         {t("priceCaption")}
-      </p>
+      </MarketingBody>
 
       {priceChanges.length > 0 ? (
         <div className="mt-5 space-y-3">
@@ -71,7 +79,6 @@ function PricingOptionCard({
             >
               <PricingValueRow
                 label={item.label}
-                labelClassName="text-zinc-600 dark:text-zinc-300"
                 value={
                   <PriceAmount
                     loading={loading}
@@ -126,9 +133,12 @@ function PricingTotalsCard({
 
   return (
     <MarketingCard tone="soft">
-      <h2 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
+      <MarketingHeading
+        as="h2"
+        className="text-3xl font-semibold tracking-[-0.04em] md:text-4xl"
+      >
         {t("summaryCardTitle")}
-      </h2>
+      </MarketingHeading>
 
       <div className="mt-8 grid gap-4 lg:grid-cols-2">
         <PricingOptionCard
@@ -168,11 +178,11 @@ export function PricingTiersSection({
   t: TranslationFn;
 }) {
   return (
-    <MarketingSection className="pb-0 pt-0 md:pt-0">
+    <MarketingSection spacing="tight" trimTop trimBottom>
       <div className="space-y-6">
         {showMissingPricingNotice ? (
-          <MarketingNotice className="text-zinc-600 dark:text-zinc-300">
-            {t("pricingUnavailableBody")}
+          <MarketingNotice>
+            <MarketingBody>{t("pricingUnavailableBody")}</MarketingBody>
           </MarketingNotice>
         ) : null}
 

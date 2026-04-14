@@ -5,6 +5,7 @@ import { useState } from "react";
 import { LogOut, ShieldCheck } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { useAdminAuth } from "../admin-auth-context";
 import { PanelError, SectionPanel } from "../admin-metric-panels";
 import { getAdminPagePath } from "@/lib/admin-paths";
@@ -56,7 +57,7 @@ export default function AdminAccountPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <section
         className="rounded-2xl border p-6"
         style={{
@@ -82,7 +83,10 @@ export default function AdminAccountPage() {
               <p className="text-sm" style={{ color: "var(--app-muted)" }}>
                 {admin?.email ?? t("account.notAvailable")}
               </p>
-              <p className="mt-1 text-xs font-medium uppercase tracking-[0.2em]" style={{ color: "var(--app-muted)" }}>
+              <p
+                className="mt-1 text-xs font-medium uppercase tracking-[0.2em]"
+                style={{ color: "var(--app-muted)" }}
+              >
                 {t("shell.role")}
               </p>
             </div>
@@ -103,7 +107,11 @@ export default function AdminAccountPage() {
           </button>
         </div>
 
-        {error ? <div className="mt-4"><PanelError message={error} /></div> : null}
+        {error ? (
+          <div className="mt-4">
+            <PanelError message={error} />
+          </div>
+        ) : null}
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -123,7 +131,10 @@ export default function AdminAccountPage() {
             </div>
             <div className="flex items-start justify-between gap-4">
               <dt style={{ color: "var(--app-muted)" }}>{t("account.actor")}</dt>
-              <dd className="text-right font-mono text-xs sm:text-sm" style={{ color: "var(--app-fg)" }}>
+              <dd
+                className="text-right font-mono text-xs sm:text-sm"
+                style={{ color: "var(--app-fg)" }}
+              >
                 {admin?.actor ?? t("account.notAvailable")}
               </dd>
             </div>
@@ -157,7 +168,10 @@ export default function AdminAccountPage() {
             }}
           >
             <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0" style={{ color: "var(--app-fg)" }} />
+              <ShieldCheck
+                className="mt-0.5 h-5 w-5 shrink-0"
+                style={{ color: "var(--app-fg)" }}
+              />
               <p style={{ color: "var(--app-muted)" }}>{t("account.securityBody")}</p>
             </div>
           </div>

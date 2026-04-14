@@ -6,7 +6,13 @@ import { useParams, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
 import { adminPost, fetchAdminDraftCase, fetchAdminDraftTimeline } from "../../admin-api";
-import { MetricCard, PanelError, PanelLoading, SectionPanel } from "../../admin-metric-panels";
+import {
+  MetricCard,
+  PanelError,
+  PanelLoading,
+  SectionPanel,
+} from "../../admin-metric-panels";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { getAdminPagePath } from "@/lib/admin-paths";
 
 interface ViewedDraftResponse {
@@ -18,7 +24,9 @@ interface ViewedDraftResponse {
 
 function TimelineMeta({ meta }: { meta: Record<string, unknown> | null }) {
   if (!meta) return null;
-  const entries = Object.entries(meta).filter(([, value]) => value !== null && value !== undefined);
+  const entries = Object.entries(meta).filter(
+    ([, value]) => value !== null && value !== undefined,
+  );
   if (entries.length === 0) return null;
 
   return (
@@ -122,9 +130,12 @@ export default function DraftCasePage() {
     setContentError("");
     setContentSuccess("");
     try {
-      const response = await adminPost<ViewedDraftResponse>(`/admin/drafts/${id}/view-content`, {
-        reason,
-      });
+      const response = await adminPost<ViewedDraftResponse>(
+        `/admin/drafts/${id}/view-content`,
+        {
+          reason,
+        },
+      );
       setContent(response.draft);
       setContentSuccess("Content access logged.");
     } catch (error) {
@@ -139,9 +150,12 @@ export default function DraftCasePage() {
     setRefundError("");
     setRefundSuccess("");
     try {
-      const response = await adminPost<{ refundId: string }>(`/admin/drafts/${id}/refund`, {
-        reason,
-      });
+      const response = await adminPost<{ refundId: string }>(
+        `/admin/drafts/${id}/refund`,
+        {
+          reason,
+        },
+      );
       setRefundSuccess(`Refund queued: ${response.refundId}`);
       await draftCase.refetch();
       await timeline.refetch();
@@ -174,10 +188,13 @@ export default function DraftCasePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <div className="space-y-2">
         <Link
-          href={getAdminPagePath(pathname, `sessions/${draftCase.data?.session.id ?? ""}`)}
+          href={getAdminPagePath(
+            pathname,
+            `sessions/${draftCase.data?.session.id ?? ""}`,
+          )}
           className="text-xs"
           style={{ color: "var(--app-muted)" }}
         >
@@ -232,10 +249,23 @@ export default function DraftCasePage() {
             {draftCase.data.dispatch ? (
               <div className="space-y-2 text-sm" style={{ color: "var(--app-fg)" }}>
                 <p>Provider: {draftCase.data.dispatch.providerName}</p>
-                <p>Provider reference: {draftCase.data.dispatch.providerReference ?? "None"}</p>
+                <p>
+                  Provider reference:{" "}
+                  {draftCase.data.dispatch.providerReference ?? "None"}
+                </p>
                 <p>Tracking number: {draftCase.data.dispatch.trackingNumber ?? "None"}</p>
-                <p>Submitted: {draftCase.data.dispatch.submittedAt ? new Date(draftCase.data.dispatch.submittedAt).toLocaleString() : "Not submitted"}</p>
-                <p>Last checked: {draftCase.data.dispatch.lastCheckedAt ? new Date(draftCase.data.dispatch.lastCheckedAt).toLocaleString() : "Never"}</p>
+                <p>
+                  Submitted:{" "}
+                  {draftCase.data.dispatch.submittedAt
+                    ? new Date(draftCase.data.dispatch.submittedAt).toLocaleString()
+                    : "Not submitted"}
+                </p>
+                <p>
+                  Last checked:{" "}
+                  {draftCase.data.dispatch.lastCheckedAt
+                    ? new Date(draftCase.data.dispatch.lastCheckedAt).toLocaleString()
+                    : "Never"}
+                </p>
                 <p>Failure reason: {draftCase.data.dispatch.failureReason ?? "None"}</p>
               </div>
             ) : (
@@ -331,7 +361,10 @@ export default function DraftCasePage() {
                       style={{ borderColor: "var(--app-border)" }}
                     >
                       <div className="flex items-center justify-between gap-4">
-                        <p className="text-sm font-medium" style={{ color: "var(--app-fg)" }}>
+                        <p
+                          className="text-sm font-medium"
+                          style={{ color: "var(--app-fg)" }}
+                        >
                           {event.eventType}
                         </p>
                         <span className="text-xs" style={{ color: "var(--app-muted)" }}>
@@ -340,7 +373,9 @@ export default function DraftCasePage() {
                       </div>
                       <p className="mt-1 text-xs" style={{ color: "var(--app-muted)" }}>
                         {event.actor}
-                        {event.from || event.to ? ` · ${event.from ?? "∅"} → ${event.to ?? "∅"}` : ""}
+                        {event.from || event.to
+                          ? ` · ${event.from ?? "∅"} → ${event.to ?? "∅"}`
+                          : ""}
                       </p>
                       <TimelineMeta meta={event.meta} />
                     </div>

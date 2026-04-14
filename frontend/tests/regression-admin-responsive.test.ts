@@ -15,11 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-);
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 function readSource(relativePath: string): string {
   return readFileSync(path.join(repoRoot, relativePath), "utf8");
@@ -28,6 +24,7 @@ function readSource(relativePath: string): string {
 const sidebarSource = readSource("frontend/src/app/[locale]/admin/admin-sidebar.tsx");
 const topBarSource = readSource("frontend/src/app/[locale]/admin/admin-top-bar.tsx");
 const shellSource = readSource("frontend/src/app/[locale]/admin/admin-shell.tsx");
+const pageSpacingSource = readSource("frontend/src/components/layout/page-spacing.ts");
 
 describe("regression: admin responsive dashboard", () => {
   // ── Sidebar ──
@@ -154,9 +151,11 @@ describe("regression: admin responsive dashboard", () => {
   });
 
   it("shell uses responsive padding for main content", () => {
-    expect(shellSource).toContain("p-4");
-    expect(shellSource).toContain("sm:p-6");
-    expect(shellSource).toContain("lg:p-8");
+    expect(shellSource).toContain("ADMIN_SHELL_MAIN_CLASS_NAME");
+    expect(pageSpacingSource).toContain("ADMIN_SHELL_MAIN_CLASS_NAME =");
+    expect(pageSpacingSource).toContain("px-4 py-5");
+    expect(pageSpacingSource).toContain("sm:px-6 sm:py-6");
+    expect(pageSpacingSource).toContain("lg:px-8 lg:py-8");
   });
 
   it("shell still renders auth loading state", () => {

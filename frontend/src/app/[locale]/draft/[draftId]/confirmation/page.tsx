@@ -27,6 +27,10 @@ import { ConfirmationEmailNotice } from "@/components/product/ConfirmationEmailN
 import { ProtectedPdfDownloadButton } from "@/components/product/ProtectedPdfDownloadButton";
 import { DispatchConfirmation } from "@/components/product/DispatchConfirmation";
 import { FlowHeader } from "@/components/product/FlowHeader";
+import {
+  APP_PAGE_STACK_CLASS_NAME,
+  NARROW_APP_PAGE_SHELL_CLASS_NAME,
+} from "@/components/layout/page-spacing";
 import { getCustomerFlowPath } from "@/lib/customer-flow";
 import { getAppButtonClassName } from "@/components/ui/app-button";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -139,7 +143,11 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     return (
       <main
         id="main-content"
-        className="mx-auto max-w-2xl space-y-6 px-4 py-12 text-center"
+        className={[
+          NARROW_APP_PAGE_SHELL_CLASS_NAME,
+          APP_PAGE_STACK_CLASS_NAME,
+          "text-center",
+        ].join(" ")}
       >
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
         <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("verifying")}</p>
@@ -151,7 +159,11 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     return (
       <main
         id="main-content"
-        className="mx-auto max-w-2xl space-y-6 px-4 py-12 text-center"
+        className={[
+          NARROW_APP_PAGE_SHELL_CLASS_NAME,
+          APP_PAGE_STACK_CLASS_NAME,
+          "text-center",
+        ].join(" ")}
       >
         <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
         <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
@@ -237,7 +249,11 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     <>
       <main
         id="main-content"
-        className="mx-auto max-w-2xl space-y-8 px-4 pb-12 pt-8 text-center md:pb-10"
+        className={[
+          NARROW_APP_PAGE_SHELL_CLASS_NAME,
+          APP_PAGE_STACK_CLASS_NAME,
+          "pb-12 pt-8 text-center md:pb-10",
+        ].join(" ")}
       >
         <div className="flex justify-center">{activeStateCopy.icon}</div>
 

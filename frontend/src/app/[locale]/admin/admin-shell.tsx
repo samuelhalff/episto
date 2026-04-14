@@ -9,6 +9,7 @@ import { useAdminAuth } from "./admin-auth-context";
 import { AdminSidebar } from "./admin-sidebar";
 import { AdminTopBar } from "./admin-top-bar";
 import { env } from "@/lib/env";
+import { ADMIN_SHELL_MAIN_CLASS_NAME } from "@/components/layout/page-spacing";
 import {
   buildAdminMicrosoftLoginUrl,
   getAdminAuthErrorMessage,
@@ -34,7 +35,9 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   const handleMicrosoftLogin = useCallback(() => {
     setLoading(true);
-    window.location.assign(buildAdminMicrosoftLoginUrl(env.NEXT_PUBLIC_API_URL, sanitizedReturnTo));
+    window.location.assign(
+      buildAdminMicrosoftLoginUrl(env.NEXT_PUBLIC_API_URL, sanitizedReturnTo),
+    );
   }, [sanitizedReturnTo]);
 
   if (!ready) {
@@ -62,7 +65,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
             >
               <ShieldCheck className="h-7 w-7" style={{ color: "var(--app-bg)" }} />
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight" style={{ color: "var(--app-fg)" }}>
+            <h1
+              className="text-2xl font-semibold tracking-tight"
+              style={{ color: "var(--app-fg)" }}
+            >
               {t("login.title")}
             </h1>
             <p className="mt-2 text-sm" style={{ color: "var(--app-muted)" }}>
@@ -106,13 +112,10 @@ export function AdminShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex min-h-screen" style={{ background: "var(--app-bg)" }}>
-      <AdminSidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
+      <AdminSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <AdminTopBar onMenuToggle={() => setSidebarOpen((prev) => !prev)} />
-        <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+        <main id="main-content" className={ADMIN_SHELL_MAIN_CLASS_NAME}>
           {children}
         </main>
       </div>

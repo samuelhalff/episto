@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { LEGAL_PAGE_STACK_CLASS_NAME } from "../layout/page-spacing";
+import { MarketingBody, MarketingHeading, MarketingMeta } from "./typography";
 
 export function LegalCallout({
   title,
@@ -36,21 +38,26 @@ export function LegalSection({
     <section
       className={`rounded-2xl border border-zinc-200/80 bg-white/80 p-5 transition-colors dark:border-zinc-800 dark:bg-zinc-900/60 sm:p-6 ${className}`}
     >
-      <h2 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">{title}</h2>
-      <div className="mt-3 space-y-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-300">
+      <MarketingHeading as="h2" className="text-base font-semibold">
+        {title}
+      </MarketingHeading>
+      <MarketingBody as="div" className="mt-3 space-y-3 text-sm leading-relaxed">
         {children}
-      </div>
+      </MarketingBody>
     </section>
   );
 }
 
 export function LegalList({ items }: { items: ReactNode[] }) {
   return (
-    <ul className="space-y-2 pl-5 text-sm leading-relaxed text-zinc-600 marker:text-zinc-400 dark:text-zinc-300 dark:marker:text-zinc-500">
+    <MarketingBody
+      as="ul"
+      className="space-y-2 pl-5 text-sm leading-relaxed marker:text-zinc-400 dark:marker:text-zinc-500"
+    >
       {items.map((item, index) => (
         <li key={index}>{item}</li>
       ))}
-    </ul>
+    </MarketingBody>
   );
 }
 
@@ -66,8 +73,12 @@ export function LegalDefinitionList({
           key={item.label}
           className="grid gap-1 py-3 sm:grid-cols-[11rem_minmax(0,1fr)] sm:gap-4"
         >
-          <dt className="font-medium text-zinc-500 dark:text-zinc-400">{item.label}</dt>
-          <dd className="text-zinc-900 dark:text-zinc-100">{item.value}</dd>
+          <MarketingMeta as="dt" tone="muted" className="font-medium">
+            {item.label}
+          </MarketingMeta>
+          <MarketingBody as="dd" tone="emphasis">
+            {item.value}
+          </MarketingBody>
         </div>
       ))}
     </dl>
@@ -99,15 +110,21 @@ export function LegalParagraph({ children }: { children: ReactNode }) {
 
 export function LegalMutedText({ children }: { children: ReactNode }) {
   return (
-    <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">{children}</p>
+    <MarketingMeta tone="muted" className="text-xs leading-relaxed">
+      {children}
+    </MarketingMeta>
   );
 }
 
 export function LegalInlineCode({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.92em] text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100">
+    <MarketingBody
+      as="span"
+      tone="emphasis"
+      className="rounded bg-zinc-100 px-1.5 py-0.5 text-[0.92em] dark:bg-zinc-800"
+    >
       {children}
-    </span>
+    </MarketingBody>
   );
 }
 
@@ -116,13 +133,17 @@ export function LegalDivider() {
 }
 
 export function LegalPageStack({ children }: { children: ReactNode }) {
-  return <div className="space-y-6">{children}</div>;
+  return <div className={LEGAL_PAGE_STACK_CLASS_NAME}>{children}</div>;
 }
 
 export function LegalReferenceNotice({ children }: { children: ReactNode }) {
   return (
-    <section className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 text-sm leading-relaxed text-zinc-700 dark:border-zinc-800 dark:bg-zinc-900/70 dark:text-zinc-300 sm:p-5">
+    <MarketingBody
+      as="section"
+      tone="label"
+      className="rounded-2xl border border-zinc-200/80 bg-zinc-50/70 p-4 text-sm leading-relaxed dark:border-zinc-800 dark:bg-zinc-900/70 sm:p-5"
+    >
       {children}
-    </section>
+    </MarketingBody>
   );
 }

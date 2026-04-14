@@ -1,6 +1,14 @@
 "use client";
 
-import { ChevronRight, CircleHelp, CreditCard, Home, Languages, Palette, PenSquare } from "lucide-react";
+import {
+  ChevronRight,
+  CircleHelp,
+  CreditCard,
+  Home,
+  Languages,
+  Palette,
+  PenSquare,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
 import { LanguageSwitcher } from "../marketing/LanguageSwitcher";
@@ -64,7 +72,7 @@ export function SiteMenuPanel({
               <Palette className="h-4 w-4 text-[var(--app-muted)]" />
               {tc("theme")}
             </div>
-            <ThemeToggle />
+            <ThemeToggle className="w-full justify-between" />
           </div>
 
           <div className="space-y-3">
@@ -72,7 +80,7 @@ export function SiteMenuPanel({
               <Languages className="h-4 w-4 text-[var(--app-muted)]" />
               {tc("language")}
             </div>
-            <LanguageSwitcher />
+            <LanguageSwitcher variant="menu" className="w-full" />
           </div>
         </div>
       </div>

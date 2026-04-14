@@ -14,6 +14,10 @@ import { FlowHeader } from "@/components/product/FlowHeader";
 import { FlowActionDock } from "@/components/product/FlowActionDock";
 import { PriceSummary } from "@/components/product/PriceSummary";
 import {
+  APP_PAGE_STACK_CLASS_NAME,
+  APP_WIDE_PAGE_SHELL_CLASS_NAME,
+} from "@/components/layout/page-spacing";
+import {
   StripePaymentForm,
   type StripePaymentFormLoadRecoveryReason,
 } from "@/components/product/StripePaymentForm";
@@ -53,7 +57,7 @@ function getStripeAppearance(theme: "light" | "dark") {
       borderRadius: "16px",
       fontSizeBase: "16px",
       fontFamily:
-        "\"Ideal Sans\", \"Inter\", system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        '"Ideal Sans", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
       fontWeightMedium: "600",
       fontWeightBold: "700",
       spacingUnit: "4px",
@@ -115,8 +119,12 @@ export default function CheckoutPage({
   const router = useRouter();
   const { theme } = useTheme();
   const session = useSession();
-  const [submittedCheckoutEmail, setSubmittedCheckoutEmail] = useState<string | null>(null);
-  const [paymentRecoveryMessage, setPaymentRecoveryMessage] = useState<string | null>(null);
+  const [submittedCheckoutEmail, setSubmittedCheckoutEmail] = useState<string | null>(
+    null,
+  );
+  const [paymentRecoveryMessage, setPaymentRecoveryMessage] = useState<string | null>(
+    null,
+  );
 
   const draft = useDraft(draftId);
   const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
@@ -185,7 +193,8 @@ export default function CheckoutPage({
     getApiErrorUserMessage(checkout.error) ?? (checkout.error ? t("paymentError") : null);
   const hasBlockingPricingError =
     Boolean(checkoutErrorMessage) && !checkout.pricing && !checkout.clientSecret;
-  const hasBlockingStripeConfigurationError = checkoutErrorCode === "STRIPE_NOT_CONFIGURED";
+  const hasBlockingStripeConfigurationError =
+    checkoutErrorCode === "STRIPE_NOT_CONFIGURED";
   const showCheckoutBlockedState =
     !checkout.clientSecret &&
     (hasBlockingPricingError || hasBlockingStripeConfigurationError);
@@ -229,7 +238,10 @@ export default function CheckoutPage({
 
       <main
         id="main-content"
-        className="mx-auto grid max-w-7xl gap-6 px-4 pb-[calc(11rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 lg:pb-12 lg:grid-cols-[340px_minmax(0,1fr)]"
+        className={[
+          APP_WIDE_PAGE_SHELL_CLASS_NAME,
+          "grid gap-6 pb-[calc(11rem+env(safe-area-inset-bottom))] lg:grid-cols-[340px_minmax(0,1fr)] lg:gap-8 lg:pb-12",
+        ].join(" ")}
       >
         <aside className="space-y-4 lg:sticky lg:top-28">
           <PriceSummary
@@ -242,7 +254,7 @@ export default function CheckoutPage({
           />
         </aside>
 
-        <div className="space-y-6">
+        <div className={APP_PAGE_STACK_CLASS_NAME}>
           <div className="w-full max-w-none">
             <p className="section-label">{t("orderSummary")}</p>
             <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[var(--app-fg)] md:text-4xl">

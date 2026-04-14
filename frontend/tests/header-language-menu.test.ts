@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,7 +32,11 @@ import { HeaderLanguageMenu } from "../src/components/layout/HeaderLanguageMenu"
 describe("header language menu", () => {
   beforeEach(() => {
     replaceSpy.mockReset();
-    window.history.replaceState({}, "", "/draft/example?useCase=lease-cancellation#assistant");
+    window.history.replaceState(
+      {},
+      "",
+      "/draft/example?useCase=lease-cancellation#assistant",
+    );
   });
 
   afterEach(() => {
@@ -45,10 +49,10 @@ describe("header language menu", () => {
     const trigger = screen.getByRole("button", { name: "Language, Deutsch" });
 
     expect(trigger.textContent ?? "").toContain("DE");
-    expect(trigger.getAttribute("aria-haspopup")).toBe("listbox");
+    expect(trigger.getAttribute("aria-haspopup")).toBe("menu");
   });
 
-  it("shows readable locale names and preserves route state during keyboard locale changes", async () => {
+  it("shows readable locale names and preserves route state during locale changes", async () => {
     const user = userEvent.setup();
 
     render(React.createElement(HeaderLanguageMenu));
@@ -56,9 +60,11 @@ describe("header language menu", () => {
     const trigger = screen.getByRole("button", { name: "Language, Deutsch" });
     await user.click(trigger);
 
-    const listbox = await screen.findByRole("listbox", { name: "Language" });
-    const options = within(listbox).getAllByRole("option");
-    const optionText = options.map((option) => option.textContent?.replace(/\s+/g, " ").trim() ?? "");
+    const menu = await screen.findByRole("menu");
+    const options = within(menu).getAllByRole("menuitemradio");
+    const optionText = options.map(
+      (option) => option.textContent?.replace(/\s+/g, " ").trim() ?? "",
+    );
 
     expect(optionText).toEqual([
       expect.stringContaining("Deutsch"),
@@ -66,39 +72,12 @@ describe("header language menu", () => {
       expect.stringContaining("Italiano"),
       expect.stringContaining("English"),
     ]);
-    expect(options[0].getAttribute("aria-selected")).toBe("true");
-    expect(options[0].getAttribute("tabindex")).toBe("0");
-    expect(options.slice(1).every((option) => option.getAttribute("tabindex") === "-1")).toBe(
-      true,
-    );
+    expect(options[0].getAttribute("aria-checked")).toBe("true");
+    expect(
+      options.slice(1).every((option) => option.getAttribute("aria-checked") === "false"),
+    ).toBe(true);
 
-    await waitFor(() => {
-      expect(document.activeElement).toBe(options[0]);
-    });
-
-    await user.keyboard("{ArrowDown}");
-
-    await waitFor(() => {
-      expect(document.activeElement).toBe(options[1]);
-    });
-
-    expect(options[0].getAttribute("tabindex")).toBe("-1");
-    expect(options[1].getAttribute("tabindex")).toBe("0");
-
-    await user.keyboard("{End}");
-
-    await waitFor(() => {
-      expect(document.activeElement).toBe(options[3]);
-    });
-
-    await user.keyboard("{Home}");
-
-    await waitFor(() => {
-      expect(document.activeElement).toBe(options[0]);
-    });
-
-    await user.keyboard("{ArrowDown}");
-    fireEvent.keyDown(options[1], { key: " " });
+    await user.click(options[1]);
 
     expect(replaceSpy).toHaveBeenCalledTimes(1);
     expect(replaceSpy).toHaveBeenCalledWith(

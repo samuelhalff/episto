@@ -17,14 +17,19 @@ const mocks = vi.hoisted(() => {
     onmessage: ((event: MessageEvent<string>) => void) | null = null;
     onerror: ((event: Event) => void) | null = null;
     onclose: ((event: Event) => void) | null = null;
-    readonly send = vi.fn((payload: string | ArrayBufferLike | Blob | ArrayBufferView) => {
-      if (payload === JSON.stringify({ type: "stop" })) {
-        this.emitMessage({ type: "stopped" });
-        this.close();
-      }
-    });
+    readonly send = vi.fn(
+      (payload: string | ArrayBufferLike | Blob | ArrayBufferView) => {
+        if (payload === JSON.stringify({ type: "stop" })) {
+          this.emitMessage({ type: "stopped" });
+          this.close();
+        }
+      },
+    );
 
-    private readonly listeners = new Map<string, Set<(event: Event | MessageEvent<string>) => void>>();
+    private readonly listeners = new Map<
+      string,
+      Set<(event: Event | MessageEvent<string>) => void>
+    >();
 
     constructor(url: string) {
       this.url = url;
@@ -32,13 +37,21 @@ const mocks = vi.hoisted(() => {
       queueMicrotask(() => this.open());
     }
 
-    addEventListener(type: string, listener: (event: Event | MessageEvent<string>) => void) {
-      const current = this.listeners.get(type) ?? new Set<(event: Event | MessageEvent<string>) => void>();
+    addEventListener(
+      type: string,
+      listener: (event: Event | MessageEvent<string>) => void,
+    ) {
+      const current =
+        this.listeners.get(type) ??
+        new Set<(event: Event | MessageEvent<string>) => void>();
       current.add(listener);
       this.listeners.set(type, current);
     }
 
-    removeEventListener(type: string, listener: (event: Event | MessageEvent<string>) => void) {
+    removeEventListener(
+      type: string,
+      listener: (event: Event | MessageEvent<string>) => void,
+    ) {
       this.listeners.get(type)?.delete(listener);
     }
 
@@ -203,6 +216,53 @@ describe("useDictation", () => {
     );
     expect(result.current.error).toBeNull();
     expect(result.current.isRecording).toBe(false);
+  });
+
+  it("falls back to buffered transcription when live dictation stops without a final transcript", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue(
+      new Response(
+        JSON.stringify({ transcript: "Bitte kuendigen Sie meinen Vertrag." }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      ),
+    );
+
+    const stopCapture = vi.fn().mockResolvedValue(new Uint8Array([9, 8, 7]));
+    mocks.startDictationCapture.mockResolvedValue({
+      stop: stopCapture,
+      abort: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const { result } = renderHook(() =>
+      useDictation({ fieldContext: "intake", draftId: "draft-1" }),
+    );
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+
+    const socket = latestSocket();
+    act(() => {
+      socket?.emitMessage({ type: "partial", text: "Bitte kuendi" });
+    });
+
+    await act(async () => {
+      await result.current.stopRecording();
+    });
+
+    expect(stopCapture).toHaveBeenCalledTimes(1);
+    expect(socket?.send).toHaveBeenCalledWith(JSON.stringify({ type: "stop" }));
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.test/v1/dictation/transcribe?locale=de-CH&fieldContext=intake&draftId=draft-1",
+      expect.objectContaining({
+        method: "POST",
+      }),
+    );
+    expect(result.current.finalText).toBe("Bitte kuendigen Sie meinen Vertrag.");
+    expect(result.current.error).toBeNull();
   });
 
   it("maps microphone permission failures to the existing dictation error state", async () => {

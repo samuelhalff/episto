@@ -8,7 +8,7 @@ export function PricingCtaSection() {
   const t = useTranslations("pricing");
 
   return (
-    <MarketingSection className="pt-0">
+    <MarketingSection spacing="compact" trimTop>
       <FinalCTABand
         eyebrow={t("ctaEyebrow")}
         title={t("ctaBandTitle")}

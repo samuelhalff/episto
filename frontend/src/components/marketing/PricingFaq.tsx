@@ -4,6 +4,7 @@ import { ShieldQuestion } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ExcludedItem, IncludedItem } from "./pricing-shared";
 import { MarketingCard, MarketingSection } from "./primitives";
+import { MarketingBody, MarketingHeading } from "./typography";
 
 export function PricingFaqSection({
   pricingFaqs,
@@ -17,9 +18,12 @@ export function PricingFaqSection({
       <MarketingSection>
         <div className="grid gap-6 lg:grid-cols-2">
           <MarketingCard className="h-full">
-            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-emerald-700 dark:text-emerald-300">
+            <MarketingHeading
+              as="h3"
+              className="text-2xl font-semibold tracking-[-0.03em] text-emerald-700 dark:text-emerald-300"
+            >
               {t("includedCardTitle")}
-            </h3>
+            </MarketingHeading>
             <div className="mt-6 space-y-3">
               <IncludedItem>{t("includedDrafting")}</IncludedItem>
               <IncludedItem>{t("includedFormatting")}</IncludedItem>
@@ -29,9 +33,12 @@ export function PricingFaqSection({
           </MarketingCard>
 
           <MarketingCard className="h-full">
-            <h3 className="text-2xl font-semibold tracking-[-0.03em] text-red-700 dark:text-red-300">
+            <MarketingHeading
+              as="h3"
+              className="text-2xl font-semibold tracking-[-0.03em] text-red-700 dark:text-red-300"
+            >
               {t("excludedCardTitle")}
-            </h3>
+            </MarketingHeading>
             <div className="mt-6 space-y-3">
               <ExcludedItem>{t("excludedLegalReview")}</ExcludedItem>
               <ExcludedItem>{t("excludedGuaranteedOutcome")}</ExcludedItem>
@@ -45,9 +52,12 @@ export function PricingFaqSection({
       <MarketingSection muted>
         <div className="space-y-6">
           <div className="max-w-3xl">
-            <h2 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
+            <MarketingHeading
+              as="h2"
+              className="text-3xl font-semibold tracking-[-0.04em] md:text-4xl"
+            >
               {t("faqTitle")}
-            </h2>
+            </MarketingHeading>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -58,12 +68,12 @@ export function PricingFaqSection({
                     <ShieldQuestion className="h-4 w-4" />
                   </span>
                   <div>
-                    <h3 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
+                    <MarketingHeading as="h3" className="text-base font-semibold">
                       {faq.question}
-                    </h3>
-                    <p className="mt-2 text-sm leading-7 text-zinc-600 dark:text-zinc-300">
+                    </MarketingHeading>
+                    <MarketingBody className="mt-2 text-sm leading-7">
                       {faq.answer}
-                    </p>
+                    </MarketingBody>
                   </div>
                 </div>
               </MarketingCard>

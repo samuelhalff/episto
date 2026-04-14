@@ -85,76 +85,80 @@
     "homepage": {
       "hero": {
         "badge": "Conçu pour les lettres importantes",
-        "title": "Lettres importantes — préparées avec soin, prêtes à l’envoi",
-        "subtitle": "Décrivez votre besoin. Nous vous guidons vers une lettre formelle claire que vous pouvez relire tranquillement avant l’envoi.",
-        "body": "Episto vous aide à préparer une correspondance importante sans passage au guichet — du premier brouillon jusqu’à la remise au circuit postal en Suisse.",
+        "title": "Votre lettre, sans imprimante ni timbre",
+        "subtitle": "Décrivez votre besoin. Nous rédigeons une première version, vous la relisez, puis nous la préparons pour l’envoi par la poste en Suisse.",
         "primaryCta": "Rédigez votre lettre maintenant",
         "secondaryCta": "Voir comment cela fonctionne",
-        "proof": "Aucun compte requis · Total clair avant paiement · Infrastructure soucieuse de la confidentialité"
+        "proof": "Aucun compte requis · Total clair avant paiement · Vos données restent privées",
+        "steps": {
+          "describe": "Décrivez la situation",
+          "review": "Relisez le brouillon",
+          "send": "Envoyez quand tout est prêt"
+        }
       },
       "trustStrip": {
-        "postal": "Envoi postal en Suisse",
-        "privacy": "Infrastructure soucieuse de la confidentialité",
-        "encryption": "Chiffré en transit et au repos",
-        "noAccount": "Démarrez sans abonnement ni compte"
+        "postal": "Envoyé par la poste en Suisse",
+        "privacy": "Vos données restent privées",
+        "encryption": "Protégé du début à la fin",
+        "noAccount": "Commencez sans compte"
       },
       "howItWorks": {
-        "eyebrow": "Comment ça fonctionne",
-        "title": "Trois étapes pour une lettre sérieuse",
-        "intro": "Vous gardez la main: vous décrivez la situation, vous relisez le texte, puis vous payez et envoyez seulement quand tout est juste.",
+        "eyebrow": "Comment ça marche",
+        "title": "De votre situation à une lettre prête",
+        "intro": "Vous expliquez la situation, vous relisez le brouillon, puis vous envoyez seulement quand tout est formulé comme il faut.",
         "steps": {
           "describe": {
-            "title": "Décrire la situation",
-            "body": "Écrivez ou dictez ce que la lettre doit accomplir — une résiliation, une réclamation ou une demande officielle."
+            "title": "Décrivez la situation",
+            "body": "Écrivez ou dictez ce qui s'est passé avec vos mots. Nous nous en servons pour rédiger le brouillon."
           },
           "review": {
-            "title": "Relire le brouillon",
-            "body": "Vous voyez une lettre formelle bien structurée, ajustez le ton et les détails, puis vérifiez l’ensemble avant la suite."
+            "title": "Relisez le brouillon",
+            "body": "Lisez la lettre, ajustez le ton et modifiez chaque détail avant de continuer."
           },
           "send": {
-            "title": "Lancer l’envoi",
-            "body": "Quand tout vous convient, vous confirmez le total, payez en sécurité et nous préparons la lettre pour l’envoi postal."
+            "title": "Envoyez quand tout est prêt",
+            "body": "Validez le total, payez en sécurité et nous préparons votre lettre pour l’envoi."
           }
         }
       },
       "confidence": {
-        "eyebrow": "Pourquoi cela rassure",
-        "title": "Plus de confiance avant l’envoi",
-        "intro": "Episto ne remplace pas votre jugement — il donne à votre lettre un cadre professionnel et vous laisse le contrôle avant l’envoi.",
+        "eyebrow": "Ce qui inspire confiance",
+        "title": "Vous gardez la main à chaque étape",
+        "intro": "Episto aide pour la structure et la formulation. Le contenu de la lettre, le moment où elle est prête et l'envoi restent votre décision.",
         "cards": {
           "structured": {
-            "title": "Structure nette",
-            "body": "Votre situation devient une lettre formelle avec une structure claire, plutôt qu’un message rédigé dans la précipitation."
+            "title": "Une vraie lettre, pas un texte improvisé",
+            "body": "Vos points deviennent une lettre claire et structurée plutôt qu'un message écrit dans la précipitation."
           },
           "review": {
-            "title": "Relue avant l’envoi",
-            "body": "Vous vérifiez le contenu, le ton et les détails avant que le paiement et l’envoi postal ne commencent."
+            "title": "Rien ne part sans votre accord",
+            "body": "Vérifiez le texte, les adresses et les pièces jointes avant de payer ou d’envoyer la lettre."
           },
           "privacy": {
-            "title": "Traitée avec soin",
-            "body": "Nous rendons le parcours transparent, affichons le total avant paiement et gardons un discours respectueux de la confidentialité."
+            "title": "Prix et traitement transparents",
+            "body": "Le prix complet est affiché avant le paiement, et le traitement de votre lettre est expliqué simplement."
           }
         }
       },
       "useCases": {
         "eyebrow": "Cas fréquents",
-        "title": "Pour les lettres que vous ne devriez plus repousser",
-        "intro": "Quand l’enjeu est sérieux, une lettre bien préparée porte souvent plus qu’un simple message rapide.",
+        "title": "Quand Episto peut vous aider",
+        "intro": "Les gens viennent ici quand le sujet est important et qu'un simple message ne suffit plus.",
         "cancellation": {
           "title": "Résilier un abonnement",
-          "description": "Mettez fin à un abonnement ou à un contrat de service avec un courrier formel écrit."
+          "description": "Résiliez un abonnement ou un contrat de service avec un avis écrit clair."
         },
         "lease": {
-          "title": "Résilier un bail",
-          "description": "Rédigez un avis clair à votre bailleur ou à la gérance avec le ton formel adapté."
+          "title": "Mettre fin à un bail",
+          "description": "Rédigez un avis formel à votre bailleur ou à la gérance sans partir d'une page blanche."
         },
         "complaint": {
           "title": "Déposer une réclamation",
-          "description": "Exposez le problème de manière factuelle, complète et suffisamment sérieuse pour être entendu."
+          "description": "Expliquez le problème calmement et clairement pour être pris au sérieux."
         },
         "authority": {
           "title": "Écrire à une autorité",
-          "description": "Préparez une correspondance officielle qui donne immédiatement une impression d’ordre et de sérieux."
+          "description": "Préparez une lettre officielle, organisée, respectueuse et complète dès le départ."
         }
       }
     }

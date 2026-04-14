@@ -85,76 +85,80 @@
     "homepage": {
       "hero": {
         "badge": "Pensato per lettere importanti",
-        "title": "Lettere importanti — preparate con cura, pronte per l’invio",
-        "subtitle": "Descriva ciò di cui ha bisogno. La guidiamo verso una lettera formale chiara che può controllare con calma prima dell’invio.",
-        "body": "Episto La aiuta a preparare una corrispondenza importante senza passare dallo sportello postale — dalla prima bozza fino alla presa in carico per l’invio in Svizzera.",
+        "title": "La Sua lettera, senza stampante né francobollo",
+        "subtitle": "Descriva ciò di cui ha bisogno. Prepariamo una prima bozza, Lei la controlla e noi la prepariamo per l’invio per posta in Svizzera.",
         "primaryCta": "Scriva la Sua lettera ora",
         "secondaryCta": "Veda come funziona",
-        "proof": "Nessun conto richiesto · Totale chiaro prima del pagamento · Infrastruttura attenta alla privacy"
+        "proof": "Nessun conto richiesto · Totale chiaro prima del pagamento · I Suoi dati restano privati",
+        "steps": {
+          "describe": "Descriva la situazione",
+          "review": "Riveda la bozza",
+          "send": "Invii quando è tutto pronto"
+        }
       },
       "trustStrip": {
-        "postal": "Invio postale in Svizzera",
-        "privacy": "Infrastruttura attenta alla privacy",
-        "encryption": "Crittografato in transito e a riposo",
-        "noAccount": "Può iniziare senza abbonamento né conto"
+        "postal": "Spedita per posta in Svizzera",
+        "privacy": "I Suoi dati restano privati",
+        "encryption": "Protetta dall’inizio alla fine",
+        "noAccount": "Può iniziare senza conto"
       },
       "howItWorks": {
         "eyebrow": "Come funziona",
-        "title": "Tre passi per una lettera seria",
-        "intro": "Rimane Lei a decidere: descrive la situazione, rivede il testo, poi paga e invia solo quando tutto è corretto.",
+        "title": "Dalla situazione a una lettera pronta",
+        "intro": "Descrive la situazione, rivede la bozza e invia solo quando tutto è scritto come deve essere.",
         "steps": {
           "describe": {
-            "title": "Descrivere la situazione",
-            "body": "Scriva o detti ciò che la lettera deve ottenere — una disdetta, un reclamo o una richiesta ufficiale."
+            "title": "Descriva la situazione",
+            "body": "Scriva o detti che cosa è successo con parole Sue. Noi lo usiamo per preparare la bozza."
           },
           "review": {
-            "title": "Rivedere la bozza",
-            "body": "Vede una lettera formale ben strutturata, adatta tono e dettagli e controlla tutto prima di procedere."
+            "title": "Riveda la bozza",
+            "body": "Legga la lettera, adatti il tono e modifichi ogni dettaglio prima di continuare."
           },
           "send": {
-            "title": "Avviare l’invio",
-            "body": "Quando è tutto a posto, conferma il totale, paga in modo sicuro e noi prepariamo la lettera per l’invio postale."
+            "title": "Invii quando è tutto pronto",
+            "body": "Confermi il totale, paghi in modo sicuro e noi prepariamo la Sua lettera per l’invio."
           }
         }
       },
       "confidence": {
         "eyebrow": "Perché ispira fiducia",
-        "title": "Più sicurezza prima dell’invio",
-        "intro": "Episto non sostituisce il Suo giudizio — dà alla Sua lettera una cornice professionale e Le lascia il controllo prima dell’invio.",
+        "title": "Mantiene il controllo in ogni passaggio",
+        "intro": "Episto aiuta con struttura e formulazione. Il contenuto della lettera, il momento in cui è pronta e l'invio restano una Sua decisione.",
         "cards": {
           "structured": {
-            "title": "Struttura professionale",
-            "body": "La Sua situazione diventa una lettera formale con una struttura chiara, non un messaggio scritto in fretta."
+            "title": "Una vera lettera, non improvvisata",
+            "body": "I Suoi punti diventano una lettera chiara e ben strutturata, non un messaggio scritto in fretta."
           },
           "review": {
-            "title": "Controllata prima dell’invio",
-            "body": "Può verificare contenuto, tono e dettagli prima che inizino pagamento e invio postale."
+            "title": "Nulla parte senza la Sua approvazione",
+            "body": "Verifichi testo, indirizzi e allegati prima di pagare o inviare la lettera."
           },
           "privacy": {
-            "title": "Gestita con cura",
-            "body": "Rendiamo il percorso trasparente, mostriamo il totale prima del pagamento e descriviamo il servizio con attenzione alla privacy."
+            "title": "Costo e passaggi restano chiari",
+            "body": "Vede il totale prima del pagamento e spieghiamo con semplicità come viene trattata la Sua lettera."
           }
         }
       },
       "useCases": {
         "eyebrow": "Casi tipici",
-        "title": "Per le lettere che non dovrebbe più rimandare",
-        "intro": "Quando la questione è seria, una lettera ben preparata pesa spesso più di un messaggio veloce.",
+        "title": "Quando Episto può aiutarLa",
+        "intro": "Di solito si arriva qui quando la questione è importante e un messaggio veloce non basta più.",
         "cancellation": {
           "title": "Disdire un abbonamento",
-          "description": "Chiuda abbonamenti o contratti di servizio con una comunicazione scritta formale."
+          "description": "Chiuda un abbonamento o un contratto di servizio con una comunicazione scritta chiara."
         },
         "lease": {
           "title": "Disdire una locazione",
-          "description": "Scriva un avviso chiaro al locatore o all’amministrazione con il tono formale corretto."
+          "description": "Scriva un avviso formale al locatore o all’amministrazione senza partire da una pagina vuota."
         },
         "complaint": {
           "title": "Presentare un reclamo",
-          "description": "Esponga il problema in modo fattuale, completo e sufficientemente serio da essere preso in considerazione."
+          "description": "Esponga il problema con calma e chiarezza perché venga preso sul serio."
         },
         "authority": {
           "title": "Scrivere a un’autorità",
-          "description": "Prepari una corrispondenza ufficiale che risulti ordinata e professionale fin dall’inizio."
+          "description": "Prepari una lettera ufficiale che risulti ordinata, rispettosa e completa fin dall’inizio."
         }
       }
     }

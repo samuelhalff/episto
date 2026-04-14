@@ -7,7 +7,18 @@ import dotenv from "dotenv";
 
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-const REPO_ROOT_FRONTEND_ENV_KEYS = new Set(["API_URL", "NEXT_DIST_DIR"]);
+const REPO_ROOT_FRONTEND_ENV_KEYS = new Set([
+  "API_URL",
+  "NEXT_DIST_DIR",
+  "APP_PUBLIC_URL",
+  "DEV_ALLOWED_ORIGINS",
+]);
+const DEFAULT_ALLOWED_DEV_ORIGINS = [
+  "localhost",
+  "127.0.0.1",
+  "frontend",
+  "proxy",
+] as const;
 
 function isAllowedRootEnvKey(key: string): boolean {
   return key.startsWith("NEXT_PUBLIC_") || REPO_ROOT_FRONTEND_ENV_KEYS.has(key);
@@ -38,6 +49,47 @@ function loadLocalEnvFiles() {
 }
 
 loadLocalEnvFiles();
+
+export function parseOriginHost(value: string | undefined): string | null {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return new URL(value).hostname;
+  } catch {
+    return null;
+  }
+}
+
+function normalizeAllowedDevOrigin(value: string): string | null {
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  return parseOriginHost(trimmed) ?? trimmed;
+}
+
+export function collectAllowedDevOrigins(): string[] {
+  const hosts = new Set<string>(DEFAULT_ALLOWED_DEV_ORIGINS);
+  const envHosts = [
+    parseOriginHost(process.env.NEXT_PUBLIC_SITE_URL),
+    parseOriginHost(process.env.APP_PUBLIC_URL),
+    ...(process.env.DEV_ALLOWED_ORIGINS ?? "")
+      .split(",")
+      .map(normalizeAllowedDevOrigin)
+      .filter(Boolean),
+  ];
+
+  for (const host of envHosts) {
+    if (host) {
+      hosts.add(host);
+    }
+  }
+
+  return [...hosts];
+}
 
 // Security headers — values locked in docs/07-operations/security-and-privacy.md §Security headers
 // CSP includes Stripe domains as required by docs (script-src, frame-src, connect-src).
@@ -125,7 +177,7 @@ function createConfig(): NextConfig {
     reactStrictMode: true,
     output: "standalone",
     distDir,
-    allowedDevOrigins: ["localhost"],
+    allowedDevOrigins: collectAllowedDevOrigins(),
     experimental: {
       serverComponentsHmrCache: false,
     },

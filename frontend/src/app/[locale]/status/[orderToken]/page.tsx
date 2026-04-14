@@ -9,6 +9,10 @@ import { apiFetch } from "@/lib/api";
 import { OrderStatusResponseSchema, queryKeys } from "@swiss-mail/shared";
 import type { OrderStatusResponse } from "@swiss-mail/shared";
 import { BrandMark } from "@/components/branding/BrandMark";
+import {
+  APP_PAGE_STACK_CLASS_NAME,
+  STATUS_PAGE_SHELL_CLASS_NAME,
+} from "@/components/layout/page-spacing";
 import { CustomerSiteMenu } from "@/components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "@/components/layout/HeaderLanguageMenu";
 import { DispatchConfirmation } from "@/components/product/DispatchConfirmation";
@@ -100,7 +104,10 @@ export default function StatusPage({
         </div>
       </header>
 
-      <main id="main-content" className="mx-auto max-w-5xl space-y-6 px-4 py-10 sm:px-6">
+      <main
+        id="main-content"
+        className={[STATUS_PAGE_SHELL_CLASS_NAME, APP_PAGE_STACK_CLASS_NAME].join(" ")}
+      >
         <div className="rounded-[2.5rem] border border-zinc-200/80 bg-white/92 p-5 text-center shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92 sm:p-8">
           <Package className="mx-auto mb-4 h-12 w-12 text-primary" />
           <h1 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">

@@ -190,7 +190,7 @@ describe("checkout footer actions", () => {
 
   it("gives Stripe a deliberate Stripe-style sans stack and floating labels instead of inheriting a serif fallback", () => {
     expect(checkoutPageSource).toContain("fontFamily:");
-    expect(checkoutPageSource).toContain('\\"Ideal Sans\\", \\"Inter\\", system-ui');
+    expect(checkoutPageSource).toContain('"Ideal Sans", "Inter", system-ui');
     expect(checkoutPageSource).toContain('labels: "floating"');
     expect(checkoutPageSource).not.toContain('fontFamily: "inherit"');
   });

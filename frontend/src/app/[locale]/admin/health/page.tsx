@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { useAdminAuth } from "../admin-auth-context";
 import { adminFetch, type HealthResponse } from "../admin-api";
 import { HealthPanel, QueuesPanel } from "../admin-panels";
@@ -20,7 +21,7 @@ export default function HealthPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
         Health
       </h1>

@@ -9,6 +9,7 @@ import { queryKeys } from "@swiss-mail/shared";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminSearch } from "../admin-api";
 import { PanelError, PanelLoading, SectionPanel } from "../admin-metric-panels";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { getAdminSearchResultPath } from "@/lib/admin-paths";
 
 export default function SearchPage() {
@@ -29,13 +30,14 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <div className="space-y-2">
         <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
           Search
         </h1>
         <p className="text-sm" style={{ color: "var(--app-muted)" }}>
-          Find a session, draft, payment, or provider reference without opening raw provider data.
+          Find a session, draft, payment, or provider reference without opening raw
+          provider data.
         </p>
       </div>
 
@@ -87,7 +89,10 @@ export default function SearchPage() {
                     className="block space-y-1 py-3 transition-opacity hover:opacity-80"
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <p className="text-sm font-medium" style={{ color: "var(--app-fg)" }}>
+                      <p
+                        className="text-sm font-medium"
+                        style={{ color: "var(--app-fg)" }}
+                      >
                         {result.label}
                       </p>
                       <span
@@ -101,7 +106,8 @@ export default function SearchPage() {
                       </span>
                     </div>
                     <p className="text-xs" style={{ color: "var(--app-muted)" }}>
-                      Matched on {result.matchedOn} · {new Date(result.createdAt).toLocaleString()}
+                      Matched on {result.matchedOn} ·{" "}
+                      {new Date(result.createdAt).toLocaleString()}
                     </p>
                   </Link>
                 ))}

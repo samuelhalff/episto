@@ -13,6 +13,7 @@ import {
 import { OverviewPanel, QueuesPanel } from "../admin-panels";
 import { PanelLoading, PanelError } from "../admin-metric-panels";
 import { SuspiciousQueuePanel } from "../admin-flags-panel";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 
 const REFETCH_MS = 15_000;
 
@@ -42,7 +43,7 @@ export default function FlagsPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <h1 className="text-lg font-semibold" style={{ color: "var(--app-fg)" }}>
         Flags &amp; Queue
       </h1>

@@ -7,6 +7,10 @@ export interface DictationCaptureSession {
   abort: () => Promise<void>;
 }
 
+export interface StreamingPcm16Resampler {
+  process: (samples: Float32Array) => Uint8Array;
+}
+
 type BrowserAudioContext = AudioContext & {
   createScriptProcessor: (
     bufferSize: number,
@@ -26,9 +30,11 @@ function getAudioContextCtor(): BrowserAudioContextCtor | null {
     webkitAudioContext?: BrowserAudioContextCtor;
   };
 
-  return (window.AudioContext as BrowserAudioContextCtor | undefined) ??
+  return (
+    (window.AudioContext as BrowserAudioContextCtor | undefined) ??
     browserWindow.webkitAudioContext ??
-    null;
+    null
+  );
 }
 
 function float32ToPcm16(samples: Float32Array): Uint8Array {
@@ -40,6 +46,72 @@ function float32ToPcm16(samples: Float32Array): Uint8Array {
   }
 
   return new Uint8Array(pcm.buffer);
+}
+
+function concatFloat32(left: Float32Array, right: Float32Array) {
+  if (left.length === 0) {
+    return right;
+  }
+
+  if (right.length === 0) {
+    return left;
+  }
+
+  const merged = new Float32Array(left.length + right.length);
+  merged.set(left);
+  merged.set(right, left.length);
+  return merged;
+}
+
+export function decodePcm16Bytes(bytes: Uint8Array): Int16Array {
+  return new Int16Array(bytes.buffer, bytes.byteOffset, Math.floor(bytes.byteLength / 2));
+}
+
+export function createStreamingPcm16Resampler(
+  inputSampleRate: number,
+  outputSampleRate: number,
+): StreamingPcm16Resampler {
+  if (
+    !Number.isFinite(inputSampleRate) ||
+    !Number.isFinite(outputSampleRate) ||
+    inputSampleRate <= 0 ||
+    outputSampleRate <= 0 ||
+    inputSampleRate === outputSampleRate
+  ) {
+    return {
+      process(samples) {
+        return float32ToPcm16(samples);
+      },
+    };
+  }
+
+  const ratio = inputSampleRate / outputSampleRate;
+  let pending = new Float32Array(0);
+  let position = 0;
+
+  return {
+    process(samples) {
+      const source = concatFloat32(pending, samples);
+      const resampled: number[] = [];
+
+      while (position + 1 < source.length) {
+        const lowerIndex = Math.floor(position);
+        const upperIndex = Math.min(lowerIndex + 1, source.length - 1);
+        const fraction = position - lowerIndex;
+        const lowerSample = source[lowerIndex] ?? 0;
+        const upperSample = source[upperIndex] ?? lowerSample;
+
+        resampled.push(lowerSample + (upperSample - lowerSample) * fraction);
+        position += ratio;
+      }
+
+      const consumed = Math.min(Math.floor(position), source.length);
+      pending = new Float32Array(source.subarray(consumed));
+      position -= consumed;
+
+      return float32ToPcm16(Float32Array.from(resampled));
+    },
+  };
 }
 
 function concatChunks(chunks: Uint8Array[]) {
@@ -133,12 +205,20 @@ export async function startDictationCapture(options: {
   const sink = audioContext.createGain();
   const chunks: Uint8Array[] = [];
   let closed = false;
+  const pcmResampler = createStreamingPcm16Resampler(
+    audioContext.sampleRate,
+    DICTATION_LIMITS.sampleRateHz,
+  );
 
   sink.gain.value = 0;
 
   processor.onaudioprocess = (event) => {
     const inputChannel = event.inputBuffer.getChannelData(0);
-    const pcmChunk = float32ToPcm16(inputChannel);
+    const pcmChunk = pcmResampler.process(inputChannel);
+
+    if (pcmChunk.byteLength === 0) {
+      return;
+    }
 
     chunks.push(pcmChunk);
     options.onPcmChunk(pcmChunk);

@@ -418,6 +418,32 @@
     box-shadow: 0 28px 90px color-mix(in srgb, var(--action-primary-bg) 28%, transparent);
     color: var(--action-primary-fg);
   }
+
+  .homepage-hero-shell {
+    background:
+      radial-gradient(circle at 16% 18%, rgba(250, 204, 21, 0.22), transparent 30%),
+      radial-gradient(circle at 84% 14%, rgba(245, 158, 11, 0.16), transparent 28%),
+      radial-gradient(circle at 74% 100%, rgba(250, 204, 21, 0.08), transparent 40%),
+      linear-gradient(135deg, #121418 0%, #191b1e 46%, #2a2418 100%);
+  }
+
+  .dark .homepage-hero-shell {
+    background:
+      radial-gradient(circle at 18% 18%, rgba(250, 204, 21, 0.22), transparent 30%),
+      radial-gradient(circle at 82% 14%, rgba(245, 158, 11, 0.18), transparent 28%),
+      radial-gradient(circle at 72% 100%, rgba(250, 204, 21, 0.08), transparent 40%),
+      linear-gradient(135deg, #090b0f 0%, #121417 46%, #221c12 100%);
+  }
+
+  .homepage-hero-badge {
+    background-color: rgba(250, 204, 21, 0.1);
+    color: rgba(255, 248, 219, 0.92);
+    outline: 1px solid rgba(250, 204, 21, 0.22);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
 }
 
 @layer utilities {

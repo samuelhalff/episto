@@ -29,7 +29,10 @@ const newDraftPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/new/page.tsx"),
   "utf8",
 );
-const newDraftEntryHelperPath = path.join(repoRoot, "frontend/src/lib/new-draft-entry.ts");
+const newDraftEntryHelperPath = path.join(
+  repoRoot,
+  "frontend/src/lib/new-draft-entry.ts",
+);
 const newDraftEntryHelperSource = existsSync(newDraftEntryHelperPath)
   ? readFileSync(newDraftEntryHelperPath, "utf8")
   : "";
@@ -67,7 +70,10 @@ const bodyStepSource = readFileSync(
   "utf8",
 );
 const bodyStepControllerSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/useBodyStepController.ts"),
+  path.join(
+    repoRoot,
+    "frontend/src/components/product/draft-flow/useBodyStepController.ts",
+  ),
   "utf8",
 );
 const attachmentsStepSource = readFileSync(
@@ -127,7 +133,7 @@ describe("draft workspace navigation", () => {
 
   it("shows step name without redundant phase label in the step indicator", () => {
     expect(stepIndicatorSource).not.toContain('t("phaseProgress"');
-    expect(stepIndicatorSource).toContain('t(currentStepKey)');
+    expect(stepIndicatorSource).toContain("t(currentStepKey)");
   });
 
   it("uses clearer confirmation copy when starting a new draft from resume", () => {
@@ -135,28 +141,39 @@ describe("draft workspace navigation", () => {
     expect(newDraftPageSource).not.toContain('confirmLabel={tr("startFresh")}');
   });
 
-  it("waits for explicit entry input before creating a new draft in the default flow", () => {
+  it("routes the default new-letter flow straight into the shared intake workspace", () => {
     expect(newDraftPageSource).toContain('{ kind: "ready"; hasActiveSession: boolean }');
-    expect(newDraftPageSource).toContain("<textarea");
     expect(newDraftPageSource).toContain("const startDraft = useCallback(");
-    expect(newDraftPageSource).toContain("handleEntrySubmit");
     expect(newDraftPageSource).toContain(
-      'void startDraft({ initialMessage: composerValue });',
+      'if (state.kind !== "ready" || freshEntryStartedRef.current) {',
     );
+    expect(newDraftPageSource).toContain('pendingAction: "fresh"');
+    expect(newDraftPageSource).toContain(
+      "forceNewSession: forceFreshEntry || !state.hasActiveSession",
+    );
+    expect(newDraftPageSource).not.toContain("<textarea");
+    expect(newDraftPageSource).not.toContain("handleEntrySubmit");
+    expect(newDraftPageSource).not.toContain('useDictation({ fieldContext: "entry" })');
   });
 
-  it("primes pending conversation state before routing into the workspace", () => {
-    expect(newDraftPageSource).toContain("primePendingDraftTurn");
+  it("seeds shared intake prefills in draft metadata before routing into the workspace", () => {
+    expect(newDraftPageSource).toContain("mergeDraftWorkspaceState");
+    expect(newDraftPageSource).toContain("intakeInput: initialIntakeInput");
     expect(newDraftPageSource).toContain("queryClient.setQueryData");
+    expect(newDraftPageSource).not.toContain("primePendingDraftTurn");
+    expect(intakeStepSource).toContain(
+      'const initialInput = workspaceState.intakeInput ?? "";',
+    );
+    expect(intakeStepSource).toContain("setIntakeText(initialInput)");
     expect(useConversationSource).toContain("readPendingDraftTurn");
-    expect(useConversationSource).toContain("pendingTurn.messageId");
-    expect(intakeStepSource).toContain("pendingAssistantPlaceholder");
   });
 
   it("keeps the seeded workspace renderable while draft and session queries refresh", () => {
     expect(draftWorkspaceClientSource).toContain("!draft.data && draft.isLoading");
     expect(draftWorkspaceClientSource).toContain("!draft.data && session.isLoading");
-    expect(draftWorkspaceClientSource).not.toContain("session.isLoading || draft.isLoading");
+    expect(draftWorkspaceClientSource).not.toContain(
+      "session.isLoading || draft.isLoading",
+    );
   });
 
   it("tracks entry loading intent so resume and start-fresh actions do not share one spinner", () => {
@@ -171,19 +188,28 @@ describe("draft workspace navigation", () => {
     expect(newDraftEntryHelperSource).toContain("submitted");
     expect(newDraftEntryHelperSource).toContain("dispatched");
     expect(newDraftEntryHelperSource).toContain("closed");
-    expect(newDraftPageSource).not.toContain("return sortDraftsByActivity(drafts)[0] ?? null;");
+    expect(newDraftPageSource).not.toContain(
+      "return sortDraftsByActivity(drafts)[0] ?? null;",
+    );
   });
 
-  it("treats the fresh entry param as an immediate fresh-start flow", () => {
+  it("keeps the fresh entry param on the same immediate workspace flow", () => {
     expect(newDraftPageSource).toContain("shouldForceFreshEntry(searchParams)");
-    expect(newDraftPageSource).toContain("forceNewSession: true");
+    expect(newDraftPageSource).toContain(
+      "forceNewSession: forceFreshEntry || !state.hasActiveSession",
+    );
   });
 
-  it("keeps entry actions and quick starts on shared action surfaces", () => {
-    expect(newDraftPageSource).toContain("<AppButton");
-    expect(newDraftPageSource).toContain('variant={dictation.isRecording ? "warning" : "secondary"}');
-    expect(newDraftPageSource).toContain('className="app-list-item group');
-    expect(newDraftPageSource).toContain('className="app-field-surface inline-flex h-10 w-10');
+  it("keeps the first-step tips and dictation inside the workspace intake surface", () => {
+    expect(intakeStepSource).toContain('t("proTips")');
+    expect(intakeStepSource).toContain(
+      'icon={dictation.isRecording ? "stop" : "dictate"}',
+    );
+    expect(intakeStepSource).toContain('t("intakeQuickActionsMore")');
+    expect(newDraftPageSource).not.toContain(
+      'variant={dictation.isRecording ? "warning" : "secondary"}',
+    );
+    expect(newDraftPageSource).not.toContain('className="app-list-item group');
   });
 
   it("redirects prepared drafts away from the old editable workspace routes", () => {
@@ -245,8 +271,12 @@ describe("draft workspace navigation", () => {
       /const commonProps = \{[\s\S]*onTogglePreview[\s\S]*isPreviewPanelVisible/,
     );
     expect(draftWorkspaceClientSource).not.toContain("furthestUnlockedStepIndex,");
-    expect(draftWorkspaceClientSource).toContain('<IntakeStep key="intake" {...commonProps} {...previewProps} />');
-    expect(draftWorkspaceClientSource).toContain('<BodyStep key="body" {...commonProps} {...previewProps} />');
+    expect(draftWorkspaceClientSource).toContain(
+      '<IntakeStep key="intake" {...commonProps} {...previewProps} />',
+    );
+    expect(draftWorkspaceClientSource).toContain(
+      '<BodyStep key="body" {...commonProps} {...previewProps} />',
+    );
   });
 
   it("keeps preview-capable steps on a modal fallback when the side pane is unavailable", () => {
@@ -255,7 +285,9 @@ describe("draft workspace navigation", () => {
     );
     expect(intakeStepSource).toContain("<LetterPreviewModal");
     expect(bodyStepControllerSource).toContain("if (onTogglePreview) {");
-    expect(bodyStepControllerSource).toContain('dispatch({ type: "set-show-preview", value: true });');
+    expect(bodyStepControllerSource).toContain(
+      'dispatch({ type: "set-show-preview", value: true });',
+    );
     expect(bodyStepSource).toContain("onTogglePreview={handlePreviewAction}");
     expect(bodyStepSource).toContain("<LetterPreviewModal");
   });

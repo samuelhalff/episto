@@ -1,6 +1,7 @@
 import { LockKeyhole, Mailbox, ShieldCheck, UserRound } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { MarketingIconToken } from "./MarketingIconToken";
+import { MarketingBody } from "./typography";
 
 const trustItems = [
   { key: "postal", Icon: Mailbox },
@@ -14,17 +15,19 @@ export function TrustStrip() {
 
   return (
     <section className="border-y border-[var(--app-border)] bg-[var(--app-surface-muted)]/75 px-4 py-5 sm:px-6">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-3 sm:gap-4 lg:gap-6">
+      <div className="mx-auto flex max-w-7xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4 lg:gap-6">
         {trustItems.map(({ key, Icon }) => {
           return (
             <div
               key={key}
-              className="flex items-center gap-3 rounded-full border border-[var(--app-border)] bg-white/80 px-4 py-2 text-sm text-zinc-600 shadow-sm dark:bg-zinc-950/50 dark:text-zinc-300"
+              className="flex w-full items-center gap-3 rounded-full border border-[var(--app-border)] bg-white/80 px-4 py-2 text-left shadow-sm dark:bg-zinc-950/50 sm:w-auto"
             >
-              <MarketingIconToken className="h-9 w-9 [&>svg]:size-4" tone="accent">
+              <MarketingIconToken className="h-9 w-9 [&>svg]:size-4" tone="amber">
                 <Icon />
               </MarketingIconToken>
-              <span>{t(`homepage.trustStrip.${key}`)}</span>
+              <MarketingBody as="span" className="min-w-0 flex-1 text-sm leading-5">
+                {t(`homepage.trustStrip.${key}`)}
+              </MarketingBody>
             </div>
           );
         })}

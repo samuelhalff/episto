@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@swiss-mail/shared";
+import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { adminPost, fetchAdminSession } from "../../admin-api";
 import { PanelError, PanelLoading, SectionPanel } from "../../admin-metric-panels";
 import { getAdminPagePath } from "@/lib/admin-paths";
@@ -42,7 +43,7 @@ export default function SessionDetailPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <div className="space-y-2">
         <Link
           href={getAdminPagePath(pathname, "sessions")}
@@ -63,7 +64,10 @@ export default function SessionDetailPage() {
       ) : session.data ? (
         <>
           <SectionPanel title="Session Info">
-            <div className="grid gap-3 text-sm sm:grid-cols-2" style={{ color: "var(--app-fg)" }}>
+            <div
+              className="grid gap-3 text-sm sm:grid-cols-2"
+              style={{ color: "var(--app-fg)" }}
+            >
               <p>ID: {session.data.session.id}</p>
               <p>Locale: {session.data.session.locale}</p>
               <p>Email: {session.data.session.email ?? "None"}</p>
@@ -83,7 +87,10 @@ export default function SessionDetailPage() {
                     className="block space-y-1 py-3 transition-opacity hover:opacity-80"
                   >
                     <div className="flex items-center justify-between gap-4">
-                      <p className="text-sm font-medium" style={{ color: "var(--app-fg)" }}>
+                      <p
+                        className="text-sm font-medium"
+                        style={{ color: "var(--app-fg)" }}
+                      >
                         Draft {draft.id.slice(0, 8)}
                       </p>
                       <span className="text-xs" style={{ color: "var(--app-muted)" }}>
@@ -91,8 +98,8 @@ export default function SessionDetailPage() {
                       </span>
                     </div>
                     <p className="text-xs" style={{ color: "var(--app-muted)" }}>
-                      Status {draft.status} · Payment {draft.paymentState ?? "none"} · Dispatch{" "}
-                      {draft.dispatchState ?? "none"}
+                      Status {draft.status} · Payment {draft.paymentState ?? "none"} ·
+                      Dispatch {draft.dispatchState ?? "none"}
                     </p>
                   </Link>
                 ))}
@@ -110,7 +117,10 @@ export default function SessionDetailPage() {
                 {session.data.supportEvents.map((event) => (
                   <div key={event.id} className="space-y-1 py-3">
                     <div className="flex items-center justify-between gap-4">
-                      <p className="text-sm font-medium" style={{ color: "var(--app-fg)" }}>
+                      <p
+                        className="text-sm font-medium"
+                        style={{ color: "var(--app-fg)" }}
+                      >
                         {event.eventType}
                       </p>
                       <span className="text-xs" style={{ color: "var(--app-muted)" }}>
@@ -133,8 +143,8 @@ export default function SessionDetailPage() {
           <SectionPanel title="Data Management">
             <div className="space-y-3">
               <p className="text-sm" style={{ color: "var(--app-fg)" }}>
-                This redacts retained draft subject and body fields while preserving operational
-                metadata.
+                This redacts retained draft subject and body fields while preserving
+                operational metadata.
               </p>
               <textarea
                 value={reason}
@@ -151,7 +161,8 @@ export default function SessionDetailPage() {
               {error ? <PanelError message={error} /> : null}
               {cleared ? (
                 <p className="text-xs" style={{ color: "var(--app-muted)" }}>
-                  Session content cleared. Metadata remains available for support and audit.
+                  Session content cleared. Metadata remains available for support and
+                  audit.
                 </p>
               ) : null}
               <div className="flex justify-end">

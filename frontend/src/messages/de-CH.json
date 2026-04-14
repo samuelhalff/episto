@@ -85,76 +85,80 @@
     "homepage": {
       "hero": {
         "badge": "Für wichtige Briefe gemacht",
-        "title": "Wichtige Briefe — professionell vorbereitet, bereit zum Versand",
-        "subtitle": "Beschreiben Sie Ihr Anliegen. Wir führen Sie zu einem klaren, formellen Brief, den Sie vor dem Versand in Ruhe prüfen können.",
-        "body": "Episto hilft Ihnen, ernsthafte Korrespondenz ohne Postschalter-Umweg sauber vorzubereiten — vom ersten Entwurf bis zur postalischen Aufgabe in der Schweiz.",
+        "title": "Ihr Brief, ganz ohne Drucker und Briefmarke",
+        "subtitle": "Beschreiben Sie Ihr Anliegen. Wir erstellen den ersten Entwurf, Sie prüfen ihn, und wir machen ihn bereit für den Versand per Post in der Schweiz.",
         "primaryCta": "Jetzt Brief schreiben",
         "secondaryCta": "So funktioniert es",
-        "proof": "Kein Konto erforderlich · Klarer Total vor der Zahlung · Datenschutzbewusste Infrastruktur"
+        "proof": "Kein Konto erforderlich · Klarer Total vor der Zahlung · Ihre Angaben bleiben privat",
+        "steps": {
+          "describe": "Schildern Sie die Situation",
+          "review": "Prüfen Sie den Entwurf",
+          "send": "Senden, wenn alles stimmt"
+        }
       },
       "trustStrip": {
-        "postal": "Postalische Zustellung in der Schweiz",
-        "privacy": "Datenschutzbewusste Infrastruktur",
-        "encryption": "Verschlüsselt bei Übertragung und Speicherung",
-        "noAccount": "Ohne Abo und ohne Konto startbar"
+        "postal": "Per Post in der Schweiz verschickt",
+        "privacy": "Ihre Angaben bleiben privat",
+        "encryption": "Von Anfang bis Ende geschützt",
+        "noAccount": "Ohne Konto starten"
       },
       "howItWorks": {
         "eyebrow": "So funktioniert es",
-        "title": "Drei Schritte zu einem seriösen Brief",
-        "intro": "Sie behalten den Überblick: Anliegen beschreiben, Formulierung prüfen, erst dann bezahlen und absenden.",
+        "title": "Von Ihrem Anliegen zum fertigen Brief",
+        "intro": "Sie schildern den Fall, prüfen den Entwurf und senden erst, wenn alles so formuliert ist, wie es sein soll.",
         "steps": {
           "describe": {
-            "title": "Anliegen schildern",
-            "body": "Beschreiben oder diktieren Sie, was der Brief erreichen soll — etwa eine Kündigung, eine Beschwerde oder eine offizielle Anfrage."
+            "title": "Schildern Sie die Situation",
+            "body": "Schreiben oder diktieren Sie, was passiert ist. Daraus erstellen wir den Briefentwurf."
           },
           "review": {
-            "title": "Entwurf prüfen",
-            "body": "Sie sehen einen sauber strukturierten Brief, passen Ton und Details an und kontrollieren alles vor dem nächsten Schritt."
+            "title": "Prüfen Sie den Entwurf",
+            "body": "Lesen Sie den Brief, passen Sie Ton und Details an und ändern Sie alles Nötige."
           },
           "send": {
-            "title": "Versand auslösen",
-            "body": "Wenn alles stimmt, bestätigen Sie den Total, bezahlen sicher und wir bereiten den Brief für die postalische Aufgabe vor."
+            "title": "Senden, wenn alles stimmt",
+            "body": "Bestätigen Sie den Total, bezahlen Sie sicher und wir machen Ihren Brief versandbereit."
           }
         }
       },
       "confidence": {
         "eyebrow": "Warum es Vertrauen schafft",
-        "title": "Mehr Sicherheit vor dem Senden",
-        "intro": "Episto ersetzt nicht Ihre Entscheidung — es gibt Ihrem Brief einen professionellen Rahmen und lässt Ihnen vor dem Versand die Kontrolle.",
+        "title": "Sie behalten in jedem Schritt die Kontrolle",
+        "intro": "Episto hilft bei Struktur und Formulierung. Was im Brief steht, wann er fertig ist und ob Sie ihn senden, entscheiden Sie.",
         "cards": {
           "structured": {
-            "title": "Klar strukturiert",
-            "body": "Aus Ihrem Anliegen entsteht ein formeller Brief mit nachvollziehbarer Struktur statt einer hastig formulierten Nachricht."
+            "title": "Ein richtiger Brief, nicht improvisiert",
+            "body": "Aus Ihren Punkten wird ein klar aufgebauter Brief statt einer hastig formulierten Nachricht."
           },
           "review": {
-            "title": "Vor dem Versand kontrollierbar",
-            "body": "Sie prüfen Inhalt, Ton und Angaben in Ruhe, bevor Zahlung und postalische Aufgabe ausgelöst werden."
+            "title": "Nichts geht raus ohne Ihre Freigabe",
+            "body": "Prüfen Sie Formulierungen, Adressen und Beilagen, bevor Sie bezahlen oder den Brief senden."
           },
           "privacy": {
-            "title": "Sorgfältig abgewickelt",
-            "body": "Wir kommunizieren den Ablauf transparent, zeigen den Total vor der Zahlung und halten die Verarbeitung datenschutzbewusst."
+            "title": "Preis und Ablauf bleiben klar",
+            "body": "Sie sehen den Total vor der Zahlung, und wir erklären verständlich, wie Ihr Brief weiterbearbeitet wird."
           }
         }
       },
       "useCases": {
         "eyebrow": "Typische Anlässe",
-        "title": "Für Briefe, die Sie nicht weiter aufschieben sollten",
-        "intro": "Wenn ein Anliegen ernst klingt, hilft ein sauber formulierter Brief oft mehr als eine kurze Nachricht.",
+        "title": "Wann Episto helfen kann",
+        "intro": "Die meisten kommen hierher, wenn die Sache wichtig ist und eine kurze Nachricht nicht mehr reicht.",
         "cancellation": {
           "title": "Abo kündigen",
-          "description": "Beenden Sie Mitgliedschaften oder Verträge mit einer formellen schriftlichen Kündigung."
+          "description": "Beenden Sie Mitgliedschaften oder Dienstleistungsverträge mit einer klaren schriftlichen Kündigung."
         },
         "lease": {
-          "title": "Mietverhältnis kündigen",
-          "description": "Formulieren Sie eine klare Mitteilung an Verwaltung oder Vermietung mit dem nötigen formellen Ton."
+          "title": "Mietverhältnis beenden",
+          "description": "Formulieren Sie eine formelle Mitteilung an Verwaltung oder Vermietung, ohne bei null anfangen zu müssen."
         },
         "complaint": {
           "title": "Beschwerde einreichen",
-          "description": "Bringen Sie ein Problem sachlich, vollständig und ernsthaft auf den Punkt."
+          "description": "Schildern Sie das Problem ruhig und klar, damit Ihr Anliegen ernst genommen wird."
         },
         "authority": {
           "title": "An eine Behörde schreiben",
-          "description": "Bereiten Sie offizielle Korrespondenz so vor, dass sie geordnet und professionell wirkt."
+          "description": "Bereiten Sie ein offizielles Schreiben vor, das von Anfang an geordnet, respektvoll und vollständig wirkt."
         }
       }
     }
