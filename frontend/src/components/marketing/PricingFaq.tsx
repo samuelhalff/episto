@@ -3,7 +3,7 @@
 import { ShieldQuestion } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { ExcludedItem, IncludedItem } from "./pricing-shared";
-import { MarketingCard, MarketingSection } from "./primitives";
+import { MarketingActionLink, MarketingCard, MarketingSection } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
 
 export function PricingFaqSection({
@@ -79,6 +79,27 @@ export function PricingFaqSection({
               </MarketingCard>
             ))}
           </div>
+
+          <MarketingCard className="grid gap-4 p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+            <div>
+              <MarketingHeading
+                as="h3"
+                className="text-xl font-semibold tracking-[-0.03em]"
+              >
+                {t("faqMoreTitle")}
+              </MarketingHeading>
+              <MarketingBody className="mt-2 text-sm leading-7">
+                {t("faqMoreBody")}
+              </MarketingBody>
+            </div>
+            <MarketingActionLink
+              href="/help"
+              variant="secondary"
+              className="w-full md:w-auto md:justify-self-end"
+            >
+              {t("faqMoreCta")}
+            </MarketingActionLink>
+          </MarketingCard>
         </div>
       </MarketingSection>
     </>

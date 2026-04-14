@@ -176,6 +176,9 @@ const requiredPricingKeys = [
   "includedCardTitle",
   "excludedCardTitle",
   "faqTitle",
+  "faqMoreTitle",
+  "faqMoreBody",
+  "faqMoreCta",
 ] as const;
 
 const removedPricingKeys = [
@@ -193,6 +196,14 @@ const removedPricingKeys = [
   "excludedCardBody",
   "faqEyebrow",
   "faqBody",
+  "faq1q",
+  "faq1a",
+  "faq2q",
+  "faq2a",
+  "faq3q",
+  "faq3a",
+  "faq4q",
+  "faq4a",
   "comparisonTitle",
   "comparisonBody",
 ] as const;
@@ -443,13 +454,17 @@ describe("pricing page presentation", () => {
     expect(markup).not.toContain("Pricing simulator");
   });
 
-  it("renders pricing FAQs from the shared help namespace when pricing-local FAQ keys are absent", () => {
+  it("renders pricing FAQs from the shared help namespace and links to the full help page", () => {
     const markup = renderPricingSections();
 
     expect(markup).toContain(enCH.help.faq5q);
     expect(markup).toContain(enCH.help.faq5a);
     expect(markup).toContain(enCH.help.faq7q);
     expect(markup).toContain(enCH.help.faq8q);
+    expect(markup).toContain(enCH.pricing.faqMoreTitle);
+    expect(markup).toContain(enCH.pricing.faqMoreBody);
+    expect(markup).toContain(enCH.pricing.faqMoreCta);
+    expect(markup).toContain('href="/help"');
   });
 });
 
@@ -513,6 +528,11 @@ describe("pricing page source contract", () => {
     expect(pricingFaqSource).not.toContain('t("faqEyebrow")');
     expect(pricingFaqSource).not.toContain('t("faqBody")');
     expect(pricingFaqSource).not.toContain("overflow-x-auto");
+    expect(pricingFaqSource).toContain('t("faqMoreTitle")');
+    expect(pricingFaqSource).toContain('t("faqMoreBody")');
+    expect(pricingFaqSource).toContain('t("faqMoreCta")');
+    expect(pricingFaqSource).toContain('href="/help"');
+    expect(pricingFaqSource).toContain('variant="secondary"');
     expect(pricingFaqSource).toContain("text-emerald-700 dark:text-emerald-300");
     expect(pricingFaqSource).toContain("text-red-700 dark:text-red-300");
     expect(pricingFaqSource).toContain("dark:bg-amber-950 dark:text-amber-200");
