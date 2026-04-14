@@ -1,5 +1,6 @@
 import { ArrowRight, FileText, MessageCircle, Send, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { MarketingWindowDots } from "./MarketingWindowDots";
 import { MarketingActionLink, MarketingBadge } from "./primitives";
 import { MarketingBody, MarketingHeading, MarketingMeta } from "./typography";
 
@@ -97,11 +98,7 @@ export function HomepageHero() {
                 ))}
               </div>
               <div className="paper-noise rounded-[1.5rem] border border-amber-100/60 p-4 shadow-inner shadow-amber-200/35">
-                <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-amber-400/80" />
-                  <span className="h-2 w-2 rounded-full bg-zinc-300/70" />
-                  <span className="h-2 w-2 rounded-full bg-zinc-300/70" />
-                </div>
+                <MarketingWindowDots />
                 <div className="mt-4 h-3 w-28 rounded-full bg-zinc-300/75" />
                 <div className="mt-4 h-px w-full bg-zinc-300/70" />
                 <div className="mt-4 space-y-2">

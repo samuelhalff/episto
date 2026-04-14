@@ -163,6 +163,10 @@ const marketingFeatureSectionSource = existsSync(marketingFeatureSectionPath)
   : "";
 const homepageComponentPaths = {
   hero: path.join(repoRoot, "frontend/src/components/marketing/HomepageHero.tsx"),
+  windowDots: path.join(
+    repoRoot,
+    "frontend/src/components/marketing/MarketingWindowDots.tsx",
+  ),
   trustStrip: path.join(repoRoot, "frontend/src/components/marketing/TrustStrip.tsx"),
   howItWorks: path.join(
     repoRoot,
@@ -331,6 +335,30 @@ describe("marketing homepage shared visual primitives", () => {
 
     expect(heroSource).toContain("homepage.hero.steps");
     expect(heroSource).not.toContain("homepage.howItWorks.steps");
+  });
+
+  it("uses a shared macOS-style red yellow green window dots component in the hero paper mockup", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+    const windowDotsSource = existsSync(homepageComponentPaths.windowDots)
+      ? readFileSync(homepageComponentPaths.windowDots, "utf8")
+      : "";
+
+    const redIndex = windowDotsSource.indexOf("#FF5F57");
+    const yellowIndex = windowDotsSource.indexOf("#FFBD2E");
+    const greenIndex = windowDotsSource.indexOf("#28C840");
+
+    expect(heroSource).toContain(
+      'import { MarketingWindowDots } from "./MarketingWindowDots"',
+    );
+    expect(heroSource).toContain("<MarketingWindowDots />");
+    expect(heroSource).not.toContain("bg-emerald-400/80");
+    expect(heroSource).not.toContain("bg-amber-400/80");
+    expect(heroSource).not.toContain("bg-rose-400/80");
+    expect(redIndex).toBeGreaterThan(-1);
+    expect(yellowIndex).toBeGreaterThan(-1);
+    expect(greenIndex).toBeGreaterThan(-1);
+    expect(redIndex).toBeLessThan(yellowIndex);
+    expect(yellowIndex).toBeLessThan(greenIndex);
   });
 
   it("stacks the trust strip as full-width rows on mobile while preserving the desktop wrap", () => {
