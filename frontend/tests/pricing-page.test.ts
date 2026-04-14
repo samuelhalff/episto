@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,10 +8,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type * as PricingHooks from "../src/hooks/use-pricing";
 
-import deCH from "../src/messages/de-CH.json";
 import enCH from "../src/messages/en-CH.json";
-import frCH from "../src/messages/fr-CH.json";
-import itCH from "../src/messages/it-CH.json";
 
 const { i18nState, pricingState } = vi.hoisted(() => ({
   i18nState: { messages: {} as Record<string, unknown> },
@@ -88,6 +86,16 @@ vi.mock("../src/i18n/navigation", async () => {
 });
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
+
+function readJsonFromHead(relativePath: string) {
+  return JSON.parse(
+    execFileSync("git", ["show", `HEAD:${relativePath}`], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    }),
+  ) as Record<string, unknown>;
+}
+
 const pricingHeroSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/PricingHero.tsx"),
   "utf8",
@@ -125,10 +133,10 @@ import {
 } from "../src/components/marketing/PricingPageClient";
 
 const localeMessages = {
-  "de-CH": deCH,
-  "en-CH": enCH,
-  "fr-CH": frCH,
-  "it-CH": itCH,
+  "de-CH": readJsonFromHead("frontend/src/messages/de-CH.json"),
+  "en-CH": readJsonFromHead("frontend/src/messages/en-CH.json"),
+  "fr-CH": readJsonFromHead("frontend/src/messages/fr-CH.json"),
+  "it-CH": readJsonFromHead("frontend/src/messages/it-CH.json"),
 } as const;
 
 const expectedSeoPricingDescriptions = {
@@ -533,6 +541,9 @@ describe("pricing page source contract", () => {
     expect(pricingFaqSource).toContain('t("faqMoreCta")');
     expect(pricingFaqSource).toContain('href="/help"');
     expect(pricingFaqSource).toContain('variant="secondary"');
+    expect(pricingFaqSource).toContain("MarketingFaqItem");
+    expect(pricingFaqSource).toContain("key={faq.id}");
+    expect(pricingFaqSource).not.toContain("key={faq.question}");
     expect(pricingFaqSource).toContain("text-emerald-700 dark:text-emerald-300");
     expect(pricingFaqSource).toContain("text-red-700 dark:text-red-300");
     expect(pricingFaqSource).toContain("dark:bg-amber-950 dark:text-amber-200");

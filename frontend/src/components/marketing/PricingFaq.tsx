@@ -2,15 +2,12 @@
 
 import { ShieldQuestion } from "lucide-react";
 import { useTranslations } from "next-intl";
+import type { MarketingFaqItem } from "./faq-content";
 import { ExcludedItem, IncludedItem } from "./pricing-shared";
 import { MarketingActionLink, MarketingCard, MarketingSection } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
 
-export function PricingFaqSection({
-  pricingFaqs,
-}: {
-  pricingFaqs: Array<{ question: string; answer: string }>;
-}) {
+export function PricingFaqSection({ pricingFaqs }: { pricingFaqs: MarketingFaqItem[] }) {
   const t = useTranslations("pricing");
 
   return (
@@ -62,7 +59,7 @@ export function PricingFaqSection({
 
           <div className="grid gap-4 md:grid-cols-2">
             {pricingFaqs.map((faq) => (
-              <MarketingCard key={faq.question} className="p-5">
+              <MarketingCard key={faq.id} className="p-5">
                 <div className="flex gap-3">
                   <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-200">
                     <ShieldQuestion className="h-4 w-4" />
