@@ -24,6 +24,14 @@ const auditedMarketingTextFiles = [
   "frontend/src/components/marketing/LanguageSwitcher.tsx",
   "frontend/src/components/marketing/primitives.tsx",
 ] as const;
+const auditedMarketingRouteTextFiles = [
+  "frontend/src/components/marketing/FinalCTABand.tsx",
+  "frontend/src/components/marketing/PricingFromText.tsx",
+  "frontend/src/app/[locale]/help/page.tsx",
+  "frontend/src/app/[locale]/privacy/page.tsx",
+  "frontend/src/app/[locale]/terms/page.tsx",
+] as const;
+const auditedMarketingRouteConfigFiles = ["frontend/src/app/[locale]/page.tsx"] as const;
 const bannedContentTextPatterns = [
   /text-zinc-950[^"'`\n]*dark:text-zinc-50/,
   /text-zinc-900[^"'`\n]*dark:text-zinc-100/,
@@ -37,6 +45,10 @@ const bannedContentTextPatterns = [
   /text-white[^"'`\n]*dark:text-zinc-950/,
   /text-white\/80/,
   /text-white\/70/,
+] as const;
+const bannedRouteTextPatterns = [
+  ...bannedContentTextPatterns,
+  /text-zinc-800\/80/,
 ] as const;
 
 function readSourceOrEmpty(pathname: string) {
@@ -70,6 +82,37 @@ describe("marketing typography primitives", () => {
       );
 
       for (const bannedPattern of bannedContentTextPatterns) {
+        expect(
+          source,
+          `${relativePath} should not keep ${bannedPattern.toString()}`,
+        ).not.toMatch(bannedPattern);
+      }
+    }
+  });
+
+  it("covers route-level marketing titles and subtitles with shared typography as well", () => {
+    for (const relativePath of auditedMarketingRouteTextFiles) {
+      const source = readFileSync(path.join(repoRoot, relativePath), "utf8");
+
+      expect(
+        source,
+        `${relativePath} should use shared marketing typography for route-level headings and subtitles`,
+      ).toMatch(
+        /MarketingHeading|MarketingBody|MarketingMeta|getMarketing(?:Heading|Body|Meta)ToneClassName/,
+      );
+
+      for (const bannedPattern of bannedRouteTextPatterns) {
+        expect(
+          source,
+          `${relativePath} should not keep ${bannedPattern.toString()}`,
+        ).not.toMatch(bannedPattern);
+      }
+    }
+
+    for (const relativePath of auditedMarketingRouteConfigFiles) {
+      const source = readFileSync(path.join(repoRoot, relativePath), "utf8");
+
+      for (const bannedPattern of bannedRouteTextPatterns) {
         expect(
           source,
           `${relativePath} should not keep ${bannedPattern.toString()}`,

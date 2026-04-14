@@ -265,6 +265,82 @@ describe("useDictation", () => {
     expect(result.current.error).toBeNull();
   });
 
+  it("still falls back on a later dictation attempt even when earlier text already exists", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ transcript: "Second dictated sentence." }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+
+    const stopCapture = vi.fn().mockResolvedValue(new Uint8Array([3, 4, 5]));
+    mocks.startDictationCapture.mockResolvedValue({
+      stop: stopCapture,
+      abort: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const { result } = renderHook(() => useDictation({ fieldContext: "entry" }));
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+
+    act(() => {
+      latestSocket()?.emitMessage({ type: "final", text: "First sentence." });
+    });
+
+    await act(async () => {
+      await result.current.stopRecording();
+    });
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+
+    await act(async () => {
+      await result.current.stopRecording();
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.finalText).toBe("First sentence. Second dictated sentence.");
+  });
+
+  it("returns to idle immediately and allows another attempt while fallback transcription is still pending", async () => {
+    const fetchMock = vi.mocked(fetch);
+    fetchMock.mockImplementation(() => new Promise<Response>(() => {}));
+
+    const stopCapture = vi.fn().mockResolvedValue(new Uint8Array([7, 7, 7]));
+    mocks.startDictationCapture.mockResolvedValue({
+      stop: stopCapture,
+      abort: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const { result } = renderHook(() => useDictation({ fieldContext: "entry" }));
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+
+    const firstSocket = latestSocket();
+
+    await act(async () => {
+      void result.current.stopRecording();
+      await Promise.resolve();
+    });
+
+    expect(result.current.isRecording).toBe(false);
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(mocks.MockWebSocket.instances).toHaveLength(2);
+    expect(latestSocket()).not.toBe(firstSocket);
+    expect(result.current.isRecording).toBe(true);
+  });
+
   it("maps microphone permission failures to the existing dictation error state", async () => {
     mocks.startDictationCapture.mockRejectedValue(
       Object.assign(new Error("permission denied"), {

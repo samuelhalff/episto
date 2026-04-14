@@ -59,6 +59,16 @@ function applyPhraseHints(recognizer: speechsdk.SpeechRecognizer, hints: string[
   }
 }
 
+function isBenignCancellation(event: {
+  reason?: speechsdk.CancellationReason;
+  errorCode?: speechsdk.CancellationErrorCode;
+}) {
+  return (
+    event.reason === speechsdk.CancellationReason.EndOfStream ||
+    event.errorCode === speechsdk.CancellationErrorCode.NoError
+  );
+}
+
 function withOperationTimeout<T>(promise: Promise<T>, label: string): Promise<T> {
   return new Promise<T>((resolve, reject) => {
     const timeoutId = setTimeout(() => {
@@ -110,10 +120,9 @@ function closeRecognizer(recognizer: speechsdk.SpeechRecognizer) {
 
 function createRecognizer(
   locale: string,
-  pushStream: ReturnType<typeof createPushStream>,
+  audioConfig: speechsdk.AudioConfig,
   hints: string[],
 ) {
-  const audioConfig = speechsdk.AudioConfig.fromStreamInput(pushStream);
   const recognizer = new speechsdk.SpeechRecognizer(createSpeechConfig(locale), audioConfig);
 
   applyPhraseHints(recognizer, hints);
@@ -127,7 +136,11 @@ export async function createLiveDictationStream(options: {
   callbacks: LiveDictationCallbacks;
 }): Promise<LiveDictationSession> {
   const pushStream = createPushStream();
-  const recognizer = createRecognizer(options.locale, pushStream, options.hints);
+  const recognizer = createRecognizer(
+    options.locale,
+    speechsdk.AudioConfig.fromStreamInput(pushStream),
+    options.hints,
+  );
 
   let closed = false;
   let notifiedStopped = false;
@@ -173,6 +186,12 @@ export async function createLiveDictationStream(options: {
   };
 
   recognizer.canceled = (_sender, event) => {
+    if (isBenignCancellation(event)) {
+      notifyStopped();
+      void close();
+      return;
+    }
+
     options.callbacks.onError(providerOutageError("Azure AI Speech", event.errorDetails));
     void close();
   };
@@ -219,9 +238,12 @@ export async function transcribeBufferedWav(options: {
   locale: string;
   hints: string[];
 }): Promise<string> {
-  const pcmAudio = extractBufferedWavPcm(options.audioBuffer);
-  const pushStream = createPushStream();
-  const recognizer = createRecognizer(options.locale, pushStream, options.hints);
+  extractBufferedWavPcm(options.audioBuffer);
+  const recognizer = createRecognizer(
+    options.locale,
+    speechsdk.AudioConfig.fromWavFileInput(options.audioBuffer),
+    options.hints,
+  );
   const segments: string[] = [];
 
   return new Promise<string>((resolve, reject) => {
@@ -232,12 +254,6 @@ export async function transcribeBufferedWav(options: {
 
     const cleanup = async () => {
       clearTimeout(timeoutId);
-      try {
-        pushStream.close();
-      } catch {
-        // Ignore duplicate closes during cleanup.
-      }
-
       await closeRecognizer(recognizer);
     };
 
@@ -267,6 +283,11 @@ export async function transcribeBufferedWav(options: {
     };
 
     recognizer.canceled = (_sender, event) => {
+      if (segments.length > 0 || isBenignCancellation(event)) {
+        succeed(segments.join(" ").trim());
+        return;
+      }
+
       fail(providerOutageError("Azure AI Speech", event.errorDetails));
     };
 
@@ -276,8 +297,7 @@ export async function transcribeBufferedWav(options: {
 
     recognizer.startContinuousRecognitionAsync(
       () => {
-        pushStream.write(toArrayBuffer(pcmAudio));
-        pushStream.close();
+        // File-backed recognition starts reading immediately after the recognizer begins.
       },
       (error) => {
         fail(providerOutageError("Azure AI Speech", error));

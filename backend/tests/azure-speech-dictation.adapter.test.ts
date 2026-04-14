@@ -44,6 +44,7 @@ const mocks = vi.hoisted(() => {
   return {
     pushStream,
     phraseList,
+    fromWavFileInput: vi.fn(() => ({})),
     MockSpeechRecognizer,
   };
 });
@@ -60,6 +61,7 @@ vi.mock("../src/shared/config/index.js", () => ({
 vi.mock("microsoft-cognitiveservices-speech-sdk", () => ({
   AudioConfig: {
     fromStreamInput: vi.fn(() => ({})),
+    fromWavFileInput: mocks.fromWavFileInput,
   },
   AudioInputStream: {
     createPushStream: vi.fn(() => mocks.pushStream),
@@ -75,6 +77,12 @@ vi.mock("microsoft-cognitiveservices-speech-sdk", () => ({
       speechRecognitionLanguage: "en-CH",
       endpointId: undefined,
     })),
+  },
+  CancellationReason: {
+    EndOfStream: "EndOfStream",
+  },
+  CancellationErrorCode: {
+    NoError: "NoError",
   },
   SpeechRecognizer: mocks.MockSpeechRecognizer,
 }));
@@ -116,6 +124,7 @@ describe("Azure speech dictation adapter", () => {
     mocks.pushStream.write.mockReset();
     mocks.pushStream.close.mockReset();
     mocks.phraseList.addPhrase.mockReset();
+    mocks.fromWavFileInput.mockReset();
   });
 
   afterEach(() => {
@@ -158,8 +167,9 @@ describe("Azure speech dictation adapter", () => {
 
   it("concatenates buffered transcription segments into one transcript", async () => {
     const pcmBytes = Uint8Array.from([1, 0, 2, 0]);
+    const audioBuffer = buildTestWav(pcmBytes);
     const transcriptionPromise = transcribeBufferedWav({
-      audioBuffer: buildTestWav(pcmBytes),
+      audioBuffer,
       locale: "de-CH",
       hints: ["Migros"],
     });
@@ -170,11 +180,53 @@ describe("Azure speech dictation adapter", () => {
     recognizer?.sessionStopped?.(recognizer, {});
 
     await expect(transcriptionPromise).resolves.toBe("Bitte kuendigen");
-    expect(mocks.pushStream.write).toHaveBeenCalled();
-    expect(new Uint8Array(mocks.pushStream.write.mock.calls[0]?.[0] as ArrayBuffer)).toEqual(
-      pcmBytes,
-    );
-    expect(mocks.pushStream.close).toHaveBeenCalled();
+    expect(mocks.fromWavFileInput).toHaveBeenCalledWith(audioBuffer);
+    expect(mocks.pushStream.write).not.toHaveBeenCalled();
+    expect(mocks.pushStream.close).not.toHaveBeenCalled();
+  });
+
+  it("keeps buffered transcript when Azure ends with a benign cancellation", async () => {
+    const transcriptionPromise = transcribeBufferedWav({
+      audioBuffer: buildTestWav(Uint8Array.from([1, 0, 2, 0])),
+      locale: "fr-CH",
+      hints: ["Swiss Post"],
+    });
+
+    const recognizer = mocks.MockSpeechRecognizer.instances[0];
+    recognizer?.recognized?.(recognizer, {
+      result: { text: "Bonjour ceci est un test" },
+    });
+    recognizer?.canceled?.(recognizer, {
+      reason: "EndOfStream",
+      errorCode: "NoError",
+    });
+
+    await expect(transcriptionPromise).resolves.toBe("Bonjour ceci est un test");
+  });
+
+  it("treats live end-of-stream cancellation as a normal stop", async () => {
+    const onError = vi.fn();
+    const onStopped = vi.fn();
+
+    await createLiveDictationStream({
+      locale: "de-CH",
+      hints: [],
+      callbacks: {
+        onPartial: vi.fn(),
+        onFinal: vi.fn(),
+        onError,
+        onStopped,
+      },
+    });
+
+    const recognizer = mocks.MockSpeechRecognizer.instances[0];
+    recognizer?.canceled?.(recognizer, {
+      reason: "EndOfStream",
+      errorCode: "NoError",
+    });
+
+    expect(onError).not.toHaveBeenCalled();
+    expect(onStopped).toHaveBeenCalled();
   });
 
   it("rejects invalid wav payloads before creating Azure recognizers", async () => {

@@ -139,6 +139,10 @@ const finalCtaBandSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/FinalCTABand.tsx"),
   "utf8",
 );
+const pricingFromTextSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/PricingFromText.tsx"),
+  "utf8",
+);
 const homepageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/page.tsx"),
   "utf8",
@@ -300,7 +304,6 @@ describe("marketing homepage shared visual primitives", () => {
     expect(heroSource).toContain("min-h-[calc(100svh-5rem)]");
     expect(heroSource).toContain("lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]");
     expect(heroSource).toContain('variant="heroSecondary"');
-    expect(heroSource).toContain("text-white");
     expect(heroSource).toContain("paper-noise");
   });
 
@@ -323,11 +326,87 @@ describe("marketing homepage shared visual primitives", () => {
     expect(heroSource).not.toContain("#27466f");
     expect(globalsCssSource).toContain(".homepage-hero-shell");
     expect(globalsCssSource).toContain(".homepage-hero-badge");
+    expect(globalsCssSource).toContain(".dark .homepage-hero-badge");
     expect(globalsCssSource).not.toContain(".homepage-hero-secondary");
     expect(primitivesSource).toContain('"heroSecondary"');
-    expect(primitivesSource).toContain("border-amber-200/30");
-    expect(primitivesSource).toContain("bg-amber-200/10");
-    expect(primitivesSource).toContain("text-amber-50");
+    expect(primitivesSource).toContain("border-amber-300/60");
+    expect(primitivesSource).toContain("bg-transparent");
+    expect(primitivesSource).toContain("text-amber-950");
+    expect(primitivesSource).toContain("dark:text-amber-50");
+  });
+
+  it("uses theme-aware hero copy instead of white text in light mode", () => {
+    const messages = readLocaleMessages("en-CH");
+    const markup = renderWithMessages(HomepageHero, messages);
+
+    expect(markup).toContain("text-zinc-950 dark:text-white");
+    expect(markup).toContain("text-zinc-700 dark:text-white/80");
+    expect(markup).not.toContain('class="text-white animate-rise-in');
+    expect(markup).not.toContain('class="text-white/80 animate-rise-in');
+    expect(globalsCssSource).not.toContain(
+      "linear-gradient(135deg, #121418 0%, #191b1e 46%, #2a2418 100%)",
+    );
+  });
+
+  it("keeps the light-theme hero shell airy instead of a diagonal dark wash", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(globalsCssSource).toContain(".homepage-hero-shell");
+    expect(globalsCssSource).toContain(
+      "linear-gradient(180deg, #fdfbf8 0%, #faf6ef 58%, #f6efe5 100%)",
+    );
+    expect(globalsCssSource).toContain("rgba(250, 204, 21, 0.08)");
+    expect(globalsCssSource).toContain("rgba(245, 158, 11, 0.05)");
+    expect(globalsCssSource).toContain("rgba(250, 204, 21, 0.02)");
+    expect(globalsCssSource).not.toContain(
+      "linear-gradient(135deg, #fcfaf6 0%, #f7f1e8 48%, #e8ddd0 100%)",
+    );
+    expect(globalsCssSource).not.toContain("rgba(250, 204, 21, 0.14)");
+    expect(globalsCssSource).not.toContain("rgba(245, 158, 11, 0.1)");
+    expect(globalsCssSource).not.toContain("rgba(250, 204, 21, 0.04)");
+    expect(heroSource).toContain("bg-amber-200/16");
+    expect(heroSource).toContain("dark:bg-amber-200/30");
+    expect(heroSource).not.toContain("rounded-full bg-amber-200/30 blur-3xl");
+  });
+
+  it("keeps the light-theme hero chrome flat instead of using heavy badge and button shadows", () => {
+    const heroBadgeBlock =
+      globalsCssSource.match(/\.homepage-hero-badge\s*\{[\s\S]*?\n\s*\}/)?.[0] ?? "";
+
+    expect(primitivesSource).toContain("variant === \"heroSecondary\"");
+    expect(primitivesSource).toContain("shadow-none");
+    expect(primitivesSource).not.toContain("shadow-[0_18px_44px_rgba(0,0,0,0.16)]");
+    expect(heroBadgeBlock).toContain("box-shadow: none;");
+    expect(heroBadgeBlock).not.toContain("box-shadow: 0 18px 44px rgba(0, 0, 0, 0.16);");
+    expect(heroBadgeBlock).not.toContain("backdrop-filter:");
+    expect(heroBadgeBlock).not.toContain("-webkit-backdrop-filter:");
+  });
+
+  it("keeps the light-theme mockup shadow soft so the hero transition stays clean", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+    const mockupCardBlock =
+      globalsCssSource.match(/\.homepage-hero-mockup-card\s*\{[\s\S]*?\n\s*\}/)?.[0] ?? "";
+
+    expect(heroSource).toContain("homepage-hero-mockup-card");
+    expect(heroSource).not.toContain("shadow-[0_32px_90px_rgba(0,0,0,0.28)]");
+    expect(globalsCssSource).toContain(".homepage-hero-mockup-card");
+    expect(globalsCssSource).toContain(".dark .homepage-hero-mockup-card");
+    expect(mockupCardBlock).toContain("box-shadow: 0 18px 48px rgba(120, 53, 15, 0.08);");
+    expect(mockupCardBlock).not.toContain("box-shadow: 0 26px 70px rgba(120, 53, 15, 0.14);");
+    expect(globalsCssSource).toContain("box-shadow: 0 32px 90px rgba(0, 0, 0, 0.28);");
+  });
+
+  it("keeps the hero step-pill stack compact", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(heroSource).toContain('className="space-y-3"');
+    expect(heroSource).not.toContain('className="space-y-3 py-3 sm:py-4"');
+  });
+
+  it("disables the light-theme hero grid so it cannot cast dark bands", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(heroSource).toContain("opacity-0 dark:opacity-40");
   });
 
   it("keeps hero preview labels in a hero-owned translation namespace", () => {
@@ -335,6 +414,47 @@ describe("marketing homepage shared visual primitives", () => {
 
     expect(heroSource).toContain("homepage.hero.steps");
     expect(heroSource).not.toContain("homepage.howItWorks.steps");
+  });
+
+  it("keeps the hero paper mockup skeleton placeholders", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(heroSource).toContain("paper-noise");
+    expect(heroSource).toContain("mt-4 h-3 w-28 rounded-full bg-zinc-300/75");
+    expect(heroSource).toContain("mt-4 space-y-2");
+    expect(heroSource).toContain("w-full rounded-full bg-zinc-300/70");
+    expect(heroSource).toContain("w-[88%] rounded-full bg-zinc-300/70");
+    expect(heroSource).toContain("w-[82%] rounded-full bg-zinc-300/70");
+    expect(heroSource).toContain("w-[75%] rounded-full bg-zinc-300/70");
+    expect(heroSource).toContain("w-24 rounded-full bg-zinc-300/70");
+    expect(heroSource).toContain("mt-2 h-2.5 w-16 rounded-full bg-zinc-400/70");
+  });
+
+  it("avoids thin ruled separators inside the hero paper mockup", () => {
+    const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
+
+    expect(heroSource).toContain("paper-noise");
+    expect(heroSource).not.toContain("mt-4 h-px w-full bg-zinc-300/70");
+    expect(heroSource).not.toContain("mt-8 h-px w-24 bg-zinc-400/70");
+  });
+
+  it("uses a paper texture instead of ruled lines in the hero paper mockup background", () => {
+    expect(globalsCssSource).toContain(".paper-noise");
+    expect(globalsCssSource).toContain(".dark .paper-noise");
+    expect(globalsCssSource).not.toContain("rgba(215, 190, 150, 0.18) 31px");
+    expect(globalsCssSource).not.toContain("rgba(110, 118, 129, 0.12) 31px");
+  });
+
+  it("avoids vertical gradient banding in the hero paper mockup background", () => {
+    const paperNoiseBlock =
+      globalsCssSource.match(/\.paper-noise\s*\{[\s\S]*?\n\s*\}/)?.[0] ?? "";
+    const darkPaperNoiseBlock =
+      globalsCssSource.match(/\.dark \.paper-noise\s*\{[\s\S]*?\n\s*\}/)?.[0] ?? "";
+
+    expect(paperNoiseBlock).toContain("background-image:");
+    expect(darkPaperNoiseBlock).toContain("background-image:");
+    expect(paperNoiseBlock).not.toContain("linear-gradient(");
+    expect(darkPaperNoiseBlock).not.toContain("linear-gradient(");
   });
 
   it("uses a shared macOS-style red yellow green window dots component in the hero paper mockup", () => {
@@ -354,8 +474,8 @@ describe("marketing homepage shared visual primitives", () => {
     expect(heroSource).not.toContain("bg-emerald-400/80");
     expect(heroSource).not.toContain("bg-amber-400/80");
     expect(heroSource).not.toContain("bg-rose-400/80");
-    expect(redIndex).toBeGreaterThan(-1);
     expect(yellowIndex).toBeGreaterThan(-1);
+    expect(redIndex).toBeGreaterThan(-1);
     expect(greenIndex).toBeGreaterThan(-1);
     expect(redIndex).toBeLessThan(yellowIndex);
     expect(yellowIndex).toBeLessThan(greenIndex);
@@ -364,6 +484,9 @@ describe("marketing homepage shared visual primitives", () => {
   it("stacks the trust strip as full-width rows on mobile while preserving the desktop wrap", () => {
     const trustStripSource = readFileSync(homepageComponentPaths.trustStrip, "utf8");
 
+    expect(trustStripSource).toContain(
+      'section className="border-y border-[var(--app-border)] bg-[var(--app-surface-muted)]/75 px-4 py-6 sm:px-6 sm:py-7"',
+    );
     expect(trustStripSource).toContain(
       "flex max-w-7xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center",
     );
@@ -457,13 +580,15 @@ describe("marketing homepage shared visual primitives", () => {
   });
 
   it("uses the primary yellow cta band treatment with enforced dark body contrast", () => {
-    expect(homepageSource).toContain(
-      'noteClassName="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/70',
-    );
-    expect(finalCtaBandSource).toContain("text-zinc-950");
-    expect(finalCtaBandSource).toContain("[&_p]:!text-zinc-800/80");
-    expect(finalCtaBandSource).toContain("[&_p:first-of-type]:!text-zinc-950");
-    expect(finalCtaBandSource).not.toContain("text-white");
+    expect(homepageSource).not.toContain("text-white/70");
+    expect(finalCtaBandSource).toContain("MarketingHeading");
+    expect(finalCtaBandSource).toContain("MarketingBody");
+    expect(finalCtaBandSource).toContain('tone="accent"');
+    expect(finalCtaBandSource).toContain('tone="accentMuted"');
+    expect(pricingFromTextSource).toContain("MarketingHeading");
+    expect(pricingFromTextSource).toContain("MarketingBody");
+    expect(pricingFromTextSource).toContain('tone="accent"');
+    expect(pricingFromTextSource).toContain('tone="accentMuted"');
     expect(globalsCssSource).toContain(".marketing-cta-band");
     expect(globalsCssSource).toContain("var(--action-primary-bg)");
     expect(globalsCssSource).toContain("var(--action-primary-hover)");

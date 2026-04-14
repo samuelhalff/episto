@@ -8,6 +8,11 @@ import {
   MarketingCard,
   MarketingSection,
 } from "@/components/marketing/primitives";
+import {
+  MarketingBody,
+  MarketingHeading,
+  MarketingMeta,
+} from "@/components/marketing/typography";
 import { buildFaqJsonLd, buildMarketingMetadata } from "@/lib/marketing-seo";
 
 export async function generateMetadata({
@@ -53,12 +58,18 @@ export default async function HelpPage({
         {/* FAQ Section */}
         <MarketingSection spacing="compact">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 sm:text-4xl md:text-5xl">
+            <MarketingHeading
+              as="h1"
+              className="text-3xl font-semibold tracking-[-0.04em] sm:text-4xl md:text-5xl"
+            >
               {t("faqTitle")}
-            </h1>
-            <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-zinc-500 dark:text-zinc-400 sm:text-base">
+            </MarketingHeading>
+            <MarketingBody
+              tone="muted"
+              className="mx-auto mt-4 max-w-xl text-sm leading-relaxed sm:text-base"
+            >
               {t("subtitle")}
-            </p>
+            </MarketingBody>
           </div>
           <div className="mx-auto mt-10 grid max-w-5xl gap-4 sm:mt-12 md:grid-cols-2 md:gap-5">
             {faqs.map((faq) => (
@@ -85,21 +96,27 @@ export default async function HelpPage({
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-50 dark:bg-amber-500/10">
               <Mail className="h-6 w-6 text-amber-600 dark:text-amber-400" />
             </div>
-            <h2 className="mt-5 text-xl font-semibold tracking-[-0.03em] text-zinc-950 dark:text-zinc-50 sm:text-2xl">
+            <MarketingHeading
+              as="h2"
+              className="mt-5 text-xl font-semibold tracking-[-0.03em] sm:text-2xl"
+            >
               {t("contactTitle")}
-            </h2>
-            <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-zinc-500 dark:text-zinc-400 sm:text-base">
+            </MarketingHeading>
+            <MarketingBody
+              tone="muted"
+              className="mx-auto mt-3 max-w-md text-sm leading-relaxed sm:text-base"
+            >
               {t("contactDescription")}
-            </p>
+            </MarketingBody>
             <a
               href={`mailto:${t("contactEmail")}`}
               className="btn-primary mt-5 inline-flex rounded-full px-6 py-3"
             >
               {t("contactEmail")}
             </a>
-            <p className="mt-3 text-xs text-zinc-400 dark:text-zinc-500">
+            <MarketingMeta className="mt-3 text-xs">
               {t("contactResponseTime")}
-            </p>
+            </MarketingMeta>
           </MarketingCard>
         </MarketingSection>
       </MarketingLayout>
@@ -115,12 +132,12 @@ function FaqCard({ question, answer }: { question: string; answer: string }) {
           <HelpCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
         </div>
         <div>
-          <h3 className="text-base font-semibold text-zinc-950 dark:text-zinc-50">
+          <MarketingHeading as="h3" className="text-base font-semibold">
             {question}
-          </h3>
-          <p className="mt-2 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+          </MarketingHeading>
+          <MarketingBody tone="soft" className="mt-2 text-sm leading-relaxed">
             {answer}
-          </p>
+          </MarketingBody>
         </div>
       </div>
     </MarketingCard>

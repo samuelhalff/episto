@@ -171,6 +171,23 @@ describe("EnvSchema — missing required fields", () => {
     expect(result.success).toBe(false);
   });
 
+  it("fails with placeholder AZURE_SPEECH_API_KEY outside test mode", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      AZURE_SPEECH_API_KEY: "dev-speech-key",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("allows placeholder AZURE_SPEECH_API_KEY in test mode", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      NODE_ENV: "test",
+      AZURE_SPEECH_API_KEY: "dev-speech-key",
+    });
+    expect(result.success).toBe(true);
+  });
+
   it("fails without ORDER_ACCESS_TOKEN_SECRET", () => {
     const e = { ...validEnv() };
     delete (e as Record<string, unknown>).ORDER_ACCESS_TOKEN_SECRET;

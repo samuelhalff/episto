@@ -254,11 +254,11 @@ export function MarketingActionLink({
 }: MarketingActionLinkProps) {
   const variantClassName =
     variant === "secondary"
-      ? "btn-secondary"
-      : variant === "ghostInverse"
-        ? "inline-flex items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/15 active:scale-[0.98] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
+        ? "btn-secondary"
+        : variant === "ghostInverse"
+          ? "inline-flex items-center justify-center gap-2 rounded-2xl border border-white/25 bg-white/10 px-6 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-white/15 active:scale-[0.98] dark:border-white/15 dark:bg-white/5 dark:hover:bg-white/10"
         : variant === "heroSecondary"
-          ? "inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-200/30 bg-amber-200/10 px-6 py-3.5 text-sm font-semibold text-amber-50 shadow-[0_18px_44px_rgba(0,0,0,0.16)] transition-all duration-200 hover:border-amber-200/40 hover:bg-amber-200/16 active:scale-[0.98] dark:border-amber-100/18 dark:bg-amber-100/10 dark:text-amber-50 dark:hover:bg-amber-100/14"
+          ? "inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-300/60 bg-transparent px-6 py-3.5 text-sm font-semibold text-amber-950 shadow-none transition-all duration-200 hover:border-amber-300/80 hover:bg-transparent active:scale-[0.98] dark:border-amber-100/18 dark:bg-amber-100/10 dark:text-amber-50 dark:hover:bg-amber-100/14"
           : variant === "inverse"
             ? "inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-semibold text-zinc-950 transition-all duration-200 hover:bg-zinc-100 active:scale-[0.98] dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
             : "btn-primary";

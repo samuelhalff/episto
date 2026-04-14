@@ -67,7 +67,7 @@ export default async function HomePage({
             body={
               <PricingFromText
                 titleClassName="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-6xl"
-                noteClassName="mx-auto mt-3 max-w-lg text-sm leading-relaxed text-white/70 sm:mt-4 sm:text-base"
+                noteClassName="mx-auto mt-3 max-w-lg text-sm leading-relaxed sm:mt-4 sm:text-base"
               />
             }
             primaryAction={{ href: "/draft/new", label: t("ctaButton") }}

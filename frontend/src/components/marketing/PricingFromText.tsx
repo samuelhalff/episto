@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { usePricing } from "../../hooks/use-pricing";
+import { MarketingBody, MarketingHeading } from "./typography";
 
 export function PricingFromText({
   titleClassName,
@@ -32,8 +33,12 @@ export function PricingFromText({
 
   return (
     <>
-      <p className={titleClassName}>{title}</p>
-      <p className={noteClassName}>{note}</p>
+      <MarketingHeading as="p" tone="accent" className={titleClassName}>
+        {title}
+      </MarketingHeading>
+      <MarketingBody as="p" tone="accentMuted" className={noteClassName}>
+        {note}
+      </MarketingBody>
     </>
   );
 }

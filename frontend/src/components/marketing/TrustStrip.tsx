@@ -14,7 +14,7 @@ export function TrustStrip() {
   const t = useTranslations("marketing");
 
   return (
-    <section className="border-y border-[var(--app-border)] bg-[var(--app-surface-muted)]/75 px-4 py-5 sm:px-6">
+    <section className="border-y border-[var(--app-border)] bg-[var(--app-surface-muted)]/75 px-4 py-6 sm:px-6 sm:py-7">
       <div className="mx-auto flex max-w-7xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-4 lg:gap-6">
         {trustItems.map(({ key, Icon }) => {
           return (

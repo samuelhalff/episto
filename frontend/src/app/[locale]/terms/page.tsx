@@ -19,6 +19,7 @@ import {
   SWISS_POST_LINKS,
 } from "@/lib/legal-config";
 import { buildMarketingMetadata } from "@/lib/marketing-seo";
+import { MarketingMeta } from "@/components/marketing/typography";
 
 export async function generateMetadata({
   params,
@@ -56,9 +57,12 @@ export default async function TermsPage({
           </>
         }
         eyebrow={
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <MarketingMeta
+            as="p"
+            className="text-[11px] font-semibold uppercase tracking-widest"
+          >
             {t("termsLastUpdated")}
-          </p>
+          </MarketingMeta>
         }
         notice={
           !isEnglishReference ? (

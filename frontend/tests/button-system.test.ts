@@ -48,6 +48,10 @@ const siteMenuPanelSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/layout/SiteMenuPanel.tsx"),
   "utf8",
 );
+const marketingPrimitivesSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/primitives.tsx"),
+  "utf8",
+);
 const globalsCssSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/globals.css"),
   "utf8",
@@ -94,8 +98,20 @@ describe("shared button system", () => {
     expect(globalsCssSource).toContain("--action-primary-hover:");
     expect(globalsCssSource).toContain("--action-secondary-bg:");
     expect(globalsCssSource).toContain("--action-secondary-border:");
+    expect(globalsCssSource).toContain("--action-secondary-border: rgba(24, 24, 27, 0.16);");
     expect(globalsCssSource).toContain("background-color: var(--action-primary-bg);");
     expect(globalsCssSource).toContain("background-color: var(--action-secondary-bg);");
+  });
+
+  it("gives shared secondary actions an explicit neutral border", () => {
+    expect(globalsCssSource).toContain("border: 1px solid var(--action-secondary-border);");
+  });
+
+  it("keeps the homepage hero secondary action as a ghost button in light theme", () => {
+    expect(marketingPrimitivesSource).toContain("bg-transparent");
+    expect(marketingPrimitivesSource).toContain("border-amber-300/60");
+    expect(marketingPrimitivesSource).toContain("hover:border-amber-300/80");
+    expect(marketingPrimitivesSource).toContain("hover:bg-transparent");
   });
 
   it("routes reusable selector pills and menu CTAs through shared action classes", () => {

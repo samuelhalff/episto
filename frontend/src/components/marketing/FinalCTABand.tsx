@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
-import { MarketingActionLink, SectionLabel, cx } from "./primitives";
+import { MarketingActionLink, cx } from "./primitives";
+import { MarketingBody, MarketingHeading } from "./typography";
 
 interface ActionLink {
   href: string;
@@ -30,15 +31,29 @@ export function FinalCTABand({
       )}
     >
       {eyebrow ? (
-        <SectionLabel className="text-zinc-800/80">{eyebrow}</SectionLabel>
+        <MarketingBody
+          as="p"
+          tone="accentMuted"
+          className="text-[11px] font-semibold uppercase tracking-widest"
+        >
+          {eyebrow}
+        </MarketingBody>
       ) : null}
-      <h2 className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.05em] text-zinc-950 md:text-5xl">
+      <MarketingHeading
+        as="h2"
+        tone="accent"
+        className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.05em] md:text-5xl"
+      >
         {title}
-      </h2>
+      </MarketingHeading>
       {body ? (
-        <div className="mt-4 max-w-2xl text-sm leading-7 text-zinc-800/80 md:text-base [&_p]:!text-zinc-800/80 [&_p:first-of-type]:!text-zinc-950">
+        <MarketingBody
+          as="div"
+          tone="accentMuted"
+          className="mt-4 max-w-2xl text-sm leading-7 md:text-base"
+        >
           {body}
-        </div>
+        </MarketingBody>
       ) : null}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         <MarketingActionLink href={primaryAction.href} variant="inverse">

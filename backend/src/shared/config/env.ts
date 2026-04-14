@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 
 import { PostalPostageSchema } from "@swiss-mail/shared";
 
+const PLACEHOLDER_AZURE_SPEECH_KEYS = new Set(["dev-speech-key", "replace_me"]);
+
 /**
  * Environment configuration schema.
  * All values are loaded from process.env and validated at startup.
@@ -143,6 +145,19 @@ export const EnvSchema = z
     DISPATCH_RATE_MATRIX_REFRESH_CRON: z.string().min(1).default("5 6 * * *"),
     LIVE_DISPATCH_QUOTE_TTL_MINUTES: z.coerce.number().int().positive().default(30),
   })
+  .refine(
+    (data) => {
+      if (data.NODE_ENV === "test") {
+        return true;
+      }
+
+      return !PLACEHOLDER_AZURE_SPEECH_KEYS.has(data.AZURE_SPEECH_API_KEY.trim());
+    },
+    {
+      message:
+        "AZURE_SPEECH_API_KEY must be a real Azure Speech key; placeholder values are not allowed",
+    },
+  )
   .refine(
     (data) => {
       if (data.AI_PROVIDER_MODE === "azure_openai") {

@@ -146,4 +146,23 @@ describe("regression: env validation accepts valid configs", () => {
     );
     expect(result.success).toBe(false);
   });
+
+  it("rejects placeholder Azure Speech keys outside test mode", () => {
+    const result = EnvSchema.safeParse(
+      makeValidEnv({
+        AZURE_SPEECH_API_KEY: "dev-speech-key",
+      }),
+    );
+    expect(result.success).toBe(false);
+  });
+
+  it("still allows placeholder Azure Speech keys in test mode", () => {
+    const result = EnvSchema.safeParse(
+      makeValidEnv({
+        NODE_ENV: "test",
+        AZURE_SPEECH_API_KEY: "dev-speech-key",
+      }),
+    );
+    expect(result.success).toBe(true);
+  });
 });
