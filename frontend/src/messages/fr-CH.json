@@ -64,8 +64,8 @@
     "pricingTitle": "Des tarifs simples et transparents",
     "pricingFrom": "Dès {price} par courrier",
     "pricingFromFallback": "Tarification claire par courrier",
-    "pricingNotes": "Sur la base d’un courrier d’une page. Le total exact est affiché avant le paiement.",
-    "pricingNotesFallback": "Le total exact est affiché avant le paiement.",
+    "pricingNotes": "Basé sur une lettre d’une page. Le total exact apparaît avant le paiement.",
+    "pricingNotesFallback": "Le total exact apparaît avant le paiement.",
     "ctaTitle": "Prêt à rédiger votre courrier ?",
     "ctaButton": "Rédiger votre courrier",
     "nav": {

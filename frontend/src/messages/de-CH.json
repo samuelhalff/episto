@@ -64,8 +64,8 @@
     "pricingTitle": "Einfach und transparent",
     "pricingFrom": "Ab {price} pro Brief",
     "pricingFromFallback": "Transparente Preise pro Brief",
-    "pricingNotes": "Grundlage ist ein Brief mit einer Seite. Den genauen Total sehen Sie vor der Zahlung.",
-    "pricingNotesFallback": "Den genauen Total sehen Sie vor der Zahlung.",
+    "pricingNotes": "Basierend auf einem 1-seitigen Brief. Der genaue Total erscheint vor der Zahlung.",
+    "pricingNotesFallback": "Der genaue Total erscheint vor der Zahlung.",
     "ctaTitle": "Bereit, Ihren Brief zu verfassen?",
     "ctaButton": "Brief verfassen",
     "nav": {

@@ -64,7 +64,7 @@
     "pricingTitle": "Simple, transparent pricing",
     "pricingFrom": "From {price} per letter",
     "pricingFromFallback": "Transparent per-letter pricing",
-    "pricingNotes": "Based on a 1-page letter. Exact total shown before payment.",
+    "pricingNotes": "Based on a 1-page letter. Exact total before payment.",
     "pricingNotesFallback": "Exact total shown before payment.",
     "ctaTitle": "Ready to write your letter?",
     "ctaButton": "Write your letter",
