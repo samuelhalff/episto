@@ -245,9 +245,11 @@ describe("regression: PDF letter template renders all elements", () => {
     );
 
     expect(html).toContain("image/svg+xml");
-    expect(html).toContain("#1d4ed8");
-    expect(html).toContain("data:image/jpeg;base64,ZmFrZWpwZWc=");
+    expect(html).toContain("%231d4ed8");
+    expect(html).toContain("data%3Aimage%2Fjpeg%3Bbase64%2CZmFrZWpwZWc%3D");
     expect(html).not.toContain("data:image/png;base64");
+    expect(html).not.toContain("data-signature-ink=");
+    expect(html).not.toContain("data-signature-source=");
   });
 
   it("renders the enclosure note when provided", async () => {

@@ -336,6 +336,95 @@ describe("pdf-access", () => {
     );
   });
 
+  it("ignores unsupported signature mime types when rebuilding the confirmation bundle letter pdf", async () => {
+    mocks.getLatestSnapshot.mockResolvedValueOnce({
+      id: "snapshot-drawn-invalid",
+      draftId: "draft-drawn-invalid",
+      version: 1,
+      snapshotData: {
+        schemaVersion: 1,
+        locale: "en-CH",
+        deliveryType: "registered",
+        subject: "Termination notice",
+        body: "Please accept this cancellation notice effective immediately.",
+        enclosureNote: null,
+        signatureMode: "drawn",
+        tone: null,
+        intent: null,
+        sender: {
+          firstName: "Sam",
+          lastName: "Sender",
+          company: null,
+          addressLine1: "Main street 1",
+          addressLine2: null,
+          postalCode: "8000",
+          city: "Zurich",
+          country: "CH",
+        },
+        recipient: {
+          firstName: "Alex",
+          lastName: "Receiver",
+          company: "Receiver AG",
+          department: null,
+          addressLine1: "Market street 2",
+          addressLine2: null,
+          postalCode: "3000",
+          city: "Bern",
+          country: "CH",
+        },
+        attachmentAssetIds: [],
+        signatureAssetId: "33333333-3333-4333-8333-333333333333",
+        estimatedPages: 2,
+        metadata: null,
+      },
+      renderedPdfAssetId: "rendered-asset-invalid",
+      createdAt: new Date("2026-04-08T12:00:00.000Z"),
+    });
+
+    const db = {
+      select: vi.fn((fields?: Record<string, unknown>) => {
+        const projection = fields ? Object.keys(fields).sort().join(",") : "__all__";
+        if (
+          projection ===
+          "createdAt,providerName,providerReference,state,submittedAt,trackingNumber"
+        ) {
+          return makeSelectChain([]);
+        }
+        if (projection === "id,originalFilename,storageKey") {
+          return makeSelectChain([]);
+        }
+        if (projection === "mimeType,storageKey") {
+          return makeSelectChain([
+            {
+              storageKey: "signatures/session/drawn-signature.gif",
+              mimeType: "image/gif",
+            },
+          ]);
+        }
+        return makeSelectChain([]);
+      }),
+    };
+    const reply = {
+      header: vi.fn().mockReturnThis(),
+      send: vi.fn().mockResolvedValue(undefined),
+    };
+
+    const { sendRenderedDraftPdf } =
+      await import("../src/modules/rendering/pdf-access.js");
+    await sendRenderedDraftPdf(db as never, "draft-drawn-invalid", reply as never);
+
+    expect(mocks.downloadObjectBuffer).not.toHaveBeenCalled();
+    expect(mocks.renderLetterHtml).toHaveBeenCalledWith(
+      expect.objectContaining({
+        signatureMode: "drawn",
+        signatureAssetId: "33333333-3333-4333-8333-333333333333",
+      }),
+      {
+        signatureImage: null,
+      },
+    );
+  });
+
   it("caps the confirmation content summary so the cover sheet stays compact", async () => {
     mocks.getLatestSnapshot.mockResolvedValueOnce({
       id: "snapshot-long",

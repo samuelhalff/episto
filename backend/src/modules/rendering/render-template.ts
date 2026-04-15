@@ -145,7 +145,7 @@ export function renderLetterHtml(
     )}`;
 
     signatureBlock = `<div class="signature-block">
-  <img class="signature-image" src="${signatureSrc}" alt="Signature" data-signature-ink="${LETTER_COLORS.signatureDrawnInk}" data-signature-source="data:${options.signatureImage.mimeType};base64,${options.signatureImage.base64}" />
+  <img class="signature-image" src="${signatureSrc}" alt="Signature" />
   <div class="signature-name">${escapeHtml(signatureName)}</div>
 </div>`;
   } else if (data.signatureMode === "typed" && signatureName) {

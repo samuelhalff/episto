@@ -10,6 +10,12 @@ export interface SignatureRenderAsset {
   base64: string;
 }
 
+function isSignatureRenderMimeType(
+  mimeType: string,
+): mimeType is SignatureRenderAsset["mimeType"] {
+  return mimeType === "image/png" || mimeType === "image/jpeg";
+}
+
 export async function loadSignatureImageAsset(
   db: Db,
   snapshotData: SnapshotData,
@@ -31,9 +37,13 @@ export async function loadSignatureImageAsset(
     return null;
   }
 
+  if (!isSignatureRenderMimeType(signatureAsset.mimeType)) {
+    return null;
+  }
+
   const { buffer } = await downloadObjectBuffer(signatureAsset.storageKey);
   return {
-    mimeType: signatureAsset.mimeType as "image/png" | "image/jpeg",
+    mimeType: signatureAsset.mimeType,
     base64: buffer.toString("base64"),
   };
 }
