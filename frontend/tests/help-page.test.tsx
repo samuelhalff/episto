@@ -76,6 +76,26 @@ vi.mock("../src/components/marketing/MarketingLayout", async () => {
   };
 });
 
+// JsonLd is an async Server Component that reads the per-request nonce via
+// `next/headers`. `renderToStaticMarkup` can't suspend, so replace it with a
+// synchronous stub that preserves the escape semantics we still assert on.
+vi.mock("../src/components/marketing/JsonLd", async () => {
+  const React = await import("react");
+
+  return {
+    JsonLd: ({ data }: { data: unknown }) => {
+      const html = JSON.stringify(data)
+        .replace(/</g, "\\u003c")
+        .replace(/\u2028/g, "\\u2028")
+        .replace(/\u2029/g, "\\u2029");
+      return React.createElement("script", {
+        type: "application/ld+json",
+        dangerouslySetInnerHTML: { __html: html },
+      });
+    },
+  };
+});
+
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const helpPageSource = readRepoFile("frontend/src/app/[locale]/help/page.tsx");
 const helpPageCtaPath = path.join(

@@ -430,8 +430,12 @@ describe("marketing seo plumbing", () => {
   });
 
   it("escapes unsafe characters before embedding json-ld", async () => {
+    vi.doMock("next/headers", () => ({
+      headers: async () => new Headers({ "x-nonce": "test-nonce" }),
+    }));
+
     const { JsonLd } = await import("../src/components/marketing/JsonLd");
-    const element = JsonLd({
+    const element = await JsonLd({
       data: {
         "@context": "https://schema.org",
         "@type": "FAQPage",
@@ -444,5 +448,8 @@ describe("marketing seo plumbing", () => {
     expect(element.props.dangerouslySetInnerHTML.__html).not.toContain("<Mail>");
     expect(element.props.dangerouslySetInnerHTML.__html).toContain("\\u2028");
     expect(element.props.dangerouslySetInnerHTML.__html).toContain("\\u2029");
+    expect(element.props.nonce).toBe("test-nonce");
+
+    vi.doUnmock("next/headers");
   });
 });

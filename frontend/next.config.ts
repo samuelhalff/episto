@@ -92,64 +92,11 @@ export function collectAllowedDevOrigins(): string[] {
 }
 
 // Security headers — values locked in docs/07-operations/security-and-privacy.md §Security headers
-// CSP includes Stripe domains as required by docs (script-src, frame-src, connect-src).
-export function buildContentSecurityPolicy(isDevelopment: boolean): string {
-  const scriptSrc = [
-    "script-src 'self' 'unsafe-inline'",
-    ...(isDevelopment ? ["'unsafe-eval'"] : []),
-    "https://js.stripe.com",
-  ].join(" ");
-  const apiConnectOrigin = (() => {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-
-    if (!apiUrl || apiUrl.startsWith("/")) {
-      return null;
-    }
-
-    try {
-      return new URL(apiUrl).origin;
-    } catch {
-      return null;
-    }
-  })();
-  const sentryConnectOrigin = (() => {
-    const sentryDsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
-
-    if (!sentryDsn) {
-      return null;
-    }
-
-    try {
-      return new URL(sentryDsn).origin;
-    } catch {
-      return null;
-    }
-  })();
-  const connectSrc = [
-    "connect-src 'self' https://api.stripe.com ws: wss:",
-    apiConnectOrigin,
-    sentryConnectOrigin,
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  return [
-    "default-src 'self'",
-    scriptSrc,
-    "frame-src https://js.stripe.com https://hooks.stripe.com",
-    connectSrc,
-    "img-src 'self' data: https:",
-    "style-src 'self' 'unsafe-inline'",
-    "font-src 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-  ].join("; ");
-}
-
-export function buildPermissionsPolicy(): string {
-  return "camera=(), microphone=(self), geolocation=()";
-}
+// The CSP is set per-request by `src/middleware.ts` so a fresh nonce can be
+// attached to `script-src` on every HTML response. The builder lives in
+// `src/lib/csp.ts` and is re-exported here for legacy test imports.
+export { buildContentSecurityPolicy, buildPermissionsPolicy } from "./src/lib/csp";
+import { buildPermissionsPolicy } from "./src/lib/csp";
 
 const securityHeaders = [
   {
@@ -164,10 +111,10 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: buildPermissionsPolicy(),
   },
-  {
-    key: "Content-Security-Policy",
-    value: buildContentSecurityPolicy(process.env.NODE_ENV !== "production"),
-  },
+  // Content-Security-Policy intentionally omitted here — middleware sets it
+  // per-request with a fresh nonce. Next.js merges middleware-set headers
+  // with static ones; keeping it out here avoids a stale, nonce-less CSP
+  // shadowing the dynamic one in edge cases.
 ];
 
 function createConfig(): NextConfig {
