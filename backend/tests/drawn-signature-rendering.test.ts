@@ -15,6 +15,8 @@ describe("drawn signature rendering", () => {
 
     expect(markup).toContain(LETTER_COLORS.signatureDrawnInk);
     expect(markup).toContain("data:image/png;base64,ZmFrZQ==");
+    expect(markup).toMatch(/mask id="signature-mask-[a-f0-9]+"/);
+    expect(markup).toMatch(/mask="url\(#signature-mask-[a-f0-9]+\)"/);
   });
 
   it("preserves jpeg signatures inside the svg wrapper", () => {
@@ -24,5 +26,16 @@ describe("drawn signature rendering", () => {
     });
 
     expect(markup).toContain("data:image/jpeg;base64,ZmFrZWpwZWc=");
+  });
+
+  it("builds a utf-8 svg response buffer", () => {
+    const response = buildBlueSignatureSvgResponse({
+      mimeType: "image/png",
+      base64: "ZmFrZQ==",
+    });
+
+    expect(Buffer.isBuffer(response)).toBe(true);
+    expect(response.toString("utf8")).toContain(LETTER_COLORS.signatureDrawnInk);
+    expect(response.toString("utf8")).toContain("<svg");
   });
 });

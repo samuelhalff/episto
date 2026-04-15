@@ -1,4 +1,5 @@
 import Fastify, { type FastifyInstance } from "fastify";
+import { LETTER_COLORS } from "@swiss-mail/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 function makeSelectChain(result: unknown[]) {
@@ -153,8 +154,24 @@ describe("file preview route", () => {
     expect(response.statusCode).toBe(200);
     expect(response.headers["content-type"]).toContain("image/svg+xml");
     expect(response.headers.location).toBeUndefined();
-    expect(response.body).toContain("#1d4ed8");
+    expect(response.body).toContain(LETTER_COLORS.signatureDrawnInk);
     expect(response.body).toContain("data:image/png;base64,cG5nYnl0ZXM=");
+  });
+
+  it("rejects storage objects with unsupported preview mime types", async () => {
+    downloadObjectBuffer.mockResolvedValueOnce({
+      buffer: Buffer.from("gifbytes"),
+      contentType: "image/gif",
+      contentLength: 8,
+    });
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/files/signature-file-1/preview",
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.body).toContain("file not found");
   });
 
   it("rejects non-signature assets on the preview route", async () => {

@@ -30,11 +30,20 @@ import {
   deleteObject,
 } from "./adapters/s3.adapter.js";
 import { parseUploadMultipartParts } from "./multipart-upload.js";
-import { buildBlueSignatureSvgResponse } from "../rendering/drawn-signature.js";
+import {
+  buildBlueSignatureSvgResponse,
+  type DrawnSignatureAsset,
+} from "../rendering/drawn-signature.js";
 
 // ---------------------------------------------------------------------------
 // Plugin
 // ---------------------------------------------------------------------------
+
+function isDrawnSignatureMimeType(
+  mimeType: string,
+): mimeType is DrawnSignatureAsset["mimeType"] {
+  return mimeType === "image/png" || mimeType === "image/jpeg";
+}
 
 export async function fileRoutes(app: FastifyInstance): Promise<void> {
   // POST /drafts/:id/files — upload attachment or signature (multipart)
@@ -335,9 +344,11 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const object = await downloadObjectBuffer(file.storageKey);
-      const mimeType = (object.contentType ?? file.mimeType) as
-        | "image/png"
-        | "image/jpeg";
+      const mimeType = object.contentType ?? file.mimeType;
+      if (!isDrawnSignatureMimeType(mimeType)) {
+        throw notFoundError("file");
+      }
+
       const body = buildBlueSignatureSvgResponse({
         mimeType,
         base64: object.buffer.toString("base64"),
