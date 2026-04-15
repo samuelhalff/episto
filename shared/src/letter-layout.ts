@@ -71,14 +71,15 @@ export const LETTER_LAYOUT_PT = {
 } as const;
 
 export const LETTER_COLORS = {
-  text: '#1a1a1a',
-  date: '#444444',
-  signatureScript: '#222222',
-  signatureName: '#555555',
-  enclosure: '#666666',
-  tableBorder: '#d1d5db',
-  tableHeaderBg: '#f3f4f6',
-  enclosureBorder: '#d7d7d7',
+  text: "#1a1a1a",
+  date: "#444444",
+  signatureScript: "#222222",
+  signatureName: "#555555",
+  signatureDrawnInk: "#1d4ed8",
+  enclosure: "#666666",
+  tableBorder: "#d1d5db",
+  tableHeaderBg: "#f3f4f6",
+  enclosureBorder: "#d7d7d7",
 } as const;
 
 export function mmToPageCqw(value: number): string {

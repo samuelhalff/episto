@@ -26,6 +26,10 @@ describe("letter color palette", () => {
     }
   });
 
+  it("defines a dedicated blue ink token for drawn signatures", () => {
+    expect(LETTER_COLORS.signatureDrawnInk).toBe("#1d4ed8");
+  });
+
   it("provides a unified text color for primary letter content", () => {
     expect(LETTER_COLORS.text).toBe("#1a1a1a");
   });
