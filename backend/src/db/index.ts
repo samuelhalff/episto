@@ -4,10 +4,12 @@ import type { PgTransaction } from "drizzle-orm/pg-core";
 import type { ExtractTablesWithRelations } from "drizzle-orm";
 import pg from "pg";
 import { env } from "../shared/config/index.js";
+import { createLogger } from "../shared/logging/index.js";
 import * as schema from "./schema/index.js";
 
 let _db: NodePgDatabase<typeof schema> | undefined;
 let _pool: pg.Pool | undefined;
+let _poolLogger: ReturnType<typeof createLogger> | undefined;
 
 export function getDb(): NodePgDatabase<typeof schema> {
   if (_db) return _db;
@@ -19,7 +21,8 @@ export function getDb(): NodePgDatabase<typeof schema> {
   });
   // Log idle client errors to prevent unhandled rejections crashing the process
   _pool.on("error", (err) => {
-    console.error("Unexpected database pool error:", err.message);
+    _poolLogger ??= createLogger("db-pool");
+    _poolLogger.error({ err }, "Unexpected database pool error");
   });
   _db = drizzle(_pool, { schema });
   return _db;
