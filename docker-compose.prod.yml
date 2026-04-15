@@ -19,8 +19,16 @@ x-runtime-env-file: &runtime-env-file
     - path: ${SWISSMAIL_ENV_FILE:-/etc/swissmail/production.env}
       required: true
 
+# Container hardening is applied inline on every service via `security_opt:
+# [no-new-privileges:true]`. This prevents a process from gaining additional
+# privileges through setuid/setgid binaries.
+# NOTE: resource limits (mem_limit / cpus) are intentionally not hard-coded here
+# because optimal values depend on host sizing — set them per deployment.
+
 services:
   postgres:
+    security_opt:
+      - no-new-privileges:true
     image: postgres:16-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-swissmail}
@@ -38,6 +46,8 @@ services:
     restart: unless-stopped
 
   redis:
+    security_opt:
+      - no-new-privileges:true
     image: redis:7-alpine
     volumes:
       - redisdata:/data
@@ -51,6 +61,8 @@ services:
     restart: unless-stopped
 
   minio:
+    security_opt:
+      - no-new-privileges:true
     image: minio/minio:latest
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
@@ -68,6 +80,8 @@ services:
     restart: unless-stopped
 
   minio-setup:
+    security_opt:
+      - no-new-privileges:true
     image: minio/mc:latest
     depends_on:
       minio:
@@ -83,6 +97,8 @@ services:
 
   backend:
     <<: *runtime-env-file
+    security_opt:
+      - no-new-privileges:true
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -125,6 +141,8 @@ services:
 
   worker:
     <<: *runtime-env-file
+    security_opt:
+      - no-new-privileges:true
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -154,6 +172,8 @@ services:
     restart: unless-stopped
 
   zefix-proxy:
+    security_opt:
+      - no-new-privileges:true
     build:
       context: ./services/zefix-proxy
       dockerfile: Dockerfile
@@ -177,6 +197,8 @@ services:
     restart: unless-stopped
 
   frontend:
+    security_opt:
+      - no-new-privileges:true
     build:
       context: .
       dockerfile: frontend/Dockerfile
@@ -206,6 +228,8 @@ services:
     restart: unless-stopped
 
   proxy:
+    security_opt:
+      - no-new-privileges:true
     image: nginx:1.27-alpine
     ports:
       - "5000:5000"

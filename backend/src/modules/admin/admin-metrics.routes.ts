@@ -15,16 +15,21 @@ import type {
 // Helpers
 // ---------------------------------------------------------------------------
 
-export function parsePeriodInterval(period: string | undefined): string {
+/**
+ * Convert a period query parameter to a number of days. The returned value
+ * is passed through parameterized `make_interval()` calls — never interpolated
+ * as a raw SQL string — so it is safe even if future code paths accept user
+ * input verbatim.
+ */
+export function parsePeriodDays(period: string | undefined): number {
   switch (period) {
     case "today":
-      return "1 day";
-    case "7d":
-      return "7 days";
+      return 1;
     case "30d":
-      return "30 days";
+      return 30;
+    case "7d":
     default:
-      return "7 days";
+      return 7;
   }
 }
 
@@ -43,43 +48,40 @@ function periodLabel(period: string | undefined): string {
 // Routes
 // ---------------------------------------------------------------------------
 
-export async function adminMetricsRoutes(
-  app: FastifyInstance,
-): Promise<void> {
+export async function adminMetricsRoutes(app: FastifyInstance): Promise<void> {
   // GET /admin/metrics/summary — KPI cards
   app.get<{ Querystring: { period?: string } }>(
     "/admin/metrics/summary",
     async (request, reply) => {
       const db = getDb();
-      const interval = parsePeriodInterval(request.query.period);
+      const days = parsePeriodDays(request.query.period);
       const label = periodLabel(request.query.period);
 
-      const [sessions, letters, revenue, errors, totalDrafts] =
-        await Promise.all([
-          db.execute<{ count: number }>(sql`
+      const [sessions, letters, revenue, errors, totalDrafts] = await Promise.all([
+        db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM sessions
-            WHERE created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+            WHERE created_at > NOW() - make_interval(days => ${days})
           `),
-          db.execute<{ count: number }>(sql`
+        db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM dispatch_attempts
             WHERE state IN ('accepted', 'submitted')
-              AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+              AND created_at > NOW() - make_interval(days => ${days})
           `),
-          db.execute<{ total: number }>(sql`
+        db.execute<{ total: number }>(sql`
             SELECT COALESCE(SUM(amount_cents), 0)::int AS total FROM payment_attempts
             WHERE state = 'captured'
-              AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+              AND created_at > NOW() - make_interval(days => ${days})
           `),
-          db.execute<{ count: number }>(sql`
+        db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM payment_attempts
             WHERE state = 'failed'
-              AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+              AND created_at > NOW() - make_interval(days => ${days})
           `),
-          db.execute<{ count: number }>(sql`
+        db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM draft_letters
-            WHERE created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+            WHERE created_at > NOW() - make_interval(days => ${days})
           `),
-        ]);
+      ]);
 
       const totalD = Number(totalDrafts.rows[0]?.count ?? 0);
       const failedCount = Number(errors.rows[0]?.count ?? 0);
@@ -88,10 +90,7 @@ export async function adminMetricsRoutes(
         activeSessions: Number(sessions.rows[0]?.count ?? 0),
         lettersSent: Number(letters.rows[0]?.count ?? 0),
         revenueCents: Number(revenue.rows[0]?.total ?? 0),
-        errorRate:
-          totalD > 0
-            ? Math.round((failedCount / totalD) * 1000) / 10
-            : 0,
+        errorRate: totalD > 0 ? Math.round((failedCount / totalD) * 1000) / 10 : 0,
         periodLabel: label,
         generatedAt: new Date().toISOString(),
       };
@@ -102,33 +101,32 @@ export async function adminMetricsRoutes(
   // GET /admin/metrics/active — current active sessions by stage
   app.get("/admin/metrics/active", async (_request, reply) => {
     const db = getDb();
-    const cutoff = sql.raw("INTERVAL '15 minutes'");
+    const cutoff = sql`make_interval(mins => 15)`;
 
-    const [total, drafting, review, checkout, confirmation] =
-      await Promise.all([
-        db.execute<{ count: number }>(sql`
+    const [total, drafting, review, checkout, confirmation] = await Promise.all([
+      db.execute<{ count: number }>(sql`
           SELECT COUNT(*)::int AS count FROM sessions
           WHERE expires_at > NOW() OR created_at > NOW() - ${cutoff}
         `),
-        db.execute<{ count: number }>(sql`
+      db.execute<{ count: number }>(sql`
           SELECT COUNT(DISTINCT s.id)::int AS count
           FROM sessions s JOIN draft_letters d ON d.session_id = s.id
           WHERE d.status IN ('collecting', 'fields_complete')
             AND d.updated_at > NOW() - ${cutoff}
         `),
-        db.execute<{ count: number }>(sql`
+      db.execute<{ count: number }>(sql`
           SELECT COUNT(DISTINCT s.id)::int AS count
           FROM sessions s JOIN draft_letters d ON d.session_id = s.id
           WHERE d.status = 'reviewed'
             AND d.updated_at > NOW() - ${cutoff}
         `),
-        db.execute<{ count: number }>(sql`
+      db.execute<{ count: number }>(sql`
           SELECT COUNT(DISTINCT s.id)::int AS count
           FROM sessions s JOIN payment_attempts p ON p.session_id = s.id
           WHERE p.state = 'pending'
             AND p.updated_at > NOW() - ${cutoff}
         `),
-        db.execute<{ count: number }>(sql`
+      db.execute<{ count: number }>(sql`
           SELECT COUNT(DISTINCT s.id)::int AS count
           FROM sessions s
           JOIN draft_letters d ON d.session_id = s.id
@@ -136,7 +134,7 @@ export async function adminMetricsRoutes(
           WHERE da.state IN ('accepted', 'submitted')
             AND da.updated_at > NOW() - ${cutoff}
         `),
-      ]);
+    ]);
 
     const t = Number(total.rows[0]?.count ?? 0);
     const d = Number(drafting.rows[0]?.count ?? 0);
@@ -163,39 +161,40 @@ export async function adminMetricsRoutes(
     "/admin/metrics/funnel",
     async (request, reply) => {
       const db = getDb();
-      const interval = parsePeriodInterval(request.query.period);
+      const days = parsePeriodDays(request.query.period);
       const label = periodLabel(request.query.period);
 
-      const [sessions, drafts, reviewed, checkouts, paid, dispatched] =
-        await Promise.all([
+      const [sessions, drafts, reviewed, checkouts, paid, dispatched] = await Promise.all(
+        [
           db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM sessions
-            WHERE created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+            WHERE created_at > NOW() - make_interval(days => ${days})
           `),
           db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM draft_letters
-            WHERE created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+            WHERE created_at > NOW() - make_interval(days => ${days})
           `),
           db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM draft_letters
             WHERE status NOT IN ('collecting', 'fields_complete')
-              AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+              AND created_at > NOW() - make_interval(days => ${days})
           `),
           db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM payment_attempts
-            WHERE created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+            WHERE created_at > NOW() - make_interval(days => ${days})
           `),
           db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM payment_attempts
             WHERE state = 'captured'
-              AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+              AND created_at > NOW() - make_interval(days => ${days})
           `),
           db.execute<{ count: number }>(sql`
             SELECT COUNT(*)::int AS count FROM dispatch_attempts
             WHERE state IN ('accepted', 'submitted')
-              AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+              AND created_at > NOW() - make_interval(days => ${days})
           `),
-        ]);
+        ],
+      );
 
       const counts = [
         { stage: "Sessions", count: Number(sessions.rows[0]?.count ?? 0) },
@@ -244,8 +243,8 @@ export async function adminMetricsRoutes(
         LEFT JOIN draft_letters d ON d.session_id = s.id
         LEFT JOIN dispatch_attempts da ON da.draft_id = d.id
           AND da.state IN ('accepted', 'submitted')
-          AND da.created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
-        WHERE s.created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+          AND da.created_at > NOW() - make_interval(days => ${days})
+        WHERE s.created_at > NOW() - make_interval(days => ${days})
           AND s.locale IS NOT NULL
         GROUP BY s.locale
       `);
@@ -254,16 +253,13 @@ export async function adminMetricsRoutes(
       for (const row of localeRows.rows) {
         const sess = Number(row.sessions);
         const disp = Number(row.dispatched);
-        byLocale[row.locale] =
-          sess > 0 ? Math.round((disp / sess) * 1000) / 10 : 0;
+        byLocale[row.locale] = sess > 0 ? Math.round((disp / sess) * 1000) / 10 : 0;
       }
 
       const response: AdminFunnelResponse = {
         steps,
         overallConversionPercent:
-          sessionCount > 0
-            ? Math.round((dispatchCount / sessionCount) * 1000) / 10
-            : 0,
+          sessionCount > 0 ? Math.round((dispatchCount / sessionCount) * 1000) / 10 : 0,
         byLocale,
         periodLabel: label,
         generatedAt: new Date().toISOString(),
@@ -277,7 +273,7 @@ export async function adminMetricsRoutes(
     "/admin/metrics/errors",
     async (request, reply) => {
       const db = getDb();
-      const interval = parsePeriodInterval(request.query.period);
+      const days = parsePeriodDays(request.query.period);
       const label = periodLabel(request.query.period);
 
       const rows = await db.execute<{
@@ -291,7 +287,7 @@ export async function adminMetricsRoutes(
           COUNT(DISTINCT session_id)::int AS sessions
         FROM product_events
         WHERE error_family IS NOT NULL
-          AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+          AND created_at > NOW() - make_interval(days => ${days})
         GROUP BY error_family
         ORDER BY count DESC
         LIMIT 20
@@ -304,7 +300,7 @@ export async function adminMetricsRoutes(
         SELECT COUNT(*)::int AS count, COUNT(DISTINCT session_id)::int AS sessions
         FROM payment_attempts
         WHERE state = 'failed'
-          AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+          AND created_at > NOW() - make_interval(days => ${days})
       `);
 
       const entries = rows.rows.map((r) => ({
@@ -351,10 +347,7 @@ export async function adminMetricsRoutes(
     const entries = rows.rows.map((r) => ({
       locale: r.locale,
       count: Number(r.count),
-      percent:
-        total > 0
-          ? Math.round((Number(r.count) / total) * 1000) / 10
-          : 0,
+      percent: total > 0 ? Math.round((Number(r.count) / total) * 1000) / 10 : 0,
     }));
 
     const response: AdminLocaleResponse = {
@@ -369,7 +362,7 @@ export async function adminMetricsRoutes(
     "/admin/metrics/ai",
     async (request, reply) => {
       const db = getDb();
-      const interval = parsePeriodInterval(request.query.period);
+      const days = parsePeriodDays(request.query.period);
       const label = periodLabel(request.query.period);
 
       const rows = await db.execute<{
@@ -385,7 +378,7 @@ export async function adminMetricsRoutes(
           COUNT(*) FILTER (WHERE event_name = 'ai_generation_requested')::int AS regenerations
         FROM product_events
         WHERE event_name IN ('ai_generation_completed', 'ai_generation_requested')
-          AND created_at > NOW() - ${sql.raw(`INTERVAL '${interval}'`)}
+          AND created_at > NOW() - make_interval(days => ${days})
       `);
 
       const r = rows.rows[0];
@@ -395,9 +388,7 @@ export async function adminMetricsRoutes(
       const response: AdminAiResponse = {
         avgLatencyMs: Number(r?.avg_duration ?? 0),
         refusalRate:
-          total > 0
-            ? Math.round((Number(r?.refusals ?? 0) / total) * 1000) / 10
-            : 0,
+          total > 0 ? Math.round((Number(r?.refusals ?? 0) / total) * 1000) / 10 : 0,
         regenerationRate:
           requests > 0 && total > 0
             ? Math.round(((requests - total) / total) * 1000) / 10

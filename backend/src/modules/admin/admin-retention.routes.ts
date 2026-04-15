@@ -24,13 +24,13 @@ export async function adminRetentionRoutes(app: FastifyInstance): Promise<void> 
           SELECT COUNT(*)::int AS count FROM draft_letters
           WHERE status = 'closed'
             AND subject != '[REDACTED]'
-            AND updated_at < NOW() - ${sql.raw(`INTERVAL '${contentDays} days'`)}
+            AND updated_at < NOW() - make_interval(days => ${contentDays})
         `),
         db.execute<{ count: number }>(sql`
           SELECT COUNT(*)::int AS count FROM file_assets
           WHERE kind = 'rendered_pdf'
             AND status = 'active'
-            AND created_at < NOW() - ${sql.raw(`INTERVAL '${pdfHours} hours'`)}
+            AND created_at < NOW() - make_interval(hours => ${pdfHours})
         `),
         db.execute<{ event_type: string; count: number; ran_at: string }>(sql`
           SELECT

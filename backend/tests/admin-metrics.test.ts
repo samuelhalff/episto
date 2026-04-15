@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { parsePeriodInterval } from "../src/modules/admin/admin-metrics.routes.js";
+import { parsePeriodDays } from "../src/modules/admin/admin-metrics.routes.js";
 
 describe("admin metrics", () => {
-  it("parsePeriodInterval returns valid SQL intervals", () => {
-    expect(parsePeriodInterval("today")).toBe("1 day");
-    expect(parsePeriodInterval("7d")).toBe("7 days");
-    expect(parsePeriodInterval("30d")).toBe("30 days");
-    expect(parsePeriodInterval("garbage")).toBe("7 days"); // default
-    expect(parsePeriodInterval(undefined)).toBe("7 days"); // default
+  it("parsePeriodDays maps period query params to day counts", () => {
+    expect(parsePeriodDays("today")).toBe(1);
+    expect(parsePeriodDays("7d")).toBe(7);
+    expect(parsePeriodDays("30d")).toBe(30);
+    expect(parsePeriodDays("garbage")).toBe(7); // default
+    expect(parsePeriodDays(undefined)).toBe(7); // default
   });
 });
