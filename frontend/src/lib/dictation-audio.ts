@@ -175,8 +175,25 @@ export function buildWavBlob(pcmBytes: Uint8Array) {
   return new Blob([headerBuffer, wavBytes], { type: "audio/wav" });
 }
 
+function computeRmsLevel(samples: Float32Array): number {
+  if (samples.length === 0) {
+    return 0;
+  }
+
+  let sumOfSquares = 0;
+  for (let index = 0; index < samples.length; index += 1) {
+    const value = samples[index] ?? 0;
+    sumOfSquares += value * value;
+  }
+
+  const rms = Math.sqrt(sumOfSquares / samples.length);
+  // Perceptual curve: boost quiet speech (~0.02..0.3 RMS) into a visible range.
+  return Math.min(1, Math.max(0, rms * 4));
+}
+
 export async function startDictationCapture(options: {
   onPcmChunk: (chunk: Uint8Array) => void;
+  onAudioLevel?: (level: number) => void;
 }): Promise<DictationCaptureSession> {
   const AudioContextCtor = getAudioContextCtor();
   if (!AudioContextCtor || !navigator.mediaDevices?.getUserMedia) {
@@ -214,6 +231,11 @@ export async function startDictationCapture(options: {
 
   processor.onaudioprocess = (event) => {
     const inputChannel = event.inputBuffer.getChannelData(0);
+
+    if (options.onAudioLevel) {
+      options.onAudioLevel(computeRmsLevel(inputChannel));
+    }
+
     const pcmChunk = pcmResampler.process(inputChannel);
 
     if (pcmChunk.byteLength === 0) {

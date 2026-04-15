@@ -4,11 +4,23 @@ import { buildApp } from "./app.js";
 import { startWorkers, stopWorkers } from "./workers/index.js";
 import { closeAllQueues, registerScheduledJobs } from "./queue/index.js";
 import { closeDb } from "./db/index.js";
+import { checkEmailReadiness } from "./modules/email/email-readiness.js";
 
 async function main(): Promise<void> {
   loadEnv();
   const config = env();
   const logger = createLogger();
+  const emailReadiness = checkEmailReadiness();
+
+  if (!emailReadiness.ok) {
+    logger.warn(
+      {
+        senderAddress: emailReadiness.senderAddress,
+        senderDomain: emailReadiness.senderDomain,
+      },
+      emailReadiness.detail,
+    );
+  }
 
   const app = await buildApp(logger);
 

@@ -4,6 +4,7 @@ import { getDb, schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
 import { getQueue, QUEUE_NAMES } from "../../queue/index.js";
 import { checkBucketAccess } from "../files/adapters/s3.adapter.js";
+import { checkEmailReadiness } from "../email/email-readiness.js";
 
 // ---------------------------------------------------------------------------
 // Admin health endpoint
@@ -24,6 +25,11 @@ interface HealthResponse {
   database: ServiceStatus;
   redis: ServiceStatus;
   objectStorage: ServiceStatus;
+  email: ServiceStatus & {
+    senderAddress: string;
+    supportAddress: string;
+    senderDomain: string | null;
+  };
   ai: ServiceStatus & {
     providerMode: string;
     agentId: string | null;
@@ -143,33 +149,38 @@ async function getLastDispatchAt(): Promise<string | null> {
 export async function adminHealthRoutes(app: FastifyInstance): Promise<void> {
   // GET /admin/health — internal status dashboard
   // Requires admin session authentication (enforced by the parent adminRoutes preHandler).
-  app.get("/admin/health", {
-    config: {
-      rateLimit: { max: 30, timeWindow: "1 minute" },
+  app.get(
+    "/admin/health",
+    {
+      config: {
+        rateLimit: { max: 30, timeWindow: "1 minute" },
+      },
     },
-  }, async (_request, reply) => {
-    const [database, objectStorage, queueResult, lastPaymentAt, lastDispatchAt] =
-      await Promise.all([
-        checkDatabase(),
-        checkObjectStorage(),
-        checkQueues(),
-        getLastPaymentAt(),
-        getLastDispatchAt(),
-      ]);
+    async (_request, reply) => {
+      const [database, objectStorage, queueResult, lastPaymentAt, lastDispatchAt] =
+        await Promise.all([
+          checkDatabase(),
+          checkObjectStorage(),
+          checkQueues(),
+          getLastPaymentAt(),
+          getLastDispatchAt(),
+        ]);
 
-    const body: HealthResponse = {
-      api: { ok: true },
-      database,
-      redis: queueResult.redis,
-      objectStorage,
-      ai: checkAiConfiguration(),
-      queues: queueResult.queues,
-      lastPaymentAt,
-      lastDispatchAt,
-    };
+      const body: HealthResponse = {
+        api: { ok: true },
+        database,
+        redis: queueResult.redis,
+        objectStorage,
+        email: checkEmailReadiness(),
+        ai: checkAiConfiguration(),
+        queues: queueResult.queues,
+        lastPaymentAt,
+        lastDispatchAt,
+      };
 
-    // Return 200 even when some checks fail — callers must inspect each field.
-    // A 503 would prevent monitoring tools from reading the partial status.
-    reply.status(200).send(body);
-  });
+      // Return 200 even when some checks fail — callers must inspect each field.
+      // A 503 would prevent monitoring tools from reading the partial status.
+      reply.status(200).send(body);
+    },
+  );
 }

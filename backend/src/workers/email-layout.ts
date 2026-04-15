@@ -60,11 +60,17 @@ function footerStrings(locale: string): FooterStrings {
   return FOOTER_STRINGS[locale as keyof typeof FOOTER_STRINGS] ?? DEFAULT_FOOTER_STRINGS;
 }
 
+function brandBadgeInitial(brandName: string): string {
+  const match = brandName.trim().match(/[\p{L}\p{N}]/u);
+  return match?.[0]?.toUpperCase() ?? "E";
+}
+
 export function wrapEmailHtml(config: EmailLayoutConfig, bodyHtml: string): string {
   const f = footerStrings(config.locale);
   const url = escapeHtml(config.appPublicUrl);
   const locale = escapeHtml(config.locale);
   const brand = escapeHtml(config.brandName);
+  const brandInitial = escapeHtml(brandBadgeInitial(config.brandName));
   const support = escapeHtml(config.supportEmail);
   const entity = escapeHtml(config.legalEntityName);
   const address = escapeHtml(config.legalEntityAddress);
@@ -88,7 +94,7 @@ export function wrapEmailHtml(config: EmailLayoutConfig, bodyHtml: string): stri
         <tr><td style="padding:0 0 24px;text-align:left;">
           <table role="presentation" cellpadding="0" cellspacing="0"><tr>
             <td style="width:36px;height:36px;background-color:${BRAND_COLOR};border-radius:10px;text-align:center;vertical-align:middle;">
-              <span style="font-size:18px;font-weight:700;color:${TEXT_COLOR};line-height:36px;">S</span>
+              <span style="font-size:18px;font-weight:700;color:${TEXT_COLOR};line-height:36px;">${brandInitial}</span>
             </td>
             <td style="padding-left:10px;font-size:18px;font-weight:600;color:${TEXT_COLOR};letter-spacing:-0.01em;">${brand}</td>
           </tr></table>

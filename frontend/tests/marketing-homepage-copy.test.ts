@@ -40,26 +40,26 @@ describe("marketing homepage locale copy", () => {
       "en-CH": {
         postal: "Sent by post in Switzerland",
         privacy: "Your details stay private",
-        encryption: "Kept safe from start to finish",
+        encryption: "Encrypted and stored securely",
         noAccount: "Start without an account",
       },
       "de-CH": {
-        postal: "Per Post in der Schweiz verschickt",
+        postal: "Versand in der Schweiz",
         privacy: "Ihre Angaben bleiben privat",
-        encryption: "Von Anfang bis Ende geschützt",
+        encryption: "Verschlüsselt und sicher gespeichert",
         noAccount: "Ohne Konto starten",
       },
       "fr-CH": {
-        postal: "Envoyé par la poste en Suisse",
+        postal: "Envoi postal en Suisse",
         privacy: "Vos données restent privées",
-        encryption: "Protégé du début à la fin",
+        encryption: "Données chiffrées et stockées en sécurité",
         noAccount: "Commencez sans compte",
       },
       "it-CH": {
-        postal: "Spedita per posta in Svizzera",
-        privacy: "I Suoi dati restano privati",
-        encryption: "Protetta dall’inizio alla fine",
-        noAccount: "Può iniziare senza conto",
+        postal: "Spedizione postale in Svizzera",
+        privacy: "I Suoi dati restano riservati",
+        encryption: "Crittografato e conservato in sicurezza",
+        noAccount: "Iniziare senza account",
       },
     };
 
@@ -84,56 +84,56 @@ describe("marketing homepage locale copy", () => {
     const expectedByLocale: Record<string, Record<string, string>> = {
       "en-CH": {
         "marketing.homepage.hero.badge": "Built for important letters",
-        "marketing.homepage.hero.title": "Your letter, no printer or stamp needed",
+        "marketing.homepage.hero.title": "Formal letters, ready to send",
         "marketing.homepage.hero.subtitle":
-          "Describe what you need. We draft the first version, you review it, and we get it ready to send by post in Switzerland.",
+          "Draft, review, and prepare your letter for postal delivery in Switzerland.",
         "marketing.homepage.hero.proof":
-          "No account required · Clear total before payment · Your details stay private",
+          "No account needed · Exact total before payment · Your details stay private",
         "marketing.homepage.howItWorks.steps.send.body":
-          "Approve the total, pay securely, and we get your letter ready to send.",
+          "Approve the total, pay securely, and we prepare your letter for dispatch.",
         "marketing.homepage.confidence.cards.review.body":
-          "Check the wording, addresses, and attachments before you pay or send it.",
+          "Check the wording, addresses, and attachments before you pay or send.",
         "marketing.homepage.confidence.cards.privacy.title":
           "Price and process stay clear",
       },
       "de-CH": {
         "marketing.homepage.hero.badge": "Für wichtige Briefe gemacht",
-        "marketing.homepage.hero.title": "Ihr Brief, ganz ohne Drucker und Briefmarke",
+        "marketing.homepage.hero.title": "Formelle Briefe, bereit für den Versand",
         "marketing.homepage.hero.subtitle":
-          "Beschreiben Sie Ihr Anliegen. Wir erstellen den ersten Entwurf, Sie prüfen ihn, und wir machen ihn bereit für den Versand per Post in der Schweiz.",
+          "Beschreiben Sie Ihr Anliegen, prüfen Sie den Entwurf und geben Sie Ihren Brief erst frei, wenn alles stimmt.",
         "marketing.homepage.hero.proof":
-          "Kein Konto erforderlich · Klarer Total vor der Zahlung · Ihre Angaben bleiben privat",
+          "Kein Konto nötig · Genauer Total vor der Zahlung · Ihre Angaben bleiben privat",
         "marketing.homepage.howItWorks.steps.send.body":
-          "Bestätigen Sie den Total, bezahlen Sie sicher und wir machen Ihren Brief versandbereit.",
+          "Bestätigen Sie den Total, bezahlen Sie sicher und wir bereiten Ihren Brief für den Versand vor.",
         "marketing.homepage.confidence.cards.review.body":
-          "Prüfen Sie Formulierungen, Adressen und Beilagen, bevor Sie bezahlen oder den Brief senden.",
+          "Prüfen Sie Formulierungen, Adressen und Beilagen, bevor Sie bezahlen oder den Brief versenden.",
       },
       "fr-CH": {
-        "marketing.homepage.hero.badge": "Conçu pour les lettres importantes",
-        "marketing.homepage.hero.title": "Votre lettre, sans imprimante ni timbre",
+        "marketing.homepage.hero.badge": "Pensé pour les courriers importants",
+        "marketing.homepage.hero.title": "Des courriers formels, prêts à l’envoi",
         "marketing.homepage.hero.subtitle":
-          "Décrivez votre besoin. Nous rédigeons une première version, vous la relisez, puis nous la préparons pour l’envoi par la poste en Suisse.",
+          "Expliquez votre situation, relisez le projet, puis préparez votre courrier pour l’envoi postal en Suisse.",
         "marketing.homepage.hero.proof":
-          "Aucun compte requis · Total clair avant paiement · Vos données restent privées",
+          "Sans compte · Total exact avant paiement · Vos données restent privées",
         "marketing.homepage.howItWorks.steps.send.body":
-          "Validez le total, payez en sécurité et nous préparons votre lettre pour l’envoi.",
+          "Validez le montant, payez en toute sécurité, puis nous préparons votre courrier pour l’envoi.",
         "marketing.homepage.confidence.cards.review.body":
-          "Vérifiez le texte, les adresses et les pièces jointes avant de payer ou d’envoyer la lettre.",
-        "marketing.homepage.confidence.eyebrow": "Ce qui inspire confiance",
+          "Relisez le texte, les adresses et les pièces jointes avant de payer ou de lancer l’envoi.",
+        "marketing.homepage.confidence.eyebrow": "Pourquoi utiliser Episto",
         "marketing.homepage.useCases.intro":
-          "Les gens viennent ici quand le sujet est important et qu'un simple message ne suffit plus.",
+          "On y a recours lorsque le sujet est important et qu’un simple message ne suffit plus.",
       },
       "it-CH": {
         "marketing.homepage.hero.badge": "Pensato per lettere importanti",
-        "marketing.homepage.hero.title": "La Sua lettera, senza stampante né francobollo",
+        "marketing.homepage.hero.title": "Lettere formali, pronte per la spedizione",
         "marketing.homepage.hero.subtitle":
-          "Descriva ciò di cui ha bisogno. Prepariamo una prima bozza, Lei la controlla e noi la prepariamo per l’invio per posta in Svizzera.",
+          "Rediga, verifichi e prepari la Sua lettera per la spedizione postale in Svizzera.",
         "marketing.homepage.hero.proof":
-          "Nessun conto richiesto · Totale chiaro prima del pagamento · I Suoi dati restano privati",
+          "Senza account · Totale esatto prima del pagamento · I Suoi dati restano riservati",
         "marketing.homepage.howItWorks.steps.send.body":
-          "Confermi il totale, paghi in modo sicuro e noi prepariamo la Sua lettera per l’invio.",
+          "Confermi il totale, paghi in modo sicuro e prepariamo la Sua lettera per la spedizione.",
         "marketing.homepage.confidence.cards.review.body":
-          "Verifichi testo, indirizzi e allegati prima di pagare o inviare la lettera.",
+          "Verifichi testo, indirizzi e allegati prima di pagare o spedire.",
       },
     };
 

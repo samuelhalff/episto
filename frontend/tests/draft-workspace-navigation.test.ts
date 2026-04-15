@@ -57,6 +57,10 @@ const intakeStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/IntakeStep.tsx"),
   "utf8",
 );
+const intakeTipsSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/IntakeTips.tsx"),
+  "utf8",
+);
 const senderStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/SenderStep.tsx"),
   "utf8",
@@ -201,7 +205,8 @@ describe("draft workspace navigation", () => {
   });
 
   it("keeps the first-step tips and dictation inside the workspace intake surface", () => {
-    expect(intakeStepSource).toContain('t("proTips")');
+    expect(intakeStepSource).toContain("<IntakeTips />");
+    expect(intakeTipsSource).toContain('t("proTips")');
     expect(intakeStepSource).toContain(
       'icon={dictation.isRecording ? "stop" : "dictate"}',
     );

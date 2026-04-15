@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
     active: 0,
     failed: 0,
   }),
+  mockEnv: vi.fn(),
 }));
 
 vi.mock("../src/db/index.js", () => ({
@@ -39,14 +40,7 @@ vi.mock("../src/queue/index.js", () => ({
 }));
 
 vi.mock("../src/shared/config/index.js", () => ({
-  env: () => ({
-    AZURE_OPENAI_API_KEY: "",
-    AZURE_OPENAI_DEPLOYMENT: "",
-    AI_PROJECT_CONNECTION_STRING: "",
-    AI_PROJECT_EVALUATION_MODEL: "",
-    AI_PROJECT_MODEL_DEPLOYMENT: "",
-    AI_PROJECT_ENDPOINT: "",
-  }),
+  env: mocks.mockEnv,
 }));
 
 // Drizzle sql tag — must produce something select-able
@@ -59,7 +53,11 @@ vi.mock("drizzle-orm", () => ({
 // ---------------------------------------------------------------------------
 
 interface MockRequest {
-  log: { info: ReturnType<typeof vi.fn>; warn: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn> };
+  log: {
+    info: ReturnType<typeof vi.fn>;
+    warn: ReturnType<typeof vi.fn>;
+    error: ReturnType<typeof vi.fn>;
+  };
 }
 interface MockReply {
   status: ReturnType<typeof vi.fn>;
@@ -87,6 +85,29 @@ describe("adminHealthRoutes", () => {
     mocks.mockExecute.mockResolvedValue([{ "?column?": 1 }]);
     mocks.mockCheckBucketAccess.mockResolvedValue(undefined);
     mocks.mockGetJobCounts.mockResolvedValue({ waiting: 0, active: 0, failed: 0 });
+    mocks.mockEnv.mockReturnValue({
+      AZURE_OPENAI_API_KEY: "",
+      AZURE_OPENAI_DEPLOYMENT: "",
+      AI_PROJECT_CONNECTION_STRING: "",
+      AI_PROJECT_EVALUATION_MODEL: "",
+      AI_PROJECT_MODEL_DEPLOYMENT: "",
+      AI_PROJECT_ENDPOINT: "",
+      AI_PROVIDER_MODE: "azure_openai",
+      AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
+      AZURE_EXISTING_AIPROJECT_ENDPOINT: undefined,
+      AZURE_AI_PROJECT_ENDPOINT: undefined,
+      AZURE_EXISTING_AGENT_ID: undefined,
+      AZURE_AI_AGENT_NAME: undefined,
+      AZURE_AI_AGENT_VERSION: undefined,
+      AZURE_ENV_NAME: undefined,
+      AZURE_LOCATION: undefined,
+      AZURE_SUBSCRIPTION_ID: undefined,
+      AZURE_EXISTING_AIPROJECT_RESOURCE_ID: undefined,
+      AZURE_EXISTING_RESOURCE_ID: undefined,
+      NODE_ENV: "development",
+      EMAIL_FROM: "dev@example.com",
+      SUPPORT_EMAIL: "support@example.com",
+    });
   });
 
   it("is a function (Fastify plugin)", () => {
@@ -101,7 +122,9 @@ describe("adminHealthRoutes", () => {
       }),
     };
 
-    await adminHealthRoutes(mockApp as unknown as Parameters<typeof adminHealthRoutes>[0]);
+    await adminHealthRoutes(
+      mockApp as unknown as Parameters<typeof adminHealthRoutes>[0],
+    );
 
     expect(mockApp.get).toHaveBeenCalledOnce();
     expect(routes).toHaveLength(1);
@@ -118,7 +141,9 @@ describe("adminHealthRoutes", () => {
       }),
     };
 
-    await adminHealthRoutes(mockApp as unknown as Parameters<typeof adminHealthRoutes>[0]);
+    await adminHealthRoutes(
+      mockApp as unknown as Parameters<typeof adminHealthRoutes>[0],
+    );
 
     const req: MockRequest = {
       log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -135,6 +160,10 @@ describe("adminHealthRoutes", () => {
       database: { ok: true },
       redis: { ok: true },
       objectStorage: { ok: true },
+      email: {
+        ok: true,
+        senderAddress: "dev@example.com",
+      },
     });
 
     // Queue depth data should be present for all queues
@@ -153,7 +182,9 @@ describe("adminHealthRoutes", () => {
       }),
     };
 
-    await adminHealthRoutes(mockApp as unknown as Parameters<typeof adminHealthRoutes>[0]);
+    await adminHealthRoutes(
+      mockApp as unknown as Parameters<typeof adminHealthRoutes>[0],
+    );
 
     const req: MockRequest = {
       log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -181,7 +212,9 @@ describe("adminHealthRoutes", () => {
       }),
     };
 
-    await adminHealthRoutes(mockApp as unknown as Parameters<typeof adminHealthRoutes>[0]);
+    await adminHealthRoutes(
+      mockApp as unknown as Parameters<typeof adminHealthRoutes>[0],
+    );
 
     const req: MockRequest = {
       log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -204,7 +237,9 @@ describe("adminHealthRoutes", () => {
       }),
     };
 
-    await adminHealthRoutes(mockApp as unknown as Parameters<typeof adminHealthRoutes>[0]);
+    await adminHealthRoutes(
+      mockApp as unknown as Parameters<typeof adminHealthRoutes>[0],
+    );
 
     const req: MockRequest = {
       log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
@@ -215,5 +250,57 @@ describe("adminHealthRoutes", () => {
     expect(reply.status).toHaveBeenCalledWith(200);
     const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
     expect((body.redis as { ok: boolean }).ok).toBe(false);
+  });
+
+  it("surfaces invalid development email sender configuration in admin health", async () => {
+    mocks.mockEnv.mockReturnValue({
+      AZURE_OPENAI_API_KEY: "",
+      AZURE_OPENAI_DEPLOYMENT: "",
+      AI_PROJECT_CONNECTION_STRING: "",
+      AI_PROJECT_EVALUATION_MODEL: "",
+      AI_PROJECT_MODEL_DEPLOYMENT: "",
+      AI_PROJECT_ENDPOINT: "",
+      AI_PROVIDER_MODE: "azure_openai",
+      AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
+      AZURE_EXISTING_AIPROJECT_ENDPOINT: undefined,
+      AZURE_AI_PROJECT_ENDPOINT: undefined,
+      AZURE_EXISTING_AGENT_ID: undefined,
+      AZURE_AI_AGENT_NAME: undefined,
+      AZURE_AI_AGENT_VERSION: undefined,
+      AZURE_ENV_NAME: undefined,
+      AZURE_LOCATION: undefined,
+      AZURE_SUBSCRIPTION_ID: undefined,
+      AZURE_EXISTING_AIPROJECT_RESOURCE_ID: undefined,
+      AZURE_EXISTING_RESOURCE_ID: undefined,
+      NODE_ENV: "development",
+      EMAIL_FROM: "noreply@swissmail.ch",
+      SUPPORT_EMAIL: "support@swissmail.ch",
+    });
+
+    let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
+    const mockApp = {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
+        capturedHandler = handler;
+      }),
+    };
+
+    await adminHealthRoutes(
+      mockApp as unknown as Parameters<typeof adminHealthRoutes>[0],
+    );
+
+    const req: MockRequest = {
+      log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+    };
+    const reply = makeMockReply();
+    await assertDefined(capturedHandler, "Expected admin health handler")(req, reply);
+
+    const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
+    expect(reply.status).toHaveBeenCalledWith(200);
+    expect(body).toMatchObject({
+      email: {
+        ok: false,
+        senderAddress: "noreply@swissmail.ch",
+      },
+    });
   });
 });

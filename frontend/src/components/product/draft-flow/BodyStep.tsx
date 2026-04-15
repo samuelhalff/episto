@@ -1,12 +1,13 @@
 "use client";
 
 import { Eye } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { BodyComposer } from "./BodyComposer";
 import { BodyGenerationDialog } from "./BodyGenerationDialog";
 import { BodyModeToolbar } from "./BodyModeToolbar";
 import { BodyPreview } from "./BodyPreview";
+import { DictationPanel } from "./DictationPanel";
 import { PromptShortcutBar } from "./PromptShortcutBar";
 import type {
   DraftWorkspacePreviewToggleProps,
@@ -16,8 +17,7 @@ import { DraftShell, PrimaryButton, SecondaryButton, SurfaceIconButton } from ".
 import { useBodyStepController } from "./useBodyStepController";
 
 interface StepProps
-  extends DraftWorkspaceStepShellProps,
-    DraftWorkspacePreviewToggleProps {
+  extends DraftWorkspaceStepShellProps, DraftWorkspacePreviewToggleProps {
   onNext: () => void;
 }
 
@@ -36,6 +36,7 @@ export function BodyStep({
 }: StepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const {
     canProceed,
     bodyText,
@@ -144,26 +145,50 @@ export function BodyStep({
       }
       composer={
         editMode === "ai" ? (
-          <BodyComposer
-            value={refineText}
-            placeholder={t("refineComposerPlaceholder")}
-            helperText={helperText}
-            isAiBusy={loadingState.isAiBusy}
-            isCompactViewport={isCompactViewport}
-            isPreviewPanelVisible={isPreviewPanelVisible}
-            quickActionBadges={quickActionBadges}
-            showPreviewLabel={tc("showPreview")}
-            hidePreviewLabel={tc("hidePreview")}
-            startDictationLabel={t("startDictation")}
-            stopDictationLabel={t("stopDictation")}
-            isDictationRecording={dictation.isRecording}
-            isDictationSupported={dictation.isSupported}
-            onChange={handleRefineTextChange}
-            onSend={handleRefine}
-            onFocusChange={handleComposerFocusChange}
-            onTogglePreview={handlePreviewAction}
-            onToggleDictation={handleToggleDictation}
-          />
+          <>
+            <DictationPanel
+              isRecording={dictation.isRecording}
+              isProcessing={dictation.isProcessing}
+              audioLevel={dictation.audioLevel}
+              elapsedSeconds={dictation.elapsedSeconds}
+              maxCaptureSeconds={dictation.maxCaptureSeconds}
+              interimText={dictation.interimText}
+              locale={locale}
+              error={dictation.error}
+              onStop={() => {
+                void dictation.stopRecording();
+              }}
+              onCancel={() => {
+                void dictation.cancelRecording();
+              }}
+              onRetry={() => {
+                dictation.clearError();
+                void dictation.startRecording(locale);
+              }}
+              onDismissError={dictation.clearError}
+            />
+            <BodyComposer
+              value={refineText}
+              placeholder={t("refineComposerPlaceholder")}
+              helperText={helperText}
+              isAiBusy={loadingState.isAiBusy}
+              isCompactViewport={isCompactViewport}
+              isPreviewPanelVisible={isPreviewPanelVisible}
+              quickActionBadges={quickActionBadges}
+              showPreviewLabel={tc("showPreview")}
+              hidePreviewLabel={tc("hidePreview")}
+              startDictationLabel={t("startDictation")}
+              stopDictationLabel={t("stopDictation")}
+              unavailableTooltip={t("dictationUnavailableTooltip")}
+              isDictationRecording={dictation.isRecording}
+              isDictationSupported={dictation.isSupported}
+              onChange={handleRefineTextChange}
+              onSend={handleRefine}
+              onFocusChange={handleComposerFocusChange}
+              onTogglePreview={handlePreviewAction}
+              onToggleDictation={handleToggleDictation}
+            />
+          </>
         ) : undefined
       }
     >

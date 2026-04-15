@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   execute: vi.fn(),
   select: vi.fn(),
   getJobCounts: vi.fn(),
+  env: vi.fn(),
 }));
 
 vi.mock("../src/db/index.js", () => ({
@@ -26,6 +27,10 @@ vi.mock("../src/queue/index.js", () => ({
   QUEUE_NAMES: {
     SEND_EMAIL: "send-email",
   },
+}));
+
+vi.mock("../src/shared/config/index.js", () => ({
+  env: mocks.env,
 }));
 
 vi.mock("drizzle-orm", () => ({
@@ -56,6 +61,11 @@ describe("health routes", () => {
     mocks.execute.mockResolvedValue([{ "?column?": 1 }]);
     mocks.select.mockReturnValue(makeSelectChain(Promise.resolve([])));
     mocks.getJobCounts.mockResolvedValue({ waiting: 0 });
+    mocks.env.mockReturnValue({
+      NODE_ENV: "development",
+      EMAIL_FROM: "dev@example.com",
+      SUPPORT_EMAIL: "support@example.com",
+    });
   });
 
   it("reports readiness ok when database, schema, and redis checks pass", async () => {
@@ -83,6 +93,7 @@ describe("health routes", () => {
           database: "ok",
           schema: "ok",
           redis: "ok",
+          email: "ok",
         },
       }),
     );
@@ -100,7 +111,9 @@ describe("health routes", () => {
       }),
     };
     mocks.select.mockReturnValue(
-      makeSelectChain(Promise.reject(new Error('column "tracking_number" does not exist'))),
+      makeSelectChain(
+        Promise.reject(new Error('column "tracking_number" does not exist')),
+      ),
     );
 
     await healthRoutes(app as never);
@@ -116,6 +129,79 @@ describe("health routes", () => {
           database: "ok",
           schema: "fail",
           redis: "ok",
+          email: "ok",
+        },
+      }),
+    );
+  });
+
+  it("surfaces invalid development email sender configuration without failing readiness", async () => {
+    let readinessHandler:
+      | ((req: unknown, reply: ReturnType<typeof makeReply>) => Promise<void>)
+      | undefined;
+    const app = {
+      get: vi.fn((url: string, handler: typeof readinessHandler) => {
+        if (url === "/readiness") {
+          readinessHandler = handler;
+        }
+      }),
+    };
+    mocks.env.mockReturnValue({
+      NODE_ENV: "development",
+      EMAIL_FROM: "noreply@swissmail.ch",
+      SUPPORT_EMAIL: "support@swissmail.ch",
+    });
+
+    await healthRoutes(app as never);
+
+    const reply = makeReply();
+    await readinessHandler?.({}, reply);
+
+    expect(reply.status).toHaveBeenCalledWith(200);
+    expect(reply.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "ok",
+        checks: {
+          database: "ok",
+          schema: "ok",
+          redis: "ok",
+          email: "fail",
+        },
+      }),
+    );
+  });
+
+  it("treats the swissmail.ch sender domain as ready in production", async () => {
+    let readinessHandler:
+      | ((req: unknown, reply: ReturnType<typeof makeReply>) => Promise<void>)
+      | undefined;
+    const app = {
+      get: vi.fn((url: string, handler: typeof readinessHandler) => {
+        if (url === "/readiness") {
+          readinessHandler = handler;
+        }
+      }),
+    };
+    mocks.env.mockReturnValue({
+      NODE_ENV: "production",
+      EMAIL_FROM: "noreply@swissmail.ch",
+      SUPPORT_EMAIL: "support@swissmail.ch",
+    });
+
+    await healthRoutes(app as never);
+
+    const reply = makeReply();
+    await readinessHandler?.({}, reply);
+
+    expect(reply.status).toHaveBeenCalledWith(200);
+    expect(reply.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "ok",
+        checks: {
+          database: "ok",
+          schema: "ok",
+          redis: "ok",
+          email: "ok",
         },
       }),
     );

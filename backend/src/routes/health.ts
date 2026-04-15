@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
 import { getDb, schema } from "../db/index.js";
 import { getQueue, QUEUE_NAMES } from "../queue/index.js";
+import { checkEmailReadiness } from "../modules/email/email-readiness.js";
 
 export async function healthRoutes(app: FastifyInstance): Promise<void> {
   app.get("/health", async (_req, reply) => {
@@ -45,6 +46,12 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       checks.redis = "fail";
       allOk = false;
     }
+
+    const emailReadiness = checkEmailReadiness();
+    // Surface transactional email readiness without turning it into a hard
+    // infrastructure outage. Otherwise Compose health gating can block the
+    // worker and escalate an email misconfiguration into a payment outage.
+    checks.email = emailReadiness.ok ? "ok" : "fail";
 
     const status = allOk ? "ok" : "degraded";
     const statusCode = allOk ? 200 : 503;

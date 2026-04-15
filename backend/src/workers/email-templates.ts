@@ -98,7 +98,7 @@ function formatDeliveryTypeLabel(
     case "de-CH":
       return deliveryType === "registered" ? "Einschreiben" : "A-Post";
     case "fr-CH":
-      return deliveryType === "registered" ? "Courrier recommande" : "Courrier standard";
+      return deliveryType === "registered" ? "Courrier recommandé" : "Courrier standard";
     case "it-CH":
       return deliveryType === "registered" ? "Raccomandata" : "Posta standard";
     case "en-CH":
@@ -152,7 +152,9 @@ function renderDispatchSubmitted(
     );
   }
 
-  bodyParts.push(mutedText(escapeHtml(s.followUp)));
+  if (s.followUp) {
+    bodyParts.push(mutedText(escapeHtml(s.followUp)));
+  }
 
   if (supportEmail) {
     bodyParts.push(sectionDivider());
@@ -177,7 +179,7 @@ function renderDispatchSubmitted(
         ? replaceRetentionDays(s.retentionNotice, statementRetentionDays)
         : null,
       "",
-      s.followUp,
+      s.followUp || null,
       "",
       supportEmail ? `${s.supportLine} ${supportEmail}` : null,
     ]

@@ -16,6 +16,7 @@ interface BodyComposerProps {
   hidePreviewLabel: string;
   startDictationLabel: string;
   stopDictationLabel: string;
+  unavailableTooltip?: string | undefined;
   isDictationRecording: boolean;
   isDictationSupported: boolean;
   onChange: (value: string) => void;
@@ -37,6 +38,7 @@ export const BodyComposer = memo(function BodyComposer({
   hidePreviewLabel,
   startDictationLabel,
   stopDictationLabel,
+  unavailableTooltip,
   isDictationRecording,
   isDictationSupported,
   onChange,
@@ -69,8 +71,11 @@ export const BodyComposer = memo(function BodyComposer({
           icon={isDictationRecording ? "stop" : "dictate"}
           tone="accent"
           aria-label={isDictationRecording ? stopDictationLabel : startDictationLabel}
+          aria-pressed={isDictationRecording}
+          title={!isDictationSupported ? unavailableTooltip : undefined}
           disabled={!isDictationSupported}
           isActive={isDictationRecording}
+          pulse={isDictationRecording}
           onClick={onToggleDictation}
         />
       }

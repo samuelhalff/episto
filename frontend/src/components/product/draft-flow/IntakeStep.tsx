@@ -2,7 +2,7 @@
 
 import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { Calendar, FileText, Hash, Lightbulb, Mail, RotateCcw } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { useConversation } from "@/hooks/use-conversation";
 import { useDraft, useDraftFiles, useUpdateDraft } from "@/hooks/use-api";
 import { useDictation } from "@/hooks/use-dictation";
@@ -26,19 +26,17 @@ import {
   shouldSendShortcutImmediately,
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
+import { DictationPanel } from "./DictationPanel";
+import { IntakeTips } from "./IntakeTips";
 import { LetterPreviewModal } from "../LetterPreviewModal";
-import {
-  getDraftWorkspaceState,
-  mergeDraftWorkspaceState,
-} from "./workspace-state";
+import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
 import type {
   DraftWorkspacePreviewToggleProps,
   DraftWorkspaceStepShellProps,
 } from "./step-props";
 
 interface IntakeStepProps
-  extends DraftWorkspaceStepShellProps,
-    DraftWorkspacePreviewToggleProps {
+  extends DraftWorkspaceStepShellProps, DraftWorkspacePreviewToggleProps {
   onNext: () => void;
 }
 
@@ -62,10 +60,7 @@ export function IntakeStep({
   const conversation = useConversation(draftId);
   const files = useDraftFiles(draftId);
   const dictation = useDictation({ draftId, fieldContext: "intake" });
-  const {
-    finalText: dictatedIntakeText,
-    resetText: resetDictationText,
-  } = dictation;
+  const { finalText: dictatedIntakeText, resetText: resetDictationText } = dictation;
   const attachmentInputRef = useRef<HTMLInputElement>(null);
   const threadContainerRef = useRef<HTMLElement>(null);
   const threadEndRef = useRef<HTMLDivElement>(null);
@@ -91,7 +86,9 @@ export function IntakeStep({
 
     while (current) {
       const style = window.getComputedStyle(current);
-      const isScrollable = /(auto|scroll)/.test(style.overflowY) && current.scrollHeight > current.clientHeight;
+      const isScrollable =
+        /(auto|scroll)/.test(style.overflowY) &&
+        current.scrollHeight > current.clientHeight;
 
       if (isScrollable) {
         return current;
@@ -120,7 +117,9 @@ export function IntakeStep({
     if (!spokenText) return;
 
     startTransition(() => {
-      setIntakeText((current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`);
+      setIntakeText(
+        (current) => `${current.trim()}${current.trim() ? " " : ""}${spokenText}`,
+      );
     });
     resetDictationText();
   }, [dictatedIntakeText, resetDictationText]);
@@ -138,7 +137,11 @@ export function IntakeStep({
       return;
     }
 
-    if (conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse) {
+    if (
+      conversation.isSending ||
+      conversation.isStreaming ||
+      conversation.isAwaitingResponse
+    ) {
       return;
     }
 
@@ -147,13 +150,7 @@ export function IntakeStep({
     intakeAutosave.persistInBackground("");
   }
 
-  const helperText =
-    files.validationError ??
-    (dictation.error
-      ? t("dictationError")
-      : dictation.isRecording
-        ? dictation.interimText || t("voicePrimaryHint")
-        : undefined);
+  const helperText = files.validationError ?? undefined;
   const hasConversationActivity =
     conversation.messages.length > 0 ||
     conversation.isSending ||
@@ -174,28 +171,6 @@ export function IntakeStep({
     !conversation.isStreaming &&
     !conversation.isAwaitingResponse;
   const handlePreviewAction = onTogglePreview ?? (() => setShowPreview(true));
-  const intakeTips = [
-    {
-      title: t("tipFullContext"),
-      desc: t("tipFullContextDesc"),
-      icon: <FileText className="h-4 w-4" />,
-    },
-    {
-      title: t("tipDates"),
-      desc: t("tipDatesDesc"),
-      icon: <Calendar className="h-4 w-4" />,
-    },
-    {
-      title: t("tipReferences"),
-      desc: t("tipReferencesDesc"),
-      icon: <Hash className="h-4 w-4" />,
-    },
-    {
-      title: t("tipContact"),
-      desc: t("tipContactDesc"),
-      icon: <Mail className="h-4 w-4" />,
-    },
-  ];
   const intakeShortcuts = useMemo(() => {
     const definitions = getIntakeShortcutDefinitions();
     return {
@@ -268,6 +243,27 @@ export function IntakeStep({
   ]);
   const intakeComposer = (
     <>
+      <DictationPanel
+        isRecording={dictation.isRecording}
+        isProcessing={dictation.isProcessing}
+        audioLevel={dictation.audioLevel}
+        elapsedSeconds={dictation.elapsedSeconds}
+        maxCaptureSeconds={dictation.maxCaptureSeconds}
+        interimText={dictation.interimText}
+        locale={locale}
+        error={dictation.error}
+        onStop={() => {
+          void dictation.stopRecording();
+        }}
+        onCancel={() => {
+          void dictation.cancelRecording();
+        }}
+        onRetry={() => {
+          dictation.clearError();
+          void dictation.startRecording(locale);
+        }}
+        onDismissError={dictation.clearError}
+      />
       <DraftComposer
         placeholder={t("intakeComposerPlaceholder")}
         value={intakeText}
@@ -304,7 +300,11 @@ export function IntakeStep({
             sheetTitle={t("intakeShortcutSheetTitle")}
             sheetDescription={t("intakeShortcutSheetHint")}
             closeLabel={tc("close")}
-            disabled={conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse}
+            disabled={
+              conversation.isSending ||
+              conversation.isStreaming ||
+              conversation.isAwaitingResponse
+            }
             onShortcutSelect={(shortcut) => {
               void handleIntakeShortcut(shortcut.prompt);
             }}
@@ -342,14 +342,18 @@ export function IntakeStep({
             icon={dictation.isRecording ? "stop" : "dictate"}
             tone="accent"
             aria-label={dictation.isRecording ? t("stopDictation") : t("startDictation")}
+            aria-pressed={dictation.isRecording}
+            title={!dictation.isSupported ? t("dictationUnavailableTooltip") : undefined}
             disabled={!dictation.isSupported}
             isActive={dictation.isRecording}
+            pulse={dictation.isRecording}
             onClick={() => {
               if (dictation.isRecording) {
                 dictation.stopRecording();
                 return;
               }
 
+              dictation.clearError();
               dictation.startRecording(locale);
             }}
           />
@@ -389,7 +393,11 @@ export function IntakeStep({
     >
       <div className="flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-2">
         {hasConversationActivity ? (
-          <section ref={threadContainerRef} className="mt-auto space-y-3 px-2" aria-live="polite">
+          <section
+            ref={threadContainerRef}
+            className="mt-auto space-y-3 px-2"
+            aria-live="polite"
+          >
             {conversation.messages.map((message) => {
               const isUserMessage = message.role === "user";
               const showRetryAction =
@@ -400,8 +408,13 @@ export function IntakeStep({
                 !conversation.isAwaitingResponse;
 
               return (
-                <div key={message.id} className={`flex ${isUserMessage ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[min(88%,40rem)] ${isUserMessage ? "" : "space-y-2"}`}>
+                <div
+                  key={message.id}
+                  className={`flex ${isUserMessage ? "justify-end" : "justify-start"}`}
+                >
+                  <div
+                    className={`max-w-[min(88%,40rem)] ${isUserMessage ? "" : "space-y-2"}`}
+                  >
                     <div
                       className={`rounded-3xl px-4 py-3 text-sm leading-relaxed shadow-sm ring-1 ring-black/5 ${
                         isUserMessage
@@ -428,7 +441,9 @@ export function IntakeStep({
               );
             })}
 
-            {conversation.isSending || conversation.isStreaming || conversation.isAwaitingResponse ? (
+            {conversation.isSending ||
+            conversation.isStreaming ||
+            conversation.isAwaitingResponse ? (
               <div className="flex justify-start">
                 <div className="max-w-[min(88%,40rem)] rounded-3xl rounded-bl-[10px] bg-[var(--app-surface-soft)] px-4 py-3 text-sm leading-relaxed text-zinc-700 shadow-sm ring-1 ring-black/5 dark:text-zinc-100 dark:ring-white/5">
                   {conversation.streamingText ? (
@@ -439,7 +454,9 @@ export function IntakeStep({
                     <div className="flex items-center gap-3">
                       <LoadingDots />
                       <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
-                        {conversation.pendingAssistantPlaceholder ? tc("loading") : tc("loading")}
+                        {conversation.pendingAssistantPlaceholder
+                          ? tc("loading")
+                          : tc("loading")}
                       </span>
                     </div>
                   )}
@@ -473,23 +490,7 @@ export function IntakeStep({
             <div ref={threadEndRef} />
           </section>
         ) : (
-          <section className="px-2">
-            <div className="mb-6 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-              <Lightbulb className="h-3.5 w-3.5 shrink-0" />
-              {t("proTips")}
-            </div>
-            <ul className="space-y-2">
-              {intakeTips.map((tip) => (
-                <li key={tip.title} className="flex items-baseline gap-2.5 py-0.5">
-                  <span className="text-zinc-400 dark:text-zinc-500">{tip.icon}</span>
-                  <p className="text-sm leading-5">
-                    <span className="font-semibold text-zinc-950 dark:text-zinc-50">{tip.title}</span>
-                    <span className="text-zinc-400 dark:text-zinc-500">{" — "}{tip.desc}</span>
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <IntakeTips />
         )}
       </div>
       {showPreview ? (

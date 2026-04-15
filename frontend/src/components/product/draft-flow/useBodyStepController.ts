@@ -15,13 +15,12 @@ import { useDictation } from "@/hooks/use-dictation";
 import { useQueuedAutosave } from "@/hooks/use-queued-autosave";
 import { getBodyLoadingState } from "./body-loading-state";
 import { getBodyShortcutDefinitions } from "./body-shortcuts";
-import { mergeShortcutIntoComposerValue, shouldSendShortcutImmediately } from "./prompt-shortcut-behavior";
-import { showStepErrorToast } from "./step-feedback";
 import {
-  bodyStepReducer,
-  initialBodyStepState,
-  type EditMode,
-} from "./bodyStepReducer";
+  mergeShortcutIntoComposerValue,
+  shouldSendShortcutImmediately,
+} from "./prompt-shortcut-behavior";
+import { showStepErrorToast } from "./step-feedback";
+import { bodyStepReducer, initialBodyStepState, type EditMode } from "./bodyStepReducer";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
 
 const BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY =
@@ -100,7 +99,13 @@ export function useBodyStepController({
     lastSavedBodyRef.current = initialBody;
     refineAutosave.markPersisted(workspaceState.bodyRefineInput ?? "");
     hasHydratedRef.current = true;
-  }, [draft.data?.body, draft.data?.locale, draft.data?.metadata, locale, refineAutosave]);
+  }, [
+    draft.data?.body,
+    draft.data?.locale,
+    draft.data?.metadata,
+    locale,
+    refineAutosave,
+  ]);
 
   useEffect(() => {
     const syncedBody = stripLetterFramingText(
@@ -342,11 +347,7 @@ export function useBodyStepController({
     [draft.data?.body, onInputFocusChange, state.bodyText, updateDraft],
   );
 
-  const helperText = dictation.error
-    ? t("dictationError")
-    : dictation.isRecording
-      ? dictation.interimText || t("voicePrimaryHint")
-      : undefined;
+  const helperText = undefined;
   const loadingState = getBodyLoadingState({
     hasBody: canProceed,
     initialComposeStatus: state.initialComposeStatus,
@@ -364,7 +365,11 @@ export function useBodyStepController({
       return;
     }
 
-    if (!firstDraftMessageId || shouldShowBodyGenerationDialog || !state.bodyText.trim()) {
+    if (
+      !firstDraftMessageId ||
+      shouldShowBodyGenerationDialog ||
+      !state.bodyText.trim()
+    ) {
       return;
     }
 
@@ -392,10 +397,7 @@ export function useBodyStepController({
     dispatch({ type: "set-show-first-draft-ready-dialog", value: false });
 
     try {
-      window.localStorage.setItem(
-        BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY,
-        "dismissed",
-      );
+      window.localStorage.setItem(BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY, "dismissed");
     } catch {
       // Ignore storage access failures; dismiss for the current render session.
     }
@@ -441,7 +443,8 @@ export function useBodyStepController({
     handleShortcutSelect,
     dismissFirstDraftReadyDialog,
     handleDismissBodyGenerationDialog,
-    handleRefineTextChange: (value: string) => dispatch({ type: "set-refine-text", value }),
+    handleRefineTextChange: (value: string) =>
+      dispatch({ type: "set-refine-text", value }),
     handleComposerFocusChange: (focused: boolean) => {
       dispatch({ type: "set-composer-focused", value: focused });
       onInputFocusChange?.(focused);
@@ -451,6 +454,7 @@ export function useBodyStepController({
         dictation.stopRecording();
         return;
       }
+      dictation.clearError();
       dictation.startRecording(locale);
     },
     handleToggleRefinementThread: () => dispatch({ type: "toggle-refinement-thread" }),

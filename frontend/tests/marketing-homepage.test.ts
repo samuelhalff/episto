@@ -374,7 +374,7 @@ describe("marketing homepage shared visual primitives", () => {
       "From your situation to a finished letter",
     );
     expect(getNestedValue(messages, "marketing.homepage.confidence.title")).toBe(
-      "You stay in control at every step",
+      "You stay in control",
     );
     expect(getNestedValue(messages, "marketing.homepage.useCases.title")).toBe(
       "When Episto can help",
@@ -384,13 +384,13 @@ describe("marketing homepage shared visual primitives", () => {
   it("uses direct trust headings across the non-English confidence sections", () => {
     expect(
       getNestedValue(readLocaleMessages("de-CH"), "marketing.homepage.confidence.title"),
-    ).toBe("Sie behalten in jedem Schritt die Kontrolle");
+    ).toBe("Sie behalten die Kontrolle");
     expect(
       getNestedValue(readLocaleMessages("fr-CH"), "marketing.homepage.confidence.title"),
-    ).toBe("Vous gardez la main à chaque étape");
+    ).toBe("Vous gardez la main");
     expect(
       getNestedValue(readLocaleMessages("it-CH"), "marketing.homepage.confidence.title"),
-    ).toBe("Mantiene il controllo in ogni passaggio");
+    ).toBe("Mantiene il controllo");
   });
 
   it("avoids vague use-case section titles in customer-facing locales", () => {
@@ -399,7 +399,7 @@ describe("marketing homepage shared visual primitives", () => {
     ).toBe("Quand Episto peut vous aider");
     expect(
       getNestedValue(readLocaleMessages("it-CH"), "marketing.homepage.useCases.title"),
-    ).toBe("Quando Episto può aiutarLa");
+    ).toBe("Quando Episto può esserLe utile");
   });
 
   it("uses the primary yellow cta band treatment with enforced dark body contrast", () => {

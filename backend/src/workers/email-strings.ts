@@ -47,7 +47,7 @@ export const DISPATCH_SUBMITTED_STRINGS: Record<
     recipientLabel: "Recipient",
     downloadLabel: "Download letter (PDF)",
     retentionNotice: "Your letter PDF is available for download for {days} days.",
-    followUp: "You will receive another notification if there are updates.",
+    followUp: "",
     supportLine: "Questions? Contact us at",
   },
   "de-CH": {
@@ -57,10 +57,10 @@ export const DISPATCH_SUBMITTED_STRINGS: Record<
     orderLabel: "Bestellung",
     deliveryTypeLabel: "Versandart",
     senderLabel: "Absender",
-    recipientLabel: "Empfaenger",
+    recipientLabel: "Empfänger",
     downloadLabel: "Brief als PDF herunterladen",
     retentionNotice: "Ihr Brief als PDF steht {days} Tage lang zum Download bereit.",
-    followUp: "Bei Statusänderungen erhalten Sie eine weitere Benachrichtigung.",
+    followUp: "",
     supportLine: "Fragen? Kontaktieren Sie uns unter",
   },
   "fr-CH": {
@@ -69,12 +69,12 @@ export const DISPATCH_SUBMITTED_STRINGS: Record<
     body: "Votre lettre a été soumise à La Poste Suisse pour traitement.",
     orderLabel: "Commande",
     deliveryTypeLabel: "Mode d'envoi",
-    senderLabel: "Expediteur",
+    senderLabel: "Expéditeur",
     recipientLabel: "Destinataire",
     downloadLabel: "Télécharger la lettre (PDF)",
     retentionNotice:
       "Votre lettre au format PDF est disponible au téléchargement pendant {days} jours.",
-    followUp: "Vous serez notifié en cas de mise à jour.",
+    followUp: "",
     supportLine: "Des questions ? Contactez-nous à",
   },
   "it-CH": {
@@ -88,7 +88,7 @@ export const DISPATCH_SUBMITTED_STRINGS: Record<
     downloadLabel: "Scarica la lettera (PDF)",
     retentionNotice:
       "Il PDF della sua lettera è disponibile per il download per {days} giorni.",
-    followUp: "Riceverà un'ulteriore notifica in caso di aggiornamenti.",
+    followUp: "",
     supportLine: "Domande? Ci contatti all'indirizzo",
   },
 };
@@ -137,7 +137,7 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
       orderLabel: "Bestellung",
       deliveryTypeLabel: "Versandart",
       senderLabel: "Absender",
-      recipientLabel: "Empfaenger",
+      recipientLabel: "Empfänger",
       referenceLabel: "Referenz",
       trackingLabel: "Sendungsnummer",
       trackOnPostLabel: "Bei der Post verfolgen",
@@ -151,7 +151,7 @@ export const DISPATCH_ACCEPTED_STRINGS: Record<SupportedLocale, DispatchAccepted
       body: "La Poste Suisse a confirmé la réception de votre lettre pour traitement et livraison.",
       orderLabel: "Commande",
       deliveryTypeLabel: "Mode d'envoi",
-      senderLabel: "Expediteur",
+      senderLabel: "Expéditeur",
       recipientLabel: "Destinataire",
       referenceLabel: "Référence",
       trackingLabel: "Numéro de suivi",

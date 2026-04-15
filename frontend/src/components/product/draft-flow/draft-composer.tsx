@@ -206,6 +206,7 @@ interface ComposerIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement
   tone?: "neutral" | "accent";
   isActive?: boolean;
   badgeCount?: number;
+  pulse?: boolean;
 }
 
 export function ComposerIconButton({
@@ -213,6 +214,7 @@ export function ComposerIconButton({
   tone = "neutral",
   isActive = false,
   badgeCount = 0,
+  pulse = false,
   className = "",
   type = "button",
   ...props
@@ -237,10 +239,16 @@ export function ComposerIconButton({
   return (
     <button
       type={type}
-      className={`relative flex h-10 w-10 items-center justify-center rounded-full transition-all disabled:cursor-not-allowed disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] ${toneClass} ${className}`}
+      className={`relative flex h-11 w-11 items-center justify-center rounded-full transition-all disabled:cursor-not-allowed disabled:bg-[var(--app-surface-soft)] disabled:text-[var(--app-muted)] ${toneClass} ${className}`}
       {...props}
     >
-      <Icon className="h-4.5 w-4.5" />
+      {pulse ? (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-full bg-amber-500/40 motion-safe:animate-ping"
+          aria-hidden
+        />
+      ) : null}
+      <Icon className="relative h-5 w-5" />
       {badgeCount > 0 ? (
         <span className="absolute -right-1 -top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-emerald-500 px-1 text-[9px] font-bold leading-none text-white shadow-sm">
           {badgeCount > 9 ? "9+" : badgeCount}

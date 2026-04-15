@@ -4,7 +4,7 @@ import { renderTemplate } from "../src/workers/email-templates.js";
 describe("Email template rendering", () => {
   // ---- dispatch-submitted ----
 
-  it("renders dispatch-submitted without an app status link and with shared footer data", () => {
+  it("renders dispatch-submitted without an app status link or status-update promise", () => {
     const result = renderTemplate("dispatch-submitted", "en-CH", {
       orderRef: "EP-12345",
       statusUrl: "https://swissmail.ch/status/token-123",
@@ -29,8 +29,14 @@ describe("Email template rendering", () => {
     expect(result.text).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
     expect(result.text).not.toContain("https://swissmail.ch/status/token-123");
     expect(result.text).not.toContain("View order status");
+    expect(result.text).not.toContain(
+      "You will receive another notification if there are updates.",
+    );
     expect(result.html).not.toContain("https://swissmail.ch/status/token-123");
     expect(result.html).not.toContain("View order status");
+    expect(result.html).not.toContain(
+      "You will receive another notification if there are updates.",
+    );
     expect(result.html).toContain("Registered mail");
     expect(result.html).toContain("Alice Sender");
     expect(result.html).toContain("Bob Recipient");
@@ -116,6 +122,30 @@ describe("Email template rendering", () => {
     expect(result.text).not.toContain("swiss-post-tracking");
     expect(result.html).not.toContain("https://swissmail.ch/status/token-standard");
     expect(result.html).not.toContain("Track on Swiss Post");
+  });
+
+  it("renders accented French registered-mail labels in dispatch-accepted emails", () => {
+    const result = renderTemplate("dispatch-accepted", "fr-CH", {
+      orderRef: "ORD-FR",
+      deliveryType: "registered",
+      senderName: "Alice Sender",
+      trackingNumber: "98.40.541881.00002354",
+    });
+
+    expect(result.text).toContain("Mode d'envoi: Courrier recommandé");
+    expect(result.text).toContain("Expéditeur: Alice Sender");
+    expect(result.html).toContain("Courrier recommandé");
+    expect(result.html).toContain("Expéditeur");
+  });
+
+  it("renders the email header badge from the current brand name instead of a stale initial", () => {
+    const result = renderTemplate("dispatch-submitted", "en-CH", {
+      orderRef: "ORD-BRAND",
+      brandName: "Episto",
+    });
+
+    expect(result.html).toContain('line-height:36px;">E</span>');
+    expect(result.html).not.toContain('line-height:36px;">S</span>');
   });
 
   // ---- resume-link ----

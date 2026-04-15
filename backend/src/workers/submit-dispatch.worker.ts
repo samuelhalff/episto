@@ -1,9 +1,5 @@
 import type { Job, Worker } from "bullmq";
-import {
-  createWorker,
-  QUEUE_NAMES,
-  type SubmitDispatchJob,
-} from "../queue/index.js";
+import { createWorker, QUEUE_NAMES, type SubmitDispatchJob } from "../queue/index.js";
 import { createLogger } from "../shared/logging/index.js";
 import { getDb } from "../db/index.js";
 import {
@@ -12,7 +8,10 @@ import {
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs.js";
-import { enqueueDispatchSubmittedEmail } from "../modules/dispatch/dispatch-notifications.js";
+import {
+  enqueueDispatchAcceptedEmail,
+  enqueueDispatchSubmittedEmail,
+} from "../modules/dispatch/dispatch-notifications.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { recordEvent } from "../modules/analytics/index.js";
 import { buildDispatchPackage } from "../modules/dispatch/dispatch-package.service.js";
@@ -110,8 +109,12 @@ export async function processSubmitDispatchJob(
   }
 
   if (result.state === "accepted" || result.state === "rejected") {
+    let settlement: Awaited<
+      ReturnType<typeof settlePaymentForDispatchResolution>
+    > | null = null;
+
     try {
-      const settlement = await settlePaymentForDispatchResolution(
+      settlement = await settlePaymentForDispatchResolution(
         db,
         draftId,
         paymentId,
@@ -174,6 +177,30 @@ export async function processSubmitDispatchJob(
 
       job.log(`Dispatch settlement deferred for reconciliation: ${attempt.id}`);
       return;
+    }
+
+    if (result.state === "accepted" && settlement?.payment) {
+      try {
+        await enqueueDispatchAcceptedEmail(db, {
+          dispatchAttemptId: attempt.id,
+          draftId,
+          paymentId: settlement.payment.id,
+          providerReference: result.providerReference ?? null,
+          trackingNumber: result.trackingNumber ?? null,
+        });
+      } catch (acceptedEmailErr) {
+        logger.error(
+          {
+            draftId,
+            dispatchId: attempt.id,
+            err:
+              acceptedEmailErr instanceof Error
+                ? acceptedEmailErr.message
+                : "Unknown error",
+          },
+          "Failed to enqueue accepted dispatch email after immediate acceptance",
+        );
+      }
     }
   } else {
     await updateDraftStatusForDispatchSubmission(db, draftId, "submitted");

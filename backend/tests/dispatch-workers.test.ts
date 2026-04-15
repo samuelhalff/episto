@@ -202,6 +202,7 @@ describe("dispatch workers", () => {
     expect(mocks.enqueueDispatchReconciliation).toHaveBeenCalledWith({
       dispatchAttemptId: "dispatch-1",
     });
+    expect(mocks.enqueueDispatchAcceptedEmail).not.toHaveBeenCalled();
     expect(job.log).toHaveBeenCalledWith(
       "Dispatch settlement deferred for reconciliation: dispatch-1",
     );
@@ -304,17 +305,17 @@ describe("dispatch workers", () => {
     expect(mocks.emailQueueAdd).not.toHaveBeenCalled();
   });
 
-  it("queues dispatch-submitted but not dispatch-accepted when provider acceptance is immediate", async () => {
+  it("queues dispatch-accepted with tracking when provider acceptance is immediate", async () => {
     mocks.currentDb = createDbMock([
       [{ sessionId: "session-3" }],
       [{ email: "user@example.com" }],
     ]);
     mocks.createDispatchAttempt.mockResolvedValue({ id: "dispatch-2a" });
-    mocks.buildDispatchPackage.mockResolvedValue({ deliveryType: "standard" });
+    mocks.buildDispatchPackage.mockResolvedValue({ deliveryType: "registered" });
     mocks.adapterSubmit.mockResolvedValue({
       state: "accepted",
       providerReference: "provider-2a",
-      trackingNumber: null,
+      trackingNumber: "98.40.541881.00002354",
       providerPayload: { ok: true },
       failureReason: null,
     });
@@ -352,7 +353,71 @@ describe("dispatch workers", () => {
         paymentId: "payment-2a",
       }),
     );
-    expect(mocks.enqueueDispatchAcceptedEmail).not.toHaveBeenCalled();
+    expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        dispatchAttemptId: "dispatch-2a",
+        draftId: "draft-2a",
+        paymentId: "payment-2a",
+        providerReference: "provider-2a",
+        trackingNumber: "98.40.541881.00002354",
+      }),
+    );
+  });
+
+  it("does not downgrade finalized acceptance when accepted-email enqueueing fails", async () => {
+    mocks.currentDb = createDbMock([
+      [{ sessionId: "session-accept-fail" }],
+      [{ email: "user@example.com" }],
+    ]);
+    mocks.createDispatchAttempt.mockResolvedValue({ id: "dispatch-accept-fail" });
+    mocks.buildDispatchPackage.mockResolvedValue({ deliveryType: "registered" });
+    mocks.adapterSubmit.mockResolvedValue({
+      state: "accepted",
+      providerReference: "provider-accept-fail",
+      trackingNumber: "98.40.541881.00002354",
+      providerPayload: { ok: true },
+      failureReason: null,
+    });
+    mocks.settlePaymentForDispatchResolution.mockResolvedValue({
+      payment: {
+        id: "payment-accept-fail",
+        draftId: "draft-accept-fail",
+        sessionId: "session-accept-fail",
+        amountCents: 625,
+        state: "captured",
+      },
+      rawOrderAccessToken: "order-token-accept-fail",
+    });
+    mocks.canFinalizeDispatchResolution.mockReturnValue(true);
+    mocks.enqueueDispatchAcceptedEmail.mockRejectedValue(new Error("queue unavailable"));
+
+    const { processSubmitDispatchJob } =
+      await import("../src/workers/submit-dispatch.worker.js");
+
+    const job = {
+      data: {
+        draftId: "draft-accept-fail",
+        snapshotId: "snapshot-accept-fail",
+        paymentId: "payment-accept-fail",
+      },
+      log: vi.fn(),
+    };
+
+    await expect(processSubmitDispatchJob(job as never)).resolves.toBeUndefined();
+
+    expect(mocks.transitionDispatchState.mock.calls.map(([, , state]) => state)).toEqual([
+      "submitted",
+      "accepted",
+    ]);
+    expect(mocks.updateDraftStatusForDispatchResolution).toHaveBeenCalledWith(
+      mocks.currentDb,
+      "draft-accept-fail",
+      "accepted",
+      expect.objectContaining({ id: "payment-accept-fail" }),
+    );
+    expect(mocks.updateDraftStatusForDispatchSubmission).not.toHaveBeenCalled();
+    expect(mocks.enqueueDispatchReconciliation).not.toHaveBeenCalled();
   });
 
   it("enqueues reconciliation after a non-terminal submission so provider confirmation can continue", async () => {

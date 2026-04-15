@@ -113,7 +113,7 @@ Swiss Mail does not send a duplicate app-level payment receipt at launch. The co
 - "Your letter has been submitted to Swiss Post for processing."
 - Order reference number
 - Estimated delivery timeframe, if and only if the dispatch provider supplies a deterministic estimate — otherwise omit entirely; do not invent a timeframe
-- "You will receive another notification if there are updates to your letter's status."
+- Do not promise additional status emails in this template; later notifications are sent only when a separate confirmed trigger actually fires
 - Link to support
 
 **Important:** This email confirms submission to the provider pipeline, NOT delivery to the recipient. Wording must be precise.

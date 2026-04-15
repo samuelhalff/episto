@@ -1,29 +1,31 @@
 "use client";
 
 import {
+  DICTATION_LIMITS,
   DictationLiveClientEventSchema,
   DictationLiveServerEventSchema,
-  DictationTranscriptionResponseSchema,
   type DictationFieldContext,
 } from "@swiss-mail/shared";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
-import { getApiUrl, getApiWebSocketUrl } from "../lib/api";
+import { getApiWebSocketUrl } from "../lib/api";
 import {
-  buildWavBlob,
   startDictationCapture,
-  supportsDictationCapture,
   type DictationCaptureSession,
 } from "../lib/dictation-audio";
+import {
+  appendTranscript,
+  buildDictationQuery,
+  closeSocket,
+  createDelay,
+  getDictationSupportSnapshot,
+  mapStartError,
+  requestBufferedTranscription,
+  subscribeToStaticBrowserCapability,
+  type DictationError,
+} from "./dictation-shared";
 
-const BUFFERED_TRANSCRIPTION_TIMEOUT_MS = 20_000;
-
-export type DictationError =
-  | "permission_denied"
-  | "no_speech"
-  | "network"
-  | "not_supported"
-  | "aborted";
+export type { DictationError } from "./dictation-shared";
 
 export interface UseDictationOptions {
   draftId?: string;
@@ -33,134 +35,18 @@ export interface UseDictationOptions {
 export interface UseDictationReturn {
   isSupported: boolean;
   isRecording: boolean;
+  isProcessing: boolean;
+  audioLevel: number;
+  elapsedSeconds: number;
+  maxCaptureSeconds: number;
   interimText: string;
   finalText: string;
   startRecording: (locale: string) => Promise<void>;
   stopRecording: () => Promise<void>;
+  cancelRecording: () => Promise<void>;
+  clearError: () => void;
   resetText: () => void;
   error: DictationError | null;
-}
-
-function subscribeToStaticBrowserCapability() {
-  return () => {};
-}
-
-function getDictationSupportSnapshot() {
-  return supportsDictationCapture();
-}
-
-function appendTranscript(existing: string, next: string) {
-  const trimmedNext = next.trim();
-  if (!trimmedNext) {
-    return existing;
-  }
-
-  const trimmedExisting = existing.trim();
-  if (!trimmedExisting) {
-    return trimmedNext;
-  }
-
-  const normalizedExisting = trimmedExisting.toLocaleLowerCase("en-CH");
-  const normalizedNext = trimmedNext.toLocaleLowerCase("en-CH");
-  if (normalizedExisting.endsWith(normalizedNext)) {
-    return trimmedExisting;
-  }
-
-  return `${trimmedExisting} ${trimmedNext}`;
-}
-
-function createDelay(ms: number) {
-  return new Promise<void>((resolve) => window.setTimeout(resolve, ms));
-}
-
-function buildDictationQuery(
-  locale: string,
-  fieldContext: DictationFieldContext,
-  draftId?: string,
-) {
-  const params = new URLSearchParams({ locale, fieldContext });
-  if (draftId) params.set("draftId", draftId);
-  return params.toString();
-}
-
-function closeSocket(socket: WebSocket | null) {
-  if (!socket) {
-    return;
-  }
-
-  if (
-    socket.readyState === WebSocket.CONNECTING ||
-    socket.readyState === WebSocket.OPEN
-  ) {
-    socket.close();
-  }
-}
-
-function mapStartError(error: unknown): DictationError {
-  if (
-    error instanceof Error &&
-    (error.message.includes("socket") || error.message.includes("Socket"))
-  ) {
-    return "network";
-  }
-
-  if (error instanceof DOMException) {
-    if (error.name === "NotAllowedError" || error.name === "SecurityError") {
-      return "permission_denied";
-    }
-
-    if (error.name === "AbortError") {
-      return "aborted";
-    }
-  }
-
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "name" in error &&
-    (error as { name?: string }).name === "NotAllowedError"
-  ) {
-    return "permission_denied";
-  }
-
-  return "not_supported";
-}
-
-async function requestBufferedTranscription(options: {
-  locale: string;
-  fieldContext: DictationFieldContext;
-  draftId?: string;
-  pcmAudio: Uint8Array;
-}) {
-  const abortController = new AbortController();
-  const timeoutId = window.setTimeout(() => {
-    abortController.abort();
-  }, BUFFERED_TRANSCRIPTION_TIMEOUT_MS);
-  const query = buildDictationQuery(
-    options.locale,
-    options.fieldContext,
-    options.draftId,
-  );
-  try {
-    const response = await fetch(getApiUrl(`/v1/dictation/transcribe?${query}`), {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "audio/wav",
-        "X-Requested-With": "XMLHttpRequest",
-      },
-      body: buildWavBlob(options.pcmAudio),
-      signal: abortController.signal,
-    });
-
-    if (!response.ok) {
-      throw new Error("Buffered dictation transcription failed.");
-    }
-
-    return DictationTranscriptionResponseSchema.parse(await response.json()).transcript;
-  } finally {
-    window.clearTimeout(timeoutId);
-  }
 }
 
 export function useDictation(options: UseDictationOptions): UseDictationReturn {
@@ -170,6 +56,12 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
     () => false,
   );
   const [isRecording, setIsRecording] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [audioLevel, setAudioLevel] = useState(0);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [maxCaptureSeconds, setMaxCaptureSeconds] = useState<number>(
+    DICTATION_LIMITS.maxCaptureSeconds,
+  );
   const [interimText, setInterimText] = useState("");
   const [finalText, setFinalText] = useState("");
   const [error, setError] = useState<DictationError | null>(null);
@@ -183,12 +75,44 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
   const isRecordingRef = useRef(false);
   const finalizingAttemptRef = useRef<number | null>(null);
   const stopRequestedRef = useRef(false);
+  const cancelRequestedRef = useRef(false);
   const liveFailedRef = useRef(false);
   const stopSignalRef = useRef<(() => void) | null>(null);
+  const elapsedIntervalRef = useRef<number | null>(null);
+  const audioLevelRafRef = useRef<number | null>(null);
+  const pendingAudioLevelRef = useRef(0);
+  const maxCaptureSecondsRef = useRef(DICTATION_LIMITS.maxCaptureSeconds);
 
-  const setRecordingState = useCallback((value: boolean) => {
-    isRecordingRef.current = value;
-    setIsRecording(value);
+  const clearElapsedInterval = useCallback(() => {
+    if (elapsedIntervalRef.current !== null) {
+      window.clearInterval(elapsedIntervalRef.current);
+      elapsedIntervalRef.current = null;
+    }
+  }, []);
+
+  const clearAudioLevelFrame = useCallback(() => {
+    if (audioLevelRafRef.current !== null) {
+      window.cancelAnimationFrame(audioLevelRafRef.current);
+      audioLevelRafRef.current = null;
+    }
+  }, []);
+
+  const setRecordingState = useCallback(
+    (value: boolean) => {
+      isRecordingRef.current = value;
+      setIsRecording(value);
+      if (!value) {
+        clearElapsedInterval();
+        clearAudioLevelFrame();
+        pendingAudioLevelRef.current = 0;
+        setAudioLevel(0);
+      }
+    },
+    [clearAudioLevelFrame, clearElapsedInterval],
+  );
+
+  const clearError = useCallback(() => {
+    setError(null);
   }, []);
 
   const commitCurrentAttemptText = useCallback((nextText: string) => {
@@ -212,10 +136,14 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       return;
     }
 
+    const wasCancelled = cancelRequestedRef.current;
     finalizingAttemptRef.current = attemptId;
     stopRequestedRef.current = true;
     setInterimText("");
     setRecordingState(false);
+    if (!wasCancelled) {
+      setIsProcessing(true);
+    }
 
     try {
       const capture = captureRef.current;
@@ -242,6 +170,10 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       socketRef.current = null;
       stopSignalRef.current?.();
       stopSignalRef.current = null;
+
+      if (wasCancelled) {
+        return;
+      }
 
       const hasLiveTranscript = currentAttemptFinalTextRef.current.trim().length > 0;
       if (pcmAudio.byteLength > 0 && (shouldFallback || !hasLiveTranscript)) {
@@ -279,7 +211,9 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       if (finalizingAttemptRef.current === attemptId) {
         finalizingAttemptRef.current = null;
         stopRequestedRef.current = false;
+        cancelRequestedRef.current = false;
         liveFailedRef.current = false;
+        setIsProcessing(false);
       }
     }
   }, [
@@ -288,6 +222,12 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
     options.fieldContext,
     setRecordingState,
   ]);
+
+  const cancelRecording = useCallback(async () => {
+    cancelRequestedRef.current = true;
+    setError(null);
+    await stopRecording();
+  }, [stopRecording]);
 
   const stopRecordingRef = useRef(stopRecording);
   const localeRef = useRef("");
@@ -301,11 +241,12 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       if (capture) {
         void capture.abort();
       }
-
       closeSocket(socketRef.current);
       socketRef.current = null;
+      clearElapsedInterval();
+      clearAudioLevelFrame();
     };
-  }, []);
+  }, [clearAudioLevelFrame, clearElapsedInterval]);
 
   const startRecording = useCallback(
     async (locale: string) => {
@@ -329,8 +270,15 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       socketRef.current = socket;
       liveFailedRef.current = false;
       stopRequestedRef.current = false;
+      cancelRequestedRef.current = false;
       setError(null);
       setInterimText("");
+      setElapsedSeconds(0);
+      setMaxCaptureSeconds(maxCaptureSecondsRef.current);
+      setAudioLevel(0);
+      pendingAudioLevelRef.current = 0;
+      const startedAt =
+        typeof performance !== "undefined" ? performance.now() : Date.now();
       const queuedAudioChunks: Uint8Array[] = [];
       let capture: DictationCaptureSession | null = null;
       let socketOpened = socket.readyState === WebSocket.OPEN;
@@ -377,6 +325,8 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
 
         switch (parsed.data.type) {
           case "ready":
+            maxCaptureSecondsRef.current = parsed.data.maxCaptureSeconds;
+            setMaxCaptureSeconds(parsed.data.maxCaptureSeconds);
             return;
           case "partial":
             setInterimText(parsed.data.text);
@@ -442,6 +392,21 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
         }
       };
 
+      const scheduleAudioLevelFrame = () => {
+        if (audioLevelRafRef.current !== null) {
+          return;
+        }
+
+        audioLevelRafRef.current = window.requestAnimationFrame(() => {
+          audioLevelRafRef.current = null;
+          if (attemptId !== attemptIdRef.current) {
+            return;
+          }
+
+          setAudioLevel(pendingAudioLevelRef.current);
+        });
+      };
+
       try {
         capture = await startDictationCapture({
           onPcmChunk: (chunk) => {
@@ -456,6 +421,14 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
 
             queuedAudioChunks.push(chunk);
           },
+          onAudioLevel: (level) => {
+            if (attemptId !== attemptIdRef.current) {
+              return;
+            }
+
+            pendingAudioLevelRef.current = level;
+            scheduleAudioLevelFrame();
+          },
         });
 
         if (attemptId !== attemptIdRef.current) {
@@ -465,6 +438,23 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
 
         captureRef.current = capture;
         setRecordingState(true);
+
+        clearElapsedInterval();
+        elapsedIntervalRef.current = window.setInterval(() => {
+          if (attemptId !== attemptIdRef.current || !isRecordingRef.current) {
+            return;
+          }
+          const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+          const nextElapsed = Math.min(
+            maxCaptureSecondsRef.current,
+            Math.floor((now - startedAt) / 1000),
+          );
+          setElapsedSeconds(nextElapsed);
+
+          if (nextElapsed >= maxCaptureSecondsRef.current) {
+            void stopRecordingRef.current();
+          }
+        }, 250);
       } catch (startError) {
         if (attemptId !== attemptIdRef.current) {
           return;
@@ -482,6 +472,7 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
       }
     },
     [
+      clearElapsedInterval,
       commitCurrentAttemptText,
       isSupported,
       options.draftId,
@@ -493,10 +484,16 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
   return {
     isSupported,
     isRecording,
+    isProcessing,
+    audioLevel,
+    elapsedSeconds,
+    maxCaptureSeconds,
     interimText,
     finalText,
     startRecording,
     stopRecording,
+    cancelRecording,
+    clearError,
     resetText,
     error,
   };

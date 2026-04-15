@@ -12,11 +12,22 @@ import { createLogger } from "../shared/logging/index.js";
 import { startWorkers, stopWorkers } from "./index.js";
 import { closeAllQueues, registerScheduledJobs } from "../queue/index.js";
 import { closeDb } from "../db/index.js";
+import { checkEmailReadiness } from "../modules/email/email-readiness.js";
 
 loadEnv();
 const logger = createLogger();
+const emailReadiness = checkEmailReadiness();
 
 logger.info("Starting worker process");
+if (!emailReadiness.ok) {
+  logger.warn(
+    {
+      senderAddress: emailReadiness.senderAddress,
+      senderDomain: emailReadiness.senderDomain,
+    },
+    emailReadiness.detail,
+  );
+}
 startWorkers();
 void registerScheduledJobs().then(() => {
   logger.info("Scheduled jobs registered");
