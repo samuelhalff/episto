@@ -33,9 +33,11 @@ describe("file preview route", () => {
 
     const select = vi.fn().mockImplementation(() => makeSelectChain([fileAsset]));
 
-    getPresignedDownloadUrl = vi.fn().mockResolvedValue(
-      "http://minio:9000/swiss-mail/signatures/preview-session/signature-file-1",
-    );
+    getPresignedDownloadUrl = vi
+      .fn()
+      .mockResolvedValue(
+        "http://minio:9000/swiss-mail/signatures/preview-session/signature-file-1",
+      );
     downloadObjectBuffer = vi.fn().mockResolvedValue({
       buffer: Buffer.from("pngbytes"),
       contentType: "image/png",
@@ -54,8 +56,9 @@ describe("file preview route", () => {
         }
         return request.session;
       }),
-      requireSession: vi.fn().mockImplementation(
-        async (request: { session?: unknown }) => {
+      requireSession: vi
+        .fn()
+        .mockImplementation(async (request: { session?: unknown }) => {
           request.session = {
             id: "preview-session",
             type: "guest",
@@ -66,8 +69,7 @@ describe("file preview route", () => {
             createdAt: new Date("2026-01-01"),
             updatedAt: new Date("2026-01-01"),
           };
-        },
-      ),
+        }),
       COOKIE_NAME: "session",
     }));
 
@@ -142,20 +144,17 @@ describe("file preview route", () => {
     vi.resetModules();
   });
 
-  it("serves signature previews from the app origin instead of redirecting to storage", async () => {
+  it("serves signature previews as blue-ink svg from the app origin", async () => {
     const response = await app.inject({
       method: "GET",
       url: "/files/signature-file-1/preview",
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.headers["content-type"]).toContain("image/png");
+    expect(response.headers["content-type"]).toContain("image/svg+xml");
     expect(response.headers.location).toBeUndefined();
-    expect(response.body).toBe("pngbytes");
-    expect(downloadObjectBuffer).toHaveBeenCalledWith(
-      "signatures/preview-session/signature-file-1",
-    );
-    expect(getPresignedDownloadUrl).not.toHaveBeenCalled();
+    expect(response.body).toContain("#1d4ed8");
+    expect(response.body).toContain("data:image/png;base64,cG5nYnl0ZXM=");
   });
 
   it("rejects non-signature assets on the preview route", async () => {

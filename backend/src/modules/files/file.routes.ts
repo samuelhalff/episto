@@ -30,6 +30,7 @@ import {
   deleteObject,
 } from "./adapters/s3.adapter.js";
 import { parseUploadMultipartParts } from "./multipart-upload.js";
+import { buildBlueSignatureSvgResponse } from "../rendering/drawn-signature.js";
 
 // ---------------------------------------------------------------------------
 // Plugin
@@ -150,7 +151,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       // For signatures, find existing one for atomic replacement
       const existingSignature =
         kind === "signature"
-          ? existingFiles.find((f) => f.kind === "signature") ?? null
+          ? (existingFiles.find((f) => f.kind === "signature") ?? null)
           : null;
 
       // Subtract old signature bytes when replacing (it will be removed)
@@ -334,12 +335,20 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       }
 
       const object = await downloadObjectBuffer(file.storageKey);
-      reply.header("Content-Type", object.contentType ?? file.mimeType);
-      reply.header("Content-Length", String(object.contentLength ?? object.buffer.byteLength));
+      const mimeType = (object.contentType ?? file.mimeType) as
+        | "image/png"
+        | "image/jpeg";
+      const body = buildBlueSignatureSvgResponse({
+        mimeType,
+        base64: object.buffer.toString("base64"),
+      });
+
+      reply.header("Content-Type", "image/svg+xml; charset=utf-8");
+      reply.header("Content-Length", String(body.byteLength));
       reply.header("Content-Disposition", "inline");
       reply.header("Cache-Control", "private, max-age=300");
 
-      await reply.send(object.buffer);
+      await reply.send(body);
     },
   );
 
