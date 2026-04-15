@@ -64,9 +64,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders a sender block in the top-left without the old sender one-liner", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     expect(html).toContain("letter-layout-shell");
@@ -80,9 +79,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("includes sender.addressLine2 in the sender block when present", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(
       makeSnapshotData({
         sender: {
@@ -99,17 +97,14 @@ describe("regression: PDF letter template renders all elements", () => {
     );
 
     expect(html).toContain("Postfach 42");
-    const senderBlockMatch = html.match(
-      /<div class="sender-block">[\s\S]*?<\/div>/,
-    );
+    const senderBlockMatch = html.match(/<div class="sender-block">[\s\S]*?<\/div>/);
     expect(senderBlockMatch).not.toBeNull();
     expect(assertDefined(senderBlockMatch)[0]).toContain("Postfach 42");
   });
 
   it("omits sender.addressLine2 from the sender block when null", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(
       makeSnapshotData({
         sender: {
@@ -125,17 +120,14 @@ describe("regression: PDF letter template renders all elements", () => {
       }),
     );
 
-    const senderBlockMatch = html.match(
-      /<div class="sender-block">[\s\S]*?<\/div>/,
-    );
+    const senderBlockMatch = html.match(/<div class="sender-block">[\s\S]*?<\/div>/);
     expect(senderBlockMatch).not.toBeNull();
     expect(assertDefined(senderBlockMatch)[0]).not.toContain("null");
   });
 
   it("includes recipient.addressLine2 in the recipient block when present", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     // Default fixture has addressLine2: "Postfach 100"
@@ -148,9 +140,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders the full recipient block with company, department, name, and address", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     expect(html).toContain("recipient-block");
@@ -163,9 +154,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders the logistics line above the right-side recipient block", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     expect(html).toContain("dispatch-line");
@@ -175,9 +165,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders the date line below the recipient block with sender city", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     expect(html).toContain("right-meta");
@@ -187,9 +176,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders the subject line", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     expect(html).toContain("subject-line");
@@ -197,9 +185,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders salutation and closing when body has content", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     expect(html).toContain("salutation-line");
@@ -207,9 +194,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders a typed signature block with cursive and plain name", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData({ signatureMode: "typed" }));
 
     expect(html).toContain("signature-block");
@@ -219,9 +205,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("omits signature block element when signatureMode is null", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData({ signatureMode: null }));
 
     // CSS class definitions stay in the <style> block, but no element is rendered
@@ -230,9 +215,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("does not fabricate a typed signature block when drawn mode has no image payload", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(
       makeSnapshotData({
         signatureMode: "drawn",
@@ -244,10 +228,31 @@ describe("regression: PDF letter template renders all elements", () => {
     expect(html).not.toContain('<div class="signature-script">');
   });
 
-  it("renders the enclosure note when provided", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
+  it("renders drawn signatures through the blue svg source instead of a raw png data url", async () => {
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
+    const html = renderLetterHtml(
+      makeSnapshotData({
+        signatureMode: "drawn",
+        signatureAssetId: "22222222-2222-4222-8222-222222222222",
+      }),
+      {
+        signatureImage: {
+          mimeType: "image/jpeg",
+          base64: "ZmFrZWpwZWc=",
+        },
+      },
     );
+
+    expect(html).toContain("image/svg+xml");
+    expect(html).toContain("#1d4ed8");
+    expect(html).toContain("data:image/jpeg;base64,ZmFrZWpwZWc=");
+    expect(html).not.toContain("data:image/png;base64");
+  });
+
+  it("renders the enclosure note when provided", async () => {
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(
       makeSnapshotData({ enclosureNote: "Enclosure: Copy of ID" }),
     );
@@ -257,9 +262,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("omits enclosure note element when null (CSS class still in stylesheet)", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData({ enclosureNote: null }));
 
     // The CSS class definition stays in the <style> block, but no element is rendered
@@ -267,18 +271,16 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("uses A4 page size in CSS", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(makeSnapshotData());
 
     expect(html).toContain("size: A4");
   });
 
   it("sets the lang attribute to the snapshot locale", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const htmlEn = renderLetterHtml(makeSnapshotData({ locale: "en-CH" }));
     expect(htmlEn).toContain('lang="en-CH"');
 
@@ -287,9 +289,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("escapes HTML in user-provided fields to prevent injection", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(
       makeSnapshotData({
         subject: '<script>alert("xss")</script>',
@@ -312,9 +313,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders without crashing when sender has no company", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(
       makeSnapshotData({
         sender: {
@@ -335,9 +335,8 @@ describe("regression: PDF letter template renders all elements", () => {
   });
 
   it("renders without crashing when recipient has no company or department", async () => {
-    const { renderLetterHtml } = await import(
-      "../src/modules/rendering/render.service.js"
-    );
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render.service.js");
     const html = renderLetterHtml(
       makeSnapshotData({
         recipient: {

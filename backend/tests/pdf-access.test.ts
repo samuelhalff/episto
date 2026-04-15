@@ -188,7 +188,7 @@ describe("pdf-access", () => {
         recipient: expect.objectContaining({ company: "Receiver AG" }),
       }),
       {
-        signatureImageBase64: null,
+        signatureImage: null,
       },
     );
     expect(mocks.renderConfirmationDocumentHtml).toHaveBeenCalledWith(
@@ -268,7 +268,7 @@ describe("pdf-access", () => {
       createdAt: new Date("2026-04-08T12:00:00.000Z"),
     });
     mocks.downloadObjectBuffer.mockResolvedValue({
-      buffer: Buffer.from("drawn-signature"),
+      buffer: Buffer.from("pngbytes"),
       contentType: "image/png",
     });
 
@@ -299,10 +299,11 @@ describe("pdf-access", () => {
             },
           ]);
         }
-        if (projection === "storageKey") {
+        if (projection === "mimeType,storageKey") {
           return makeSelectChain([
             {
               storageKey: "signatures/session/drawn-signature.png",
+              mimeType: "image/png",
             },
           ]);
         }
@@ -327,7 +328,10 @@ describe("pdf-access", () => {
         signatureAssetId: "22222222-2222-4222-8222-222222222222",
       }),
       {
-        signatureImageBase64: Buffer.from("drawn-signature").toString("base64"),
+        signatureImage: {
+          mimeType: "image/png",
+          base64: Buffer.from("pngbytes").toString("base64"),
+        },
       },
     );
   });

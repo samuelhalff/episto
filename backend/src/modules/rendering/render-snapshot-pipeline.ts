@@ -6,7 +6,7 @@ import { createFileAsset, renderStorageKey } from "../files/file.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { AppError } from "../../shared/errors/index.js";
 import { createLogger } from "../../shared/logging/index.js";
-import { loadSignatureImageBase64 } from "./signature-image.js";
+import { loadSignatureImageAsset } from "./signature-image.js";
 import { renderPdfBufferFromHtml } from "./render-pdf.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
 import { renderLetterHtml } from "./render-template.js";
@@ -66,8 +66,8 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
     snapshot.draftId,
     snapshot.snapshotData,
   );
-  const signatureImageBase64 = await loadSignatureImageBase64(db, snapshotData);
-  const html = renderLetterHtml(snapshotData, { signatureImageBase64 });
+  const signatureImage = await loadSignatureImageAsset(db, snapshotData);
+  const html = renderLetterHtml(snapshotData, { signatureImage });
   const { pdfBuffer, pageCount } = await renderPdfBufferFromHtml(html);
 
   const storageKey = renderStorageKey(snapshot.draftId, snapshot.version);

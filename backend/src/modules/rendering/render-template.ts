@@ -14,9 +14,13 @@ import {
   type SnapshotData,
 } from "@swiss-mail/shared";
 import { stripLetterFramingDocument } from "@swiss-mail/shared/letter-framing";
+import {
+  buildBlueSignatureSvgMarkup,
+  type DrawnSignatureAsset,
+} from "./drawn-signature.js";
 
 export interface RenderLetterHtmlOptions {
-  signatureImageBase64?: string | null;
+  signatureImage?: DrawnSignatureAsset | null;
 }
 
 let signatureFontFaceCss: string | null = null;
@@ -135,9 +139,13 @@ export function renderLetterHtml(
   const signatureName = getSenderSignatureName(sender);
 
   let signatureBlock = "";
-  if (data.signatureMode === "drawn" && options?.signatureImageBase64) {
+  if (data.signatureMode === "drawn" && options?.signatureImage) {
+    const signatureSrc = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      buildBlueSignatureSvgMarkup(options.signatureImage),
+    )}`;
+
     signatureBlock = `<div class="signature-block">
-  <img class="signature-image" src="data:image/png;base64,${options.signatureImageBase64}" alt="Signature" />
+  <img class="signature-image" src="${signatureSrc}" alt="Signature" data-signature-ink="${LETTER_COLORS.signatureDrawnInk}" data-signature-source="data:${options.signatureImage.mimeType};base64,${options.signatureImage.base64}" />
   <div class="signature-name">${escapeHtml(signatureName)}</div>
 </div>`;
   } else if (data.signatureMode === "typed" && signatureName) {

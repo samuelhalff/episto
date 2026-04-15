@@ -18,7 +18,7 @@ import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-m
 import { BRAND_NAME } from "../../shared/brand.js";
 import { renderConfirmationDocumentHtml } from "./confirmation-document.js";
 import { renderLetterHtml, renderPdfBufferFromHtml } from "./render.service.js";
-import { loadSignatureImageBase64 } from "./signature-image.js";
+import { loadSignatureImageAsset } from "./signature-image.js";
 import { getLatestSnapshot, type SnapshotRow } from "./snapshot.service.js";
 
 interface RenderedLetterSource {
@@ -121,12 +121,9 @@ async function mergePdfBuffers(buffers: Buffer[]): Promise<Buffer> {
 
 async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buffer> {
   const renderedLetter = await getRenderedLetterAsset(db, draftId);
-  const signatureImageBase64 = await loadSignatureImageBase64(
-    db,
-    renderedLetter.snapshotData,
-  );
+  const signatureImage = await loadSignatureImageAsset(db, renderedLetter.snapshotData);
   const letterHtml = renderLetterHtml(renderedLetter.snapshotData, {
-    signatureImageBase64,
+    signatureImage,
   });
   const [[dispatch], attachmentNames, renderedLetterPdf] = await Promise.all([
     db
