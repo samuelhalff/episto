@@ -20,6 +20,22 @@ jobs:
       - run: npm ci
       - run: bash ci/check-placeholders.sh
 
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      # Fail the build on any production vulnerabilities at high or critical severity.
+      # Dev-only moderate issues (e.g. esbuild dev server, vitest) are tolerated for now.
+      # Known follow-up: drizzle-orm <0.45.2 is a breaking upgrade — tracked separately.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high || (echo "::warning::npm audit found production vulnerabilities at high or critical severity" && exit 1)
+
   lint:
     name: Lint
     runs-on: ubuntu-latest

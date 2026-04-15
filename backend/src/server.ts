@@ -47,7 +47,9 @@ async function main(): Promise<void> {
   process.on("SIGTERM", () => void shutdown("SIGTERM"));
 }
 
-main().catch((err) => {
-  console.error("Fatal startup error:", err);
+main().catch((err: unknown) => {
+  // `createLogger` tolerates pre-loadEnv boot failures, so it's safe even
+  // when `main()` fails before the env is loaded.
+  createLogger("startup").fatal({ err }, "Fatal startup error");
   process.exit(1);
 });

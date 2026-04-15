@@ -33,3 +33,17 @@ feature branches unless the user explicitly asks for them. Use regular, descript
 - [ ] Dispatch cutover review before changing `EPOST_SUBMISSION_MODE` away from `mock`
 - [ ] Accessibility testing to WCAG AA standard
 - [ ] Final pre-launch checklist in [docs/07-operations/pre-launch-checklist.md](docs/07-operations/pre-launch-checklist.md)
+
+## Security follow-ups
+
+- [ ] Upgrade `drizzle-orm` from 0.33.0 to ≥0.45.2 to patch
+      [GHSA-gpj5-g38j-94v9](https://github.com/advisories/GHSA-gpj5-g38j-94v9)
+      (SQL identifier escaping). This is a breaking change — the query builder API
+      shifted between 0.33 → 0.45. Audit all `db.select()/insert()/update()/delete()`
+      call sites and any custom `sql` template usage before merging. Run the full
+      backend test suite plus migration rollback verification against the upgraded
+      version. Current risk is low because no user input flows into SQL identifiers
+      (tables/columns), but the CVE should still be closed before go-live.
+- [ ] Reduce Next.js CSP `script-src 'unsafe-inline'` by adopting nonces for the
+      hydration/theme-init scripts (`frontend/next.config.ts`,
+      `frontend/src/app/layout.tsx`).

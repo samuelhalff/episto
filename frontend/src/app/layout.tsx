@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { AppProviders } from "../components/ui/AppProviders";
 import { env } from "../lib/env";
@@ -31,6 +32,7 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const locale = await getLocale();
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
 
   return (
     <html
@@ -40,7 +42,10 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: getThemeInitScript() }} />
+        <script
+          nonce={nonce}
+          dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
+        />
       </head>
       <body
         className="min-h-screen bg-[var(--app-bg)] font-sans text-[var(--app-fg)] antialiased transition-colors duration-300"
