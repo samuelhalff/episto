@@ -92,7 +92,7 @@ export function collectAllowedDevOrigins(): string[] {
 }
 
 // Security headers — values locked in docs/07-operations/security-and-privacy.md §Security headers
-// The CSP is set per-request by `src/middleware.ts` so a fresh nonce can be
+// The CSP is set per-request by `src/proxy.ts` so a fresh nonce can be
 // attached to `script-src` on every HTML response. The builder lives in
 // `src/lib/csp.ts` and is re-exported here for legacy test imports.
 export { buildContentSecurityPolicy, buildPermissionsPolicy } from "./src/lib/csp";
@@ -111,7 +111,7 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: buildPermissionsPolicy(),
   },
-  // Content-Security-Policy intentionally omitted here — middleware sets it
+  // Content-Security-Policy intentionally omitted here — proxy sets it
   // per-request with a fresh nonce. Next.js merges middleware-set headers
   // with static ones; keeping it out here avoids a stale, nonce-less CSP
   // shadowing the dynamic one in edge cases.

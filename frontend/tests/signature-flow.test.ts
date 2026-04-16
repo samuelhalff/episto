@@ -128,8 +128,8 @@ describe("signature canvas redesign", () => {
 
   it("backend PDF renderer supports drawn signature images from S3", () => {
     expect(renderServiceSource).toContain('from "./render-template.js"');
-    expect(renderTemplateSource).toContain("signatureImageBase64");
-    expect(renderPipelineSource).toContain("loadSignatureImageBase64");
+    expect(renderTemplateSource).toContain("signatureImage");
+    expect(renderPipelineSource).toContain("loadSignatureImageAsset");
     expect(signatureImageSource).toContain("downloadObjectBuffer");
     expect(renderPipelineSource).toContain("renderLetterHtml");
   });

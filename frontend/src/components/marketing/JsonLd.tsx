@@ -24,7 +24,7 @@ function escapeJsonLd(value: JsonLdProps["data"]) {
  *
  * Browsers do not execute JSON-LD as JavaScript, but Firefox still enforces
  * `script-src` on every `<script>` element regardless of `type`. We therefore
- * apply the per-request nonce — sourced from middleware via `x-nonce` — so
+ * apply the per-request nonce — sourced from proxy via `x-nonce` — so
  * the tag passes CSP in all browsers. `JsonLd` is an async Server Component
  * because `headers()` is async in Next.js 15+.
  */

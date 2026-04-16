@@ -2,7 +2,7 @@
  * Content Security Policy and Permissions Policy builders.
  *
  * Values are locked in docs/07-operations/security-and-privacy.md §Security headers.
- * The CSP is set per-request from `src/middleware.ts` so that a fresh nonce can be
+ * The CSP is set per-request from `src/proxy.ts` so that a fresh nonce can be
  * attached to `script-src` on every HTML response. The same `buildContentSecurityPolicy`
  * helper is imported by tests and by `next.config.ts`.
  */
@@ -13,7 +13,7 @@ export type CspOptions = {
   nonce?: string;
 };
 
-// Exported so middleware and next.config.ts read the same env vars.
+// Exported so proxy and next.config.ts read the same env vars.
 function getApiConnectOrigin(): string | null {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   if (!apiUrl || apiUrl.startsWith("/")) return null;
@@ -41,8 +41,8 @@ export function buildContentSecurityPolicy(
   // When a nonce is available, Next.js-generated scripts and our own inline
   // scripts reference it via the `nonce` attribute; `'unsafe-inline'` is
   // dropped. When no nonce is provided (e.g. as a fallback for routes that
-  // bypass middleware), we fall back to `'unsafe-inline'` so the app keeps
-  // working — middleware always provides a nonce in normal operation.
+  // bypass proxy), we fall back to `'unsafe-inline'` so the app keeps
+  // working — proxy always provides a nonce in normal operation.
   const scriptSrcParts = [
     "script-src 'self'",
     nonce ? `'nonce-${nonce}'` : "'unsafe-inline'",
