@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
 import { getDb, schema } from "../db/index.js";
+import { checkBucketAccess } from "../modules/files/adapters/s3.adapter.js";
 import { getQueue, QUEUE_NAMES } from "../queue/index.js";
 import { checkEmailReadiness } from "../modules/email/email-readiness.js";
 
@@ -44,6 +45,14 @@ export async function healthRoutes(app: FastifyInstance): Promise<void> {
       checks.redis = "ok";
     } catch {
       checks.redis = "fail";
+      allOk = false;
+    }
+
+    try {
+      await checkBucketAccess();
+      checks.objectStorage = "ok";
+    } catch {
+      checks.objectStorage = "fail";
       allOk = false;
     }
 

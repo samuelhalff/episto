@@ -68,6 +68,9 @@ Decision for production: Option A (separate renderer). Decision for MVP: Option 
 | `redis`    | `redis:7-alpine`      | 6379        | BullMQ queue + rate limiting + session cache                              |
 | `minio`    | `minio/minio`         | 9000 / 9001 | S3-compatible object storage (dev only)                                   |
 
+Local bucket provisioning is explicit. The stack does **not** auto-create the bucket during
+`docker compose up`; run the manual provisioning command after MinIO is healthy.
+
 ### Port ownership
 
 To avoid port drift, treat these assignments as canonical:
@@ -153,6 +156,15 @@ services:
     volumes: [minio_data:/data]
     restart: unless-stopped
 
+  minio-provision:
+    profiles: ["manual"]
+    image: minio/mc
+    depends_on: [minio]
+    entrypoint:
+      - /bin/sh
+      - -c
+      - mc alias set local http://minio:9000 minioadmin minioadmin && mc mb --ignore-existing local/swiss-mail
+
 volumes:
   postgres_data:
   redis_data:
@@ -161,6 +173,15 @@ volumes:
 
 Long-lived local services should use `restart: unless-stopped` so the dev `5000` handoff never comes
 back without its upstream `frontend`, `backend`, and infrastructure containers after a host restart.
+
+Provision the local bucket once after MinIO becomes healthy:
+
+```bash
+docker compose run --rm minio-provision
+```
+
+If the bucket is missing, `/api/readiness` reports degraded `objectStorage` until provisioning is
+completed.
 
 ### Production hosting
 
@@ -182,10 +203,12 @@ Before calling production infrastructure ready, verify:
 2. TLS files exist under `/etc/letsencrypt/live/<PUBLIC_TLS_CERT_NAME or NEXT_PUBLIC_SITE_URL host>/`
 3. `SWISSMAIL_ENV_FILE=/etc/swissmail/production.env docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml up -d --build`
    brings up healthy `frontend`, `backend`, `worker`, `zefix-proxy`, and `proxy` containers
-4. Public `443` serves the frontend and the configured same-host `/api/*` path or API host serves backend routes
-5. The local upstream handoff on `5000` responds when the edge proxy forwards `Host`,
+4. If MinIO is the configured object-storage provider, run `SWISSMAIL_ENV_FILE=/etc/swissmail/production.env docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml run --rm minio-provision`
+   once to create the bucket before expecting backend readiness to go green
+5. Public `443` serves the frontend and the configured same-host `/api/*` path or API host serves backend routes
+6. The local upstream handoff on `5000` responds when the edge proxy forwards `Host`,
    `X-Forwarded-Proto`, `X-Forwarded-Host`, and `X-Forwarded-Port`
-6. `frontend:3000` and `backend:4000` stay internal-only and are not exposed as public entry points
+7. `frontend:3000` and `backend:4000` stay internal-only and are not exposed as public entry points
 
 ---
 

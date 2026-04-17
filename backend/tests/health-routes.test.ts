@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   execute: vi.fn(),
   select: vi.fn(),
   getJobCounts: vi.fn(),
+  checkBucketAccess: vi.fn(),
   env: vi.fn(),
 }));
 
@@ -31,6 +32,10 @@ vi.mock("../src/queue/index.js", () => ({
 
 vi.mock("../src/shared/config/index.js", () => ({
   env: mocks.env,
+}));
+
+vi.mock("../src/modules/files/adapters/s3.adapter.js", () => ({
+  checkBucketAccess: mocks.checkBucketAccess,
 }));
 
 vi.mock("drizzle-orm", () => ({
@@ -61,6 +66,7 @@ describe("health routes", () => {
     mocks.execute.mockResolvedValue([{ "?column?": 1 }]);
     mocks.select.mockReturnValue(makeSelectChain(Promise.resolve([])));
     mocks.getJobCounts.mockResolvedValue({ waiting: 0 });
+    mocks.checkBucketAccess.mockResolvedValue(undefined);
     mocks.env.mockReturnValue({
       NODE_ENV: "development",
       EMAIL_FROM: "dev@example.com",
@@ -89,12 +95,13 @@ describe("health routes", () => {
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "ok",
-        checks: {
+        checks: expect.objectContaining({
           database: "ok",
           schema: "ok",
           redis: "ok",
           email: "ok",
-        },
+          objectStorage: "ok",
+        }),
       }),
     );
   });
@@ -125,12 +132,42 @@ describe("health routes", () => {
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "degraded",
-        checks: {
+        checks: expect.objectContaining({
           database: "ok",
           schema: "fail",
           redis: "ok",
           email: "ok",
-        },
+          objectStorage: "ok",
+        }),
+      }),
+    );
+  });
+
+  it("fails readiness when object storage access fails", async () => {
+    let readinessHandler:
+      | ((req: unknown, reply: ReturnType<typeof makeReply>) => Promise<void>)
+      | undefined;
+    const app = {
+      get: vi.fn((url: string, handler: typeof readinessHandler) => {
+        if (url === "/readiness") {
+          readinessHandler = handler;
+        }
+      }),
+    };
+    mocks.checkBucketAccess.mockRejectedValue(new Error("Bucket not found"));
+
+    await healthRoutes(app as never);
+
+    const reply = makeReply();
+    await readinessHandler?.({}, reply);
+
+    expect(reply.status).toHaveBeenCalledWith(503);
+    expect(reply.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "degraded",
+        checks: expect.objectContaining({
+          objectStorage: "fail",
+        }),
       }),
     );
   });
@@ -161,12 +198,13 @@ describe("health routes", () => {
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "ok",
-        checks: {
+        checks: expect.objectContaining({
           database: "ok",
           schema: "ok",
           redis: "ok",
           email: "fail",
-        },
+          objectStorage: "ok",
+        }),
       }),
     );
   });
@@ -197,12 +235,13 @@ describe("health routes", () => {
     expect(reply.send).toHaveBeenCalledWith(
       expect.objectContaining({
         status: "ok",
-        checks: {
+        checks: expect.objectContaining({
           database: "ok",
           schema: "ok",
           redis: "ok",
           email: "ok",
-        },
+          objectStorage: "ok",
+        }),
       }),
     );
   });
