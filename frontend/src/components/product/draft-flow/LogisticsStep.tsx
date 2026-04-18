@@ -19,8 +19,11 @@ import {
   getSignatureFileUrl,
 } from "@/lib/letter-content";
 import { useTheme } from "@/lib/theme";
+import { SignatureAssuranceLevel } from "@swiss-mail/shared";
+import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { SignatureSection } from "../SignatureSection";
+import { SignatureAssuranceTierPicker } from "../SignatureAssuranceTierPicker";
 import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
@@ -51,6 +54,9 @@ export function LogisticsStep({
   const [pendingDeliveryType, setPendingDeliveryType] = useState<
     "standard" | "registered" | null
   >(null);
+  const [assuranceLevel, setAssuranceLevel] = useState<SignatureAssuranceLevelValue>(
+    SignatureAssuranceLevel.visual,
+  );
 
   const deliveryType = draft.data?.deliveryType ?? "standard";
   const senderName = getSenderDisplayName(preview.previewData?.sender);
@@ -342,17 +348,23 @@ export function LogisticsStep({
           </div>
 
           <Card isCompactViewport={isCompactViewport} density="thin">
-            <SignatureSection
-              signerName={signatureDisplayName}
-              currentMode={currentSignatureMode as "typed" | "drawn" | null}
-              hasDrawnAsset={hasDrawnAsset}
-              signatureUrl={signatureUrl}
-              isUploading={files.isUploading}
-              onSelectMode={handleSelectSignatureMode}
-              onDrawnSignature={handleDrawnSignature}
-              onClearDrawn={handleClearDrawn}
+            <SignatureAssuranceTierPicker
+              assuranceLevel={assuranceLevel}
+              onAssuranceChange={setAssuranceLevel}
               isCompactViewport={isCompactViewport ?? false}
-            />
+            >
+              <SignatureSection
+                signerName={signatureDisplayName}
+                currentMode={currentSignatureMode as "typed" | "drawn" | null}
+                hasDrawnAsset={hasDrawnAsset}
+                signatureUrl={signatureUrl}
+                isUploading={files.isUploading}
+                onSelectMode={handleSelectSignatureMode}
+                onDrawnSignature={handleDrawnSignature}
+                onClearDrawn={handleClearDrawn}
+                isCompactViewport={isCompactViewport ?? false}
+              />
+            </SignatureAssuranceTierPicker>
           </Card>
         </section>
 

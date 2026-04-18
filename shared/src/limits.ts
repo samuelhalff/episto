@@ -25,6 +25,20 @@ export const DICTATION_LIMITS = {
   maxFallbackBytes: 4 * 1024 * 1024,
 } as const;
 
+// ---------------------------------------------------------------------------
+// Signing limits (see docs/04-product/qualified-signatures.md). These bound
+// identification session lifetime, signature session lifetime, and the
+// evidence-retention duration that is longer than regular draft retention.
+// ---------------------------------------------------------------------------
+
+export const SIGNING_LIMITS = {
+  identVerificationTtlMinutes: 30,
+  signingSessionTtlMinutes: 30,
+  identReuseDurationDays: 365 * 5,
+  signedEvidenceRetentionDays: 365 * 10,
+  maxSignersPerDraft: 1,
+} as const;
+
 export type UploadKind = keyof Pick<typeof FILE_LIMITS, "attachment" | "signature">;
 
 export function getAllowedMimeTypes(kind: UploadKind): readonly string[] {
