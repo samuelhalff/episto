@@ -23,16 +23,37 @@ Do **not** build a QES-only special path in storage, state, or payment.
 
 ## Missing Workstreams
 
-1. Shared contracts and database schema
-2. Draft/review/render/signing lifecycle refactor
-3. Pricing and payment changes
-4. Skribble integration
-5. Signer identity reuse
-6. Frontend selection/review/checkout/signing UX
-7. Recipient delivery, verification page, and QR linkage
-8. Retention, admin, observability, and tests
+1. Skribble API validation spike
+2. Shared contracts and database schema
+3. Draft/review/render/signing lifecycle refactor
+4. Pricing and payment changes
+5. Skribble integration
+6. Signer identity reuse
+7. Frontend selection/review/checkout/signing UX
+8. Recipient delivery, verification page, and QR linkage
+9. Retention, admin, observability, and tests
 
 ## Recommended Delivery Sequence
+
+### Phase 0: Validate the real Skribble API shape
+
+**Why first:** the current adapter seam is partly inferred. Locking schema and service code before validating the provider surface is risky.
+
+**Files likely touched**
+
+- `docs/04-product/qualified-signatures.md`
+- `docs/superpowers/specs/2026-04-19-qualified-signature-design.md`
+- `backend/src/modules/signing/adapters/signing.adapter.ts`
+
+- [ ] Validate the real resource/session model from Skribble onboarding material or sandbox access.
+- [ ] Confirm whether ident and signing are separate flows or one combined provider flow.
+- [ ] Confirm signed artifact retrieval shape, verification URL availability, and webhook semantics.
+- [ ] Adjust the adapter contract if the current seam is wrong.
+- [ ] Commit.
+
+**Critical review gate**
+
+- do not build schema or services on top of guessed provider behavior
 
 ### Phase 1: Persist the missing signing model
 
@@ -50,8 +71,10 @@ Do **not** build a QES-only special path in storage, state, or payment.
 - new `backend/src/db/schema/signing.ts`
 - new Drizzle migrations under `backend/drizzle/`
 - `backend/src/modules/drafting/draft.service.ts`
+- `shared/src/state-machines.ts`
 
 - [ ] Add persisted draft-level fields for assurance/signing state.
+- [ ] Add `DraftStatus.ready_to_sign` and update draft transitions deliberately.
 - [ ] Add `signer_profiles`.
 - [ ] Add `draft_signing_sessions`.
 - [ ] Add `public_verification_records`.
@@ -81,6 +104,7 @@ Do **not** build a QES-only special path in storage, state, or payment.
 - `docs/05-architecture/system-contracts.md` if kept aligned during implementation
 
 - [ ] Introduce explicit signing-ready/frozen-PDF behavior after review render.
+- [ ] Make `ready_to_sign` the authoritative non-visual post-render hold state.
 - [ ] Persist frozen PDF asset ID and SHA-256.
 - [ ] Stop mutating snapshot payload as a side-channel for core signing state.
 - [ ] Make dispatch package builder select the correct artifact for signed vs visual flows.
@@ -94,6 +118,8 @@ Do **not** build a QES-only special path in storage, state, or payment.
 ### Phase 3: Extend pricing and payment for signing-aware orders
 
 **Why third:** signing orders need correct amounts and capture timing before any external flow is enabled.
+
+**Parallelization note:** after Phase 1 lands, most of this phase can proceed in parallel with Phase 2 except for any code that depends directly on `ready_to_sign` lifecycle behavior.
 
 **Files likely touched**
 
@@ -113,7 +139,13 @@ Do **not** build a QES-only special path in storage, state, or payment.
   - `PRICE_QUALIFIED_IDENT_ONE_TIME_CENTS`
 - [ ] Extend quote and checkout pricing to include signing surcharges.
 - [ ] Add the one-time QES ident fee rule based on signer-profile reuse state.
+- [ ] Define and implement the authorization-TTL policy:
+  - authorize near signing time for reused-ident/AES flows
+  - create or refresh authorization after ident for first-time QES flows
 - [ ] Change non-visual capture logic to capture only after `signed`.
+- [ ] Define partial-refund behavior for `signed` + dispatch rejected:
+  - refund dispatch charges
+  - preserve signing/ident charges where service was already rendered
 - [ ] Add tests for visual vs AES vs QES pricing/capture paths.
 - [ ] Commit.
 
@@ -121,6 +153,8 @@ Do **not** build a QES-only special path in storage, state, or payment.
 
 - avoid computing ident fee from frontend hints
 - compute it server-side from signer-profile state only
+- do not assume one long-lived Stripe authorization survives first-time QES ident
+- do not leave post-sign dispatch rejection refund policy implicit
 
 ### Phase 4: Implement the Skribble adapter and signing service
 
@@ -171,7 +205,7 @@ Do **not** build a QES-only special path in storage, state, or payment.
 
 - do not treat guest session identity as QES identity
 
-### Phase 6: Wire the frontend app to the real signing model
+### Phase 6a: Wire the basic frontend signing UI to the real backend state
 
 **Why sixth:** the UI should reflect actual system state, not local placeholders.
 
@@ -189,7 +223,7 @@ Do **not** build a QES-only special path in storage, state, or payment.
 - [ ] Persist assurance level on draft update.
 - [ ] Surface assurance/signing state in review.
 - [ ] Add checkout acknowledgment for electronic-original semantics.
-- [ ] Add signing-required blocking and resume UX.
+- [ ] Add signing-required blocking for the basic provider flow.
 - [ ] Replace `Coming soon` for enabled tiers only when backend capability is live.
 - [ ] Align translations with actual runtime behavior.
 - [ ] Commit.
@@ -197,6 +231,23 @@ Do **not** build a QES-only special path in storage, state, or payment.
 **Critical review gate**
 
 - do not expose enabled QES UI before provider + lifecycle are live in the current environment
+
+### Phase 6b: Add reuse/resume UX on top of signer-profile support
+
+**Why separate:** reuse/resume UX depends on Phase 5 and should not stay mixed into the basic enablement work.
+
+**Files likely touched**
+
+- `frontend/src/app/[locale]/resume/[token]/page.tsx`
+- `frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx`
+- signing-related components under `frontend/src/components/product/`
+- locale files under `frontend/src/messages/`
+
+- [ ] Add “welcome back, already identified” path.
+- [ ] Add resume/re-auth path for expired browser sessions.
+- [ ] Add “identify as a different person” branch.
+- [ ] Add UX for expired ident and forced re-identification.
+- [ ] Commit.
 
 ### Phase 7: Deliver recipient-side verification and QES artifact handling
 
@@ -268,7 +319,7 @@ Keep it concise.
 
 ## Recommended First Shippable Slice
 
-If scope must be reduced, the smallest serious slice is:
+If the goal is still specifically **QES**, the smallest serious QES slice is:
 
 1. persisted assurance/signing model
 2. frozen PDF + hash
@@ -278,6 +329,16 @@ If scope must be reduced, the smallest serious slice is:
 6. signed artifact storage
 7. recipient electronic delivery
 8. public verification page
+
+If the goal is a truly smaller **pipeline-validation slice**, Copilot CLI’s critique is correct: ship **AES first** and prove the infrastructure without video-ident friction.
+
+Minimal AES-first slice:
+
+1. schema + `ready_to_sign`
+2. frozen PDF + hash
+3. Skribble sandbox adapter for signing only
+4. capture after `signed`
+5. signed PDF stored and downloadable by sender
 
 What can be deferred slightly:
 

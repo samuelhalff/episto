@@ -87,6 +87,7 @@ Current runtime path is still:
 Effect:
 
 - there is no place to freeze the PDF, wait for signing, accept the signed artifact, then dispatch
+- the docs already talk about `ready_to_sign`, but `DraftStatus` does not define it today
 
 #### 4. Snapshot immutability is already violated
 
@@ -214,6 +215,25 @@ Build a **single canonical signing pipeline** and let QES be a specialized polic
 5. Make payment settlement depend on signing outcome for non-visual tiers.
 6. Only then wire frontend flows, signer reuse, and recipient verification.
 
+### Mandatory correction to the current state model
+
+Add an explicit `DraftStatus.ready_to_sign` state.
+
+Recommended draft progression for non-visual tiers:
+
+`reviewed -> rendering -> ready_to_sign -> submitted -> dispatched`
+
+Meaning:
+
+- `ready` remains the visual-tier ready-for-checkout/dispatch state if the team wants backward compatibility
+- `ready_to_sign` means:
+  - reviewed content is frozen
+  - frozen PDF exists
+  - frozen PDF SHA-256 is persisted
+  - the draft cannot dispatch until signing resolves
+
+If the team chooses not to add `ready_to_sign`, it must define an equally explicit replacement in both code and docs before implementation starts. The current mismatch is not acceptable.
+
 ### Critical challenge to the current phase narrative
 
 The locked docs assume “AES first, then QES.” That is only partially right.
@@ -225,6 +245,26 @@ The correct interpretation is:
 - expose AES publicly first only if commercial or risk posture benefits from it
 
 If QES is the only near-term commercial goal, the infrastructure should still stay generic, but the product may choose not to market AES immediately.
+
+## Provider Validation Gate
+
+The current adapter seam assumes provider behavior that has not yet been verified in this repo:
+
+- separate ident and signing sessions
+- webhook-driven completion
+- retrievable signed PDF bytes
+- per-document verification URL
+- provider-issued member/profile identifier suitable for reuse
+
+Before implementation commits to the existing adapter contract, run a small Skribble validation spike against real onboarding material or sandbox access and confirm:
+
+1. actual session/resource model
+2. actual webhook/event model
+3. signed artifact retrieval shape
+4. verification URL / verification artifact availability
+5. whether ident reuse maps cleanly to a reusable provider-side member/profile concept
+
+If the real API differs, change the adapter contract before schema or service work locks in the wrong shape.
 
 ## Proposed Runtime Model
 
@@ -341,6 +381,43 @@ Target flow:
 11. recipient gets the signed PDF electronically
 12. public verification page becomes available for QR / link access
 
+## Payment Timing and Authorization TTL
+
+The current product docs assume a simple “authorize at checkout, capture after signed” rule. That is not sufficient for QES.
+
+Problem:
+
+- Stripe authorization windows are materially shorter than plausible QES identification/retry windows
+- first-time QES identification can span hours or days, not only minutes
+
+Recommended policy:
+
+- AES or reused-ident signer: create authorization close to signing time and capture after `signed`
+- first-time QES ident: do not rely on a long-lived card authorization surviving the full ident journey
+
+Operationally, one of these must be implemented explicitly:
+
+1. **Preferred:** pre-signing checkout captures consent and payment method details, but the actual payment authorization is created or refreshed only once the signer reaches `awaiting_signature`
+2. **Fallback:** create the authorization earlier, but implement explicit re-authorization when the auth window lapses before signing completes
+
+The plan must not assume a single long-lived authorization will survive first-time QES ident.
+
+## Signed-Then-Dispatch-Failed Policy
+
+This policy must be explicit before implementation:
+
+- if signing succeeds, the signed electronic original already exists and remains valid
+- if physical dispatch then fails, the system must still preserve and expose the signed artifact
+- the recipient-side electronic delivery policy must stay defined even when paper dispatch fails
+
+Recommended commercial policy:
+
+- keep signing fee
+- keep ident fee once the provider-rendered identification service was actually consumed
+- refund dispatch-only charges if physical dispatch fails before provider acceptance
+
+This implies the payment model must preserve line-item semantics strongly enough to support partial refunds and support/admin explanations.
+
 ## Risks
 
 ### Risk 1: Trying to reuse the current confirmation PDF path
@@ -367,6 +444,14 @@ That would maximize first-time friction and waste the strongest product advantag
 ### Risk 5: Claiming paper legal equivalence in UX by accident
 
 Every checkout, review, email, and verification surface must keep the electronic-original caveat explicit.
+
+### Risk 6: Treating payment timing as solved by the existing Stripe flow
+
+QES first-time identification makes payment authorization timing materially harder than the current dispatch-only model.
+
+### Risk 7: Leaving “signed but dispatch failed” undefined
+
+That scenario is inevitable in production and needs automated artifact, refund, and recipient-delivery rules.
 
 ## Non-goals
 
