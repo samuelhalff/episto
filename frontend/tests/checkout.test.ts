@@ -170,7 +170,9 @@ describe("checkout footer actions", () => {
   });
 
   it("waits for rendering to finish before requesting a live quote", () => {
-    expect(checkoutPageSource).toContain('!["reviewed", "rendering"].includes');
+    expect(checkoutPageSource).toContain(
+      '!["reviewed", "rendering", "ready_to_sign"].includes',
+    );
     expect(checkoutPageSource).toContain("quoteEnabled={canRequestQuote}");
     expect(checkoutPageSource).toContain('t("pricingPending")');
   });

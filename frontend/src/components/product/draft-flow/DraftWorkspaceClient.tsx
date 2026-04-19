@@ -52,7 +52,12 @@ type DraftWorkspaceNextableStepProps = DraftWorkspaceStepShellProps & {
   onNext: () => void;
 };
 
-const PREPARED_REVIEW_STATUSES = new Set(["reviewed", "rendering", "ready"]);
+const PREPARED_REVIEW_STATUSES = new Set([
+  "reviewed",
+  "rendering",
+  "ready",
+  "ready_to_sign",
+]);
 const POST_SUBMISSION_STATUSES = new Set(["submitted", "dispatched", "closed"]);
 
 export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClientProps) {
@@ -115,7 +120,9 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const currentStep = Math.min(requestedStepIndex, unlockedStepIndex);
   const currentStepSlug = getDraftWorkspaceStepSlugByIndex(currentStep);
   const previousFlowStep = getPreviousCustomerFlowStep(currentStepSlug);
-  const previousStepSlug = isDraftWorkspaceCustomerFlowStep(previousFlowStep) ? previousFlowStep : undefined;
+  const previousStepSlug = isDraftWorkspaceCustomerFlowStep(previousFlowStep)
+    ? previousFlowStep
+    : undefined;
   const previousStepLabel =
     previousStepSlug === "intake"
       ? t("backToIntake")
@@ -175,14 +182,7 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
       setShowSteps(false);
       setIsNavigating(false);
     });
-  }, [
-    currentStepSlug,
-    draft.data,
-    draftId,
-    resolvedStepSlug,
-    router,
-    unlockedStepIndex,
-  ]);
+  }, [currentStepSlug, draft.data, draftId, resolvedStepSlug, router, unlockedStepIndex]);
 
   const navigateToStep = useCallback(
     (targetStepSlug: DraftWorkspaceStepSlug) => {
@@ -365,12 +365,16 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
         <div
           id="draft-workspace-root"
           className={`flex overflow-hidden bg-[var(--app-surface-muted)] transition-colors ${
-            isCompactViewport ? "fixed inset-0 flex-col overscroll-none" : "relative flex-col"
+            isCompactViewport
+              ? "fixed inset-0 flex-col overscroll-none"
+              : "relative flex-col"
           }`}
           style={{ height: workspaceHeight }}
         >
           <div className="flex min-h-0 min-w-0 flex-1 overflow-hidden">
-            <div className={isCompactViewport ? "min-w-0 flex-1" : "min-w-[480px] flex-1"}>
+            <div
+              className={isCompactViewport ? "min-w-0 flex-1" : "min-w-[480px] flex-1"}
+            >
               {stepComponents[currentStep]}
             </div>
 
@@ -385,14 +389,14 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
 
           {showSteps && isCompactViewport ? (
             <StepOverlay
-            currentStep={currentStep}
-            furthestUnlockedStepIndex={unlockedStepIndex}
-            steps={translatedSteps}
-            onClose={() => setShowSteps(false)}
-            onSelect={handleStepSelect}
-          />
-        ) : null}
-      </div>
+              currentStep={currentStep}
+              furthestUnlockedStepIndex={unlockedStepIndex}
+              steps={translatedSteps}
+              onClose={() => setShowSteps(false)}
+              onSelect={handleStepSelect}
+            />
+          ) : null}
+        </div>
       </PreviewPanelProvider>
     </StepNavProvider>
   );

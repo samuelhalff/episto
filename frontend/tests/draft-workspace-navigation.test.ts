@@ -219,6 +219,7 @@ describe("draft workspace navigation", () => {
 
   it("redirects prepared drafts away from the old editable workspace routes", () => {
     expect(draftWorkspaceClientSource).toContain("PREPARED_REVIEW_STATUSES");
+    expect(draftWorkspaceClientSource).toContain("ready_to_sign");
     expect(draftWorkspaceClientSource).toContain("POST_SUBMISSION_STATUSES");
     expect(draftWorkspaceClientSource).toContain(
       "router.replace(`/draft/${draftId}/review`)",

@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Expand, Loader2, RefreshCw, X } from "lucide-react";
+import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
 import { useDraft } from "@/hooks/use-api";
 import { useLetterPreview } from "@/hooks/use-letter-preview";
 import { LetterPreview } from "../LetterPreview";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
 import { getSignatureFileUrl } from "@/lib/letter-content";
+import { StatusBadge } from "../../ui/status-badge";
 
 interface WorkspacePreviewPaneProps {
   draftId: string;
@@ -16,12 +18,21 @@ interface WorkspacePreviewPaneProps {
   onClose: () => void;
 }
 
-export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePreviewPaneProps) {
+export function WorkspacePreviewPane({
+  draftId,
+  isOpen,
+  onClose,
+}: WorkspacePreviewPaneProps) {
   const t = useTranslations("draft");
+  const tSignature = useTranslations("signatureTiers");
   const tc = useTranslations("common");
   const draft = useDraft(draftId);
   const { previewData, isStale, isLoading, error, refreshPreview, isRefreshing } =
     useLetterPreview(draftId);
+  const signatureAssuranceLevel =
+    previewData?.signatureAssuranceLevel ??
+    draft.data?.signatureAssuranceLevel ??
+    "visual";
   const shouldShowBlockingError = Boolean(error) && !draft.data;
   const shouldShowInlinePreviewWarning = Boolean(error) && Boolean(draft.data);
   const shouldShowPreviewContent = Boolean(draft.data) || Boolean(previewData);
@@ -48,6 +59,11 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
           <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("preview")}
           </p>
+          <StatusBadge tone="info">
+            {tSignature(
+              `${signatureAssuranceLevel as SignatureAssuranceLevelValue}.label`,
+            )}
+          </StatusBadge>
           {isStale && !isRefreshing ? (
             <button
               type="button"
@@ -84,14 +100,19 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
         </div>
       </div>
 
-      <ScrollShadowViewport surface="muted" className="min-h-0 flex-1 overflow-y-auto px-2 pb-6 [scrollbar-gutter:auto]">
+      <ScrollShadowViewport
+        surface="muted"
+        className="min-h-0 flex-1 overflow-y-auto px-2 pb-6 [scrollbar-gutter:auto]"
+      >
         {isLoading && !draft.data ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
           </div>
         ) : shouldShowBlockingError || !shouldShowPreviewContent ? (
           <div className="flex h-full flex-col items-center justify-center gap-3 px-4 text-center">
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("previewUnavailableRetry")}</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              {t("previewUnavailableRetry")}
+            </p>
             <button
               type="button"
               onClick={refreshPreview}
@@ -134,10 +155,7 @@ export function WorkspacePreviewPane({ draftId, isOpen, onClose }: WorkspacePrev
       </ScrollShadowViewport>
 
       {showZoomModal ? (
-        <LetterPreviewModal
-          draftId={draftId}
-          onClose={() => setShowZoomModal(false)}
-        />
+        <LetterPreviewModal draftId={draftId} onClose={() => setShowZoomModal(false)} />
       ) : null}
     </div>
   );

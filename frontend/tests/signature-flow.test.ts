@@ -90,6 +90,13 @@ describe("signature canvas redesign", () => {
     expect(logisticsStepSource).not.toContain("sigInputRef");
   });
 
+  it("LogisticsStep reads and stores signature assurance per draft", () => {
+    expect(logisticsStepSource).toContain("signatureAssuranceLevel");
+    expect(logisticsStepSource).toContain("draft.data?.signatureAssuranceLevel");
+    expect(logisticsStepSource).toContain("SignatureAssuranceLevelValue");
+    expect(logisticsStepSource).toContain("handleSelectAssuranceLevel");
+  });
+
   it("LogisticsStep blocks review until logistics validation passes", () => {
     expect(logisticsStepSource).toContain("getLogisticsStepValidation");
     expect(logisticsStepSource).toContain(
@@ -166,6 +173,13 @@ describe("signature canvas redesign", () => {
   it("WorkspacePreviewPane passes signatureUrl from preview data", () => {
     expect(previewPaneSource).toContain("signatureUrl={getSignatureFileUrl(");
     expect(previewPaneSource).toContain("signatureMode={previewData?.signatureMode}");
+  });
+
+  it("WorkspacePreviewPane can show the persisted signature assurance", () => {
+    expect(previewPaneSource).toContain("previewData?.signatureAssuranceLevel");
+    expect(previewPaneSource).toContain("draft.data?.signatureAssuranceLevel");
+    expect(previewPaneSource).toContain("signatureTiers");
+    expect(previewPaneSource).toContain("StatusBadge");
   });
 
   it("signature previews stay on a same-origin preview route", () => {

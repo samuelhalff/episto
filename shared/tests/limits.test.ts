@@ -49,6 +49,7 @@ describe("shared text limits", () => {
     status: "collecting",
     locale: "de-CH",
     deliveryType: "standard",
+    signatureAssuranceLevel: "visual",
     subject: "Subject",
     body: "Body",
     tone: null,

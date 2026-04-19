@@ -12,9 +12,8 @@ const useDraftSource = readFileSync(
 
 describe("draft status refresh", () => {
   it("polls while a draft is still being prepared for review or checkout", () => {
-    expect(useDraftSource).toContain(
-      'const TRANSITIONAL_DRAFT_STATUSES = new Set(["reviewed", "rendering"])',
-    );
+    expect(useDraftSource).toContain("const TRANSITIONAL_DRAFT_STATUSES = new Set([");
+    expect(useDraftSource).toContain('"ready_to_sign"');
     expect(useDraftSource).toContain("refetchInterval: (query) =>");
     expect(useDraftSource).toContain(
       "TRANSITIONAL_DRAFT_STATUSES.has(draft.status) ? 1_000 : false",

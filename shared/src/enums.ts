@@ -15,6 +15,7 @@ export const DraftStatus = {
   reviewed: "reviewed",
   rendering: "rendering",
   ready: "ready",
+  ready_to_sign: "ready_to_sign",
   submitted: "submitted",
   dispatched: "dispatched",
   closed: "closed",

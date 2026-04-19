@@ -1,5 +1,14 @@
 import { sql } from "drizzle-orm";
-import { check, index, integer, jsonb, pgEnum, pgTable, text, uuid } from "drizzle-orm/pg-core";
+import {
+  check,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { localeEnum, sessions } from "./auth.js";
 import { createdAt, pk, ts, updatedAt } from "./helpers.js";
 
@@ -9,12 +18,18 @@ export const draftStatusEnum = pgEnum("draft_status", [
   "reviewed",
   "rendering",
   "ready",
+  "ready_to_sign",
   "submitted",
   "dispatched",
   "closed",
 ]);
 
 export const deliveryTypeEnum = pgEnum("delivery_type", ["standard", "registered"]);
+export const signatureAssuranceLevelEnum = pgEnum("signature_assurance_level", [
+  "visual",
+  "advanced",
+  "qualified",
+]);
 
 export const messageRoleEnum = pgEnum("message_role", ["user", "assistant", "system"]);
 
@@ -85,6 +100,9 @@ export const draftLetters = pgTable(
     status: draftStatusEnum("status").default("collecting").notNull(),
     locale: localeEnum("locale").notNull(),
     deliveryType: deliveryTypeEnum("delivery_type").default("standard").notNull(),
+    signatureAssuranceLevel: signatureAssuranceLevelEnum("signature_assurance_level")
+      .default("visual")
+      .notNull(),
     subject: text("subject"),
     body: text("body"),
     tone: text("tone"),
@@ -93,7 +111,9 @@ export const draftLetters = pgTable(
     signatureMode: text("signature_mode"),
     schemaVersion: integer("schema_version").default(1).notNull(),
     senderProfileId: uuid("sender_profile_id").references(() => senderProfiles.id),
-    recipientProfileId: uuid("recipient_profile_id").references(() => recipientProfiles.id),
+    recipientProfileId: uuid("recipient_profile_id").references(
+      () => recipientProfiles.id,
+    ),
     // FK to fileAssets defined via Drizzle relations to avoid circular reference
     signatureAssetId: uuid("signature_asset_id"),
     estimatedPages: integer("estimated_pages"),
@@ -106,7 +126,10 @@ export const draftLetters = pgTable(
     sessionIdIdx: index("draft_letters_session_id_idx").on(table.sessionId),
     statusIdx: index("draft_letters_status_idx").on(table.status),
     createdAtIdx: index("draft_letters_created_at_idx").on(table.createdAt),
-    subjectLenCheck: check("draft_letters_subject_len", sql`length(${table.subject}) <= 200`),
+    subjectLenCheck: check(
+      "draft_letters_subject_len",
+      sql`length(${table.subject}) <= 200`,
+    ),
     bodyLenCheck: check("draft_letters_body_len", sql`length(${table.body}) <= 10000`),
   }),
 );

@@ -71,6 +71,7 @@ describe("DraftLetterSchema", () => {
     status: "collecting",
     locale: "de-CH",
     deliveryType: "standard",
+    signatureAssuranceLevel: "visual",
     subject: "Test",
     body: "Hello",
     tone: null,
@@ -259,6 +260,7 @@ describe("SnapshotDataSchema", () => {
     schemaVersion: 1,
     locale: "en-CH",
     deliveryType: "registered",
+    signatureAssuranceLevel: "visual",
     subject: "Subject",
     body: "Body",
     enclosureNote: null,
@@ -295,6 +297,7 @@ describe("SnapshotDataSchema", () => {
   it("parses a valid snapshot", () => {
     const result = SnapshotDataSchema.parse(validSnapshot());
     expect(result.estimatedPages).toBe(2);
+    expect(result.signatureAssuranceLevel).toBe("visual");
   });
 
   it("defaults missing estimatedPages to null for legacy snapshots", () => {
@@ -442,6 +445,7 @@ describe("SnapshotDataSchema", () => {
     schemaVersion: 1,
     locale: "de-CH",
     deliveryType: "standard",
+    signatureAssuranceLevel: "visual",
     subject: "Kündigung",
     body: "Hiermit kündige ich…",
     enclosureNote: null,
@@ -479,6 +483,7 @@ describe("SnapshotDataSchema", () => {
     const result = SnapshotDataSchema.parse(validSnapshot());
     expect(result.schemaVersion).toBe(1);
     expect(result.sender.firstName).toBe("Max");
+    expect(result.signatureAssuranceLevel).toBe("visual");
   });
 
   it("rejects missing sender", () => {
@@ -532,6 +537,7 @@ describe("DraftSnapshotSchema", () => {
       schemaVersion: 1,
       locale: "de-CH",
       deliveryType: "standard",
+      signatureAssuranceLevel: "visual",
       subject: "Test",
       body: "Body text",
       enclosureNote: null,

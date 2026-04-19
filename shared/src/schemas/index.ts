@@ -6,6 +6,7 @@ import {
   DraftStatus,
   type DraftStatusValue,
   DeliveryType,
+  SignatureAssuranceLevel,
   PaymentState,
   DispatchState,
   FileAssetKind,
@@ -32,6 +33,12 @@ export const DraftStatusSchema = z.enum(draftStatusValues);
 
 const deliveryTypeValues = Object.values(DeliveryType) as [string, ...string[]];
 export const DeliveryTypeSchema = z.enum(deliveryTypeValues);
+
+const signatureAssuranceLevelValues = Object.values(SignatureAssuranceLevel) as [
+  string,
+  ...string[],
+];
+export const SignatureAssuranceLevelSchema = z.enum(signatureAssuranceLevelValues);
 
 const paymentStateValues = Object.values(PaymentState) as [string, ...string[]];
 export const PaymentStateSchema = z.enum(paymentStateValues);
@@ -140,6 +147,7 @@ export const DraftLetterSchema = z.object({
   status: DraftStatusSchema,
   locale: LocaleSchema,
   deliveryType: DeliveryTypeSchema,
+  signatureAssuranceLevel: SignatureAssuranceLevelSchema,
   subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).nullable(),
   body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable(),
   tone: z.string().nullable(),
@@ -190,6 +198,7 @@ export const SnapshotDataSchema = z.object({
   schemaVersion: z.number().int(),
   locale: LocaleSchema,
   deliveryType: DeliveryTypeSchema,
+  signatureAssuranceLevel: SignatureAssuranceLevelSchema,
   subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).nullable(),
   body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable(),
   enclosureNote: z.string().nullable(),

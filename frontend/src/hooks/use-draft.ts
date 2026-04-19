@@ -13,7 +13,7 @@ import type { UpdateDraftInputType } from "@swiss-mail/shared";
 import { useDraftStream } from "./use-draft-stream";
 import type { FieldUpdateEvent } from "./use-draft-stream";
 
-const TRANSITIONAL_DRAFT_STATUSES = new Set(["reviewed", "rendering"]);
+const TRANSITIONAL_DRAFT_STATUSES = new Set(["reviewed", "rendering", "ready_to_sign"]);
 
 function normalizeDraft(draft: DraftLetter): DraftLetter {
   return {

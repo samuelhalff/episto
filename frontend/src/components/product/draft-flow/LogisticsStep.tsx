@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Check, CheckCircle2, Loader2, Mail, Paperclip, Send } from "lucide-react";
+import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
 import {
   useDraft,
   useUpdateDraft,
@@ -19,8 +20,6 @@ import {
   getSignatureFileUrl,
 } from "@/lib/letter-content";
 import { useTheme } from "@/lib/theme";
-import { SignatureAssuranceLevel } from "@swiss-mail/shared";
-import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { SignatureSection } from "../SignatureSection";
 import { SignatureAssuranceTierPicker } from "../SignatureAssuranceTierPicker";
@@ -54,11 +53,9 @@ export function LogisticsStep({
   const [pendingDeliveryType, setPendingDeliveryType] = useState<
     "standard" | "registered" | null
   >(null);
-  const [assuranceLevel, setAssuranceLevel] = useState<SignatureAssuranceLevelValue>(
-    SignatureAssuranceLevel.visual,
-  );
-
   const deliveryType = draft.data?.deliveryType ?? "standard";
+  const assuranceLevel = (draft.data?.signatureAssuranceLevel ??
+    "visual") as SignatureAssuranceLevelValue;
   const senderName = getSenderDisplayName(preview.previewData?.sender);
   const signatureDisplayName = senderName || t("signatureFallbackName");
   const recipientName = getRecipientDisplayName(preview.previewData?.recipient);
@@ -111,6 +108,13 @@ export function LogisticsStep({
       await files.uploadFile(file, "signature");
     },
     [files],
+  );
+
+  const handleSelectAssuranceLevel = useCallback(
+    (level: SignatureAssuranceLevelValue) => {
+      void updateDraft.mutateAsync({ signatureAssuranceLevel: level });
+    },
+    [updateDraft],
   );
 
   const handleClearDrawn = useCallback(() => {
@@ -350,7 +354,7 @@ export function LogisticsStep({
           <Card isCompactViewport={isCompactViewport} density="thin">
             <SignatureAssuranceTierPicker
               assuranceLevel={assuranceLevel}
-              onAssuranceChange={setAssuranceLevel}
+              onAssuranceChange={handleSelectAssuranceLevel}
               isCompactViewport={isCompactViewport ?? false}
             >
               <SignatureSection

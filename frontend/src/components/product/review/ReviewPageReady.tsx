@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { DraftLetter, DispatchQuote } from "@swiss-mail/shared";
+import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 import { useUpdateDraft, useReviewDraft, useTransitionDraft } from "@/hooks/use-api";
 import type { UseLetterPreviewReturn } from "@/hooks/use-letter-preview";
@@ -50,6 +51,7 @@ export function ReviewPageReady({
 }: ReviewPageReadyProps) {
   const t = useTranslations("review");
   const tc = useTranslations("common");
+  const tSignature = useTranslations("signatureTiers");
   const updateDraft = useUpdateDraft(draftId);
   const reviewDraft = useReviewDraft(draftId);
   const transitionDraft = useTransitionDraft(draftId);
@@ -57,6 +59,10 @@ export function ReviewPageReady({
   const [backError, setBackError] = useState<string | null>(null);
   const draftData = draft.data;
   const previewData = preview.previewData;
+  const displaySignatureAssuranceLevel =
+    previewData?.signatureAssuranceLevel ??
+    draftData?.signatureAssuranceLevel ??
+    "visual";
   const previewLocale = previewData?.locale ?? draftData?.locale ?? "de-CH";
   const normalizedDraftSubject = normalizeLetterSubject(
     draftData?.subject,
@@ -86,7 +92,7 @@ export function ReviewPageReady({
   const hasSignature = hasConcreteSignature(signatureMode, signatureFileId);
   const allComplete = hasSender && hasRecipient && hasBody && hasSubject;
   const isRenderPending = draftData
-    ? ["reviewed", "rendering"].includes(draftData.status)
+    ? ["reviewed", "rendering", "ready_to_sign"].includes(draftData.status)
     : false;
   const canRequestQuote = allComplete && !isRenderPending;
   const quoteErrorMessage = getApiErrorUserMessage(quote.error);
@@ -299,7 +305,14 @@ export function ReviewPageReady({
                     {t("letterPreviewBody")}
                   </p>
                 </div>
-                <StatusBadge tone="neutral">A4</StatusBadge>
+                <div className="flex flex-wrap items-center gap-2">
+                  <StatusBadge tone="info">
+                    {tSignature(
+                      `${displaySignatureAssuranceLevel as SignatureAssuranceLevelValue}.label`,
+                    )}
+                  </StatusBadge>
+                  <StatusBadge tone="neutral">A4</StatusBadge>
+                </div>
               </div>
 
               <LetterPreview

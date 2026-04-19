@@ -127,7 +127,9 @@ export default function CheckoutPage({
   );
 
   const draft = useDraft(draftId);
-  const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
+  const canRequestQuote = !["reviewed", "rendering", "ready_to_sign"].includes(
+    draft.data?.status ?? "",
+  );
   const checkout = useCheckout(draftId, { quoteEnabled: canRequestQuote });
 
   const checkoutSchema = createCheckoutSchema(t("consentRequired"));

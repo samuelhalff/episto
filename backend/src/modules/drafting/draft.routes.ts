@@ -27,7 +27,6 @@ import { getQueue, QUEUE_NAMES, type RenderPdfJob } from "../../queue/index.js";
 import { handleComposeFromContext } from "../ai/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import { getReviewMissingFields } from "./review-validation.js";
-
 import { z } from "zod";
 
 const logger = createLogger("draft-routes");
@@ -36,6 +35,7 @@ const SNAPSHOT_PREVIEW_DRAFT_STATES = new Set([
   "reviewed",
   "rendering",
   "ready",
+  "ready_to_sign",
   "submitted",
   "dispatched",
   "closed",
@@ -46,10 +46,8 @@ const TransitionBody = z.object({
 });
 
 export async function draftRoutes(app: FastifyInstance): Promise<void> {
-  // All draft routes require an active session
   app.addHook("preHandler", requireSession);
 
-  // POST /drafts — create a new draft
   app.post(
     "/drafts",
     {
@@ -73,7 +71,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // GET /drafts — list drafts for current session
   app.get("/drafts", async (request: FastifyRequest, reply: FastifyReply) => {
     const session = getRequiredSession(request);
     const db = getDb();
@@ -82,7 +79,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     reply.send({ drafts });
   });
 
-  // GET /drafts/:draftId — get a single draft
   app.get(
     "/drafts/:draftId",
     async (
@@ -120,7 +116,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
-  // GET /drafts/:draftId/pdf — download the latest rendered PDF for the session-owned draft
   app.get(
     "/drafts/:draftId/pdf",
     async (
@@ -372,13 +367,17 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const signatureFile = files.find((f) => f.kind === "signature");
 
       // Fetch resolved display quote
-      const resolvedDisplayQuoteForReview = await resolveDisplayDispatchQuoteForDraft(db, draftId);
+      const resolvedDisplayQuoteForReview = await resolveDisplayDispatchQuoteForDraft(
+        db,
+        draftId,
+      );
 
       // Build snapshot data
       const snapshotData = {
         schemaVersion: draft.schemaVersion,
         locale: draft.locale,
         deliveryType: draft.deliveryType,
+        signatureAssuranceLevel: draft.signatureAssuranceLevel,
         subject: draft.subject,
         body: draft.body,
         enclosureNote: draft.enclosureNote,
@@ -466,6 +465,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           schemaVersion: snapshotData.schemaVersion,
           locale: snapshotData.locale,
           deliveryType: snapshotData.deliveryType,
+          signatureAssuranceLevel: snapshotData.signatureAssuranceLevel,
           subject: snapshotData.subject,
           body: snapshotData.body,
           enclosureNote: snapshotData.enclosureNote,
@@ -582,6 +582,8 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           snapshotId: latestSnapshot?.id ?? null,
           locale: snapshotData?.locale ?? draft.locale,
           deliveryType,
+          signatureAssuranceLevel:
+            snapshotData?.signatureAssuranceLevel ?? draft.signatureAssuranceLevel,
           subject: snapshotData?.subject ?? draft.subject,
           body: snapshotData?.body ?? draft.body,
           enclosureNote: snapshotData?.enclosureNote ?? draft.enclosureNote,

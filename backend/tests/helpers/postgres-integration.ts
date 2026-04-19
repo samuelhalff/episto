@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readdir, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,6 +10,11 @@ import * as appSchema from "../../src/db/schema/index.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const migrationsDir = path.resolve(__dirname, "../../drizzle");
+const journalPath = path.join(migrationsDir, "meta", "_journal.json");
+
+interface JournalEntry {
+  tag: string;
+}
 
 export const integrationDatabaseUrl =
   process.env.SWISS_MAIL_TEST_DATABASE_URL ?? process.env.DATABASE_URL ?? null;
@@ -25,9 +30,10 @@ function rewriteMigrationSql(sql: string, schemaName: string): string {
 async function applyMigrations(client: pg.Client, schemaName: string): Promise<void> {
   await client.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto`);
 
-  const migrationFiles = (await readdir(migrationsDir))
-    .filter((entry) => entry.endsWith(".sql"))
-    .sort();
+  const journal = JSON.parse(await readFile(journalPath, "utf8")) as {
+    entries: JournalEntry[];
+  };
+  const migrationFiles = journal.entries.map((entry) => `${entry.tag}.sql`);
 
   for (const migrationFile of migrationFiles) {
     const rawSql = await readFile(path.join(migrationsDir, migrationFile), "utf8");

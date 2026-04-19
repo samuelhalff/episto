@@ -14,7 +14,11 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 
-function createDbMock(currentDraft?: { status: string; sessionId: string }) {
+function createDbMock(currentDraft?: {
+  status: string;
+  sessionId: string;
+  signatureAssuranceLevel?: string;
+}) {
   const select = vi.fn(() => ({
     from: vi.fn(() => ({
       where: vi.fn(() => ({
@@ -72,6 +76,7 @@ describe("render-pdf worker", () => {
     mocks.currentDb = createDbMock({
       status: "rendering",
       sessionId: "session-1",
+      signatureAssuranceLevel: "visual",
     });
     mocks.createWorker.mockReset();
     mocks.renderSnapshotToPdf.mockReset();
@@ -155,5 +160,36 @@ describe("render-pdf worker", () => {
       snapshotId: "snapshot-2",
       paymentId: "payment-1",
     });
+  });
+
+  it("routes non-visual drafts into ready_to_sign and skips dispatch follow-up", async () => {
+    mocks.currentDb = createDbMock({
+      status: "rendering",
+      sessionId: "session-1",
+      signatureAssuranceLevel: "qualified",
+    });
+    mocks.renderSnapshotToPdf.mockResolvedValue({
+      pdfAssetId: "asset-qes",
+      storageKey: "renders/draft-3/1.pdf",
+      sizeBytes: 4096,
+      pageCount: 2,
+    });
+
+    const { processRenderPdfJob } = await import("../src/workers/render-pdf.worker.js");
+    const job = {
+      data: { snapshotId: "snapshot-3", draftId: "draft-3" },
+      log: vi.fn(),
+    };
+
+    await processRenderPdfJob(job as never);
+
+    expect(mocks.transitionDraftStatus).toHaveBeenCalledWith(
+      mocks.currentDb,
+      "draft-3",
+      "session-1",
+      "ready_to_sign",
+    );
+    expect(mocks.getPaymentForDraft).not.toHaveBeenCalled();
+    expect(mocks.enqueueDispatchSubmission).not.toHaveBeenCalled();
   });
 });

@@ -79,8 +79,9 @@ describe("draft review route", () => {
         }
         return request.session;
       }),
-      requireSession: vi.fn().mockImplementation(
-        async (request: { session?: unknown }) => {
+      requireSession: vi
+        .fn()
+        .mockImplementation(async (request: { session?: unknown }) => {
           request.session = {
             id: "review-session",
             type: "guest",
@@ -91,8 +92,7 @@ describe("draft review route", () => {
             createdAt: new Date("2026-01-01"),
             updatedAt: new Date("2026-01-01"),
           };
-        },
-      ),
+        }),
       COOKIE_NAME: "session",
     }));
 
@@ -104,6 +104,7 @@ describe("draft review route", () => {
         status: "fields_complete",
         locale: "en-CH",
         deliveryType: "standard",
+        signatureAssuranceLevel: "visual",
         subject: "Long letter",
         body: "This body eventually renders to more than five pages.",
         enclosureNote: null,
@@ -121,10 +122,12 @@ describe("draft review route", () => {
       updateDraft: vi.fn(),
       transitionDraftStatus: vi
         .fn()
-        .mockImplementation(async (_db: unknown, _draftId: string, _sessionId: string, status: string) => ({
-          id: "draft-review",
-          status,
-        })),
+        .mockImplementation(
+          async (_db: unknown, _draftId: string, _sessionId: string, status: string) => ({
+            id: "draft-review",
+            status,
+          }),
+        ),
     }));
 
     vi.doMock("../src/modules/drafting/profile.service.js", () => ({
@@ -217,13 +220,15 @@ describe("draft review route", () => {
       payload: {},
     });
 
-    const { transitionDraftStatus } = await import("../src/modules/drafting/draft.service.js");
+    const { transitionDraftStatus } =
+      await import("../src/modules/drafting/draft.service.js");
 
     expect(response.statusCode).toBe(201);
     expect(response.json()).toMatchObject({
       snapshot: {
         id: "snapshot-review",
         draftId: "draft-review",
+        signatureAssuranceLevel: "visual",
         priceCents: 505,
       },
     });

@@ -60,7 +60,9 @@ describe("review page regressions", () => {
   });
 
   it("does not request a live quote while the reviewed snapshot is still rendering", () => {
-    expect(reviewReadySource).toContain('["reviewed", "rendering"].includes');
+    expect(reviewReadySource).toContain(
+      '["reviewed", "rendering", "ready_to_sign"].includes',
+    );
     expect(reviewReadySource).toContain('allComplete ? t("pricingPending")');
   });
 
@@ -121,7 +123,9 @@ describe("review page regressions", () => {
   });
 
   it("keeps the review footer visible on desktop with extra bottom spacing for the content", () => {
-    expect(reviewReadySource).toContain("lg:pb-[calc(12rem+env(safe-area-inset-bottom))]");
+    expect(reviewReadySource).toContain(
+      "lg:pb-[calc(12rem+env(safe-area-inset-bottom))]",
+    );
     expect(flowActionDockSource).toContain("desktopSticky");
     expect(reviewReadySource).toContain("<FlowActionDock");
     expect(reviewReadySource).toContain("desktopSticky");
@@ -134,7 +138,14 @@ describe("review page regressions", () => {
 
   it("uses stable summary row keys instead of raw address text", () => {
     expect(reviewSummaryCardSource).toContain("values.map((line, index) =>");
-    expect(reviewSummaryCardSource).toContain('key={`${label}-${index}`}');
+    expect(reviewSummaryCardSource).toContain("key={`${label}-${index}`}");
     expect(reviewSummaryCardSource).not.toContain("key={line}");
+  });
+
+  it("shows the persisted signature assurance level in the review surface", () => {
+    expect(reviewReadySource).toContain("previewData?.signatureAssuranceLevel");
+    expect(reviewReadySource).toContain("draftData?.signatureAssuranceLevel");
+    expect(reviewReadySource).toContain("signatureTiers");
+    expect(reviewReadySource).toContain("StatusBadge");
   });
 });

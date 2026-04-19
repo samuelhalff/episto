@@ -22,9 +22,7 @@ const logger = createLogger("render-pdf-worker");
  *   4. Create file_asset record (handled by render.service)
  *   5. Persist the final page count and transition draft status
  */
-export async function processRenderPdfJob(
-  job: Job<RenderPdfJob>,
-): Promise<void> {
+export async function processRenderPdfJob(job: Job<RenderPdfJob>): Promise<void> {
   const { snapshotId, draftId } = job.data;
 
   logger.info({ snapshotId, draftId }, "Starting PDF render");
@@ -47,6 +45,7 @@ export async function processRenderPdfJob(
     .select({
       status: schema.draftLetters.status,
       sessionId: schema.draftLetters.sessionId,
+      signatureAssuranceLevel: schema.draftLetters.signatureAssuranceLevel,
     })
     .from(schema.draftLetters)
     .where(eq(schema.draftLetters.id, draftId))
@@ -74,7 +73,15 @@ export async function processRenderPdfJob(
     return;
   }
 
-  await transitionDraftStatus(db, draftId, current.sessionId, "ready");
+  const nextStatus =
+    current.signatureAssuranceLevel === "visual" ? "ready" : "ready_to_sign";
+
+  await transitionDraftStatus(db, draftId, current.sessionId, nextStatus);
+
+  if (nextStatus !== "ready") {
+    job.log(`PDF rendered and frozen for signing: asset=${result.pdfAssetId}`);
+    return;
+  }
 
   const payment = await getPaymentForDraft(db, draftId);
   if (payment && ["authorized", "captured"].includes(payment.state)) {
@@ -91,9 +98,7 @@ export async function processRenderPdfJob(
 }
 
 export function startRenderPdfWorker(): Worker<RenderPdfJob> {
-  return createWorker<RenderPdfJob>(
-    QUEUE_NAMES.RENDER_PDF,
-    processRenderPdfJob,
-    { concurrency: 2 },
-  );
+  return createWorker<RenderPdfJob>(QUEUE_NAMES.RENDER_PDF, processRenderPdfJob, {
+    concurrency: 2,
+  });
 }

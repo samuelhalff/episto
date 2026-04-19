@@ -1,9 +1,9 @@
 import { z } from "zod";
-
 import {
   LocaleSchema,
   DeliveryTypeSchema,
   DispatchStateSchema,
+  SignatureAssuranceLevelSchema,
   SwissPostalCodeSchema,
   FileAssetSchema,
   PaymentStateSchema,
@@ -15,7 +15,6 @@ import {
 } from "../dispatch-provider.ts";
 import { DICTATION_LIMITS, DRAFT_CONTENT_LIMITS } from "../limits.ts";
 
-// ---------------------------------------------------------------------------
 // API input schemas (what the client sends)
 // ---------------------------------------------------------------------------
 
@@ -29,6 +28,7 @@ export const UpdateDraftInput = z.object({
   tone: z.string().optional(),
   intent: z.string().optional(),
   deliveryType: DeliveryTypeSchema.optional(),
+  signatureAssuranceLevel: SignatureAssuranceLevelSchema.optional(),
   enclosureNote: z.string().optional(),
   signatureMode: z.enum(["typed", "drawn"]).nullable().optional(),
   senderProfileId: z.string().uuid().nullable().optional(),
@@ -50,29 +50,31 @@ export const CreateSenderProfileInput = z.object({
   phone: z.string().nullable().optional(),
 });
 
-export const CreateRecipientProfileInput = z.object({
-  firstName: z.string().nullable().optional(),
-  lastName: z.string().nullable().optional(),
-  company: z.string().nullable().optional(),
-  department: z.string().nullable().optional(),
-  addressLine1: z.string().min(1),
-  addressLine2: z.string().nullable().optional(),
-  postalCode: SwissPostalCodeSchema,
-  city: z.string().min(1),
-  country: z.string().length(2).default("CH"),
-}).superRefine((value, ctx) => {
-  const hasIdentity = [value.company, value.firstName, value.lastName].some(
-    (part) => typeof part === "string" && part.trim().length > 0,
-  );
+export const CreateRecipientProfileInput = z
+  .object({
+    firstName: z.string().nullable().optional(),
+    lastName: z.string().nullable().optional(),
+    company: z.string().nullable().optional(),
+    department: z.string().nullable().optional(),
+    addressLine1: z.string().min(1),
+    addressLine2: z.string().nullable().optional(),
+    postalCode: SwissPostalCodeSchema,
+    city: z.string().min(1),
+    country: z.string().length(2).default("CH"),
+  })
+  .superRefine((value, ctx) => {
+    const hasIdentity = [value.company, value.firstName, value.lastName].some(
+      (part) => typeof part === "string" && part.trim().length > 0,
+    );
 
-  if (!hasIdentity) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["company"],
-      message: "Provide a recipient name or company.",
-    });
-  }
-});
+    if (!hasIdentity) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["company"],
+        message: "Provide a recipient name or company.",
+      });
+    }
+  });
 
 export const SendMessageInput = z.object({
   content: z.string().min(1).max(DRAFT_CONTENT_LIMITS.messageChars),
@@ -88,8 +90,9 @@ export const DictationSessionQuerySchema = z
   })
   .strict();
 
-export const DictationLiveClientEventSchema = z
-  .discriminatedUnion("type", [z.object({ type: z.literal("stop") }).strict()]);
+export const DictationLiveClientEventSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("stop") }).strict(),
+]);
 
 export const DictationLiveServerEventSchema = z.discriminatedUnion("type", [
   z
@@ -198,27 +201,31 @@ export const AddressDetailsResponse = z.object({
 // API response types (what the server sends back)
 // ---------------------------------------------------------------------------
 
-export const OrderStatusPaymentSchema = z.object({
-  state: PaymentStateSchema,
-  priceCents: z.number().int().nonnegative(),
-  currency: z.literal("CHF"),
-  capturedAt: z.string().datetime().nullable(),
-  refundedAt: z.string().datetime().nullable(),
-}).strict();
+export const OrderStatusPaymentSchema = z
+  .object({
+    state: PaymentStateSchema,
+    priceCents: z.number().int().nonnegative(),
+    currency: z.literal("CHF"),
+    capturedAt: z.string().datetime().nullable(),
+    refundedAt: z.string().datetime().nullable(),
+  })
+  .strict();
 
 export type OrderStatusPayment = z.infer<typeof OrderStatusPaymentSchema>;
 
-export const OrderStatusDispatchSchema = z.object({
-  state: DispatchStateSchema,
-  providerRef: z.string().nullable(),
-  providerMode: z.enum(["mock", "live"]).nullable(),
-  trackingNumber: z.string().nullable(),
-  submittedAt: z.string().datetime().nullable(),
-  acceptedAt: z.string().datetime().nullable(),
-  rejectedAt: z.string().datetime().nullable(),
-  trackingAvailable: z.boolean(),
-  lastCheckedAt: z.string().datetime().nullable(),
-}).strict();
+export const OrderStatusDispatchSchema = z
+  .object({
+    state: DispatchStateSchema,
+    providerRef: z.string().nullable(),
+    providerMode: z.enum(["mock", "live"]).nullable(),
+    trackingNumber: z.string().nullable(),
+    submittedAt: z.string().datetime().nullable(),
+    acceptedAt: z.string().datetime().nullable(),
+    rejectedAt: z.string().datetime().nullable(),
+    trackingAvailable: z.boolean(),
+    lastCheckedAt: z.string().datetime().nullable(),
+  })
+  .strict();
 
 export type OrderStatusDispatch = z.infer<typeof OrderStatusDispatchSchema>;
 
@@ -264,77 +271,95 @@ export const DraftFilesResponseSchema = z.object({
   attachmentConstraints: DraftAttachmentConstraintsSchema,
 });
 
-export const PublicPricingTierSchema = z.object({
-  totalCents: z.number().int().nonnegative(),
-  displayPrice: z.string().min(1),
-  currency: z.literal("CHF"),
-  providerQuotedCents: z.number().int().nonnegative(),
-  providerQuotedDisplayPrice: z.string().min(1),
-  swissMailMarkupCents: z.number().int().nonnegative(),
-  swissMailMarkupDisplayPrice: z.string().min(1),
-}).strict();
-
-export const PublicPricingReferenceScenarioSchema = z.object({
-  shippingCountry: z.literal("CH"),
-  envelopeSize: z.literal("C5"),
-  windowLocation: z.literal("RIGHT"),
-  duplex: z.literal(false),
-  attachmentMode: z.enum(["none", "single_hint"]),
-  standardPostage: PostalPostageSchema,
-  registeredPostage: PostalPostageSchema,
-}).strict();
-
-export const PublicPricingPageCountExampleSchema = z.object({
-  pageCount: z.number().int().positive(),
-  providerQuotedCents: z.number().int().nonnegative(),
-  providerQuotedDisplayPrice: z.string().min(1),
-  totalCents: z.number().int().nonnegative(),
-  displayPrice: z.string().min(1),
-  currency: z.literal("CHF"),
-}).strict();
-
-export const PublicPricingPageCountExamplesSchema = z.object({
-  standard: z.array(PublicPricingPageCountExampleSchema).nonempty(),
-  registered: z.array(PublicPricingPageCountExampleSchema).nonempty(),
-}).strict();
-
-export const PublicPricingSyncSchema = z.object({
-  sourceLabel: z.string().min(1),
-  lastSyncedAt: z.string().datetime(),
-  freshness: z.enum(["fresh", "stale"]),
-}).strict();
-
-export const PublicPricingResponseSchema = z.object({
-  standard: PublicPricingTierSchema,
-  registered: PublicPricingTierSchema,
-  registeredSurchargeCents: z.number().int().nonnegative(),
-  registeredSurchargeDisplayPrice: z.string().min(1),
-  sync: PublicPricingSyncSchema,
-  providerBreakdown: z.object({
-    providerName: z.string().min(1),
-    note: z.string().min(1),
-    sourceUrl: z.string().url(),
-    verifiedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    referenceScenario: PublicPricingReferenceScenarioSchema,
-    pageCountExamples: PublicPricingPageCountExamplesSchema,
-    pricesExcludeVat: z.boolean(),
+export const PublicPricingTierSchema = z
+  .object({
+    totalCents: z.number().int().nonnegative(),
+    displayPrice: z.string().min(1),
     currency: z.literal("CHF"),
-  }).strict(),
-}).strict();
+    providerQuotedCents: z.number().int().nonnegative(),
+    providerQuotedDisplayPrice: z.string().min(1),
+    swissMailMarkupCents: z.number().int().nonnegative(),
+    swissMailMarkupDisplayPrice: z.string().min(1),
+  })
+  .strict();
+
+export const PublicPricingReferenceScenarioSchema = z
+  .object({
+    shippingCountry: z.literal("CH"),
+    envelopeSize: z.literal("C5"),
+    windowLocation: z.literal("RIGHT"),
+    duplex: z.literal(false),
+    attachmentMode: z.enum(["none", "single_hint"]),
+    standardPostage: PostalPostageSchema,
+    registeredPostage: PostalPostageSchema,
+  })
+  .strict();
+
+export const PublicPricingPageCountExampleSchema = z
+  .object({
+    pageCount: z.number().int().positive(),
+    providerQuotedCents: z.number().int().nonnegative(),
+    providerQuotedDisplayPrice: z.string().min(1),
+    totalCents: z.number().int().nonnegative(),
+    displayPrice: z.string().min(1),
+    currency: z.literal("CHF"),
+  })
+  .strict();
+
+export const PublicPricingPageCountExamplesSchema = z
+  .object({
+    standard: z.array(PublicPricingPageCountExampleSchema).nonempty(),
+    registered: z.array(PublicPricingPageCountExampleSchema).nonempty(),
+  })
+  .strict();
+
+export const PublicPricingSyncSchema = z
+  .object({
+    sourceLabel: z.string().min(1),
+    lastSyncedAt: z.string().datetime(),
+    freshness: z.enum(["fresh", "stale"]),
+  })
+  .strict();
+
+export const PublicPricingResponseSchema = z
+  .object({
+    standard: PublicPricingTierSchema,
+    registered: PublicPricingTierSchema,
+    registeredSurchargeCents: z.number().int().nonnegative(),
+    registeredSurchargeDisplayPrice: z.string().min(1),
+    sync: PublicPricingSyncSchema,
+    providerBreakdown: z
+      .object({
+        providerName: z.string().min(1),
+        note: z.string().min(1),
+        sourceUrl: z.string().url(),
+        verifiedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+        referenceScenario: PublicPricingReferenceScenarioSchema,
+        pageCountExamples: PublicPricingPageCountExamplesSchema,
+        pricesExcludeVat: z.boolean(),
+        currency: z.literal("CHF"),
+      })
+      .strict(),
+  })
+  .strict();
 
 /** Response shape for GET /api/v1/orders/:orderToken */
-export const OrderStatusResponseSchema = z.object({
-  order: z.object({
-    draftId: z.string().uuid(),
-    orderRef: z.string().min(1),
-    locale: LocaleSchema,
-    payment: OrderStatusPaymentSchema,
-    dispatch: OrderStatusDispatchSchema,
-    deliveryType: DeliveryTypeSchema,
-    recipientName: z.string(),
-    createdAt: z.string().datetime(),
-  }).strict(),
-}).strict();
+export const OrderStatusResponseSchema = z
+  .object({
+    order: z
+      .object({
+        draftId: z.string().uuid(),
+        orderRef: z.string().min(1),
+        locale: LocaleSchema,
+        payment: OrderStatusPaymentSchema,
+        dispatch: OrderStatusDispatchSchema,
+        deliveryType: DeliveryTypeSchema,
+        recipientName: z.string(),
+        createdAt: z.string().datetime(),
+      })
+      .strict(),
+  })
+  .strict();
 
 export type OrderStatusResponse = z.infer<typeof OrderStatusResponseSchema>;
 
@@ -584,11 +609,7 @@ export interface AdminDraftCaseResponse {
   } | null;
 }
 
-export type AdminEscalationLevel =
-  | "observe"
-  | "review"
-  | "manual_review"
-  | "incident";
+export type AdminEscalationLevel = "observe" | "review" | "manual_review" | "incident";
 
 export interface AdminSuspiciousCase {
   sessionId: string;

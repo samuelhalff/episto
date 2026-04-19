@@ -15,7 +15,8 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   const { attachments } = useDraftFiles(draftId);
   const quote = useDispatchQuote(
     draftId,
-    Boolean(draft.data) && !["reviewed", "rendering"].includes(draft.data?.status ?? ""),
+    Boolean(draft.data) &&
+      !["reviewed", "rendering", "ready_to_sign"].includes(draft.data?.status ?? ""),
   );
 
   if (draft.isLoading) {

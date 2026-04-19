@@ -65,21 +65,17 @@ describe("schema enums", () => {
   });
 
   it("locale_enum has all 4 Swiss locales", () => {
-    expect(schema.localeEnum.enumValues).toEqual([
-      "de-CH",
-      "fr-CH",
-      "it-CH",
-      "en-CH",
-    ]);
+    expect(schema.localeEnum.enumValues).toEqual(["de-CH", "fr-CH", "it-CH", "en-CH"]);
   });
 
-  it("draft_status has correct 8 states", () => {
+  it("draft_status has correct 9 states", () => {
     expect(schema.draftStatusEnum.enumValues).toEqual([
       "collecting",
       "fields_complete",
       "reviewed",
       "rendering",
       "ready",
+      "ready_to_sign",
       "submitted",
       "dispatched",
       "closed",
@@ -87,9 +83,14 @@ describe("schema enums", () => {
   });
 
   it("delivery_type has standard and registered", () => {
-    expect(schema.deliveryTypeEnum.enumValues).toEqual([
-      "standard",
-      "registered",
+    expect(schema.deliveryTypeEnum.enumValues).toEqual(["standard", "registered"]);
+  });
+
+  it("signature_assurance_level has visual, advanced, qualified", () => {
+    expect(schema.signatureAssuranceLevelEnum.enumValues).toEqual([
+      "visual",
+      "advanced",
+      "qualified",
     ]);
   });
 
@@ -134,11 +135,7 @@ describe("schema enums", () => {
   });
 
   it("message_role has user, assistant, system", () => {
-    expect(schema.messageRoleEnum.enumValues).toEqual([
-      "user",
-      "assistant",
-      "system",
-    ]);
+    expect(schema.messageRoleEnum.enumValues).toEqual(["user", "assistant", "system"]);
   });
 });
 

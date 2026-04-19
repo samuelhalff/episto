@@ -29,6 +29,34 @@
       "when": 1774949800000,
       "tag": "0003_epost_dispatch_fields",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1774949800001,
+      "tag": "0004_dispatch_quote_cache_and_rate_matrix",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1774949800002,
+      "tag": "0005_drop_dispatch_provider_payloads",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1774949800003,
+      "tag": "0006_active_provider_rate_matrix_guard",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1776570000000,
+      "tag": "0007_signature_assurance_ready_to_sign",
+      "breakpoints": true
     }
   ]
 }
