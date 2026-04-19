@@ -846,6 +846,97 @@
     "imprint": {
       "title": "Mentions légales — Episto",
       "description": "Informations sur l’exploitant et coordonnées de contact d’Episto."
+    },
+    "signatureRequirements": {
+      "title": "Exigences de signature — Episto",
+      "description": "Quand une signature manuscrite ou une signature électronique qualifiée est légalement exigée en Suisse, et ce qu’Episto prend en charge."
+    }
+  },
+  "signatureTiers": {
+    "comingSoon": "Bientôt disponible",
+    "visual": {
+      "label": "Signature standard",
+      "purpose": "Votre nom en écriture cursive ou une signature tracée à l’écran. Convient à la plupart des courriers courants.",
+      "price": "Incluse",
+      "friction": "Aucune vérification d’identité"
+    },
+    "advanced": {
+      "label": "Signature avancée",
+      "purpose": "PDF scellé cryptographiquement avec vérification d’identité par le prestataire.",
+      "price": "+CHF 3",
+      "friction": "Code par e-mail et SMS"
+    },
+    "qualified": {
+      "label": "Signature qualifiée",
+      "purpose": "Juridiquement équivalente à une signature manuscrite pour les contrats soumis à la forme écrite.",
+      "price": "+CHF 9 + CHF 19 unique pour l’identification",
+      "friction": "Vidéo-identification, seulement la première fois"
+    },
+    "explainer": {
+      "triggerLabel": "Ai-je besoin d’une signature qualifiée ?",
+      "title": "Quelle signature choisir ?",
+      "intro": "La plupart des courriers ne requièrent pas de signature qualifiée. Le choix dépend de ce dont le destinataire a besoin et de l’exigence éventuelle de forme écrite.",
+      "caseStandard": "Pour les réclamations, rappels, notifications de changement et correspondance générale, une signature standard suffit.",
+      "caseAdvanced": "Pour des envois où le destinataire souhaite une preuve infalsifiable que le document n’a pas été modifié depuis la signature.",
+      "caseQualified": "Pour les documents soumis à la forme écrite selon le droit suisse (cautionnement, crédit à la consommation, certaines résiliations de baux à durée déterminée, certaines matières de droit du travail).",
+      "paperCaveat": "Une signature qualifiée s’applique au PDF électronique. L’exemplaire papier que nous envoyons est une copie — la version juridiquement contraignante est l’original électronique. Pour les commandes qualifiées, le destinataire reçoit également le PDF signé par e-mail.",
+      "fullRequirementsCta": "Lire l’ensemble des exigences de signature",
+      "close": "Fermer"
+    }
+  },
+  "signatureRequirements": {
+    "pageTitle": "Exigences de signature",
+    "pageIntro": "Un aperçu en langage clair des cas où une signature manuscrite ou une signature électronique qualifiée est légalement exigée, et de ce que {service} prend en charge à chaque niveau.",
+    "informationalEyebrow": "Informatif — sans valeur de conseil juridique",
+    "translationNotice": "Traduction de travail. Une version revue n’est pas encore publiée. En cas de divergence, la version anglaise prévaut.",
+    "readThisFirst": "À lire d’abord",
+    "callout": {
+      "notLegalAdvice": "Cette page est informative et ne remplace pas l’avis d’un ou d’une juriste qualifié·e.",
+      "electronicVsPaper": "Une signature électronique qualifiée porte sur le PDF électronique. Une impression d’un PDF signé est une copie ; la version contraignante est l’original électronique.",
+      "mostLettersDontNeed": "La plupart des courriers n’exigent pas de signature qualifiée."
+    },
+    "sections": {
+      "tiers": {
+        "title": "Niveaux de signature proposés",
+        "intro": "Trois niveaux sont prévus. Aujourd’hui, le niveau standard est disponible. Les niveaux avancé et qualifié seront activés à la fin de l’intégration avec le prestataire.",
+        "visualName": "Signature standard",
+        "visualBody": "Un nom saisi en écriture cursive ou une signature tracée à l’écran. Convient à la correspondance formelle courante. Aucune prétention de vérification d’identité au sens légal.",
+        "advancedName": "Signature électronique avancée (SEA)",
+        "advancedBody": "Un PDF scellé cryptographiquement. L’identité est vérifiée par e-mail et SMS. Infalsifiable et traçable, mais non équivalente à une signature manuscrite en droit suisse.",
+        "qualifiedName": "Signature électronique qualifiée (SEQ)",
+        "qualifiedBody": "Juridiquement équivalente à une signature manuscrite selon la loi fédérale suisse sur la signature électronique (SCSE/ZertES), et compatible avec eIDAS pour les destinataires européens. Identification vidéo unique requise."
+      },
+      "whenRequired": {
+        "title": "Quand le droit suisse impose la forme écrite",
+        "intro": "Le Code suisse des obligations impose la forme écrite pour certains contrats. Dans ces cas, la signature électronique qualifiée est équivalente à une signature manuscrite. Exemples :",
+        "caseGuaranty": "Déclarations de cautionnement.",
+        "caseConsumerCredit": "Contrats de crédit à la consommation.",
+        "caseLease": "Résiliation de baux d’habitation à durée déterminée dans certains cas.",
+        "caseEmployment": "Certaines résiliations et clauses de non-concurrence en droit du travail.",
+        "caseOther": "D’autres contrats pour lesquels la loi ou les parties elles-mêmes exigent la forme écrite.",
+        "disclaimer": "Ce résumé n’est pas exhaustif. Faites confirmer l’exigence par un ou une juriste qualifié·e pour votre situation."
+      },
+      "paperCopy": {
+        "title": "Copie papier et original électronique",
+        "paragraphOne": "Une signature électronique qualifiée lie les octets du PDF électronique. Imprimer ce PDF produit une copie papier — une reproduction, non l’instrument contraignant.",
+        "paragraphTwo": "C’est pourquoi, pour une commande qualifiée, nous livrons également le PDF signé au destinataire par voie électronique. La version papier envoyée porte un QR code menant à une page de vérification de l’original électronique."
+      },
+      "identification": {
+        "title": "Identification et réutilisation",
+        "intro": "Les signatures qualifiées exigent une vérification d’identité unique. Nous utilisons le flux de vidéo-identification du prestataire de signature.",
+        "pointFirstTime": "La première signature qualifiée de l’année demande environ 5 minutes d’identification. Les suivantes se font en quelques secondes.",
+        "pointReuse": "Une fois identifié, vous pouvez signer à nouveau depuis n’importe quel appareil à l’aide d’un lien sans mot de passe envoyé à l’adresse vérifiée. Pas de nouvelle identification à chaque courrier.",
+        "pointRevocation": "Si vos données d’identité changent — par exemple un nouveau numéro de téléphone — une nouvelle identification est requise. Les documents déjà signés restent valables.",
+        "pointPrivacy": "Les pièces d’identité originales ne sont pas conservées sur nos serveurs. Elles restent chez le prestataire de signature en qualité de sous-traitant. Nous ne conservons que les métadonnées minimales nécessaires à l’audit."
+      },
+      "crossBorder": {
+        "title": "Destinataires à l’étranger",
+        "body": "Pour les destinataires suisses, nous signons selon ZertES. Pour les destinataires de l’UE/EEE, nous signons selon eIDAS. Notre prestataire prend en charge les deux standards sur le même compte ; vous n’avez rien à faire en plus."
+      },
+      "contact": {
+        "title": "Des questions",
+        "body": "Si vous n’êtes pas sûr·e que votre situation exige une signature qualifiée, contactez le support de {service} ou un·e juriste qualifié·e avant de choisir un niveau."
+      }
     }
   },
   "admin": {

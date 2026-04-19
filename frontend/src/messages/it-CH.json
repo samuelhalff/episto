@@ -846,6 +846,97 @@
     "imprint": {
       "title": "Colofone — Episto",
       "description": "Dati dell'operatore e informazioni di contatto di Episto."
+    },
+    "signatureRequirements": {
+      "title": "Requisiti di firma — Episto",
+      "description": "Quando una firma autografa o una firma elettronica qualificata è legalmente richiesta in Svizzera, e cosa supporta Episto."
+    }
+  },
+  "signatureTiers": {
+    "comingSoon": "Presto disponibile",
+    "visual": {
+      "label": "Firma standard",
+      "purpose": "Il Suo nome in carattere corsivo o una firma tracciata sullo schermo. Adatta alla maggior parte delle lettere quotidiane.",
+      "price": "Inclusa",
+      "friction": "Nessun controllo d'identità"
+    },
+    "advanced": {
+      "label": "Firma avanzata",
+      "purpose": "PDF sigillato crittograficamente con verifica d'identità del fornitore.",
+      "price": "+CHF 3",
+      "friction": "Codice via e-mail e SMS"
+    },
+    "qualified": {
+      "label": "Firma qualificata",
+      "purpose": "Giuridicamente equivalente a una firma autografa per i contratti soggetti alla forma scritta.",
+      "price": "+CHF 9 + CHF 19 una tantum per l'identificazione",
+      "friction": "Video-identificazione, solo la prima volta"
+    },
+    "explainer": {
+      "triggerLabel": "Ho bisogno di una firma qualificata?",
+      "title": "Quale firma scegliere?",
+      "intro": "La maggior parte delle lettere non richiede una firma qualificata. La scelta dipende da ciò di cui il destinatario ha bisogno e dall'eventuale requisito di forma scritta.",
+      "caseStandard": "Per reclami, solleciti, notifiche di modifica e corrispondenza generale è sufficiente una firma standard.",
+      "caseAdvanced": "Per corrispondenza in cui il destinatario desidera una prova non falsificabile che il documento non sia stato modificato dopo la firma.",
+      "caseQualified": "Per documenti soggetti alla forma scritta secondo il diritto svizzero (fideiussione, credito al consumo, alcune disdette di contratti di locazione a tempo determinato, alcune materie di diritto del lavoro).",
+      "paperCaveat": "Una firma qualificata riguarda il PDF elettronico. La copia cartacea che inviamo è una copia — la versione giuridicamente vincolante è l'originale elettronico. Per ordini qualificati, il destinatario riceve anche il PDF firmato via e-mail.",
+      "fullRequirementsCta": "Leggere tutti i requisiti di firma",
+      "close": "Chiudere"
+    }
+  },
+  "signatureRequirements": {
+    "pageTitle": "Requisiti di firma",
+    "pageIntro": "Un quadro in linguaggio chiaro sui casi in cui è legalmente richiesta una firma autografa o una firma elettronica qualificata, e su cosa supporta {service} a ogni livello.",
+    "informationalEyebrow": "Informativo — non costituisce consulenza legale",
+    "translationNotice": "Traduzione di lavoro. Una versione revisionata non è ancora pubblicata. In caso di divergenze prevale la versione inglese.",
+    "readThisFirst": "Da leggere prima",
+    "callout": {
+      "notLegalAdvice": "Questa pagina è informativa e non sostituisce la consulenza di un giurista qualificato.",
+      "electronicVsPaper": "Una firma elettronica qualificata vincola il PDF elettronico. Una stampa di un PDF firmato è una copia; la versione vincolante è l'originale elettronico.",
+      "mostLettersDontNeed": "La maggior parte delle lettere non richiede una firma qualificata."
+    },
+    "sections": {
+      "tiers": {
+        "title": "Livelli di firma offerti",
+        "intro": "Sono previsti tre livelli. Oggi è disponibile il livello Standard. Il livello Avanzato e Qualificato verranno attivati al termine dell'integrazione con il fornitore.",
+        "visualName": "Firma standard",
+        "visualBody": "Nome digitato in corsivo o firma tracciata sullo schermo. Adatta alla corrispondenza formale quotidiana. Nessuna pretesa di verifica dell'identità in senso legale.",
+        "advancedName": "Firma elettronica avanzata (FEA)",
+        "advancedBody": "PDF sigillato crittograficamente. L'identità è verificata via e-mail e SMS. Non falsificabile e tracciabile, ma non equivalente a una firma autografa in diritto svizzero.",
+        "qualifiedName": "Firma elettronica qualificata (FEQ)",
+        "qualifiedBody": "Giuridicamente equivalente a una firma autografa secondo la legge federale svizzera sulla firma elettronica (ZertES) e compatibile con eIDAS per i destinatari dell'UE. È richiesta una video-identificazione una tantum."
+      },
+      "whenRequired": {
+        "title": "Quando il diritto svizzero richiede la forma scritta",
+        "intro": "Il Codice delle obbligazioni svizzero richiede la forma scritta per determinati contratti. In questi casi la firma elettronica qualificata è equivalente alla firma autografa. Esempi:",
+        "caseGuaranty": "Dichiarazioni di fideiussione.",
+        "caseConsumerCredit": "Contratti di credito al consumo.",
+        "caseLease": "Disdetta di contratti di locazione a tempo determinato in determinati casi.",
+        "caseEmployment": "Alcune disdette e clausole di concorrenza nel diritto del lavoro.",
+        "caseOther": "Altri contratti per i quali la legge o le parti stesse richiedono la forma scritta.",
+        "disclaimer": "Questo riassunto non è esaustivo. Faccia confermare il requisito nel Suo caso da un giurista qualificato."
+      },
+      "paperCopy": {
+        "title": "Copia cartacea e originale elettronico",
+        "paragraphOne": "Una firma elettronica qualificata lega i byte del PDF elettronico. Stampare questo PDF produce una copia cartacea — una riproduzione, non lo strumento vincolante.",
+        "paragraphTwo": "Per questo motivo, per un ordine qualificato consegniamo il PDF firmato anche per via elettronica al destinatario. La versione cartacea spedita riporta un codice QR che porta a una pagina di verifica dell'originale elettronico."
+      },
+      "identification": {
+        "title": "Identificazione e riutilizzo",
+        "intro": "Le firme qualificate richiedono una verifica d'identità una tantum. Utilizziamo il flusso di video-identificazione gestito dal fornitore di firma.",
+        "pointFirstTime": "La prima firma qualificata dell'anno richiede circa 5 minuti per l'identificazione. Le successive richiedono pochi secondi.",
+        "pointReuse": "Una volta identificato, può firmare nuovamente da qualsiasi dispositivo tramite un link senza password inviato all'indirizzo verificato. Nessuna nuova identificazione per ogni lettera.",
+        "pointRevocation": "Se i Suoi dati d'identità cambiano — ad esempio un nuovo numero di telefono — è necessaria una nuova identificazione. I documenti già firmati restano validi.",
+        "pointPrivacy": "I documenti d'identità originali non vengono conservati sui nostri server. Restano presso il fornitore di firma in qualità di responsabile del trattamento. Conserviamo solo i metadati minimi necessari per l'audit."
+      },
+      "crossBorder": {
+        "title": "Destinatari all'estero",
+        "body": "Per i destinatari svizzeri firmiamo secondo ZertES. Per i destinatari UE/SEE firmiamo secondo eIDAS. Il nostro fornitore supporta entrambi gli standard sullo stesso account; Lei non deve fare nulla in più."
+      },
+      "contact": {
+        "title": "Domande",
+        "body": "Se non è sicuro se la Sua situazione richieda una firma qualificata, contatti il supporto di {service} o un giurista qualificato prima di scegliere un livello."
+      }
     }
   },
   "admin": {

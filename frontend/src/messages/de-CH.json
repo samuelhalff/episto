@@ -846,6 +846,97 @@
     "imprint": {
       "title": "Impressum — Episto",
       "description": "Betreiberangaben und Kontaktinformationen von Episto."
+    },
+    "signatureRequirements": {
+      "title": "Unterschriftenanforderungen — Episto",
+      "description": "Wann eine handschriftliche oder qualifizierte elektronische Unterschrift in der Schweiz rechtlich erforderlich ist und was Episto unterstützt."
+    }
+  },
+  "signatureTiers": {
+    "comingSoon": "Demnächst verfügbar",
+    "visual": {
+      "label": "Standard-Unterschrift",
+      "purpose": "Ihr Name als Schrift oder eine auf dem Bildschirm gezeichnete Unterschrift. Für die meisten Alltagsbriefe ausreichend.",
+      "price": "Enthalten",
+      "friction": "Keine Identitätsprüfung"
+    },
+    "advanced": {
+      "label": "Fortgeschrittene Unterschrift",
+      "purpose": "Kryptografisch versiegeltes PDF mit anbietergeprüfter Identität.",
+      "price": "+CHF 3",
+      "friction": "E-Mail- und SMS-Code"
+    },
+    "qualified": {
+      "label": "Qualifizierte Unterschrift",
+      "purpose": "Rechtlich gleichwertig zur handschriftlichen Unterschrift bei Verträgen, die Schriftform verlangen.",
+      "price": "+CHF 9 + CHF 19 einmalige Prüfung",
+      "friction": "Video-Identifikation, nur beim ersten Mal"
+    },
+    "explainer": {
+      "triggerLabel": "Brauche ich eine qualifizierte Unterschrift?",
+      "title": "Welche Unterschrift brauche ich?",
+      "intro": "Die meisten Briefe brauchen keine qualifizierte Unterschrift. Die Wahl hängt davon ab, was der Empfänger benötigt und ob das Gesetz Schriftform verlangt.",
+      "caseStandard": "Für Beschwerden, Mahnungen, Änderungsmitteilungen und allgemeine Korrespondenz genügt eine Standard-Unterschrift.",
+      "caseAdvanced": "Für Korrespondenz, bei der der Empfänger einen manipulationssicheren Nachweis möchte, dass das Dokument seit der Unterzeichnung unverändert ist.",
+      "caseQualified": "Für Dokumente, die nach Schweizer Recht der Schriftform genügen müssen (Bürgschaft, Konsumkredit, bestimmte Kündigungen befristeter Mietverträge, gewisse arbeitsrechtliche Angelegenheiten).",
+      "paperCaveat": "Eine qualifizierte Unterschrift gilt für das elektronische PDF. Das gedruckte Exemplar, das wir versenden, ist eine Kopie — rechtsverbindlich ist das elektronische Original. Bei qualifizierten Aufträgen erhält der Empfänger zusätzlich das signierte PDF per E-Mail.",
+      "fullRequirementsCta": "Vollständige Unterschriftenanforderungen lesen",
+      "close": "Schliessen"
+    }
+  },
+  "signatureRequirements": {
+    "pageTitle": "Unterschriftenanforderungen",
+    "pageIntro": "Eine verständliche Übersicht darüber, wann eine handschriftliche oder qualifizierte elektronische Unterschrift gesetzlich verlangt wird — und was {service} in jeder Stufe unterstützt.",
+    "informationalEyebrow": "Informativ — keine Rechtsberatung",
+    "translationNotice": "Arbeitsübersetzung. Eine geprüfte Fassung ist noch nicht veröffentlicht. Bei Abweichungen gilt die englische Fassung.",
+    "readThisFirst": "Zuerst lesen",
+    "callout": {
+      "notLegalAdvice": "Diese Seite ist informativ und ersetzt keine Beratung durch eine qualifizierte Juristin oder einen qualifizierten Juristen.",
+      "electronicVsPaper": "Eine qualifizierte elektronische Unterschrift bindet das elektronische PDF. Ein Ausdruck eines signierten PDF ist eine Kopie; rechtsverbindlich ist das elektronische Original.",
+      "mostLettersDontNeed": "Die meisten Briefe brauchen keine qualifizierte Unterschrift."
+    },
+    "sections": {
+      "tiers": {
+        "title": "Welche Unterschriftsstufen wir anbieten",
+        "intro": "Drei Stufen sind geplant. Heute ist die Standard-Stufe verfügbar. Die fortgeschrittene und qualifizierte Stufe werden freigeschaltet, sobald die Anbieter-Einführung abgeschlossen ist.",
+        "visualName": "Standard-Unterschrift",
+        "visualBody": "Ein getippter Name in Schreibschrift oder eine auf dem Bildschirm gezeichnete Unterschrift. Für alltägliche formelle Korrespondenz geeignet. Keine rechtliche Aussage zur Identitätsprüfung.",
+        "advancedName": "Fortgeschrittene elektronische Unterschrift (AES)",
+        "advancedBody": "Ein kryptografisch versiegeltes PDF. Die Identität wird per E-Mail und SMS geprüft. Manipulationssicher und nachvollziehbar, jedoch nicht der handschriftlichen Unterschrift gleichgestellt.",
+        "qualifiedName": "Qualifizierte elektronische Unterschrift (QES)",
+        "qualifiedBody": "Rechtlich gleichgestellt mit der handschriftlichen Unterschrift nach dem Bundesgesetz über die elektronische Signatur (ZertES) und eIDAS-kompatibel für EU-Empfänger. Einmalige Video-Identifikation erforderlich."
+      },
+      "whenRequired": {
+        "title": "Wann das Schweizer Recht Schriftform verlangt",
+        "intro": "Nach dem Obligationenrecht müssen bestimmte Verträge schriftlich abgeschlossen werden. In diesen Fällen ist die qualifizierte elektronische Unterschrift der handschriftlichen gleichgestellt. Beispiele:",
+        "caseGuaranty": "Bürgschaftserklärungen.",
+        "caseConsumerCredit": "Konsumkreditverträge.",
+        "caseLease": "Kündigung befristeter Wohnraummietverträge in bestimmten Fällen.",
+        "caseEmployment": "Gewisse arbeitsrechtliche Kündigungen und Konkurrenzverbote.",
+        "caseOther": "Weitere Verträge, für die das Gesetz oder die Parteien selbst Schriftform verlangen.",
+        "disclaimer": "Diese Zusammenfassung ist nicht abschliessend. Lassen Sie die Anforderung im Einzelfall von einer qualifizierten Juristin oder einem qualifizierten Juristen bestätigen."
+      },
+      "paperCopy": {
+        "title": "Gedruckte Kopie vs. elektronisches Original",
+        "paragraphOne": "Eine qualifizierte elektronische Unterschrift bindet die elektronischen PDF-Bytes. Der Ausdruck erzeugt eine Papierkopie — eine Reproduktion, nicht das rechtsverbindliche Instrument.",
+        "paragraphTwo": "Deshalb liefern wir bei einem qualifizierten Auftrag das signierte PDF zusätzlich elektronisch an den Empfänger. Die versendete Papierversion trägt einen QR-Code, der zur Prüfseite des elektronischen Originals führt."
+      },
+      "identification": {
+        "title": "Identifikation und Wiederverwendung",
+        "intro": "Qualifizierte Unterschriften erfordern eine einmalige Identitätsprüfung. Wir verwenden einen produktisierten Video-Identifikationsprozess unseres Signatur-Anbieters.",
+        "pointFirstTime": "Die erste qualifizierte Unterschrift im Jahr benötigt etwa 5 Minuten für die Identifikation. Folgeunterschriften dauern Sekunden.",
+        "pointReuse": "Nach der Identifikation können Sie von jedem Gerät erneut unterschreiben — über einen passwortlosen Link an die bestätigte E-Mail-Adresse. Keine erneute Identifikation pro Brief.",
+        "pointRevocation": "Ändern sich Identitätsdaten — etwa die Telefonnummer — ist eine neue Identifikation nötig. Zuvor signierte Dokumente bleiben gültig.",
+        "pointPrivacy": "Originale Ausweisdokumente werden nicht auf unseren Servern gespeichert. Sie verbleiben beim Signatur-Anbieter als Auftragsverarbeiter. Wir speichern nur die minimalen Metadaten, die für die Revision nötig sind."
+      },
+      "crossBorder": {
+        "title": "Empfänger im Ausland",
+        "body": "Für Schweizer Empfänger signieren wir nach ZertES. Für Empfänger im EU-/EWR-Raum signieren wir nach eIDAS. Unser Anbieter unterstützt beide Standards auf demselben Konto; Sie müssen nichts zusätzlich tun."
+      },
+      "contact": {
+        "title": "Fragen",
+        "body": "Sind Sie unsicher, ob Ihr Fall eine qualifizierte Unterschrift verlangt, wenden Sie sich vor der Auswahl einer Stufe an den {service}-Support oder eine qualifizierte Juristin bzw. einen qualifizierten Juristen."
+      }
     }
   },
   "admin": {

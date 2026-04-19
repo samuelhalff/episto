@@ -6,7 +6,15 @@
 > See [`../08-guardrails/swiss-post-api-reference-map.md`](../08-guardrails/swiss-post-api-reference-map.md)
 > for why attachment rules remain provider-dependent.
 
-## Signature scope — LOCKED: Option C
+## Signature assurance tiers
+
+> **See [`qualified-signatures.md`](qualified-signatures.md)** for the canonical spec of the
+> three-tier assurance model (`visual` / `advanced` / `qualified`) that sits on top of this
+> section. This file continues to govern the `visual` tier (typed + drawn). The `advanced` and
+> `qualified` tiers are implemented in later phases and are gated behind locked provider
+> onboarding.
+
+## Signature scope — LOCKED: Option C (visual tier)
 
 **Locked choice: typed name plus on-screen drawn signature.**
 

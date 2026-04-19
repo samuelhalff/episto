@@ -33,15 +33,82 @@ weakest trust posture and highest refund exposure.
 
 ---
 
-### Signature scope — LOCKED: Option B (typed name + uploaded image)
+### Signature scope — LOCKED: Option C (typed name + drawn) for the visual tier
 
-**Locked choice:** Typed name is always required. User may optionally upload a signature image
-(PNG or JPEG, max 2 MB).
+**Locked choice:** Typed name plus on-screen drawn signature. No uploaded image mode at launch.
 
 See [`../04-product/signatures-and-attachments.md`](../04-product/signatures-and-attachments.md).
 
+This lock governs only the `visual` tier. Advanced and qualified electronic signatures are
+governed by the separate _Signature assurance tiers_ lock below.
+
 **Option A (typed only) rejected** — too weak for the perceived trust level.  
-**Option C (typed + upload + drawn) rejected** — too complex for MVP.
+**Option B (typed + uploaded image) superseded** — on-screen drawing is higher-leverage and image
+upload was never wired in production.
+
+---
+
+### Signature assurance tiers — LOCKED: three-tier model
+
+**Locked choice:** A single `SignatureAssuranceLevel` enum exposes three tiers — `visual`,
+`advanced`, `qualified` — shared across schema, backend, and frontend. Phase 0 ships the
+taxonomy and UI shell; `advanced` and `qualified` render as _Coming soon_ until provider
+onboarding completes (Phase 1 / Phase 2).
+
+See [`../04-product/qualified-signatures.md`](../04-product/qualified-signatures.md) for the full
+spec including the bulletproof ident-reuse design.
+
+**Locked principles:**
+
+- QES cryptographically binds the electronic PDF bytes, not the paper. Every QES order must
+  therefore also deliver the signed PDF electronically to the recipient. The paper we post is a
+  courtesy copy carrying a QR code pointing to the verification URL.
+- The UI must never imply that QES makes the paper copy legally binding.
+- QES orders use the existing Option B payment-capture model (authorize first, capture after the
+  signing session reaches `signed`).
+
+**Option A (visual only forever) rejected** — blocks formal use cases that require written form.  
+**Option B (visual + qualified, no advanced middle tier) rejected** — AES validates the pipeline
+cheaply and gives users who want more than a picture but do not need QES a conversion bridge.
+
+---
+
+### QES provider path — LOCKED: Skribble (Phase 1 and Phase 2)
+
+**Locked choice:** Skribble provides both advanced and qualified electronic signatures for
+Phase 1 and Phase 2. Swisscom All-in Signing Service direct may be added in Phase 3 for margin
+improvement at volume.
+
+Adapter module: `backend/src/modules/signing/adapters/skribble.adapter.ts` (created in Phase 1).
+
+**Why Skribble over alternatives for conversion:**
+
+- Single REST API covers both AES and QES; single integration, single evidence format.
+- Supports ZertES and eIDAS per document — Swiss recipients get ZertES, EU recipients get
+  eIDAS, without dual integration work.
+- Productized video identification flow with ~5 min completion time, available daily 07:00–22:00.
+- Ident-reuse is native: a signer identified once can sign again via passwordless re-auth,
+  amortizing first-time friction over future letters. This is the single biggest conversion
+  unlock for a mail product that assumes repeat use.
+- DE / FR / IT / EN user interfaces match our locale set without rebuilding copy.
+- REST API v2 with success/error/update webhooks, clear SDK documentation, free API demo for
+  pre-onboarding validation.
+- Powered by Swisscom Trust Services backend — we get the Swiss QES regulatory substrate
+  without the direct-to-CSP integration cost.
+
+**Option B (Swisscom All-in Signing Service direct) rejected for MVP** — cheapest per-signature
+cost (CHF ~2.40 for QES) but requires us to build the identification UX ourselves or integrate
+a separate ident vendor. 2–3 months of additional work with higher operational surface. Revisit
+in Phase 3 after QES volume justifies the move.
+**Option C (SwissSign) rejected for MVP** — opaque developer experience, less transparent
+pricing, and SwissID-only ident does not amortize for users without a SwissID.
+
+**Still open — do not hardcode:**
+
+- Exact commercial pricing from Skribble (contract pending). Placeholder retail pricing is
+  documented in `qualified-signatures.md` and is config-backed.
+- Exact ident-validity window per Skribble policy. Design assumes 5 years; confirm at
+  onboarding.
 
 ---
 
