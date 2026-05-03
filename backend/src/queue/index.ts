@@ -130,9 +130,7 @@ export async function registerScheduledJobs(): Promise<void> {
   await refreshQueue.add(
     "startup-rate-refresh-sentinel",
     { reason: "stale_matrix" } satisfies RefreshDispatchRatesJob,
-    {
-      jobId: "startup-rate-refresh-sentinel",
-    },
+    {},
   );
   await refreshQueue.add(
     "scheduled-rate-refresh-sentinel",

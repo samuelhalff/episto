@@ -99,9 +99,7 @@ describe("dispatch job helpers", () => {
     expect(add).toHaveBeenCalledWith(
       "startup-rate-refresh-sentinel",
       { reason: "stale_matrix" },
-      {
-        jobId: "startup-rate-refresh-sentinel",
-      },
+      {},
     );
     expect(add).toHaveBeenCalledWith(
       "scheduled-rate-refresh-sentinel",

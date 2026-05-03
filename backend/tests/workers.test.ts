@@ -166,9 +166,7 @@ describe("registerScheduledJobs", () => {
     expect(addSpy).toHaveBeenCalledWith(
       "startup-rate-refresh-sentinel",
       { reason: "stale_matrix" },
-      {
-        jobId: "startup-rate-refresh-sentinel",
-      },
+      {},
     );
   });
 
@@ -176,7 +174,7 @@ describe("registerScheduledJobs", () => {
     addSpy.mockClear();
     await registerScheduledJobs();
     await registerScheduledJobs();
-    // BullMQ deduplicates by jobId; we verify no errors thrown
+    // Repeatable jobs are deduped by BullMQ; startup refresh intentionally runs per process.
     expect(addSpy).toHaveBeenCalledTimes(6); // 3 jobs × 2 calls
   });
 });
