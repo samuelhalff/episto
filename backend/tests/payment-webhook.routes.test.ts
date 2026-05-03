@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   getPaymentAttemptById: vi.fn(),
   transitionPaymentState: vi.fn(),
   constructWebhookEvent: vi.fn(),
+  syncDraftFulfillmentFromPaymentState: vi.fn(),
+  getLatestSignatureSession: vi.fn(),
   getLatestSnapshot: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
   recordEvent: vi.fn(),
@@ -18,6 +20,7 @@ vi.mock("../src/db/index.js", () => ({
   schema: {
     draftLetters: {
       id: "draft_id",
+      signatureFlowMode: "signature_flow_mode",
       sessionId: "session_id",
       deliveryType: "delivery_type",
     },
@@ -53,6 +56,14 @@ vi.mock("../src/modules/analytics/index.js", () => ({
   recordEvent: mocks.recordEvent,
 }));
 
+vi.mock("../src/modules/signing/fulfillment.service.js", () => ({
+  syncDraftFulfillmentFromPaymentState: mocks.syncDraftFulfillmentFromPaymentState,
+}));
+
+vi.mock("../src/modules/signing/signature-session.service.js", () => ({
+  getLatestSignatureSession: mocks.getLatestSignatureSession,
+}));
+
 import { paymentRoutes } from "../src/modules/payments/payment.routes.js";
 
 describe("payment webhook routes", () => {
@@ -60,6 +71,15 @@ describe("payment webhook routes", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    (mocks.db as { select?: unknown }).select = vi.fn(() => ({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          limit: vi.fn().mockResolvedValue([{ signatureFlowMode: "visual" }]),
+        })),
+      })),
+    }));
+    mocks.getLatestSignatureSession.mockResolvedValue(null);
+    mocks.syncDraftFulfillmentFromPaymentState.mockResolvedValue(undefined);
     app = Fastify();
     await app.register(paymentRoutes);
   });
@@ -88,12 +108,19 @@ describe("payment webhook routes", () => {
       amountCents: 625,
       state: "pending",
     });
-    mocks.getPaymentAttemptById.mockResolvedValue({
-      id: "payment-1",
-      draftId: "draft-1",
-      amountCents: 625,
-      state: "pending",
-    });
+    mocks.getPaymentAttemptById
+      .mockResolvedValueOnce({
+        id: "payment-1",
+        draftId: "draft-1",
+        amountCents: 625,
+        state: "pending",
+      })
+      .mockResolvedValueOnce({
+        id: "payment-1",
+        draftId: "draft-1",
+        amountCents: 625,
+        state: "captured",
+      });
     mocks.transitionPaymentState.mockResolvedValue({
       payment: { id: "payment-1", state: "captured" },
       rawOrderAccessToken: "order-token-1",
@@ -142,8 +169,9 @@ describe("payment webhook routes", () => {
     tamperedApp.addHook("preHandler", (request, _reply, done) => {
       if (request.url === "/webhooks/stripe") {
         // Simulate a misconfigured parser or hook overwriting the raw payload.
-        (request as FastifyInstance["request"] & { rawBodyBuffer?: unknown }).rawBodyBuffer =
-          "tampered-body";
+        (
+          request as FastifyInstance["request"] & { rawBodyBuffer?: unknown }
+        ).rawBodyBuffer = "tampered-body";
       }
       done();
     });
@@ -177,12 +205,19 @@ describe("payment webhook routes", () => {
       },
     });
 
-    mocks.getPaymentAttemptById.mockResolvedValue({
-      id: "payment-1",
-      draftId: "draft-1",
-      amountCents: 625,
-      state: "pending",
-    });
+    mocks.getPaymentAttemptById
+      .mockResolvedValueOnce({
+        id: "payment-1",
+        draftId: "draft-1",
+        amountCents: 625,
+        state: "pending",
+      })
+      .mockResolvedValueOnce({
+        id: "payment-1",
+        draftId: "draft-1",
+        amountCents: 625,
+        state: "captured",
+      });
     mocks.transitionPaymentState.mockResolvedValue({
       payment: { id: "payment-1", state: "captured" },
       rawOrderAccessToken: null,

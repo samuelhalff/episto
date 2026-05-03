@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { LETTER_COLORS } from "@swiss-mail/shared";
+import { LETTER_COLORS } from "@episto/shared";
 
 export interface DrawnSignatureAsset {
   mimeType: "image/png" | "image/jpeg";
@@ -14,7 +14,7 @@ export function buildBlueSignatureSvgMarkup(asset: DrawnSignatureAsset): string 
 
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 180" preserveAspectRatio="xMinYMid meet">
   <defs>
-    <mask id="${maskId}">
+    <mask id="${maskId}" mask-type="alpha">
       <image href="data:${asset.mimeType};base64,${asset.base64}" width="100%" height="100%" preserveAspectRatio="xMinYMid meet" />
     </mask>
   </defs>

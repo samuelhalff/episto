@@ -1,4 +1,4 @@
-import type { ErrorFamily, ApiErrorResponse } from "@swiss-mail/shared";
+import type { ErrorFamily, ApiErrorResponse } from "@episto/shared";
 
 /**
  * Application error base class.

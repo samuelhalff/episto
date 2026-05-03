@@ -449,6 +449,7 @@ describe("marketing seo plumbing", () => {
     expect(element.props.dangerouslySetInnerHTML.__html).toContain("\\u2028");
     expect(element.props.dangerouslySetInnerHTML.__html).toContain("\\u2029");
     expect(element.props.nonce).toBe("test-nonce");
+    expect(element.props.suppressHydrationWarning).toBe(true);
 
     vi.doUnmock("next/headers");
   });

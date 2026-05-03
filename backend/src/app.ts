@@ -26,6 +26,8 @@ import { fileRoutes } from "./modules/files/index.js";
 import { adminAuthRoutes, adminRoutes } from "./modules/admin/index.js";
 import { orderRoutes } from "./modules/orders/index.js";
 import { pricingRoutes } from "./modules/pricing/pricing.routes.js";
+import { signingRoutes } from "./modules/signing/index.js";
+import { telemetryRoutes } from "./modules/telemetry/index.js";
 
 const PERMISSIONS_POLICY = "camera=(), microphone=(self), geolocation=()";
 
@@ -66,9 +68,12 @@ export async function buildApp(logger: pino.Logger) {
     done();
   });
 
-  const corsOrigins = config.CORS_ORIGIN.split(",").map((s) => s.trim()).filter(Boolean);
+  const corsOrigins = config.CORS_ORIGIN.split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
   await app.register(fastifyCors, {
-    origin: corsOrigins.length === 1 ? (corsOrigins[0] ?? config.CORS_ORIGIN) : corsOrigins,
+    origin:
+      corsOrigins.length === 1 ? (corsOrigins[0] ?? config.CORS_ORIGIN) : corsOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Request-Id", "X-Requested-With"],
@@ -236,12 +241,14 @@ export async function buildApp(logger: pino.Logger) {
   await app.register(dictationRoutes, { prefix: "/api/v1" });
   await app.register(paymentRoutes, { prefix: "/api/v1" });
   await app.register(fileRoutes, { prefix: "/api/v1" });
+  await app.register(signingRoutes, { prefix: "/api/v1" });
   await app.register(dispatchRoutes, { prefix: "/api/v1" });
   await app.register(orderRoutes, { prefix: "/api/v1" });
   await app.register(messageRoutes, { prefix: "/api/v1" });
   await app.register(adminAuthRoutes, { prefix: "/api/v1" });
   await app.register(adminRoutes, { prefix: "/api/v1" });
   await app.register(pricingRoutes, { prefix: "/api/v1" });
+  await app.register(telemetryRoutes, { prefix: "/api/v1" });
 
   return app;
 }

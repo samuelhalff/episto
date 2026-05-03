@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@swiss-mail/shared";
+import { queryKeys } from "@episto/shared";
 import { apiFetch } from "../lib/api";
 
 // ---------------------------------------------------------------------------
@@ -32,7 +32,7 @@ export interface DispatchInfo {
 
 const TERMINAL_STATES = ["captured", "failed", "cancelled", "refunded"];
 
-export const PAYMENT_SUCCESS_STATES = ["authorized", "captured"];
+export const PAYMENT_SUCCESS_STATES = ["captured"];
 export const PAYMENT_FAILURE_STATES = ["failed", "cancelled"];
 // "refunded" is terminal (stops polling) but shown as success on the
 // confirmation page — a refund means payment was captured then reversed.

@@ -2,7 +2,8 @@ import { eq, and, sql } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
-import { assertTransitionDraft, type DraftStatusValue } from "@swiss-mail/shared";
+import { assertTransitionDraft, type DraftStatusValue } from "@episto/shared";
+import { resolveSignatureFlowMode } from "../signing/signature-flow.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -15,6 +16,8 @@ export interface DraftRow {
   locale: string;
   deliveryType: string;
   signatureAssuranceLevel: string;
+  signatureFlowMode: string;
+  fulfillmentStatus: string;
   subject: string | null;
   body: string | null;
   tone: string | null;
@@ -40,6 +43,8 @@ function toDraftRow(row: typeof schema.draftLetters.$inferSelect): DraftRow {
     locale: row.locale,
     deliveryType: row.deliveryType,
     signatureAssuranceLevel: row.signatureAssuranceLevel,
+    signatureFlowMode: row.signatureFlowMode,
+    fulfillmentStatus: row.fulfillmentStatus,
     subject: row.subject,
     body: row.body,
     tone: row.tone,
@@ -75,6 +80,8 @@ export async function createDraft(
       locale: locale as "de-CH" | "fr-CH" | "it-CH" | "en-CH",
       deliveryType: "standard",
       signatureAssuranceLevel: "visual",
+      signatureFlowMode: "visual",
+      fulfillmentStatus: "draft_created",
       schemaVersion: 1,
     })
     .returning();
@@ -140,6 +147,7 @@ export async function updateDraft(
     intent?: string | null | undefined;
     deliveryType?: string | undefined;
     signatureAssuranceLevel?: string | undefined;
+    signatureFlowMode?: string | undefined;
     enclosureNote?: string | null | undefined;
     signatureMode?: string | null | undefined;
     senderProfileId?: string | null | undefined;
@@ -164,6 +172,15 @@ export async function updateDraft(
   if (updates.deliveryType !== undefined) values.deliveryType = updates.deliveryType;
   if (updates.signatureAssuranceLevel !== undefined) {
     values.signatureAssuranceLevel = updates.signatureAssuranceLevel;
+    if (updates.signatureFlowMode === undefined) {
+      values.signatureFlowMode = resolveSignatureFlowMode({
+        signatureAssuranceLevel: updates.signatureAssuranceLevel,
+        signatureMode: updates.signatureMode,
+      });
+    }
+  }
+  if (updates.signatureFlowMode !== undefined) {
+    values.signatureFlowMode = updates.signatureFlowMode;
   }
   if (updates.enclosureNote !== undefined) values.enclosureNote = updates.enclosureNote;
   if (updates.signatureMode !== undefined) values.signatureMode = updates.signatureMode;

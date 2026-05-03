@@ -59,9 +59,13 @@ describe("review page regressions", () => {
     );
   });
 
-  it("does not request a live quote while the reviewed snapshot is still rendering", () => {
-    expect(reviewReadySource).toContain(
+  it("treats ready_to_sign as a prepared draft instead of a still-rendering one", () => {
+    expect(reviewReadySource).toContain('["reviewed", "rendering"].includes');
+    expect(reviewReadySource).not.toContain(
       '["reviewed", "rendering", "ready_to_sign"].includes',
+    );
+    expect(reviewReadySource).toContain(
+      '["ready", "ready_to_sign", "submitted", "dispatched", "closed"].includes',
     );
     expect(reviewReadySource).toContain('allComplete ? t("pricingPending")');
   });

@@ -1,8 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { DraftDispatchQuoteResponseSchema } from "@swiss-mail/shared";
-import { queryKeys } from "@swiss-mail/shared";
+import { DraftDispatchQuoteResponseSchema } from "@episto/shared";
+import { queryKeys } from "@episto/shared";
 
 import { apiFetch } from "../lib/api";
 
@@ -10,8 +10,8 @@ export function useDispatchQuote(draftId: string, enabled = true) {
   return useQuery({
     queryKey: queryKeys.draftQuote(draftId),
     queryFn: () =>
-      apiFetch(`/v1/drafts/${draftId}/quote`).then((response) =>
-        DraftDispatchQuoteResponseSchema.parse(response).quote,
+      apiFetch(`/v1/drafts/${draftId}/quote`).then(
+        (response) => DraftDispatchQuoteResponseSchema.parse(response).quote,
       ),
     enabled: Boolean(draftId) && enabled,
     staleTime: 0,

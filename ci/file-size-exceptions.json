@@ -1,13 +1,17 @@
 {
   "backend/src/modules/ai/document-response.ts": 582,
-  "backend/src/modules/drafting/draft.routes.ts": 600,
+  "backend/src/modules/admin/admin-metrics.routes.ts": 908,
+  "backend/src/modules/drafting/draft.routes.ts": 614,
   "backend/src/modules/rendering/confirmation-document.ts": 553,
+  "backend/src/modules/signing/signature.routes.ts": 721,
   "backend/tests/ai-handler.test.ts": 775,
   "backend/tests/dispatch-quote.integration.test.ts": 809,
-  "backend/tests/payment-checkout.routes.test.ts": 826,
+  "backend/tests/payment-checkout.routes.test.ts": 902,
+  "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx": 501,
   "frontend/src/app/[locale]/draft/new/page.tsx": 697,
   "frontend/src/components/product/AttachmentUploader.tsx": 519,
   "frontend/src/components/product/draft-flow/IntakeStep.tsx": 501,
   "frontend/src/components/product/LetterPreview.tsx": 548,
-  "shared/src/contracts/index.ts": 636
+  "frontend/src/hooks/use-dictation.ts": 501,
+  "shared/src/contracts/index.ts": 728
 }

@@ -2,9 +2,14 @@
 
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@swiss-mail/shared";
+import { queryKeys } from "@episto/shared";
 import { useAdminAuth } from "../admin-auth-context";
-import { fetchAdminFunnel, fetchAdminErrors } from "../admin-api";
+import {
+  fetchAdminFunnel,
+  fetchAdminErrors,
+  fetchAdminStepFriction,
+  fetchAdminQesWaitlist,
+} from "../admin-api";
 import {
   MetricCard,
   SectionPanel,
@@ -33,7 +38,38 @@ export default function FunnelPage() {
     refetchInterval: REFETCH_MS,
     enabled: authenticated,
   });
+  const stepFriction = useQuery({
+    queryKey: ["admin", "step-friction", period],
+    queryFn: () => fetchAdminStepFriction(period),
+    refetchInterval: REFETCH_MS,
+    enabled: authenticated,
+  });
+  const waitlist = useQuery({
+    queryKey: ["admin", "qes-waitlist", period],
+    queryFn: () => fetchAdminQesWaitlist(period),
+    refetchInterval: REFETCH_MS,
+    enabled: authenticated,
+  });
   const funnelData = funnel.data;
+  const stepData = stepFriction.data;
+  const waitlistData = waitlist.data;
+
+  function formatDuration(ms: number): string {
+    if (!ms) return "–";
+    if (ms < 1000) return `${ms}ms`;
+    const sec = Math.round(ms / 100) / 10;
+    if (sec < 60) return `${sec}s`;
+    return `${Math.round(sec / 6) / 10}m`;
+  }
+
+  function formatTimeAgo(iso: string): string {
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return iso;
+    return date.toLocaleString("en-CH", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  }
 
   return (
     <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
@@ -124,6 +160,228 @@ export default function FunnelPage() {
                 Overall conversion: {funnelData.overallConversionPercent}%
               </span>
             </div>
+          </div>
+        ) : null}
+      </SectionPanel>
+
+      {/* Step friction panel */}
+      <SectionPanel title="Step Friction">
+        {stepFriction.isLoading ? (
+          <PanelLoading />
+        ) : stepFriction.error ? (
+          <PanelError message="Failed to load step friction data" />
+        ) : stepData ? (
+          stepData.steps.length === 0 ? (
+            <p className="py-8 text-center text-xs" style={{ color: "var(--app-muted)" }}>
+              No step events in this period
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr style={{ color: "var(--app-muted)" }}>
+                    <th className="py-2 pr-3 font-medium">Step</th>
+                    <th className="py-2 pr-3 text-right font-medium">Entered</th>
+                    <th className="py-2 pr-3 text-right font-medium">Completed</th>
+                    <th className="py-2 pr-3 text-right font-medium">Idle</th>
+                    <th className="py-2 pr-3 text-right font-medium">Abandoned</th>
+                    <th className="py-2 pr-3 text-right font-medium">Errors</th>
+                    <th className="py-2 pr-3 text-right font-medium">Median</th>
+                    <th className="py-2 text-right font-medium">Drop-off</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stepData.steps.map((s) => {
+                    const high = s.dropOffPercent >= 30;
+                    return (
+                      <tr
+                        key={s.step}
+                        className="border-t"
+                        style={{ borderColor: "var(--app-border)" }}
+                      >
+                        <td
+                          className="py-2 pr-3 font-medium"
+                          style={{ color: "var(--app-fg)" }}
+                        >
+                          {s.step}
+                        </td>
+                        <td
+                          className="py-2 pr-3 text-right font-mono"
+                          style={{ color: "var(--app-fg)" }}
+                        >
+                          {s.entered}
+                        </td>
+                        <td
+                          className="py-2 pr-3 text-right font-mono"
+                          style={{ color: "var(--app-fg)" }}
+                        >
+                          {s.completed}
+                        </td>
+                        <td
+                          className="py-2 pr-3 text-right font-mono"
+                          style={{ color: "var(--app-muted)" }}
+                        >
+                          {s.idle}
+                        </td>
+                        <td
+                          className="py-2 pr-3 text-right font-mono"
+                          style={{
+                            color: s.abandoned > 0 ? "var(--app-fg)" : "var(--app-muted)",
+                          }}
+                        >
+                          {s.abandoned}
+                        </td>
+                        <td
+                          className="py-2 pr-3 text-right font-mono"
+                          style={{
+                            color: s.errors > 0 ? "rgb(220, 38, 38)" : "var(--app-muted)",
+                          }}
+                        >
+                          {s.errors}
+                        </td>
+                        <td
+                          className="py-2 pr-3 text-right font-mono"
+                          style={{ color: "var(--app-muted)" }}
+                        >
+                          {formatDuration(s.medianDurationMs)}
+                        </td>
+                        <td
+                          className="py-2 text-right font-mono"
+                          style={{
+                            color: high ? "rgb(217, 119, 6)" : "var(--app-muted)",
+                            fontWeight: high ? 600 : 400,
+                          }}
+                        >
+                          {s.dropOffPercent}%
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : null}
+      </SectionPanel>
+
+      {/* Stuck users panel */}
+      <SectionPanel title="Currently Stuck Sessions">
+        {stepFriction.isLoading ? (
+          <PanelLoading />
+        ) : stepFriction.error ? (
+          <PanelError message="Failed to load stuck sessions" />
+        ) : stepData ? (
+          stepData.stuckUsers.length === 0 ? (
+            <p className="py-8 text-center text-xs" style={{ color: "var(--app-muted)" }}>
+              No stuck sessions in this period
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr style={{ color: "var(--app-muted)" }}>
+                    <th className="py-2 pr-3 font-medium">Session</th>
+                    <th className="py-2 pr-3 font-medium">Draft</th>
+                    <th className="py-2 pr-3 font-medium">Step</th>
+                    <th className="py-2 font-medium">Last seen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {stepData.stuckUsers.map((u) => (
+                    <tr
+                      key={`${u.sessionId}-${u.step}`}
+                      className="border-t"
+                      style={{ borderColor: "var(--app-border)" }}
+                    >
+                      <td
+                        className="py-2 pr-3 font-mono"
+                        style={{ color: "var(--app-fg)" }}
+                      >
+                        {u.sessionId.slice(0, 8)}…
+                      </td>
+                      <td
+                        className="py-2 pr-3 font-mono"
+                        style={{ color: "var(--app-muted)" }}
+                      >
+                        {u.draftId ? `${u.draftId.slice(0, 8)}…` : "–"}
+                      </td>
+                      <td className="py-2 pr-3" style={{ color: "var(--app-fg)" }}>
+                        {u.step}
+                      </td>
+                      <td className="py-2" style={{ color: "var(--app-muted)" }}>
+                        {formatTimeAgo(u.lastSeen)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : null}
+      </SectionPanel>
+
+      {/* QES waitlist panel */}
+      <SectionPanel title="QES Waitlist">
+        {waitlist.isLoading ? (
+          <PanelLoading />
+        ) : waitlist.error ? (
+          <PanelError message="Failed to load QES waitlist" />
+        ) : waitlistData ? (
+          <div className="space-y-4">
+            <MetricCard
+              label="Total signups (30d)"
+              value={waitlistData.total}
+              sub={`Most recent ${waitlistData.recent.length} shown below`}
+            />
+            {waitlistData.recent.length === 0 ? (
+              <p
+                className="py-4 text-center text-xs"
+                style={{ color: "var(--app-muted)" }}
+              >
+                No QES waitlist signups yet
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr style={{ color: "var(--app-muted)" }}>
+                      <th className="py-2 pr-3 font-medium">Email</th>
+                      <th className="py-2 pr-3 font-medium">Locale</th>
+                      <th className="py-2 pr-3 font-medium">Source</th>
+                      <th className="py-2 font-medium">Submitted</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {waitlistData.recent.map((r, idx) => (
+                      <tr
+                        key={`${r.email}-${idx}`}
+                        className="border-t"
+                        style={{ borderColor: "var(--app-border)" }}
+                      >
+                        <td className="py-2 pr-3" style={{ color: "var(--app-fg)" }}>
+                          {r.email}
+                        </td>
+                        <td
+                          className="py-2 pr-3 font-mono"
+                          style={{ color: "var(--app-muted)" }}
+                        >
+                          {r.locale ?? "–"}
+                        </td>
+                        <td
+                          className="py-2 pr-3 font-mono"
+                          style={{ color: "var(--app-muted)" }}
+                        >
+                          {r.source ?? "–"}
+                        </td>
+                        <td className="py-2" style={{ color: "var(--app-muted)" }}>
+                          {formatTimeAgo(r.createdAt)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         ) : null}
       </SectionPanel>

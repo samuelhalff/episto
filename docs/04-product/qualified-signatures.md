@@ -1,9 +1,10 @@
 # Qualified Electronic Signatures
 
-> **Status:** Phase 0 — taxonomy, UI shell, and adapter seam are implemented. Phase 1 (AES) and
-> Phase 2 (QES) require the locked signing provider's sandbox onboarding and live credentials.
-> See [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md) for the provider
-> three-option review.
+> **Status:** SwissSign / SwissID readiness scaffold. Public signature architecture and UX may be
+> prepared now, but live SwissSign transaction handling remains **not live** until onboarding,
+> credentials, and private API details are available.
+> See [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md) for the active
+> implementation direction.
 >
 > **Cross-refs:** [`signatures-and-attachments.md`](signatures-and-attachments.md) ·
 > [`pricing-structure.md`](pricing-structure.md) ·
@@ -14,10 +15,9 @@
 
 ## Objective
 
-Let users optionally sign their letter with an advanced or qualified electronic signature under
-Swiss ZertES (and eIDAS for cross-border recipients), without scaring the 95% of users who don't
-need it and without misrepresenting the legal value of a signed document that is also printed and
-posted on paper.
+Let users choose between a **typed signature**, a **drawn signature**, and **QES**, while keeping
+the standard options simple for everyday letters and making QES available only where a legally
+recognized electronic signature is actually needed.
 
 ---
 
@@ -40,81 +40,72 @@ posted on paper.
 
 ---
 
-## Three-tier assurance model — LOCKED
+## Public signature model — LOCKED
 
-The signature picker exposes three tiers. The internal enum values are stable; user-facing labels
-may vary per locale.
+The signature picker exposes three user-facing choices:
 
-| Enum value (`SignatureAssuranceLevel`) | User-facing label   | Legal weight (CH)                         | Price delta (placeholder)                 | First-time friction     |
-| -------------------------------------- | ------------------- | ----------------------------------------- | ----------------------------------------- | ----------------------- |
-| `visual`                               | Standard signature  | Evidentiary only                          | included                                  | none                    |
-| `advanced`                             | Advanced signature  | Advanced electronic signature (AES)       | +CHF 3 (Phase 1 target)                   | +email/SMS OTP (~30 s)  |
-| `qualified`                            | Qualified signature | Equivalent to handwritten (Art. 14(2bis)) | +CHF 9 per letter + CHF 19 one-time ident | +video ident first time |
+| User-facing choice | Internal mapping | Legal weight (CH)                         | Price delta (placeholder)                 | First-time friction     |
+| ------------------ | ---------------- | ----------------------------------------- | ----------------------------------------- | ----------------------- |
+| Typed signature    | `visual` + typed | Evidentiary only                          | included                                  | none                    |
+| Drawn signature    | `visual` + drawn | Evidentiary only                          | included                                  | none                    |
+| QES                | `qualified`      | Equivalent to handwritten (Art. 14(2bis)) | +CHF 9 per letter + CHF 19 one-time ident | +video ident first time |
 
-Price placeholders are stored in config, not code:
+The backend signing model may stay generic enough for future non-visual tiers, but **AES is not a
+public product option** and must not appear in user-facing copy or pricing.
 
-- `PRICE_ADVANCED_SIGNATURE_CENTS`
+QES price placeholders are stored in config, not code:
+
 - `PRICE_QUALIFIED_SIGNATURE_CENTS`
 - `PRICE_QUALIFIED_IDENT_ONE_TIME_CENTS`
 
-Exact pricing is reviewed against real commercial terms before Phase 1 launch.
+Exact pricing is reviewed against real commercial terms before QES launch.
 
 ---
 
-## Locked signing provider — Skribble (Phase 1 and Phase 2)
+## Active provider direction — SwissSign / SwissID readiness
 
-See [`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md) → _QES provider
-path_ for the three-option review. Summary:
+This document now assumes SwissSign / SwissID readiness scaffolding, not a live provider rollout.
 
-- **Skribble** handles both AES and QES against a single REST API and ident flow. Supports ZertES
-  and eIDAS per document. Ident reuse is productized. Matches our DE/FR/IT/EN locale set.
-- Swisscom All-in Signing Service direct (cheaper at scale) is deferred to Phase 3 after volume
-  justifies the additional integration work.
-- SwissSign is rejected for MVP — opaque developer experience, SwissID-only ident advantage.
+What is safe to design around now:
 
-Adapter module: `backend/src/modules/signing/adapters/skribble.adapter.ts` (created in Phase 1).
+- SwissSign publicly offers integrated electronic-signature solutions with REST API integration,
+  mobile app integration, batch signing, and online identification.
+- SwissID OIDC supports discovery, authorization, and documented signing-oriented step-up flows.
+- SwissSign user guidance indicates QES signing may require a SwissID account, a verified identity,
+  the SwissSign Wallet, and a supported smartphone with biometrics.
+
+What must stay abstract until onboarding details arrive:
+
+- Signature-session creation endpoints
+- Document-upload or hash-signing request shapes
+- Callback/webhook payloads
+- Signed-document retrieval endpoints
+- Production-grade readiness claims beyond public documentation
 
 ---
 
-## Bulletproof ident reuse — LOCKED design
+## Signer readiness and reuse
 
-Identification is the biggest source of user frustration. Treat it as a first-class entity.
+Identification is still the biggest source of user friction, so the architecture must treat
+signer readiness as a first-class concern.
 
-### Identity ownership
+Current design direction:
 
-- Identity is tied to the pair `(verified email, verified phone E.164)`, not to a Swiss Mail
-  account.
-- Every QES-capable signer record stores: Skribble `member` identifier, jurisdiction reach
-  (`zertes_ch`, `eidas_eu`), verification method, verification timestamp, expiry timestamp, last
-  successful use.
-- The record lives in the `signer_profile` table with a lookup index on the hash of the email +
-  phone pair.
+- Preserve guest-first ordering for the base product.
+- Track signature readiness independently from payment and dispatch.
+- Store only the minimum signer metadata needed to resume or reconcile a signing-capable order.
+- Allow future reuse of a signer's SwissID / SwissSign readiness without forcing that assumption
+  into today's non-signature flows.
 
-### Reuse guarantees
+Failure and retry expectations:
 
-- Ident is reusable for the duration Skribble considers the verification valid. Track the expiry
-  explicitly (`ident_valid_until`) and refuse to start a new signing session within 48 h of
-  expiry; instead prompt a re-identification.
-- When the user returns with the same email, we look up the signer profile, send a
-  passwordless magic link, and on click the UI shows "Welcome back, you're already identified —
-  ready to sign in 10 seconds."
-- The user can explicitly cancel the reuse ("I'd like to identify as a different person") and
-  start a fresh ident session; the previous profile is not deleted — it stays available for the
-  recorded person.
-- Reuse works across devices: the magic-link + OTP re-auth is per session and does not require
-  the original browser.
-
-### Failure modes and handling
-
-| Failure                                       | Behavior                                                                                     |
-| --------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| Skribble says ident expired                   | Re-identification required; UI shows empathetic copy; previous letters remain valid.         |
-| Phone number changed                          | Refuse silent reuse; require re-ident with new number; keep historical records intact.       |
-| Email changed                                 | Treated as new signer. Old record remains for historical letter verification.                |
-| Skribble API unavailable during sign session  | Show retry UI; preserve draft; no partial captures; preserve payment auth until recovery.    |
-| Provider cert revoked                         | Block new signing sessions on that profile; preserve past signed artifacts and their proofs. |
-| Signing session expires mid-flow              | Draft preserved; payment auth released per `SigningState → expired` transition.              |
-| User starts QES but abandons the signing step | Payment authorized but not captured; auto-release after TTL.                                 |
+| Failure                                   | Behavior                                                                  |
+| ----------------------------------------- | ------------------------------------------------------------------------- |
+| SwissID step-up not completed             | Keep draft and payment authorization recoverable; do not capture.         |
+| SwissSign session expires                 | Keep the order resumable where possible; allow a fresh signature session. |
+| Signed document not yet retrievable       | Keep order in a pending backend-controlled state; do not dispatch.        |
+| Provider callback missing or ambiguous    | Reconcile from backend truth; do not trust redirect params.               |
+| User abandons the external signature flow | Preserve order and release or cancel authorization where supported.       |
 
 ### Privacy
 
@@ -131,9 +122,10 @@ Identification is the biggest source of user frustration. Treat it as a first-cl
 
 ### Default state
 
-The three-tier picker is rendered. `visual` is preselected. The `advanced` and `qualified` cards
-are visible but carry a `Coming soon` badge during Phase 0. Disabled cards stay informative,
-never aspirational — they show the price delta and a one-line plain-language description.
+The picker renders three choices: **typed**, **drawn**, and **QES**. Typed is preselected.
+Drawn is available immediately. QES is visible but carries a `Coming soon` badge during Phase 0.
+The disabled QES card stays informative, never aspirational — it shows the price delta and a
+one-line plain-language description.
 
 ### "Do I need a qualified signature?" explainer
 
@@ -150,7 +142,7 @@ short, neutral, non-alarming explainer that:
 The explainer must never upsell — it informs. If the user is clearly in a non-QES use case, the
 copy may soft-suggest the standard tier.
 
-### Per-tier disclosure
+### Per-choice disclosure
 
 Each tier card shows:
 
@@ -162,8 +154,8 @@ Each tier card shows:
 
 ### Checkout acknowledgment
 
-When the user has selected `advanced` or `qualified`, the checkout acknowledgment adds a single
-extra line: _"I understand that the legally binding version of this letter is the electronic
+When the user has selected `qualified`, the checkout acknowledgment adds a single extra line:
+_"I understand that the legally binding version of this letter is the electronic
 PDF, and that the paper we post is a courtesy copy."_ This is additive to the existing
 non-legal-service acknowledgment.
 
@@ -198,10 +190,10 @@ session means a new record.
 
 Aligned with the locked capture model (Option B: authorize first, capture after acceptance):
 
-- `visual`: unchanged — the existing capture behavior applies.
-- `advanced`, `qualified`: payment is authorized at checkout, captured only after the signing
-  session reaches `signed`. Identification fee (QES first-time) is charged together with the
-  letter fee as a single authorization.
+- `typed`, `drawn`: unchanged — the existing visual-tier capture behavior applies.
+- `qualified`: payment is authorized at checkout, captured only after the signing session reaches
+  `signed`. Identification fee (QES first-time) is charged together with the letter fee as a
+  single authorization.
 - Failure before `signed` → automatic release of the authorization.
 
 ---
@@ -235,19 +227,19 @@ Invariant test: `it("freezes PDF bytes once ready_to_sign")` in the rendering mo
 
 ## Phasing
 
-| Phase | Scope                                                                                                                                                                                                                                 | Status                  |
-| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------- |
-| 0     | Shared taxonomy (`SignatureAssuranceLevel`, `SigningState`, `SigningProvider`), state machine, adapter interface + stub, three-tier UI shell (`advanced`/`qualified` shown as _Coming soon_), explainer, legal reference page, tests. | Implemented in this PR. |
-| 1     | AES live via Skribble: email/SMS OTP ident, PAdES-B-LT signing, webhook, signed artifact storage, recipient electronic delivery, checkout copy update.                                                                                | Pending credentials.    |
-| 2     | QES live via Skribble: video ident, jurisdiction selection (ZertES/eIDAS), signer profile reuse, 10-year retention, public verification page.                                                                                         | Pending credentials.    |
-| 3     | Swisscom All-in Signing Service direct adapter for margin improvement at volume.                                                                                                                                                      | Post-launch.            |
+| Phase | Scope                                                                                                                                                                                        | Status                 |
+| ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| 0     | Public model locked as typed / drawn / QES, shared taxonomy and adapter seam present, legal explainer and reference page in place.                                                           | Existing baseline.     |
+| 1     | SwissSign / SwissID readiness foundations: persisted signature state, fulfillment lifecycle, eligibility gate, return/resume UX, OIDC scaffolding, mock provider, callback infrastructure.   | Current task.          |
+| 2     | Live SwissSign integration: real session creation, callback verification, signed artifact retrieval, and production readiness checks once credentials and private API details are confirmed. | Blocked on onboarding. |
+| 3     | Optional future provider expansion or refined tier strategy after live signature operations are proven.                                                                                      | Later.                 |
 
 ---
 
 ## Open decisions explicitly deferred
 
-- Exact pricing against real commercial terms with Skribble (placeholders locked for design; real
-  numbers gated on contract).
-- Exact ident-validity window per Skribble policy (design assumes 5 years; confirm at onboarding).
+- Exact SwissSign commercial pricing and packaging for SES / QES.
+- Exact SwissID claim set and production-grade readiness semantics to persist for reuse.
+- Exact signed-artifact retention and verification package requirements after SwissSign onboarding.
 - Minor: whether to show a Coming-soon date on disabled tier cards. Default: no date, to avoid
   a missed-quarter trust hit.

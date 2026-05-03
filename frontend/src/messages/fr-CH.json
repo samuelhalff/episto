@@ -570,7 +570,7 @@
     "deliveryRegisteredDescription": "Idéal pour les envois plus formels qui demandent une confirmation postale supplémentaire.",
     "readyToSend": "Prêt",
     "needsAttention": "À compléter",
-    "typedSignature": "Signature saisie",
+    "typedSignature": "Signature en police",
     "noSignature": "Aucune signature ajoutée",
     "noAttachments": "Aucune pièce jointe",
     "attachmentCount": "{count} pièce(s) jointe(s)",
@@ -854,30 +854,48 @@
   },
   "signatureTiers": {
     "comingSoon": "Bientôt disponible",
-    "visual": {
-      "label": "Signature standard",
-      "purpose": "Votre nom en écriture cursive ou une signature tracée à l’écran. Convient à la plupart des courriers courants.",
+    "typed": {
+      "label": "Signature en police",
+      "purpose": "Votre nom rendu dans une police de signature. Convient à la plupart des courriers courants.",
       "price": "Incluse",
+      "priceDetail": "",
       "friction": "Aucune vérification d’identité"
     },
-    "advanced": {
-      "label": "Signature avancée",
-      "purpose": "PDF scellé cryptographiquement avec vérification d’identité par le prestataire.",
-      "price": "+CHF 3",
-      "friction": "Code par e-mail et SMS"
+    "drawn": {
+      "label": "Signature dessinée",
+      "purpose": "Signez directement à l’écran pour que la version imprimée porte votre propre geste.",
+      "price": "Incluse",
+      "priceDetail": "",
+      "friction": "Aucune vérification d’identité"
     },
     "qualified": {
-      "label": "Signature qualifiée",
+      "label": "QES",
       "purpose": "Juridiquement équivalente à une signature manuscrite pour les contrats soumis à la forme écrite.",
-      "price": "+CHF 9 + CHF 19 unique pour l’identification",
-      "friction": "Vidéo-identification, seulement la première fois"
+      "price": "+CHF 9 / courrier",
+      "priceDetail": "+CHF 19 de vérification d’identité unique si vous n’êtes pas encore vérifié",
+      "friction": "Vidéo-identification, seulement la première fois",
+      "notifyMe": "Me prévenir",
+      "notifyLabel": "Notification de sortie",
+      "notifyHint": "Cliquez pour vous inscrire et recevoir un e-mail dès que la QES sera disponible.",
+      "waitlist": {
+        "badge": "Bientôt disponible",
+        "title": "Signature électronique qualifiée",
+        "description": "Nous finalisons le parcours d’identification SwissID. Laissez votre e-mail, nous vous préviendrons dès que la signature qualifiée sera disponible.",
+        "emailLabel": "Adresse e-mail",
+        "emailPlaceholder": "vous@exemple.ch",
+        "submit": "Me prévenir",
+        "submitting": "Enregistrement…",
+        "successMessage": "Vous êtes inscrit. Nous vous contacterons dès la mise en service.",
+        "errorMessage": "Une erreur s’est produite. Merci de réessayer dans un instant.",
+        "cancel": "Fermer"
+      }
     },
     "explainer": {
       "triggerLabel": "Ai-je besoin d’une signature qualifiée ?",
       "title": "Quelle signature choisir ?",
       "intro": "La plupart des courriers ne requièrent pas de signature qualifiée. Le choix dépend de ce dont le destinataire a besoin et de l’exigence éventuelle de forme écrite.",
-      "caseStandard": "Pour les réclamations, rappels, notifications de changement et correspondance générale, une signature standard suffit.",
-      "caseAdvanced": "Pour des envois où le destinataire souhaite une preuve infalsifiable que le document n’a pas été modifié depuis la signature.",
+      "caseTyped": "Choisissez la signature en police lorsqu’un nom rendu proprement suffit pour le courrier imprimé.",
+      "caseDrawn": "Choisissez la signature dessinée lorsque vous voulez que votre propre geste manuscrit apparaisse sur le courrier imprimé.",
       "caseQualified": "Pour les documents soumis à la forme écrite selon le droit suisse (cautionnement, crédit à la consommation, certaines résiliations de baux à durée déterminée, certaines matières de droit du travail).",
       "paperCaveat": "Une signature qualifiée s’applique au PDF électronique. L’exemplaire papier que nous envoyons est une copie — la version juridiquement contraignante est l’original électronique. Pour les commandes qualifiées, le destinataire reçoit également le PDF signé par e-mail.",
       "fullRequirementsCta": "Lire l’ensemble des exigences de signature",
@@ -897,12 +915,12 @@
     },
     "sections": {
       "tiers": {
-        "title": "Niveaux de signature proposés",
-        "intro": "Trois niveaux sont prévus. Aujourd’hui, le niveau standard est disponible. Les niveaux avancé et qualifié seront activés à la fin de l’intégration avec le prestataire.",
-        "visualName": "Signature standard",
-        "visualBody": "Un nom saisi en écriture cursive ou une signature tracée à l’écran. Convient à la correspondance formelle courante. Aucune prétention de vérification d’identité au sens légal.",
-        "advancedName": "Signature électronique avancée (SEA)",
-        "advancedBody": "Un PDF scellé cryptographiquement. L’identité est vérifiée par e-mail et SMS. Infalsifiable et traçable, mais non équivalente à une signature manuscrite en droit suisse.",
+        "title": "Choix de signature affichés",
+        "intro": "Le produit montre trois choix. Aujourd’hui, les signatures en police et dessinée sont disponibles. La QES reste marquée Bientôt disponible jusqu’à la fin de l’intégration du prestataire.",
+        "typedName": "Signature en police",
+        "typedBody": "Votre nom rendu dans une police de signature. Convient à la correspondance formelle courante. Aucune prétention de vérification d’identité au sens légal.",
+        "drawnName": "Signature dessinée",
+        "drawnBody": "Une signature tracée à l’écran puis imprimée sur le courrier. Elle montre votre propre geste sur le papier, mais ne crée pas l’effet juridique d’une signature qualifiée.",
         "qualifiedName": "Signature électronique qualifiée (SEQ)",
         "qualifiedBody": "Juridiquement équivalente à une signature manuscrite selon la loi fédérale suisse sur la signature électronique (SCSE/ZertES), et compatible avec eIDAS pour les destinataires européens. Identification vidéo unique requise."
       },
@@ -1031,6 +1049,10 @@
     "search": {
       "title": "Recherche",
       "description": "Retrouvez une session, un brouillon, un paiement ou une référence fournisseur depuis un seul endroit."
+    },
+    "audience": {
+      "title": "Audience",
+      "description": "Listes exportables d'e-mails pour les clients envoyés et les notifications de sortie."
     },
     "sessions": {
       "title": "Sessions",

@@ -1,9 +1,13 @@
-import type { DictationSessionQuery } from "@swiss-mail/shared";
+import type { DictationSessionQuery } from "@episto/shared";
 
 import type { Db } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { getDraftById } from "./draft.service.js";
-import { DEFAULT_SWISS_RECIPIENT_HINTS, collectDraftContextHints, mergeDictationHints } from "./dictation-hints.js";
+import {
+  DEFAULT_SWISS_RECIPIENT_HINTS,
+  collectDraftContextHints,
+  mergeDictationHints,
+} from "./dictation-hints.js";
 import { getRecipientProfile, getSenderProfile } from "./profile.service.js";
 import {
   createLiveDictationStream,
@@ -42,7 +46,9 @@ export async function resolveDictationContext(
 
   const [sender, recipient] = await Promise.all([
     draft.senderProfileId ? getSenderProfile(db, draft.senderProfileId, sessionId) : null,
-    draft.recipientProfileId ? getRecipientProfile(db, draft.recipientProfileId, sessionId) : null,
+    draft.recipientProfileId
+      ? getRecipientProfile(db, draft.recipientProfileId, sessionId)
+      : null,
   ]);
 
   return {

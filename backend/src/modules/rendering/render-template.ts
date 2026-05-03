@@ -12,8 +12,8 @@ import {
   type InlineSpan,
   type ListItem,
   type SnapshotData,
-} from "@swiss-mail/shared";
-import { stripLetterFramingDocument } from "@swiss-mail/shared/letter-framing";
+} from "@episto/shared";
+import { stripLetterFramingDocument } from "@episto/shared/letter-framing";
 import {
   buildBlueSignatureSvgMarkup,
   type DrawnSignatureAsset,

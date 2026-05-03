@@ -1,6 +1,18 @@
-import { DraftStatus, PaymentState, DispatchState, SigningState } from "./enums.ts";
+import {
+  DraftStatus,
+  PaymentState,
+  DispatchState,
+  SigningState,
+  SignatureSessionStatus,
+  OrderFulfillmentStatus,
+} from "./enums.ts";
 
-import type { DraftStatusValue, SigningStateValue } from "./enums.ts";
+import type {
+  DraftStatusValue,
+  SigningStateValue,
+  SignatureSessionStatusValue,
+  OrderFulfillmentStatusValue,
+} from "./enums.ts";
 type PaymentStateValue = (typeof PaymentState)[keyof typeof PaymentState];
 type DispatchStateValue = (typeof DispatchState)[keyof typeof DispatchState];
 
@@ -216,4 +228,189 @@ export function getAllowedSigningTransitions(
   from: SigningStateValue,
 ): readonly SigningStateValue[] {
   return SIGNING_TRANSITIONS[from];
+}
+
+// ---------------------------------------------------------------------------
+// SignatureSessionStatus transitions
+// ---------------------------------------------------------------------------
+
+const SIGNATURE_SESSION_TRANSITIONS: Record<
+  SignatureSessionStatusValue,
+  readonly SignatureSessionStatusValue[]
+> = {
+  [SignatureSessionStatus.not_required]: [],
+  [SignatureSessionStatus.eligibility_pending]: [
+    SignatureSessionStatus.eligibility_confirmed,
+    SignatureSessionStatus.failed,
+    SignatureSessionStatus.expired,
+    SignatureSessionStatus.cancelled,
+  ],
+  [SignatureSessionStatus.eligibility_confirmed]: [
+    SignatureSessionStatus.payment_authorized,
+    SignatureSessionStatus.cancelled,
+    SignatureSessionStatus.expired,
+  ],
+  [SignatureSessionStatus.payment_authorized]: [
+    SignatureSessionStatus.identity_stepup_started,
+    SignatureSessionStatus.signature_session_created,
+    SignatureSessionStatus.failed,
+    SignatureSessionStatus.expired,
+    SignatureSessionStatus.cancelled,
+  ],
+  [SignatureSessionStatus.identity_stepup_started]: [
+    SignatureSessionStatus.signature_session_created,
+    SignatureSessionStatus.failed,
+    SignatureSessionStatus.expired,
+    SignatureSessionStatus.cancelled,
+  ],
+  [SignatureSessionStatus.signature_session_created]: [
+    SignatureSessionStatus.signature_in_progress,
+    SignatureSessionStatus.signature_completed,
+    SignatureSessionStatus.failed,
+    SignatureSessionStatus.expired,
+    SignatureSessionStatus.cancelled,
+  ],
+  [SignatureSessionStatus.signature_in_progress]: [
+    SignatureSessionStatus.signature_completed,
+    SignatureSessionStatus.failed,
+    SignatureSessionStatus.expired,
+    SignatureSessionStatus.cancelled,
+  ],
+  [SignatureSessionStatus.signature_completed]: [
+    SignatureSessionStatus.signed_document_attached,
+    SignatureSessionStatus.failed,
+  ],
+  [SignatureSessionStatus.signed_document_attached]: [],
+  [SignatureSessionStatus.failed]: [],
+  [SignatureSessionStatus.expired]: [],
+  [SignatureSessionStatus.cancelled]: [],
+};
+
+export function canTransitionSignatureSession(
+  from: SignatureSessionStatusValue,
+  to: SignatureSessionStatusValue,
+): boolean {
+  return SIGNATURE_SESSION_TRANSITIONS[from].includes(to);
+}
+
+export function assertTransitionSignatureSession(
+  from: SignatureSessionStatusValue,
+  to: SignatureSessionStatusValue,
+): void {
+  if (!canTransitionSignatureSession(from, to)) {
+    throw new Error(`Invalid signature session transition: ${from} → ${to}`);
+  }
+}
+
+export function getAllowedSignatureSessionTransitions(
+  from: SignatureSessionStatusValue,
+): readonly SignatureSessionStatusValue[] {
+  return SIGNATURE_SESSION_TRANSITIONS[from];
+}
+
+// ---------------------------------------------------------------------------
+// OrderFulfillmentStatus transitions
+// ---------------------------------------------------------------------------
+
+const FULFILLMENT_TRANSITIONS: Record<
+  OrderFulfillmentStatusValue,
+  readonly OrderFulfillmentStatusValue[]
+> = {
+  [OrderFulfillmentStatus.draft_created]: [
+    OrderFulfillmentStatus.draft_completed,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.draft_completed]: [
+    OrderFulfillmentStatus.preview_ready,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.preview_ready]: [
+    OrderFulfillmentStatus.signature_not_required,
+    OrderFulfillmentStatus.signature_selected,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.signature_not_required]: [
+    OrderFulfillmentStatus.payment_authorized,
+    OrderFulfillmentStatus.payment_captured,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.signature_selected]: [
+    OrderFulfillmentStatus.signature_eligibility_confirmed,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.signature_eligibility_confirmed]: [
+    OrderFulfillmentStatus.payment_authorized,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.payment_authorized]: [
+    OrderFulfillmentStatus.identity_stepup_started,
+    OrderFulfillmentStatus.signature_session_created,
+    OrderFulfillmentStatus.payment_captured,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.identity_stepup_started]: [
+    OrderFulfillmentStatus.signature_session_created,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.signature_session_created]: [
+    OrderFulfillmentStatus.signature_in_progress,
+    OrderFulfillmentStatus.signature_completed,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.signature_in_progress]: [
+    OrderFulfillmentStatus.signature_completed,
+    OrderFulfillmentStatus.failed,
+    OrderFulfillmentStatus.expired,
+  ],
+  [OrderFulfillmentStatus.signature_completed]: [
+    OrderFulfillmentStatus.signed_document_attached,
+    OrderFulfillmentStatus.failed,
+  ],
+  [OrderFulfillmentStatus.signed_document_attached]: [
+    OrderFulfillmentStatus.payment_captured,
+    OrderFulfillmentStatus.failed,
+  ],
+  [OrderFulfillmentStatus.payment_captured]: [
+    OrderFulfillmentStatus.dispatch_submitted,
+    OrderFulfillmentStatus.failed,
+  ],
+  [OrderFulfillmentStatus.dispatch_submitted]: [
+    OrderFulfillmentStatus.dispatch_confirmed,
+    OrderFulfillmentStatus.failed,
+  ],
+  [OrderFulfillmentStatus.dispatch_confirmed]: [OrderFulfillmentStatus.completed],
+  [OrderFulfillmentStatus.completed]: [],
+  [OrderFulfillmentStatus.failed]: [],
+  [OrderFulfillmentStatus.expired]: [],
+};
+
+export function canTransitionFulfillment(
+  from: OrderFulfillmentStatusValue,
+  to: OrderFulfillmentStatusValue,
+): boolean {
+  return FULFILLMENT_TRANSITIONS[from].includes(to);
+}
+
+export function assertTransitionFulfillment(
+  from: OrderFulfillmentStatusValue,
+  to: OrderFulfillmentStatusValue,
+): void {
+  if (!canTransitionFulfillment(from, to)) {
+    throw new Error(`Invalid fulfillment transition: ${from} → ${to}`);
+  }
+}
+
+export function getAllowedFulfillmentTransitions(
+  from: OrderFulfillmentStatusValue,
+): readonly OrderFulfillmentStatusValue[] {
+  return FULFILLMENT_TRANSITIONS[from];
 }

@@ -4,6 +4,7 @@ import { startTransition, useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useDraft, useSession } from "@/hooks/use-api";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useStepTracking } from "@/hooks/use-step-tracking";
 import { useVisualViewport } from "@/hooks/use-visual-viewport";
 import { RecoveryScreen } from "../RecoveryScreen";
 import { StepNavProvider, PreviewPanelProvider } from "./step-nav-context";
@@ -67,6 +68,11 @@ export function DraftWorkspaceClient({ draftId, stepSlug }: DraftWorkspaceClient
   const pathname = usePathname();
   const session = useSession();
   const draft = useDraft(draftId);
+  useStepTracking({
+    step: `draft_${stepSlug ?? "intake"}`,
+    draftId,
+    ...(draft.data?.locale ? { locale: draft.data.locale } : {}),
+  });
   const viewportHeight = useVisualViewport();
   const isCompactViewport = useMediaQuery("(max-width: 1023px)");
   const isWideViewport = useMediaQuery("(min-width: 1280px)");

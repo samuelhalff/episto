@@ -1,15 +1,10 @@
 "use client";
 
-import { use, useState, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { use, useState, useCallback, Suspense, useEffect } from "react";
 import { useTranslations } from "next-intl";
-import { buildOrderReference } from "@swiss-mail/shared";
-import {
-  usePaymentStatus,
-  useDispatchInfo,
-  PAYMENT_SUCCESS_STATES,
-  PAYMENT_FAILURE_STATES,
-} from "@/hooks/use-payment-status";
+import { buildOrderReference } from "@episto/shared";
+import { useDraftFulfillment } from "@/hooks/use-api";
+import { useStepTracking } from "@/hooks/use-step-tracking";
 import {
   CheckCircle2,
   AlertCircle,
@@ -34,6 +29,7 @@ import {
 import { getCustomerFlowPath } from "@/lib/customer-flow";
 import { getAppButtonClassName } from "@/components/ui/app-button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { useRouter } from "@/i18n/navigation";
 
 // ---------------------------------------------------------------------------
 // Timeline Step
@@ -108,24 +104,32 @@ function TimelineStep({
 
 function ConfirmationContent({ draftId }: { draftId: string }) {
   const t = useTranslations("confirmation");
-  const searchParams = useSearchParams();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [copyFailed, setCopyFailed] = useState(false);
-
-  const redirectStatus = searchParams.get("redirect_status");
-  const payment = usePaymentStatus(draftId);
-
-  const paymentState = payment.data?.state ?? null;
-  const isSuccess =
-    paymentState !== null && PAYMENT_SUCCESS_STATES.includes(paymentState);
-  const isFailed =
-    redirectStatus === "failed" ||
-    (paymentState !== null && PAYMENT_FAILURE_STATES.includes(paymentState));
-  const isVerifying = !isSuccess && !isFailed;
-
-  const dispatch = useDispatchInfo(draftId, isSuccess);
+  const fulfillment = useDraftFulfillment(draftId);
 
   const orderRef = buildOrderReference(draftId);
+  const payment = fulfillment.data?.payment ?? null;
+  const dispatch = fulfillment.data?.dispatch ?? null;
+  const nextAction = fulfillment.data?.nextAction ?? null;
+
+  useEffect(() => {
+    if (!nextAction || nextAction === "view_confirmation") {
+      return;
+    }
+
+    const target =
+      nextAction === "resume_signature"
+        ? `/draft/${draftId}/signature/resume`
+        : nextAction === "eligibility_gate"
+          ? `/draft/${draftId}/signature/eligibility`
+          : nextAction === "checkout"
+            ? `/draft/${draftId}/checkout`
+            : `/draft/${draftId}/signature/pending`;
+
+    router.replace(target);
+  }, [draftId, nextAction, router]);
 
   const copyRef = useCallback(async () => {
     try {
@@ -139,7 +143,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     }
   }, [orderRef]);
 
-  if (isVerifying) {
+  if (fulfillment.isLoading || (!fulfillment.data && !fulfillment.error)) {
     return (
       <main
         id="main-content"
@@ -155,7 +159,36 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     );
   }
 
-  if (isFailed) {
+  if (nextAction === "retry_signature") {
+    return (
+      <main
+        id="main-content"
+        className={[
+          NARROW_APP_PAGE_SHELL_CLASS_NAME,
+          APP_PAGE_STACK_CLASS_NAME,
+          "text-center",
+        ].join(" ")}
+      >
+        <AlertCircle className="mx-auto h-16 w-16 text-amber-500" />
+        <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          Your signature still needs attention
+        </h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          The signing attempt was not completed. You can resume the flow or start a fresh
+          signing attempt.
+        </p>
+        <ActionLink
+          href={`/draft/${draftId}/signature/resume`}
+          variant="secondary"
+          leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
+        >
+          Resume signature
+        </ActionLink>
+      </main>
+    );
+  }
+
+  if (payment?.state === "failed" || payment?.state === "cancelled") {
     return (
       <main
         id="main-content"
@@ -170,7 +203,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           {t("paymentFailed")}
         </h1>
         <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {payment.data?.failureReason ?? t("paymentFailedSubtitle")}
+          {t("paymentFailedSubtitle")}
         </p>
         <ActionLink
           href={getCustomerFlowPath(draftId, "checkout")}
@@ -183,7 +216,23 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     );
   }
 
-  const dispatchState = dispatch.data?.state ?? "queued";
+  if (!fulfillment.data || nextAction !== "view_confirmation") {
+    return (
+      <main
+        id="main-content"
+        className={[
+          NARROW_APP_PAGE_SHELL_CLASS_NAME,
+          APP_PAGE_STACK_CLASS_NAME,
+          "text-center",
+        ].join(" ")}
+      >
+        <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("verifying")}</p>
+      </main>
+    );
+  }
+
+  const dispatchState = dispatch?.state ?? "queued";
   const stateCopy = {
     queued: {
       subtitle: t("queuedSubtitle"),
@@ -302,12 +351,12 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
             dispatchState={
               dispatchState as Parameters<typeof DispatchConfirmation>[0]["dispatchState"]
             }
-            providerReference={dispatch.data?.providerRef ?? null}
-            trackingNumber={dispatch.data?.trackingNumber ?? null}
-            providerMode={dispatch.data?.providerMode ?? null}
-            isTrackable={dispatch.data?.trackingAvailable ?? false}
-            submittedAt={dispatch.data?.submittedAt ?? null}
-            lastCheckedAt={dispatch.data?.lastCheckedAt ?? null}
+            providerReference={dispatch?.providerRef ?? null}
+            trackingNumber={dispatch?.trackingNumber ?? null}
+            providerMode={dispatch?.providerMode ?? null}
+            isTrackable={dispatch?.trackingAvailable ?? false}
+            submittedAt={dispatch?.submittedAt ?? null}
+            lastCheckedAt={dispatch?.lastCheckedAt ?? null}
           />
           <div className="mt-5 border-t border-[var(--app-border)] pt-4">
             <ProtectedPdfDownloadButton
@@ -371,6 +420,7 @@ export default function ConfirmationPage({
 }) {
   const { draftId } = use(params);
   const t = useTranslations("confirmation");
+  useStepTracking({ step: "draft_confirmation", draftId, completeOnUnmount: true });
 
   return (
     <div className="min-h-screen bg-[var(--app-surface-muted)] transition-colors">

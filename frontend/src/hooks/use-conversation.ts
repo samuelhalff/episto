@@ -10,13 +10,10 @@ import {
 } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api";
-import type { ConversationMessage } from "@swiss-mail/shared";
-import { queryKeys } from "@swiss-mail/shared";
+import type { ConversationMessage } from "@episto/shared";
+import { queryKeys } from "@episto/shared";
 import { useDraftStream } from "./use-draft-stream";
-import {
-  clearPendingDraftTurn,
-  readPendingDraftTurn,
-} from "../lib/pending-draft-turn";
+import { clearPendingDraftTurn, readPendingDraftTurn } from "../lib/pending-draft-turn";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -71,8 +68,12 @@ function normalizeAssistantContent(content: string): string {
 function normalizeMessage(message: ConversationMessage): ConversationMessage {
   return {
     ...message,
-    content: message.role === "assistant" ? normalizeAssistantContent(message.content) : message.content,
-    createdAt: message.createdAt instanceof Date ? message.createdAt : new Date(message.createdAt),
+    content:
+      message.role === "assistant"
+        ? normalizeAssistantContent(message.content)
+        : message.content,
+    createdAt:
+      message.createdAt instanceof Date ? message.createdAt : new Date(message.createdAt),
   };
 }
 
@@ -199,7 +200,10 @@ export function useConversation(draftId: string): UseConversationReturn {
   useEffect(() => {
     if (
       pendingAssistantMessageIdRef.current &&
-      hasAssistantReplyAfterMessage(messagesQuery.data ?? [], pendingAssistantMessageIdRef.current)
+      hasAssistantReplyAfterMessage(
+        messagesQuery.data ?? [],
+        pendingAssistantMessageIdRef.current,
+      )
     ) {
       startTransition(() => {
         clearPendingAssistantState();
@@ -210,7 +214,9 @@ export function useConversation(draftId: string): UseConversationReturn {
   useEffect(() => {
     if (!isAwaitingResponse) return;
 
-    const assistantCount = (messagesQuery.data ?? []).filter((message) => message.role === "assistant").length;
+    const assistantCount = (messagesQuery.data ?? []).filter(
+      (message) => message.role === "assistant",
+    ).length;
     if (assistantCount > assistantCountAtRequestRef.current) {
       startTransition(() => {
         setIsAwaitingResponse(false);
@@ -268,11 +274,15 @@ export function useConversation(draftId: string): UseConversationReturn {
         const response = await sendMutation.mutateAsync(content);
         const persistedMessage = normalizeMessage(response.message);
         setOptimisticMessages((current) =>
-          current.map((message) => (message.id === optimisticId ? persistedMessage : message)),
+          current.map((message) =>
+            message.id === optimisticId ? persistedMessage : message,
+          ),
         );
       } catch (error) {
         setIsAwaitingResponse(false);
-        setOptimisticMessages((current) => current.filter((message) => message.id !== optimisticId));
+        setOptimisticMessages((current) =>
+          current.filter((message) => message.id !== optimisticId),
+        );
         throw error;
       }
     },
@@ -290,43 +300,56 @@ export function useConversation(draftId: string): UseConversationReturn {
       merged.set(message.id, message);
     }
 
-    return [...merged.values()].sort((left, right) => left.createdAt.getTime() - right.createdAt.getTime());
+    return [...merged.values()].sort(
+      (left, right) => left.createdAt.getTime() - right.createdAt.getTime(),
+    );
   }, [messagesQuery.data, optimisticMessages]);
 
-  const retryLast = useCallback(async (failedAssistantMessageId?: string) => {
-    let retryTarget: ConversationMessage | undefined;
+  const retryLast = useCallback(
+    async (failedAssistantMessageId?: string) => {
+      let retryTarget: ConversationMessage | undefined;
 
-    if (failedAssistantMessageId) {
-      const failedIndex = messages.findIndex((message) => message.id === failedAssistantMessageId);
-      if (failedIndex > 0) {
-        for (let index = failedIndex - 1; index >= 0; index -= 1) {
-          const candidate = messages[index];
-          if (candidate?.role === "user") {
-            retryTarget = candidate;
-            break;
+      if (failedAssistantMessageId) {
+        const failedIndex = messages.findIndex(
+          (message) => message.id === failedAssistantMessageId,
+        );
+        if (failedIndex > 0) {
+          for (let index = failedIndex - 1; index >= 0; index -= 1) {
+            const candidate = messages[index];
+            if (candidate?.role === "user") {
+              retryTarget = candidate;
+              break;
+            }
           }
         }
       }
-    }
 
-    if (!retryTarget) {
-      retryTarget = [...messages].reverse().find((message) => message.role === "user");
-    }
+      if (!retryTarget) {
+        retryTarget = [...messages].reverse().find((message) => message.role === "user");
+      }
 
-    if (!retryTarget) return;
+      if (!retryTarget) return;
 
-    assistantCountAtRequestRef.current = messages.filter((message) => message.role === "assistant").length;
-    setIsAwaitingResponse(true);
-    setStreamingText("");
-    try {
-      await sendMutation.mutateAsync(retryTarget.content);
-    } catch (error) {
-      setIsAwaitingResponse(false);
-      throw error;
-    }
-  }, [messages, sendMutation]);
+      assistantCountAtRequestRef.current = messages.filter(
+        (message) => message.role === "assistant",
+      ).length;
+      setIsAwaitingResponse(true);
+      setStreamingText("");
+      try {
+        await sendMutation.mutateAsync(retryTarget.content);
+      } catch (error) {
+        setIsAwaitingResponse(false);
+        throw error;
+      }
+    },
+    [messages, sendMutation],
+  );
   const regenerationsRemaining = useMemo(
-    () => Math.max(0, MAX_REGENERATIONS - messages.filter((m) => m.role === "assistant").length),
+    () =>
+      Math.max(
+        0,
+        MAX_REGENERATIONS - messages.filter((m) => m.role === "assistant").length,
+      ),
     [messages],
   );
 

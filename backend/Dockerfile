@@ -76,7 +76,7 @@ COPY --from=build --chown=nodeapp:nodejs /app/backend/drizzle ./drizzle
 # Production-only node_modules (no devDependencies)
 COPY --from=proddeps --chown=nodeapp:nodejs /app/node_modules ./node_modules
 
-# Shared package: dist + package.json so @swiss-mail/shared resolves via symlink
+# Shared package: dist + package.json so @episto/shared resolves via symlink
 COPY --from=build --chown=nodeapp:nodejs /app/shared/dist ./shared/dist
 COPY --from=build --chown=nodeapp:nodejs /app/shared/package.json ./shared/package.json
 

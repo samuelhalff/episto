@@ -3,7 +3,7 @@
 import {
   DictationTranscriptionResponseSchema,
   type DictationFieldContext,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { getApiUrl } from "../lib/api";
 import { buildWavBlob, supportsDictationCapture } from "../lib/dictation-audio";

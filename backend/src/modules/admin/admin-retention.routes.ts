@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { sql } from "drizzle-orm";
 import { getDb } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
-import type { AdminRetentionInfo } from "@swiss-mail/shared";
+import type { AdminRetentionInfo } from "@episto/shared";
 
 export async function adminRetentionRoutes(app: FastifyInstance): Promise<void> {
   app.get("/admin/retention", async (_request, reply) => {

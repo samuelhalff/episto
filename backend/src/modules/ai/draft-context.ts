@@ -7,7 +7,7 @@ import {
   type DraftWorkspaceState,
   type RecipientDraftFormState,
   type SenderDraftFormState,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { normalizeAddressPresentation } from "./address-normalization.js";
 import { createMessage } from "../messages/message.service.js";
@@ -38,24 +38,26 @@ function splitFullName(fullName: string): { firstName: string; lastName: string 
   };
 }
 
-function mergeFullName(existingFullName: string, nextFirstName: string, nextLastName: string): string {
+function mergeFullName(
+  existingFullName: string,
+  nextFirstName: string,
+  nextLastName: string,
+): string {
   const existingParts = splitFullName(existingFullName);
   const firstName = nextFirstName || existingParts.firstName;
   const lastName = nextLastName || existingParts.lastName;
   return [firstName, lastName].filter(Boolean).join(" ").trim();
 }
 
-export function buildExistingFieldsContext(
-  draft: {
-    subject: string | null;
-    body: string | null;
-    tone: string | null;
-    intent: string | null;
-    enclosureNote: string | null;
-    deliveryType: string;
-    metadata: unknown;
-  },
-): Record<string, unknown> {
+export function buildExistingFieldsContext(draft: {
+  subject: string | null;
+  body: string | null;
+  tone: string | null;
+  intent: string | null;
+  enclosureNote: string | null;
+  deliveryType: string;
+  metadata: unknown;
+}): Record<string, unknown> {
   const workspaceState = getDraftWorkspaceState(draft.metadata);
   const senderParts = splitFullName(workspaceState.senderForm?.fullName ?? "");
   const recipientParts = splitFullName(workspaceState.recipientForm?.fullName ?? "");
@@ -94,8 +96,10 @@ function buildWorkspaceDraftPatch(
   fields: Record<string, unknown>,
   currentState: DraftWorkspaceState,
 ): Record<string, unknown | null> {
-  const senderFirstName = typeof fields.senderFirstName === "string" ? fields.senderFirstName.trim() : "";
-  const senderLastName = typeof fields.senderLastName === "string" ? fields.senderLastName.trim() : "";
+  const senderFirstName =
+    typeof fields.senderFirstName === "string" ? fields.senderFirstName.trim() : "";
+  const senderLastName =
+    typeof fields.senderLastName === "string" ? fields.senderLastName.trim() : "";
   const senderAddressLine1 =
     typeof fields.senderAddressLine1 === "string"
       ? normalizeAddressPresentation(fields.senderAddressLine1)
@@ -103,7 +107,9 @@ function buildWorkspaceDraftPatch(
   const senderPostalCode =
     typeof fields.senderPostalCode === "string" ? fields.senderPostalCode.trim() : "";
   const senderCity =
-    typeof fields.senderCity === "string" ? normalizeAddressPresentation(fields.senderCity) : "";
+    typeof fields.senderCity === "string"
+      ? normalizeAddressPresentation(fields.senderCity)
+      : "";
 
   const recipientFirstName =
     typeof fields.recipientFirstName === "string" ? fields.recipientFirstName.trim() : "";
@@ -116,7 +122,9 @@ function buildWorkspaceDraftPatch(
       ? normalizeAddressPresentation(fields.recipientAddressLine1)
       : "";
   const recipientPostalCode =
-    typeof fields.recipientPostalCode === "string" ? fields.recipientPostalCode.trim() : "";
+    typeof fields.recipientPostalCode === "string"
+      ? fields.recipientPostalCode.trim()
+      : "";
   const recipientCity =
     typeof fields.recipientCity === "string"
       ? normalizeAddressPresentation(fields.recipientCity)
@@ -127,23 +135,27 @@ function buildWorkspaceDraftPatch(
   const currentRecipient = currentState.recipientForm;
   const hasSenderUpdate = Boolean(
     senderFirstName ||
-      senderLastName ||
-      senderAddressLine1 ||
-      senderPostalCode ||
-      senderCity,
+    senderLastName ||
+    senderAddressLine1 ||
+    senderPostalCode ||
+    senderCity,
   );
   const hasRecipientUpdate = Boolean(
     recipientFirstName ||
-      recipientLastName ||
-      recipientCompany ||
-      recipientAddressLine1 ||
-      recipientPostalCode ||
-      recipientCity,
+    recipientLastName ||
+    recipientCompany ||
+    recipientAddressLine1 ||
+    recipientPostalCode ||
+    recipientCity,
   );
 
   if (hasSenderUpdate) {
     patch.senderForm = {
-      fullName: mergeFullName(currentSender?.fullName ?? "", senderFirstName, senderLastName),
+      fullName: mergeFullName(
+        currentSender?.fullName ?? "",
+        senderFirstName,
+        senderLastName,
+      ),
       addressLine1: senderAddressLine1 || currentSender?.addressLine1 || "",
       postalCode: senderPostalCode || currentSender?.postalCode || "",
       city: senderCity || currentSender?.city || "",
@@ -156,20 +168,33 @@ function buildWorkspaceDraftPatch(
       : recipientFirstName || recipientLastName
         ? false
         : (currentRecipient?.isCompany ?? false);
-    const mergedRecipientCompany = recipientIsCompany ? recipientCompany || currentRecipient?.companyName || "" : "";
+    const mergedRecipientCompany = recipientIsCompany
+      ? recipientCompany || currentRecipient?.companyName || ""
+      : "";
     const mergedRecipientFullName = recipientIsCompany
       ? ""
-      : mergeFullName(currentRecipient?.fullName ?? "", recipientFirstName, recipientLastName);
+      : mergeFullName(
+          currentRecipient?.fullName ?? "",
+          recipientFirstName,
+          recipientLastName,
+        );
 
     patch.recipientForm = {
       isCompany: recipientIsCompany,
       showManual:
         currentRecipient?.showManual ??
-        Boolean(recipientAddressLine1 || recipientPostalCode || recipientCity || !recipientIsCompany),
+        Boolean(
+          recipientAddressLine1 ||
+          recipientPostalCode ||
+          recipientCity ||
+          !recipientIsCompany,
+        ),
       fullName: mergedRecipientFullName,
       companyName: mergedRecipientCompany,
       selectedCompany:
-        recipientIsCompany && recipientCompany && recipientCompany !== currentRecipient?.companyName
+        recipientIsCompany &&
+        recipientCompany &&
+        recipientCompany !== currentRecipient?.companyName
           ? null
           : (currentRecipient?.selectedCompany ?? null),
       addressLine1: recipientAddressLine1 || currentRecipient?.addressLine1 || "",
@@ -199,7 +224,9 @@ export async function loadConversationHistory(
   return rows.reverse();
 }
 
-export function buildComposeInstructions(conversationHistory: ConversationHistoryEntry[]): string | null {
+export function buildComposeInstructions(
+  conversationHistory: ConversationHistoryEntry[],
+): string | null {
   const userMessages = conversationHistory
     .filter((message) => message.role === "user")
     .map((message) => message.content.trim())

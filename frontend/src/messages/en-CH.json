@@ -570,7 +570,7 @@
     "deliveryRegisteredDescription": "Best for more formal notices that need extra postal confirmation.",
     "readyToSend": "Ready",
     "needsAttention": "Needs attention",
-    "typedSignature": "Typed signature",
+    "typedSignature": "Font signature",
     "noSignature": "No signature added",
     "noAttachments": "No attachments",
     "attachmentCount": "{count} attachment(s)",
@@ -854,31 +854,49 @@
   },
   "signatureTiers": {
     "comingSoon": "Coming soon",
-    "visual": {
-      "label": "Standard signature",
-      "purpose": "Your name rendered, or a drawing you sign on screen. Fine for most everyday letters.",
+    "typed": {
+      "label": "Font signature",
+      "purpose": "Your name rendered in a signature font. Good for most everyday letters.",
       "price": "Included",
+      "priceDetail": "",
       "friction": "No ID check"
     },
-    "advanced": {
-      "label": "Advanced signature",
-      "purpose": "Cryptographically sealed PDF with a provider-issued identity check.",
-      "price": "+CHF 3",
-      "friction": "Email and SMS code"
+    "drawn": {
+      "label": "Drawn signature",
+      "purpose": "Sign directly on screen so the printed letter carries your own mark.",
+      "price": "Included",
+      "priceDetail": "",
+      "friction": "No ID check"
     },
     "qualified": {
-      "label": "Qualified signature",
-      "purpose": "Legally equivalent to a handwritten signature for contracts that require written form.",
-      "price": "+CHF 9 + CHF 19 one-time ID",
-      "friction": "Video ID check, first time only"
+      "label": "QES",
+      "purpose": "Legally equivalent to a handwritten signature when written form is required.",
+      "price": "+CHF 9 / letter",
+      "priceDetail": "+CHF 19 one-time ID verification if you're not verified yet",
+      "friction": "Video ID check, first time only",
+      "notifyMe": "Notify me",
+      "notifyLabel": "Release notifications",
+      "notifyHint": "Click to subscribe and get an email when QES goes live.",
+      "waitlist": {
+        "badge": "Coming soon",
+        "title": "Qualified electronic signature",
+        "description": "We're finalising the SwissID-based identification flow. Leave your email and we'll let you know the moment qualified signatures go live.",
+        "emailLabel": "Email address",
+        "emailPlaceholder": "you@example.ch",
+        "submit": "Notify me",
+        "submitting": "Saving…",
+        "successMessage": "You're on the list. We'll email you when qualified signatures are available.",
+        "errorMessage": "Something went wrong. Please try again in a moment.",
+        "cancel": "Close"
+      }
     },
     "explainer": {
       "triggerLabel": "Do I need a qualified signature?",
       "title": "Which signature do I need?",
       "intro": "Most letters do not require a qualified signature. The choice depends on what the recipient needs and whether the law requires written form.",
-      "caseStandard": "For complaints, reminders, notices of change, and general correspondence, a standard signature is fine.",
-      "caseAdvanced": "For correspondence where the recipient wants tamper-evident proof that the document has not been altered since you signed it.",
-      "caseQualified": "For documents that must satisfy the written-form requirement under Swiss law (guaranty, consumer credit, fixed-term lease termination, some employment matters).",
+      "caseTyped": "Choose the font signature when a clean rendered name is enough for the printed letter.",
+      "caseDrawn": "Choose the drawn signature when you want your own handwritten mark to appear on the printed letter.",
+      "caseQualified": "Choose QES for documents that must satisfy the written-form requirement under Swiss law (guaranty, consumer credit, fixed-term lease termination, some employment matters).",
       "paperCaveat": "A qualified signature applies to the electronic PDF. The paper we post is a courtesy copy — the legally binding version is the electronic original. For qualified orders, the recipient also receives the signed PDF by email.",
       "fullRequirementsCta": "Read the full signature requirements",
       "close": "Close"
@@ -897,12 +915,12 @@
     },
     "sections": {
       "tiers": {
-        "title": "Signature tiers we offer",
-        "intro": "Three tiers are planned. Today, the Standard tier is available. Advanced and Qualified will be enabled once provider onboarding is complete.",
-        "visualName": "Standard signature",
-        "visualBody": "A typed name in a script font, or a signature you draw on screen. Suitable for everyday formal correspondence. No legal claim of identity verification.",
-        "advancedName": "Advanced electronic signature (AES)",
-        "advancedBody": "A cryptographically sealed PDF. Identity is verified through email and SMS. Tamper-evident and traceable, but not equivalent to a handwritten signature under Swiss law.",
+        "title": "Signature choices we show",
+        "intro": "The product shows three choices. Today, font and drawn signatures are available. QES remains marked Coming soon until provider onboarding is complete.",
+        "typedName": "Font signature",
+        "typedBody": "Your name rendered in a signature font. Suitable for everyday formal correspondence. No legal claim of identity verification.",
+        "drawnName": "Drawn signature",
+        "drawnBody": "A signature you draw on screen and we print on the letter. Useful when you want the paper copy to carry your own mark, but it does not create qualified-signature legal effect.",
         "qualifiedName": "Qualified electronic signature (QES)",
         "qualifiedBody": "Legally equivalent to a handwritten signature under the Swiss Federal Act on Electronic Signatures (ZertES), and compatible with eIDAS for EU recipients. Requires one-time video identification."
       },
@@ -1031,6 +1049,10 @@
     "search": {
       "title": "Search",
       "description": "Find a session, draft, payment, or provider reference from one place."
+    },
+    "audience": {
+      "title": "Audience",
+      "description": "Review exportable email audiences for dispatched customers and release notifications."
     },
     "sessions": {
       "title": "Sessions",

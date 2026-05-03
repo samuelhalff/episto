@@ -73,7 +73,9 @@ export async function processSubmitDispatchJob(
       providerName: capabilities.providerName,
     }));
 
-  const dispatchPackage = await buildDispatchPackage(db, draftId, snapshotId);
+  const dispatchPackage = await buildDispatchPackage(db, draftId, snapshotId, {
+    paymentAttemptId: paymentId,
+  });
 
   let result;
   try {

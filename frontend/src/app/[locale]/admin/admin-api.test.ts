@@ -67,12 +67,15 @@ describe("admin-api", () => {
 
     await fetchAdminAuthSession();
 
-    expect(fetchMock).toHaveBeenCalledWith("http://localhost:4000/api/v1/admin/auth/session", {
-      credentials: "include",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
+    expect(fetchMock).toHaveBeenCalledWith(
+      "http://localhost:4000/api/v1/admin/auth/session",
+      {
+        credentials: "include",
+        headers: {
+          "X-Requested-With": "XMLHttpRequest",
+        },
       },
-    });
+    );
   });
 
   it("keeps browser admin requests on the same-origin /api proxy even with a public API origin", async () => {
@@ -107,6 +110,42 @@ describe("admin-api", () => {
 
     expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/auth/logout", {
       method: "POST",
+      credentials: "include",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+  });
+
+  it("fetches the sent-or-dispatching audience with browser credentials", async () => {
+    const { fetchAdminSentAudience } = await loadAdminApiModule();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total: 1, rows: [], generatedAt: new Date().toISOString() }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchAdminSentAudience();
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/audience/sent-or-dispatching", {
+      credentials: "include",
+      headers: {
+        "X-Requested-With": "XMLHttpRequest",
+      },
+    });
+  });
+
+  it("fetches the QES waitlist audience with browser credentials", async () => {
+    const { fetchAdminQesAudience } = await loadAdminApiModule();
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ total: 1, rows: [], generatedAt: new Date().toISOString() }),
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await fetchAdminQesAudience();
+
+    expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/audience/qes-waitlist", {
       credentials: "include",
       headers: {
         "X-Requested-With": "XMLHttpRequest",

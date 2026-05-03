@@ -4,7 +4,7 @@ import {
   getUploadByteLimit,
   isAllowedUploadMimeType,
   type DraftAttachmentConstraints,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
@@ -50,6 +50,10 @@ export function renderStorageKey(draftId: string, version: number): string {
   return `renders/${draftId}/${version}.pdf`;
 }
 
+export function signedPdfStorageKey(draftId: string, signatureSessionId: string): string {
+  return `signed-documents/${draftId}/${signatureSessionId}.pdf`;
+}
+
 export function getDraftAttachmentConstraints(): DraftAttachmentConstraints {
   const attachmentPolicy = getDispatchAdapter().getCapabilities().attachmentPolicy;
 
@@ -65,7 +69,10 @@ const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0
 const JPEG_SIGNATURE = Buffer.from([0xff, 0xd8, 0xff]);
 
 function bufferStartsWith(buffer: Buffer, signature: Buffer): boolean {
-  return buffer.length >= signature.length && buffer.subarray(0, signature.length).equals(signature);
+  return (
+    buffer.length >= signature.length &&
+    buffer.subarray(0, signature.length).equals(signature)
+  );
 }
 
 function matchesDeclaredMimeType(mimeType: string, buffer: Buffer): boolean {
@@ -130,7 +137,7 @@ export async function createFileAsset(
   data: {
     sessionId: string;
     draftId?: string | null | undefined;
-    kind: "attachment" | "signature" | "rendered_pdf";
+    kind: "attachment" | "signature" | "rendered_pdf" | "signed_pdf";
     storageKey: string;
     originalFilename?: string | null | undefined;
     mimeType: string;
@@ -138,7 +145,7 @@ export async function createFileAsset(
     sortOrder?: number | null | undefined;
   },
 ): Promise<FileAssetRow> {
-  if (data.kind !== "rendered_pdf") {
+  if (data.kind !== "rendered_pdf" && data.kind !== "signed_pdf") {
     if (data.kind === "attachment") {
       const attachmentConstraints = getDraftAttachmentConstraints();
       if (!attachmentConstraints.allowedMimeTypes.includes(data.mimeType)) {

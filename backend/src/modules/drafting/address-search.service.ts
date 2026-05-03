@@ -3,7 +3,7 @@ import type {
   AddressSearchResultType,
   RecipientCompanyDetailsType,
   RecipientCompanySearchResultType,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { env } from "../../shared/config/index.js";
 import { providerOutageError, validationError } from "../../shared/errors/index.js";
@@ -107,12 +107,15 @@ export async function getAddressDetails(id: string): Promise<AddressDetailsType>
   const normalizedId = id.trim();
 
   if (!/^addr:[A-Za-z0-9_-]+$/.test(normalizedId)) {
-    throw validationError("Select a valid address suggestion before loading its details.", [
-      {
-        field: "id",
-        message: "Address details require a valid address lookup identifier.",
-      },
-    ]);
+    throw validationError(
+      "Select a valid address suggestion before loading its details.",
+      [
+        {
+          field: "id",
+          message: "Address details require a valid address lookup identifier.",
+        },
+      ],
+    );
   }
 
   return getAddressSearchAdapter().getAddressDetails(normalizedId);

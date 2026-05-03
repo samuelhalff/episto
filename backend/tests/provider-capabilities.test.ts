@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { FILE_LIMITS } from "@swiss-mail/shared";
+import { FILE_LIMITS } from "@episto/shared";
 
 import {
   getEpostDispatchCapabilities,

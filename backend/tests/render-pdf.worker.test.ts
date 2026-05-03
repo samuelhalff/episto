@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   getPaymentForDraft: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
   transitionDraftStatus: vi.fn(),
+  setInitialDraftFulfillmentStatus: vi.fn(),
   logger: {
     info: vi.fn(),
     warn: vi.fn(),
@@ -17,7 +18,8 @@ const mocks = vi.hoisted(() => ({
 function createDbMock(currentDraft?: {
   status: string;
   sessionId: string;
-  signatureAssuranceLevel?: string;
+  signatureFlowMode?: string;
+  fulfillmentStatus?: string;
 }) {
   const select = vi.fn(() => ({
     from: vi.fn(() => ({
@@ -71,18 +73,24 @@ vi.mock("../src/modules/drafting/draft.service.js", () => ({
   transitionDraftStatus: mocks.transitionDraftStatus,
 }));
 
+vi.mock("../src/modules/signing/fulfillment.service.js", () => ({
+  setInitialDraftFulfillmentStatus: mocks.setInitialDraftFulfillmentStatus,
+}));
+
 describe("render-pdf worker", () => {
   beforeEach(() => {
     mocks.currentDb = createDbMock({
       status: "rendering",
       sessionId: "session-1",
-      signatureAssuranceLevel: "visual",
+      signatureFlowMode: "visual",
+      fulfillmentStatus: "draft_created",
     });
     mocks.createWorker.mockReset();
     mocks.renderSnapshotToPdf.mockReset();
     mocks.getPaymentForDraft.mockReset();
     mocks.enqueueDispatchSubmission.mockReset();
     mocks.transitionDraftStatus.mockReset();
+    mocks.setInitialDraftFulfillmentStatus.mockReset();
     mocks.logger.info.mockReset();
     mocks.logger.warn.mockReset();
     mocks.logger.error.mockReset();
@@ -155,6 +163,11 @@ describe("render-pdf worker", () => {
       "session-1",
       "ready",
     );
+    expect(mocks.setInitialDraftFulfillmentStatus).toHaveBeenCalledWith(
+      mocks.currentDb,
+      "draft-2",
+      "visual",
+    );
     expect(mocks.enqueueDispatchSubmission).toHaveBeenCalledWith({
       draftId: "draft-2",
       snapshotId: "snapshot-2",
@@ -162,11 +175,12 @@ describe("render-pdf worker", () => {
     });
   });
 
-  it("routes non-visual drafts into ready_to_sign and skips dispatch follow-up", async () => {
+  it("freezes SwissSign drafts for signing instead of dispatching immediately", async () => {
     mocks.currentDb = createDbMock({
       status: "rendering",
       sessionId: "session-1",
-      signatureAssuranceLevel: "qualified",
+      signatureFlowMode: "swisssign_qes",
+      fulfillmentStatus: "draft_created",
     });
     mocks.renderSnapshotToPdf.mockResolvedValue({
       pdfAssetId: "asset-qes",
@@ -189,7 +203,15 @@ describe("render-pdf worker", () => {
       "session-1",
       "ready_to_sign",
     );
+    expect(mocks.setInitialDraftFulfillmentStatus).toHaveBeenCalledWith(
+      mocks.currentDb,
+      "draft-3",
+      "swisssign_qes",
+    );
     expect(mocks.getPaymentForDraft).not.toHaveBeenCalled();
     expect(mocks.enqueueDispatchSubmission).not.toHaveBeenCalled();
+    expect(job.log).toHaveBeenCalledWith(
+      "PDF rendered and frozen for signing: asset=asset-qes",
+    );
   });
 });

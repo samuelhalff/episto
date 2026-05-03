@@ -21,12 +21,13 @@ import {
   CreateRecipientProfileInput,
   DraftStatusSchema,
   SnapshotDataSchema,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { recordEvent } from "../analytics/index.js";
 import { getQueue, QUEUE_NAMES, type RenderPdfJob } from "../../queue/index.js";
 import { handleComposeFromContext } from "../ai/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import { getReviewMissingFields } from "./review-validation.js";
+import { assertSignatureFlowSupported } from "../signing/signature-availability.js";
 import { z } from "zod";
 
 const logger = createLogger("draft-routes");
@@ -145,6 +146,13 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const { draftId } = request.params;
 
       const body = UpdateDraftInput.parse(request.body);
+      if (body.signatureAssuranceLevel !== undefined) {
+        assertSignatureFlowSupported({
+          signatureAssuranceLevel: body.signatureAssuranceLevel ?? null,
+          signatureFlowMode: body.signatureFlowMode ?? null,
+          signatureMode: body.signatureMode ?? null,
+        });
+      }
       const draft = await updateDraft(db, draftId, session.id, body);
 
       reply.send({ draft });
@@ -307,6 +315,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       // Verify ownership
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
+      assertSignatureFlowSupported(draft);
 
       // Signature is a soft warning at review; keep only the documented required fields blocking.
       const missingFields = getReviewMissingFields(draft);
@@ -378,6 +387,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         locale: draft.locale,
         deliveryType: draft.deliveryType,
         signatureAssuranceLevel: draft.signatureAssuranceLevel,
+        signatureFlowMode: draft.signatureFlowMode,
         subject: draft.subject,
         body: draft.body,
         enclosureNote: draft.enclosureNote,
@@ -584,6 +594,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           deliveryType,
           signatureAssuranceLevel:
             snapshotData?.signatureAssuranceLevel ?? draft.signatureAssuranceLevel,
+          signatureFlowMode: snapshotData?.signatureFlowMode ?? draft.signatureFlowMode,
           subject: snapshotData?.subject ?? draft.subject,
           body: snapshotData?.body ?? draft.body,
           enclosureNote: snapshotData?.enclosureNote ?? draft.enclosureNote,

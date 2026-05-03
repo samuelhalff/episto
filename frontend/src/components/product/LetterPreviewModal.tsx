@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { X } from "lucide-react";
 import { useLetterPreview } from "../../hooks/use-letter-preview";
 import { useDraft } from "../../hooks/use-api";
-import { getSignatureFileUrl } from "../../lib/letter-content";
+import { getSignaturePreviewUrl } from "../../lib/letter-content";
 import { getAppButtonClassName } from "../ui/app-button";
 import {
   getSheetSurfaceClassName,
@@ -41,7 +41,7 @@ export function LetterPreviewModal({
     <Sheet open onOpenChange={(open) => !open && onClose()}>
       <SheetContent
         side="bottom"
-        className={`${getSheetSurfaceClassName("preview")} h-[100dvh] max-h-[100dvh] min-h-[100dvh] rounded-none md:bottom-4 md:right-auto md:left-1/2 md:h-[min(94dvh,1040px)] md:w-[min(1080px,calc(100vw-2rem))] md:max-h-[94dvh] md:min-h-0 md:-translate-x-1/2 md:rounded-4xl`}
+        className={`${getSheetSurfaceClassName("preview")} h-[100dvh] max-h-[100dvh] min-h-[100dvh] rounded-none md:bottom-4 md:right-auto md:left-1/2 md:h-[calc(100dvh-2rem)] md:w-[min(1180px,calc(100vw-2rem))] md:max-h-[calc(100dvh-2rem)] md:min-h-0 md:-translate-x-1/2 md:rounded-4xl`}
       >
         <SheetHandle className="pt-[calc(env(safe-area-inset-top,0px)+0.5rem)] md:hidden" />
 
@@ -79,7 +79,7 @@ export function LetterPreviewModal({
               senderProfile={previewData?.sender}
               recipientProfile={previewData?.recipient}
               signatureMode={previewData?.signatureMode}
-              signatureUrl={getSignatureFileUrl(previewData?.signatureFileId)}
+              signatureUrl={getSignaturePreviewUrl(previewData?.signatureFileId)}
               variant="immersive"
             />
           </div>

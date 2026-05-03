@@ -6,8 +6,10 @@ async function loadBuildApp(trustProxy: boolean) {
   vi.resetModules();
 
   vi.doMock("../src/shared/config/index.js", () => ({
+    isEnvLoaded: () => true,
     env: () => ({
       NODE_ENV: "test",
+      LOG_LEVEL: "silent",
       CORS_ORIGIN: "http://localhost:5000",
       TRUST_PROXY: trustProxy,
     }),
@@ -109,11 +111,9 @@ describe("proxy-aware request IP handling", () => {
     const { buildApp } = await loadBuildApp(false);
     const app = await buildApp(pino({ level: "silent" }));
     app.post("/debug/zod", async (request) => {
-      z
-        .object({
-          company: z.string().min(1, "Provide a recipient name or company."),
-        })
-        .parse(request.body);
+      z.object({
+        company: z.string().min(1, "Provide a recipient name or company."),
+      }).parse(request.body);
       return { ok: true };
     });
 

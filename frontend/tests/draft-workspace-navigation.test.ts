@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
-import { mergeDraftWorkspaceState } from "@swiss-mail/shared";
+import { mergeDraftWorkspaceState } from "@episto/shared";
 
 import {
   getDraftWorkspaceUnlockedStepIndex,

@@ -12,9 +12,8 @@ interface SignatureCanvasProps {
 }
 
 const MIN_CANVAS_WIDTH = 200;
-const CANVAS_HEIGHT = 160;
+export const CANVAS_HEIGHT = 160;
 const DPR_CLAMP = 2;
-const EXPORT_BG = "#ffffff";
 /** Wait this long after the last stroke before exporting (ms). */
 const STROKE_DEBOUNCE_MS = 800;
 const PAD_OPTIONS = {
@@ -103,8 +102,6 @@ export function SignatureCanvas({
       return;
     }
 
-    context.fillStyle = EXPORT_BG;
-    context.fillRect(0, 0, exportCanvas.width, exportCanvas.height);
     context.drawImage(trimmed, 0, 0);
     exportCanvas.toBlob(
       (blob) => {
@@ -231,9 +228,7 @@ export function SignatureCanvas({
       <div
         ref={containerRef}
         className={`relative w-full overflow-hidden rounded-2xl border bg-white ${
-          disabled
-            ? "pointer-events-none opacity-50"
-            : "border-[var(--app-border)]"
+          disabled ? "pointer-events-none opacity-50" : "border-[var(--app-border)]"
         }`}
         style={{ height: CANVAS_HEIGHT }}
       >

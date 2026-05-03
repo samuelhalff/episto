@@ -1,6 +1,6 @@
 "use client";
 
-import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
+import type { RecipientCompanySearchResultType } from "@episto/shared";
 import { PencilLine } from "lucide-react";
 import { useTranslations } from "next-intl";
 

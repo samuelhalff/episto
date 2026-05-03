@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { Check, Loader2, Pencil, X } from "lucide-react";
-import type { DraftLetter } from "@swiss-mail/shared";
+import type { DraftLetter } from "@episto/shared";
 import {
   DRAFT_CONTENT_LIMITS,
   LETTER_COLORS,
@@ -14,11 +14,11 @@ import {
   getLetterFraming,
   mmToPageCqw,
   ptToPageCqw,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import {
   stripLetterFramingDocument,
   stripLetterFramingText,
-} from "@swiss-mail/shared/letter-framing";
+} from "@episto/shared/letter-framing";
 import { DocumentPreview, fallbackDocument } from "./DocumentPreview";
 import { getAddressLines, getSenderDisplayName } from "../../lib/letter-content";
 
@@ -146,7 +146,9 @@ export function LetterPreview({
         >
           <div
             className={`letter-layout-shell relative overflow-hidden bg-white ${
-              isImmersive ? "aspect-[210/297] w-full max-w-[980px] shrink-0" : "h-full w-full"
+              isImmersive
+                ? "aspect-[210/297] w-full max-w-[980px] shrink-0"
+                : "h-full w-full"
             }`}
             style={{
               containerType: "inline-size",
@@ -170,19 +172,13 @@ export function LetterPreview({
                   {senderProfile ? (
                     <div>
                       {senderLines.map((line, index) => (
-                        <div key={`${line}-${index}`}>
-                          {line}
-                        </div>
+                        <div key={`${line}-${index}`}>{line}</div>
                       ))}
                     </div>
                   ) : draft.senderProfileId ? (
-                    <span className="text-zinc-600">
-                      &#x2709; {t("senderLabel")}
-                    </span>
+                    <span className="text-zinc-600">&#x2709; {t("senderLabel")}</span>
                   ) : (
-                    <span className="italic text-zinc-400">
-                      {t("senderPlaceholder")}
-                    </span>
+                    <span className="italic text-zinc-400">{t("senderPlaceholder")}</span>
                   )}
                 </div>
               </ZoneBlock>
@@ -223,15 +219,11 @@ export function LetterPreview({
                   {recipientProfile ? (
                     <div>
                       {recipientLines.map((line, index) => (
-                        <div key={`${line}-${index}`}>
-                          {line}
-                        </div>
+                        <div key={`${line}-${index}`}>{line}</div>
                       ))}
                     </div>
                   ) : draft.recipientProfileId ? (
-                    <span className="text-zinc-600">
-                      {t("recipientLabel")}
-                    </span>
+                    <span className="text-zinc-600">{t("recipientLabel")}</span>
                   ) : (
                     <span className="italic text-zinc-400">
                       {t("recipientPlaceholder")}
@@ -252,7 +244,10 @@ export function LetterPreview({
             >
               <div
                 className="date-line"
-                style={{ fontSize: ptToPageCqw(LETTER_LAYOUT_PT.date), color: LETTER_COLORS.date }}
+                style={{
+                  fontSize: ptToPageCqw(LETTER_LAYOUT_PT.date),
+                  color: LETTER_COLORS.date,
+                }}
               >
                 {placeAndDate}
               </div>
@@ -296,7 +291,9 @@ export function LetterPreview({
 
               {hasLetterContent ? (
                 <div
-                  style={{ marginBottom: mmToPageCqw(LETTER_LAYOUT_MM.salutation.marginBottom) }}
+                  style={{
+                    marginBottom: mmToPageCqw(LETTER_LAYOUT_MM.salutation.marginBottom),
+                  }}
                 >
                   {salutation}
                 </div>
@@ -316,9 +313,7 @@ export function LetterPreview({
                     {hasLetterContent ? (
                       <DocumentPreview document={document} variant="letter" />
                     ) : (
-                      <span className="italic text-zinc-400">
-                        {t("bodyPlaceholder")}
-                      </span>
+                      <span className="italic text-zinc-400">{t("bodyPlaceholder")}</span>
                     )}
                   </div>
                 </ZoneBlock>
@@ -348,7 +343,9 @@ export function LetterPreview({
               )}
 
               {shouldShowGeneratedSignature ? (
-                <div style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}>
+                <div
+                  style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}
+                >
                   <p
                     className="signature-script"
                     style={{
@@ -372,7 +369,9 @@ export function LetterPreview({
                   </p>
                 </div>
               ) : shouldShowDrawnSignature && signatureUrl ? (
-                <div style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}>
+                <div
+                  style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}
+                >
                   <img
                     src={signatureUrl}
                     alt={t("signatureImageAlt")}

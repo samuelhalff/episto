@@ -7,7 +7,7 @@ import {
   assertTransitionPayment,
   type PaymentState,
   type PaymentBreakdown,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 // Order access token TTL: 90 days per docs/05-architecture/session-management.md §Paid Orders
 const ORDER_ACCESS_TOKEN_TTL_DAYS = 90;

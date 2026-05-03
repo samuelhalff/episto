@@ -3,6 +3,7 @@
 import { use } from "react";
 import { useTranslations } from "next-intl";
 import { useDraft, useDraftFiles, useLetterPreview } from "@/hooks/use-api";
+import { useStepTracking } from "@/hooks/use-step-tracking";
 import { Loader2 } from "lucide-react";
 import { useDispatchQuote } from "@/hooks/use-dispatch-quote";
 import { ReviewPageReady } from "@/components/product/review/ReviewPageReady";
@@ -11,12 +12,16 @@ export default function ReviewPage({ params }: { params: Promise<{ draftId: stri
   const { draftId } = use(params);
   const tc = useTranslations("common");
   const draft = useDraft(draftId);
+  useStepTracking({
+    step: "draft_review",
+    draftId,
+    ...(draft.data?.locale ? { locale: draft.data.locale } : {}),
+  });
   const preview = useLetterPreview(draftId);
   const { attachments } = useDraftFiles(draftId);
   const quote = useDispatchQuote(
     draftId,
-    Boolean(draft.data) &&
-      !["reviewed", "rendering", "ready_to_sign"].includes(draft.data?.status ?? ""),
+    Boolean(draft.data) && !["reviewed", "rendering"].includes(draft.data?.status ?? ""),
   );
 
   if (draft.isLoading) {

@@ -3,7 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Check, CheckCircle2, Loader2, Mail, Paperclip, Send } from "lucide-react";
-import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
+import { SignatureAssuranceLevel } from "@episto/shared";
+import type { SignatureAssuranceLevelValue } from "@episto/shared";
 import {
   useDraft,
   useUpdateDraft,
@@ -17,8 +18,13 @@ import {
   normalizeLetterSubject,
   getRecipientDisplayName,
   getSenderDisplayName,
-  getSignatureFileUrl,
+  getSignatureInlineUrl,
 } from "@/lib/letter-content";
+import {
+  getPublicSignatureChoice,
+  type PublicSignatureChoice,
+  type SignatureMode,
+} from "@/lib/signature-choice";
 import { useTheme } from "@/lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { SignatureSection } from "../SignatureSection";
@@ -55,7 +61,8 @@ export function LogisticsStep({
   >(null);
   const deliveryType = draft.data?.deliveryType ?? "standard";
   const assuranceLevel = (draft.data?.signatureAssuranceLevel ??
-    "visual") as SignatureAssuranceLevelValue;
+    SignatureAssuranceLevel.visual) as SignatureAssuranceLevelValue;
+  const signatureFlowMode = draft.data?.signatureFlowMode ?? "visual";
   const senderName = getSenderDisplayName(preview.previewData?.sender);
   const signatureDisplayName = senderName || t("signatureFallbackName");
   const recipientName = getRecipientDisplayName(preview.previewData?.recipient);
@@ -73,15 +80,20 @@ export function LogisticsStep({
   const standardPrice = pricing.data?.standard?.displayPrice ?? t("priceUnavailable");
   const isDeliverySelectionPending = pendingDeliveryType !== null;
 
-  const currentSignatureMode = draft.data?.signatureMode ?? null;
+  const currentSignatureMode = (draft.data?.signatureMode ?? null) as SignatureMode;
   const signatureFileId = files.signature?.id ?? null;
   const hasDrawnAsset = Boolean(signatureFileId);
-  const signatureUrl = getSignatureFileUrl(signatureFileId);
+  const signatureUrl = getSignatureInlineUrl(signatureFileId);
+  const selectedSignatureChoice = getPublicSignatureChoice(
+    assuranceLevel,
+    currentSignatureMode,
+  );
   const canProceed = getLogisticsStepValidation({
     hasSubject,
     hasBody,
     hasSender,
     hasRecipient,
+    signatureFlowMode,
     signatureMode: currentSignatureMode,
     signatureFileId,
   }).canProceed;
@@ -92,16 +104,6 @@ export function LogisticsStep({
     }
   }, [attachmentCount]);
 
-  const handleSelectSignatureMode = useCallback(
-    (mode: "typed" | "drawn" | null) => {
-      void updateDraft.mutateAsync({
-        signatureMode: mode,
-        ...(mode === "typed" ? { signatureAssetId: null } : {}),
-      });
-    },
-    [updateDraft],
-  );
-
   const handleDrawnSignature = useCallback(
     async (blob: Blob) => {
       const file = new File([blob], "signature.png", { type: "image/png" });
@@ -110,9 +112,24 @@ export function LogisticsStep({
     [files],
   );
 
-  const handleSelectAssuranceLevel = useCallback(
-    (level: SignatureAssuranceLevelValue) => {
-      void updateDraft.mutateAsync({ signatureAssuranceLevel: level });
+  const handleSelectSignatureChoice = useCallback(
+    (choice: PublicSignatureChoice) => {
+      if (choice === "qualified") {
+        void updateDraft.mutateAsync({
+          signatureAssuranceLevel: SignatureAssuranceLevel.qualified,
+          signatureFlowMode: "swisssign_qes",
+          signatureMode: null,
+          signatureAssetId: null,
+        });
+        return;
+      }
+
+      void updateDraft.mutateAsync({
+        signatureAssuranceLevel: SignatureAssuranceLevel.visual,
+        signatureFlowMode: "visual",
+        signatureMode: choice,
+        ...(choice === "typed" ? { signatureAssetId: null } : {}),
+      });
     },
     [updateDraft],
   );
@@ -353,20 +370,18 @@ export function LogisticsStep({
 
           <Card isCompactViewport={isCompactViewport} density="thin">
             <SignatureAssuranceTierPicker
-              assuranceLevel={assuranceLevel}
-              onAssuranceChange={handleSelectAssuranceLevel}
+              selectedChoice={selectedSignatureChoice}
+              onChoiceChange={handleSelectSignatureChoice}
               isCompactViewport={isCompactViewport ?? false}
             >
               <SignatureSection
                 signerName={signatureDisplayName}
-                currentMode={currentSignatureMode as "typed" | "drawn" | null}
+                currentMode={currentSignatureMode}
                 hasDrawnAsset={hasDrawnAsset}
                 signatureUrl={signatureUrl}
                 isUploading={files.isUploading}
-                onSelectMode={handleSelectSignatureMode}
                 onDrawnSignature={handleDrawnSignature}
                 onClearDrawn={handleClearDrawn}
-                isCompactViewport={isCompactViewport ?? false}
               />
             </SignatureAssuranceTierPicker>
           </Card>

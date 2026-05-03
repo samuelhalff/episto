@@ -1,4 +1,4 @@
-import type { DispatchStatusLookup, DispatchSubmitResult } from "@swiss-mail/shared";
+import type { DispatchStatusLookup, DispatchSubmitResult } from "@episto/shared";
 import type { JsonRecord } from "./epost-types.js";
 
 export function extractPhysicalPreviewPrice(preview: JsonRecord): {

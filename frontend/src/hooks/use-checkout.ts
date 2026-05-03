@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { queryKeys, type DraftDispatchQuote } from "@swiss-mail/shared";
+import { queryKeys, type DraftDispatchQuote } from "@episto/shared";
 import { apiFetch, isApiErrorWithStatus } from "../lib/api";
 import { useDispatchQuote } from "./use-dispatch-quote";
 

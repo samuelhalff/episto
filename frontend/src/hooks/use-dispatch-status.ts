@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "@swiss-mail/shared";
+import { queryKeys } from "@episto/shared";
 import { apiFetch } from "../lib/api";
 import { useDraftStream } from "./use-draft-stream";
-import type { DispatchState } from "@swiss-mail/shared";
+import type { DispatchState } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -59,7 +59,9 @@ export function useDispatchStatus(draftId: string): UseDispatchStatusReturn {
   const dispatchQuery = useQuery({
     queryKey: queryKeys.dispatch(draftId),
     queryFn: () =>
-      apiFetch<DispatchResponse>(`/v1/drafts/${draftId}/dispatch`).then((r) => r.dispatch),
+      apiFetch<DispatchResponse>(`/v1/drafts/${draftId}/dispatch`).then(
+        (r) => r.dispatch,
+      ),
     staleTime: 15_000,
     refetchInterval: 30_000,
   });
@@ -86,7 +88,8 @@ export function useDispatchStatus(draftId: string): UseDispatchStatusReturn {
   const dispatch = dispatchQuery.data;
 
   return {
-    dispatchState: (dispatch?.state as (typeof DispatchState)[keyof typeof DispatchState]) ?? null,
+    dispatchState:
+      (dispatch?.state as (typeof DispatchState)[keyof typeof DispatchState]) ?? null,
     providerReference: dispatch?.providerRef ?? null,
     providerMode: dispatch?.providerMode ?? null,
     // Never label a reference as trackable unless backend confirms it

@@ -1,7 +1,13 @@
 // Phase 0 seam: taxonomy and adapter contract only. No routes, no services.
 // See docs/04-product/qualified-signatures.md for the phased rollout.
 
-export { getSigningAdapter, setSigningAdapter } from "./adapters/signing.adapter.js";
+export {
+  getSigningAdapter,
+  setSigningAdapter,
+  isSignatureAssuranceLevelSupported,
+  assertSignatureAssuranceLevelSupported,
+} from "./adapters/signing.adapter.js";
+export { signingRoutes } from "./signature.routes.js";
 export type {
   SigningAdapter,
   SigningAdapterCapabilities,

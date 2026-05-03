@@ -1,6 +1,6 @@
 "use client";
 
-import { DICTATION_LIMITS } from "@swiss-mail/shared";
+import { DICTATION_LIMITS } from "@episto/shared";
 
 export interface DictationCaptureSession {
   stop: () => Promise<Uint8Array>;

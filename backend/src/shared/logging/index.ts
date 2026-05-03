@@ -9,7 +9,7 @@ export function createLogger(name?: string): pino.Logger {
   const isDev = isEnvLoaded() ? env().NODE_ENV === "development" : false;
 
   return pino({
-    name: name ?? "swiss-mail",
+    name: name ?? "episto",
     level,
     ...(isDev
       ? { transport: { target: "pino-pretty", options: { colorize: true } } }

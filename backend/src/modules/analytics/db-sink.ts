@@ -14,24 +14,37 @@ const DB_EVENTS = new Set([
   "render_failed",
   "ai_generation_requested",
   "ai_generation_completed",
+  "step_entered",
+  "step_completed",
+  "step_idle",
+  "step_abandoned",
+  "step_error",
+  "qes_waitlist_joined",
+  "checkout_started",
+  "payment_failed",
+  "review_blocked",
+  "file_upload_failed",
 ]);
 
 export class DbSink implements AnalyticsSink {
   record(event: AnalyticsEvent): void {
     if (!DB_EVENTS.has(event.event)) return;
 
+    const e = event as Record<string, unknown> & { event: string };
     const db = getDb();
     db.insert(schema.productEvents)
       .values({
         eventName: event.event,
-        sessionId: "sessionId" in event ? (event as { sessionId: string }).sessionId : null,
-        locale: "locale" in event ? (event as { locale: string }).locale : null,
-        route: "route" in event ? (event as { route: string }).route : null,
-        source: "source" in event ? (event as { source: string }).source : null,
-        templateSlug: "templateSlug" in event ? (event as { templateSlug: string }).templateSlug : null,
-        surface: "surface" in event ? (event as { surface: string }).surface : null,
-        durationMs: "durationMs" in event ? (event as { durationMs: number }).durationMs : null,
-        errorFamily: "errorFamily" in event ? (event as { errorFamily: string }).errorFamily : null,
+        sessionId: typeof e.sessionId === "string" ? e.sessionId : null,
+        draftId: typeof e.draftId === "string" ? e.draftId : null,
+        locale: typeof e.locale === "string" ? e.locale : null,
+        route: typeof e.route === "string" ? e.route : null,
+        source: typeof e.source === "string" ? e.source : null,
+        templateSlug: typeof e.templateSlug === "string" ? e.templateSlug : null,
+        surface: typeof e.surface === "string" ? e.surface : null,
+        step: typeof e.step === "string" ? e.step : null,
+        durationMs: typeof e.durationMs === "number" ? e.durationMs : null,
+        errorFamily: typeof e.errorFamily === "string" ? e.errorFamily : null,
       })
       .execute()
       .catch((err) => {

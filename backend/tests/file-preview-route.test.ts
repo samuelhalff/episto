@@ -1,5 +1,5 @@
 import Fastify, { type FastifyInstance } from "fastify";
-import { LETTER_COLORS } from "@swiss-mail/shared";
+import { LETTER_COLORS } from "@episto/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 function makeSelectChain(result: unknown[]) {
@@ -14,7 +14,7 @@ function makeSelectChain(result: unknown[]) {
   return chain;
 }
 
-describe("file preview route", () => {
+describe("file image routes", () => {
   let app: FastifyInstance;
   let getPresignedDownloadUrl: ReturnType<typeof vi.fn>;
   let downloadObjectBuffer: ReturnType<typeof vi.fn>;
@@ -37,7 +37,7 @@ describe("file preview route", () => {
     getPresignedDownloadUrl = vi
       .fn()
       .mockResolvedValue(
-        "http://minio:9000/swiss-mail/signatures/preview-session/signature-file-1",
+        "http://minio:9000/episto/signatures/preview-session/signature-file-1",
       );
     downloadObjectBuffer = vi.fn().mockResolvedValue({
       buffer: Buffer.from("pngbytes"),
@@ -194,6 +194,18 @@ describe("file preview route", () => {
     expect(downloadObjectBuffer).not.toHaveBeenCalled();
   });
 
+  it("serves raw signature images inline from the app origin", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/files/signature-file-1/inline",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["content-type"]).toContain("image/png");
+    expect(response.headers.location).toBeUndefined();
+    expect(response.body).toBe("pngbytes");
+  });
+
   it("rejects missing files on the preview route", async () => {
     getFileAsset.mockResolvedValueOnce(null);
 
@@ -214,7 +226,7 @@ describe("file preview route", () => {
 
     expect(response.statusCode).toBe(302);
     expect(response.headers.location).toBe(
-      "http://minio:9000/swiss-mail/signatures/preview-session/signature-file-1",
+      "http://minio:9000/episto/signatures/preview-session/signature-file-1",
     );
     expect(getPresignedDownloadUrl).toHaveBeenCalledWith(
       "signatures/preview-session/signature-file-1",

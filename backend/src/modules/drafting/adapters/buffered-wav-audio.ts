@@ -1,4 +1,4 @@
-import { DICTATION_LIMITS } from "@swiss-mail/shared";
+import { DICTATION_LIMITS } from "@episto/shared";
 
 import { validationError } from "../../../shared/errors/index.js";
 
@@ -10,8 +10,7 @@ const WAV_CHUNK_HEADER_BYTES = 8;
 const WAV_HEADER_BYTES = 12;
 const PCM_FORMAT_TAG = 1;
 const PCM_BITS_PER_SAMPLE = 16;
-const PCM_BLOCK_ALIGN_BYTES =
-  DICTATION_LIMITS.channelCount * (PCM_BITS_PER_SAMPLE / 8);
+const PCM_BLOCK_ALIGN_BYTES = DICTATION_LIMITS.channelCount * (PCM_BITS_PER_SAMPLE / 8);
 
 function invalidBufferedWavError() {
   return validationError("Audio payload must be a 16 kHz mono PCM WAV file.", [

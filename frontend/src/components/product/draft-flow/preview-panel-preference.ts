@@ -1,4 +1,4 @@
-const storageKey = (draftId: string) => `swiss-mail.preview-panel:${draftId}`;
+const storageKey = (draftId: string) => `episto.preview-panel:${draftId}`;
 
 export function readPreviewPanelPreference(draftId: string): boolean | null {
   try {

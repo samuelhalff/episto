@@ -6,8 +6,8 @@ import { useTranslations } from "next-intl";
 import { Loader2, Package, PenLine, AlertCircle } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api";
-import { OrderStatusResponseSchema, queryKeys } from "@swiss-mail/shared";
-import type { OrderStatusResponse } from "@swiss-mail/shared";
+import { OrderStatusResponseSchema, queryKeys } from "@episto/shared";
+import type { OrderStatusResponse } from "@episto/shared";
 import { BrandMark } from "@/components/branding/BrandMark";
 import {
   APP_PAGE_STACK_CLASS_NAME,

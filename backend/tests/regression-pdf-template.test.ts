@@ -11,7 +11,7 @@
  * - "As a user, the date includes the sender's city when available."
  */
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import type { SnapshotData } from "@swiss-mail/shared";
+import type { SnapshotData } from "@episto/shared";
 import { assertDefined } from "./assert-defined";
 
 vi.mock("node:fs", () => ({

@@ -1,4 +1,4 @@
-import { DraftStatus, type DraftLetter } from "@swiss-mail/shared";
+import { DraftStatus, type DraftLetter } from "@episto/shared";
 
 type SearchParamsLike = {
   get(name: string): string | null;

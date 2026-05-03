@@ -5,7 +5,7 @@ import { useState } from "react";
 import type { FormEvent } from "react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@swiss-mail/shared";
+import { queryKeys } from "@episto/shared";
 import { useAdminAuth } from "../admin-auth-context";
 import { fetchAdminSearch } from "../admin-api";
 import { PanelError, PanelLoading, SectionPanel } from "../admin-metric-panels";

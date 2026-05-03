@@ -122,12 +122,18 @@ export function getAddressLines(
   return lines;
 }
 
-export function getSignatureFileUrl(
+export function getSignaturePreviewUrl(
   signatureFileId: string | null | undefined,
 ): string | null {
   // Signature previews must stay on the app origin because storage URLs may point to
   // internal or HTTP-only object stores that browsers cannot load directly.
   return signatureFileId ? getApiUrl(`/v1/files/${signatureFileId}/preview`) : null;
+}
+
+export function getSignatureInlineUrl(
+  signatureFileId: string | null | undefined,
+): string | null {
+  return signatureFileId ? getApiUrl(`/v1/files/${signatureFileId}/inline`) : null;
 }
 
 export function hasConcreteSignature(

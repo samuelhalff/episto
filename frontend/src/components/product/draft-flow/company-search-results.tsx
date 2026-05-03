@@ -1,6 +1,6 @@
 "use client";
 
-import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
+import type { RecipientCompanySearchResultType } from "@episto/shared";
 import { useTranslations } from "next-intl";
 import { Loader2 } from "lucide-react";
 

@@ -5,7 +5,7 @@ import {
   BRAND_MARK_RING,
   BRAND_MARK_VIEW_BOX,
   BRAND_NAME,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 interface BrandMarkProps {
   className?: string;

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { AddressSearchResponseType } from "@swiss-mail/shared";
+import type { AddressSearchResponseType } from "@episto/shared";
 
 import { apiFetch } from "../lib/api";
 

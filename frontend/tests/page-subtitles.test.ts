@@ -11,7 +11,10 @@ import itCH from "../src/messages/it-CH.json";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
-const homePageSource = readFileSync(path.join(repoRoot, "frontend/src/app/[locale]/page.tsx"), "utf8");
+const homePageSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/page.tsx"),
+  "utf8",
+);
 const homepageHeroSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/HomepageHero.tsx"),
   "utf8",
@@ -89,7 +92,10 @@ const MAIN_PAGE_SUBTITLE_PATHS = [
   { label: "confirmation accepted", path: ["confirmation", "acceptedSubtitle"] },
   { label: "confirmation rejected", path: ["confirmation", "rejectedSubtitle"] },
   { label: "confirmation unknown", path: ["confirmation", "unknownSubtitle"] },
-  { label: "confirmation payment failed", path: ["confirmation", "paymentFailedSubtitle"] },
+  {
+    label: "confirmation payment failed",
+    path: ["confirmation", "paymentFailedSubtitle"],
+  },
 ] as const;
 
 function getNestedString(
@@ -133,7 +139,7 @@ describe("main page subtitle wiring", () => {
     expect(confirmationPageSource).toContain('subtitle: t("acceptedSubtitle")');
     expect(confirmationPageSource).toContain('subtitle: t("rejectedSubtitle")');
     expect(confirmationPageSource).toContain('subtitle: t("unknownSubtitle")');
-    expect(confirmationPageSource).toContain('{payment.data?.failureReason ?? t("paymentFailedSubtitle")}');
+    expect(confirmationPageSource).toContain('{t("paymentFailedSubtitle")}');
   });
 });
 

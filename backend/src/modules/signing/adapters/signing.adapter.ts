@@ -3,7 +3,7 @@ import type {
   SignatureJurisdictionValue,
   SigningProviderValue,
   IdentVerificationMethodValue,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { AppError } from "../../../shared/errors/index.js";
 
@@ -94,6 +94,38 @@ export interface SigningAdapter {
   createSigningSession(request: SigningRequest): Promise<SigningSessionHandle>;
   getSignedArtifact(providerSessionId: string): Promise<SignedArtifact>;
   verifyWebhookSignature(rawBody: string, signatureHeader: string): boolean;
+}
+
+export function isSignatureAssuranceLevelSupported(level: string): boolean {
+  if (level === "visual") {
+    return true;
+  }
+
+  const capabilities = getSigningAdapter().getCapabilities();
+  if (level === "advanced") {
+    return capabilities.supportsAdvanced;
+  }
+
+  if (level === "qualified") {
+    return capabilities.supportsQualified;
+  }
+
+  return false;
+}
+
+export function assertSignatureAssuranceLevelSupported(level: string): void {
+  if (isSignatureAssuranceLevelSupported(level)) {
+    return;
+  }
+
+  throw new AppError({
+    family: "policy_refusal",
+    statusCode: 409,
+    code: "SIGNATURE_ASSURANCE_UNAVAILABLE",
+    message: `Signature assurance level '${level}' is not available in this environment.`,
+    userMessage: "Electronic signature tiers are not available in this environment yet.",
+    userAction: "Select the standard signature to continue.",
+  });
 }
 
 // ---------------------------------------------------------------------------

@@ -55,6 +55,9 @@ export function DraftShell({
   const [stepPopoverOpen, setStepPopoverOpen] = useState(false);
   const stepNav = useStepNav();
   const previewPanel = usePreviewPanel();
+  const desktopContentMaxWidthClassName = previewPanel?.isVisible
+    ? "max-w-[1180px]"
+    : "max-w-[1400px]";
 
   const dismissKeyboard = useCallback(() => {
     const el = document.activeElement;
@@ -65,8 +68,11 @@ export function DraftShell({
     if (!(target instanceof Element) || !isCompactViewport || !isInputFocused) return;
     if (
       target.closest("[data-draft-keep-focus]") ||
-      target.closest("input, textarea, select, button, a, [role='button'], [contenteditable='true']")
-    ) return;
+      target.closest(
+        "input, textarea, select, button, a, [role='button'], [contenteditable='true']",
+      )
+    )
+      return;
     dismissKeyboard();
   }
 
@@ -124,7 +130,8 @@ export function DraftShell({
                       className={getAppButtonClassName({
                         variant: "ghost",
                         size: "md",
-                        className: "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
+                        className:
+                          "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
                       })}
                     >
                       <div className="flex items-center gap-1">
@@ -144,7 +151,9 @@ export function DraftShell({
                       <span className="text-sm font-medium">
                         {step + 1}/{totalSteps}
                       </span>
-                      <ChevronDown className={`h-4 w-4 transition-transform ${stepPopoverOpen ? "rotate-180" : ""}`} />
+                      <ChevronDown
+                        className={`h-4 w-4 transition-transform ${stepPopoverOpen ? "rotate-180" : ""}`}
+                      />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent align="end" sideOffset={8} className="w-[320px] p-0">
@@ -178,7 +187,8 @@ export function DraftShell({
                   className={getAppButtonClassName({
                     variant: "ghost",
                     size: "md",
-                    className: "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
+                    className:
+                      "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
                   })}
                 >
                   <div className="flex items-center gap-1">
@@ -198,18 +208,23 @@ export function DraftShell({
                   <span className="text-sm font-medium">
                     {step + 1}/{totalSteps}
                   </span>
-                  <ChevronDown className={`h-4 w-4 transition-transform ${isStepMenuOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown
+                    className={`h-4 w-4 transition-transform ${isStepMenuOpen ? "rotate-180" : ""}`}
+                  />
                 </button>
               ) : null}
               {previewPanel ? (
                 <button
                   type="button"
                   onClick={previewPanel.onToggle}
-                  aria-label={previewPanel.isVisible ? tc("hidePreview") : tc("showPreview")}
+                  aria-label={
+                    previewPanel.isVisible ? tc("hidePreview") : tc("showPreview")
+                  }
                   className={getAppButtonClassName({
                     variant: "ghost",
                     size: "md",
-                    className: "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
+                    className:
+                      "app-toolbar-button min-h-11 gap-2 rounded-2xl px-3.5 py-0 shadow-none",
                   })}
                 >
                   {previewPanel.isVisible ? (
@@ -217,7 +232,9 @@ export function DraftShell({
                   ) : (
                     <Eye className="h-5 w-5" />
                   )}
-                  <span>{previewPanel.isVisible ? tc("hidePreview") : tc("showPreview")}</span>
+                  <span>
+                    {previewPanel.isVisible ? tc("hidePreview") : tc("showPreview")}
+                  </span>
                 </button>
               ) : null}
               <HeaderLanguageMenu />
@@ -241,7 +258,7 @@ export function DraftShell({
           {/* ── Title block (desktop only — scrolls away) ── */}
           {!isCompactViewport ? (
             <div className="px-6 pb-4 pt-6 sm:px-8 lg:px-10 lg:pb-6 lg:pt-8">
-              <div className="mx-auto w-full max-w-[1400px]">
+              <div className={`mx-auto w-full ${desktopContentMaxWidthClassName}`}>
                 <h2 className="text-[32px] font-bold leading-[1.1] tracking-tight text-zinc-950 lg:text-[40px] dark:text-zinc-50">
                   {title}
                 </h2>
@@ -259,7 +276,7 @@ export function DraftShell({
             className={
               isCompactViewport
                 ? "flex min-h-full flex-1 flex-col pb-10 pt-5"
-                : "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-12 pt-2 lg:px-6"
+                : `mx-auto w-full ${desktopContentMaxWidthClassName} flex min-h-full flex-1 flex-col px-4 pb-12 pt-2 lg:px-6`
             }
           >
             {children}
@@ -277,7 +294,9 @@ export function DraftShell({
               aria-hidden="true"
               className="pointer-events-none absolute inset-x-0 top-0 z-0 h-8 -translate-y-full bg-gradient-to-t from-[var(--app-surface-muted)] to-transparent"
             />
-            <div className={isCompactViewport ? "" : "mx-auto w-full max-w-5xl px-4 lg:px-6"}>
+            <div
+              className={isCompactViewport ? "" : "mx-auto w-full max-w-5xl px-4 lg:px-6"}
+            >
               {composer ? (
                 <div
                   data-draft-keep-focus

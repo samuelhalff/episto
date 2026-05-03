@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { Lock, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { DeliveryType } from "@swiss-mail/shared";
+import { DeliveryType } from "@episto/shared";
 import { formatCentsAsCHF } from "../../hooks/use-pricing";
 import { useDispatchQuote } from "../../hooks/use-dispatch-quote";
 import { getApiErrorUserMessage } from "../../lib/api";

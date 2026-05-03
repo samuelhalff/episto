@@ -16,7 +16,7 @@ import { draftLetter, reviseLetter, validateOutput } from "./ai.service.js";
 import { createMessage } from "../messages/message.service.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
 import type { schema } from "../../db/index.js";
-import { extractAiDocumentMetadata, type DocumentModel } from "@swiss-mail/shared";
+import { extractAiDocumentMetadata, type DocumentModel } from "@episto/shared";
 
 export type DraftRecord = typeof schema.draftLetters.$inferSelect;
 
@@ -56,9 +56,9 @@ export async function streamDraftGeneration(
 
   const applied = await draftLetter(
     {
-      subject: (fields.subject as string) ?? (draft.subject ?? ""),
+      subject: (fields.subject as string) ?? draft.subject ?? "",
       intent,
-      tone: (fields.tone as string) ?? (draft.tone ?? "formal"),
+      tone: (fields.tone as string) ?? draft.tone ?? "formal",
       locale: draft.locale,
       sender,
       recipient,
@@ -81,7 +81,8 @@ export async function streamDraftGeneration(
   if (validation.severity === "blocked") {
     emitDraftEvent(draftId, "error", {
       code: "AI_CONTENT_BLOCKED",
-      message: "The generated content was blocked by content policy. Please try again with different instructions.",
+      message:
+        "The generated content was blocked by content policy. Please try again with different instructions.",
     });
     return;
   }
@@ -92,13 +93,15 @@ export async function streamDraftGeneration(
     content: applied.body,
   });
 
-  const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata, assistantMsg.id);
+  const nextMetadata = mergeAiDocumentMetadata(
+    draft.metadata,
+    applied.metadata,
+    assistantMsg.id,
+  );
   const nextSubject =
     typeof fields.subject === "string" && fields.subject.trim().length > 0
       ? fields.subject.trim()
-      : applied.subject ||
-        (draft.subject?.trim() ?? "") ||
-        null;
+      : applied.subject || (draft.subject?.trim() ?? "") || null;
 
   await updateFields(draftId, sessionId, {
     body: applied.body,
@@ -121,7 +124,8 @@ export async function streamRevision(
   revisionInstruction: string,
   updateFields: FieldUpdater,
 ): Promise<void> {
-  const currentDocument = extractAiDocumentMetadata(draft.metadata)?.document ?? fallbackDocument(draft.body);
+  const currentDocument =
+    extractAiDocumentMetadata(draft.metadata)?.document ?? fallbackDocument(draft.body);
 
   const applied = await reviseLetter(
     {
@@ -158,10 +162,7 @@ export async function streamRevision(
   });
 
   const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata);
-  const nextSubject =
-    applied.subject ||
-    draft.subject?.trim() ||
-    null;
+  const nextSubject = applied.subject || draft.subject?.trim() || null;
 
   await updateFields(draftId, sessionId, {
     body: applied.body,
@@ -182,14 +183,17 @@ function mergeAiDocumentMetadata(
   aiDocument: Record<string, unknown>,
   firstDraftMessageId?: string,
 ): Record<string, unknown> {
-  const base = existingMetadata && typeof existingMetadata === "object"
-    ? (existingMetadata as Record<string, unknown>)
-    : {};
+  const base =
+    existingMetadata && typeof existingMetadata === "object"
+      ? (existingMetadata as Record<string, unknown>)
+      : {};
   return {
     ...base,
     aiDocument,
     firstDraftMessageId:
-      typeof base.firstDraftMessageId === "string" ? base.firstDraftMessageId : firstDraftMessageId,
+      typeof base.firstDraftMessageId === "string"
+        ? base.firstDraftMessageId
+        : firstDraftMessageId,
   };
 }
 

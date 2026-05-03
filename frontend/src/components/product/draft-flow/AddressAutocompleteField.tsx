@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { AddressSearchResultType } from "@swiss-mail/shared";
+import type { AddressSearchResultType } from "@episto/shared";
 import { useTranslations } from "next-intl";
 import { Loader2, MapPin, Search } from "lucide-react";
 

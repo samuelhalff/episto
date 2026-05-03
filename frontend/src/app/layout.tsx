@@ -44,6 +44,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       <head>
         <script
           nonce={nonce}
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{ __html: getThemeInitScript() }}
         />
       </head>

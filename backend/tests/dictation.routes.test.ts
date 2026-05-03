@@ -1,6 +1,6 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DICTATION_LIMITS } from "@swiss-mail/shared";
+import { DICTATION_LIMITS } from "@episto/shared";
 
 let liveDictationSession: {
   writeAudio: ReturnType<typeof vi.fn>;

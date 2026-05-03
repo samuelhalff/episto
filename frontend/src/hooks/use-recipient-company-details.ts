@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { RecipientCompanyDetailsResponseType } from "@swiss-mail/shared";
+import type { RecipientCompanyDetailsResponseType } from "@episto/shared";
 
 import { apiFetch } from "../lib/api";
 
@@ -13,7 +13,12 @@ export function useRecipientCompanyDetails(
   const normalizedCompanyId = companyId.trim();
 
   return useQuery({
-    queryKey: ["drafts", draftId, "recipient-company-details", normalizedCompanyId] as const,
+    queryKey: [
+      "drafts",
+      draftId,
+      "recipient-company-details",
+      normalizedCompanyId,
+    ] as const,
     queryFn: () =>
       apiFetch<RecipientCompanyDetailsResponseType>(
         `/v1/drafts/${draftId}/recipient/company-details?id=${encodeURIComponent(normalizedCompanyId)}`,

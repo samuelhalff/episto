@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { desc, eq } from "drizzle-orm";
-import { buildOrderReference, OrderStatusResponseSchema } from "@swiss-mail/shared";
+import { buildOrderReference, OrderStatusResponseSchema } from "@episto/shared";
 import { getDb, schema } from "../../db/index.js";
 import { AppError, notFoundError } from "../../shared/errors/index.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";

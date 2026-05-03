@@ -57,6 +57,20 @@
       "when": 1776570000000,
       "tag": "0007_signature_assurance_ready_to_sign",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1776729600000,
+      "tag": "0008_swisssign_signature_readiness",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1777334400000,
+      "tag": "0009_qes_waitlist_and_step_events",
+      "breakpoints": true
     }
   ]
 }

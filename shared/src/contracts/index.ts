@@ -4,6 +4,10 @@ import {
   DeliveryTypeSchema,
   DispatchStateSchema,
   SignatureAssuranceLevelSchema,
+  SignatureFlowModeSchema,
+  SignatureEligibilitySchema,
+  SignatureSessionSchema,
+  OrderFulfillmentStatusSchema,
   SwissPostalCodeSchema,
   FileAssetSchema,
   PaymentStateSchema,
@@ -29,6 +33,7 @@ export const UpdateDraftInput = z.object({
   intent: z.string().optional(),
   deliveryType: DeliveryTypeSchema.optional(),
   signatureAssuranceLevel: SignatureAssuranceLevelSchema.optional(),
+  signatureFlowMode: SignatureFlowModeSchema.optional(),
   enclosureNote: z.string().optional(),
   signatureMode: z.enum(["typed", "drawn"]).nullable().optional(),
   senderProfileId: z.string().uuid().nullable().optional(),
@@ -228,6 +233,40 @@ export const OrderStatusDispatchSchema = z
   .strict();
 
 export type OrderStatusDispatch = z.infer<typeof OrderStatusDispatchSchema>;
+
+export const DraftFulfillmentStatusResponseSchema = z
+  .object({
+    fulfillment: z
+      .object({
+        draftId: z.string().uuid(),
+        signatureFlowMode: SignatureFlowModeSchema,
+        fulfillmentStatus: OrderFulfillmentStatusSchema,
+        signatureRequired: z.boolean(),
+        eligibility: SignatureEligibilitySchema,
+        signatureSession: SignatureSessionSchema.nullable(),
+        payment: OrderStatusPaymentSchema.nullable(),
+        dispatch: OrderStatusDispatchSchema.nullable(),
+        nextAction: z
+          .enum([
+            "continue_editing",
+            "review",
+            "eligibility_gate",
+            "checkout",
+            "resume_signature",
+            "await_signature_callback",
+            "await_dispatch",
+            "view_confirmation",
+            "retry_signature",
+          ])
+          .nullable(),
+      })
+      .strict(),
+  })
+  .strict();
+
+export type DraftFulfillmentStatusResponse = z.infer<
+  typeof DraftFulfillmentStatusResponseSchema
+>;
 
 export interface DraftDispatchQuoteLineItem {
   label: string;
@@ -485,6 +524,38 @@ export interface AdminAiResponse {
   regenerationRate: number;
   totalRequests: number;
   periodLabel: string;
+  generatedAt: string;
+}
+
+export type AdminAudienceKind = "sent_or_dispatching" | "qes_waitlist";
+
+export interface AdminSentAudienceRow {
+  email: string;
+  locale: string | null;
+  furthestStatus: string;
+  sessionId: string;
+  draftId: string;
+  firstSeenAt: string;
+  lastSeenAt: string;
+}
+
+export interface AdminSentAudienceResponse {
+  total: number;
+  rows: AdminSentAudienceRow[];
+  generatedAt: string;
+}
+
+export interface AdminQesAudienceRow {
+  email: string;
+  locale: string | null;
+  source: string | null;
+  firstSeenAt: string;
+  lastSeenAt: string;
+}
+
+export interface AdminQesAudienceResponse {
+  total: number;
+  rows: AdminQesAudienceRow[];
   generatedAt: string;
 }
 

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@swiss-mail/shared";
+import { queryKeys } from "@episto/shared";
 import { useAdminAuth } from "../admin-auth-context";
 import {
   adminFetch,

@@ -163,7 +163,7 @@ services:
     entrypoint:
       - /bin/sh
       - -c
-      - mc alias set local http://minio:9000 minioadmin minioadmin && mc mb --ignore-existing local/swiss-mail
+      - mc alias set local http://minio:9000 minioadmin minioadmin && mc mb --ignore-existing local/episto
 
 volumes:
   postgres_data:
@@ -236,7 +236,7 @@ All secrets and environment-specific values are injected as environment variable
 | `AI_CLASSIFY_MODEL`                 | Classification/extraction deployment name                                                                                                                                                                                             | `gpt-4.1-mini`                                                  |
 | `AI_PROVIDER_MODE`                  | Azure execution mode                                                                                                                                                                                                                  | `azure_openai` or `azure_ai_project_agent`                      |
 | `AZURE_AI_PROJECT_ENDPOINT`         | Azure AI Project endpoint for agent-backed execution                                                                                                                                                                                  | `https://example.services.ai.azure.com/api/projects/my-project` |
-| `AZURE_EXISTING_AGENT_ID`           | Existing Azure AI Project agent reference in `<agent-name>:<version>` format                                                                                                                                                          | `swiss-mail:2`                                                  |
+| `AZURE_EXISTING_AGENT_ID`           | Existing Azure AI Project agent reference in `<agent-name>:<version>` format                                                                                                                                                          | `episto:2`                                                      |
 | `AZURE_AI_AGENT_NAME`               | Azure AI Project agent name                                                                                                                                                                                                           | `web-deep-search`                                               |
 | `AZURE_AI_AGENT_VERSION`            | Azure AI Project agent version                                                                                                                                                                                                        | `5`                                                             |
 | `AZURE_TENANT_ID`                   | Optional Entra tenant for service-principal auth                                                                                                                                                                                      | _(secret / env-specific)_                                       |

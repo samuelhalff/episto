@@ -1,4 +1,13 @@
-import { index, integer, jsonb, pgEnum, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { sessions } from "./auth.js";
 import { draftLetters } from "./drafting.js";
 import { createdAt, pk, ts } from "./helpers.js";
@@ -7,9 +16,14 @@ export const fileAssetKindEnum = pgEnum("file_asset_kind", [
   "attachment",
   "signature",
   "rendered_pdf",
+  "signed_pdf",
 ]);
 
-export const fileStatusEnum = pgEnum("file_status", ["active", "pending_deletion", "deleted"]);
+export const fileStatusEnum = pgEnum("file_status", [
+  "active",
+  "pending_deletion",
+  "deleted",
+]);
 
 export const fileAssets = pgTable(
   "file_assets",

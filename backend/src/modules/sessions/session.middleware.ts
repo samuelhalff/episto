@@ -11,9 +11,7 @@ import type { SessionRow } from "./session.service.js";
 function resolveCookieName(): string {
   // Avoid importing env() at module level — it may not be loaded yet.
   // Instead, check the env var directly (always available).
-  return process.env["NODE_ENV"] === "production"
-    ? "__Host-session"
-    : "session";
+  return process.env["NODE_ENV"] === "production" ? "__Host-session" : "session";
 }
 
 const COOKIE_NAME = resolveCookieName();
@@ -61,6 +59,21 @@ export async function requireSession(
   }
 
   request.session = session;
+}
+
+/**
+ * Optional session lookup — returns the session row when a valid cookie is
+ * present, otherwise null. Never throws. Used by routes that accept anonymous
+ * traffic but want to attribute events when a session exists.
+ */
+export async function getOptionalSession(
+  request: FastifyRequest,
+): Promise<SessionRow | null> {
+  const token = request.cookies[COOKIE_NAME];
+  if (!token) return null;
+  const db = getDb();
+  const session = await getSessionByResumeToken(db, token);
+  return session ?? null;
 }
 
 export function getRequiredSession(request: FastifyRequest): SessionRow {

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import type { AdminEscalationLevel, AdminSuspiciousCase } from "@swiss-mail/shared";
+import type { AdminEscalationLevel, AdminSuspiciousCase } from "@episto/shared";
 import { adminPost } from "./admin-api";
 import { PanelError, SectionPanel } from "./admin-metric-panels";
 import { getAdminPagePath } from "@/lib/admin-paths";
@@ -43,7 +43,11 @@ function EscalationControl({
       });
       await onSaved();
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Failed to save escalation");
+      setError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Failed to save escalation",
+      );
     } finally {
       setPending(false);
     }
@@ -140,7 +144,10 @@ export function SuspiciousQueuePanel({
                     ))}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-3 text-xs" style={{ color: "var(--app-muted)" }}>
+                <div
+                  className="flex flex-wrap gap-3 text-xs"
+                  style={{ color: "var(--app-muted)" }}
+                >
                   <Link href={getAdminPagePath(pathname, `sessions/${entry.sessionId}`)}>
                     Session
                   </Link>
@@ -154,28 +161,50 @@ export function SuspiciousQueuePanel({
 
               <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2 lg:grid-cols-4">
                 <p style={{ color: "var(--app-muted)" }}>
-                  Failed payments: <span style={{ color: "var(--app-fg)" }}>{entry.signals.failedPayments}</span>
+                  Failed payments:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>
+                    {entry.signals.failedPayments}
+                  </span>
                 </p>
                 <p style={{ color: "var(--app-muted)" }}>
-                  Refunds: <span style={{ color: "var(--app-fg)" }}>{entry.signals.refunds}</span>
+                  Refunds:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>{entry.signals.refunds}</span>
                 </p>
                 <p style={{ color: "var(--app-muted)" }}>
-                  Rejections: <span style={{ color: "var(--app-fg)" }}>{entry.signals.rejectedDispatches}</span>
+                  Rejections:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>
+                    {entry.signals.rejectedDispatches}
+                  </span>
                 </p>
                 <p style={{ color: "var(--app-muted)" }}>
-                  Ambiguous: <span style={{ color: "var(--app-fg)" }}>{entry.signals.ambiguousDispatches}</span>
+                  Ambiguous:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>
+                    {entry.signals.ambiguousDispatches}
+                  </span>
                 </p>
                 <p style={{ color: "var(--app-muted)" }}>
-                  First seen: <span style={{ color: "var(--app-fg)" }}>{new Date(entry.firstSeenAt).toLocaleString()}</span>
+                  First seen:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>
+                    {new Date(entry.firstSeenAt).toLocaleString()}
+                  </span>
                 </p>
                 <p style={{ color: "var(--app-muted)" }}>
-                  Last seen: <span style={{ color: "var(--app-fg)" }}>{new Date(entry.lastSeenAt).toLocaleString()}</span>
+                  Last seen:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>
+                    {new Date(entry.lastSeenAt).toLocaleString()}
+                  </span>
                 </p>
                 <p style={{ color: "var(--app-muted)" }}>
-                  Draft status: <span style={{ color: "var(--app-fg)" }}>{entry.latestDraftStatus ?? "None"}</span>
+                  Draft status:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>
+                    {entry.latestDraftStatus ?? "None"}
+                  </span>
                 </p>
                 <p style={{ color: "var(--app-muted)" }}>
-                  Escalation: <span style={{ color: "var(--app-fg)" }}>{entry.escalationLevel.replace("_", " ")}</span>
+                  Escalation:{" "}
+                  <span style={{ color: "var(--app-fg)" }}>
+                    {entry.escalationLevel.replace("_", " ")}
+                  </span>
                 </p>
               </div>
 

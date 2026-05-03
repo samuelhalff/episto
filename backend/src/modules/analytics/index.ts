@@ -31,24 +31,64 @@ export type AnalyticsEvent =
   | { event: "resume_link_opened"; sessionId: string; result: string }
   | { event: "draft_created"; sessionId: string; draftId: string }
   | { event: "draft_first_response_completed"; draftId: string; durationMs: number }
-  | { event: "draft_first_full_draft_ready"; draftId: string; durationMs: number; pageCountEstimate: number }
+  | {
+      event: "draft_first_full_draft_ready";
+      draftId: string;
+      durationMs: number;
+      pageCountEstimate: number;
+    }
   | { event: "draft_conflict_seen"; draftId: string; surface: string }
   // §4.3 Files and review
   | { event: "file_upload_started"; draftId: string; kind: string; countExisting: number }
   | { event: "file_upload_failed"; draftId: string; kind: string; errorFamily: string }
-  | { event: "review_reached"; draftId: string; pageCountEstimate: number; attachmentCount: number }
+  | {
+      event: "review_reached";
+      draftId: string;
+      pageCountEstimate: number;
+      attachmentCount: number;
+    }
   | { event: "review_blocked"; draftId: string; reason: string }
   // §4.4 Checkout and payment
-  | { event: "checkout_started"; draftId: string; deliveryType: string; priceCents: number }
+  | {
+      event: "checkout_started";
+      draftId: string;
+      deliveryType: string;
+      priceCents: number;
+    }
   | { event: "payment_intent_created"; draftId: string; paymentAttemptId: string }
-  | { event: "payment_failed"; draftId: string; paymentAttemptId: string; errorFamily: string }
-  | { event: "payment_captured"; draftId: string; paymentAttemptId: string; amountCents: number }
+  | {
+      event: "payment_failed";
+      draftId: string;
+      paymentAttemptId: string;
+      errorFamily: string;
+    }
+  | {
+      event: "payment_captured";
+      draftId: string;
+      paymentAttemptId: string;
+      amountCents: number;
+    }
   // §4.5 Dispatch and post-payment
-  | { event: "dispatch_submitted"; draftId: string; dispatchAttemptId: string; deliveryType: string }
+  | {
+      event: "dispatch_submitted";
+      draftId: string;
+      dispatchAttemptId: string;
+      deliveryType: string;
+    }
   | { event: "dispatch_accepted"; draftId: string; dispatchAttemptId: string }
-  | { event: "dispatch_ambiguous"; draftId: string; dispatchAttemptId: string; reasonCategory: string }
+  | {
+      event: "dispatch_ambiguous";
+      draftId: string;
+      dispatchAttemptId: string;
+      reasonCategory: string;
+    }
   | { event: "order_status_viewed"; draftId: string; dispatchState: string }
-  | { event: "refund_confirmed"; draftId: string; paymentAttemptId: string; amountCents: number }
+  | {
+      event: "refund_confirmed";
+      draftId: string;
+      paymentAttemptId: string;
+      amountCents: number;
+    }
   // §4.6 Rendering
   | { event: "render_completed"; draftId: string; durationMs: number }
   | { event: "render_failed"; draftId: string; errorFamily: string }
@@ -57,7 +97,54 @@ export type AnalyticsEvent =
   | { event: "feature_used"; surface: string; locale: string; sessionId?: string }
   // §4.8 AI quality
   | { event: "ai_generation_requested"; draftId: string; locale: string }
-  | { event: "ai_generation_completed"; draftId: string; durationMs: number; wasRefusal: boolean };
+  | {
+      event: "ai_generation_completed";
+      draftId: string;
+      durationMs: number;
+      wasRefusal: boolean;
+    }
+  // §4.9 Step funnel — granular per-step instrumentation for friction analysis
+  | {
+      event: "step_entered";
+      step: string;
+      draftId?: string;
+      sessionId?: string;
+      locale?: string;
+    }
+  | {
+      event: "step_completed";
+      step: string;
+      durationMs: number;
+      draftId?: string;
+      sessionId?: string;
+      locale?: string;
+    }
+  | {
+      event: "step_idle";
+      step: string;
+      durationMs: number;
+      draftId?: string;
+      sessionId?: string;
+      locale?: string;
+    }
+  | {
+      event: "step_abandoned";
+      step: string;
+      durationMs: number;
+      draftId?: string;
+      sessionId?: string;
+      locale?: string;
+    }
+  | {
+      event: "step_error";
+      step: string;
+      errorFamily: string;
+      draftId?: string;
+      sessionId?: string;
+      locale?: string;
+    }
+  // §4.10 QES interest signal
+  | { event: "qes_waitlist_joined"; sessionId?: string; locale?: string };
 
 // ---------------------------------------------------------------------------
 // Event name constants — for type-safe usage at call sites
@@ -101,6 +188,14 @@ export const ANALYTICS_EVENTS = {
   // AI quality
   AI_GENERATION_REQUESTED: "ai_generation_requested",
   AI_GENERATION_COMPLETED: "ai_generation_completed",
+  // Step funnel
+  STEP_ENTERED: "step_entered",
+  STEP_COMPLETED: "step_completed",
+  STEP_IDLE: "step_idle",
+  STEP_ABANDONED: "step_abandoned",
+  STEP_ERROR: "step_error",
+  // QES interest
+  QES_WAITLIST_JOINED: "qes_waitlist_joined",
 } as const;
 
 // ---------------------------------------------------------------------------

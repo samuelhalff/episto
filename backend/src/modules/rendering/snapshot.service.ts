@@ -1,5 +1,5 @@
 import { eq, sql } from "drizzle-orm";
-import { SnapshotDataSchema } from "@swiss-mail/shared";
+import { SnapshotDataSchema } from "@episto/shared";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";

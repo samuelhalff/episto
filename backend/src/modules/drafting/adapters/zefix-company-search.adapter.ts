@@ -2,7 +2,7 @@ import { z } from "zod";
 import type {
   RecipientCompanyDetailsType,
   RecipientCompanySearchResultType,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { providerOutageError } from "../../../shared/errors/index.js";
 
@@ -145,8 +145,13 @@ export class ZefixCompanySearchAdapter implements CompanySearchAdapter {
   }
 }
 
-function parseZefixCompanyIdentifier(companyId: string): { kind: "uid" | "ehraid" | "chid"; value: string } {
-  const normalized = companyId.startsWith("zefix:") ? companyId.slice("zefix:".length) : companyId;
+function parseZefixCompanyIdentifier(companyId: string): {
+  kind: "uid" | "ehraid" | "chid";
+  value: string;
+} {
+  const normalized = companyId.startsWith("zefix:")
+    ? companyId.slice("zefix:".length)
+    : companyId;
 
   if (/^\d+$/.test(normalized)) {
     return { kind: "ehraid", value: normalized };

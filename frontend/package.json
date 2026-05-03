@@ -1,5 +1,5 @@
 {
-  "name": "@swiss-mail/frontend",
+  "name": "@episto/frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -23,7 +23,7 @@
     "@sentry/nextjs": "^10.48.0",
     "@stripe/react-stripe-js": "^3.1.0",
     "@stripe/stripe-js": "^5.5.0",
-    "@swiss-mail/shared": "*",
+    "@episto/shared": "*",
     "@tanstack/react-query": "^5.99.0",
     "dotenv": "^17.4.1",
     "framer-motion": "^12.38.0",

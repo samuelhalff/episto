@@ -4,15 +4,13 @@ import type {
   DispatchQuote,
   DispatchStatusLookup,
   DispatchSubmitResult,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { AppError } from "../../../shared/errors/index.js";
 import { env } from "../../../shared/config/index.js";
 import type { DispatchPricingInput } from "../dispatch-pricing-input.service.js";
 import { EpostDispatchAdapter } from "./epost.adapter.js";
-import {
-  getStubDispatchCapabilities,
-} from "./provider-capabilities.js";
+import { getStubDispatchCapabilities } from "./provider-capabilities.js";
 
 // ---------------------------------------------------------------------------
 // Types

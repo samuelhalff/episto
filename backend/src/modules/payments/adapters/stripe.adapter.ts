@@ -101,6 +101,7 @@ export async function createPaymentIntent(
     customerEmail: string;
     orderRef: string;
     deliveryType: "standard" | "registered";
+    captureStrategy?: "automatic" | "manual";
   },
 ): Promise<{ paymentIntentId: string; clientSecret: string }> {
   try {
@@ -122,9 +123,9 @@ export async function createPaymentIntent(
           orderRef: metadata.orderRef,
           deliveryType: metadata.deliveryType,
         },
-        // Automatic capture is required to support Twint and other immediate-capture
-        // methods. Stripe filters out Twint when capture_method is set to non-automatic.
-        // All methods now go pending → captured via payment_intent.succeeded.
+        // Signature-led flows need separate authorization and later capture.
+        // Stripe automatically filters out methods that don't support manual capture.
+        capture_method: metadata.captureStrategy === "manual" ? "manual" : "automatic",
         automatic_payment_methods: { enabled: true },
       },
       { idempotencyKey: metadata.paymentAttemptId },

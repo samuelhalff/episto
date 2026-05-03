@@ -66,7 +66,7 @@ services:
     entrypoint: >
       /bin/sh -c "
       mc alias set local http://minio:9000 minioadmin minioadmin;
-      mc mb --ignore-existing local/swiss-mail;
+      mc mb --ignore-existing local/episto;
       "
 
   # ── Application (hot reload via volume mount) ─────────────────────────────
@@ -86,7 +86,7 @@ services:
       DATABASE_URL: postgres://swissmail:swissmail@postgres:5432/swissmail
       REDIS_URL: redis://redis:6379
       S3_ENDPOINT: http://minio:9000
-      S3_BUCKET: swiss-mail
+      S3_BUCKET: episto
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
       CORS_ORIGIN: http://localhost:5000
@@ -134,7 +134,7 @@ services:
       DATABASE_URL: postgres://swissmail:swissmail@postgres:5432/swissmail
       REDIS_URL: redis://redis:6379
       S3_ENDPOINT: http://minio:9000
-      S3_BUCKET: swiss-mail
+      S3_BUCKET: episto
       S3_ACCESS_KEY: minioadmin
       S3_SECRET_KEY: minioadmin
       NODE_ENV: development

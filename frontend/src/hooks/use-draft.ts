@@ -8,12 +8,12 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api";
-import { queryKeys, type DraftLetter } from "@swiss-mail/shared";
-import type { UpdateDraftInputType } from "@swiss-mail/shared";
+import { queryKeys, type DraftLetter } from "@episto/shared";
+import type { UpdateDraftInputType } from "@episto/shared";
 import { useDraftStream } from "./use-draft-stream";
 import type { FieldUpdateEvent } from "./use-draft-stream";
 
-const TRANSITIONAL_DRAFT_STATUSES = new Set(["reviewed", "rendering", "ready_to_sign"]);
+const TRANSITIONAL_DRAFT_STATUSES = new Set(["reviewed", "rendering"]);
 
 function normalizeDraft(draft: DraftLetter): DraftLetter {
   return {

@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { buildOrderReference } from "@swiss-mail/shared";
+import { buildOrderReference } from "@episto/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";

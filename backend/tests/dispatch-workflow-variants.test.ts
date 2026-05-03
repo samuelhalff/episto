@@ -4,13 +4,13 @@ import {
   canTransitionDispatch,
   assertTransitionDispatch,
   DispatchState,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import {
   submitMockEpostDelivery,
   lookupMockEpostStatus,
   isMockEpostProviderReference,
 } from "../src/modules/dispatch/adapters/mock-epost-submission.js";
-import type { DispatchPackage } from "@swiss-mail/shared";
+import type { DispatchPackage } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Dispatch state machine — variant-based tests
@@ -133,7 +133,9 @@ describe("Mock ePost submission", () => {
   it("generates a mock provider reference", () => {
     const result = submitMockEpostDelivery(mockPackage);
     expect(result.providerReference).toBeTruthy();
-    expect(isMockEpostProviderReference(assertDefined(result.providerReference))).toBe(true);
+    expect(isMockEpostProviderReference(assertDefined(result.providerReference))).toBe(
+      true,
+    );
   });
 
   it("produces deterministic references for the same package", () => {

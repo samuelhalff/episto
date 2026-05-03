@@ -3,7 +3,7 @@ export interface PendingDraftTurn {
   messageId: string;
 }
 
-const PREFIX = "swiss-mail.pending-draft-turn";
+const PREFIX = "episto.pending-draft-turn";
 
 function getSessionStorage(): Storage | null {
   if (typeof globalThis === "undefined" || !("sessionStorage" in globalThis)) {

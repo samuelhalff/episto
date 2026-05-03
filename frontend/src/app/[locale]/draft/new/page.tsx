@@ -14,7 +14,7 @@ import {
   queryKeys,
   type DraftLetter,
   type Session,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 

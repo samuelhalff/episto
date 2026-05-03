@@ -1,13 +1,13 @@
 "use client";
 
 import { Fragment, type CSSProperties, type ReactNode } from "react";
-import type {
-  DocumentBlock,
-  DocumentModel,
-  InlineSpan,
-  ListItem,
-} from "@swiss-mail/shared";
-import { LETTER_COLORS, LETTER_LAYOUT_PT, mmToPageCqw, ptToPageCqw } from "@swiss-mail/shared";
+import type { DocumentBlock, DocumentModel, InlineSpan, ListItem } from "@episto/shared";
+import {
+  LETTER_COLORS,
+  LETTER_LAYOUT_PT,
+  mmToPageCqw,
+  ptToPageCqw,
+} from "@episto/shared";
 
 type DocumentPreviewVariant = "default" | "letter";
 
@@ -93,11 +93,7 @@ function renderBlock(block: DocumentBlock, variant: DocumentPreviewVariant) {
         }
       >
         {block.items.map((item, index) => (
-          <ListItemPreview
-            key={`${item.text}-${index}`}
-            item={item}
-            variant={variant}
-          />
+          <ListItemPreview key={`${item.text}-${index}`} item={item} variant={variant} />
         ))}
       </ListTag>
     );
@@ -117,7 +113,11 @@ function renderBlock(block: DocumentBlock, variant: DocumentPreviewVariant) {
             {block.headers.map((header) => (
               <th
                 key={header}
-                className={isLetter ? "" : "border border-zinc-300 font-semibold text-zinc-800 dark:border-zinc-700 dark:text-zinc-100"}
+                className={
+                  isLetter
+                    ? ""
+                    : "border border-zinc-300 font-semibold text-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
+                }
                 style={
                   isLetter
                     ? {
@@ -139,7 +139,11 @@ function renderBlock(block: DocumentBlock, variant: DocumentPreviewVariant) {
               {row.map((cell, cellIndex) => (
                 <td
                   key={`cell-${rowIndex}-${cellIndex}`}
-                  className={isLetter ? "align-top" : "border border-zinc-300 align-top dark:border-zinc-700"}
+                  className={
+                    isLetter
+                      ? "align-top"
+                      : "border border-zinc-300 align-top dark:border-zinc-700"
+                  }
                   style={
                     isLetter
                       ? {

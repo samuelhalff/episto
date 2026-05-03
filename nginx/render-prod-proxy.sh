@@ -28,6 +28,8 @@ fi
 
 CANONICAL_HOST=$(printf '%s' "$FRONTEND_SERVER_NAMES" | awk '{print $1}')
 TLS_CERT_NAME=${PUBLIC_TLS_CERT_NAME:-$CANONICAL_HOST}
+TLS_FULLCHAIN="/etc/letsencrypt/live/$TLS_CERT_NAME/fullchain.pem"
+TLS_PRIVKEY="/etc/letsencrypt/live/$TLS_CERT_NAME/privkey.pem"
 
 API_HOST=""
 case "$NEXT_PUBLIC_API_URL" in
@@ -44,6 +46,13 @@ esac
 HTTP_SERVER_NAMES="$FRONTEND_SERVER_NAMES"
 if [ -n "$API_HOST" ] && ! printf ' %s ' "$FRONTEND_SERVER_NAMES" | grep -Fq " $API_HOST "; then
   HTTP_SERVER_NAMES="$HTTP_SERVER_NAMES $API_HOST"
+fi
+
+TLS_ENABLED=0
+if [ -f "$TLS_FULLCHAIN" ] && [ -f "$TLS_PRIVKEY" ]; then
+  TLS_ENABLED=1
+else
+  echo >&2 "TLS certificate not found for $TLS_CERT_NAME; starting HTTP-only proxy until certbot provisions it."
 fi
 
 cat > /etc/nginx/conf.d/default.conf <<EOF
@@ -125,57 +134,34 @@ server {
     root /var/www;
   }
 
-  location / {
-    return 301 https://\$host\$request_uri;
-  }
-}
-EOF
-
-cat >> /etc/nginx/conf.d/default.conf <<EOF
-
-server {
-  listen 443 ssl;
-  http2 on;
-  server_name $FRONTEND_SERVER_NAMES;
-
-  ssl_certificate /etc/letsencrypt/live/$TLS_CERT_NAME/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/$TLS_CERT_NAME/privkey.pem;
-  ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_prefer_server_ciphers off;
-  ssl_session_cache shared:SSL:10m;
-  ssl_session_timeout 1d;
-  ssl_session_tickets off;
-
-  client_max_body_size 50M;
-
-  proxy_set_header Host              \$host;
-  proxy_set_header X-Real-IP         \$remote_addr;
-  proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
-  proxy_set_header X-Forwarded-Host  \$host;
-  proxy_set_header X-Forwarded-Port  \$server_port;
-  proxy_set_header X-Forwarded-Proto https;
-  proxy_set_header Forwarded         "host=\$host;proto=https";
-  proxy_http_version 1.1;
-  proxy_redirect off;
-EOF
-
-case "$FRONTEND_SERVER_NAMES" in
-  *" "*)
-    cat >> /etc/nginx/conf.d/default.conf <<EOF
-
-  if (\$host != $CANONICAL_HOST) {
-    return 301 https://$CANONICAL_HOST\$request_uri;
-  }
-EOF
-    ;;
-esac
-
-cat >> /etc/nginx/conf.d/default.conf <<'EOF'
-
   location = /.well-known/apple-developer-merchantid-domain-association {
     root /var/www;
     default_type application/octet-stream;
   }
+EOF
+
+if [ "$TLS_ENABLED" = "1" ]; then
+  cat >> /etc/nginx/conf.d/default.conf <<'EOF'
+
+  location / {
+    return 301 https://$host$request_uri;
+  }
+}
+EOF
+else
+  cat >> /etc/nginx/conf.d/default.conf <<'EOF'
+
+  client_max_body_size 50M;
+
+  proxy_set_header Host              $host;
+  proxy_set_header X-Real-IP         $remote_addr;
+  proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Host  $host;
+  proxy_set_header X-Forwarded-Port  $server_port;
+  proxy_set_header X-Forwarded-Proto $scheme;
+  proxy_set_header Forwarded         "host=$host;proto=$scheme";
+  proxy_http_version 1.1;
+  proxy_redirect off;
 
   location ~ ^/api/v1/drafts/[^/]+/stream {
     set $backend_upstream http://backend:4000;
@@ -207,17 +193,96 @@ cat >> /etc/nginx/conf.d/default.conf <<'EOF'
   }
 }
 EOF
+fi
 
-if [ -n "$API_HOST" ] && [ "$API_HOST" != "$CANONICAL_HOST" ]; then
+if [ "$TLS_ENABLED" = "1" ]; then
   cat >> /etc/nginx/conf.d/default.conf <<EOF
+
+server {
+  listen 443 ssl;
+  http2 on;
+  server_name $FRONTEND_SERVER_NAMES;
+
+  ssl_certificate $TLS_FULLCHAIN;
+  ssl_certificate_key $TLS_PRIVKEY;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_prefer_server_ciphers off;
+  ssl_session_cache shared:SSL:10m;
+  ssl_session_timeout 1d;
+  ssl_session_tickets off;
+
+  client_max_body_size 50M;
+
+  proxy_set_header Host              \$host;
+  proxy_set_header X-Real-IP         \$remote_addr;
+  proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
+  proxy_set_header X-Forwarded-Host  \$host;
+  proxy_set_header X-Forwarded-Port  \$server_port;
+  proxy_set_header X-Forwarded-Proto https;
+  proxy_set_header Forwarded         "host=\$host;proto=https";
+  proxy_http_version 1.1;
+  proxy_redirect off;
+EOF
+
+  case "$FRONTEND_SERVER_NAMES" in
+    *" "*)
+      cat >> /etc/nginx/conf.d/default.conf <<EOF
+
+  if (\$host != $CANONICAL_HOST) {
+    return 301 https://$CANONICAL_HOST\$request_uri;
+  }
+EOF
+      ;;
+  esac
+
+  cat >> /etc/nginx/conf.d/default.conf <<'EOF'
+
+  location = /.well-known/apple-developer-merchantid-domain-association {
+    root /var/www;
+    default_type application/octet-stream;
+  }
+
+  location ~ ^/api/v1/drafts/[^/]+/stream {
+    set $backend_upstream http://backend:4000;
+    proxy_pass $backend_upstream;
+    proxy_set_header Connection '';
+    proxy_buffering off;
+    proxy_cache off;
+    proxy_read_timeout 300s;
+    chunked_transfer_encoding on;
+  }
+
+  location /api/ {
+    set $backend_upstream http://backend:4000;
+    proxy_pass $backend_upstream;
+    proxy_set_header Upgrade    $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+    proxy_read_timeout 600s;
+    proxy_send_timeout 600s;
+  }
+EOF
+
+  cat >> /etc/nginx/conf.d/default.conf <<'EOF'
+
+  location / {
+    set $frontend_upstream http://frontend:3000;
+    proxy_pass $frontend_upstream;
+    proxy_set_header Upgrade    $http_upgrade;
+    proxy_set_header Connection $connection_upgrade;
+  }
+}
+EOF
+
+  if [ -n "$API_HOST" ] && [ "$API_HOST" != "$CANONICAL_HOST" ]; then
+    cat >> /etc/nginx/conf.d/default.conf <<EOF
 
 server {
   listen 443 ssl;
   http2 on;
   server_name $API_HOST;
 
-  ssl_certificate /etc/letsencrypt/live/$TLS_CERT_NAME/fullchain.pem;
-  ssl_certificate_key /etc/letsencrypt/live/$TLS_CERT_NAME/privkey.pem;
+  ssl_certificate $TLS_FULLCHAIN;
+  ssl_certificate_key $TLS_PRIVKEY;
   ssl_protocols TLSv1.2 TLSv1.3;
   ssl_prefer_server_ciphers off;
   ssl_session_cache shared:SSL:10m;
@@ -256,6 +321,7 @@ server {
   }
 }
 EOF
+  fi
 fi
 
 exec nginx -g 'daemon off;'

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Layers } from "lucide-react";
-import type { DraftLetter } from "@swiss-mail/shared";
+import type { DraftLetter } from "@episto/shared";
 import { useTranslations } from "next-intl";
 
 import { useRouter } from "../../i18n/navigation";

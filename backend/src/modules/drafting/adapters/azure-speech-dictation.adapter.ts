@@ -1,4 +1,4 @@
-import { DICTATION_LIMITS } from "@swiss-mail/shared";
+import { DICTATION_LIMITS } from "@episto/shared";
 import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
 
 import { env } from "../../../shared/config/index.js";
@@ -91,9 +91,8 @@ function withOperationTimeout<T>(promise: Promise<T>, label: string): Promise<T>
 function startContinuousRecognition(recognizer: speechsdk.SpeechRecognizer) {
   return withOperationTimeout(
     new Promise<void>((resolve, reject) => {
-      recognizer.startContinuousRecognitionAsync(
-        resolve,
-        (error) => reject(providerOutageError("Azure AI Speech", error)),
+      recognizer.startContinuousRecognitionAsync(resolve, (error) =>
+        reject(providerOutageError("Azure AI Speech", error)),
       );
     }),
     "Azure AI Speech start",
@@ -103,9 +102,8 @@ function startContinuousRecognition(recognizer: speechsdk.SpeechRecognizer) {
 function stopContinuousRecognition(recognizer: speechsdk.SpeechRecognizer) {
   return withOperationTimeout(
     new Promise<void>((resolve, reject) => {
-      recognizer.stopContinuousRecognitionAsync(
-        resolve,
-        (error) => reject(providerOutageError("Azure AI Speech", error)),
+      recognizer.stopContinuousRecognitionAsync(resolve, (error) =>
+        reject(providerOutageError("Azure AI Speech", error)),
       );
     }),
     "Azure AI Speech stop",
@@ -123,7 +121,10 @@ function createRecognizer(
   audioConfig: speechsdk.AudioConfig,
   hints: string[],
 ) {
-  const recognizer = new speechsdk.SpeechRecognizer(createSpeechConfig(locale), audioConfig);
+  const recognizer = new speechsdk.SpeechRecognizer(
+    createSpeechConfig(locale),
+    audioConfig,
+  );
 
   applyPhraseHints(recognizer, hints);
 
@@ -248,9 +249,17 @@ export async function transcribeBufferedWav(options: {
 
   return new Promise<string>((resolve, reject) => {
     let settled = false;
-    const timeoutId = setTimeout(() => {
-      fail(providerOutageError("Azure AI Speech", new Error("Buffered transcription timed out")));
-    }, DICTATION_LIMITS.maxCaptureSeconds * 1000 + BATCH_TRANSCRIPTION_GRACE_MS);
+    const timeoutId = setTimeout(
+      () => {
+        fail(
+          providerOutageError(
+            "Azure AI Speech",
+            new Error("Buffered transcription timed out"),
+          ),
+        );
+      },
+      DICTATION_LIMITS.maxCaptureSeconds * 1000 + BATCH_TRANSCRIPTION_GRACE_MS,
+    );
 
     const cleanup = async () => {
       clearTimeout(timeoutId);

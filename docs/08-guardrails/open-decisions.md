@@ -33,14 +33,15 @@ weakest trust posture and highest refund exposure.
 
 ---
 
-### Signature scope — LOCKED: Option C (typed name + drawn) for the visual tier
+### Signature scope — LOCKED: typed and drawn visual options
 
-**Locked choice:** Typed name plus on-screen drawn signature. No uploaded image mode at launch.
+**Locked choice:** Public `visual` signing exposes two explicit options — **typed** and
+**drawn**. No uploaded image mode at launch.
 
 See [`../04-product/signatures-and-attachments.md`](../04-product/signatures-and-attachments.md).
 
-This lock governs only the `visual` tier. Advanced and qualified electronic signatures are
-governed by the separate _Signature assurance tiers_ lock below.
+This lock governs only the `visual` tier. QES is governed by the separate _Signature assurance
+exposure_ lock below.
 
 **Option A (typed only) rejected** — too weak for the perceived trust level.  
 **Option B (typed + uploaded image) superseded** — on-screen drawing is higher-leverage and image
@@ -48,12 +49,18 @@ upload was never wired in production.
 
 ---
 
-### Signature assurance tiers — LOCKED: three-tier model
+### Signature assurance exposure — LOCKED: typed / drawn / QES public model
 
-**Locked choice:** A single `SignatureAssuranceLevel` enum exposes three tiers — `visual`,
-`advanced`, `qualified` — shared across schema, backend, and frontend. Phase 0 ships the
-taxonomy and UI shell; `advanced` and `qualified` render as _Coming soon_ until provider
-onboarding completes (Phase 1 / Phase 2).
+**Locked choice:** User-facing product and docs expose three signature choices:
+
+- **Typed signature** → `visual` assurance + `typed` mode
+- **Drawn signature** → `visual` assurance + `drawn` mode
+- **QES** → `qualified` assurance
+
+Internal backend abstractions may remain generic enough for future non-visual tiers, but
+`advanced` is **not** a public product option and must not appear in user-facing copy, pricing,
+or launch docs. Phase 0 ships typed/drawn visual flows plus a QES shell marked _Coming soon_
+until provider onboarding completes.
 
 See [`../04-product/qualified-signatures.md`](../04-product/qualified-signatures.md) for the full
 spec including the bulletproof ident-reuse design.
@@ -68,47 +75,44 @@ spec including the bulletproof ident-reuse design.
   signing session reaches `signed`).
 
 **Option A (visual only forever) rejected** — blocks formal use cases that require written form.  
-**Option B (visual + qualified, no advanced middle tier) rejected** — AES validates the pipeline
-cheaply and gives users who want more than a picture but do not need QES a conversion bridge.
+**Option B (public AES middle tier) rejected** — adds product complexity without matching the
+current commercial goal of exposing one legally recognized electronic signature path.
 
 ---
 
-### QES provider path — LOCKED: Skribble (Phase 1 and Phase 2)
+### Signature provider integration direction — LOCKED: SwissSign / SwissID readiness scaffold
 
-**Locked choice:** Skribble provides both advanced and qualified electronic signatures for
-Phase 1 and Phase 2. Swisscom All-in Signing Service direct may be added in Phase 3 for margin
-improvement at volume.
+**Locked choice:** Current implementation work targets a SwissSign / SwissID-ready architecture,
+not a live provider cutover. This supersedes the earlier Skribble-specific implementation lock for
+this concern area.
 
-Adapter module: `backend/src/modules/signing/adapters/skribble.adapter.ts` (created in Phase 1).
+**What is locked now:**
 
-**Why Skribble over alternatives for conversion:**
+- Build a provider-agnostic signature domain plus a SwissSign-specific adapter boundary.
+- Use only publicly documented SwissID / SwissSign facts in code and docs until onboarding
+  provides private API details.
+- SwissID OIDC scaffolding may rely on discovery, authorization-code login, and documented
+  `purpose=SIGNING` step-up semantics.
+- Exact SwissSign signature-session creation, PDF upload, callback, and signed-document retrieval
+  endpoints remain unknown and must stay behind typed interfaces plus mock implementations.
+- The existing standard physical-mail flow remains first-class and must not depend on signature.
 
-- Single REST API covers both AES and QES; single integration, single evidence format.
-- Supports ZertES and eIDAS per document — Swiss recipients get ZertES, EU recipients get
-  eIDAS, without dual integration work.
-- Productized video identification flow with ~5 min completion time, available daily 07:00–22:00.
-- Ident-reuse is native: a signer identified once can sign again via passwordless re-auth,
-  amortizing first-time friction over future letters. This is the single biggest conversion
-  unlock for a mail product that assumes repeat use.
-- DE / FR / IT / EN user interfaces match our locale set without rebuilding copy.
-- REST API v2 with success/error/update webhooks, clear SDK documentation, free API demo for
-  pre-onboarding validation.
-- Powered by Swisscom Trust Services backend — we get the Swiss QES regulatory substrate
-  without the direct-to-CSP integration cost.
+**Rejected for this implementation phase:**
 
-**Option B (Swisscom All-in Signing Service direct) rejected for MVP** — cheapest per-signature
-cost (CHF ~2.40 for QES) but requires us to build the identification UX ourselves or integrate
-a separate ident vendor. 2–3 months of additional work with higher operational surface. Revisit
-in Phase 3 after QES volume justifies the move.
-**Option C (SwissSign) rejected for MVP** — opaque developer experience, less transparent
-pricing, and SwissID-only ident does not amortize for users without a SwissID.
+- Hardcoding a live Skribble-specific or SwissSign-specific transaction flow without confirmed API
+  docs.
+- Treating browser return from an external identity or signing flow as proof of successful signing.
+- Marking a signature-capable letter as completed before signature completion, payment capture, and
+  postal-dispatch acceptance have all occurred.
 
 **Still open — do not hardcode:**
 
-- Exact commercial pricing from Skribble (contract pending). Placeholder retail pricing is
-  documented in `qualified-signatures.md` and is config-backed.
-- Exact ident-validity window per Skribble policy. Design assumes 5 years; confirm at
-  onboarding.
+- Exact SwissSign private REST endpoints, payloads, callback schema, and signed-document retrieval
+  contract.
+- Exact SwissID claim set needed for production-grade signer readiness decisions beyond the public
+  OIDC guidance.
+- Final production launch path, credentials, commercial pricing, and operational SLAs for the live
+  signature provider.
 
 ---
 

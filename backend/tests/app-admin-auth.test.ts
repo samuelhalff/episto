@@ -2,8 +2,10 @@ import pino from "pino";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/shared/config/index.js", () => ({
+  isEnvLoaded: () => true,
   env: () => ({
     NODE_ENV: "test",
+    LOG_LEVEL: "silent",
     CORS_ORIGIN: "http://localhost:5000",
   }),
 }));

@@ -570,7 +570,7 @@
     "deliveryRegisteredDescription": "Geeignet für formellere Schreiben mit zusätzlicher postalischer Bestätigung.",
     "readyToSend": "Bereit",
     "needsAttention": "Fehlt noch",
-    "typedSignature": "Getippte Unterschrift",
+    "typedSignature": "Schrift-Unterschrift",
     "noSignature": "Keine Unterschrift hinzugefügt",
     "noAttachments": "Keine Beilagen",
     "attachmentCount": "{count} Beilage(n)",
@@ -854,30 +854,48 @@
   },
   "signatureTiers": {
     "comingSoon": "Demnächst verfügbar",
-    "visual": {
-      "label": "Standard-Unterschrift",
-      "purpose": "Ihr Name als Schrift oder eine auf dem Bildschirm gezeichnete Unterschrift. Für die meisten Alltagsbriefe ausreichend.",
+    "typed": {
+      "label": "Schrift-Unterschrift",
+      "purpose": "Ihr Name in einer Unterschriftenschrift. Für die meisten Alltagsbriefe ausreichend.",
       "price": "Enthalten",
+      "priceDetail": "",
       "friction": "Keine Identitätsprüfung"
     },
-    "advanced": {
-      "label": "Fortgeschrittene Unterschrift",
-      "purpose": "Kryptografisch versiegeltes PDF mit anbietergeprüfter Identität.",
-      "price": "+CHF 3",
-      "friction": "E-Mail- und SMS-Code"
+    "drawn": {
+      "label": "Gezeichnete Unterschrift",
+      "purpose": "Direkt auf dem Bildschirm unterschreiben, damit Ihr eigener Schriftzug auf dem Brief erscheint.",
+      "price": "Enthalten",
+      "priceDetail": "",
+      "friction": "Keine Identitätsprüfung"
     },
     "qualified": {
-      "label": "Qualifizierte Unterschrift",
+      "label": "QES",
       "purpose": "Rechtlich gleichwertig zur handschriftlichen Unterschrift bei Verträgen, die Schriftform verlangen.",
-      "price": "+CHF 9 + CHF 19 einmalige Prüfung",
-      "friction": "Video-Identifikation, nur beim ersten Mal"
+      "price": "+CHF 9 / Brief",
+      "priceDetail": "+CHF 19 einmalige Ident-Prüfung, falls Sie noch nicht verifiziert sind",
+      "friction": "Video-Identifikation, nur beim ersten Mal",
+      "notifyMe": "Benachrichtigen",
+      "notifyLabel": "Release-Benachrichtigung",
+      "notifyHint": "Klicken Sie hier, um sich einzutragen und bei Livegang der QES eine E-Mail zu erhalten.",
+      "waitlist": {
+        "badge": "Demnächst verfügbar",
+        "title": "Qualifizierte elektronische Unterschrift",
+        "description": "Wir finalisieren den SwissID-Identifikationsablauf. Hinterlassen Sie Ihre E-Mail und wir benachrichtigen Sie, sobald QES verfügbar ist.",
+        "emailLabel": "E-Mail-Adresse",
+        "emailPlaceholder": "name@beispiel.ch",
+        "submit": "Benachrichtigen",
+        "submitting": "Wird gespeichert…",
+        "successMessage": "Sie sind auf der Liste. Wir melden uns, sobald QES verfügbar ist.",
+        "errorMessage": "Etwas ist schiefgelaufen. Bitte versuchen Sie es gleich erneut.",
+        "cancel": "Schliessen"
+      }
     },
     "explainer": {
       "triggerLabel": "Brauche ich eine qualifizierte Unterschrift?",
       "title": "Welche Unterschrift brauche ich?",
       "intro": "Die meisten Briefe brauchen keine qualifizierte Unterschrift. Die Wahl hängt davon ab, was der Empfänger benötigt und ob das Gesetz Schriftform verlangt.",
-      "caseStandard": "Für Beschwerden, Mahnungen, Änderungsmitteilungen und allgemeine Korrespondenz genügt eine Standard-Unterschrift.",
-      "caseAdvanced": "Für Korrespondenz, bei der der Empfänger einen manipulationssicheren Nachweis möchte, dass das Dokument seit der Unterzeichnung unverändert ist.",
+      "caseTyped": "Wählen Sie die Schrift-Unterschrift, wenn ein sauber gesetzter Name für den gedruckten Brief genügt.",
+      "caseDrawn": "Wählen Sie die gezeichnete Unterschrift, wenn Ihr eigener handschriftlicher Zug auf dem gedruckten Brief erscheinen soll.",
       "caseQualified": "Für Dokumente, die nach Schweizer Recht der Schriftform genügen müssen (Bürgschaft, Konsumkredit, bestimmte Kündigungen befristeter Mietverträge, gewisse arbeitsrechtliche Angelegenheiten).",
       "paperCaveat": "Eine qualifizierte Unterschrift gilt für das elektronische PDF. Das gedruckte Exemplar, das wir versenden, ist eine Kopie — rechtsverbindlich ist das elektronische Original. Bei qualifizierten Aufträgen erhält der Empfänger zusätzlich das signierte PDF per E-Mail.",
       "fullRequirementsCta": "Vollständige Unterschriftenanforderungen lesen",
@@ -897,12 +915,12 @@
     },
     "sections": {
       "tiers": {
-        "title": "Welche Unterschriftsstufen wir anbieten",
-        "intro": "Drei Stufen sind geplant. Heute ist die Standard-Stufe verfügbar. Die fortgeschrittene und qualifizierte Stufe werden freigeschaltet, sobald die Anbieter-Einführung abgeschlossen ist.",
-        "visualName": "Standard-Unterschrift",
-        "visualBody": "Ein getippter Name in Schreibschrift oder eine auf dem Bildschirm gezeichnete Unterschrift. Für alltägliche formelle Korrespondenz geeignet. Keine rechtliche Aussage zur Identitätsprüfung.",
-        "advancedName": "Fortgeschrittene elektronische Unterschrift (AES)",
-        "advancedBody": "Ein kryptografisch versiegeltes PDF. Die Identität wird per E-Mail und SMS geprüft. Manipulationssicher und nachvollziehbar, jedoch nicht der handschriftlichen Unterschrift gleichgestellt.",
+        "title": "Welche Unterschriftsoptionen wir zeigen",
+        "intro": "Im Produkt gibt es drei Optionen. Heute sind Schrift- und gezeichnete Unterschrift verfügbar. QES bleibt als Demnächst markiert, bis das Provider-Onboarding abgeschlossen ist.",
+        "typedName": "Schrift-Unterschrift",
+        "typedBody": "Ihr Name in einer Unterschriftenschrift. Für alltägliche formelle Korrespondenz geeignet. Keine rechtliche Aussage zur Identitätsprüfung.",
+        "drawnName": "Gezeichnete Unterschrift",
+        "drawnBody": "Eine Unterschrift, die Sie auf dem Bildschirm zeichnen und die wir auf den Brief drucken. Sie zeigt Ihren eigenen Schriftzug auf dem Papier, erzeugt aber keine qualifizierte Signaturwirkung.",
         "qualifiedName": "Qualifizierte elektronische Unterschrift (QES)",
         "qualifiedBody": "Rechtlich gleichgestellt mit der handschriftlichen Unterschrift nach dem Bundesgesetz über die elektronische Signatur (ZertES) und eIDAS-kompatibel für EU-Empfänger. Einmalige Video-Identifikation erforderlich."
       },
@@ -1031,6 +1049,10 @@
     "search": {
       "title": "Suche",
       "description": "Finden Sie Sitzungen, Entwürfe, Zahlungen oder Provider-Referenzen an einem Ort."
+    },
+    "audience": {
+      "title": "Audience",
+      "description": "Exportierbare E-Mail-Listen für versandte Kunden und Release-Benachrichtigungen."
     },
     "sessions": {
       "title": "Sitzungen",

@@ -1,4 +1,4 @@
-import type { DraftLetter } from "@swiss-mail/shared";
+import type { DraftLetter } from "@episto/shared";
 import { getDraftWorkspaceState } from "./workspace-state";
 
 export const DRAFT_WORKSPACE_STEPS = [
@@ -6,7 +6,12 @@ export const DRAFT_WORKSPACE_STEPS = [
   { id: "02", slug: "sender", routeSuffix: "/sender", titleKey: "stepSender" },
   { id: "03", slug: "recipient", routeSuffix: "/recipient", titleKey: "stepRecipient" },
   { id: "04", slug: "body", routeSuffix: "/body", titleKey: "stepEditor" },
-  { id: "05", slug: "attachments", routeSuffix: "/attachments", titleKey: "stepAttachments" },
+  {
+    id: "05",
+    slug: "attachments",
+    routeSuffix: "/attachments",
+    titleKey: "stepAttachments",
+  },
   { id: "06", slug: "subject", routeSuffix: "/subject", titleKey: "stepSubject" },
   { id: "07", slug: "logistics", routeSuffix: "/logistics", titleKey: "stepLogistics" },
 ] as const;
@@ -42,7 +47,8 @@ export function getDraftWorkspacePath(
   stepSlug?: DraftWorkspaceStepSlug,
 ): string {
   const step =
-    DRAFT_WORKSPACE_STEPS[getDraftWorkspaceStepIndex(stepSlug)] ?? DRAFT_WORKSPACE_STEPS[0];
+    DRAFT_WORKSPACE_STEPS[getDraftWorkspaceStepIndex(stepSlug)] ??
+    DRAFT_WORKSPACE_STEPS[0];
 
   return `/draft/${draftId}${step.routeSuffix}`;
 }
@@ -66,11 +72,14 @@ export function resolveDraftWorkspaceStepSlug(
 export function getNextDraftWorkspaceStep(
   currentStepIndex: number,
 ): DraftWorkspaceStepSlug | undefined {
-  return DRAFT_WORKSPACE_STEPS[Math.min(currentStepIndex + 1, DRAFT_WORKSPACE_STEPS.length - 1)]
-    ?.slug;
+  return DRAFT_WORKSPACE_STEPS[
+    Math.min(currentStepIndex + 1, DRAFT_WORKSPACE_STEPS.length - 1)
+  ]?.slug;
 }
 
-export function getDraftWorkspaceStepSlugByIndex(stepIndex: number): DraftWorkspaceStepSlug {
+export function getDraftWorkspaceStepSlugByIndex(
+  stepIndex: number,
+): DraftWorkspaceStepSlug {
   return DRAFT_WORKSPACE_STEPS[clampDraftWorkspaceStepIndex(stepIndex)]?.slug ?? "intake";
 }
 
@@ -115,10 +124,15 @@ export function getDraftWorkspaceUnlockedStepIndex(
   draft: DraftWorkspaceProgressDraft | null | undefined,
 ): number {
   const workspaceState = getDraftWorkspaceState(draft?.metadata);
-  const explicitUnlockIndex = normalizeUnlockedStepIndex(workspaceState.furthestUnlockedStepIndex);
+  const explicitUnlockIndex = normalizeUnlockedStepIndex(
+    workspaceState.furthestUnlockedStepIndex,
+  );
   const inferredUnlockIndex = inferDraftWorkspaceUnlockedStepIndex(draft);
 
-  return Math.max(explicitUnlockIndex ?? DEFAULT_UNLOCKED_STEP_INDEX, inferredUnlockIndex);
+  return Math.max(
+    explicitUnlockIndex ?? DEFAULT_UNLOCKED_STEP_INDEX,
+    inferredUnlockIndex,
+  );
 }
 
 export function isDraftWorkspaceStepLocked(

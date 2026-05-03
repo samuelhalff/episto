@@ -7,6 +7,11 @@ import {
   type DraftStatusValue,
   DeliveryType,
   SignatureAssuranceLevel,
+  SignatureFlowMode,
+  SignatureEligibilityStatus,
+  SignatureEligibilityReason,
+  SignatureSessionStatus,
+  OrderFulfillmentStatus,
   PaymentState,
   DispatchState,
   FileAssetKind,
@@ -39,6 +44,33 @@ const signatureAssuranceLevelValues = Object.values(SignatureAssuranceLevel) as 
   ...string[],
 ];
 export const SignatureAssuranceLevelSchema = z.enum(signatureAssuranceLevelValues);
+
+const signatureFlowModeValues = Object.values(SignatureFlowMode) as [string, ...string[]];
+export const SignatureFlowModeSchema = z.enum(signatureFlowModeValues);
+
+const signatureEligibilityStatusValues = Object.values(SignatureEligibilityStatus) as [
+  string,
+  ...string[],
+];
+export const SignatureEligibilityStatusSchema = z.enum(signatureEligibilityStatusValues);
+
+const signatureEligibilityReasonValues = Object.values(SignatureEligibilityReason) as [
+  string,
+  ...string[],
+];
+export const SignatureEligibilityReasonSchema = z.enum(signatureEligibilityReasonValues);
+
+const signatureSessionStatusValues = Object.values(SignatureSessionStatus) as [
+  string,
+  ...string[],
+];
+export const SignatureSessionStatusSchema = z.enum(signatureSessionStatusValues);
+
+const orderFulfillmentStatusValues = Object.values(OrderFulfillmentStatus) as [
+  string,
+  ...string[],
+];
+export const OrderFulfillmentStatusSchema = z.enum(orderFulfillmentStatusValues);
 
 const paymentStateValues = Object.values(PaymentState) as [string, ...string[]];
 export const PaymentStateSchema = z.enum(paymentStateValues);
@@ -148,6 +180,8 @@ export const DraftLetterSchema = z.object({
   locale: LocaleSchema,
   deliveryType: DeliveryTypeSchema,
   signatureAssuranceLevel: SignatureAssuranceLevelSchema,
+  signatureFlowMode: SignatureFlowModeSchema.default("visual"),
+  fulfillmentStatus: OrderFulfillmentStatusSchema.default("draft_created"),
   subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).nullable(),
   body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable(),
   tone: z.string().nullable(),
@@ -199,6 +233,7 @@ export const SnapshotDataSchema = z.object({
   locale: LocaleSchema,
   deliveryType: DeliveryTypeSchema,
   signatureAssuranceLevel: SignatureAssuranceLevelSchema,
+  signatureFlowMode: SignatureFlowModeSchema.default("visual"),
   subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).nullable(),
   body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable(),
   enclosureNote: z.string().nullable(),
@@ -325,6 +360,52 @@ export const DispatchStatusEventSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
+// Signature orchestration
+// ---------------------------------------------------------------------------
+
+export const SignatureEligibilitySchema = z.object({
+  status: SignatureEligibilityStatusSchema,
+  reasons: z.array(SignatureEligibilityReasonSchema),
+  checkedAt: z.coerce.date().nullable(),
+  canContinue: z.boolean(),
+});
+
+export const SignatureSessionSchema = z.object({
+  id: z.string().uuid(),
+  draftId: z.string().uuid(),
+  sessionId: z.string().uuid(),
+  paymentAttemptId: z.string().uuid().nullable(),
+  signatureFlowMode: SignatureFlowModeSchema,
+  provider: z.string().min(1),
+  eligibilityStatus: SignatureEligibilityStatusSchema,
+  eligibilityReasons: z.array(SignatureEligibilityReasonSchema).default([]),
+  status: SignatureSessionStatusSchema,
+  providerSessionId: z.string().nullable(),
+  handoffUrl: z.string().url().nullable(),
+  oidcState: z.string().nullable(),
+  oidcNonce: z.string().nullable(),
+  pkceCodeVerifier: z.string().nullable(),
+  signedFileAssetId: z.string().uuid().nullable(),
+  failureReason: z.string().nullable(),
+  expiresAt: z.coerce.date().nullable(),
+  completedAt: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+
+export const SignatureEventSchema = z.object({
+  id: z.string().uuid(),
+  signatureSessionId: z.string().uuid(),
+  draftId: z.string().uuid(),
+  eventSource: z.string().min(1),
+  eventType: z.string().min(1),
+  eventKey: z.string().min(1),
+  payload: z.unknown().nullable(),
+  processedAt: z.coerce.date().nullable(),
+  createdAt: z.coerce.date(),
+});
+
+// ---------------------------------------------------------------------------
 // Support Event
 // ---------------------------------------------------------------------------
 
@@ -356,4 +437,7 @@ export type PaymentAttempt = z.infer<typeof PaymentAttemptSchema>;
 export type PaymentBreakdown = z.infer<typeof PaymentBreakdownSchema>;
 export type DispatchAttempt = z.infer<typeof DispatchAttemptSchema>;
 export type DispatchStatusEvent = z.infer<typeof DispatchStatusEventSchema>;
+export type SignatureEligibility = z.infer<typeof SignatureEligibilitySchema>;
+export type SignatureSession = z.infer<typeof SignatureSessionSchema>;
+export type SignatureEvent = z.infer<typeof SignatureEventSchema>;
 export type SupportEvent = z.infer<typeof SupportEventSchema>;

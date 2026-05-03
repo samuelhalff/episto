@@ -6,6 +6,7 @@ import { useState } from "react";
 import {
   BarChart3,
   Filter,
+  Mail,
   Search,
   Users,
   Flag,
@@ -28,6 +29,7 @@ const NAV_SECTIONS = [
   {
     label: "Operations",
     items: [
+      { href: "audience", label: "Audience", icon: Mail },
       { href: "search", label: "Search", icon: Search },
       { href: "sessions", label: "Sessions", icon: Users },
       { href: "flags", label: "Flags & Queue", icon: Flag },

@@ -1,4 +1,4 @@
-import { BRAND_COLOR, BRAND_NAME } from "@swiss-mail/shared";
+import { BRAND_COLOR, BRAND_NAME } from "@episto/shared";
 
 export { BRAND_COLOR, BRAND_NAME };
 

@@ -48,6 +48,10 @@ vi.mock("../src/modules/files/adapters/s3.adapter.js", () => ({
   downloadObjectBuffer: mocks.downloadObjectBuffer,
 }));
 
+vi.mock("../src/modules/signing/signature-session.service.js", () => ({
+  getLatestSignatureSession: vi.fn().mockResolvedValue(null),
+}));
+
 vi.mock("../src/modules/rendering/confirmation-document.js", () => ({
   renderConfirmationDocumentHtml: mocks.renderConfirmationDocumentHtml,
 }));

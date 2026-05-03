@@ -7,7 +7,7 @@ import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { recordSupportEvent } from "./index.js";
 import { createRefund } from "../payments/adapters/stripe.adapter.js";
 import { transitionPaymentState } from "../payments/payment.service.js";
-import type { AdminSearchResponse, AdminSearchResultItem } from "@swiss-mail/shared";
+import type { AdminSearchResponse, AdminSearchResultItem } from "@episto/shared";
 
 const RefundBody = z.object({
   reason: z.string().min(1).max(500),
@@ -23,9 +23,10 @@ type SearchTargetInput = Pick<
   "kind" | "id" | "draftId" | "sessionId"
 >;
 
-export function getAdminSearchResultTarget(
-  input: SearchTargetInput,
-): { draftId: string | null; sessionId: string | null } {
+export function getAdminSearchResultTarget(input: SearchTargetInput): {
+  draftId: string | null;
+  sessionId: string | null;
+} {
   if (input.kind === "session") {
     return {
       draftId: null,
@@ -74,12 +75,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
           createdAt: schema.sessions.createdAt,
         })
         .from(schema.sessions)
-        .where(
-          or(
-            ilike(schema.sessions.email, pattern),
-            eq(schema.sessions.id, q),
-          ),
-        )
+        .where(or(ilike(schema.sessions.email, pattern), eq(schema.sessions.id, q)))
         .limit(limit);
 
       for (const s of sessions) {
@@ -221,9 +217,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!payment) {
-        reply
-          .status(404)
-          .send({ error: "No payment record found for this draft" });
+        reply.status(404).send({ error: "No payment record found for this draft" });
         return;
       }
 
@@ -258,10 +252,7 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      const { refundId } = await createRefund(
-        payment.stripePaymentIntentId,
-        body.reason,
-      );
+      const { refundId } = await createRefund(payment.stripePaymentIntentId, body.reason);
 
       await transitionPaymentState(db, payment.id, "refund_pending", {
         refundReason: body.reason,
@@ -282,5 +273,4 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
       });
     },
   );
-
 }

@@ -1,2 +1,6 @@
-export type { DraftWorkspaceState, RecipientDraftFormState, SenderDraftFormState } from "@swiss-mail/shared";
-export { getDraftWorkspaceState, mergeDraftWorkspaceState } from "@swiss-mail/shared";
+export type {
+  DraftWorkspaceState,
+  RecipientDraftFormState,
+  SenderDraftFormState,
+} from "@episto/shared";
+export { getDraftWorkspaceState, mergeDraftWorkspaceState } from "@episto/shared";

@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Expand, Loader2, RefreshCw, X } from "lucide-react";
-import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
+import type { SignatureAssuranceLevelValue } from "@episto/shared";
 import { useDraft } from "@/hooks/use-api";
 import { useLetterPreview } from "@/hooks/use-letter-preview";
 import { LetterPreview } from "../LetterPreview";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { ScrollShadowViewport } from "../../ui/scroll-shadow";
-import { getSignatureFileUrl } from "@/lib/letter-content";
+import { getSignaturePreviewUrl } from "@/lib/letter-content";
+import { getPublicSignatureChoice, type SignatureMode } from "@/lib/signature-choice";
 import { StatusBadge } from "../../ui/status-badge";
 
 interface WorkspacePreviewPaneProps {
@@ -29,10 +30,13 @@ export function WorkspacePreviewPane({
   const draft = useDraft(draftId);
   const { previewData, isStale, isLoading, error, refreshPreview, isRefreshing } =
     useLetterPreview(draftId);
-  const signatureAssuranceLevel =
-    previewData?.signatureAssuranceLevel ??
+  const signatureAssuranceLevel = (previewData?.signatureAssuranceLevel ??
     draft.data?.signatureAssuranceLevel ??
-    "visual";
+    "visual") as SignatureAssuranceLevelValue;
+  const publicSignatureChoice = getPublicSignatureChoice(
+    signatureAssuranceLevel,
+    (previewData?.signatureMode ?? draft.data?.signatureMode ?? null) as SignatureMode,
+  );
   const shouldShowBlockingError = Boolean(error) && !draft.data;
   const shouldShowInlinePreviewWarning = Boolean(error) && Boolean(draft.data);
   const shouldShowPreviewContent = Boolean(draft.data) || Boolean(previewData);
@@ -48,7 +52,7 @@ export function WorkspacePreviewPane({
     <div
       className={`flex h-full shrink-0 flex-col overflow-hidden bg-[var(--app-surface-soft)] ${transitionsEnabled ? "transition-[width,opacity] duration-300 ease-out" : "transition-none"} ${
         isOpen
-          ? "w-[520px] border-l border-[var(--app-border)] opacity-100"
+          ? "min-w-[32rem] w-[clamp(32rem,38vw,54rem)] max-w-[54rem] border-l border-[var(--app-border)] opacity-100"
           : "w-0 border-l border-transparent opacity-0"
       }`}
       aria-hidden={!isOpen}
@@ -59,11 +63,11 @@ export function WorkspacePreviewPane({
           <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
             {t("preview")}
           </p>
-          <StatusBadge tone="info">
-            {tSignature(
-              `${signatureAssuranceLevel as SignatureAssuranceLevelValue}.label`,
-            )}
-          </StatusBadge>
+          {publicSignatureChoice ? (
+            <StatusBadge tone="info">
+              {tSignature(`${publicSignatureChoice}.label`)}
+            </StatusBadge>
+          ) : null}
           {isStale && !isRefreshing ? (
             <button
               type="button"
@@ -146,7 +150,7 @@ export function WorkspacePreviewPane({
               senderProfile={previewData?.sender}
               recipientProfile={previewData?.recipient}
               signatureMode={previewData?.signatureMode}
-              signatureUrl={getSignatureFileUrl(previewData?.signatureFileId)}
+              signatureUrl={getSignaturePreviewUrl(previewData?.signatureFileId)}
               variant="default"
               showHeader={false}
             />

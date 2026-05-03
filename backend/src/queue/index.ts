@@ -128,6 +128,13 @@ export async function registerScheduledJobs(): Promise<void> {
 
   const refreshQueue = getQueue(QUEUE_NAMES.REFRESH_DISPATCH_RATES);
   await refreshQueue.add(
+    "startup-rate-refresh-sentinel",
+    { reason: "stale_matrix" } satisfies RefreshDispatchRatesJob,
+    {
+      jobId: "startup-rate-refresh-sentinel",
+    },
+  );
+  await refreshQueue.add(
     "scheduled-rate-refresh-sentinel",
     { reason: "stale_matrix" } satisfies RefreshDispatchRatesJob,
     {

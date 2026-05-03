@@ -4,7 +4,7 @@ import type {
   AdminEscalationLevel,
   AdminSuspiciousCase,
   AdminSuspiciousQueueResponse,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
@@ -72,15 +72,14 @@ export function deriveSuspiciousCategories(input: SuspiciousSignalCounts): strin
   return categories;
 }
 
-export function isSupportedEscalationLevel(
-  value: string,
-): value is AdminEscalationLevel {
+export function isSupportedEscalationLevel(value: string): value is AdminEscalationLevel {
   return (SUPPORTED_ESCALATION_LEVELS as readonly string[]).includes(value);
 }
 
-export function resolveSuspiciousWindow(
-  windows: SuspiciousWindow[],
-): { firstSeenAt: string; lastSeenAt: string } {
+export function resolveSuspiciousWindow(windows: SuspiciousWindow[]): {
+  firstSeenAt: string;
+  lastSeenAt: string;
+} {
   const firstSeenAt = windows
     .map((window) => window.firstSeenAt)
     .filter((value): value is string => Boolean(value))
@@ -383,7 +382,9 @@ export async function adminFlagsRoutes(app: FastifyInstance): Promise<void> {
       }
 
       if (!body?.note || typeof body.note !== "string" || body.note.trim().length < 5) {
-        throw validationError("A note is required when setting escalation (min 5 chars).");
+        throw validationError(
+          "A note is required when setting escalation (min 5 chars).",
+        );
       }
 
       const [session] = await db

@@ -3,7 +3,7 @@ import {
   hasMinimalIntakeContext,
   type ConversationMessage,
   type DraftLetter,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 type IntakeDraftSnapshot = Pick<DraftLetter, "intent" | "metadata"> | null | undefined;
 

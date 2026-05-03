@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { SnapshotDataSchema, type SnapshotData } from "@swiss-mail/shared";
+import { SnapshotDataSchema, type SnapshotData } from "@episto/shared";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { createFileAsset, renderStorageKey } from "../files/file.service.js";

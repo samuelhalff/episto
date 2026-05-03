@@ -46,6 +46,13 @@ function getRouteMeta(pathname: string, t: ReturnType<typeof useTranslations>) {
     };
   }
 
+  if (pathname.includes("/admin/audience")) {
+    return {
+      title: t("audience.title"),
+      description: t("audience.description"),
+    };
+  }
+
   if (pathname.includes("/admin/sessions")) {
     return {
       title: t("sessions.title"),
@@ -187,10 +194,16 @@ export function AdminTopBar({ onMenuToggle }: AdminTopBarProps) {
               {initials}
             </span>
             <span className="hidden min-w-0 sm:block">
-              <span className="block truncate text-sm font-medium" style={{ color: "var(--app-fg)" }}>
+              <span
+                className="block truncate text-sm font-medium"
+                style={{ color: "var(--app-fg)" }}
+              >
                 {displayName}
               </span>
-              <span className="block truncate text-xs" style={{ color: "var(--app-muted)" }}>
+              <span
+                className="block truncate text-xs"
+                style={{ color: "var(--app-muted)" }}
+              >
                 {t("shell.role")}
               </span>
             </span>

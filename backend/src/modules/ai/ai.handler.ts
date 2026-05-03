@@ -10,7 +10,7 @@
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { and, eq } from "drizzle-orm";
-import { hasMinimalIntakeContext } from "@swiss-mail/shared";
+import { hasMinimalIntakeContext } from "@episto/shared";
 
 import { createLogger } from "../../shared/logging/index.js";
 import { AppError } from "../../shared/errors/index.js";
@@ -66,7 +66,9 @@ function hasEnoughIntakeContext(
   return hasMinimalIntakeContext({
     intent,
     recipientCompany:
-      typeof mergedFields.recipientCompany === "string" ? mergedFields.recipientCompany : undefined,
+      typeof mergedFields.recipientCompany === "string"
+        ? mergedFields.recipientCompany
+        : undefined,
     recipientName: mergeRecipientName(mergedFields),
     userContextText,
   });
@@ -134,7 +136,11 @@ async function applyIntakeAnalysis(input: {
     ready: analysis.ready,
     question: analysis.question,
     message: analysis.message,
-    hasEnoughContext: hasEnoughIntakeContext(analysis.intent, mergedFields, input.userMessage),
+    hasEnoughContext: hasEnoughIntakeContext(
+      analysis.intent,
+      mergedFields,
+      input.userMessage,
+    ),
   };
 }
 
@@ -171,12 +177,14 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
   } catch (err) {
     logger.error({ err, draftId }, "AI processing failed");
 
-    const errorPayload = err instanceof AppError
-      ? { code: err.code, message: err.userMessage }
-      : {
-          code: "AI_PROCESSING_FAILED",
-          message: "AI processing encountered an error. You can continue editing manually.",
-        };
+    const errorPayload =
+      err instanceof AppError
+        ? { code: err.code, message: err.userMessage }
+        : {
+            code: "AI_PROCESSING_FAILED",
+            message:
+              "AI processing encountered an error. You can continue editing manually.",
+          };
 
     try {
       const assistantMsg = await createMessage(getDb(), {
@@ -204,7 +212,10 @@ export async function handleComposeFromContext(
 
   const lock = await acquireRedisLock(`ai-compose:${draftId}`, COMPOSE_LOCK_TTL_MS);
   if (!lock) {
-    logger.info({ draftId }, "Skipping duplicate context composition while one is already running");
+    logger.info(
+      { draftId },
+      "Skipping duplicate context composition while one is already running",
+    );
     return;
   }
 
@@ -216,7 +227,10 @@ export async function handleComposeFromContext(
     }
 
     if (draft.body?.trim()) {
-      logger.info({ draftId }, "Skipping context composition because body already exists");
+      logger.info(
+        { draftId },
+        "Skipping context composition because body already exists",
+      );
       return;
     }
 
@@ -237,7 +251,10 @@ export async function handleComposeFromContext(
         ? existingFields.intent
         : null;
 
-    if (existingIntent && hasEnoughIntakeContext(existingIntent, existingFields, userInstructions)) {
+    if (
+      existingIntent &&
+      hasEnoughIntakeContext(existingIntent, existingFields, userInstructions)
+    ) {
       await streamDraftGeneration(
         draftId,
         sessionId,
@@ -290,12 +307,14 @@ export async function handleComposeFromContext(
   } catch (err) {
     logger.error({ err, draftId }, "Context-based AI composition failed");
 
-    const errorPayload = err instanceof AppError
-      ? { code: err.code, message: err.userMessage }
-      : {
-          code: "AI_PROCESSING_FAILED",
-          message: "AI processing encountered an error. You can continue editing manually.",
-        };
+    const errorPayload =
+      err instanceof AppError
+        ? { code: err.code, message: err.userMessage }
+        : {
+            code: "AI_PROCESSING_FAILED",
+            message:
+              "AI processing encountered an error. You can continue editing manually.",
+          };
 
     try {
       const assistantMsg = await createMessage(getDb(), {
@@ -309,7 +328,10 @@ export async function handleComposeFromContext(
         fullContent: errorPayload.message,
       });
     } catch (messageErr) {
-      logger.error({ err: messageErr, draftId }, "Failed to persist compose error message");
+      logger.error(
+        { err: messageErr, draftId },
+        "Failed to persist compose error message",
+      );
     }
 
     emitDraftEvent(draftId, "error", errorPayload);

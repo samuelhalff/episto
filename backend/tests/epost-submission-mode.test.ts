@@ -12,7 +12,7 @@ vi.mock("../src/shared/config/index.js", () => ({
 }));
 
 import { EpostDispatchAdapter } from "../src/modules/dispatch/adapters/epost.adapter.js";
-import type { DispatchPackage } from "@swiss-mail/shared";
+import type { DispatchPackage } from "@episto/shared";
 import type { EpostHttpClientLike } from "../src/modules/dispatch/adapters/epost-types.js";
 
 const basePackage: DispatchPackage = {

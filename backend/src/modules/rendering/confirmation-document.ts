@@ -1,4 +1,4 @@
-import type { SnapshotData } from "@swiss-mail/shared";
+import type { SnapshotData } from "@episto/shared";
 import { BRAND_NAME, BRAND_COLOR, renderBrandMarkSvg } from "../../shared/brand.js";
 
 type ConfirmationLocale = SnapshotData["locale"];
@@ -262,11 +262,12 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
   const primaryReferenceValue =
     input.trackingNumber ?? input.providerReference ?? copy.notAvailable;
   const providerReferenceValue = input.providerReference ?? copy.notAvailable;
-  const providerReferenceMeta = showTracking && showProviderReference
-    ? `<p class="reference-meta"><span class="reference-meta-label">${escapeHtml(
-        copy.providerReference,
-      )}</span>${escapeHtml(providerReferenceValue)}</p>`
-    : "";
+  const providerReferenceMeta =
+    showTracking && showProviderReference
+      ? `<p class="reference-meta"><span class="reference-meta-label">${escapeHtml(
+          copy.providerReference,
+        )}</span>${escapeHtml(providerReferenceValue)}</p>`
+      : "";
   const subjectValue = input.subject
     ? escapeHtml(input.subject)
     : `<span class="value-muted">${escapeHtml(copy.notAvailable)}</span>`;

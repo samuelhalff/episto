@@ -57,6 +57,6 @@ describe("theme toggle runtime", () => {
     await user.click(screen.getByRole("radio", { name: "Dark" }));
 
     expect(document.documentElement.dataset.theme).toBe("dark");
-    expect(window.localStorage.getItem("swiss-mail-theme")).toBe("dark");
+    expect(window.localStorage.getItem("episto-theme")).toBe("dark");
   });
 });

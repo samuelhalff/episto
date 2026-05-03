@@ -13,8 +13,8 @@ import {
   type ModelResponse,
   type ParagraphBlock,
   type StructuredEditOperation,
-} from "@swiss-mail/shared";
-import { stripLetterFramingDocument } from "@swiss-mail/shared/letter-framing";
+} from "@episto/shared";
+import { stripLetterFramingDocument } from "@episto/shared/letter-framing";
 import { z } from "zod";
 
 export interface ParseModelResponseOptions {
@@ -93,7 +93,9 @@ export function parseModelResponse(
 
   try {
     const parsedJson = JSON.parse(sanitized) as unknown;
-    const parsedResponse = ModelResponseSchema.safeParse(sanitizeParsedResponseByMode(parsedJson));
+    const parsedResponse = ModelResponseSchema.safeParse(
+      sanitizeParsedResponseByMode(parsedJson),
+    );
     if (parsedResponse.success) {
       return {
         ok: true,
@@ -125,7 +127,9 @@ export function parseModelResponse(
 
   if (options.allowPlainTextFallback ?? true) {
     if (options.expectedMode === "structured_edit") {
-      warnings.push("Expected structured response but received invalid JSON; falling back to plain text.");
+      warnings.push(
+        "Expected structured response but received invalid JSON; falling back to plain text.",
+      );
     }
 
     return {
@@ -179,13 +183,16 @@ export function applyStructuredEdit(
 
   if (mode === "plain_text") {
     const document = createPlainTextDocument(response.plainText?.text ?? "");
-    return buildAppliedResult({
-      mode,
-      response,
-      document,
-      operationsApplied: ["plain_text"],
-      warnings,
-    }, locale);
+    return buildAppliedResult(
+      {
+        mode,
+        response,
+        document,
+        operationsApplied: ["plain_text"],
+        warnings,
+      },
+      locale,
+    );
   }
 
   const baseDocument = cloneDocument(currentDocument ?? emptyDocument());
@@ -197,13 +204,16 @@ export function applyStructuredEdit(
     operationsApplied.push(operation.type);
   }
 
-  return buildAppliedResult({
-    mode,
-    response,
-    document: workingDocument,
-    operationsApplied,
-    warnings,
-  }, locale);
+  return buildAppliedResult(
+    {
+      mode,
+      response,
+      document: workingDocument,
+      operationsApplied,
+      warnings,
+    },
+    locale,
+  );
 }
 
 export function dispatchDocumentOperation(
@@ -263,7 +273,8 @@ export function dispatchDocumentOperation(
     }
 
     case "apply_style": {
-      const paragraphIndex = operation.paragraphIndex ?? findLastParagraphIndex(document.blocks);
+      const paragraphIndex =
+        operation.paragraphIndex ?? findLastParagraphIndex(document.blocks);
       if (paragraphIndex === -1) {
         throw new Error("apply_style requires an existing paragraph target");
       }
@@ -283,7 +294,8 @@ export function dispatchDocumentOperation(
     }
 
     case "apply_inline_formatting": {
-      const paragraphIndex = operation.paragraphIndex ?? findLastParagraphIndex(document.blocks);
+      const paragraphIndex =
+        operation.paragraphIndex ?? findLastParagraphIndex(document.blocks);
       if (paragraphIndex === -1) {
         throw new Error("apply_inline_formatting requires an existing paragraph target");
       }
@@ -294,7 +306,10 @@ export function dispatchDocumentOperation(
         throw new Error("apply_inline_formatting can only target a paragraph block");
       }
 
-      target.spans = validateInlineSpans(operation.text ?? target.text, operation.spans ?? target.spans ?? []);
+      target.spans = validateInlineSpans(
+        operation.text ?? target.text,
+        operation.spans ?? target.spans ?? [],
+      );
       if (operation.text) {
         target.text = operation.text;
       }
@@ -303,17 +318,19 @@ export function dispatchDocumentOperation(
         blocks: nextBlocks,
       };
     }
-
   }
 }
 
-function buildAppliedResult(args: {
-  mode: "plain_text" | "structured_edit";
-  response: ModelResponse;
-  document: DocumentModel;
-  operationsApplied: string[];
-  warnings: string[];
-}, locale?: string | null): AppliedDocumentResult {
+function buildAppliedResult(
+  args: {
+    mode: "plain_text" | "structured_edit";
+    response: ModelResponse;
+    document: DocumentModel;
+    operationsApplied: string[];
+    warnings: string[];
+  },
+  locale?: string | null,
+): AppliedDocumentResult {
   const document = sanitizeDocument(args.document, locale);
   const metadata = AiDocumentMetadataSchema.parse({
     schemaVersion: DOCUMENT_RESPONSE_VERSION,
@@ -424,7 +441,10 @@ function normalizeListItem(item: ListItem): ListItem {
   };
 }
 
-function sanitizeDocument(document: DocumentModel, locale?: string | null): DocumentModel {
+function sanitizeDocument(
+  document: DocumentModel,
+  locale?: string | null,
+): DocumentModel {
   const sanitizedDocument = {
     version: DOCUMENT_RESPONSE_VERSION,
     blocks: document.blocks.map((block) => {

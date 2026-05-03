@@ -97,6 +97,13 @@ describe("dispatch job helpers", () => {
     await registerScheduledJobs();
 
     expect(add).toHaveBeenCalledWith(
+      "startup-rate-refresh-sentinel",
+      { reason: "stale_matrix" },
+      {
+        jobId: "startup-rate-refresh-sentinel",
+      },
+    );
+    expect(add).toHaveBeenCalledWith(
       "scheduled-rate-refresh-sentinel",
       { reason: "stale_matrix" },
       expect.objectContaining({

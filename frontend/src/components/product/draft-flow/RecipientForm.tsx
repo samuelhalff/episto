@@ -1,6 +1,6 @@
 "use client";
 
-import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
+import type { RecipientCompanySearchResultType } from "@episto/shared";
 import { Building2, Plus, Search, User } from "lucide-react";
 import type { FormEvent } from "react";
 import { useMemo } from "react";

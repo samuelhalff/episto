@@ -1,4 +1,4 @@
-const THEME_STORAGE_KEY = "swiss-mail-theme";
+const THEME_STORAGE_KEY = "episto-theme";
 
 export function getThemeInitScript() {
   return `(() => {

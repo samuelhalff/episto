@@ -7,7 +7,7 @@ import {
   type DispatchQuote,
   type DispatchStatusLookup,
   type DispatchSubmitResult,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { AppError } from "../../../shared/errors/index.js";
 import { env } from "../../../shared/config/index.js";

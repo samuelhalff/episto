@@ -2,7 +2,7 @@
 
 import { CheckCircle2 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { DeliveryType } from "@swiss-mail/shared";
+import { DeliveryType } from "@episto/shared";
 import { usePricing } from "../../hooks/use-pricing";
 
 export function DeliverySelector({

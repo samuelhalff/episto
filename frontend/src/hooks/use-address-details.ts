@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import type { AddressDetailsResponseType } from "@swiss-mail/shared";
+import type { AddressDetailsResponseType } from "@episto/shared";
 
 import { apiFetch } from "../lib/api";
 

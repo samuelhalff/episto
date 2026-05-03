@@ -30,6 +30,32 @@ export const signatureAssuranceLevelEnum = pgEnum("signature_assurance_level", [
   "advanced",
   "qualified",
 ]);
+export const signatureFlowModeEnum = pgEnum("signature_flow_mode", [
+  "none",
+  "visual",
+  "swisssign_ses",
+  "swisssign_qes",
+]);
+export const orderFulfillmentStatusEnum = pgEnum("order_fulfillment_status", [
+  "draft_created",
+  "draft_completed",
+  "preview_ready",
+  "signature_not_required",
+  "signature_selected",
+  "signature_eligibility_confirmed",
+  "payment_authorized",
+  "identity_stepup_started",
+  "signature_session_created",
+  "signature_in_progress",
+  "signature_completed",
+  "signed_document_attached",
+  "dispatch_submitted",
+  "payment_captured",
+  "dispatch_confirmed",
+  "completed",
+  "failed",
+  "expired",
+]);
 
 export const messageRoleEnum = pgEnum("message_role", ["user", "assistant", "system"]);
 
@@ -102,6 +128,12 @@ export const draftLetters = pgTable(
     deliveryType: deliveryTypeEnum("delivery_type").default("standard").notNull(),
     signatureAssuranceLevel: signatureAssuranceLevelEnum("signature_assurance_level")
       .default("visual")
+      .notNull(),
+    signatureFlowMode: signatureFlowModeEnum("signature_flow_mode")
+      .default("visual")
+      .notNull(),
+    fulfillmentStatus: orderFulfillmentStatusEnum("fulfillment_status")
+      .default("draft_created")
       .notNull(),
     subject: text("subject"),
     body: text("body"),

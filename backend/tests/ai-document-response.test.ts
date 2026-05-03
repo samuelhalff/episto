@@ -5,7 +5,7 @@ import {
   parseModelResponse,
   validateModelResponse,
 } from "../src/modules/ai/document-response.js";
-import { DOCUMENT_RESPONSE_VERSION, type ModelResponse } from "@swiss-mail/shared";
+import { DOCUMENT_RESPONSE_VERSION, type ModelResponse } from "@episto/shared";
 
 describe("parseModelResponse", () => {
   it("supports plain text replacement", () => {
@@ -42,7 +42,9 @@ describe("parseModelResponse", () => {
     );
 
     expect(parsed.ok).toBe(true);
-    expect(parsed.response?.structuredEdit?.operations[0]?.type).toBe("make_numbered_list");
+    expect(parsed.response?.structuredEdit?.operations[0]?.type).toBe(
+      "make_numbered_list",
+    );
   });
 
   it("falls back to plain text on malformed JSON", () => {
@@ -105,7 +107,9 @@ describe("parseModelResponse", () => {
     });
 
     expect(parsed.mode).toBe("structured_edit");
-    expect(parsed.response?.structuredEdit?.operations[0]?.type).toBe("make_bulleted_list");
+    expect(parsed.response?.structuredEdit?.operations[0]?.type).toBe(
+      "make_bulleted_list",
+    );
   });
 });
 
@@ -145,9 +149,7 @@ describe("applyStructuredEdit", () => {
         operations: [
           {
             type: "replace_with_blocks",
-            blocks: [
-              { type: "paragraph", text: "Introduction", style: "Heading 1" },
-            ],
+            blocks: [{ type: "paragraph", text: "Introduction", style: "Heading 1" }],
           },
         ],
       },
@@ -207,8 +209,7 @@ describe("applyStructuredEdit", () => {
           mode: "plain_text",
           version: DOCUMENT_RESPONSE_VERSION,
           plainText: {
-            text:
-              "USER_MESSAGE:\nA draft for terminating your Swisscom AG internet subscription will be prepared.",
+            text: "USER_MESSAGE:\nA draft for terminating your Swisscom AG internet subscription will be prepared.",
           },
         },
         undefined,
@@ -231,8 +232,7 @@ describe("applyStructuredEdit", () => {
                 blocks: [
                   {
                     type: "paragraph",
-                    text:
-                      "Latest user message:\nI want to terminate my Swisscom internet contract at the next possible date.",
+                    text: "Latest user message:\nI want to terminate my Swisscom internet contract at the next possible date.",
                     style: "Normal",
                   },
                 ],
@@ -265,8 +265,7 @@ describe("applyStructuredEdit", () => {
                   },
                   {
                     type: "paragraph",
-                    text:
-                      "USER_MESSAGE:\nI want to terminate my Swisscom internet contract at the next possible date.",
+                    text: "USER_MESSAGE:\nI want to terminate my Swisscom internet contract at the next possible date.",
                     style: "Normal",
                   },
                 ],
@@ -292,8 +291,14 @@ describe("applyStructuredEdit", () => {
               {
                 type: "make_bulleted_list",
                 items: [
-                  { text: "Please end the contract at the next possible date.", level: 1 },
-                  { text: "USER_MESSAGE: Cancel my Swisscom internet contract.", level: 1 },
+                  {
+                    text: "Please end the contract at the next possible date.",
+                    level: 1,
+                  },
+                  {
+                    text: "USER_MESSAGE: Cancel my Swisscom internet contract.",
+                    level: 1,
+                  },
                 ],
               },
             ],
@@ -330,8 +335,7 @@ describe("applyStructuredEdit", () => {
           mode: "plain_text",
           version: DOCUMENT_RESPONSE_VERSION,
           plainText: {
-            text:
-              "CURRENT LETTER BODY:\nPlease cancel my contract at the next possible date.",
+            text: "CURRENT LETTER BODY:\nPlease cancel my contract at the next possible date.",
           },
         },
         undefined,
@@ -395,7 +399,10 @@ describe("applyStructuredEdit", () => {
                 type: "make_bulleted_list",
                 items: [
                   { text: "- **Subject:** Termination of internet contract", level: 1 },
-                  { text: "> Latest user message: Cancel my Swisscom internet contract.", level: 1 },
+                  {
+                    text: "> Latest user message: Cancel my Swisscom internet contract.",
+                    level: 1,
+                  },
                 ],
               },
             ],
@@ -426,8 +433,16 @@ describe("applyStructuredEdit", () => {
     });
 
     expect(result.document.blocks).toHaveLength(2);
-    expect(result.document.blocks.some((block) => block.type === "paragraph" && block.style === "Heading 2")).toBe(true);
-    expect(result.document.blocks.some((block) => block.type === "paragraph" && block.text === "Body copy")).toBe(true);
+    expect(
+      result.document.blocks.some(
+        (block) => block.type === "paragraph" && block.style === "Heading 2",
+      ),
+    ).toBe(true);
+    expect(
+      result.document.blocks.some(
+        (block) => block.type === "paragraph" && block.text === "Body copy",
+      ),
+    ).toBe(true);
   });
 
   it("supports real tables", () => {
@@ -463,9 +478,7 @@ describe("applyStructuredEdit", () => {
         operations: [
           {
             type: "replace_with_blocks",
-            blocks: [
-              { type: "paragraph", text: "Agenda", style: "Heading 1" },
-            ],
+            blocks: [{ type: "paragraph", text: "Agenda", style: "Heading 1" }],
           },
           {
             type: "make_bulleted_list",
@@ -479,8 +492,14 @@ describe("applyStructuredEdit", () => {
     };
 
     const result = applyStructuredEdit(response);
-    expect(result.operationsApplied).toEqual(["replace_with_blocks", "make_bulleted_list"]);
-    expect(result.document.blocks.map((block) => block.type)).toEqual(["paragraph", "list"]);
+    expect(result.operationsApplied).toEqual([
+      "replace_with_blocks",
+      "make_bulleted_list",
+    ]);
+    expect(result.document.blocks.map((block) => block.type)).toEqual([
+      "paragraph",
+      "list",
+    ]);
   });
 
   it("supports inline formatting spans", () => {

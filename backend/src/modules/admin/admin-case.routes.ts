@@ -1,9 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { desc, eq } from "drizzle-orm";
-import type {
-  AdminDraftCaseResponse,
-  AdminSessionDetailResponse,
-} from "@swiss-mail/shared";
+import type { AdminDraftCaseResponse, AdminSessionDetailResponse } from "@episto/shared";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError, validationError, AppError } from "../../shared/errors/index.js";
 import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
@@ -95,10 +92,7 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
           canRefund: payment?.state === "captured",
           canViewContent: contentRetained,
           canReconcile: dispatch
-            ? canManuallyReconcileDispatch(
-                dispatch.state,
-                dispatch.providerReference,
-              )
+            ? canManuallyReconcileDispatch(dispatch.state, dispatch.providerReference)
             : false,
         },
       },
@@ -229,8 +223,14 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
       const { id } = request.params;
       const body = request.body as { reason?: string } | null;
 
-      if (!body?.reason || typeof body.reason !== "string" || body.reason.trim().length < 5) {
-        throw validationError("A reason is required for manual reconciliation (min 5 chars).");
+      if (
+        !body?.reason ||
+        typeof body.reason !== "string" ||
+        body.reason.trim().length < 5
+      ) {
+        throw validationError(
+          "A reason is required for manual reconciliation (min 5 chars).",
+        );
       }
 
       const [dispatch] = await db

@@ -8,17 +8,17 @@
 
 ## 1. Locked Stack
 
-| Layer | Technology | Status |
-|---|---|---|
-| Framework | Next.js + TypeScript | **Locked** |
-| Styling | Tailwind CSS | **Locked** |
-| UI primitives | shadcn/ui | **Locked** |
-| Routing | Next.js App Router | **Locked** |
-| Server state | React Query (TanStack Query v5) | **Locked** |
-| Form state | React Hook Form + Zod resolvers | **Locked** |
-| UI state | React `useState` / `useReducer` | **Locked** |
-| Global store | None — not used for MVP | **Locked** |
-| API client | Typed `fetch` wrapper from `shared/` | **Locked** |
+| Layer         | Technology                           | Status     |
+| ------------- | ------------------------------------ | ---------- |
+| Framework     | Next.js + TypeScript                 | **Locked** |
+| Styling       | Tailwind CSS                         | **Locked** |
+| UI primitives | shadcn/ui                            | **Locked** |
+| Routing       | Next.js App Router                   | **Locked** |
+| Server state  | React Query (TanStack Query v5)      | **Locked** |
+| Form state    | React Hook Form + Zod resolvers      | **Locked** |
+| UI state      | React `useState` / `useReducer`      | **Locked** |
+| Global store  | None — not used for MVP              | **Locked** |
+| API client    | Typed `fetch` wrapper from `shared/` | **Locked** |
 
 ---
 
@@ -29,6 +29,7 @@
 All data that lives on the server (drafts, sessions, payment status, dispatch status) is managed via React Query.
 
 **Rules:**
+
 - Query keys are centralized in a `shared/query-keys.ts` file — never inline strings
 - Cache invalidation is explicit after mutations — never rely on automatic refetching for payment/dispatch state
 - Payment and dispatch status are never cached beyond their stale time; they must reflect backend truth
@@ -38,10 +39,10 @@ All data that lives on the server (drafts, sessions, payment status, dispatch st
 ```typescript
 // Example query key structure
 export const queryKeys = {
-  session: (id: string) => ['sessions', id] as const,
-  draft:   (id: string) => ['drafts', id] as const,
-  payment: (draftId: string) => ['payments', draftId] as const,
-  dispatch: (draftId: string) => ['dispatch', draftId] as const,
+  session: (id: string) => ["sessions", id] as const,
+  draft: (id: string) => ["drafts", id] as const,
+  payment: (draftId: string) => ["payments", draftId] as const,
+  dispatch: (draftId: string) => ["dispatch", draftId] as const,
 } as const;
 ```
 
@@ -50,14 +51,15 @@ export const queryKeys = {
 All user-input forms (sender details, recipient details, letter fields) use React Hook Form with Zod schemas from `shared/` as resolvers.
 
 **Rules:**
+
 - Zod schemas in `shared/` are the single source of truth for validation — no duplicate manual validation
 - Form schemas import from `shared/schemas.ts`, not redefined in components
 - Client-side validation is UX-only; backend always re-validates
 
 ```typescript
 // Example: reuse shared Zod schema in form
-import { senderProfileSchema } from '@swiss-mail/shared/schemas';
-import { zodResolver } from '@hookform/resolvers/zod';
+import { senderProfileSchema } from "@episto/shared/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const form = useForm({
   resolver: zodResolver(senderProfileSchema),
@@ -69,6 +71,7 @@ const form = useForm({
 Local UI concerns (modal open/close, accordion expansion, step progress) use `useState` or `useReducer`.
 
 **Rules:**
+
 - No Redux, Zustand, Jotai, or any global store for MVP
 - If a state value needs to be shared across more than two non-adjacent components, consider lifting to a page-level component or React Context — not a global store
 - Draft content truth always comes from backend via React Query, never from local UI state
@@ -81,15 +84,18 @@ A typed `fetch` wrapper with endpoint functions defined against shared contract 
 // shared/api-client.ts — example structure
 export const apiClient = {
   drafts: {
-    get:    (id: string) => typedFetch<DraftLetter>(`/api/drafts/${id}`),
-    patch:  (id: string, data: PatchDraftBody) => typedFetch<DraftLetter>(`/api/drafts/${id}`, { method: 'PATCH', body: data }),
-    render: (id: string) => typedFetch<RenderResult>(`/api/drafts/${id}/render`, { method: 'POST' }),
+    get: (id: string) => typedFetch<DraftLetter>(`/api/drafts/${id}`),
+    patch: (id: string, data: PatchDraftBody) =>
+      typedFetch<DraftLetter>(`/api/drafts/${id}`, { method: "PATCH", body: data }),
+    render: (id: string) =>
+      typedFetch<RenderResult>(`/api/drafts/${id}/render`, { method: "POST" }),
   },
   // ...
 };
 ```
 
 **Rules:**
+
 - No raw `fetch` calls in components — always use the typed API client
 - API client functions return typed responses matching `shared/` contract types
 - Error responses are mapped to canonical error types before reaching components
@@ -116,6 +122,7 @@ frontend/
 ```
 
 **Rules:**
+
 - `components/ui/` contains only shadcn primitives. Product logic does not belong here.
 - `components/product/` contains all actual Swiss Mail UX — drafting, preview, checkout, confirmation.
 - `components/marketing/` contains acquisition and trust content — no drafting logic.
@@ -158,6 +165,7 @@ app/
 ```
 
 **Rules:**
+
 - App Router only — no Pages Router
 - Marketing pages under `[locale]/` for SEO (SSG/SSR, indexable)
 - App pages under `(app)/` route group — `noindex`, not locale-prefixed in URL (locale from session)
@@ -205,10 +213,10 @@ See `docs/05-architecture/i18n-rules.md` for full rules.
 
 ## Cross-References
 
-| Document | Relationship |
-|---|---|
-| `docs/05-architecture/stack-decisions.md` | Full technology rationale |
+| Document                                   | Relationship                                       |
+| ------------------------------------------ | -------------------------------------------------- |
+| `docs/05-architecture/stack-decisions.md`  | Full technology rationale                          |
 | `docs/05-architecture/system-contracts.md` | Canonical types used in API client and React Query |
-| `docs/05-architecture/i18n-rules.md` | String externalization rules |
-| `docs/05-architecture/error-taxonomy.md` | Error families frontend components must handle |
-| `shared/` | Zod schemas, API client, query keys, enums |
+| `docs/05-architecture/i18n-rules.md`       | String externalization rules                       |
+| `docs/05-architecture/error-taxonomy.md`   | Error families frontend components must handle     |
+| `shared/`                                  | Zod schemas, API client, query keys, enums         |

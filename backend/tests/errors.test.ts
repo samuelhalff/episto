@@ -7,7 +7,7 @@ import {
   notFoundError,
   providerOutageError,
 } from "../src/shared/errors/index.js";
-import type { ErrorFamily } from "@swiss-mail/shared";
+import type { ErrorFamily } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // AppError construction

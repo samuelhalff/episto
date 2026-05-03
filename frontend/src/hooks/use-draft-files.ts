@@ -12,7 +12,7 @@ import {
   FILE_LIMITS,
   getUploadByteLimit,
   isAllowedUploadMimeType,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { ApiError, apiFetch } from "../lib/api";
 
 // ---------------------------------------------------------------------------

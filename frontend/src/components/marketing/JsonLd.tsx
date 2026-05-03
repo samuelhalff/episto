@@ -33,6 +33,7 @@ export async function JsonLd({ data }: JsonLdProps) {
   return createElement("script", {
     type: "application/ld+json",
     nonce,
+    suppressHydrationWarning: true,
     dangerouslySetInnerHTML: { __html: escapeJsonLd(data) },
   });
 }

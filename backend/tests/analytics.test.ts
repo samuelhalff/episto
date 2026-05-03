@@ -42,9 +42,9 @@ describe("analytics module", () => {
   // -----------------------------------------------------------------------
 
   describe("ANALYTICS_EVENTS constants", () => {
-    it("defines all 29 event names from the taxonomy", () => {
+    it("defines all 35 event names from the taxonomy", () => {
       const keys = Object.keys(ANALYTICS_EVENTS);
-      expect(keys).toHaveLength(29);
+      expect(keys).toHaveLength(35);
     });
 
     it("includes marketing events", () => {
@@ -58,8 +58,12 @@ describe("analytics module", () => {
       expect(ANALYTICS_EVENTS.RESUME_BANNER_SHOWN).toBe("resume_banner_shown");
       expect(ANALYTICS_EVENTS.RESUME_LINK_OPENED).toBe("resume_link_opened");
       expect(ANALYTICS_EVENTS.DRAFT_CREATED).toBe("draft_created");
-      expect(ANALYTICS_EVENTS.DRAFT_FIRST_RESPONSE_COMPLETED).toBe("draft_first_response_completed");
-      expect(ANALYTICS_EVENTS.DRAFT_FIRST_FULL_DRAFT_READY).toBe("draft_first_full_draft_ready");
+      expect(ANALYTICS_EVENTS.DRAFT_FIRST_RESPONSE_COMPLETED).toBe(
+        "draft_first_response_completed",
+      );
+      expect(ANALYTICS_EVENTS.DRAFT_FIRST_FULL_DRAFT_READY).toBe(
+        "draft_first_full_draft_ready",
+      );
       expect(ANALYTICS_EVENTS.DRAFT_CONFLICT_SEEN).toBe("draft_conflict_seen");
     });
 
@@ -109,8 +113,18 @@ describe("analytics module", () => {
 
     it("records multiple events in sequence", () => {
       recordEvent({ event: "draft_created", sessionId: "sess-1", draftId: "draft-1" });
-      recordEvent({ event: "review_reached", draftId: "draft-1", pageCountEstimate: 2, attachmentCount: 1 });
-      recordEvent({ event: "checkout_started", draftId: "draft-1", deliveryType: "standard", priceCents: 490 });
+      recordEvent({
+        event: "review_reached",
+        draftId: "draft-1",
+        pageCountEstimate: 2,
+        attachmentCount: 1,
+      });
+      recordEvent({
+        event: "checkout_started",
+        draftId: "draft-1",
+        deliveryType: "standard",
+        priceCents: 490,
+      });
 
       expect(recordedEvents).toHaveLength(3);
       expect(assertDefined(recordedEvents[0]).event).toBe("draft_created");

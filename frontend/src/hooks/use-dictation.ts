@@ -5,7 +5,7 @@ import {
   DictationLiveClientEventSchema,
   DictationLiveServerEventSchema,
   type DictationFieldContext,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 import { getApiWebSocketUrl } from "../lib/api";

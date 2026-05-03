@@ -8,6 +8,8 @@ import { renderSnapshotToPdf } from "../modules/rendering/render.service.js";
 import { getPaymentForDraft } from "../modules/payments/payment.service.js";
 import { enqueueDispatchSubmission } from "../modules/dispatch/dispatch.jobs.js";
 import { transitionDraftStatus } from "../modules/drafting/draft.service.js";
+import { setInitialDraftFulfillmentStatus } from "../modules/signing/fulfillment.service.js";
+import { isSwissSignFlowMode } from "../modules/signing/signature-flow.js";
 
 const logger = createLogger("render-pdf-worker");
 
@@ -45,7 +47,7 @@ export async function processRenderPdfJob(job: Job<RenderPdfJob>): Promise<void>
     .select({
       status: schema.draftLetters.status,
       sessionId: schema.draftLetters.sessionId,
-      signatureAssuranceLevel: schema.draftLetters.signatureAssuranceLevel,
+      signatureFlowMode: schema.draftLetters.signatureFlowMode,
     })
     .from(schema.draftLetters)
     .where(eq(schema.draftLetters.id, draftId))
@@ -73,10 +75,12 @@ export async function processRenderPdfJob(job: Job<RenderPdfJob>): Promise<void>
     return;
   }
 
-  const nextStatus =
-    current.signatureAssuranceLevel === "visual" ? "ready" : "ready_to_sign";
+  const nextStatus = isSwissSignFlowMode(current.signatureFlowMode)
+    ? "ready_to_sign"
+    : "ready";
 
   await transitionDraftStatus(db, draftId, current.sessionId, nextStatus);
+  await setInitialDraftFulfillmentStatus(db, draftId, current.signatureFlowMode);
 
   if (nextStatus !== "ready") {
     job.log(`PDF rendered and frozen for signing: asset=${result.pdfAssetId}`);

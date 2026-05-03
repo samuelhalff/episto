@@ -18,7 +18,7 @@ describe("payment_intent.succeeded webhook handler", () => {
   it("enqueues dispatch submission on capture", () => {
     // With automatic capture, payment_intent.succeeded is the primary webhook.
     // The handler must enqueue dispatch for every successful payment.
-    expect(succeededBlock).toContain("enqueueDispatchIfSnapshotReady");
+    expect(succeededBlock).toContain("enqueueDispatchIfEligible");
     expect(routeHelpersSource).toContain("enqueueDispatchSubmission");
   });
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useCallback, useMemo, useSyncExternalStore } from "react";
-import type { DocumentModel } from "@swiss-mail/shared";
+import type { DocumentModel } from "@episto/shared";
 import { getApiUrl } from "../lib/api";
 import { captureMessage } from "../lib/error-tracking";
 
@@ -329,22 +329,28 @@ export function useDraftStream(draftId: string | null) {
     [draftId],
   );
 
-  const subscribe = useCallback((listener: EventListener) => {
-    if (!connection) {
-      return noopUnsubscribe;
-    }
-
-    return connection.subscribe(listener);
-  }, [connection]);
-
-  const connected = useSyncExternalStore(
-    useCallback((listener: ConnectionStatusListener) => {
+  const subscribe = useCallback(
+    (listener: EventListener) => {
       if (!connection) {
         return noopUnsubscribe;
       }
 
-      return connection.subscribeStatus(listener);
-    }, [connection]),
+      return connection.subscribe(listener);
+    },
+    [connection],
+  );
+
+  const connected = useSyncExternalStore(
+    useCallback(
+      (listener: ConnectionStatusListener) => {
+        if (!connection) {
+          return noopUnsubscribe;
+        }
+
+        return connection.subscribeStatus(listener);
+      },
+      [connection],
+    ),
     useCallback(() => connection?.connected ?? false, [connection]),
     () => false,
   );

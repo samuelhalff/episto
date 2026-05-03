@@ -2,10 +2,7 @@ import { eq, desc } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, AppError } from "../../shared/errors/index.js";
-import {
-  assertTransitionDispatch,
-  type DispatchState,
-} from "@swiss-mail/shared";
+import { assertTransitionDispatch, type DispatchState } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -156,11 +153,13 @@ export async function transitionDispatchState(
   db: Db,
   dispatchId: string,
   newState: string,
-  extra?: {
-    providerReference?: string | undefined;
-    trackingNumber?: string | undefined | null;
-    failureReason?: string | undefined;
-  } | undefined,
+  extra?:
+    | {
+        providerReference?: string | undefined;
+        trackingNumber?: string | undefined | null;
+        failureReason?: string | undefined;
+      }
+    | undefined,
 ): Promise<DispatchAttemptRow> {
   const [existing] = await db
     .select()

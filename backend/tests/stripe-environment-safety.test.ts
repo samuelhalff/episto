@@ -7,7 +7,7 @@ const validEnv = () => ({
   DATABASE_URL: "postgresql://user:pass@localhost:5432/db",
   REDIS_URL: "redis://localhost:6379",
   S3_ENDPOINT: "https://s3.example.com",
-  S3_BUCKET: "swiss-mail-files",
+  S3_BUCKET: "episto-files",
   S3_ACCESS_KEY: "AKIAEXAMPLE",
   S3_SECRET_KEY: "secret123",
   STRIPE_SECRET_KEY: "sk_test_abc123",

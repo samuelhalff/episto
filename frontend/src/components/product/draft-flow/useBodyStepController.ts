@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { getLetterFraming } from "@swiss-mail/shared";
-import { stripLetterFramingText } from "@swiss-mail/shared/letter-framing";
+import { getLetterFraming } from "@episto/shared";
+import { stripLetterFramingText } from "@episto/shared/letter-framing";
 import {
   useComposeDraftFromContext,
   useConversation,
@@ -24,7 +24,7 @@ import { bodyStepReducer, initialBodyStepState, type EditMode } from "./bodyStep
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
 
 const BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY =
-  "swiss-mail.body-step-first-draft-ready-dismissed.v1";
+  "episto.body-step-first-draft-ready-dismissed.v1";
 
 function getFirstDraftMessageId(metadata: unknown): string | null {
   if (!metadata || typeof metadata !== "object" || Array.isArray(metadata)) {

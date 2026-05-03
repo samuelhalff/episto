@@ -6,7 +6,7 @@ import {
   type DispatchPackage,
   type DispatchStatusLookup,
   type DispatchSubmitResult,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 const MOCK_PROVIDER_REFERENCE_PREFIX = "EPR-T";
 
@@ -53,9 +53,7 @@ export function submitMockEpostDelivery(
   });
 }
 
-export function lookupMockEpostStatus(
-  providerReference: string,
-): DispatchStatusLookup {
+export function lookupMockEpostStatus(providerReference: string): DispatchStatusLookup {
   return DispatchStatusLookupSchema.parse({
     state: "accepted",
     providerReference,

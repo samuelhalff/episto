@@ -3,7 +3,7 @@ import {
   PublicPricingResponseSchema,
   type PostalPostage,
   type PublicPricingPageCountExample,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
@@ -304,7 +304,9 @@ export function buildPublicPricingResponse(args: {
     );
   }
   const freshness =
-    !version.expiresAt || version.expiresAt.getTime() <= now.getTime() ? "stale" : "fresh";
+    !version.expiresAt || version.expiresAt.getTime() <= now.getTime()
+      ? "stale"
+      : "fresh";
   const providerName = normalizeProviderName(version.providerName);
   const sourceUrl = getSourceUrl(version);
 
@@ -364,9 +366,7 @@ export function buildPublicPricingResponse(args: {
   }
 }
 
-async function loadActivePublicPricingMatrix(
-  db: Db,
-): Promise<{
+async function loadActivePublicPricingMatrix(db: Db): Promise<{
   version: PublicPricingMatrixVersion | null;
   entries: PublicPricingMatrixEntry[];
 }> {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { LETTER_COLORS } from "@swiss-mail/shared";
+import { LETTER_COLORS } from "@episto/shared";
 
 import {
   buildBlueSignatureSvgMarkup,
@@ -15,6 +15,7 @@ describe("drawn signature rendering", () => {
 
     expect(markup).toContain(LETTER_COLORS.signatureDrawnInk);
     expect(markup).toContain("data:image/png;base64,ZmFrZQ==");
+    expect(markup).toContain('mask-type="alpha"');
     expect(markup).toMatch(/mask id="signature-mask-[a-f0-9]+"/);
     expect(markup).toMatch(/mask="url\(#signature-mask-[a-f0-9]+\)"/);
   });

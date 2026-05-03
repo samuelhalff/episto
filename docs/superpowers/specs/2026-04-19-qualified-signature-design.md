@@ -2,7 +2,7 @@
 
 **Status:** Approved for implementation planning  
 **Date:** 2026-04-19  
-**Scope:** Gap audit and implementation design for advanced / qualified electronic signatures, signer identity reuse, signed-artifact handling, checkout integration, recipient delivery, and public verification
+**Scope:** Gap audit and implementation design for a public **typed / drawn / QES** model, signer identity reuse, signed-artifact handling, checkout integration, recipient delivery, and public verification
 
 ## Summary
 
@@ -10,7 +10,8 @@ The current repository only implements **Phase 0 shell work** for signature assu
 
 - shared enums and signing state machine exist
 - a stub signing adapter exists
-- the logistics UI shows `advanced` / `qualified` as `Coming soon`
+- the public product direction has now shifted to **typed / drawn / QES**, but the runtime still
+  reflects the older multi-tier shell and must be simplified
 - the legal explainer page exists
 
 Everything required to make qualified signatures actually work is still missing from the runtime path.
@@ -38,21 +39,22 @@ If this is built as a QES-only shortcut on top of the current dispatch flow, the
 - `shared/src/state-machines.ts` defines signing transitions
 - `shared/src/limits.ts` defines placeholder signing limits
 - `backend/src/modules/signing/adapters/signing.adapter.ts` defines the provider seam and stub adapter
-- `frontend/src/components/product/SignatureAssuranceTierPicker.tsx` renders the three-tier shell
+- `frontend/src/components/product/SignatureAssuranceTierPicker.tsx` renders the legacy multi-tier shell
 - `frontend/src/app/[locale]/signature-requirements/page.tsx` provides the explainer page
 - `docs/04-product/qualified-signatures.md` and `docs/08-guardrails/open-decisions.md` lock the product direction around Skribble
 
 ### What is still fake or missing
 
-#### 1. Assurance level is not persisted
+#### 1. Draft-level signing state is still missing
 
-- `frontend/src/components/product/draft-flow/LogisticsStep.tsx` stores `assuranceLevel` in local component state only
-- `shared/src/contracts/index.ts`, `shared/src/schemas/index.ts`, and `backend/src/modules/drafting/draft.service.ts` do not carry `assuranceLevel`, `signingState`, `signingProvider`, `jurisdiction`, provider session IDs, or signer-profile references
+- `signatureAssuranceLevel` and `signatureMode` are already persisted on drafts
+- the missing draft-level fields are `signingState`, `signingProvider`, `signatureJurisdiction`,
+  active provider session references, and other provider-independent signing state
 
 Effect:
 
-- selection resets on reload
-- review/checkout/payment/dispatch cannot know whether the draft is visual, AES, or QES
+- the app can remember visual-vs-qualified selection, but it still cannot model the runtime state
+  of a QES signing journey end to end
 
 #### 2. The database has no signing entities
 
@@ -73,21 +75,23 @@ Effect:
 - no ident reuse
 - no safe webhook target state
 
-#### 3. The draft lifecycle has no signing hold
+#### 3. The draft lifecycle still lacks a complete signing-aware hold
 
 - `shared/src/state-machines.ts`
 - `backend/src/modules/drafting/draft.service.ts`
 - `backend/src/workers/render-pdf.worker.ts`
 - `backend/src/workers/submit-dispatch.worker.ts`
 
-Current runtime path is still:
+Current runtime still behaves like a visual-signature system first:
 
 `reviewed -> rendering -> ready -> checkout/payment -> dispatch`
 
 Effect:
 
-- there is no place to freeze the PDF, wait for signing, accept the signed artifact, then dispatch
-- the docs already talk about `ready_to_sign`, but `DraftStatus` does not define it today
+- there is no fully wired place to freeze the PDF, wait for signing, accept the signed artifact,
+  then dispatch
+- `ready_to_sign` now exists conceptually, but render/payment/dispatch still do not form a
+  complete signing-aware runtime
 
 #### 4. Snapshot immutability is already violated
 
@@ -124,7 +128,7 @@ Effect:
 
 Effect:
 
-- no AES/QES surcharge
+- no QES surcharge
 - no one-time QES identification fee
 - no acknowledgment for electronic-original semantics
 
@@ -204,7 +208,8 @@ Build a **single canonical signing pipeline** and let QES be a specialized polic
 
 ### Recommended implementation direction
 
-1. Keep the shared three-tier taxonomy and provider lock around Skribble.
+1. Keep the backend signing model generic, but simplify public product/docs to **typed / drawn /
+   QES**.
 2. Add canonical persisted signing entities before any provider wiring.
 3. Refactor the lifecycle so the app can freeze a PDF and block dispatch until signing is complete.
 4. Introduce separate artifacts:
@@ -242,9 +247,10 @@ The correct interpretation is:
 
 - **build the shared signing infrastructure once**
 - **do not special-case QES directly into the current dispatch flow**
-- expose AES publicly first only if commercial or risk posture benefits from it
+- expose only QES publicly unless a later business decision explicitly revives an AES product tier
 
-If QES is the only near-term commercial goal, the infrastructure should still stay generic, but the product may choose not to market AES immediately.
+If QES is the only near-term commercial goal, the infrastructure should still stay generic, but the
+product should not market AES as a public step on the path.
 
 ## Provider Validation Gate
 
@@ -392,7 +398,7 @@ Problem:
 
 Recommended policy:
 
-- AES or reused-ident signer: create authorization close to signing time and capture after `signed`
+- reused-ident signer: create authorization close to signing time and capture after `signed`
 - first-time QES ident: do not rely on a long-lived card authorization surviving the full ident journey
 
 Operationally, one of these must be implemented explicitly:

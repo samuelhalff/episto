@@ -4,8 +4,8 @@ import { useCallback, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryOptions } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api";
-import type { Session } from "@swiss-mail/shared";
-import { type Locale, queryKeys } from "@swiss-mail/shared";
+import type { Session } from "@episto/shared";
+import { type Locale, queryKeys } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -41,8 +41,8 @@ function currentSessionOptions() {
 // Expiry helpers
 // ---------------------------------------------------------------------------
 
-const WARNING_THRESHOLD_MS = 60 * 60 * 1000;  // 1 hour
-const CRITICAL_THRESHOLD_MS = 5 * 60 * 1000;  // 5 minutes
+const WARNING_THRESHOLD_MS = 60 * 60 * 1000; // 1 hour
+const CRITICAL_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
 
 function computeExpiryLevel(session: Session | null | undefined): {
   isExpired: boolean;

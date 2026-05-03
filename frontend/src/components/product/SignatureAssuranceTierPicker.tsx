@@ -2,49 +2,65 @@
 
 import { type ReactNode, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Check, ChevronRight, Info, PenLine, ShieldCheck, Sparkles } from "lucide-react";
-import { SignatureAssuranceLevel } from "@swiss-mail/shared";
-import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
+import {
+  Bell,
+  Check,
+  ChevronRight,
+  Info,
+  PenLine,
+  ShieldCheck,
+  Type,
+} from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import {
   Dialog,
-  DialogContent,
   DialogClose,
+  DialogContent,
   DialogDescription,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import type { PublicSignatureChoice } from "@/lib/signature-choice";
+import { QesWaitlistDialog } from "./QesWaitlistDialog";
 
 interface SignatureAssuranceTierPickerProps {
-  assuranceLevel: SignatureAssuranceLevelValue;
-  onAssuranceChange: (level: SignatureAssuranceLevelValue) => void;
+  selectedChoice: PublicSignatureChoice | null;
+  onChoiceChange: (choice: PublicSignatureChoice) => void;
+  isQesAvailable?: boolean;
   isCompactViewport?: boolean;
   children: ReactNode;
 }
 
 /**
- * Three-tier signature assurance picker.
+ * Public signature picker.
  *
- * Phase 0: only the `visual` tier is selectable. `advanced` and `qualified`
- * render as `Coming soon` cards that still explain their purpose and price.
- * See docs/04-product/qualified-signatures.md.
+ * The product exposes only typed, drawn, and QES. Internally those still map to
+ * `visual + typed/drawn` or `qualified`.
  */
 export function SignatureAssuranceTierPicker({
-  assuranceLevel,
-  onAssuranceChange,
+  selectedChoice,
+  onChoiceChange,
+  isQesAvailable = false,
   isCompactViewport = false,
   children,
 }: SignatureAssuranceTierPickerProps) {
   const t = useTranslations("signatureTiers");
+  const [waitlistOpen, setWaitlistOpen] = useState(false);
 
-  const tiers: Array<{
-    level: SignatureAssuranceLevelValue;
-    icon: typeof PenLine;
+  const choices: Array<{
+    choice: PublicSignatureChoice;
+    icon: typeof Type;
     available: boolean;
+    comingSoon: boolean;
   }> = [
-    { level: SignatureAssuranceLevel.visual, icon: PenLine, available: true },
-    { level: SignatureAssuranceLevel.advanced, icon: Sparkles, available: false },
-    { level: SignatureAssuranceLevel.qualified, icon: ShieldCheck, available: false },
+    { choice: "typed", icon: Type, available: true, comingSoon: false },
+    { choice: "drawn", icon: PenLine, available: true, comingSoon: false },
+    {
+      choice: "qualified",
+      icon: ShieldCheck,
+      available: isQesAvailable,
+      comingSoon: !isQesAvailable,
+    },
   ];
 
   return (
@@ -54,28 +70,52 @@ export function SignatureAssuranceTierPicker({
           isCompactViewport ? "grid-cols-1" : "grid-cols-1 md:grid-cols-3"
         }`}
       >
-        {tiers.map((tier) => (
+        {choices.map((choice) => (
           <TierCard
-            key={tier.level}
-            tier={tier.level}
-            icon={tier.icon}
-            label={t(`${tier.level}.label`)}
-            purpose={t(`${tier.level}.purpose`)}
-            price={t(`${tier.level}.price`)}
-            friction={t(`${tier.level}.friction`)}
-            selected={assuranceLevel === tier.level}
-            available={tier.available}
+            key={choice.choice}
+            icon={choice.icon}
+            label={t(`${choice.choice}.label`)}
+            purpose={t(`${choice.choice}.purpose`)}
+            price={t(`${choice.choice}.price`)}
+            priceDetail={t(`${choice.choice}.priceDetail`)}
+            friction={t(`${choice.choice}.friction`)}
+            selected={selectedChoice === choice.choice}
+            available={choice.available}
+            comingSoon={choice.comingSoon}
             comingSoonLabel={t("comingSoon")}
+            notifyLabel={
+              choice.choice === "qualified" ? t("qualified.notifyLabel") : undefined
+            }
+            notifyHint={
+              choice.choice === "qualified" ? t("qualified.notifyHint") : undefined
+            }
             onSelect={() => {
-              if (tier.available) onAssuranceChange(tier.level);
+              if (choice.comingSoon) {
+                setWaitlistOpen(true);
+                return;
+              }
+              if (choice.available) {
+                onChoiceChange(choice.choice);
+              }
             }}
           />
         ))}
       </div>
 
+      <QesWaitlistDialog open={waitlistOpen} onOpenChange={setWaitlistOpen} />
+
       <ExplainerLink />
 
-      {assuranceLevel === SignatureAssuranceLevel.visual ? (
+      {selectedChoice === "qualified" ? (
+        <div className="rounded-[28px] border border-[var(--app-border)] bg-[var(--app-surface)] px-5 py-5">
+          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            {t("qualified.label")}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+            {t("qualified.purpose")}
+          </p>
+        </div>
+      ) : selectedChoice === "typed" || selectedChoice === "drawn" ? (
         <div className="pt-1">{children}</div>
       ) : null}
     </div>
@@ -83,15 +123,18 @@ export function SignatureAssuranceTierPicker({
 }
 
 interface TierCardProps {
-  tier: SignatureAssuranceLevelValue;
-  icon: typeof PenLine;
+  icon: typeof Type;
   label: string;
   purpose: string;
   price: string;
+  priceDetail: string;
   friction: string;
   selected: boolean;
   available: boolean;
+  comingSoon: boolean;
   comingSoonLabel: string;
+  notifyLabel?: string | undefined;
+  notifyHint?: string | undefined;
   onSelect: () => void;
 }
 
@@ -100,71 +143,103 @@ function TierCard({
   label,
   purpose,
   price,
+  priceDetail,
   friction,
   selected,
   available,
+  comingSoon,
   comingSoonLabel,
+  notifyLabel,
+  notifyHint,
   onSelect,
 }: TierCardProps) {
   const baseClasses =
-    "relative flex h-full flex-col gap-3 rounded-2xl border px-4 py-4 text-left transition-all";
+    "relative flex h-full items-start gap-3 rounded-2xl border px-4 py-3.5 text-left transition-all";
   const selectedClasses =
     "border-amber-300 bg-amber-50/60 shadow-sm shadow-amber-200/40 dark:border-amber-400/40 dark:bg-amber-400/10 dark:shadow-none";
   const unselectedClasses =
     "border-[var(--app-border)] bg-[var(--app-surface)] hover:border-zinc-300 hover:bg-[var(--app-surface-strong)] dark:hover:border-zinc-600";
-  const unavailableClasses =
-    "border-[var(--app-border)] bg-[var(--app-surface)] opacity-80";
+  const unavailableClasses = "border-[var(--app-border)] bg-[var(--app-surface)]";
 
   return (
     <button
       type="button"
       onClick={onSelect}
-      disabled={!available}
+      disabled={!available && !comingSoon}
       aria-pressed={selected}
+      data-qes-waitlist-card={comingSoon ? "true" : undefined}
       className={`${baseClasses} ${
         !available ? unavailableClasses : selected ? selectedClasses : unselectedClasses
-      } disabled:cursor-not-allowed`}
+      } disabled:cursor-not-allowed ${comingSoon ? "opacity-90 hover:border-amber-300 hover:bg-amber-50/40 dark:hover:border-amber-400/40 dark:hover:bg-amber-400/5 cursor-pointer" : ""}`}
     >
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
-            selected
-              ? "bg-amber-100/70 text-amber-900 dark:bg-amber-400/22 dark:text-amber-100"
-              : "bg-[var(--app-surface-soft)] text-zinc-500 dark:text-zinc-400"
-          }`}
-        >
-          <Icon className="h-4 w-4" />
-        </div>
-        {!available ? (
-          <span className="inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
-            {comingSoonLabel}
-          </span>
-        ) : (
-          <div
-            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
-              selected
-                ? "border-emerald-400 bg-emerald-400"
-                : "border-zinc-300 bg-transparent dark:border-zinc-600"
-            }`}
-          >
-            {selected ? <Check className="h-3 w-3 text-white" /> : null}
-          </div>
-        )}
+      <div
+        className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${
+          selected
+            ? "bg-amber-100/70 text-amber-900 dark:bg-amber-400/22 dark:text-amber-100"
+            : "bg-[var(--app-surface-soft)] text-zinc-400 dark:text-zinc-500"
+        }`}
+      >
+        <Icon className="h-4 w-4" />
       </div>
 
-      <div className="space-y-1">
-        <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
-          {label}
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+            {label}
+          </div>
+          {comingSoon ? (
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-900 dark:bg-amber-400/20 dark:text-amber-100">
+              {comingSoonLabel}
+            </span>
+          ) : null}
         </div>
-        <p className="text-[12px] leading-relaxed text-zinc-600 dark:text-zinc-300">
+        <p className="mt-1.5 text-[12px] leading-relaxed text-zinc-600 dark:text-zinc-300">
           {purpose}
         </p>
+        <div className="mt-2 space-y-1 text-[11px] text-zinc-500 dark:text-zinc-400">
+          <div className="font-medium text-zinc-700 dark:text-zinc-200">{price}</div>
+          {priceDetail ? (
+            <div className="text-[10px] leading-snug text-zinc-400 dark:text-zinc-500">
+              {priceDetail}
+            </div>
+          ) : null}
+          <div className="leading-tight">{friction}</div>
+        </div>
+        {comingSoon && notifyLabel && notifyHint ? (
+          <div className="mt-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 px-3 py-2 text-left dark:border-amber-400/20 dark:bg-amber-400/10">
+            <div className="flex items-start gap-2">
+              <Bell className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-700 dark:text-amber-200" />
+              <div className="min-w-0">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-900 dark:text-amber-100">
+                  {notifyLabel}
+                </div>
+                <div className="mt-1 text-[11px] leading-relaxed text-amber-900 dark:text-amber-100">
+                  {notifyHint}
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : null}
       </div>
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-1 text-[11px] text-zinc-500 dark:text-zinc-400">
-        <span className="font-medium text-zinc-700 dark:text-zinc-200">{price}</span>
-        <span className="text-right leading-tight">{friction}</span>
-      </div>
+      {comingSoon ? (
+        <div
+          aria-hidden="true"
+          className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-amber-300 bg-amber-50 text-amber-700 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-200"
+        >
+          <Bell className="h-4 w-4" />
+        </div>
+      ) : (
+        <div
+          className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition-colors ${
+            selected
+              ? "border-emerald-400 bg-emerald-400"
+              : "border-zinc-300 bg-transparent dark:border-zinc-600"
+          }`}
+        >
+          {selected ? <Check className="h-3 w-3 text-white" /> : null}
+        </div>
+      )}
     </button>
   );
 }
@@ -188,7 +263,7 @@ function ExplainerLink() {
         aria-describedby="signature-explainer-description"
         className="flex items-end justify-center sm:items-center"
       >
-        <div className="w-full max-w-lg rounded-t-3xl bg-[var(--app-surface)] p-6 shadow-xl sm:rounded-3xl">
+        <div className="w-full max-w-lg rounded-t-3xl border border-[var(--app-border)] bg-[var(--app-surface-strong)] p-6 shadow-xl sm:rounded-3xl">
           <DialogTitle className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
             {t("title")}
           </DialogTitle>
@@ -202,11 +277,11 @@ function ExplainerLink() {
           <ul className="mt-4 space-y-2 text-[13px] leading-relaxed text-zinc-700 dark:text-zinc-200">
             <li className="flex gap-2">
               <span className="text-zinc-400">•</span>
-              <span>{t("caseStandard")}</span>
+              <span>{t("caseTyped")}</span>
             </li>
             <li className="flex gap-2">
               <span className="text-zinc-400">•</span>
-              <span>{t("caseAdvanced")}</span>
+              <span>{t("caseDrawn")}</span>
             </li>
             <li className="flex gap-2">
               <span className="text-zinc-400">•</span>

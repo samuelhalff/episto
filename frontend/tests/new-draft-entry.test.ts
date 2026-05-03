@@ -1,10 +1,7 @@
-import { DraftStatus, type DraftLetter } from "@swiss-mail/shared";
+import { DraftStatus, type DraftLetter } from "@episto/shared";
 import { describe, expect, it } from "vitest";
 
-import {
-  findRecoverableDraft,
-  shouldForceFreshEntry,
-} from "../src/lib/new-draft-entry";
+import { findRecoverableDraft, shouldForceFreshEntry } from "../src/lib/new-draft-entry";
 
 function createDraft(
   id: string,
@@ -55,9 +52,7 @@ describe("findRecoverableDraft", () => {
       ),
     ];
 
-    expect(findRecoverableDraft(drafts)?.id).toBe(
-      "44444444-4444-4444-4444-444444444444",
-    );
+    expect(findRecoverableDraft(drafts)?.id).toBe("44444444-4444-4444-4444-444444444444");
   });
 
   it("ignores submitted, dispatched, and closed drafts", () => {

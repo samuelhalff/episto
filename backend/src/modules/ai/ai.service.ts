@@ -37,7 +37,7 @@ import {
   type AppliedDocumentResult,
   type ParseModelResponseOptions,
 } from "./document-response.js";
-import type { DocumentModel } from "@swiss-mail/shared";
+import type { DocumentModel } from "@episto/shared";
 
 const logger = createLogger("ai-service");
 
@@ -128,7 +128,12 @@ export async function analyzeIntake(
   input: AnalyzeIntakeInput,
 ): Promise<IntakeAnalysisResult> {
   const messages = analyzeIntakePrompt(input);
-  const raw = await complete({ model: "classify", messages, temperature: 0.2, maxTokens: 1200 });
+  const raw = await complete({
+    model: "classify",
+    messages,
+    temperature: 0.2,
+    maxTokens: 1200,
+  });
 
   try {
     const result = parseJsonResponse<IntakeAnalysisResult>(raw);
@@ -233,9 +238,7 @@ export interface FollowUpResult {
   message?: string;
 }
 
-export async function askFollowUp(
-  input: AskFollowUpInput,
-): Promise<FollowUpResult> {
+export async function askFollowUp(input: AskFollowUpInput): Promise<FollowUpResult> {
   const messages = askFollowUpPrompt(input);
   const raw = await complete({ model: "classify", messages, temperature: 0.5 });
 
@@ -243,7 +246,10 @@ export async function askFollowUp(
     return parseJsonResponse<FollowUpResult>(raw);
   } catch {
     logger.error({ raw }, "Failed to parse follow-up result");
-    return { ready: false, question: "Could you provide more details about your letter?" };
+    return {
+      ready: false,
+      question: "Could you provide more details about your letter?",
+    };
   }
 }
 
@@ -259,9 +265,16 @@ export async function draftLetter(
   return generateStructuredDocument(messages, undefined, options, input.locale);
 }
 
-export async function generateSubject(input: GenerateSubjectInput): Promise<string | null> {
+export async function generateSubject(
+  input: GenerateSubjectInput,
+): Promise<string | null> {
   const messages = generateSubjectPrompt(input);
-  const raw = await complete({ model: "classify", messages, temperature: 0.3, maxTokens: 120 });
+  const raw = await complete({
+    model: "classify",
+    messages,
+    temperature: 0.3,
+    maxTokens: 120,
+  });
 
   try {
     const result = parseJsonResponse<{ subject?: string }>(raw);
@@ -336,7 +349,10 @@ async function generateStructuredDocument(
   });
 
   if (!parsed.ok || !parsed.response) {
-    logger.error({ errors: parsed.errors }, "Model response could not be interpreted safely");
+    logger.error(
+      { errors: parsed.errors },
+      "Model response could not be interpreted safely",
+    );
     throw new AppError({
       family: "validation_error",
       statusCode: 502,

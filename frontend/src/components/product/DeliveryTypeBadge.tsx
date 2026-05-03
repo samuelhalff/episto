@@ -1,6 +1,6 @@
 "use client";
 
-import { DeliveryType } from "@swiss-mail/shared";
+import { DeliveryType } from "@episto/shared";
 import { StatusBadge } from "../ui/status-badge";
 
 export function DeliveryTypeBadge({

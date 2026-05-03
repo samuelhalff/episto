@@ -1,4 +1,4 @@
-import type { PublicPricingResponse } from "@swiss-mail/shared";
+import type { PublicPricingResponse } from "@episto/shared";
 
 export type PricingTier = PublicPricingResponse["standard"];
 export type PricingSync = PublicPricingResponse["sync"];

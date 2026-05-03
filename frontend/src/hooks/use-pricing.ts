@@ -3,7 +3,7 @@ import {
   PublicPricingResponseSchema,
   queryKeys,
   type PublicPricingResponse,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { apiFetch } from "../lib/api";
 
 /**

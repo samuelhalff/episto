@@ -15,8 +15,8 @@ import {
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
     NODE_ENV: "development",
-    ADMIN_MICROSOFT_CLIENT_ID: "swiss-mail-client-id",
-    ADMIN_MICROSOFT_CLIENT_SECRET: "swiss-mail-client-secret",
+    ADMIN_MICROSOFT_CLIENT_ID: "episto-client-id",
+    ADMIN_MICROSOFT_CLIENT_SECRET: "episto-client-secret",
     ADMIN_MICROSOFT_TENANT_ID: "westbaysa-tenant",
     ADMIN_MICROSOFT_REDIRECT_URI:
       "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
@@ -105,7 +105,7 @@ describe("adminAuthRoutes", () => {
     expect(response.headers.location).toContain(
       "https://login.microsoftonline.com/westbaysa-tenant/oauth2/v2.0/authorize",
     );
-    expect(response.headers.location).toContain("client_id=swiss-mail-client-id");
+    expect(response.headers.location).toContain("client_id=episto-client-id");
     expect(response.headers.location).toContain(
       encodeURIComponent("http://localhost:4000/api/v1/admin/auth/microsoft/callback"),
     );

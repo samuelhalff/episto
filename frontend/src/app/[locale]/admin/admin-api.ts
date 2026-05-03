@@ -2,9 +2,8 @@
 // See docs/06-build-packs/admin-build-pack.md for full spec.
 
 import { getApiBase } from "@/lib/api";
-import {
-  type AdminSessionStatus,
-} from "./admin-auth-client";
+import { downloadFile } from "@/lib/download-file";
+import { type AdminSessionStatus } from "./admin-auth-client";
 
 export interface ServiceStatus {
   ok: boolean;
@@ -135,7 +134,10 @@ import type {
   AdminDraftTimelineResponse,
   AdminSuspiciousQueueResponse,
   AdminRetentionInfo,
-} from "@swiss-mail/shared";
+  AdminAudienceKind,
+  AdminSentAudienceResponse,
+  AdminQesAudienceResponse,
+} from "@episto/shared";
 
 export async function fetchAdminSummary(period = "7d") {
   return adminFetch<AdminSummaryResponse>(`/admin/metrics/summary?period=${period}`);
@@ -191,6 +193,73 @@ export async function fetchAdminSuspiciousQueue() {
 
 export async function fetchAdminRetention() {
   return adminFetch<AdminRetentionInfo>("/admin/retention");
+}
+
+export async function fetchAdminSentAudience() {
+  return adminFetch<AdminSentAudienceResponse>("/admin/audience/sent-or-dispatching");
+}
+
+export async function fetchAdminQesAudience() {
+  return adminFetch<AdminQesAudienceResponse>("/admin/audience/qes-waitlist");
+}
+
+export async function downloadAdminAudienceExport(
+  kind: AdminAudienceKind,
+): Promise<void> {
+  const path =
+    kind === "sent_or_dispatching"
+      ? "/v1/admin/audience/sent-or-dispatching.csv"
+      : "/v1/admin/audience/qes-waitlist.csv";
+  const fallbackFileName =
+    kind === "sent_or_dispatching"
+      ? "episto-sent-or-dispatching-audience.csv"
+      : "episto-qes-waitlist-audience.csv";
+  return downloadFile(path, fallbackFileName);
+}
+
+export interface AdminStepFrictionResponse {
+  steps: Array<{
+    step: string;
+    entered: number;
+    completed: number;
+    idle: number;
+    abandoned: number;
+    errors: number;
+    medianDurationMs: number;
+    dropOffPercent: number;
+  }>;
+  stuckUsers: Array<{
+    sessionId: string;
+    draftId: string | null;
+    step: string;
+    lastSeen: string;
+  }>;
+  periodLabel: string;
+  generatedAt: string;
+}
+
+export interface AdminQesWaitlistResponse {
+  total: number;
+  recent: Array<{
+    email: string;
+    locale: string | null;
+    source: string | null;
+    createdAt: string;
+  }>;
+  periodLabel: string;
+  generatedAt: string;
+}
+
+export async function fetchAdminStepFriction(period = "7d") {
+  return adminFetch<AdminStepFrictionResponse>(
+    `/admin/metrics/step-friction?period=${period}`,
+  );
+}
+
+export async function fetchAdminQesWaitlist(period = "30d") {
+  return adminFetch<AdminQesWaitlistResponse>(
+    `/admin/metrics/qes-waitlist?period=${period}`,
+  );
 }
 
 export async function adminPost<T>(path: string, body?: unknown): Promise<T> {

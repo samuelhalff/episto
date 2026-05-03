@@ -8,15 +8,13 @@
 
 ## Signature assurance tiers
 
-> **See [`qualified-signatures.md`](qualified-signatures.md)** for the canonical spec of the
-> three-tier assurance model (`visual` / `advanced` / `qualified`) that sits on top of this
-> section. This file continues to govern the `visual` tier (typed + drawn). The `advanced` and
-> `qualified` tiers are implemented in later phases and are gated behind locked provider
-> onboarding.
+> **See [`qualified-signatures.md`](qualified-signatures.md)** for the canonical public signature
+> model: **typed**, **drawn**, and **QES**. This file governs the two `visual`-tier options
+> (typed and drawn). QES remains gated behind locked provider onboarding and is not yet live.
 
-## Signature scope — LOCKED: Option C (visual tier)
+## Signature scope — LOCKED: typed and drawn visual options
 
-**Locked choice: typed name plus on-screen drawn signature.**
+**Locked choice: the public `visual` tier exposes two explicit options — typed and drawn.**
 
 The user may:
 
@@ -27,6 +25,8 @@ The user may:
 
 Drawn signatures are captured as PNG blobs, uploaded as file assets (`kind: "signature"`), and
 embedded in both the preview and the final PDF.
+
+These two options remain evidentiary-only. They do **not** provide the legal effect of QES.
 
 **Why this changed:**
 

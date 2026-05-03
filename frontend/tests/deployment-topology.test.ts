@@ -21,6 +21,16 @@ const renderProdProxySource = readFileSync(
   "utf8",
 );
 
+const bootstrapProdScriptSource = readFileSync(
+  path.join(repoRoot, "scripts/bootstrap-prod.sh"),
+  "utf8",
+);
+
+const deployProdScriptSource = readFileSync(
+  path.join(repoRoot, "scripts/deploy.sh"),
+  "utf8",
+);
+
 afterEach(() => {
   vi.resetModules();
   delete process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -111,6 +121,7 @@ describe("deployment topology", () => {
     expect(proxyBlock).toContain(
       "./nginx/render-prod-proxy.sh:/etc/nginx/render-prod-proxy.sh:ro",
     );
+    expect(proxyBlock).toContain("- /var/lib/swissmail-www:/var/www:ro");
     expect(proxyBlock).toContain(
       "NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL is required}",
     );
@@ -143,6 +154,8 @@ describe("deployment topology", () => {
     expect(workerBlock).toContain("ZEFIX_PROXY_BASE_URL: http://zefix-proxy:8081");
     expect(zefixProxyBlock).toContain("context: ./services/zefix-proxy");
     expect(zefixProxyBlock).toContain('  - "8081"');
+    expect(zefixProxyBlock).toContain("ZEFIX_USERNAME: ${ZEFIX_USERNAME:-}");
+    expect(zefixProxyBlock).toContain("ZEFIX_PASSWORD: ${ZEFIX_PASSWORD:-}");
     expect(postgresBlock).toContain("restart: unless-stopped");
     expect(redisBlock).toContain("restart: unless-stopped");
     expect(minioBlock).toContain("restart: unless-stopped");
@@ -215,6 +228,36 @@ describe("deployment topology", () => {
     expect(renderProdProxySource).not.toContain(
       'if [ -z "$API_HOST" ] || [ "$API_HOST" = "$CANONICAL_HOST" ]; then',
     );
+  });
+
+  it("keeps the production proxy startable before the first certificate exists", () => {
+    expect(renderProdProxySource).toContain("TLS_FULLCHAIN=");
+    expect(renderProdProxySource).toContain("TLS_PRIVKEY=");
+    expect(renderProdProxySource).toContain(
+      'if [ -f "$TLS_FULLCHAIN" ] && [ -f "$TLS_PRIVKEY" ]; then',
+    );
+    expect(renderProdProxySource).toContain("TLS certificate not found");
+    expect(renderProdProxySource).toContain("listen 80;");
+    expect(renderProdProxySource).not.toContain(
+      "ssl_certificate /etc/letsencrypt/live/$TLS_CERT_NAME/fullchain.pem;",
+    );
+  });
+
+  it("bootstraps certbot and keeps the production env outside the repo checkout", () => {
+    expect(bootstrapProdScriptSource).toContain("certbot");
+    expect(bootstrapProdScriptSource).toContain("/etc/swissmail");
+    expect(bootstrapProdScriptSource).toContain("/var/lib/swissmail-www");
+    expect(bootstrapProdScriptSource).toContain("install -d -o root -g");
+
+    expect(deployProdScriptSource).toContain("REMOTE_ENV_PATH");
+    expect(deployProdScriptSource).toContain("/etc/swissmail/production.env");
+    expect(deployProdScriptSource).toContain("COMPOSE_PROJECT_NAME");
+    expect(deployProdScriptSource).toContain("nginx/render-prod-proxy.sh");
+    expect(deployProdScriptSource).toContain("certbot certonly");
+    expect(deployProdScriptSource).toContain("up -d --force-recreate proxy");
+    expect(deployProdScriptSource).toContain("install -o root -g");
+    expect(deployProdScriptSource).toContain("-m 0640");
+    expect(deployProdScriptSource).toContain("id -gn");
   });
 
   it("adds the Sentry ingest origin to connect-src when a public DSN is configured", async () => {

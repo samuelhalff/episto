@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { RecipientCompanySearchResponseType } from "@swiss-mail/shared";
+import type { RecipientCompanySearchResponseType } from "@episto/shared";
 
 import { apiFetch } from "../lib/api";
 

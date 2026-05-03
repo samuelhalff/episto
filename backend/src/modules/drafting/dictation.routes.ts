@@ -5,7 +5,7 @@ import {
   DictationLiveServerEventSchema,
   DictationSessionQuerySchema,
   DictationTranscriptionResponseSchema,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 
 import { getDb } from "../../db/index.js";

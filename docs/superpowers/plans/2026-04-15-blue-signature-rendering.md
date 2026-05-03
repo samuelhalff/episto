@@ -75,7 +75,7 @@ git commit -m "test: add drawn signature ink token"
 ```ts
 // backend/tests/drawn-signature-rendering.test.ts
 import { describe, expect, it } from "vitest";
-import { LETTER_COLORS } from "@swiss-mail/shared";
+import { LETTER_COLORS } from "@episto/shared";
 
 import {
   buildBlueSignatureSvgMarkup,
@@ -129,7 +129,7 @@ Expected: FAIL because the helper file does not exist and the preview route stil
 
 ```ts
 // backend/src/modules/rendering/drawn-signature.ts
-import { LETTER_COLORS } from "@swiss-mail/shared";
+import { LETTER_COLORS } from "@episto/shared";
 
 export interface DrawnSignatureAsset {
   mimeType: "image/png" | "image/jpeg";

@@ -3,7 +3,7 @@ import {
   type DispatchParty,
   type DispatchProviderCapabilities,
   type PostalPostage,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { AppError } from "../../../shared/errors/index.js";
 import { env } from "../../../shared/config/index.js";
 import { downloadObjectBuffer } from "../../files/adapters/s3.adapter.js";
@@ -314,7 +314,9 @@ export function createDispatchPreviewRequest(
   capabilities: DispatchProviderCapabilities,
 ): FormData {
   return createJsonFormData({
-    fileMetadata: [buildDocumentMetadata(dispatchPackage, { preview: true }, capabilities)],
+    fileMetadata: [
+      buildDocumentMetadata(dispatchPackage, { preview: true }, capabilities),
+    ],
   });
 }
 
@@ -323,7 +325,9 @@ export async function createSynchronousDeliveryForm(
   capabilities: DispatchProviderCapabilities,
 ): Promise<FormData> {
   const form = createJsonFormData({
-    fileMetadata: [buildDocumentMetadata(dispatchPackage, { preview: false }, capabilities)],
+    fileMetadata: [
+      buildDocumentMetadata(dispatchPackage, { preview: false }, capabilities),
+    ],
   });
 
   const primaryPdf = await downloadObjectBuffer(dispatchPackage.renderedPdf.storageKey);

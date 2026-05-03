@@ -2,9 +2,15 @@ import { relations } from "drizzle-orm";
 import { productEvents, supportEvents } from "./analytics.js";
 import { sessions } from "./auth.js";
 import { dispatchAttempts, dispatchStatusEvents } from "./dispatch.js";
-import { conversationMessages, draftLetters, recipientProfiles, senderProfiles } from "./drafting.js";
+import {
+  conversationMessages,
+  draftLetters,
+  recipientProfiles,
+  senderProfiles,
+} from "./drafting.js";
 import { draftSnapshots, fileAssets } from "./files.js";
 import { paymentAttempts } from "./payments.js";
+import { signatureEvents, signatureSessions } from "./signatures.js";
 
 export const sessionsRelations = relations(sessions, ({ many }) => ({
   drafts: many(draftLetters),
@@ -12,6 +18,7 @@ export const sessionsRelations = relations(sessions, ({ many }) => ({
   recipientProfiles: many(recipientProfiles),
   fileAssets: many(fileAssets),
   paymentAttempts: many(paymentAttempts),
+  signatureSessions: many(signatureSessions),
   supportEvents: many(supportEvents),
   productEvents: many(productEvents),
 }));
@@ -38,6 +45,8 @@ export const draftLettersRelations = relations(draftLetters, ({ one, many }) => 
   fileAssets: many(fileAssets),
   paymentAttempts: many(paymentAttempts),
   dispatchAttempts: many(dispatchAttempts),
+  signatureSessions: many(signatureSessions),
+  signatureEvents: many(signatureEvents),
   supportEvents: many(supportEvents),
 }));
 
@@ -78,12 +87,15 @@ export const draftSnapshotsRelations = relations(draftSnapshots, ({ one, many })
   dispatchAttempts: many(dispatchAttempts),
 }));
 
-export const conversationMessagesRelations = relations(conversationMessages, ({ one }) => ({
-  draft: one(draftLetters, {
-    fields: [conversationMessages.draftId],
-    references: [draftLetters.id],
+export const conversationMessagesRelations = relations(
+  conversationMessages,
+  ({ one }) => ({
+    draft: one(draftLetters, {
+      fields: [conversationMessages.draftId],
+      references: [draftLetters.id],
+    }),
   }),
-}));
+);
 
 export const paymentAttemptsRelations = relations(paymentAttempts, ({ one }) => ({
   draft: one(draftLetters, {
@@ -93,6 +105,40 @@ export const paymentAttemptsRelations = relations(paymentAttempts, ({ one }) => 
   session: one(sessions, {
     fields: [paymentAttempts.sessionId],
     references: [sessions.id],
+  }),
+}));
+
+export const signatureSessionsRelations = relations(
+  signatureSessions,
+  ({ one, many }) => ({
+    draft: one(draftLetters, {
+      fields: [signatureSessions.draftId],
+      references: [draftLetters.id],
+    }),
+    session: one(sessions, {
+      fields: [signatureSessions.sessionId],
+      references: [sessions.id],
+    }),
+    paymentAttempt: one(paymentAttempts, {
+      fields: [signatureSessions.paymentAttemptId],
+      references: [paymentAttempts.id],
+    }),
+    signedFileAsset: one(fileAssets, {
+      fields: [signatureSessions.signedFileAssetId],
+      references: [fileAssets.id],
+    }),
+    events: many(signatureEvents),
+  }),
+);
+
+export const signatureEventsRelations = relations(signatureEvents, ({ one }) => ({
+  draft: one(draftLetters, {
+    fields: [signatureEvents.draftId],
+    references: [draftLetters.id],
+  }),
+  signatureSession: one(signatureSessions, {
+    fields: [signatureEvents.signatureSessionId],
+    references: [signatureSessions.id],
   }),
 }));
 
@@ -112,12 +158,15 @@ export const dispatchAttemptsRelations = relations(dispatchAttempts, ({ one, man
   statusEvents: many(dispatchStatusEvents),
 }));
 
-export const dispatchStatusEventsRelations = relations(dispatchStatusEvents, ({ one }) => ({
-  dispatchAttempt: one(dispatchAttempts, {
-    fields: [dispatchStatusEvents.dispatchAttemptId],
-    references: [dispatchAttempts.id],
+export const dispatchStatusEventsRelations = relations(
+  dispatchStatusEvents,
+  ({ one }) => ({
+    dispatchAttempt: one(dispatchAttempts, {
+      fields: [dispatchStatusEvents.dispatchAttemptId],
+      references: [dispatchAttempts.id],
+    }),
   }),
-}));
+);
 
 export const supportEventsRelations = relations(supportEvents, ({ one }) => ({
   session: one(sessions, {

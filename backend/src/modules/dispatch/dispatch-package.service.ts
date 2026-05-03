@@ -4,12 +4,14 @@ import {
   SnapshotDataSchema,
   type DispatchFileAsset,
   type DispatchPackage,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { assertDispatchPolicyConstraints } from "./dispatch-policy.js";
+import { getSignatureSessionForDraftPayment } from "../signing/signature-session.service.js";
+import { isSwissSignFlowMode } from "../signing/signature-flow.js";
 
 function toDispatchFileAsset(
   asset: typeof schema.fileAssets.$inferSelect,
@@ -57,7 +59,7 @@ export async function buildDispatchPackage(
   db: Db,
   draftId: string,
   snapshotId: string,
-  options?: { allowPendingRenderedPdf?: boolean },
+  options?: { allowPendingRenderedPdf?: boolean; paymentAttemptId?: string | null },
 ): Promise<DispatchPackage> {
   const [snapshot] = await db
     .select()
@@ -70,7 +72,10 @@ export async function buildDispatchPackage(
     )
     .limit(1);
   const [draft] = await db
-    .select({ estimatedPages: schema.draftLetters.estimatedPages })
+    .select({
+      estimatedPages: schema.draftLetters.estimatedPages,
+      signatureFlowMode: schema.draftLetters.signatureFlowMode,
+    })
     .from(schema.draftLetters)
     .where(eq(schema.draftLetters.id, draftId))
     .limit(1);
@@ -103,13 +108,19 @@ export async function buildDispatchPackage(
     estimatedPages,
   });
 
+  const signatureSession =
+    options?.paymentAttemptId && isSwissSignFlowMode(draft.signatureFlowMode)
+      ? await getSignatureSessionForDraftPayment(db, draftId, options.paymentAttemptId)
+      : null;
+  const primaryPdfAssetId =
+    signatureSession?.signedFileAssetId ?? snapshot.renderedPdfAssetId ?? null;
   const assetIds = [
-    ...(snapshot.renderedPdfAssetId ? [snapshot.renderedPdfAssetId] : []),
+    ...(primaryPdfAssetId ? [primaryPdfAssetId] : []),
     ...snapshotData.attachmentAssetIds,
   ];
   const assetsById = await getFileAssetsByIds(db, assetIds);
-  const renderedPdfAsset = snapshot.renderedPdfAssetId
-    ? assetsById.get(snapshot.renderedPdfAssetId)
+  const renderedPdfAsset = primaryPdfAssetId
+    ? assetsById.get(primaryPdfAssetId)
     : undefined;
 
   if (!renderedPdfAsset && !options?.allowPendingRenderedPdf) {

@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
-import type { RecipientCompanySearchResultType } from "@swiss-mail/shared";
+import type { RecipientCompanySearchResultType } from "@episto/shared";
 import { useTranslations } from "next-intl";
 import {
   useDraft,

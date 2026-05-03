@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { AddressDetailsType, AddressSearchResultType } from "@swiss-mail/shared";
+import type { AddressDetailsType, AddressSearchResultType } from "@episto/shared";
 
 import { providerOutageError, validationError } from "../../../shared/errors/index.js";
 
@@ -159,7 +159,9 @@ export class GeoAdminAddressSearchAdapter implements AddressSearchAdapter {
   }
 }
 
-function extractOfficialFeatureId(links: Array<z.infer<typeof GeoAdminLinkSchema>>): string | null {
+function extractOfficialFeatureId(
+  links: Array<z.infer<typeof GeoAdminLinkSchema>>,
+): string | null {
   const officialLink = links.find((link) => link.title === OFFICIAL_ADDRESS_LAYER);
   if (!officialLink) {
     return null;
@@ -172,7 +174,10 @@ function extractOfficialFeatureId(links: Array<z.infer<typeof GeoAdminLinkSchema
   return match?.[1] ?? null;
 }
 
-function splitGeoAdminLabel(label: string): { primaryText: string; secondaryText: string | null } {
+function splitGeoAdminLabel(label: string): {
+  primaryText: string;
+  secondaryText: string | null;
+} {
   const match = label.match(/^(.*?)\s*<b>(.*?)<\/b>\s*$/i);
   const primaryText = normalizeStreetSegment(stripHtml(match?.[1] ?? label));
   const secondaryText = match ? normalizeWhitespace(stripHtml(match[2] ?? "")) : null;
@@ -188,14 +193,17 @@ function normalizeOfficialAddressDetail(
   details: z.infer<typeof GeoAdminOfficialAddressDetailSchema>,
 ): AddressDetailsType {
   const streetName = normalizeWhitespace(details.feature.attributes.stn_label);
-  const addressNumber = normalizeAddressNumber(details.feature.attributes.adr_number ?? null);
+  const addressNumber = normalizeAddressNumber(
+    details.feature.attributes.adr_number ?? null,
+  );
   const location = splitZipLabel(details.feature.attributes.zip_label);
 
   if (!streetName || !location) {
     throw providerOutageError("Address details");
   }
 
-  const addressLine1 = [streetName, addressNumber].filter(Boolean).join(" ").trim() || streetName;
+  const addressLine1 =
+    [streetName, addressNumber].filter(Boolean).join(" ").trim() || streetName;
   const label = `${addressLine1}, ${location.postalCode} ${location.city}`;
 
   return {
@@ -234,7 +242,9 @@ function normalizeAddressNumber(value: string | null): string | null {
 }
 
 function normalizeStreetSegment(value: string): string {
-  return normalizeWhitespace(value).replace(/\s+(#|-)\s*$/, "").trim();
+  return normalizeWhitespace(value)
+    .replace(/\s+(#|-)\s*$/, "")
+    .trim();
 }
 
 function stripHtml(value: string): string {
@@ -255,7 +265,9 @@ function encodeGeoAdminLookupId(officialFeatureId: string): string {
   ).toString("base64url")}`;
 }
 
-function decodeGeoAdminLookupId(addressId: string): z.infer<typeof GeoAdminAddressLookupTokenSchema> {
+function decodeGeoAdminLookupId(
+  addressId: string,
+): z.infer<typeof GeoAdminAddressLookupTokenSchema> {
   if (!addressId.startsWith(ADDRESS_LOOKUP_PREFIX)) {
     throw invalidAddressLookupId();
   }
@@ -263,7 +275,9 @@ function decodeGeoAdminLookupId(addressId: string): z.infer<typeof GeoAdminAddre
   let decoded: unknown;
   try {
     decoded = JSON.parse(
-      Buffer.from(addressId.slice(ADDRESS_LOOKUP_PREFIX.length), "base64url").toString("utf8"),
+      Buffer.from(addressId.slice(ADDRESS_LOOKUP_PREFIX.length), "base64url").toString(
+        "utf8",
+      ),
     );
   } catch {
     throw invalidAddressLookupId();
@@ -278,10 +292,13 @@ function decodeGeoAdminLookupId(addressId: string): z.infer<typeof GeoAdminAddre
 }
 
 function invalidAddressLookupId() {
-  return validationError("Select a valid address suggestion before loading its details.", [
-    {
-      field: "id",
-      message: "Address details require a valid address lookup identifier.",
-    },
-  ]);
+  return validationError(
+    "Select a valid address suggestion before loading its details.",
+    [
+      {
+        field: "id",
+        message: "Address details require a valid address lookup identifier.",
+      },
+    ],
+  );
 }

@@ -10,18 +10,27 @@ const bodyStepSource = readFileSync(
   "utf8",
 );
 const bodyStepControllerSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/useBodyStepController.ts"),
+  path.join(
+    repoRoot,
+    "frontend/src/components/product/draft-flow/useBodyStepController.ts",
+  ),
   "utf8",
 );
 
 describe("body step first draft ready modal", () => {
   it("replaces the old step-entry coachmark with a first-draft-ready dialog", () => {
-    expect(bodyStepControllerSource).toContain("BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY =");
-    expect(bodyStepControllerSource).toContain("swiss-mail.body-step-first-draft-ready-dismissed.v1");
+    expect(bodyStepControllerSource).toContain(
+      "BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY =",
+    );
+    expect(bodyStepControllerSource).toContain(
+      "episto.body-step-first-draft-ready-dismissed.v1",
+    );
     expect(bodyStepSource).toContain('t("firstDraftReadyTitle")');
     expect(bodyStepSource).toContain('t("firstDraftReadyBody")');
     expect(bodyStepSource).toContain('t("firstDraftReadyDismiss")');
-    expect(bodyStepControllerSource).toContain("getFirstDraftMessageId(draft.data?.metadata)");
+    expect(bodyStepControllerSource).toContain(
+      "getFirstDraftMessageId(draft.data?.metadata)",
+    );
     expect(bodyStepControllerSource).not.toContain("BODY_STEP_COACHMARK_STORAGE_KEY");
     expect(bodyStepSource).not.toContain('t("bodyCoachmarkTitle")');
   });

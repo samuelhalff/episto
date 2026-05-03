@@ -4,7 +4,7 @@ import {
   FILE_LIMITS,
   type DispatchAttachmentPolicy,
   type DispatchProviderCapabilities,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { AppError } from "../../../shared/errors/index.js";
 import {

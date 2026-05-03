@@ -2,7 +2,7 @@
 
 import { Search, ShieldAlert, Trash2, Users } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import { queryKeys } from "@swiss-mail/shared";
+import { queryKeys } from "@episto/shared";
 import { useTranslations } from "next-intl";
 import { usePathname } from "next/navigation";
 

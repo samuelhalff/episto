@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 
 import type { Db } from "../db/index.js";
 import { schema } from "../db/index.js";
+import { canTransitionFulfillment } from "@episto/shared";
 import {
   cancelPaymentIntent,
   capturePaymentIntent,
@@ -14,6 +15,10 @@ import {
   type PaymentAttemptRow,
   type TransitionPaymentResult,
 } from "../modules/payments/payment.service.js";
+import {
+  getDraftFulfillmentStatus,
+  transitionDraftFulfillmentStatus,
+} from "../modules/signing/fulfillment.service.js";
 
 export type ResolvedDispatchState = "accepted" | "rejected";
 export interface DispatchPaymentSettlementResult {
@@ -59,9 +64,7 @@ export async function settlePaymentForDispatchResolution(
   }
 
   if (!payment.stripePaymentIntentId) {
-    throw new Error(
-      `Payment ${payment.id} is missing a Stripe PaymentIntent id`,
-    );
+    throw new Error(`Payment ${payment.id} is missing a Stripe PaymentIntent id`);
   }
 
   // --- Authorized state (manual-capture card flow, if ever re-enabled) ---
@@ -93,12 +96,9 @@ export async function settlePaymentForDispatchResolution(
       payment.stripePaymentIntentId,
       `Dispatch rejected for draft ${draftId}`,
     );
-    const result = await transitionPaymentState(
-      db,
-      payment.id,
-      "refund_pending",
-      { refundReason: `Dispatch rejected for draft ${draftId}` },
-    );
+    const result = await transitionPaymentState(db, payment.id, "refund_pending", {
+      refundReason: `Dispatch rejected for draft ${draftId}`,
+    });
     return result;
   }
 
@@ -139,10 +139,22 @@ export async function updateDraftStatusForDispatchResolution(
         updatedAt: new Date(),
       })
       .where(eq(schema.draftLetters.id, draftId));
+    const currentFulfillmentStatus = await getDraftFulfillmentStatus(db, draftId);
+    if (canTransitionFulfillment(currentFulfillmentStatus, "dispatch_confirmed")) {
+      await transitionDraftFulfillmentStatus(db, draftId, "dispatch_confirmed");
+    }
+    if (
+      canTransitionFulfillment(await getDraftFulfillmentStatus(db, draftId), "completed")
+    ) {
+      await transitionDraftFulfillmentStatus(db, draftId, "completed");
+    }
     return;
   }
 
-  if (resolvedState === "rejected" && (payment?.state === "cancelled" || payment?.state === "refund_pending")) {
+  if (
+    resolvedState === "rejected" &&
+    (payment?.state === "cancelled" || payment?.state === "refund_pending")
+  ) {
     await db
       .update(schema.draftLetters)
       .set({
@@ -165,4 +177,11 @@ export async function updateDraftStatusForDispatchSubmission(
       updatedAt: new Date(),
     })
     .where(eq(schema.draftLetters.id, draftId));
+
+  if (status === "submitted") {
+    const currentFulfillmentStatus = await getDraftFulfillmentStatus(db, draftId);
+    if (canTransitionFulfillment(currentFulfillmentStatus, "dispatch_submitted")) {
+      await transitionDraftFulfillmentStatus(db, draftId, "dispatch_submitted");
+    }
+  }
 }

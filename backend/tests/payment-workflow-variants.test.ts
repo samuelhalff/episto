@@ -3,7 +3,7 @@ import {
   canTransitionPayment,
   assertTransitionPayment,
   PaymentState,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Payment state machine — variant-based tests from real user stories

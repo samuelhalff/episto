@@ -6,7 +6,7 @@ const validEnv = () => ({
   DATABASE_URL: "postgresql://user:pass@localhost:5432/db",
   REDIS_URL: "redis://localhost:6379",
   S3_ENDPOINT: "https://s3.example.com",
-  S3_BUCKET: "swiss-mail-files",
+  S3_BUCKET: "episto-files",
   S3_ACCESS_KEY: "AKIAEXAMPLE",
   S3_SECRET_KEY: "secret123",
   STRIPE_SECRET_KEY: "sk_test_abc123",
@@ -301,7 +301,7 @@ describe("EnvSchema — validation constraints", () => {
       AZURE_OPENAI_API_KEY: undefined,
       AZURE_AI_PROJECT_ENDPOINT:
         "https://example.services.ai.azure.com/api/projects/example",
-      AZURE_EXISTING_AGENT_ID: "swiss-mail:2",
+      AZURE_EXISTING_AGENT_ID: "episto:2",
       AZURE_AI_AGENT_NAME: undefined,
       AZURE_AI_AGENT_VERSION: undefined,
     });
@@ -335,8 +335,8 @@ describe("EnvSchema — validation constraints", () => {
       AZURE_OPENAI_API_KEY: undefined,
       AZURE_AI_PROJECT_ENDPOINT:
         "https://example.services.ai.azure.com/api/projects/example",
-      AZURE_EXISTING_AGENT_ID: "swiss-mail:2",
-      AZURE_AI_AGENT_NAME: "swiss-mail",
+      AZURE_EXISTING_AGENT_ID: "episto:2",
+      AZURE_AI_AGENT_NAME: "episto",
       AZURE_AI_AGENT_VERSION: "3",
     });
     expect(result.success).toBe(false);

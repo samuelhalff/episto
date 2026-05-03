@@ -1,10 +1,13 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { getDb } from "../../db/index.js";
+import { eq } from "drizzle-orm";
+import { getDb, schema } from "../../db/index.js";
 import { validationError } from "../../shared/errors/index.js";
 import { recordEvent } from "../analytics/index.js";
+import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
+import { getLatestSignatureSession } from "../signing/signature-session.service.js";
 import { constructWebhookEvent } from "./adapters/stripe.adapter.js";
 import { getPaymentAttemptById, transitionPaymentState } from "./payment.service.js";
-import { enqueueDispatchIfSnapshotReady } from "./payment-route-helpers.js";
+import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 
 export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promise<void> {
   app.removeContentTypeParser("application/json");
@@ -30,10 +33,16 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
     const db = getDb();
     const payment = await getPaymentAttemptById(db, paymentAttemptId);
     if (!payment || payment.draftId !== draftId) {
-      return { db, payment: null as null };
+      return { db, payment: null as null, signatureFlowMode: null as null };
     }
 
-    return { db, payment };
+    const [draft] = await db
+      .select({ signatureFlowMode: schema.draftLetters.signatureFlowMode })
+      .from(schema.draftLetters)
+      .where(eq(schema.draftLetters.id, draftId))
+      .limit(1);
+
+    return { db, payment, signatureFlowMode: draft?.signatureFlowMode ?? null };
   }
 
   app.post("/webhooks/stripe", async (request: FastifyRequest, reply: FastifyReply) => {
@@ -56,13 +65,23 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
         const paymentAttemptId = intent.metadata?.paymentAttemptId;
         if (!draftId || !paymentAttemptId || intent.status !== "requires_capture") break;
 
-        const { db, payment } = await getWebhookPayment(draftId, paymentAttemptId);
+        const { db, payment, signatureFlowMode } = await getWebhookPayment(
+          draftId,
+          paymentAttemptId,
+        );
         if (!payment) break;
+        const signatureSession = await getLatestSignatureSession(db, draftId);
 
         await transitionPaymentState(db, payment.id, "authorized", {
           stripePaymentIntentId: intent.id,
         });
-        await enqueueDispatchIfSnapshotReady({
+        await syncDraftFulfillmentFromPaymentState(db, draftId, {
+          signatureFlowMode:
+            signatureFlowMode ?? signatureSession?.signatureFlowMode ?? "visual",
+          paymentState: "authorized",
+          signatureSessionStatus: signatureSession?.status ?? null,
+        });
+        await enqueueDispatchIfEligible({
           db,
           draftId,
           paymentId: payment.id,
@@ -78,8 +97,12 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
         const paymentAttemptId = intent.metadata?.paymentAttemptId;
         if (!draftId || !paymentAttemptId) break;
 
-        const { db, payment } = await getWebhookPayment(draftId, paymentAttemptId);
+        const { db, payment, signatureFlowMode } = await getWebhookPayment(
+          draftId,
+          paymentAttemptId,
+        );
         if (!payment) break;
+        const signatureSession = await getLatestSignatureSession(db, draftId);
 
         const chargeId =
           typeof intent.latest_charge === "string" ? intent.latest_charge : null;
@@ -87,7 +110,13 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
         await transitionPaymentState(db, payment.id, "captured", {
           stripeChargeId: chargeId ?? undefined,
         });
-        await enqueueDispatchIfSnapshotReady({
+        await syncDraftFulfillmentFromPaymentState(db, draftId, {
+          signatureFlowMode:
+            signatureFlowMode ?? signatureSession?.signatureFlowMode ?? "visual",
+          paymentState: "captured",
+          signatureSessionStatus: signatureSession?.status ?? null,
+        });
+        await enqueueDispatchIfEligible({
           db,
           draftId,
           paymentId: payment.id,

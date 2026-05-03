@@ -4,10 +4,7 @@ import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { recordSupportEvent } from "./index.js";
-import type {
-  AdminSessionListResponse,
-  AdminSessionListItem,
-} from "@swiss-mail/shared";
+import type { AdminSessionListResponse, AdminSessionListItem } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -48,7 +45,6 @@ export function parseSessionFilters(query: Record<string, unknown>): SessionFilt
 // ---------------------------------------------------------------------------
 
 export async function adminSessionsRoutes(app: FastifyInstance): Promise<void> {
-
   // GET /admin/sessions — paginated session list with filters
   app.get<{ Querystring: Record<string, string> }>(
     "/admin/sessions",
@@ -58,9 +54,11 @@ export async function adminSessionsRoutes(app: FastifyInstance): Promise<void> {
       const offset = (filters.page - 1) * filters.pageSize;
 
       const statusCond =
-        filters.status === "active" ? sql`AND s.expires_at > NOW()` :
-        filters.status === "expired" ? sql`AND (s.expires_at IS NOT NULL AND s.expires_at <= NOW())` :
-        sql.raw("");
+        filters.status === "active"
+          ? sql`AND s.expires_at > NOW()`
+          : filters.status === "expired"
+            ? sql`AND (s.expires_at IS NOT NULL AND s.expires_at <= NOW())`
+            : sql.raw("");
 
       const fromCond = filters.fromDate
         ? sql`AND s.created_at >= ${filters.fromDate}::timestamptz`
@@ -132,7 +130,10 @@ export async function adminSessionsRoutes(app: FastifyInstance): Promise<void> {
 
       if (!reason || reason.length < 5) {
         return reply.status(400).send({
-          error: { code: "REASON_REQUIRED", message: "Reason must be at least 5 characters" },
+          error: {
+            code: "REASON_REQUIRED",
+            message: "Reason must be at least 5 characters",
+          },
         });
       }
 

@@ -74,13 +74,13 @@ export default async function SignatureRequirementsPage({
           <LegalParagraph>{t("sections.tiers.intro")}</LegalParagraph>
           <LegalList
             items={[
-              <span key="visual">
-                <strong>{t("sections.tiers.visualName")}</strong> —{" "}
-                {t("sections.tiers.visualBody")}
+              <span key="typed">
+                <strong>{t("sections.tiers.typedName")}</strong> —{" "}
+                {t("sections.tiers.typedBody")}
               </span>,
-              <span key="advanced">
-                <strong>{t("sections.tiers.advancedName")}</strong> —{" "}
-                {t("sections.tiers.advancedBody")}
+              <span key="drawn">
+                <strong>{t("sections.tiers.drawnName")}</strong> —{" "}
+                {t("sections.tiers.drawnBody")}
               </span>,
               <span key="qualified">
                 <strong>{t("sections.tiers.qualifiedName")}</strong> —{" "}

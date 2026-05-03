@@ -4,7 +4,7 @@ import {
   AddressSearchQueryInput,
   RecipientCompanyDetailsQueryInput,
   RecipientCompanySearchQueryInput,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 
 import { getDb } from "../../db/index.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";

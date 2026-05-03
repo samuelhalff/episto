@@ -118,11 +118,12 @@ describe("schema enums", () => {
     ]);
   });
 
-  it("file_asset_kind has attachment, signature, rendered_pdf", () => {
+  it("file_asset_kind has attachment, signature, rendered_pdf, signed_pdf", () => {
     expect(schema.fileAssetKindEnum.enumValues).toEqual([
       "attachment",
       "signature",
       "rendered_pdf",
+      "signed_pdf",
     ]);
   });
 

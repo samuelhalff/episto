@@ -93,8 +93,9 @@ describe("signature canvas redesign", () => {
   it("LogisticsStep reads and stores signature assurance per draft", () => {
     expect(logisticsStepSource).toContain("signatureAssuranceLevel");
     expect(logisticsStepSource).toContain("draft.data?.signatureAssuranceLevel");
-    expect(logisticsStepSource).toContain("SignatureAssuranceLevelValue");
-    expect(logisticsStepSource).toContain("handleSelectAssuranceLevel");
+    expect(logisticsStepSource).toContain("SignatureAssuranceLevel");
+    expect(logisticsStepSource).toContain("getPublicSignatureChoice");
+    expect(logisticsStepSource).toContain("handleSelectSignatureChoice");
   });
 
   it("LogisticsStep blocks review until logistics validation passes", () => {
@@ -121,10 +122,11 @@ describe("signature canvas redesign", () => {
     expect(signatureCanvasSource).not.toContain("@ts-expect-error");
   });
 
-  it("SignatureSection offers typed and drawn mode toggle", () => {
+  it("SignatureSection only renders the selected visual signature content", () => {
     expect(signatureSectionSource).toContain("typed");
     expect(signatureSectionSource).toContain("drawn");
     expect(signatureSectionSource).toContain("SignatureCanvas");
+    expect(signatureSectionSource).not.toContain("modeOptions");
   });
 
   it("LetterPreview branches rendering between typed and drawn signatures", () => {
@@ -146,6 +148,15 @@ describe("signature canvas redesign", () => {
     expect(signatureCanvasSource).toContain("debounceRef");
     expect(signatureCanvasSource).toContain("clearTimeout");
     expect(signatureCanvasSource).toContain("setTimeout(exportSignature");
+  });
+
+  it("SignatureCanvas exports transparent signature assets for preview masking", () => {
+    expect(signatureCanvasSource).not.toContain("EXPORT_BG");
+    expect(signatureCanvasSource).not.toContain(
+      "context.fillRect(0, 0, exportCanvas.width, exportCanvas.height)",
+    );
+    expect(signatureCanvasSource).toContain("exportCanvas.toBlob(");
+    expect(signatureCanvasSource).toContain('"image/png"');
   });
 
   it("ships a local handwritten font for typed signatures", () => {
@@ -171,7 +182,7 @@ describe("signature canvas redesign", () => {
   });
 
   it("WorkspacePreviewPane passes signatureUrl from preview data", () => {
-    expect(previewPaneSource).toContain("signatureUrl={getSignatureFileUrl(");
+    expect(previewPaneSource).toContain("signatureUrl={getSignaturePreviewUrl(");
     expect(previewPaneSource).toContain("signatureMode={previewData?.signatureMode}");
   });
 
@@ -182,9 +193,11 @@ describe("signature canvas redesign", () => {
     expect(previewPaneSource).toContain("StatusBadge");
   });
 
-  it("signature previews stay on a same-origin preview route", () => {
+  it("letter content exposes separate preview and inline signature routes", () => {
+    expect(letterContentSource).toContain("getSignaturePreviewUrl");
     expect(letterContentSource).toContain("/preview");
-    expect(letterContentSource).not.toContain("/download");
+    expect(letterContentSource).toContain("getSignatureInlineUrl");
+    expect(letterContentSource).toContain("/inline");
   });
 });
 
@@ -248,13 +261,17 @@ describe("signature atomic replacement (v2 simplification)", () => {
 
   it("SignatureSection shows saved signature with redraw option", () => {
     expect(signatureSectionSource).toContain("signatureUrl");
-    expect(signatureSectionSource).toContain("isRedrawing");
+    expect(signatureSectionSource).toContain("redrawingFromUrl");
     expect(signatureSectionSource).toContain("handleRedraw");
     expect(signatureSectionSource).toContain("showSavedSignature");
+    expect(signatureSectionSource).toContain("height: CANVAS_HEIGHT");
+    expect(signatureSectionSource).toContain("h-[120px]");
+    expect(signatureSectionSource).toContain("draggable={false}");
+    expect(signatureSectionSource).toContain("select-none");
   });
 
-  it("LogisticsStep passes signatureUrl to SignatureSection", () => {
-    expect(logisticsStepSource).toContain("getSignatureFileUrl");
+  it("LogisticsStep passes the raw signature inline url to SignatureSection", () => {
+    expect(logisticsStepSource).toContain("getSignatureInlineUrl");
     expect(logisticsStepSource).toContain("signatureUrl={signatureUrl}");
   });
 });

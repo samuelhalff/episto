@@ -169,8 +169,9 @@ describe("checkout footer actions", () => {
     expect(methods).toEqual(["twint", "card", "apple_pay", "google_pay"]);
   });
 
-  it("waits for rendering to finish before requesting a live quote", () => {
-    expect(checkoutPageSource).toContain(
+  it("treats ready_to_sign as checkout-ready instead of render-pending", () => {
+    expect(checkoutPageSource).toContain('!["reviewed", "rendering"].includes');
+    expect(checkoutPageSource).not.toContain(
       '!["reviewed", "rendering", "ready_to_sign"].includes',
     );
     expect(checkoutPageSource).toContain("quoteEnabled={canRequestQuote}");

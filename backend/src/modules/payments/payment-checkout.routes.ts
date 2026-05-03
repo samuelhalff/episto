@@ -1,4 +1,4 @@
-import { buildOrderReference } from "@swiss-mail/shared";
+import { buildOrderReference } from "@episto/shared";
 import { and, eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { z } from "zod";
@@ -7,12 +7,16 @@ import { AppError, notFoundError } from "../../shared/errors/index.js";
 import { recordEvent } from "../analytics/index.js";
 import { resolvePaymentDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
+import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
+import { assertSignatureFlowSupported } from "../signing/signature-availability.js";
+import { getLatestSignatureSession } from "../signing/signature-session.service.js";
+import { isSwissSignFlowMode } from "../signing/signature-flow.js";
 import {
   createPaymentIntent,
   getPaymentIntentForCheckout,
   updatePaymentIntentReceiptDetails,
 } from "./adapters/stripe.adapter.js";
-import { enqueueDispatchIfSnapshotReady } from "./payment-route-helpers.js";
+import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 import {
   createPaymentAttempt,
   getPaymentForDraft,
@@ -24,7 +28,12 @@ const CheckoutBody = z.object({
   email: z.string().email().max(254),
 });
 
-const CHECKOUT_READY_DRAFT_STATUSES = new Set(["ready", "submitted", "dispatched"]);
+const CHECKOUT_READY_DRAFT_STATUSES = new Set([
+  "ready",
+  "ready_to_sign",
+  "submitted",
+  "dispatched",
+]);
 const NON_TERMINAL_STATES = ["pending", "authorized", "captured", "refund_pending"];
 const MAX_CHECKOUT_RECONCILIATION_ATTEMPTS = 3;
 const RESUMABLE_STRIPE_INTENT_STATUSES = new Set([
@@ -59,7 +68,10 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
         .select({
           id: schema.draftLetters.id,
           deliveryType: schema.draftLetters.deliveryType,
+          locale: schema.draftLetters.locale,
           status: schema.draftLetters.status,
+          signatureAssuranceLevel: schema.draftLetters.signatureAssuranceLevel,
+          signatureFlowMode: schema.draftLetters.signatureFlowMode,
         })
         .from(schema.draftLetters)
         .where(
@@ -71,6 +83,30 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
         .limit(1);
 
       if (!draft) throw notFoundError("draft");
+      assertSignatureFlowSupported(draft);
+
+      const signatureRequired = isSwissSignFlowMode(draft.signatureFlowMode);
+      const latestSignatureSession = signatureRequired
+        ? await getLatestSignatureSession(db, draftId)
+        : null;
+
+      if (
+        signatureRequired &&
+        (!latestSignatureSession ||
+          !["eligible", "conditionally_eligible"].includes(
+            latestSignatureSession.eligibilityStatus,
+          ))
+      ) {
+        throw new AppError({
+          family: "policy_refusal",
+          statusCode: 409,
+          code: "SIGNATURE_ELIGIBILITY_REQUIRED",
+          message: "SwissSign checkout requires an eligibility confirmation first.",
+          userMessage: "Please review the SwissSign requirements before payment.",
+          userAction: "Open the signature eligibility step and continue from there.",
+        });
+      }
+
       if (!CHECKOUT_READY_DRAFT_STATUSES.has(draft.status)) {
         throw new AppError({
           family: "policy_refusal",
@@ -129,6 +165,7 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             customerEmail: body.email,
             orderRef,
             deliveryType: draft.deliveryType,
+            captureStrategy: signatureRequired ? "manual" : "automatic",
           });
 
           await setPaymentIntentId(tx, payment.id, stripeResult.paymentIntentId);
@@ -147,7 +184,9 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
       let result = await createOrResumeCheckout();
       let reconciliationAttempts = 0;
 
-      async function recreateCheckoutFromStaleStripeIntent(stripeError: string): Promise<void> {
+      async function recreateCheckoutFromStaleStripeIntent(
+        stripeError: string,
+      ): Promise<void> {
         request.log.warn(
           {
             draftId,
@@ -191,7 +230,9 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
         }
 
         try {
-          const stripeIntent = await getPaymentIntentForCheckout(result.stripePaymentIntentId);
+          const stripeIntent = await getPaymentIntentForCheckout(
+            result.stripePaymentIntentId,
+          );
 
           if (RESUMABLE_STRIPE_INTENT_STATUSES.has(stripeIntent.status)) {
             if (!stripeIntent.clientSecret) {
@@ -236,7 +277,11 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
                 stripePaymentIntentId: result.stripePaymentIntentId,
               },
             );
-            await enqueueDispatchIfSnapshotReady({
+            await syncDraftFulfillmentFromPaymentState(db, draftId, {
+              signatureFlowMode: draft.signatureFlowMode,
+              paymentState: "authorized",
+            });
+            await enqueueDispatchIfEligible({
               db,
               draftId,
               paymentId: payment.id,
@@ -261,12 +306,18 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
                 stripeChargeId: stripeIntent.latestChargeId ?? undefined,
               },
             );
-            await enqueueDispatchIfSnapshotReady({
+            await syncDraftFulfillmentFromPaymentState(db, draftId, {
+              signatureFlowMode: draft.signatureFlowMode,
+              paymentState: "captured",
+              signatureSessionStatus: latestSignatureSession?.status ?? null,
+            });
+            await enqueueDispatchIfEligible({
               db,
               draftId,
               paymentId: payment.id,
               log: request.log,
-              failureMessage: "Failed to enqueue dispatch after checkout capture reconciliation",
+              failureMessage:
+                "Failed to enqueue dispatch after checkout capture reconciliation",
               suppressFailure: true,
             });
             result = {
@@ -291,17 +342,18 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
       }
 
       if (result.isExisting && result.paymentState === "authorized") {
-        await enqueueDispatchIfSnapshotReady({
+        await enqueueDispatchIfEligible({
           db,
           draftId,
           paymentId: result.paymentAttemptId,
           log: request.log,
-          failureMessage: "Failed to enqueue dispatch after reopening authorized checkout",
+          failureMessage:
+            "Failed to enqueue dispatch after reopening authorized checkout",
         });
       }
 
       if (result.isExisting && result.paymentState === "captured") {
-        await enqueueDispatchIfSnapshotReady({
+        await enqueueDispatchIfEligible({
           db,
           draftId,
           paymentId: result.paymentAttemptId,

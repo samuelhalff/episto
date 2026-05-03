@@ -4,11 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { describe, expect, it } from "vitest";
 
-const repoRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  "..",
-  "..",
-);
+const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const letterPreviewSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/LetterPreview.tsx"),
@@ -21,7 +17,10 @@ const letterPreviewModalSource = readFileSync(
 );
 
 const workspacePreviewPaneSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/WorkspacePreviewPane.tsx"),
+  path.join(
+    repoRoot,
+    "frontend/src/components/product/draft-flow/WorkspacePreviewPane.tsx",
+  ),
   "utf8",
 );
 
@@ -31,7 +30,10 @@ const draftShellSource = readFileSync(
 );
 
 const draftWorkspaceClientSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/draft-flow/DraftWorkspaceClient.tsx"),
+  path.join(
+    repoRoot,
+    "frontend/src/components/product/draft-flow/DraftWorkspaceClient.tsx",
+  ),
   "utf8",
 );
 
@@ -49,7 +51,7 @@ describe("workspace layout regressions", () => {
   it("keeps preview sheets immersive instead of double-capping the reading width", () => {
     expect(letterPreviewSource).toContain('variant?: "default" | "immersive"');
     expect(letterPreviewSource).toContain('variant = "default"');
-    expect(letterPreviewSource).toContain('max-w-[980px]');
+    expect(letterPreviewSource).toContain("max-w-[980px]");
     expect(letterPreviewSource).toContain("letter-layout-shell");
     expect(letterPreviewSource).toContain("sender-block");
     expect(letterPreviewSource).toContain("dispatch-line");
@@ -58,11 +60,15 @@ describe("workspace layout regressions", () => {
     expect(letterPreviewSource).toContain("items-start justify-center overflow-auto");
     expect(letterPreviewSource).toContain('containerType: "inline-size"');
     expect(letterPreviewSource).toContain('variant="letter"');
-    expect(letterPreviewSource).not.toContain('className="mt-6 ml-auto max-w-[260px] text-right"');
+    expect(letterPreviewSource).not.toContain(
+      'className="mt-6 ml-auto max-w-[260px] text-right"',
+    );
   });
 
   it("stacks preview actions in the footer with hide below confirm", () => {
-    expect(letterPreviewModalSource).toContain("h-[100dvh] max-h-[100dvh] min-h-[100dvh]");
+    expect(letterPreviewModalSource).toContain(
+      "h-[100dvh] max-h-[100dvh] min-h-[100dvh]",
+    );
     expect(letterPreviewModalSource).toContain("rounded-none");
     expect(letterPreviewModalSource).toContain("md:right-auto md:left-1/2");
     expect(letterPreviewModalSource).toContain("flex-col gap-3");
@@ -83,7 +89,9 @@ describe("workspace layout regressions", () => {
       "const shouldShowInlinePreviewWarning = Boolean(error) && Boolean(draft.data);",
     );
     expect(workspacePreviewPaneSource).toContain('{t("previewUnavailableRetry")}');
-    expect(workspacePreviewPaneSource).not.toContain("error || (!previewData && !draft.data)");
+    expect(workspacePreviewPaneSource).not.toContain(
+      "error || (!previewData && !draft.data)",
+    );
   });
 
   it("keeps the draft shell overflow-safe on narrow screens", () => {
@@ -103,15 +111,30 @@ describe("workspace layout regressions", () => {
     );
   });
 
+  it("uses an adaptive desktop preview width instead of a narrow fixed 520px rail", () => {
+    expect(workspacePreviewPaneSource).toContain("w-[clamp(32rem,38vw,54rem)]");
+    expect(workspacePreviewPaneSource).not.toContain("w-[520px]");
+  });
+
+  it("narrows the desktop drafting content cap while the preview pane is visible", () => {
+    expect(draftShellSource).toContain("previewPanel?.isVisible");
+    expect(draftShellSource).toContain("max-w-[1180px]");
+    expect(draftShellSource).toContain("max-w-[1400px]");
+  });
+
+  it("lets the desktop preview sheet use nearly the full viewport height", () => {
+    expect(letterPreviewModalSource).toContain("md:h-[calc(100dvh-2rem)]");
+    expect(letterPreviewModalSource).toContain("md:max-h-[calc(100dvh-2rem)]");
+    expect(letterPreviewModalSource).not.toContain("md:h-[min(94dvh,1040px)]");
+  });
+
   it("anchors the early intake thread toward the composer instead of leaving a dead zone", () => {
-    expect(intakeStepSource).toContain("flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-2");
+    expect(intakeStepSource).toContain(
+      "flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-2",
+    );
     expect(intakeStepSource).toContain('className="mt-auto space-y-3 px-2"');
-    expect(draftShellSource).toContain(
-      '? "flex min-h-full flex-1 flex-col pb-10 pt-5"',
-    );
-    expect(draftShellSource).toContain(
-      ': "mx-auto w-full max-w-[1400px] flex min-h-full flex-1 flex-col px-4 pb-12 pt-2 lg:px-6"',
-    );
+    expect(draftShellSource).toContain('? "flex min-h-full flex-1 flex-col pb-10 pt-5"');
+    expect(draftShellSource).toContain("desktopContentMaxWidthClassName");
     expect(draftShellSource).not.toContain(
       '? "flex min-h-full flex-1 flex-col pb-32 pt-5"',
     );

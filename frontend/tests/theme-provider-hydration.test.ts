@@ -8,12 +8,12 @@ import { assertDefined } from "./assert-defined";
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) =>
     (
-      {
+      ({
         switchToLight: "Switch to light",
         switchToDark: "Switch to dark",
         themeDark: "Dark",
         themeLight: "Light",
-      } as const
+      }) as const
     )[key] ?? key,
 }));
 
@@ -74,7 +74,7 @@ describe("ThemeProvider hydration", () => {
       value: matchMedia,
       configurable: true,
     });
-    dom.window.localStorage.setItem("swiss-mail-theme", "dark");
+    dom.window.localStorage.setItem("episto-theme", "dark");
 
     vi.stubGlobal("window", dom.window);
     vi.stubGlobal("document", dom.window.document);
@@ -95,7 +95,8 @@ describe("ThemeProvider hydration", () => {
     );
     vi.stubGlobal(
       "cancelAnimationFrame",
-      dom.window.cancelAnimationFrame?.bind(dom.window) ?? ((id: number) => clearTimeout(id)),
+      dom.window.cancelAnimationFrame?.bind(dom.window) ??
+        ((id: number) => clearTimeout(id)),
     );
     vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
 

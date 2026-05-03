@@ -5,7 +5,7 @@ import { errors, SignJWT, jwtVerify } from "jose";
 import { env } from "../../shared/config/index.js";
 
 const ORDER_ACCESS_AUDIENCE = "order-access";
-const ORDER_ACCESS_ISSUER = "swiss-mail";
+const ORDER_ACCESS_ISSUER = "episto";
 const encoder = new TextEncoder();
 
 export class OrderAccessTokenExpiredError extends Error {

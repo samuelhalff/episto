@@ -3,12 +3,13 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { DraftLetter, DispatchQuote } from "@swiss-mail/shared";
-import type { SignatureAssuranceLevelValue } from "@swiss-mail/shared";
+import type { DraftLetter, DispatchQuote } from "@episto/shared";
+import type { SignatureAssuranceLevelValue } from "@episto/shared";
+import { SignatureFlowMode } from "@episto/shared";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 import { useUpdateDraft, useReviewDraft, useTransitionDraft } from "@/hooks/use-api";
 import type { UseLetterPreviewReturn } from "@/hooks/use-letter-preview";
-import type { FileAsset } from "@swiss-mail/shared";
+import type { FileAsset } from "@episto/shared";
 import { useRouter } from "@/i18n/navigation";
 import { FlowHeader } from "../FlowHeader";
 import { FlowActionDock } from "../FlowActionDock";
@@ -29,10 +30,11 @@ import {
 import { getCustomerFlowPath } from "@/lib/customer-flow";
 import {
   getAddressLines,
-  getSignatureFileUrl,
+  getSignaturePreviewUrl,
   hasConcreteSignature,
   normalizeLetterSubject,
 } from "@/lib/letter-content";
+import { getPublicSignatureChoice, type SignatureMode } from "@/lib/signature-choice";
 
 interface ReviewPageReadyProps {
   draftId: string;
@@ -59,10 +61,9 @@ export function ReviewPageReady({
   const [backError, setBackError] = useState<string | null>(null);
   const draftData = draft.data;
   const previewData = preview.previewData;
-  const displaySignatureAssuranceLevel =
-    previewData?.signatureAssuranceLevel ??
+  const displaySignatureAssuranceLevel = (previewData?.signatureAssuranceLevel ??
     draftData?.signatureAssuranceLevel ??
-    "visual";
+    "visual") as SignatureAssuranceLevelValue;
   const previewLocale = previewData?.locale ?? draftData?.locale ?? "de-CH";
   const normalizedDraftSubject = normalizeLetterSubject(
     draftData?.subject,
@@ -75,12 +76,20 @@ export function ReviewPageReady({
   const signatureMode = previewData?.signatureMode ?? draftData?.signatureMode ?? null;
   const signatureFileId =
     previewData?.signatureFileId ?? draftData?.signatureAssetId ?? null;
-  const signatureUrl = getSignatureFileUrl(signatureFileId);
+  const signatureUrl = getSignaturePreviewUrl(signatureFileId);
+  const publicSignatureChoice = getPublicSignatureChoice(
+    displaySignatureAssuranceLevel,
+    signatureMode as SignatureMode,
+  );
   const senderLines = getAddressLines(previewData?.sender, "sender");
   const recipientLines = getAddressLines(previewData?.recipient, "recipient");
   const attachmentCount = previewData?.attachmentCount ?? attachments.length;
   const displayDeliveryType =
     previewData?.deliveryType ?? draftData?.deliveryType ?? "standard";
+  const signatureFlowMode =
+    previewData?.signatureFlowMode ??
+    draftData?.signatureFlowMode ??
+    SignatureFlowMode.visual;
   const displayBody = previewData?.body ?? draftData?.body ?? null;
   const displayEnclosureNote =
     previewData?.enclosureNote ?? draftData?.enclosureNote ?? null;
@@ -92,13 +101,15 @@ export function ReviewPageReady({
   const hasSignature = hasConcreteSignature(signatureMode, signatureFileId);
   const allComplete = hasSender && hasRecipient && hasBody && hasSubject;
   const isRenderPending = draftData
-    ? ["reviewed", "rendering", "ready_to_sign"].includes(draftData.status)
+    ? ["reviewed", "rendering"].includes(draftData.status)
     : false;
   const canRequestQuote = allComplete && !isRenderPending;
   const quoteErrorMessage = getApiErrorUserMessage(quote.error);
 
   const alreadyPrepared = draftData
-    ? ["ready", "submitted", "dispatched", "closed"].includes(draftData.status)
+    ? ["ready", "ready_to_sign", "submitted", "dispatched", "closed"].includes(
+        draftData.status,
+      )
     : false;
   const isSubmittingReview = reviewDraft.isPending || updateDraft.isPending;
   const reviewActionState = useReviewPrimaryActionState({
@@ -125,12 +136,18 @@ export function ReviewPageReady({
       },
       {
         label: t("signature"),
-        value: hasSignature
-          ? signatureMode === "drawn"
-            ? t("drawnSignature")
-            : t("typedSignature")
-          : t("noSignature"),
-        helperText: !hasSignature ? t("signatureMissingHelp") : undefined,
+        value:
+          publicSignatureChoice === "qualified"
+            ? tSignature("qualified.label")
+            : hasSignature
+              ? signatureMode === "drawn"
+                ? t("drawnSignature")
+                : t("typedSignature")
+              : t("noSignature"),
+        helperText:
+          !hasSignature && publicSignatureChoice !== "qualified"
+            ? t("signatureMissingHelp")
+            : undefined,
       },
       {
         label: t("attachments"),
@@ -144,11 +161,13 @@ export function ReviewPageReady({
       attachmentCount,
       hasAttachments,
       hasSignature,
+      publicSignatureChoice,
       preview.isLoading,
       recipientLines,
       senderLines,
       signatureMode,
       t,
+      tSignature,
       tc,
     ],
   );
@@ -190,8 +209,14 @@ export function ReviewPageReady({
   const handleProceedToPayment = useCallback(() => {
     if (!draftData || !reviewActionState.canProceed) return;
 
+    const nextPath =
+      signatureFlowMode === SignatureFlowMode.swisssign_ses ||
+      signatureFlowMode === SignatureFlowMode.swisssign_qes
+        ? `/draft/${draftId}/signature/eligibility`
+        : `/draft/${draftId}/checkout`;
+
     if (alreadyPrepared) {
-      router.push(`/draft/${draftId}/checkout`);
+      router.push(nextPath);
       return;
     }
 
@@ -221,7 +246,7 @@ export function ReviewPageReady({
     void prepareDraft
       .then(() => reviewDraft.mutateAsync())
       .then(() => {
-        router.push(`/draft/${draftId}/checkout`);
+        router.push(nextPath);
       })
       .catch((err: unknown) => {
         captureException(err instanceof Error ? err : new Error(String(err)), {
@@ -237,6 +262,7 @@ export function ReviewPageReady({
     reviewActionState.canProceed,
     reviewDraft,
     router,
+    signatureFlowMode,
     signatureFileId,
     signatureMode,
     updateDraft,
@@ -306,11 +332,11 @@ export function ReviewPageReady({
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <StatusBadge tone="info">
-                    {tSignature(
-                      `${displaySignatureAssuranceLevel as SignatureAssuranceLevelValue}.label`,
-                    )}
-                  </StatusBadge>
+                  {publicSignatureChoice ? (
+                    <StatusBadge tone="info">
+                      {tSignature(`${publicSignatureChoice}.label`)}
+                    </StatusBadge>
+                  ) : null}
                   <StatusBadge tone="neutral">A4</StatusBadge>
                 </div>
               </div>

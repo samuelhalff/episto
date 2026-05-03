@@ -570,7 +570,7 @@
     "deliveryRegisteredDescription": "Ideale per comunicazioni più formali che richiedono una conferma postale aggiuntiva.",
     "readyToSend": "Pronta",
     "needsAttention": "Da verificare",
-    "typedSignature": "Firma digitata",
+    "typedSignature": "Firma in carattere",
     "noSignature": "Nessuna firma aggiunta",
     "noAttachments": "Nessun allegato",
     "attachmentCount": "{count} allegato/i",
@@ -854,30 +854,48 @@
   },
   "signatureTiers": {
     "comingSoon": "Presto disponibile",
-    "visual": {
-      "label": "Firma standard",
-      "purpose": "Il Suo nome in carattere corsivo o una firma tracciata sullo schermo. Adatta alla maggior parte delle lettere quotidiane.",
+    "typed": {
+      "label": "Firma in carattere",
+      "purpose": "Il Suo nome reso in un carattere da firma. Adatta alla maggior parte delle lettere quotidiane.",
       "price": "Inclusa",
+      "priceDetail": "",
       "friction": "Nessun controllo d'identità"
     },
-    "advanced": {
-      "label": "Firma avanzata",
-      "purpose": "PDF sigillato crittograficamente con verifica d'identità del fornitore.",
-      "price": "+CHF 3",
-      "friction": "Codice via e-mail e SMS"
+    "drawn": {
+      "label": "Firma disegnata",
+      "purpose": "Firmare direttamente sullo schermo così la lettera stampata porta il Suo gesto personale.",
+      "price": "Inclusa",
+      "priceDetail": "",
+      "friction": "Nessun controllo d'identità"
     },
     "qualified": {
-      "label": "Firma qualificata",
+      "label": "QES",
       "purpose": "Giuridicamente equivalente a una firma autografa per i contratti soggetti alla forma scritta.",
-      "price": "+CHF 9 + CHF 19 una tantum per l'identificazione",
-      "friction": "Video-identificazione, solo la prima volta"
+      "price": "+CHF 9 / lettera",
+      "priceDetail": "+CHF 19 una tantum per la verifica dell'identità, se non è ancora verificato",
+      "friction": "Video-identificazione, solo la prima volta",
+      "notifyMe": "Avvisami",
+      "notifyLabel": "Notifiche di rilascio",
+      "notifyHint": "Clicca per iscriverti e ricevere un'e-mail quando la QES sarà disponibile.",
+      "waitlist": {
+        "badge": "Disponibile a breve",
+        "title": "Firma elettronica qualificata",
+        "description": "Stiamo completando il flusso di identificazione SwissID. Lasci la sua email e la avviseremo non appena la firma qualificata sarà disponibile.",
+        "emailLabel": "Indirizzo email",
+        "emailPlaceholder": "lei@esempio.ch",
+        "submit": "Avvisami",
+        "submitting": "Salvataggio…",
+        "successMessage": "Sei iscritto. La avviseremo non appena disponibile.",
+        "errorMessage": "Qualcosa è andato storto. Riprovi tra un istante.",
+        "cancel": "Chiudi"
+      }
     },
     "explainer": {
       "triggerLabel": "Ho bisogno di una firma qualificata?",
       "title": "Quale firma scegliere?",
       "intro": "La maggior parte delle lettere non richiede una firma qualificata. La scelta dipende da ciò di cui il destinatario ha bisogno e dall'eventuale requisito di forma scritta.",
-      "caseStandard": "Per reclami, solleciti, notifiche di modifica e corrispondenza generale è sufficiente una firma standard.",
-      "caseAdvanced": "Per corrispondenza in cui il destinatario desidera una prova non falsificabile che il documento non sia stato modificato dopo la firma.",
+      "caseTyped": "Scelga la firma in carattere quando per la lettera stampata basta un nome reso in modo pulito.",
+      "caseDrawn": "Scelga la firma disegnata quando vuole che il Suo gesto manoscritto appaia sulla lettera stampata.",
       "caseQualified": "Per documenti soggetti alla forma scritta secondo il diritto svizzero (fideiussione, credito al consumo, alcune disdette di contratti di locazione a tempo determinato, alcune materie di diritto del lavoro).",
       "paperCaveat": "Una firma qualificata riguarda il PDF elettronico. La copia cartacea che inviamo è una copia — la versione giuridicamente vincolante è l'originale elettronico. Per ordini qualificati, il destinatario riceve anche il PDF firmato via e-mail.",
       "fullRequirementsCta": "Leggere tutti i requisiti di firma",
@@ -897,12 +915,12 @@
     },
     "sections": {
       "tiers": {
-        "title": "Livelli di firma offerti",
-        "intro": "Sono previsti tre livelli. Oggi è disponibile il livello Standard. Il livello Avanzato e Qualificato verranno attivati al termine dell'integrazione con il fornitore.",
-        "visualName": "Firma standard",
-        "visualBody": "Nome digitato in corsivo o firma tracciata sullo schermo. Adatta alla corrispondenza formale quotidiana. Nessuna pretesa di verifica dell'identità in senso legale.",
-        "advancedName": "Firma elettronica avanzata (FEA)",
-        "advancedBody": "PDF sigillato crittograficamente. L'identità è verificata via e-mail e SMS. Non falsificabile e tracciabile, ma non equivalente a una firma autografa in diritto svizzero.",
+        "title": "Scelte di firma mostrate",
+        "intro": "Nel prodotto compaiono tre scelte. Oggi sono disponibili la firma in carattere e quella disegnata. La QES resta indicata come Presto disponibile finché non termina l'onboarding del fornitore.",
+        "typedName": "Firma in carattere",
+        "typedBody": "Il Suo nome reso in un carattere da firma. Adatta alla corrispondenza formale quotidiana. Nessuna pretesa di verifica dell'identità in senso legale.",
+        "drawnName": "Firma disegnata",
+        "drawnBody": "Una firma tracciata sullo schermo che stampiamo sulla lettera. Mostra il Suo gesto personale sulla copia cartacea, ma non crea l'effetto giuridico di una firma qualificata.",
         "qualifiedName": "Firma elettronica qualificata (FEQ)",
         "qualifiedBody": "Giuridicamente equivalente a una firma autografa secondo la legge federale svizzera sulla firma elettronica (ZertES) e compatibile con eIDAS per i destinatari dell'UE. È richiesta una video-identificazione una tantum."
       },
@@ -1031,6 +1049,10 @@
     "search": {
       "title": "Ricerca",
       "description": "Trovi sessioni, bozze, pagamenti o referenze del fornitore da un solo punto."
+    },
+    "audience": {
+      "title": "Audience",
+      "description": "Liste email esportabili per clienti inviati e notifiche di rilascio."
     },
     "sessions": {
       "title": "Sessioni",

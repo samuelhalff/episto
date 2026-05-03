@@ -3,7 +3,7 @@
 import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { Paperclip, Trash2, FileText, Image, Loader2, CheckCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { DraftAttachmentConstraints, FileAsset } from "@swiss-mail/shared";
+import type { DraftAttachmentConstraints, FileAsset } from "@episto/shared";
 import { toast } from "sonner";
 
 // ---------------------------------------------------------------------------
@@ -404,7 +404,11 @@ export function AttachmentUploader({
                   >
                     {removingFileId === file.id ? (
                       <Loader2
-                        className={isCompactViewport ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5 animate-spin"}
+                        className={
+                          isCompactViewport
+                            ? "h-3.5 w-3.5 animate-spin"
+                            : "h-3.5 w-3.5 animate-spin"
+                        }
                       />
                     ) : (
                       <Trash2

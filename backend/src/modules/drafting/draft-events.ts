@@ -20,7 +20,7 @@ export interface AiTokenPayload {
   messageId: string;
 }
 
-import type { DocumentModel } from "@swiss-mail/shared";
+import type { DocumentModel } from "@episto/shared";
 
 export interface AiMessageCompletePayload {
   messageId: string;
@@ -88,16 +88,10 @@ export type DraftEventHandler = (
   payload: DraftEventMap[DraftEventType],
 ) => void;
 
-export function subscribeDraft(
-  draftId: string,
-  handler: DraftEventHandler,
-): void {
+export function subscribeDraft(draftId: string, handler: DraftEventHandler): void {
   emitter.on(channel(draftId), handler);
 }
 
-export function unsubscribeDraft(
-  draftId: string,
-  handler: DraftEventHandler,
-): void {
+export function unsubscribeDraft(draftId: string, handler: DraftEventHandler): void {
   emitter.off(channel(draftId), handler);
 }

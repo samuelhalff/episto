@@ -9,7 +9,7 @@ import {
   Send,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { DispatchState } from "@swiss-mail/shared";
+import type { DispatchState } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -169,7 +169,9 @@ export function DispatchConfirmation({
 
       {!primaryReference && (
         <div className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4">
-          <p className="text-xs text-zinc-500 dark:text-zinc-400">{t("reference.pending")}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            {t("reference.pending")}
+          </p>
         </div>
       )}
 

@@ -12,9 +12,9 @@ import {
 // ---------------------------------------------------------------------------
 
 describe("PAYMENT_SUCCESS_STATES", () => {
-  it("includes authorized and captured", () => {
-    expect(PAYMENT_SUCCESS_STATES).toContain("authorized");
+  it("includes captured only", () => {
     expect(PAYMENT_SUCCESS_STATES).toContain("captured");
+    expect(PAYMENT_SUCCESS_STATES).not.toContain("authorized");
   });
 
   it("does not include failure states", () => {

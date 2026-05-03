@@ -13,7 +13,7 @@ import {
 
 export type Theme = "light" | "dark";
 
-const THEME_STORAGE_KEY = "swiss-mail-theme";
+const THEME_STORAGE_KEY = "episto-theme";
 
 interface ThemeContextValue {
   theme: Theme;

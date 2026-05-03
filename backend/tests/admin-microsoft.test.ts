@@ -3,8 +3,8 @@ import { createRemoteJWKSet, jwtVerify } from "jose";
 
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
-    ADMIN_MICROSOFT_CLIENT_ID: "swiss-mail-client-id",
-    ADMIN_MICROSOFT_CLIENT_SECRET: "swiss-mail-client-secret",
+    ADMIN_MICROSOFT_CLIENT_ID: "episto-client-id",
+    ADMIN_MICROSOFT_CLIENT_SECRET: "episto-client-secret",
     ADMIN_MICROSOFT_TENANT_ID: "common",
     ADMIN_MICROSOFT_REDIRECT_URI:
       "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
@@ -58,8 +58,8 @@ describe("admin-microsoft helpers", () => {
     );
 
     const body = fetchMock.mock.calls[0]?.[1]?.body as URLSearchParams;
-    expect(body.get("client_id")).toBe("swiss-mail-client-id");
-    expect(body.get("client_secret")).toBe("swiss-mail-client-secret");
+    expect(body.get("client_id")).toBe("episto-client-id");
+    expect(body.get("client_secret")).toBe("episto-client-secret");
     expect(body.get("code")).toBe("code-123");
     expect(body.get("redirect_uri")).toBe(
       "https://app.example.com/api/v1/admin/auth/microsoft/callback",
@@ -75,7 +75,7 @@ describe("admin-microsoft helpers", () => {
     vi.mocked(jwtVerify).mockResolvedValue({
       payload: {
         iss: "https://login.microsoftonline.com/tid-456/v2.0",
-        aud: "swiss-mail-client-id",
+        aud: "episto-client-id",
         exp: 4_000_000_000,
         iat: 3_999_999_000,
         oid: "oid-123",
@@ -91,7 +91,7 @@ describe("admin-microsoft helpers", () => {
       new URL("https://login.microsoftonline.com/common/discovery/v2.0/keys"),
     );
     expect(jwtVerify).toHaveBeenCalledWith("microsoft-id-token", "mock-jwks", {
-      audience: "swiss-mail-client-id",
+      audience: "episto-client-id",
       algorithms: ["RS256"],
       clockTolerance: 60,
     });
@@ -107,7 +107,7 @@ describe("admin-microsoft helpers", () => {
     vi.mocked(jwtVerify).mockResolvedValue({
       payload: {
         iss: "https://login.microsoftonline.com/tid-999/v2.0",
-        aud: "swiss-mail-client-id",
+        aud: "episto-client-id",
         exp: 4_000_000_000,
         iat: 3_999_999_000,
         oid: "oid-123",

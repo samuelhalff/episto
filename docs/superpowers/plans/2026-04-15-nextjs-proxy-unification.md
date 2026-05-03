@@ -286,12 +286,12 @@ Expected: PASS
 
 - [ ] **Step 2: Run the frontend build on Node 20**
 
-Run: `npx -y -p node@20.19.0 -c 'cd /home/sam/dev/swiss-mail && export NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 NEXT_PUBLIC_API_URL=/api NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_dummy NEXT_PUBLIC_APP_ENV=test && npm run build -w frontend'`
+Run: `npx -y -p node@20.19.0 -c 'cd /home/sam/dev/episto && export NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 NEXT_PUBLIC_API_URL=/api NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_dummy NEXT_PUBLIC_APP_ENV=test && npm run build -w frontend'`
 Expected: PASS
 
 - [ ] **Step 3: Run repo-level validation on Node 20**
 
-Run: `npx -y -p node@20.19.0 -c 'cd /home/sam/dev/swiss-mail && export NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 NEXT_PUBLIC_API_URL=/api NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_dummy NEXT_PUBLIC_APP_ENV=test && npm run lint && npm run typecheck && npm test && npm run build'`
+Run: `npx -y -p node@20.19.0 -c 'cd /home/sam/dev/episto && export NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 NEXT_PUBLIC_API_URL=/api NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_dummy NEXT_PUBLIC_APP_ENV=test && npm run lint && npm run typecheck && npm test && npm run build'`
 Expected: PASS
 
 - [ ] **Step 4: Commit**

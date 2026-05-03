@@ -9,7 +9,9 @@ import type {
   AdminErrorsResponse,
   AdminLocaleResponse,
   AdminAiResponse,
-} from "@swiss-mail/shared";
+  AdminSentAudienceRow,
+  AdminQesAudienceRow,
+} from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -44,11 +46,370 @@ function periodLabel(period: string | undefined): string {
   }
 }
 
+type CsvValue = string | number | null | undefined;
+
+const SENT_AUDIENCE_CSV_COLUMNS = [
+  "email",
+  "locale",
+  "furthestStatus",
+  "sessionId",
+  "draftId",
+  "firstSeenAt",
+  "lastSeenAt",
+] as const;
+
+const QES_AUDIENCE_CSV_COLUMNS = [
+  "email",
+  "locale",
+  "source",
+  "firstSeenAt",
+  "lastSeenAt",
+] as const;
+
+export function formatAudienceStatusLabel(status: string): string {
+  switch (status) {
+    case "submitted":
+      return "Sent / being dispatched";
+    case "dispatched":
+      return "Dispatched";
+    case "closed":
+      return "Closed";
+    default:
+      return status;
+  }
+}
+
+function escapeCsvCell(value: CsvValue): string {
+  const normalized = value == null ? "" : String(value);
+  if (/["\n,]/.test(normalized)) {
+    return `"${normalized.replace(/"/g, '""')}"`;
+  }
+  return normalized;
+}
+
+export function serializeAdminAudienceCsv<T extends object>(
+  rows: T[],
+  columns?: readonly (keyof T & string)[],
+): string {
+  const headers =
+    columns ?? ((rows[0] ? Object.keys(rows[0]) : []) as (keyof T & string)[]);
+  if (headers.length === 0) {
+    return "";
+  }
+
+  return [
+    headers.join(","),
+    ...rows.map((row) => {
+      const record = row as Record<string, CsvValue>;
+      return headers.map((header) => escapeCsvCell(record[header])).join(",");
+    }),
+  ].join("\n");
+}
+
+async function countSentOrDispatchingAudience(): Promise<number> {
+  const db = getDb();
+  const rows = await db.execute<{ total: number }>(sql`
+    WITH candidate AS (
+      SELECT
+        LOWER(BTRIM(s.email)) AS email_key,
+        ROW_NUMBER() OVER (
+          PARTITION BY LOWER(BTRIM(s.email))
+          ORDER BY
+            CASE d.status
+              WHEN 'closed' THEN 3
+              WHEN 'dispatched' THEN 2
+              WHEN 'submitted' THEN 1
+              ELSE 0
+            END DESC,
+            COALESCE(d.updated_at, d.created_at, s.updated_at, s.created_at) DESC
+        ) AS row_number
+      FROM sessions s
+      JOIN draft_letters d ON d.session_id = s.id
+      WHERE s.email IS NOT NULL
+        AND BTRIM(s.email) <> ''
+        AND d.status IN ('submitted', 'dispatched', 'closed')
+    )
+    SELECT COUNT(*)::int AS total
+    FROM candidate
+    WHERE row_number = 1
+  `);
+
+  return Number(rows.rows[0]?.total ?? 0);
+}
+
+async function listSentOrDispatchingAudience(
+  limit?: number,
+): Promise<AdminSentAudienceRow[]> {
+  const db = getDb();
+  const query =
+    typeof limit === "number"
+      ? sql`
+          WITH candidate AS (
+            SELECT
+              LOWER(BTRIM(s.email)) AS email_key,
+              s.email AS email,
+              s.locale AS locale,
+              s.id::text AS session_id,
+              d.id::text AS draft_id,
+              CASE d.status
+                WHEN 'closed' THEN 3
+                WHEN 'dispatched' THEN 2
+                WHEN 'submitted' THEN 1
+                ELSE 0
+              END AS status_rank,
+              ROW_NUMBER() OVER (
+                PARTITION BY LOWER(BTRIM(s.email))
+                ORDER BY
+                  CASE d.status
+                    WHEN 'closed' THEN 3
+                    WHEN 'dispatched' THEN 2
+                    WHEN 'submitted' THEN 1
+                    ELSE 0
+                  END DESC,
+                  COALESCE(d.updated_at, d.created_at, s.updated_at, s.created_at) DESC
+              ) AS row_number,
+              MIN(s.created_at) OVER (PARTITION BY LOWER(BTRIM(s.email))) AS first_seen_at,
+              MAX(COALESCE(d.updated_at, d.created_at, s.updated_at, s.created_at))
+                OVER (PARTITION BY LOWER(BTRIM(s.email))) AS last_seen_at
+            FROM sessions s
+            JOIN draft_letters d ON d.session_id = s.id
+            WHERE s.email IS NOT NULL
+              AND BTRIM(s.email) <> ''
+              AND d.status IN ('submitted', 'dispatched', 'closed')
+          )
+          SELECT
+            email,
+            locale,
+            session_id,
+            draft_id,
+            CASE status_rank
+              WHEN 3 THEN 'closed'
+              WHEN 2 THEN 'dispatched'
+              ELSE 'submitted'
+            END AS furthest_status,
+            first_seen_at::text AS first_seen_at,
+            last_seen_at::text AS last_seen_at
+          FROM candidate
+          WHERE row_number = 1
+          ORDER BY last_seen_at DESC
+          LIMIT ${limit}
+        `
+      : sql`
+          WITH candidate AS (
+            SELECT
+              LOWER(BTRIM(s.email)) AS email_key,
+              s.email AS email,
+              s.locale AS locale,
+              s.id::text AS session_id,
+              d.id::text AS draft_id,
+              CASE d.status
+                WHEN 'closed' THEN 3
+                WHEN 'dispatched' THEN 2
+                WHEN 'submitted' THEN 1
+                ELSE 0
+              END AS status_rank,
+              ROW_NUMBER() OVER (
+                PARTITION BY LOWER(BTRIM(s.email))
+                ORDER BY
+                  CASE d.status
+                    WHEN 'closed' THEN 3
+                    WHEN 'dispatched' THEN 2
+                    WHEN 'submitted' THEN 1
+                    ELSE 0
+                  END DESC,
+                  COALESCE(d.updated_at, d.created_at, s.updated_at, s.created_at) DESC
+              ) AS row_number,
+              MIN(s.created_at) OVER (PARTITION BY LOWER(BTRIM(s.email))) AS first_seen_at,
+              MAX(COALESCE(d.updated_at, d.created_at, s.updated_at, s.created_at))
+                OVER (PARTITION BY LOWER(BTRIM(s.email))) AS last_seen_at
+            FROM sessions s
+            JOIN draft_letters d ON d.session_id = s.id
+            WHERE s.email IS NOT NULL
+              AND BTRIM(s.email) <> ''
+              AND d.status IN ('submitted', 'dispatched', 'closed')
+          )
+          SELECT
+            email,
+            locale,
+            session_id,
+            draft_id,
+            CASE status_rank
+              WHEN 3 THEN 'closed'
+              WHEN 2 THEN 'dispatched'
+              ELSE 'submitted'
+            END AS furthest_status,
+            first_seen_at::text AS first_seen_at,
+            last_seen_at::text AS last_seen_at
+          FROM candidate
+          WHERE row_number = 1
+          ORDER BY last_seen_at DESC
+        `;
+
+  const rows = await db.execute<{
+    email: string;
+    locale: string | null;
+    session_id: string;
+    draft_id: string;
+    furthest_status: string;
+    first_seen_at: string;
+    last_seen_at: string;
+  }>(query);
+
+  return rows.rows.map((row) => ({
+    email: row.email,
+    locale: row.locale,
+    furthestStatus: formatAudienceStatusLabel(row.furthest_status),
+    sessionId: row.session_id,
+    draftId: row.draft_id,
+    firstSeenAt: row.first_seen_at,
+    lastSeenAt: row.last_seen_at,
+  }));
+}
+
+async function countQesAudience(): Promise<number> {
+  const db = getDb();
+  const rows = await db.execute<{ total: number }>(sql`
+    WITH signups AS (
+      SELECT
+        LOWER(BTRIM(email)) AS email_key,
+        ROW_NUMBER() OVER (
+          PARTITION BY LOWER(BTRIM(email))
+          ORDER BY created_at DESC
+        ) AS row_number
+      FROM qes_waitlist
+      WHERE BTRIM(email) <> ''
+    )
+    SELECT COUNT(*)::int AS total
+    FROM signups
+    WHERE row_number = 1
+  `);
+
+  return Number(rows.rows[0]?.total ?? 0);
+}
+
+async function listQesAudience(limit?: number): Promise<AdminQesAudienceRow[]> {
+  const db = getDb();
+  const query =
+    typeof limit === "number"
+      ? sql`
+          WITH signups AS (
+            SELECT
+              LOWER(BTRIM(email)) AS email_key,
+              email,
+              locale,
+              source,
+              ROW_NUMBER() OVER (
+                PARTITION BY LOWER(BTRIM(email))
+                ORDER BY created_at DESC
+              ) AS row_number,
+              MIN(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS first_seen_at,
+              MAX(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS last_seen_at
+            FROM qes_waitlist
+            WHERE BTRIM(email) <> ''
+          )
+          SELECT
+            email,
+            locale,
+            source,
+            first_seen_at::text AS first_seen_at,
+            last_seen_at::text AS last_seen_at
+          FROM signups
+          WHERE row_number = 1
+          ORDER BY last_seen_at DESC
+          LIMIT ${limit}
+        `
+      : sql`
+          WITH signups AS (
+            SELECT
+              LOWER(BTRIM(email)) AS email_key,
+              email,
+              locale,
+              source,
+              ROW_NUMBER() OVER (
+                PARTITION BY LOWER(BTRIM(email))
+                ORDER BY created_at DESC
+              ) AS row_number,
+              MIN(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS first_seen_at,
+              MAX(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS last_seen_at
+            FROM qes_waitlist
+            WHERE BTRIM(email) <> ''
+          )
+          SELECT
+            email,
+            locale,
+            source,
+            first_seen_at::text AS first_seen_at,
+            last_seen_at::text AS last_seen_at
+          FROM signups
+          WHERE row_number = 1
+          ORDER BY last_seen_at DESC
+        `;
+
+  const rows = await db.execute<{
+    email: string;
+    locale: string | null;
+    source: string | null;
+    first_seen_at: string;
+    last_seen_at: string;
+  }>(query);
+
+  return rows.rows.map((row) => ({
+    email: row.email,
+    locale: row.locale,
+    source: row.source,
+    firstSeenAt: row.first_seen_at,
+    lastSeenAt: row.last_seen_at,
+  }));
+}
+
 // ---------------------------------------------------------------------------
 // Routes
 // ---------------------------------------------------------------------------
 
 export async function adminMetricsRoutes(app: FastifyInstance): Promise<void> {
+  app.get("/admin/audience/sent-or-dispatching", async (_request, reply) => {
+    const [total, rows] = await Promise.all([
+      countSentOrDispatchingAudience(),
+      listSentOrDispatchingAudience(200),
+    ]);
+
+    reply.send({
+      total,
+      rows,
+      generatedAt: new Date().toISOString(),
+    });
+  });
+
+  app.get("/admin/audience/sent-or-dispatching.csv", async (_request, reply) => {
+    const rows = await listSentOrDispatchingAudience();
+    reply.header("Content-Type", "text/csv; charset=utf-8");
+    reply.header(
+      "Content-Disposition",
+      'attachment; filename="episto-sent-or-dispatching-audience.csv"',
+    );
+    reply.send(serializeAdminAudienceCsv(rows, SENT_AUDIENCE_CSV_COLUMNS));
+  });
+
+  app.get("/admin/audience/qes-waitlist", async (_request, reply) => {
+    const [total, rows] = await Promise.all([countQesAudience(), listQesAudience(200)]);
+
+    reply.send({
+      total,
+      rows,
+      generatedAt: new Date().toISOString(),
+    });
+  });
+
+  app.get("/admin/audience/qes-waitlist.csv", async (_request, reply) => {
+    const rows = await listQesAudience();
+    reply.header("Content-Type", "text/csv; charset=utf-8");
+    reply.header(
+      "Content-Disposition",
+      'attachment; filename="episto-qes-waitlist-audience.csv"',
+    );
+    reply.send(serializeAdminAudienceCsv(rows, QES_AUDIENCE_CSV_COLUMNS));
+  });
+
   // GET /admin/metrics/summary — KPI cards
   app.get<{ Querystring: { period?: string } }>(
     "/admin/metrics/summary",
@@ -356,6 +717,150 @@ export async function adminMetricsRoutes(app: FastifyInstance): Promise<void> {
     };
     reply.send(response);
   });
+
+  // GET /admin/metrics/qes-waitlist — QES coming-soon waitlist signups
+  app.get<{ Querystring: { period?: string } }>(
+    "/admin/metrics/qes-waitlist",
+    async (request, reply) => {
+      const db = getDb();
+      const days = parsePeriodDays(request.query.period);
+      const label = periodLabel(request.query.period);
+
+      const totalRows = await db.execute<{ total: number }>(sql`
+        SELECT COUNT(*)::int AS total FROM qes_waitlist
+        WHERE created_at > NOW() - make_interval(days => ${days})
+      `);
+
+      const recentRows = await db.execute<{
+        email: string;
+        locale: string | null;
+        source: string | null;
+        created_at: string;
+      }>(sql`
+        SELECT
+          email,
+          locale,
+          source,
+          created_at::text AS created_at
+        FROM qes_waitlist
+        WHERE created_at > NOW() - make_interval(days => ${days})
+        ORDER BY created_at DESC
+        LIMIT 50
+      `);
+
+      reply.send({
+        total: Number(totalRows.rows[0]?.total ?? 0),
+        recent: recentRows.rows.map((r) => ({
+          email: r.email,
+          locale: r.locale,
+          source: r.source,
+          createdAt: r.created_at,
+        })),
+        periodLabel: label,
+        generatedAt: new Date().toISOString(),
+      });
+    },
+  );
+
+  // GET /admin/metrics/step-friction — per-step funnel friction
+  app.get<{ Querystring: { period?: string } }>(
+    "/admin/metrics/step-friction",
+    async (request, reply) => {
+      const db = getDb();
+      const days = parsePeriodDays(request.query.period);
+      const label = periodLabel(request.query.period);
+
+      const rows = await db.execute<{
+        step: string;
+        entered: number;
+        completed: number;
+        idle: number;
+        abandoned: number;
+        errors: number;
+        median_ms: number;
+      }>(sql`
+        SELECT
+          step,
+          COUNT(*) FILTER (WHERE event_name = 'step_entered')::int AS entered,
+          COUNT(*) FILTER (WHERE event_name = 'step_completed')::int AS completed,
+          COUNT(*) FILTER (WHERE event_name = 'step_idle')::int AS idle,
+          COUNT(*) FILTER (WHERE event_name = 'step_abandoned')::int AS abandoned,
+          COUNT(*) FILTER (WHERE event_name = 'step_error')::int AS errors,
+          COALESCE(
+            PERCENTILE_CONT(0.5) WITHIN GROUP (
+              ORDER BY duration_ms
+            ) FILTER (WHERE event_name = 'step_completed'),
+            0
+          )::int AS median_ms
+        FROM product_events
+        WHERE step IS NOT NULL
+          AND event_name IN ('step_entered', 'step_completed', 'step_idle', 'step_abandoned', 'step_error')
+          AND created_at > NOW() - make_interval(days => ${days})
+        GROUP BY step
+        ORDER BY entered DESC
+      `);
+
+      const stuckRows = await db.execute<{
+        session_id: string;
+        draft_id: string | null;
+        step: string;
+        last_seen: string;
+      }>(sql`
+        SELECT DISTINCT ON (session_id)
+          session_id::text AS session_id,
+          draft_id::text AS draft_id,
+          step,
+          MAX(created_at)::text AS last_seen
+        FROM product_events
+        WHERE event_name IN ('step_entered', 'step_idle')
+          AND step IS NOT NULL
+          AND session_id IS NOT NULL
+          AND created_at > NOW() - make_interval(days => ${days})
+          AND NOT EXISTS (
+            SELECT 1 FROM product_events later
+            WHERE later.session_id = product_events.session_id
+              AND later.event_name IN ('step_completed', 'step_abandoned')
+              AND later.step = product_events.step
+              AND later.created_at >= product_events.created_at
+          )
+        GROUP BY session_id, draft_id, step
+        ORDER BY session_id, MAX(created_at) DESC
+        LIMIT 50
+      `);
+
+      const steps = rows.rows.map((r) => {
+        const entered = Number(r.entered);
+        const completed = Number(r.completed);
+        const abandoned = Number(r.abandoned);
+        const dropOffPercent =
+          entered > 0 ? Math.round((1 - completed / entered) * 1000) / 10 : 0;
+        return {
+          step: r.step,
+          entered,
+          completed,
+          idle: Number(r.idle),
+          abandoned,
+          errors: Number(r.errors),
+          medianDurationMs: Number(r.median_ms),
+          dropOffPercent,
+        };
+      });
+
+      const stuckUsers = stuckRows.rows.map((r) => ({
+        sessionId: r.session_id,
+        draftId: r.draft_id,
+        step: r.step,
+        lastSeen: r.last_seen,
+      }));
+
+      reply.send({
+        steps,
+        stuckUsers,
+        periodLabel: label,
+        generatedAt: new Date().toISOString(),
+      });
+    },
+  );
 
   // GET /admin/metrics/ai — AI quality metrics
   app.get<{ Querystring: { period?: string } }>(

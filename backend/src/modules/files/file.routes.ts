@@ -5,7 +5,7 @@ import {
   FILE_LIMITS,
   getUploadByteLimit,
   isAllowedUploadMimeType,
-} from "@swiss-mail/shared";
+} from "@episto/shared";
 import { getDb, schema } from "../../db/index.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
@@ -360,6 +360,36 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       reply.header("Cache-Control", "private, max-age=300");
 
       await reply.send(body);
+    },
+  );
+
+  // GET /files/:fileId/inline — stream raw signature images through the app origin
+  // for UI surfaces that should show the original asset without preview transforms.
+  app.get<{ Params: { fileId: string } }>(
+    "/files/:fileId/inline",
+    { preHandler: [requireSession] },
+    async (request, reply) => {
+      const session = getRequiredSession(request);
+      const db = getDb();
+      const { fileId } = request.params;
+
+      const file = await getFileAsset(db, fileId, session.id);
+      if (!file || file.kind !== "signature" || !file.mimeType.startsWith("image/")) {
+        throw notFoundError("file");
+      }
+
+      const object = await downloadObjectBuffer(file.storageKey);
+      const mimeType = object.contentType ?? file.mimeType;
+      if (!isDrawnSignatureMimeType(mimeType)) {
+        throw notFoundError("file");
+      }
+
+      reply.header("Content-Type", mimeType);
+      reply.header("Content-Length", String(object.buffer.byteLength));
+      reply.header("Content-Disposition", "inline");
+      reply.header("Cache-Control", "private, max-age=300");
+
+      await reply.send(object.buffer);
     },
   );
 

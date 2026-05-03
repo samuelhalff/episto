@@ -38,10 +38,10 @@ describe("createPaymentIntent configuration", () => {
     expect(stripeAdapterSource).toContain("enabled: true");
   });
 
-  it("does not use manual capture (incompatible with Twint)", () => {
-    // Stripe filters out Twint when capture_method is 'manual'.
-    const createBlock = stripeAdapterSource.split("paymentIntents.create")[1]?.split(");")[0] ?? "";
-    expect(createBlock).not.toContain('"manual"');
-    expect(createBlock).not.toContain("'manual'");
+  it("uses manual capture only for signature-led authorization flows", () => {
+    const createBlock =
+      stripeAdapterSource.split("paymentIntents.create")[1]?.split(");")[0] ?? "";
+    expect(createBlock).toContain('metadata.captureStrategy === "manual"');
+    expect(createBlock).toContain('? "manual" : "automatic"');
   });
 });

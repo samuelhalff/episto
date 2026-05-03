@@ -3,6 +3,22 @@ import { sessions } from "./auth.js";
 import { draftLetters } from "./drafting.js";
 import { createdAt, pk } from "./helpers.js";
 
+export const qesWaitlist = pgTable(
+  "qes_waitlist",
+  {
+    id: pk(),
+    sessionId: uuid("session_id").references(() => sessions.id),
+    email: text("email").notNull(),
+    locale: text("locale"),
+    source: text("source"),
+    createdAt: createdAt(),
+  },
+  (table) => ({
+    emailIdx: index("qes_waitlist_email_idx").on(table.email),
+    createdAtIdx: index("qes_waitlist_created_at_idx").on(table.createdAt),
+  }),
+);
+
 export const supportEvents = pgTable(
   "support_events",
   {
@@ -30,11 +46,13 @@ export const productEvents = pgTable(
     id: pk(),
     eventName: text("event_name").notNull(),
     sessionId: uuid("session_id"),
+    draftId: uuid("draft_id"),
     locale: text("locale"),
     route: text("route"),
     source: text("source"),
     templateSlug: text("template_slug"),
     surface: text("surface"),
+    step: text("step"),
     durationMs: integer("duration_ms"),
     errorFamily: text("error_family"),
     createdAt: createdAt(),
@@ -45,5 +63,7 @@ export const productEvents = pgTable(
       table.createdAt,
     ),
     sessionIdx: index("product_events_session_idx").on(table.sessionId, table.createdAt),
+    stepTimeIdx: index("product_events_step_time_idx").on(table.step, table.createdAt),
+    draftIdx: index("product_events_draft_id_idx").on(table.draftId),
   }),
 );

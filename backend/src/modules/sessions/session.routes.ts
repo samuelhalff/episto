@@ -9,11 +9,7 @@ import {
 import { requireSession, getRequiredSession, COOKIE_NAME } from "./session.middleware.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { z } from "zod";
-import {
-  CreateSessionInput,
-  LocaleSchema,
-  type DraftStatusValue,
-} from "@swiss-mail/shared";
+import { CreateSessionInput, LocaleSchema, type DraftStatusValue } from "@episto/shared";
 import { eq, sql } from "drizzle-orm";
 import { schema } from "../../db/index.js";
 import { recordEvent } from "../analytics/index.js";
