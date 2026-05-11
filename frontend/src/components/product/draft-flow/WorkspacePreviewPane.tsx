@@ -35,7 +35,7 @@ export function WorkspacePreviewPane({
     "visual") as SignatureAssuranceLevelValue;
   const publicSignatureChoice = getPublicSignatureChoice(
     signatureAssuranceLevel,
-    (previewData?.signatureMode ?? draft.data?.signatureMode ?? null) as SignatureMode,
+    (previewData?.signatureMode ?? draft.data?.signatureMode ?? "drawn") as SignatureMode,
   );
   const shouldShowBlockingError = Boolean(error) && !draft.data;
   const shouldShowInlinePreviewWarning = Boolean(error) && Boolean(draft.data);

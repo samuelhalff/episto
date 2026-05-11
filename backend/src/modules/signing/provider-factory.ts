@@ -30,7 +30,7 @@ export function getSwissSignProvider(): SwissSignSignatureProvider {
     statusCode: 409,
     code: "SIGNATURE_PROVIDER_DISABLED",
     message: "Signature provider mode is disabled.",
-    userMessage: "SwissSign signature flows are not available in this environment.",
+    userMessage: "Provider-backed signature flows are not available in this environment.",
     userAction: "Select a typed or drawn signature to continue.",
   });
 }

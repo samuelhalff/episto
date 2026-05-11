@@ -80,7 +80,7 @@ export function LogisticsStep({
   const standardPrice = pricing.data?.standard?.displayPrice ?? t("priceUnavailable");
   const isDeliverySelectionPending = pendingDeliveryType !== null;
 
-  const currentSignatureMode = (draft.data?.signatureMode ?? null) as SignatureMode;
+  const currentSignatureMode = (draft.data?.signatureMode ?? "drawn") as SignatureMode;
   const signatureFileId = files.signature?.id ?? null;
   const hasDrawnAsset = Boolean(signatureFileId);
   const signatureUrl = getSignatureInlineUrl(signatureFileId);
@@ -114,16 +114,6 @@ export function LogisticsStep({
 
   const handleSelectSignatureChoice = useCallback(
     (choice: PublicSignatureChoice) => {
-      if (choice === "qualified") {
-        void updateDraft.mutateAsync({
-          signatureAssuranceLevel: SignatureAssuranceLevel.qualified,
-          signatureFlowMode: "swisssign_qes",
-          signatureMode: null,
-          signatureAssetId: null,
-        });
-        return;
-      }
-
       void updateDraft.mutateAsync({
         signatureAssuranceLevel: SignatureAssuranceLevel.visual,
         signatureFlowMode: "visual",

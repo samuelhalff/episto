@@ -849,111 +849,53 @@
     },
     "signatureRequirements": {
       "title": "Signature requirements — Episto",
-      "description": "When a handwritten or qualified electronic signature is legally required in Switzerland, and what Episto supports."
+      "description": "When to use a font or drawn signature on Swiss letters sent with Episto."
     }
   },
   "signatureTiers": {
-    "comingSoon": "Coming soon",
-    "typed": {
-      "label": "Font signature",
-      "purpose": "Your name rendered in a signature font. Good for most everyday letters.",
-      "price": "Included",
-      "priceDetail": "",
-      "friction": "No ID check"
-    },
     "drawn": {
       "label": "Drawn signature",
       "purpose": "Sign directly on screen so the printed letter carries your own mark.",
       "price": "Included",
       "priceDetail": "",
-      "friction": "No ID check"
+      "friction": "Default choice"
     },
-    "qualified": {
-      "label": "QES",
-      "purpose": "Legally equivalent to a handwritten signature when written form is required.",
-      "price": "+CHF 9 / letter",
-      "priceDetail": "+CHF 19 one-time ID verification if you're not verified yet",
-      "friction": "Video ID check, first time only",
-      "notifyMe": "Notify me",
-      "notifyLabel": "Release notifications",
-      "notifyHint": "Click to subscribe and get an email when QES goes live.",
-      "waitlist": {
-        "badge": "Coming soon",
-        "title": "Qualified electronic signature",
-        "description": "We're finalising the SwissID-based identification flow. Leave your email and we'll let you know the moment qualified signatures go live.",
-        "emailLabel": "Email address",
-        "emailPlaceholder": "you@example.ch",
-        "submit": "Notify me",
-        "submitting": "Saving…",
-        "successMessage": "You're on the list. We'll email you when qualified signatures are available.",
-        "errorMessage": "Something went wrong. Please try again in a moment.",
-        "cancel": "Close"
-      }
-    },
-    "explainer": {
-      "triggerLabel": "Do I need a qualified signature?",
-      "title": "Which signature do I need?",
-      "intro": "Most letters do not require a qualified signature. The choice depends on what the recipient needs and whether the law requires written form.",
-      "caseTyped": "Choose the font signature when a clean rendered name is enough for the printed letter.",
-      "caseDrawn": "Choose the drawn signature when you want your own handwritten mark to appear on the printed letter.",
-      "caseQualified": "Choose QES for documents that must satisfy the written-form requirement under Swiss law (guaranty, consumer credit, fixed-term lease termination, some employment matters).",
-      "paperCaveat": "A qualified signature applies to the electronic PDF. The paper we post is a courtesy copy — the legally binding version is the electronic original. For qualified orders, the recipient also receives the signed PDF by email.",
-      "fullRequirementsCta": "Read the full signature requirements",
-      "close": "Close"
+    "typed": {
+      "label": "Font signature",
+      "purpose": "Your name rendered in a signature font. Useful when a clean printed name is enough.",
+      "price": "Included",
+      "priceDetail": "",
+      "friction": "No drawing needed"
     }
   },
   "signatureRequirements": {
-    "pageTitle": "Signature requirements",
-    "pageIntro": "A plain-language reference for when a handwritten or qualified electronic signature is legally required, and what {service} supports at each tier.",
+    "pageTitle": "Signature choices",
+    "pageIntro": "A plain-language reference for the font and drawn signatures available in {service}.",
     "informationalEyebrow": "Informational — not legal advice",
-    "translationNotice": "English reference version. Reviewed translations are not yet published. If future translations differ, the English version prevails.",
+    "translationNotice": "English reference version. If a translation differs, the English version prevails.",
     "readThisFirst": "Read this first",
     "callout": {
-      "notLegalAdvice": "This page is informational and does not replace advice from a qualified lawyer.",
-      "electronicVsPaper": "A qualified electronic signature binds the electronic PDF. A printout of a signed PDF is a copy; the binding version is the electronic original.",
-      "mostLettersDontNeed": "Most letters do not require a qualified signature."
+      "notLegalAdvice": "This page is informational and does not replace advice from a lawyer.",
+      "printedSignature": "Episto adds the selected signature to the letter that is printed and posted.",
+      "legalForm": "If a recipient requires a specific legal form, confirm that requirement before sending."
     },
     "sections": {
       "tiers": {
         "title": "Signature choices we show",
-        "intro": "The product shows three choices. Today, font and drawn signatures are available. QES remains marked Coming soon until provider onboarding is complete.",
+        "intro": "The product offers two printed-letter signature choices.",
         "typedName": "Font signature",
-        "typedBody": "Your name rendered in a signature font. Suitable for everyday formal correspondence. No legal claim of identity verification.",
+        "typedBody": "Your name is rendered in a signature-style font. This is useful for everyday formal correspondence when a clean printed name is enough.",
         "drawnName": "Drawn signature",
-        "drawnBody": "A signature you draw on screen and we print on the letter. Useful when you want the paper copy to carry your own mark, but it does not create qualified-signature legal effect.",
-        "qualifiedName": "Qualified electronic signature (QES)",
-        "qualifiedBody": "Legally equivalent to a handwritten signature under the Swiss Federal Act on Electronic Signatures (ZertES), and compatible with eIDAS for EU recipients. Requires one-time video identification."
+        "drawnBody": "You draw your signature on screen and we print it on the letter. This is the default choice because it carries your own visible mark on paper."
       },
       "whenRequired": {
-        "title": "When Swiss law requires written form",
-        "intro": "Under the Swiss Code of Obligations, specific contracts must be in written form. For these, a qualified electronic signature is equivalent to a handwritten signature. Examples include:",
-        "caseGuaranty": "Guaranty declarations (Bürgschaft).",
-        "caseConsumerCredit": "Consumer credit agreements.",
-        "caseLease": "Termination of fixed-term residential leases in certain cases.",
-        "caseEmployment": "Certain employment-related terminations and non-compete clauses.",
-        "caseOther": "Other contracts that the law or the parties themselves require to be in written form.",
-        "disclaimer": "This is a non-exhaustive summary. Confirm the requirement with a qualified lawyer for your specific case."
-      },
-      "paperCopy": {
-        "title": "Paper copy vs. electronic original",
-        "paragraphOne": "A qualified electronic signature cryptographically binds the electronic PDF bytes. Printing that PDF produces a paper copy — a reproduction, not the binding instrument.",
-        "paragraphTwo": "For this reason, when you order a qualified signature we also deliver the signed PDF electronically to the recipient. The paper version we post carries a QR code pointing to a verification page for the electronic original."
-      },
-      "identification": {
-        "title": "Identification and reuse",
-        "intro": "Qualified signatures require a one-time identity check. We use a productized video identification flow operated by our signing provider.",
-        "pointFirstTime": "The first qualified signature of the year takes about 5 minutes of identification. Subsequent signatures take seconds.",
-        "pointReuse": "Once identified, you can sign again from any device using a passwordless link sent to the email you verified. You do not need to re-identify for every letter.",
-        "pointRevocation": "If your identity details change — for example a new phone number — a fresh identification is required. Previously signed documents remain valid.",
-        "pointPrivacy": "Raw identity documents are not stored on our servers. They remain with the signing provider as a data processor. We keep only the minimum metadata needed for audit."
-      },
-      "crossBorder": {
-        "title": "Cross-border recipients",
-        "body": "For Swiss recipients we sign under ZertES. For recipients in the EU/EEA we sign under eIDAS. Our provider supports both standards on the same account; no additional action is needed from you."
+        "title": "When to check first",
+        "intro": "Some matters have formal signing requirements set by law, by contract, or by the recipient. Episto does not decide those requirements for you.",
+        "disclaimer": "For contracts, official filings, or time-sensitive disputes, confirm the required signature format with the recipient or a lawyer before sending."
       },
       "contact": {
         "title": "Questions",
-        "body": "If you are unsure whether your situation requires a qualified signature, contact {service} support or a qualified lawyer before selecting a tier."
+        "body": "If you are unsure which option fits your letter, contact {service} support before sending."
       }
     }
   },

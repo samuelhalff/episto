@@ -120,7 +120,7 @@ export function RecipientStep({
   const companySearch = useRecipientCompanySearch(
     draftId,
     companyName,
-    isCompanyValue && !showManual,
+    isCompanyValue && selectedCompany === null,
   );
   const companyDetails = useRecipientCompanyDetails(
     draftId,
@@ -130,9 +130,9 @@ export function RecipientStep({
   const companySearchResults = companySearch.data ?? [];
   const displayedCompanySearchResults = companySearchResults.slice(0, 5);
   const shouldShowCompanySearchResults =
-    isCompanyValue && !showManual && companyName.trim().length >= 2;
+    isCompanyValue && selectedCompany === null && companyName.trim().length >= 2;
   const companySelectionHint =
-    isCompanyValue && showManual && companyName.trim().length > 0
+    isCompanyValue && showManual && selectedCompany && companyName.trim().length > 0
       ? t("companySelectedHint")
       : null;
   const selectedCompanyRegistryRef =

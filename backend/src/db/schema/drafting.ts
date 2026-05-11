@@ -28,13 +28,11 @@ export const deliveryTypeEnum = pgEnum("delivery_type", ["standard", "registered
 export const signatureAssuranceLevelEnum = pgEnum("signature_assurance_level", [
   "visual",
   "advanced",
-  "qualified",
 ]);
 export const signatureFlowModeEnum = pgEnum("signature_flow_mode", [
   "none",
   "visual",
   "swisssign_ses",
-  "swisssign_qes",
 ]);
 export const orderFulfillmentStatusEnum = pgEnum("order_fulfillment_status", [
   "draft_created",
@@ -140,7 +138,7 @@ export const draftLetters = pgTable(
     tone: text("tone"),
     intent: text("intent"),
     enclosureNote: text("enclosure_note"),
-    signatureMode: text("signature_mode"),
+    signatureMode: text("signature_mode").default("drawn"),
     schemaVersion: integer("schema_version").default(1).notNull(),
     senderProfileId: uuid("sender_profile_id").references(() => senderProfiles.id),
     recipientProfileId: uuid("recipient_profile_id").references(

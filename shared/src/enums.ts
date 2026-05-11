@@ -72,13 +72,12 @@ export const MessageRole = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Signature assurance (see docs/04-product/qualified-signatures.md)
+// Signature assurance
 // ---------------------------------------------------------------------------
 
 export const SignatureAssuranceLevel = {
   visual: "visual",
   advanced: "advanced",
-  qualified: "qualified",
 } as const;
 
 export type SignatureAssuranceLevelValue =
@@ -137,7 +136,6 @@ export const SignatureFlowMode = {
   none: "none",
   visual: "visual",
   swisssign_ses: "swisssign_ses",
-  swisssign_qes: "swisssign_qes",
 } as const;
 
 export type SignatureFlowModeValue =

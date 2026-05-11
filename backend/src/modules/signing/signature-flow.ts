@@ -8,14 +8,9 @@ export function resolveSignatureFlowMode(input: {
   if (
     input.signatureFlowMode === SignatureFlowMode.none ||
     input.signatureFlowMode === SignatureFlowMode.visual ||
-    input.signatureFlowMode === SignatureFlowMode.swisssign_ses ||
-    input.signatureFlowMode === SignatureFlowMode.swisssign_qes
+    input.signatureFlowMode === SignatureFlowMode.swisssign_ses
   ) {
     return input.signatureFlowMode;
-  }
-
-  if (input.signatureAssuranceLevel === SignatureAssuranceLevel.qualified) {
-    return SignatureFlowMode.swisssign_qes;
   }
 
   if (input.signatureAssuranceLevel === SignatureAssuranceLevel.advanced) {
@@ -32,10 +27,7 @@ export function resolveSignatureFlowMode(input: {
 export function isSwissSignFlowMode(
   signatureFlowMode: string | null | undefined,
 ): boolean {
-  return (
-    signatureFlowMode === SignatureFlowMode.swisssign_ses ||
-    signatureFlowMode === SignatureFlowMode.swisssign_qes
-  );
+  return signatureFlowMode === SignatureFlowMode.swisssign_ses;
 }
 
 export function requiresSignedDocument(

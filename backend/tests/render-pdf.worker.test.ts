@@ -179,11 +179,11 @@ describe("render-pdf worker", () => {
     mocks.currentDb = createDbMock({
       status: "rendering",
       sessionId: "session-1",
-      signatureFlowMode: "swisssign_qes",
+      signatureFlowMode: "swisssign_ses",
       fulfillmentStatus: "draft_created",
     });
     mocks.renderSnapshotToPdf.mockResolvedValue({
-      pdfAssetId: "asset-qes",
+      pdfAssetId: "asset-provider",
       storageKey: "renders/draft-3/1.pdf",
       sizeBytes: 4096,
       pageCount: 2,
@@ -206,12 +206,12 @@ describe("render-pdf worker", () => {
     expect(mocks.setInitialDraftFulfillmentStatus).toHaveBeenCalledWith(
       mocks.currentDb,
       "draft-3",
-      "swisssign_qes",
+      "swisssign_ses",
     );
     expect(mocks.getPaymentForDraft).not.toHaveBeenCalled();
     expect(mocks.enqueueDispatchSubmission).not.toHaveBeenCalled();
     expect(job.log).toHaveBeenCalledWith(
-      "PDF rendered and frozen for signing: asset=asset-qes",
+      "PDF rendered and frozen for signing: asset=asset-provider",
     );
   });
 });

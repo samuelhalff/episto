@@ -101,8 +101,9 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
           family: "policy_refusal",
           statusCode: 409,
           code: "SIGNATURE_ELIGIBILITY_REQUIRED",
-          message: "SwissSign checkout requires an eligibility confirmation first.",
-          userMessage: "Please review the SwissSign requirements before payment.",
+          message:
+            "Provider-backed signing checkout requires an eligibility confirmation first.",
+          userMessage: "Please review the signing requirements before payment.",
           userAction: "Open the signature eligibility step and continue from there.",
         });
       }

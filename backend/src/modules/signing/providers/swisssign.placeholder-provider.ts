@@ -13,8 +13,9 @@ function createUnimplementedError(operation: string): AppError {
     family: "provider_outage",
     statusCode: 503,
     code: "SWISSSIGN_API_UNIMPLEMENTED",
-    message: `${operation} cannot run yet because the live SwissSign transaction API details are not wired.`,
-    userMessage: "SwissSign is not fully configured in this environment yet.",
+    message: `${operation} cannot run yet because the live signing-provider API details are not wired.`,
+    userMessage:
+      "Provider-backed signing is not fully configured in this environment yet.",
     userAction:
       "Use the mock integration for testing or wire the live API details first.",
   });
@@ -22,30 +23,30 @@ function createUnimplementedError(operation: string): AppError {
 
 export class SwissSignPlaceholderProvider implements SwissSignSignatureProvider {
   async checkEligibility(_request: SwissSignEligibilityRequest): Promise<never> {
-    throw createUnimplementedError("SwissSign eligibility check");
+    throw createUnimplementedError("Signing eligibility check");
   }
 
   async createSignatureSession(
     _request: SwissSignCreateSignatureSessionRequest,
   ): Promise<never> {
-    throw createUnimplementedError("SwissSign signature session creation");
+    throw createUnimplementedError("Signing session creation");
   }
 
   async getSignatureSession(
     _request: SwissSignGetSignatureSessionRequest,
   ): Promise<never> {
-    throw createUnimplementedError("SwissSign signature session lookup");
+    throw createUnimplementedError("Signing session lookup");
   }
 
   async handleSignatureCallback(
     _request: SwissSignHandleSignatureCallbackRequest,
   ): Promise<never> {
-    throw createUnimplementedError("SwissSign callback handling");
+    throw createUnimplementedError("Signing callback handling");
   }
 
   async fetchSignedDocument(
     _request: SwissSignFetchSignedDocumentRequest,
   ): Promise<never> {
-    throw createUnimplementedError("SwissSign signed document retrieval");
+    throw createUnimplementedError("Signed document retrieval");
   }
 }

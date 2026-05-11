@@ -45,7 +45,7 @@ export default function SignaturePendingPage({
       }
       description={
         waitingForSignature
-          ? "We’re waiting for SwissSign to confirm the signing step. If you left the wallet flow, you can resume it."
+          ? "We’re waiting for the signing provider to confirm the signing step. If you left the wallet flow, you can resume it."
           : "The signed PDF is in place. We’re finishing payment and dispatch checks before showing success."
       }
       badge={

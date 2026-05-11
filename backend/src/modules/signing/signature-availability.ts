@@ -19,7 +19,8 @@ export function assertSignatureFlowSupported(input: {
       statusCode: 409,
       code: "SIGNATURE_ASSURANCE_UNAVAILABLE",
       message: `Signature flow '${signatureFlowMode}' is not available in this environment.`,
-      userMessage: "SwissSign signature flows are not available in this environment.",
+      userMessage:
+        "Provider-backed signature flows are not available in this environment.",
       userAction: "Select a typed or drawn signature to continue.",
     });
   }

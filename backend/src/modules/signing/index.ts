@@ -1,5 +1,5 @@
 // Phase 0 seam: taxonomy and adapter contract only. No routes, no services.
-// See docs/04-product/qualified-signatures.md for the phased rollout.
+// Provider-backed signing routes and services.
 
 export {
   getSigningAdapter,

@@ -19,7 +19,6 @@ const DB_EVENTS = new Set([
   "step_idle",
   "step_abandoned",
   "step_error",
-  "qes_waitlist_joined",
   "checkout_started",
   "payment_failed",
   "review_blocked",

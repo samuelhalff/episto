@@ -849,111 +849,53 @@
     },
     "signatureRequirements": {
       "title": "Requisiti di firma — Episto",
-      "description": "Quando una firma autografa o una firma elettronica qualificata è legalmente richiesta in Svizzera, e cosa supporta Episto."
+      "description": "Quando usare una firma con font o disegnata per le lettere svizzere inviate con Episto."
     }
   },
   "signatureTiers": {
-    "comingSoon": "Presto disponibile",
-    "typed": {
-      "label": "Firma in carattere",
-      "purpose": "Il Suo nome reso in un carattere da firma. Adatta alla maggior parte delle lettere quotidiane.",
-      "price": "Inclusa",
-      "priceDetail": "",
-      "friction": "Nessun controllo d'identità"
-    },
     "drawn": {
       "label": "Firma disegnata",
-      "purpose": "Firmare direttamente sullo schermo così la lettera stampata porta il Suo gesto personale.",
+      "purpose": "Firma direttamente sullo schermo, così la lettera stampata riporta il tuo segno personale.",
       "price": "Inclusa",
       "priceDetail": "",
-      "friction": "Nessun controllo d'identità"
+      "friction": "Scelta predefinita"
     },
-    "qualified": {
-      "label": "QES",
-      "purpose": "Giuridicamente equivalente a una firma autografa per i contratti soggetti alla forma scritta.",
-      "price": "+CHF 9 / lettera",
-      "priceDetail": "+CHF 19 una tantum per la verifica dell'identità, se non è ancora verificato",
-      "friction": "Video-identificazione, solo la prima volta",
-      "notifyMe": "Avvisami",
-      "notifyLabel": "Notifiche di rilascio",
-      "notifyHint": "Clicca per iscriverti e ricevere un'e-mail quando la QES sarà disponibile.",
-      "waitlist": {
-        "badge": "Disponibile a breve",
-        "title": "Firma elettronica qualificata",
-        "description": "Stiamo completando il flusso di identificazione SwissID. Lasci la sua email e la avviseremo non appena la firma qualificata sarà disponibile.",
-        "emailLabel": "Indirizzo email",
-        "emailPlaceholder": "lei@esempio.ch",
-        "submit": "Avvisami",
-        "submitting": "Salvataggio…",
-        "successMessage": "Sei iscritto. La avviseremo non appena disponibile.",
-        "errorMessage": "Qualcosa è andato storto. Riprovi tra un istante.",
-        "cancel": "Chiudi"
-      }
-    },
-    "explainer": {
-      "triggerLabel": "Ho bisogno di una firma qualificata?",
-      "title": "Quale firma scegliere?",
-      "intro": "La maggior parte delle lettere non richiede una firma qualificata. La scelta dipende da ciò di cui il destinatario ha bisogno e dall'eventuale requisito di forma scritta.",
-      "caseTyped": "Scelga la firma in carattere quando per la lettera stampata basta un nome reso in modo pulito.",
-      "caseDrawn": "Scelga la firma disegnata quando vuole che il Suo gesto manoscritto appaia sulla lettera stampata.",
-      "caseQualified": "Per documenti soggetti alla forma scritta secondo il diritto svizzero (fideiussione, credito al consumo, alcune disdette di contratti di locazione a tempo determinato, alcune materie di diritto del lavoro).",
-      "paperCaveat": "Una firma qualificata riguarda il PDF elettronico. La copia cartacea che inviamo è una copia — la versione giuridicamente vincolante è l'originale elettronico. Per ordini qualificati, il destinatario riceve anche il PDF firmato via e-mail.",
-      "fullRequirementsCta": "Leggere tutti i requisiti di firma",
-      "close": "Chiudere"
+    "typed": {
+      "label": "Firma con font",
+      "purpose": "Il tuo nome viene reso con un font di firma. Utile quando basta un nome stampato in modo pulito.",
+      "price": "Inclusa",
+      "priceDetail": "",
+      "friction": "Non serve disegnare"
     }
   },
   "signatureRequirements": {
-    "pageTitle": "Requisiti di firma",
-    "pageIntro": "Un quadro in linguaggio chiaro sui casi in cui è legalmente richiesta una firma autografa o una firma elettronica qualificata, e su cosa supporta {service} a ogni livello.",
-    "informationalEyebrow": "Informativo — non costituisce consulenza legale",
-    "translationNotice": "Traduzione di lavoro. Una versione revisionata non è ancora pubblicata. In caso di divergenze prevale la versione inglese.",
+    "pageTitle": "Scelte di firma",
+    "pageIntro": "Una guida semplice alle firme con font e disegnate disponibili in {service}.",
+    "informationalEyebrow": "Informativo — non consulenza legale",
+    "translationNotice": "Traduzione italiana. In caso di differenze prevale la versione inglese di riferimento.",
     "readThisFirst": "Da leggere prima",
     "callout": {
-      "notLegalAdvice": "Questa pagina è informativa e non sostituisce la consulenza di un giurista qualificato.",
-      "electronicVsPaper": "Una firma elettronica qualificata vincola il PDF elettronico. Una stampa di un PDF firmato è una copia; la versione vincolante è l'originale elettronico.",
-      "mostLettersDontNeed": "La maggior parte delle lettere non richiede una firma qualificata."
+      "notLegalAdvice": "Questa pagina è informativa e non sostituisce il parere di un professionista legale.",
+      "printedSignature": "Episto aggiunge la firma scelta alla lettera che viene stampata e inviata per posta.",
+      "legalForm": "Se il destinatario richiede una forma specifica, verifica il requisito prima dell’invio."
     },
     "sections": {
       "tiers": {
         "title": "Scelte di firma mostrate",
-        "intro": "Nel prodotto compaiono tre scelte. Oggi sono disponibili la firma in carattere e quella disegnata. La QES resta indicata come Presto disponibile finché non termina l'onboarding del fornitore.",
-        "typedName": "Firma in carattere",
-        "typedBody": "Il Suo nome reso in un carattere da firma. Adatta alla corrispondenza formale quotidiana. Nessuna pretesa di verifica dell'identità in senso legale.",
+        "intro": "Il prodotto offre due scelte di firma per le lettere stampate.",
+        "typedName": "Firma con font",
+        "typedBody": "Il tuo nome viene reso con un font in stile firma. È adatta alla corrispondenza formale quotidiana quando basta un nome stampato in modo pulito.",
         "drawnName": "Firma disegnata",
-        "drawnBody": "Una firma tracciata sullo schermo che stampiamo sulla lettera. Mostra il Suo gesto personale sulla copia cartacea, ma non crea l'effetto giuridico di una firma qualificata.",
-        "qualifiedName": "Firma elettronica qualificata (FEQ)",
-        "qualifiedBody": "Giuridicamente equivalente a una firma autografa secondo la legge federale svizzera sulla firma elettronica (ZertES) e compatibile con eIDAS per i destinatari dell'UE. È richiesta una video-identificazione una tantum."
+        "drawnBody": "Disegni la firma sullo schermo e noi la stampiamo sulla lettera. È la scelta predefinita perché sulla carta appare il tuo segno visibile."
       },
       "whenRequired": {
-        "title": "Quando il diritto svizzero richiede la forma scritta",
-        "intro": "Il Codice delle obbligazioni svizzero richiede la forma scritta per determinati contratti. In questi casi la firma elettronica qualificata è equivalente alla firma autografa. Esempi:",
-        "caseGuaranty": "Dichiarazioni di fideiussione.",
-        "caseConsumerCredit": "Contratti di credito al consumo.",
-        "caseLease": "Disdetta di contratti di locazione a tempo determinato in determinati casi.",
-        "caseEmployment": "Alcune disdette e clausole di concorrenza nel diritto del lavoro.",
-        "caseOther": "Altri contratti per i quali la legge o le parti stesse richiedono la forma scritta.",
-        "disclaimer": "Questo riassunto non è esaustivo. Faccia confermare il requisito nel Suo caso da un giurista qualificato."
-      },
-      "paperCopy": {
-        "title": "Copia cartacea e originale elettronico",
-        "paragraphOne": "Una firma elettronica qualificata lega i byte del PDF elettronico. Stampare questo PDF produce una copia cartacea — una riproduzione, non lo strumento vincolante.",
-        "paragraphTwo": "Per questo motivo, per un ordine qualificato consegniamo il PDF firmato anche per via elettronica al destinatario. La versione cartacea spedita riporta un codice QR che porta a una pagina di verifica dell'originale elettronico."
-      },
-      "identification": {
-        "title": "Identificazione e riutilizzo",
-        "intro": "Le firme qualificate richiedono una verifica d'identità una tantum. Utilizziamo il flusso di video-identificazione gestito dal fornitore di firma.",
-        "pointFirstTime": "La prima firma qualificata dell'anno richiede circa 5 minuti per l'identificazione. Le successive richiedono pochi secondi.",
-        "pointReuse": "Una volta identificato, può firmare nuovamente da qualsiasi dispositivo tramite un link senza password inviato all'indirizzo verificato. Nessuna nuova identificazione per ogni lettera.",
-        "pointRevocation": "Se i Suoi dati d'identità cambiano — ad esempio un nuovo numero di telefono — è necessaria una nuova identificazione. I documenti già firmati restano validi.",
-        "pointPrivacy": "I documenti d'identità originali non vengono conservati sui nostri server. Restano presso il fornitore di firma in qualità di responsabile del trattamento. Conserviamo solo i metadati minimi necessari per l'audit."
-      },
-      "crossBorder": {
-        "title": "Destinatari all'estero",
-        "body": "Per i destinatari svizzeri firmiamo secondo ZertES. Per i destinatari UE/SEE firmiamo secondo eIDAS. Il nostro fornitore supporta entrambi gli standard sullo stesso account; Lei non deve fare nulla in più."
+        "title": "Quando verificare prima",
+        "intro": "Alcune pratiche possono avere requisiti di forma stabiliti dalla legge, da un contratto o dal destinatario. Episto non decide questi requisiti al posto tuo.",
+        "disclaimer": "Per contratti, pratiche ufficiali o controversie con scadenze, conferma il formato di firma richiesto con il destinatario o un professionista legale prima dell’invio."
       },
       "contact": {
         "title": "Domande",
-        "body": "Se non è sicuro se la Sua situazione richieda una firma qualificata, contatti il supporto di {service} o un giurista qualificato prima di scegliere un livello."
+        "body": "Se non sai quale opzione sia adatta alla tua lettera, contatta il supporto {service} prima dell’invio."
       }
     }
   },

@@ -1,11 +1,7 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { getDb, schema } from "../../db/index.js";
 import { recordEvent } from "../analytics/index.js";
 import { getOptionalSession } from "../sessions/session.middleware.js";
-import { createLogger } from "../../shared/logging/index.js";
-
-const logger = createLogger("telemetry");
 
 const STEP_EVENT_NAMES = [
   "step_entered",
@@ -26,12 +22,6 @@ const ClientEventInput = z.object({
   durationMs: z.number().int().nonnegative().optional(),
   errorFamily: z.string().min(1).max(64).optional(),
   locale: z.string().min(2).max(8).optional(),
-});
-
-const WaitlistInput = z.object({
-  email: z.string().email().max(254),
-  locale: z.string().min(2).max(8).optional(),
-  source: z.string().min(1).max(64).optional(),
 });
 
 export async function telemetryRoutes(app: FastifyInstance): Promise<void> {
@@ -102,47 +92,6 @@ export async function telemetryRoutes(app: FastifyInstance): Promise<void> {
           });
           break;
       }
-      reply.status(200).send({ ok: true });
-    },
-  );
-
-  // POST /api/v1/waitlist/qes — collect QES interest signal + email
-  app.post(
-    "/waitlist/qes",
-    {
-      config: {
-        rateLimit: {
-          max: 10,
-          timeWindow: "10 minutes",
-          keyGenerator: (req: FastifyRequest) => req.ip,
-        },
-      },
-    },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const input = WaitlistInput.parse(request.body ?? {});
-      const session = await getOptionalSession(request);
-      const db = getDb();
-
-      try {
-        await db.insert(schema.qesWaitlist).values({
-          email: input.email.toLowerCase().trim(),
-          locale: input.locale ?? session?.locale ?? null,
-          source: input.source ?? "signature_step",
-          sessionId: session?.id ?? null,
-        });
-      } catch (err) {
-        logger.warn({ err }, "Failed to record QES waitlist signup");
-      }
-
-      const waitlistEventOptional: { sessionId?: string; locale?: string } = {};
-      if (session?.id) waitlistEventOptional.sessionId = session.id;
-      const waitlistLocale = input.locale ?? session?.locale ?? undefined;
-      if (waitlistLocale) waitlistEventOptional.locale = waitlistLocale;
-      recordEvent({
-        event: "qes_waitlist_joined",
-        ...waitlistEventOptional,
-      });
-
       reply.status(200).send({ ok: true });
     },
   );

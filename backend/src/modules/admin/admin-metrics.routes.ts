@@ -10,7 +10,6 @@ import type {
   AdminLocaleResponse,
   AdminAiResponse,
   AdminSentAudienceRow,
-  AdminQesAudienceRow,
 } from "@episto/shared";
 
 // ---------------------------------------------------------------------------
@@ -54,14 +53,6 @@ const SENT_AUDIENCE_CSV_COLUMNS = [
   "furthestStatus",
   "sessionId",
   "draftId",
-  "firstSeenAt",
-  "lastSeenAt",
-] as const;
-
-const QES_AUDIENCE_CSV_COLUMNS = [
-  "email",
-  "locale",
-  "source",
   "firstSeenAt",
   "lastSeenAt",
 ] as const;
@@ -266,102 +257,6 @@ async function listSentOrDispatchingAudience(
   }));
 }
 
-async function countQesAudience(): Promise<number> {
-  const db = getDb();
-  const rows = await db.execute<{ total: number }>(sql`
-    WITH signups AS (
-      SELECT
-        LOWER(BTRIM(email)) AS email_key,
-        ROW_NUMBER() OVER (
-          PARTITION BY LOWER(BTRIM(email))
-          ORDER BY created_at DESC
-        ) AS row_number
-      FROM qes_waitlist
-      WHERE BTRIM(email) <> ''
-    )
-    SELECT COUNT(*)::int AS total
-    FROM signups
-    WHERE row_number = 1
-  `);
-
-  return Number(rows.rows[0]?.total ?? 0);
-}
-
-async function listQesAudience(limit?: number): Promise<AdminQesAudienceRow[]> {
-  const db = getDb();
-  const query =
-    typeof limit === "number"
-      ? sql`
-          WITH signups AS (
-            SELECT
-              LOWER(BTRIM(email)) AS email_key,
-              email,
-              locale,
-              source,
-              ROW_NUMBER() OVER (
-                PARTITION BY LOWER(BTRIM(email))
-                ORDER BY created_at DESC
-              ) AS row_number,
-              MIN(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS first_seen_at,
-              MAX(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS last_seen_at
-            FROM qes_waitlist
-            WHERE BTRIM(email) <> ''
-          )
-          SELECT
-            email,
-            locale,
-            source,
-            first_seen_at::text AS first_seen_at,
-            last_seen_at::text AS last_seen_at
-          FROM signups
-          WHERE row_number = 1
-          ORDER BY last_seen_at DESC
-          LIMIT ${limit}
-        `
-      : sql`
-          WITH signups AS (
-            SELECT
-              LOWER(BTRIM(email)) AS email_key,
-              email,
-              locale,
-              source,
-              ROW_NUMBER() OVER (
-                PARTITION BY LOWER(BTRIM(email))
-                ORDER BY created_at DESC
-              ) AS row_number,
-              MIN(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS first_seen_at,
-              MAX(created_at) OVER (PARTITION BY LOWER(BTRIM(email))) AS last_seen_at
-            FROM qes_waitlist
-            WHERE BTRIM(email) <> ''
-          )
-          SELECT
-            email,
-            locale,
-            source,
-            first_seen_at::text AS first_seen_at,
-            last_seen_at::text AS last_seen_at
-          FROM signups
-          WHERE row_number = 1
-          ORDER BY last_seen_at DESC
-        `;
-
-  const rows = await db.execute<{
-    email: string;
-    locale: string | null;
-    source: string | null;
-    first_seen_at: string;
-    last_seen_at: string;
-  }>(query);
-
-  return rows.rows.map((row) => ({
-    email: row.email,
-    locale: row.locale,
-    source: row.source,
-    firstSeenAt: row.first_seen_at,
-    lastSeenAt: row.last_seen_at,
-  }));
-}
-
 // ---------------------------------------------------------------------------
 // Routes
 // ---------------------------------------------------------------------------
@@ -388,26 +283,6 @@ export async function adminMetricsRoutes(app: FastifyInstance): Promise<void> {
       'attachment; filename="episto-sent-or-dispatching-audience.csv"',
     );
     reply.send(serializeAdminAudienceCsv(rows, SENT_AUDIENCE_CSV_COLUMNS));
-  });
-
-  app.get("/admin/audience/qes-waitlist", async (_request, reply) => {
-    const [total, rows] = await Promise.all([countQesAudience(), listQesAudience(200)]);
-
-    reply.send({
-      total,
-      rows,
-      generatedAt: new Date().toISOString(),
-    });
-  });
-
-  app.get("/admin/audience/qes-waitlist.csv", async (_request, reply) => {
-    const rows = await listQesAudience();
-    reply.header("Content-Type", "text/csv; charset=utf-8");
-    reply.header(
-      "Content-Disposition",
-      'attachment; filename="episto-qes-waitlist-audience.csv"',
-    );
-    reply.send(serializeAdminAudienceCsv(rows, QES_AUDIENCE_CSV_COLUMNS));
   });
 
   // GET /admin/metrics/summary — KPI cards
@@ -717,50 +592,6 @@ export async function adminMetricsRoutes(app: FastifyInstance): Promise<void> {
     };
     reply.send(response);
   });
-
-  // GET /admin/metrics/qes-waitlist — QES coming-soon waitlist signups
-  app.get<{ Querystring: { period?: string } }>(
-    "/admin/metrics/qes-waitlist",
-    async (request, reply) => {
-      const db = getDb();
-      const days = parsePeriodDays(request.query.period);
-      const label = periodLabel(request.query.period);
-
-      const totalRows = await db.execute<{ total: number }>(sql`
-        SELECT COUNT(*)::int AS total FROM qes_waitlist
-        WHERE created_at > NOW() - make_interval(days => ${days})
-      `);
-
-      const recentRows = await db.execute<{
-        email: string;
-        locale: string | null;
-        source: string | null;
-        created_at: string;
-      }>(sql`
-        SELECT
-          email,
-          locale,
-          source,
-          created_at::text AS created_at
-        FROM qes_waitlist
-        WHERE created_at > NOW() - make_interval(days => ${days})
-        ORDER BY created_at DESC
-        LIMIT 50
-      `);
-
-      reply.send({
-        total: Number(totalRows.rows[0]?.total ?? 0),
-        recent: recentRows.rows.map((r) => ({
-          email: r.email,
-          locale: r.locale,
-          source: r.source,
-          createdAt: r.created_at,
-        })),
-        periodLabel: label,
-        generatedAt: new Date().toISOString(),
-      });
-    },
-  );
 
   // GET /admin/metrics/step-friction — per-step funnel friction
   app.get<{ Querystring: { period?: string } }>(

@@ -288,14 +288,14 @@ describe("draft review route", () => {
     );
   });
 
-  it("rejects unsupported electronic signature tiers on draft updates", async () => {
+  it("rejects unsupported signature tiers on draft updates", async () => {
     const { updateDraft } = await import("../src/modules/drafting/draft.service.js");
 
     const response = await app.inject({
       method: "PATCH",
       url: "/drafts/draft-review",
       payload: {
-        signatureAssuranceLevel: "qualified",
+        signatureAssuranceLevel: "advanced",
       },
     });
 
@@ -306,7 +306,7 @@ describe("draft review route", () => {
     expect(updateDraft).not.toHaveBeenCalled();
   });
 
-  it("rejects review when an unsupported electronic signature tier is set", async () => {
+  it("rejects review when an unsupported signature tier is set", async () => {
     const { getDraftById, transitionDraftStatus } =
       await import("../src/modules/drafting/draft.service.js");
 
@@ -316,7 +316,7 @@ describe("draft review route", () => {
       status: "fields_complete",
       locale: "en-CH",
       deliveryType: "standard",
-      signatureAssuranceLevel: "qualified",
+      signatureAssuranceLevel: "advanced",
       subject: "Long letter",
       body: "This body eventually renders to more than five pages.",
       enclosureNote: null,

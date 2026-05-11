@@ -39,7 +39,7 @@ export default function SignatureResumePage({
       draftId={draftId}
       eyebrow="Resume signing"
       title="Continue where you left off"
-      description="Your signing session is still open. Re-enter the SwissSign flow when you’re ready."
+      description="Your signing session is still open. Re-enter the provider flow when you’re ready."
       footer={
         <div className="flex flex-col gap-3 sm:flex-row">
           <ActionLink

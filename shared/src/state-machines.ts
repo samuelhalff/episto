@@ -170,8 +170,7 @@ export function getAllowedDispatchTransitions(
 }
 
 // ---------------------------------------------------------------------------
-// SigningState transitions (see docs/04-product/qualified-signatures.md §State
-// machine). Used for both advanced and qualified signatures. Visual-only
+// SigningState transitions for provider-backed signatures. Visual-only
 // drafts remain in `not_required` for the lifetime of the draft.
 // ---------------------------------------------------------------------------
 

@@ -27,7 +27,7 @@ describe("dispatch eligibility", () => {
   it("allows SwissSign orders once payment is captured and the signed document is attached", () => {
     expect(
       canSubmitDispatchForDraft({
-        signatureFlowMode: "swisssign_qes",
+        signatureFlowMode: "swisssign_ses",
         paymentState: "captured",
         signatureSessionStatus: "signed_document_attached",
         signedFileAssetId: "signed-pdf-1",
@@ -51,7 +51,7 @@ describe("dispatch eligibility", () => {
   it("blocks SwissSign orders while payment is only authorized", () => {
     expect(
       canSubmitDispatchForDraft({
-        signatureFlowMode: "swisssign_qes",
+        signatureFlowMode: "swisssign_ses",
         paymentState: "authorized",
         signatureSessionStatus: "signed_document_attached",
         signedFileAssetId: "signed-pdf-1",
@@ -63,7 +63,7 @@ describe("dispatch eligibility", () => {
   it("blocks SwissSign orders when the signed document is missing", () => {
     expect(
       canSubmitDispatchForDraft({
-        signatureFlowMode: "swisssign_qes",
+        signatureFlowMode: "swisssign_ses",
         paymentState: "captured",
         signatureSessionStatus: "signature_completed",
         signedFileAssetId: null,

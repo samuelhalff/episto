@@ -142,9 +142,7 @@ export type AnalyticsEvent =
       draftId?: string;
       sessionId?: string;
       locale?: string;
-    }
-  // §4.10 QES interest signal
-  | { event: "qes_waitlist_joined"; sessionId?: string; locale?: string };
+    };
 
 // ---------------------------------------------------------------------------
 // Event name constants — for type-safe usage at call sites
@@ -194,8 +192,6 @@ export const ANALYTICS_EVENTS = {
   STEP_IDLE: "step_idle",
   STEP_ABANDONED: "step_abandoned",
   STEP_ERROR: "step_error",
-  // QES interest
-  QES_WAITLIST_JOINED: "qes_waitlist_joined",
 } as const;
 
 // ---------------------------------------------------------------------------

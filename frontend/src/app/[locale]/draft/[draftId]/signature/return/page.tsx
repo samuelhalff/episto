@@ -77,7 +77,7 @@ export default function SignatureReturnPage({
     <SignatureFlowLayout
       draftId={draftId}
       eyebrow="Preparing signature"
-      title="We’re handing you into SwissSign"
+      title="We’re preparing your signing session"
       description="Your payment authorization is being confirmed and the signing session is being prepared."
       badge={
         <span className="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 dark:bg-amber-500/10 dark:text-amber-100">

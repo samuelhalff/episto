@@ -26,7 +26,7 @@ export default function MockSignaturePage({
     <SignatureFlowLayout
       draftId={draftId}
       eyebrow="Mock handoff"
-      title="SwissSign mock session"
+      title="Signing mock session"
       description="Use the mock outcomes below to test return, pending, success, failure, and expiry states before live API details are wired."
     >
       <div className="grid gap-3 sm:grid-cols-3">

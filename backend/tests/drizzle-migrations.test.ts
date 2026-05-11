@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -8,8 +8,15 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 
 describe("drizzle migrations", () => {
   it("keeps 0009 safe for a fresh database", () => {
+    const migrationFileName = readdirSync(path.join(repoRoot, "backend/drizzle")).find(
+      (fileName) =>
+        fileName.startsWith("0009_") &&
+        fileName.endsWith(".sql") &&
+        !fileName.endsWith(".down.sql"),
+    );
+    expect(migrationFileName).toBeDefined();
     const migrationSource = readFileSync(
-      path.join(repoRoot, "backend/drizzle/0009_qes_waitlist_and_step_events.sql"),
+      path.join(repoRoot, "backend/drizzle", migrationFileName as string),
       "utf8",
     );
 

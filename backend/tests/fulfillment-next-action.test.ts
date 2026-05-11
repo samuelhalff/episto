@@ -6,7 +6,7 @@ describe("draft fulfillment next action", () => {
     expect(
       resolveDraftFulfillmentNextAction({
         draftStatus: "ready_to_sign",
-        signatureFlowMode: "swisssign_qes",
+        signatureFlowMode: "swisssign_ses",
         fulfillmentStatus: "signature_selected",
         payment: null,
         dispatch: null,
@@ -19,7 +19,7 @@ describe("draft fulfillment next action", () => {
     expect(
       resolveDraftFulfillmentNextAction({
         draftStatus: "ready_to_sign",
-        signatureFlowMode: "swisssign_qes",
+        signatureFlowMode: "swisssign_ses",
         fulfillmentStatus: "signature_session_created",
         payment: {
           state: "authorized",
@@ -34,7 +34,7 @@ describe("draft fulfillment next action", () => {
           draftId: "draft-1",
           sessionId: "browser-session-1",
           paymentAttemptId: "payment-1",
-          signatureFlowMode: "swisssign_qes",
+          signatureFlowMode: "swisssign_ses",
           provider: "swisssign_mock",
           eligibilityStatus: "conditionally_eligible",
           eligibilityReasons: ["swissid_required"],
@@ -60,7 +60,7 @@ describe("draft fulfillment next action", () => {
     expect(
       resolveDraftFulfillmentNextAction({
         draftStatus: "ready_to_sign",
-        signatureFlowMode: "swisssign_qes",
+        signatureFlowMode: "swisssign_ses",
         fulfillmentStatus: "payment_captured",
         payment: {
           state: "captured",
@@ -75,7 +75,7 @@ describe("draft fulfillment next action", () => {
           draftId: "draft-1",
           sessionId: "browser-session-1",
           paymentAttemptId: "payment-1",
-          signatureFlowMode: "swisssign_qes",
+          signatureFlowMode: "swisssign_ses",
           provider: "swisssign_mock",
           eligibilityStatus: "conditionally_eligible",
           eligibilityReasons: ["swissid_required"],

@@ -849,111 +849,53 @@
     },
     "signatureRequirements": {
       "title": "Unterschriftenanforderungen — Episto",
-      "description": "Wann eine handschriftliche oder qualifizierte elektronische Unterschrift in der Schweiz rechtlich erforderlich ist und was Episto unterstützt."
+      "description": "Wann Sie bei mit Episto versendeten Schweizer Briefen eine Schrift- oder gezeichnete Unterschrift verwenden."
     }
   },
   "signatureTiers": {
-    "comingSoon": "Demnächst verfügbar",
-    "typed": {
-      "label": "Schrift-Unterschrift",
-      "purpose": "Ihr Name in einer Unterschriftenschrift. Für die meisten Alltagsbriefe ausreichend.",
-      "price": "Enthalten",
-      "priceDetail": "",
-      "friction": "Keine Identitätsprüfung"
-    },
     "drawn": {
       "label": "Gezeichnete Unterschrift",
       "purpose": "Direkt auf dem Bildschirm unterschreiben, damit Ihr eigener Schriftzug auf dem Brief erscheint.",
       "price": "Enthalten",
       "priceDetail": "",
-      "friction": "Keine Identitätsprüfung"
+      "friction": "Standardauswahl"
     },
-    "qualified": {
-      "label": "QES",
-      "purpose": "Rechtlich gleichwertig zur handschriftlichen Unterschrift bei Verträgen, die Schriftform verlangen.",
-      "price": "+CHF 9 / Brief",
-      "priceDetail": "+CHF 19 einmalige Ident-Prüfung, falls Sie noch nicht verifiziert sind",
-      "friction": "Video-Identifikation, nur beim ersten Mal",
-      "notifyMe": "Benachrichtigen",
-      "notifyLabel": "Release-Benachrichtigung",
-      "notifyHint": "Klicken Sie hier, um sich einzutragen und bei Livegang der QES eine E-Mail zu erhalten.",
-      "waitlist": {
-        "badge": "Demnächst verfügbar",
-        "title": "Qualifizierte elektronische Unterschrift",
-        "description": "Wir finalisieren den SwissID-Identifikationsablauf. Hinterlassen Sie Ihre E-Mail und wir benachrichtigen Sie, sobald QES verfügbar ist.",
-        "emailLabel": "E-Mail-Adresse",
-        "emailPlaceholder": "name@beispiel.ch",
-        "submit": "Benachrichtigen",
-        "submitting": "Wird gespeichert…",
-        "successMessage": "Sie sind auf der Liste. Wir melden uns, sobald QES verfügbar ist.",
-        "errorMessage": "Etwas ist schiefgelaufen. Bitte versuchen Sie es gleich erneut.",
-        "cancel": "Schliessen"
-      }
-    },
-    "explainer": {
-      "triggerLabel": "Brauche ich eine qualifizierte Unterschrift?",
-      "title": "Welche Unterschrift brauche ich?",
-      "intro": "Die meisten Briefe brauchen keine qualifizierte Unterschrift. Die Wahl hängt davon ab, was der Empfänger benötigt und ob das Gesetz Schriftform verlangt.",
-      "caseTyped": "Wählen Sie die Schrift-Unterschrift, wenn ein sauber gesetzter Name für den gedruckten Brief genügt.",
-      "caseDrawn": "Wählen Sie die gezeichnete Unterschrift, wenn Ihr eigener handschriftlicher Zug auf dem gedruckten Brief erscheinen soll.",
-      "caseQualified": "Für Dokumente, die nach Schweizer Recht der Schriftform genügen müssen (Bürgschaft, Konsumkredit, bestimmte Kündigungen befristeter Mietverträge, gewisse arbeitsrechtliche Angelegenheiten).",
-      "paperCaveat": "Eine qualifizierte Unterschrift gilt für das elektronische PDF. Das gedruckte Exemplar, das wir versenden, ist eine Kopie — rechtsverbindlich ist das elektronische Original. Bei qualifizierten Aufträgen erhält der Empfänger zusätzlich das signierte PDF per E-Mail.",
-      "fullRequirementsCta": "Vollständige Unterschriftenanforderungen lesen",
-      "close": "Schliessen"
+    "typed": {
+      "label": "Schrift-Unterschrift",
+      "purpose": "Ihr Name in einer Unterschriftenschrift. Praktisch, wenn ein sauber gesetzter Name genügt.",
+      "price": "Enthalten",
+      "priceDetail": "",
+      "friction": "Kein Zeichnen nötig"
     }
   },
   "signatureRequirements": {
-    "pageTitle": "Unterschriftenanforderungen",
-    "pageIntro": "Eine verständliche Übersicht darüber, wann eine handschriftliche oder qualifizierte elektronische Unterschrift gesetzlich verlangt wird — und was {service} in jeder Stufe unterstützt.",
+    "pageTitle": "Unterschriftsoptionen",
+    "pageIntro": "Eine verständliche Übersicht über die Schrift- und gezeichneten Unterschriften, die in {service} verfügbar sind.",
     "informationalEyebrow": "Informativ — keine Rechtsberatung",
-    "translationNotice": "Arbeitsübersetzung. Eine geprüfte Fassung ist noch nicht veröffentlicht. Bei Abweichungen gilt die englische Fassung.",
+    "translationNotice": "Deutsche Fassung. Bei Abweichungen gilt die englische Referenzfassung.",
     "readThisFirst": "Zuerst lesen",
     "callout": {
-      "notLegalAdvice": "Diese Seite ist informativ und ersetzt keine Beratung durch eine qualifizierte Juristin oder einen qualifizierten Juristen.",
-      "electronicVsPaper": "Eine qualifizierte elektronische Unterschrift bindet das elektronische PDF. Ein Ausdruck eines signierten PDF ist eine Kopie; rechtsverbindlich ist das elektronische Original.",
-      "mostLettersDontNeed": "Die meisten Briefe brauchen keine qualifizierte Unterschrift."
+      "notLegalAdvice": "Diese Seite ist informativ und ersetzt keine Beratung durch eine Juristin oder einen Juristen.",
+      "printedSignature": "Episto setzt die ausgewählte Unterschrift auf den Brief, der gedruckt und postalisch versendet wird.",
+      "legalForm": "Wenn ein Empfänger eine bestimmte Form verlangt, klären Sie diese Anforderung vor dem Versand."
     },
     "sections": {
       "tiers": {
         "title": "Welche Unterschriftsoptionen wir zeigen",
-        "intro": "Im Produkt gibt es drei Optionen. Heute sind Schrift- und gezeichnete Unterschrift verfügbar. QES bleibt als Demnächst markiert, bis das Provider-Onboarding abgeschlossen ist.",
+        "intro": "Das Produkt bietet zwei Unterschriftsoptionen für gedruckte Briefe.",
         "typedName": "Schrift-Unterschrift",
-        "typedBody": "Ihr Name in einer Unterschriftenschrift. Für alltägliche formelle Korrespondenz geeignet. Keine rechtliche Aussage zur Identitätsprüfung.",
+        "typedBody": "Ihr Name wird in einer unterschriftsähnlichen Schrift gesetzt. Das passt für alltägliche formelle Korrespondenz, wenn ein sauber gedruckter Name genügt.",
         "drawnName": "Gezeichnete Unterschrift",
-        "drawnBody": "Eine Unterschrift, die Sie auf dem Bildschirm zeichnen und die wir auf den Brief drucken. Sie zeigt Ihren eigenen Schriftzug auf dem Papier, erzeugt aber keine qualifizierte Signaturwirkung.",
-        "qualifiedName": "Qualifizierte elektronische Unterschrift (QES)",
-        "qualifiedBody": "Rechtlich gleichgestellt mit der handschriftlichen Unterschrift nach dem Bundesgesetz über die elektronische Signatur (ZertES) und eIDAS-kompatibel für EU-Empfänger. Einmalige Video-Identifikation erforderlich."
+        "drawnBody": "Sie zeichnen Ihre Unterschrift auf dem Bildschirm; wir drucken sie auf den Brief. Das ist die Standardauswahl, weil Ihr eigener sichtbarer Schriftzug auf dem Papier erscheint."
       },
       "whenRequired": {
-        "title": "Wann das Schweizer Recht Schriftform verlangt",
-        "intro": "Nach dem Obligationenrecht müssen bestimmte Verträge schriftlich abgeschlossen werden. In diesen Fällen ist die qualifizierte elektronische Unterschrift der handschriftlichen gleichgestellt. Beispiele:",
-        "caseGuaranty": "Bürgschaftserklärungen.",
-        "caseConsumerCredit": "Konsumkreditverträge.",
-        "caseLease": "Kündigung befristeter Wohnraummietverträge in bestimmten Fällen.",
-        "caseEmployment": "Gewisse arbeitsrechtliche Kündigungen und Konkurrenzverbote.",
-        "caseOther": "Weitere Verträge, für die das Gesetz oder die Parteien selbst Schriftform verlangen.",
-        "disclaimer": "Diese Zusammenfassung ist nicht abschliessend. Lassen Sie die Anforderung im Einzelfall von einer qualifizierten Juristin oder einem qualifizierten Juristen bestätigen."
-      },
-      "paperCopy": {
-        "title": "Gedruckte Kopie vs. elektronisches Original",
-        "paragraphOne": "Eine qualifizierte elektronische Unterschrift bindet die elektronischen PDF-Bytes. Der Ausdruck erzeugt eine Papierkopie — eine Reproduktion, nicht das rechtsverbindliche Instrument.",
-        "paragraphTwo": "Deshalb liefern wir bei einem qualifizierten Auftrag das signierte PDF zusätzlich elektronisch an den Empfänger. Die versendete Papierversion trägt einen QR-Code, der zur Prüfseite des elektronischen Originals führt."
-      },
-      "identification": {
-        "title": "Identifikation und Wiederverwendung",
-        "intro": "Qualifizierte Unterschriften erfordern eine einmalige Identitätsprüfung. Wir verwenden einen produktisierten Video-Identifikationsprozess unseres Signatur-Anbieters.",
-        "pointFirstTime": "Die erste qualifizierte Unterschrift im Jahr benötigt etwa 5 Minuten für die Identifikation. Folgeunterschriften dauern Sekunden.",
-        "pointReuse": "Nach der Identifikation können Sie von jedem Gerät erneut unterschreiben — über einen passwortlosen Link an die bestätigte E-Mail-Adresse. Keine erneute Identifikation pro Brief.",
-        "pointRevocation": "Ändern sich Identitätsdaten — etwa die Telefonnummer — ist eine neue Identifikation nötig. Zuvor signierte Dokumente bleiben gültig.",
-        "pointPrivacy": "Originale Ausweisdokumente werden nicht auf unseren Servern gespeichert. Sie verbleiben beim Signatur-Anbieter als Auftragsverarbeiter. Wir speichern nur die minimalen Metadaten, die für die Revision nötig sind."
-      },
-      "crossBorder": {
-        "title": "Empfänger im Ausland",
-        "body": "Für Schweizer Empfänger signieren wir nach ZertES. Für Empfänger im EU-/EWR-Raum signieren wir nach eIDAS. Unser Anbieter unterstützt beide Standards auf demselben Konto; Sie müssen nichts zusätzlich tun."
+        "title": "Wann Sie vorher klären sollten",
+        "intro": "Bei manchen Anliegen ergeben sich Formerfordernisse aus Gesetz, Vertrag oder Vorgaben des Empfängers. Episto entscheidet diese Anforderungen nicht für Sie.",
+        "disclaimer": "Klären Sie bei Verträgen, amtlichen Eingaben oder fristkritischen Streitigkeiten vor dem Versand mit dem Empfänger oder einer Fachperson, welche Unterschriftsform verlangt wird."
       },
       "contact": {
         "title": "Fragen",
-        "body": "Sind Sie unsicher, ob Ihr Fall eine qualifizierte Unterschrift verlangt, wenden Sie sich vor der Auswahl einer Stufe an den {service}-Support oder eine qualifizierte Juristin bzw. einen qualifizierten Juristen."
+        "body": "Wenn Sie unsicher sind, welche Option zu Ihrem Brief passt, kontaktieren Sie vor dem Versand den {service}-Support."
       }
     }
   },

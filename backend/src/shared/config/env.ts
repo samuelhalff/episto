@@ -43,7 +43,7 @@ export const EnvSchema = z
     STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
     STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
 
-    // Signature / SwissID / SwissSign
+    // Provider-backed signing
     SIGNATURE_PROVIDER_MODE: z
       .enum(["disabled", "swisssign_mock", "swisssign"])
       .default("swisssign_mock"),
@@ -343,7 +343,7 @@ export const EnvSchema = z
     },
     {
       message:
-        "Live SwissSign mode requires SWISSID_OIDC_ISSUER, SWISSID_OIDC_CLIENT_ID, SWISSID_OIDC_REDIRECT_URI, and SWISSSIGN_API_BASE_URL",
+        "Live provider-backed signing mode requires SWISSID_OIDC_ISSUER, SWISSID_OIDC_CLIENT_ID, SWISSID_OIDC_REDIRECT_URI, and SWISSSIGN_API_BASE_URL",
     },
   );
 

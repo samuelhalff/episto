@@ -8,10 +8,7 @@ import type {
 import { AppError } from "../../../shared/errors/index.js";
 
 // ---------------------------------------------------------------------------
-// Phase 0 adapter seam for qualified electronic signatures.
-//
-// Spec: docs/04-product/qualified-signatures.md
-// Decision record: docs/08-guardrails/open-decisions.md (QES provider path)
+// Adapter seam for provider-backed signing.
 //
 // This file defines the provider-agnostic interface and a stub that fails
 // loudly. No module currently calls into it — Phase 0 is taxonomy + seam
@@ -79,7 +76,6 @@ export interface SignedArtifact {
 export interface SigningAdapterCapabilities {
   provider: SigningProviderValue;
   supportsAdvanced: boolean;
-  supportsQualified: boolean;
   supportsEidas: boolean;
   supportsZertes: boolean;
   supportsIdentReuse: boolean;
@@ -104,10 +100,6 @@ export function isSignatureAssuranceLevelSupported(level: string): boolean {
   const capabilities = getSigningAdapter().getCapabilities();
   if (level === "advanced") {
     return capabilities.supportsAdvanced;
-  }
-
-  if (level === "qualified") {
-    return capabilities.supportsQualified;
   }
 
   return false;
@@ -137,7 +129,6 @@ class StubSigningAdapter implements SigningAdapter {
     return {
       provider: "none",
       supportsAdvanced: false,
-      supportsQualified: false,
       supportsEidas: false,
       supportsZertes: false,
       supportsIdentReuse: false,
@@ -170,8 +161,8 @@ class StubSigningAdapter implements SigningAdapter {
       statusCode: 503,
       code: "SIGNING_ADAPTER_NOT_CONFIGURED",
       message: `${operation} is unavailable because the signing adapter is running in stub mode.`,
-      userMessage: "Qualified signing is not available in this environment.",
-      userAction: "Select a non-qualified signature or contact support.",
+      userMessage: "Provider-backed signing is not available in this environment.",
+      userAction: "Select a drawn or font signature, or contact support.",
     });
   }
 }

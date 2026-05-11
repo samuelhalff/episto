@@ -81,6 +81,7 @@ export async function createDraft(
       deliveryType: "standard",
       signatureAssuranceLevel: "visual",
       signatureFlowMode: "visual",
+      signatureMode: "drawn",
       fulfillmentStatus: "draft_created",
       schemaVersion: 1,
     })

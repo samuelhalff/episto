@@ -136,7 +136,6 @@ import type {
   AdminRetentionInfo,
   AdminAudienceKind,
   AdminSentAudienceResponse,
-  AdminQesAudienceResponse,
 } from "@episto/shared";
 
 export async function fetchAdminSummary(period = "7d") {
@@ -199,21 +198,12 @@ export async function fetchAdminSentAudience() {
   return adminFetch<AdminSentAudienceResponse>("/admin/audience/sent-or-dispatching");
 }
 
-export async function fetchAdminQesAudience() {
-  return adminFetch<AdminQesAudienceResponse>("/admin/audience/qes-waitlist");
-}
-
 export async function downloadAdminAudienceExport(
   kind: AdminAudienceKind,
 ): Promise<void> {
-  const path =
-    kind === "sent_or_dispatching"
-      ? "/v1/admin/audience/sent-or-dispatching.csv"
-      : "/v1/admin/audience/qes-waitlist.csv";
-  const fallbackFileName =
-    kind === "sent_or_dispatching"
-      ? "episto-sent-or-dispatching-audience.csv"
-      : "episto-qes-waitlist-audience.csv";
+  const path = "/v1/admin/audience/sent-or-dispatching.csv";
+  const fallbackFileName = "episto-sent-or-dispatching-audience.csv";
+  void kind;
   return downloadFile(path, fallbackFileName);
 }
 
@@ -238,27 +228,9 @@ export interface AdminStepFrictionResponse {
   generatedAt: string;
 }
 
-export interface AdminQesWaitlistResponse {
-  total: number;
-  recent: Array<{
-    email: string;
-    locale: string | null;
-    source: string | null;
-    createdAt: string;
-  }>;
-  periodLabel: string;
-  generatedAt: string;
-}
-
 export async function fetchAdminStepFriction(period = "7d") {
   return adminFetch<AdminStepFrictionResponse>(
     `/admin/metrics/step-friction?period=${period}`,
-  );
-}
-
-export async function fetchAdminQesWaitlist(period = "30d") {
-  return adminFetch<AdminQesWaitlistResponse>(
-    `/admin/metrics/qes-waitlist?period=${period}`,
   );
 }
 

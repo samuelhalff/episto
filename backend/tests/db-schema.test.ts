@@ -86,12 +86,8 @@ describe("schema enums", () => {
     expect(schema.deliveryTypeEnum.enumValues).toEqual(["standard", "registered"]);
   });
 
-  it("signature_assurance_level has visual, advanced, qualified", () => {
-    expect(schema.signatureAssuranceLevelEnum.enumValues).toEqual([
-      "visual",
-      "advanced",
-      "qualified",
-    ]);
+  it("signature_assurance_level has visual and advanced", () => {
+    expect(schema.signatureAssuranceLevelEnum.enumValues).toEqual(["visual", "advanced"]);
   });
 
   it("payment_state has all 8 states including cancelled and partially_refunded", () => {

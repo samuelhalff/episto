@@ -3,22 +3,6 @@ import { sessions } from "./auth.js";
 import { draftLetters } from "./drafting.js";
 import { createdAt, pk } from "./helpers.js";
 
-export const qesWaitlist = pgTable(
-  "qes_waitlist",
-  {
-    id: pk(),
-    sessionId: uuid("session_id").references(() => sessions.id),
-    email: text("email").notNull(),
-    locale: text("locale"),
-    source: text("source"),
-    createdAt: createdAt(),
-  },
-  (table) => ({
-    emailIdx: index("qes_waitlist_email_idx").on(table.email),
-    createdAtIdx: index("qes_waitlist_created_at_idx").on(table.createdAt),
-  }),
-);
-
 export const supportEvents = pgTable(
   "support_events",
   {

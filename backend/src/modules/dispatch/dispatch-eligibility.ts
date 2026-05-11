@@ -5,7 +5,7 @@ import type {
 } from "@episto/shared";
 
 function isSwissSignFlow(signatureFlowMode: SignatureFlowModeValue): boolean {
-  return signatureFlowMode === "swisssign_ses" || signatureFlowMode === "swisssign_qes";
+  return signatureFlowMode === "swisssign_ses";
 }
 
 export interface DispatchSubmissionEligibilityInput {

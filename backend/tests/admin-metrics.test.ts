@@ -52,7 +52,6 @@ describe("admin metrics", () => {
 
   it("registers dedicated JSON and CSV audience routes", () => {
     expect(adminMetricsSource).toContain("/admin/audience/sent-or-dispatching");
-    expect(adminMetricsSource).toContain("/admin/audience/qes-waitlist");
     expect(adminMetricsSource).toContain("text/csv; charset=utf-8");
     expect(adminMetricsSource).toContain("Content-Disposition");
   });

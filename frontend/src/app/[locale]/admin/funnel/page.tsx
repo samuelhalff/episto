@@ -4,12 +4,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@episto/shared";
 import { useAdminAuth } from "../admin-auth-context";
-import {
-  fetchAdminFunnel,
-  fetchAdminErrors,
-  fetchAdminStepFriction,
-  fetchAdminQesWaitlist,
-} from "../admin-api";
+import { fetchAdminFunnel, fetchAdminErrors, fetchAdminStepFriction } from "../admin-api";
 import {
   MetricCard,
   SectionPanel,
@@ -44,15 +39,8 @@ export default function FunnelPage() {
     refetchInterval: REFETCH_MS,
     enabled: authenticated,
   });
-  const waitlist = useQuery({
-    queryKey: ["admin", "qes-waitlist", period],
-    queryFn: () => fetchAdminQesWaitlist(period),
-    refetchInterval: REFETCH_MS,
-    enabled: authenticated,
-  });
   const funnelData = funnel.data;
   const stepData = stepFriction.data;
-  const waitlistData = waitlist.data;
 
   function formatDuration(ms: number): string {
     if (!ms) return "–";
@@ -317,72 +305,6 @@ export default function FunnelPage() {
               </table>
             </div>
           )
-        ) : null}
-      </SectionPanel>
-
-      {/* QES waitlist panel */}
-      <SectionPanel title="QES Waitlist">
-        {waitlist.isLoading ? (
-          <PanelLoading />
-        ) : waitlist.error ? (
-          <PanelError message="Failed to load QES waitlist" />
-        ) : waitlistData ? (
-          <div className="space-y-4">
-            <MetricCard
-              label="Total signups (30d)"
-              value={waitlistData.total}
-              sub={`Most recent ${waitlistData.recent.length} shown below`}
-            />
-            {waitlistData.recent.length === 0 ? (
-              <p
-                className="py-4 text-center text-xs"
-                style={{ color: "var(--app-muted)" }}
-              >
-                No QES waitlist signups yet
-              </p>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
-                  <thead>
-                    <tr style={{ color: "var(--app-muted)" }}>
-                      <th className="py-2 pr-3 font-medium">Email</th>
-                      <th className="py-2 pr-3 font-medium">Locale</th>
-                      <th className="py-2 pr-3 font-medium">Source</th>
-                      <th className="py-2 font-medium">Submitted</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {waitlistData.recent.map((r, idx) => (
-                      <tr
-                        key={`${r.email}-${idx}`}
-                        className="border-t"
-                        style={{ borderColor: "var(--app-border)" }}
-                      >
-                        <td className="py-2 pr-3" style={{ color: "var(--app-fg)" }}>
-                          {r.email}
-                        </td>
-                        <td
-                          className="py-2 pr-3 font-mono"
-                          style={{ color: "var(--app-muted)" }}
-                        >
-                          {r.locale ?? "–"}
-                        </td>
-                        <td
-                          className="py-2 pr-3 font-mono"
-                          style={{ color: "var(--app-muted)" }}
-                        >
-                          {r.source ?? "–"}
-                        </td>
-                        <td className="py-2" style={{ color: "var(--app-muted)" }}>
-                          {formatTimeAgo(r.createdAt)}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
         ) : null}
       </SectionPanel>
 

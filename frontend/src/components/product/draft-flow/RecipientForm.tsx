@@ -169,13 +169,13 @@ export function RecipientForm({
                   <span>{isCompany ? t("companyNameLabel") : t("fullName")}</span>
                 </div>
 
-                {isCompany && showManual && selectedCompany ? (
+                {isCompany && selectedCompany ? (
                   <RecipientSelectedCompanySummary
                     selectedCompany={selectedCompany}
                     registryRef={selectedCompanyRegistryRef}
                     onEdit={onEditCompanySelection}
                   />
-                ) : isCompany && !showManual ? (
+                ) : isCompany && selectedCompany === null ? (
                   <RecipientCompanySearchField
                     companyName={companyName}
                     isLoading={isCompanySearchLoading}
@@ -187,19 +187,6 @@ export function RecipientForm({
                     onChange={onCompanyNameChange}
                     onFocusChange={onFocusChange}
                     onSelect={onSelectCompany}
-                  />
-                ) : isCompany ? (
-                  <textarea
-                    name="recipientCompanyName"
-                    autoComplete="organization"
-                    value={companyName}
-                    onChange={(event) => onCompanyNameChange(event.target.value)}
-                    onFocus={() => onFocusChange(true)}
-                    onBlur={() => onFocusChange(false)}
-                    onInput={resizeTextarea}
-                    placeholder={t("companyNameLabel")}
-                    rows={1}
-                    className="app-form-control w-full resize-none overflow-hidden bg-transparent font-semibold text-zinc-900 placeholder:text-zinc-200 focus:outline-none dark:text-zinc-100 dark:placeholder:text-zinc-500"
                   />
                 ) : (
                   <textarea

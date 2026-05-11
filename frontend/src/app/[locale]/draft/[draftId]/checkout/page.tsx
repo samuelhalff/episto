@@ -133,9 +133,7 @@ export default function CheckoutPage({
   const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
   const checkout = useCheckout(draftId, { quoteEnabled: canRequestQuote });
   const signatureFlowMode = draft.data?.signatureFlowMode ?? SignatureFlowMode.visual;
-  const isSwissSignFlow =
-    signatureFlowMode === SignatureFlowMode.swisssign_ses ||
-    signatureFlowMode === SignatureFlowMode.swisssign_qes;
+  const isSwissSignFlow = signatureFlowMode === SignatureFlowMode.swisssign_ses;
 
   const checkoutSchema = createCheckoutSchema(t("consentRequired"));
   const {
@@ -287,7 +285,7 @@ export default function CheckoutPage({
             <div className="rounded-[2rem] border border-amber-200/70 bg-amber-50/70 p-5 text-sm text-amber-950 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100">
               <p className="font-semibold">Payment is authorized first</p>
               <p className="mt-2 leading-6 text-amber-900/80 dark:text-amber-100/80">
-                For SwissSign flows we place an authorization first, continue with
+                For provider-backed signing we place an authorization first, continue with
                 identity and signing, and only finalize the order after the signed PDF and
                 dispatch checks are complete.
               </p>

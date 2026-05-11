@@ -1,4 +1,4 @@
--- QES coming-soon waitlist and per-step product analytics columns.
+-- Legacy signature-interest waitlist and per-step product analytics columns.
 -- Idempotent so it is safe to re-run on every backend startup.
 
 CREATE TABLE IF NOT EXISTS "qes_waitlist" (

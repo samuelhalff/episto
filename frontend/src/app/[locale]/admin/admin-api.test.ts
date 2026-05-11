@@ -134,22 +134,4 @@ describe("admin-api", () => {
       },
     });
   });
-
-  it("fetches the QES waitlist audience with browser credentials", async () => {
-    const { fetchAdminQesAudience } = await loadAdminApiModule();
-    const fetchMock = vi.fn().mockResolvedValue({
-      ok: true,
-      json: async () => ({ total: 1, rows: [], generatedAt: new Date().toISOString() }),
-    });
-    vi.stubGlobal("fetch", fetchMock);
-
-    await fetchAdminQesAudience();
-
-    expect(fetchMock).toHaveBeenCalledWith("/api/v1/admin/audience/qes-waitlist", {
-      credentials: "include",
-      headers: {
-        "X-Requested-With": "XMLHttpRequest",
-      },
-    });
-  });
 });

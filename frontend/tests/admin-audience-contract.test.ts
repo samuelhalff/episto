@@ -23,18 +23,15 @@ const audiencePageSource = existsSync(audiencePagePath)
   : "";
 
 describe("admin audience contract", () => {
-  it("adds typed contracts for sent-or-dispatching and QES waitlist audiences", () => {
+  it("adds typed contracts for sent-or-dispatching audiences", () => {
     expect(contractsSource).toContain("export type AdminAudienceKind");
     expect(contractsSource).toContain("sent_or_dispatching");
-    expect(contractsSource).toContain("qes_waitlist");
     expect(contractsSource).toContain("export interface AdminSentAudienceResponse");
-    expect(contractsSource).toContain("export interface AdminQesAudienceResponse");
   });
 
   it("adds query keys and fetch helpers for the audience surfaces", () => {
     expect(queryKeysSource).toContain("audience: (kind: string)");
     expect(adminApiSource).toContain("fetchAdminSentAudience");
-    expect(adminApiSource).toContain("fetchAdminQesAudience");
     expect(adminApiSource).toContain("downloadAdminAudienceExport");
   });
 
@@ -43,7 +40,6 @@ describe("admin audience contract", () => {
     expect(sidebarSource).toContain('href: "audience"');
     expect(audiencePageSource).toContain("downloadAdminAudienceExport");
     expect(audiencePageSource).toContain("Sent / dispatching");
-    expect(audiencePageSource).toContain("QES waitlist");
     expect(audiencePageSource).toContain("furthestStatus");
   });
 });

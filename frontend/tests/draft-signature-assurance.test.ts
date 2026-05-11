@@ -25,9 +25,6 @@ describe("draft signature assurance source of truth", () => {
     expect(logisticsStepSource).toContain("draft.data?.signatureAssuranceLevel");
     expect(logisticsStepSource).toContain("SignatureAssuranceLevelValue");
     expect(logisticsStepSource).toContain(
-      "signatureAssuranceLevel: SignatureAssuranceLevel.qualified",
-    );
-    expect(logisticsStepSource).toContain(
       "signatureAssuranceLevel: SignatureAssuranceLevel.visual",
     );
   });

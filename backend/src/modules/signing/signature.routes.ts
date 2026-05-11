@@ -111,8 +111,8 @@ async function getScopedDraft(request: FastifyRequest<{ Params: { draftId: strin
       family: "policy_refusal",
       statusCode: 409,
       code: "SIGNATURE_NOT_REQUIRED",
-      message: `Draft ${draftId} is not using a SwissSign signature flow.`,
-      userMessage: "This letter does not require SwissSign signing.",
+      message: `Draft ${draftId} is not using a provider-backed signature flow.`,
+      userMessage: "This letter does not require provider-backed signing.",
       userAction: "Continue with the standard checkout flow.",
     });
   }
@@ -295,7 +295,7 @@ async function processSwissSignCallback(input: {
       {
         failureReason:
           input.callbackResult.status === "failed"
-            ? "SwissSign reported a failed signing attempt."
+            ? "The signing provider reported a failed signing attempt."
             : null,
       },
     );
@@ -335,7 +335,7 @@ async function processSwissSignCallback(input: {
       family: "provider_outage",
       statusCode: 502,
       code: "SIGNED_DOCUMENT_TOKEN_MISSING",
-      message: "SwissSign callback completed without a signed document token.",
+      message: "Signing callback completed without a signed document token.",
       userMessage:
         "The signature finished, but the signed document is not available yet.",
       userAction: "Please wait a moment and refresh.",
@@ -450,7 +450,7 @@ export async function signingRoutes(app: FastifyInstance): Promise<void> {
           family: "rendering_failure",
           statusCode: 409,
           code: "SIGNED_DOCUMENT_SOURCE_NOT_READY",
-          message: "The rendered PDF is not ready for SwissSign handoff.",
+          message: "The rendered PDF is not ready for signing handoff.",
           userMessage: "Your final PDF is still being prepared.",
           userAction: "Wait a moment and try again.",
         });
@@ -461,7 +461,7 @@ export async function signingRoutes(app: FastifyInstance): Promise<void> {
           family: "payment_failure",
           statusCode: 409,
           code: "PAYMENT_AUTHORIZATION_REQUIRED",
-          message: "SwissSign session creation requires an authorized payment first.",
+          message: "Signing session creation requires an authorized payment first.",
           userMessage: "Please complete the payment authorization before signing.",
           userAction: "Return to checkout.",
         });
@@ -477,8 +477,8 @@ export async function signingRoutes(app: FastifyInstance): Promise<void> {
           family: "policy_refusal",
           statusCode: 409,
           code: "SIGNATURE_ELIGIBILITY_REQUIRED",
-          message: "SwissSign session creation requires eligibility confirmation first.",
-          userMessage: "Please review the SwissSign requirements first.",
+          message: "Signing session creation requires eligibility confirmation first.",
+          userMessage: "Please review the signing requirements first.",
           userAction: "Open the eligibility step and continue from there.",
         });
       }

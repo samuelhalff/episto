@@ -73,7 +73,7 @@ export function ReviewPageReady({
     previewData?.subject ?? draftData?.subject,
     previewLocale,
   );
-  const signatureMode = previewData?.signatureMode ?? draftData?.signatureMode ?? null;
+  const signatureMode = previewData?.signatureMode ?? draftData?.signatureMode ?? "drawn";
   const signatureFileId =
     previewData?.signatureFileId ?? draftData?.signatureAssetId ?? null;
   const signatureUrl = getSignaturePreviewUrl(signatureFileId);
@@ -137,17 +137,12 @@ export function ReviewPageReady({
       {
         label: t("signature"),
         value:
-          publicSignatureChoice === "qualified"
-            ? tSignature("qualified.label")
-            : hasSignature
-              ? signatureMode === "drawn"
-                ? t("drawnSignature")
-                : t("typedSignature")
+          hasSignature && signatureMode === "drawn"
+            ? t("drawnSignature")
+            : signatureMode === "typed"
+              ? t("typedSignature")
               : t("noSignature"),
-        helperText:
-          !hasSignature && publicSignatureChoice !== "qualified"
-            ? t("signatureMissingHelp")
-            : undefined,
+        helperText: !hasSignature ? t("signatureMissingHelp") : undefined,
       },
       {
         label: t("attachments"),
@@ -161,13 +156,11 @@ export function ReviewPageReady({
       attachmentCount,
       hasAttachments,
       hasSignature,
-      publicSignatureChoice,
       preview.isLoading,
       recipientLines,
       senderLines,
       signatureMode,
       t,
-      tSignature,
       tc,
     ],
   );
@@ -210,8 +203,7 @@ export function ReviewPageReady({
     if (!draftData || !reviewActionState.canProceed) return;
 
     const nextPath =
-      signatureFlowMode === SignatureFlowMode.swisssign_ses ||
-      signatureFlowMode === SignatureFlowMode.swisssign_qes
+      signatureFlowMode === SignatureFlowMode.swisssign_ses
         ? `/draft/${draftId}/signature/eligibility`
         : `/draft/${draftId}/checkout`;
 

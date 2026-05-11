@@ -26,9 +26,7 @@ export const DICTATION_LIMITS = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Signing limits (see docs/04-product/qualified-signatures.md). These bound
-// identification session lifetime, signature session lifetime, and the
-// evidence-retention duration that is longer than regular draft retention.
+// Signing limits for non-visual signing sessions and retained evidence.
 // ---------------------------------------------------------------------------
 
 export const SIGNING_LIMITS = {

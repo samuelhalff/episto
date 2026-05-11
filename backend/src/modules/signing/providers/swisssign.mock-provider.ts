@@ -28,7 +28,7 @@ endobj
 4 0 obj
 << /Length 46 >>
 stream
-BT /F1 12 Tf 72 96 Td (SwissSign mock signed PDF) Tj ET
+BT /F1 12 Tf 72 96 Td (Mock signed PDF) Tj ET
 endstream
 endobj
 xref
@@ -59,16 +59,11 @@ export class SwissSignMockProvider implements SwissSignSignatureProvider {
   async checkEligibility(
     request: SwissSignEligibilityRequest,
   ): Promise<SwissSignEligibilityResponse> {
-    const reasons: SignatureEligibilityReasonValue[] =
-      request.signatureFlowMode === "swisssign_qes"
-        ? [
-            "swissid_required",
-            "signing_stepup_required",
-            "swisssign_wallet_required",
-            "biometric_device_required",
-            "identity_verification_required",
-          ]
-        : ["swissid_required", "signing_stepup_required"];
+    void request;
+    const reasons: SignatureEligibilityReasonValue[] = [
+      "swissid_required",
+      "signing_stepup_required",
+    ];
 
     return {
       status: "conditionally_eligible",

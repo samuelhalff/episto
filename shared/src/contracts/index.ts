@@ -527,7 +527,7 @@ export interface AdminAiResponse {
   generatedAt: string;
 }
 
-export type AdminAudienceKind = "sent_or_dispatching" | "qes_waitlist";
+export type AdminAudienceKind = "sent_or_dispatching";
 
 export interface AdminSentAudienceRow {
   email: string;
@@ -542,20 +542,6 @@ export interface AdminSentAudienceRow {
 export interface AdminSentAudienceResponse {
   total: number;
   rows: AdminSentAudienceRow[];
-  generatedAt: string;
-}
-
-export interface AdminQesAudienceRow {
-  email: string;
-  locale: string | null;
-  source: string | null;
-  firstSeenAt: string;
-  lastSeenAt: string;
-}
-
-export interface AdminQesAudienceResponse {
-  total: number;
-  rows: AdminQesAudienceRow[];
   generatedAt: string;
 }
 

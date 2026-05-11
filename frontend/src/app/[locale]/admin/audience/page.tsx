@@ -4,11 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@episto/shared";
 import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { useAdminAuth } from "../admin-auth-context";
-import {
-  downloadAdminAudienceExport,
-  fetchAdminQesAudience,
-  fetchAdminSentAudience,
-} from "../admin-api";
+import { downloadAdminAudienceExport, fetchAdminSentAudience } from "../admin-api";
 import { PanelError, PanelLoading, SectionPanel } from "../admin-metric-panels";
 
 function formatTimestamp(value: string): string {
@@ -46,12 +42,6 @@ export default function AudiencePage() {
     enabled: authenticated,
   });
 
-  const qesAudience = useQuery({
-    queryKey: queryKeys.admin.audience("qes_waitlist"),
-    queryFn: () => fetchAdminQesAudience(),
-    enabled: authenticated,
-  });
-
   return (
     <div className={ADMIN_PAGE_STACK_CLASS_NAME}>
       <div className="space-y-2">
@@ -59,8 +49,7 @@ export default function AudiencePage() {
           Audience
         </h1>
         <p className="text-sm" style={{ color: "var(--app-muted)" }}>
-          Minimal operational email lists for customers who reached dispatch and users who
-          subscribed to the QES release.
+          Minimal operational email list for customers who reached dispatch.
         </p>
       </div>
 
@@ -128,80 +117,6 @@ export default function AudiencePage() {
                         style={{ color: "var(--app-muted)" }}
                       >
                         No sent / dispatching emails yet
-                      </td>
-                    </tr>
-                  ) : null}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        ) : null}
-      </SectionPanel>
-
-      <SectionPanel
-        title={`QES waitlist (${qesAudience.data?.total ?? "—"})`}
-        action={
-          <ExportButton
-            label="Export CSV"
-            onClick={() => {
-              void downloadAdminAudienceExport("qes_waitlist");
-            }}
-          />
-        }
-      >
-        {qesAudience.isLoading ? (
-          <PanelLoading />
-        ) : qesAudience.error ? (
-          <PanelError message="Failed to load QES waitlist audience" />
-        ) : qesAudience.data ? (
-          <div className="space-y-4">
-            <p className="text-xs" style={{ color: "var(--app-muted)" }}>
-              Most recent unique waitlist emails are shown below. CSV export includes the
-              full audience.
-            </p>
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
-                <thead>
-                  <tr style={{ color: "var(--app-muted)" }}>
-                    <th className="py-2 pr-3 font-medium">Email</th>
-                    <th className="py-2 pr-3 font-medium">Locale</th>
-                    <th className="py-2 pr-3 font-medium">Source</th>
-                    <th className="py-2 pr-3 font-medium">First seen</th>
-                    <th className="py-2 font-medium">Last seen</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {qesAudience.data.rows.map((row) => (
-                    <tr
-                      key={`${row.email}-${row.lastSeenAt}`}
-                      className="border-t"
-                      style={{ borderColor: "var(--app-border)" }}
-                    >
-                      <td className="py-2 pr-3" style={{ color: "var(--app-fg)" }}>
-                        {row.email}
-                      </td>
-                      <td className="py-2 pr-3" style={{ color: "var(--app-muted)" }}>
-                        {row.locale ?? "—"}
-                      </td>
-                      <td className="py-2 pr-3" style={{ color: "var(--app-muted)" }}>
-                        {row.source ?? "—"}
-                      </td>
-                      <td className="py-2 pr-3" style={{ color: "var(--app-muted)" }}>
-                        {formatTimestamp(row.firstSeenAt)}
-                      </td>
-                      <td className="py-2" style={{ color: "var(--app-muted)" }}>
-                        {formatTimestamp(row.lastSeenAt)}
-                      </td>
-                    </tr>
-                  ))}
-                  {qesAudience.data.rows.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={5}
-                        className="py-8 text-center"
-                        style={{ color: "var(--app-muted)" }}
-                      >
-                        No QES waitlist emails yet
                       </td>
                     </tr>
                   ) : null}

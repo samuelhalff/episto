@@ -64,8 +64,8 @@ export default async function SignatureRequirementsPage({
           <LegalList
             items={[
               t("callout.notLegalAdvice"),
-              t("callout.electronicVsPaper"),
-              t("callout.mostLettersDontNeed"),
+              t("callout.printedSignature"),
+              t("callout.legalForm"),
             ]}
           />
         </LegalCallout>
@@ -82,47 +82,13 @@ export default async function SignatureRequirementsPage({
                 <strong>{t("sections.tiers.drawnName")}</strong> —{" "}
                 {t("sections.tiers.drawnBody")}
               </span>,
-              <span key="qualified">
-                <strong>{t("sections.tiers.qualifiedName")}</strong> —{" "}
-                {t("sections.tiers.qualifiedBody")}
-              </span>,
             ]}
           />
         </LegalSection>
 
         <LegalSection title={t("sections.whenRequired.title")}>
           <LegalParagraph>{t("sections.whenRequired.intro")}</LegalParagraph>
-          <LegalList
-            items={[
-              t("sections.whenRequired.caseGuaranty"),
-              t("sections.whenRequired.caseConsumerCredit"),
-              t("sections.whenRequired.caseLease"),
-              t("sections.whenRequired.caseEmployment"),
-              t("sections.whenRequired.caseOther"),
-            ]}
-          />
           <LegalMutedText>{t("sections.whenRequired.disclaimer")}</LegalMutedText>
-        </LegalSection>
-
-        <LegalSection title={t("sections.paperCopy.title")}>
-          <LegalParagraph>{t("sections.paperCopy.paragraphOne")}</LegalParagraph>
-          <LegalParagraph>{t("sections.paperCopy.paragraphTwo")}</LegalParagraph>
-        </LegalSection>
-
-        <LegalSection title={t("sections.identification.title")}>
-          <LegalParagraph>{t("sections.identification.intro")}</LegalParagraph>
-          <LegalList
-            items={[
-              t("sections.identification.pointFirstTime"),
-              t("sections.identification.pointReuse"),
-              t("sections.identification.pointRevocation"),
-              t("sections.identification.pointPrivacy"),
-            ]}
-          />
-        </LegalSection>
-
-        <LegalSection title={t("sections.crossBorder.title")}>
-          <LegalParagraph>{t("sections.crossBorder.body")}</LegalParagraph>
         </LegalSection>
 
         <LegalSection title={t("sections.contact.title")}>

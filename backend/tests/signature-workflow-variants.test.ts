@@ -9,7 +9,7 @@ import {
 } from "@episto/shared";
 
 describe("Signature session state machine", () => {
-  it("allows the SwissSign signing happy path with identity step-up", () => {
+  it("allows the provider-backed signing happy path with identity step-up", () => {
     expect(
       canTransitionSignatureSession("eligibility_confirmed", "payment_authorized"),
     ).toBe(true);
