@@ -4,5 +4,6 @@ export * from "./dispatch.js";
 export * from "./drafting.js";
 export * from "./files.js";
 export * from "./payments.js";
+export * from "./phone-verifications.js";
 export * from "./signatures.js";
 export * from "./relations.js";

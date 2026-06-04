@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { UseQueryResult } from "@tanstack/react-query";
-import type { DraftLetter, DispatchQuote } from "@episto/shared";
+import type { DraftDispatchQuote, DraftLetter } from "@episto/shared";
 import type { SignatureAssuranceLevelValue } from "@episto/shared";
 import { SignatureFlowMode } from "@episto/shared";
 import { ChevronRight, ArrowLeft } from "lucide-react";
@@ -41,7 +41,7 @@ interface ReviewPageReadyProps {
   draft: UseQueryResult<DraftLetter>;
   preview: UseLetterPreviewReturn;
   attachments: FileAsset[];
-  quote: UseQueryResult<DispatchQuote>;
+  quote: UseQueryResult<DraftDispatchQuote>;
 }
 
 export function ReviewPageReady({

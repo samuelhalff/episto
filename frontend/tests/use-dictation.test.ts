@@ -165,7 +165,6 @@ describe("useDictation", () => {
       socket?.emitMessage({ type: "final", text: "Bonjour" });
     });
 
-    expect(result.current.interimText).toBe("");
     expect(result.current.finalText).toBe("Bonjour");
 
     await act(async () => {
@@ -173,6 +172,7 @@ describe("useDictation", () => {
     });
 
     expect(stopCapture).toHaveBeenCalledTimes(1);
+    expect(fetch).not.toHaveBeenCalled();
     expect(socket?.send).toHaveBeenCalledWith(JSON.stringify({ type: "stop" }));
     expect(result.current.isRecording).toBe(false);
   });
@@ -222,18 +222,8 @@ describe("useDictation", () => {
     expect(result.current.isRecording).toBe(false);
   });
 
-  it("replaces the current attempt transcript when buffered fallback covers audio that already produced live final text", async () => {
+  it("does not run buffered transcription when live dictation already produced final text", async () => {
     const fetchMock = vi.mocked(fetch);
-    fetchMock.mockResolvedValue(
-      new Response(
-        JSON.stringify({ transcript: "First sentence. Second dictated sentence." }),
-        {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        },
-      ),
-    );
-
     const stopCapture = vi.fn().mockResolvedValue(new Uint8Array([6, 6, 6]));
     mocks.startDictationCapture.mockResolvedValue({
       stop: stopCapture,
@@ -253,11 +243,12 @@ describe("useDictation", () => {
     });
 
     await waitFor(() => {
-      expect(result.current.finalText).toBe("First sentence. Second dictated sentence.");
+      expect(result.current.isRecording).toBe(false);
     });
 
     expect(stopCapture).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(result.current.finalText).toBe("First sentence.");
     expect(result.current.error).toBeNull();
   });
 
@@ -310,7 +301,7 @@ describe("useDictation", () => {
 
   it("still falls back on a later dictation attempt even when earlier text already exists", async () => {
     const fetchMock = vi.mocked(fetch);
-    fetchMock.mockResolvedValue(
+    fetchMock.mockResolvedValueOnce(
       new Response(JSON.stringify({ transcript: "Second dictated sentence." }), {
         status: 200,
         headers: { "Content-Type": "application/json" },

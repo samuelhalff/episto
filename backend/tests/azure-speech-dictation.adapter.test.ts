@@ -9,6 +9,10 @@ const mocks = vi.hoisted(() => {
   const phraseList = {
     addPhrase: vi.fn(),
   };
+  const speechConfigs: Array<{
+    speechRecognitionLanguage: string;
+    endpointId: string | undefined;
+  }> = [];
 
   class MockSpeechRecognizer {
     static instances: MockSpeechRecognizer[] = [];
@@ -44,6 +48,15 @@ const mocks = vi.hoisted(() => {
   return {
     pushStream,
     phraseList,
+    speechConfigs,
+    fromSubscription: vi.fn(() => {
+      const config = {
+        speechRecognitionLanguage: "",
+        endpointId: undefined,
+      };
+      speechConfigs.push(config);
+      return config;
+    }),
     fromWavFileInput: vi.fn(() => ({})),
     MockSpeechRecognizer,
   };
@@ -73,10 +86,7 @@ vi.mock("microsoft-cognitiveservices-speech-sdk", () => ({
     fromRecognizer: vi.fn(() => mocks.phraseList),
   },
   SpeechConfig: {
-    fromSubscription: vi.fn(() => ({
-      speechRecognitionLanguage: "en-CH",
-      endpointId: undefined,
-    })),
+    fromSubscription: mocks.fromSubscription,
   },
   CancellationReason: {
     EndOfStream: "EndOfStream",
@@ -121,6 +131,8 @@ function buildTestWav(pcmBytes: Uint8Array) {
 describe("Azure speech dictation adapter", () => {
   beforeEach(() => {
     mocks.MockSpeechRecognizer.instances.length = 0;
+    mocks.speechConfigs.length = 0;
+    mocks.fromSubscription.mockClear();
     mocks.pushStream.write.mockReset();
     mocks.pushStream.close.mockReset();
     mocks.phraseList.addPhrase.mockReset();
@@ -163,6 +175,20 @@ describe("Azure speech dictation adapter", () => {
     expect(mocks.pushStream.close).toHaveBeenCalled();
     expect(mocks.phraseList.addPhrase).toHaveBeenCalledWith("Migros");
     expect(mocks.phraseList.addPhrase).toHaveBeenCalledWith("Swiss Post");
+  });
+
+  it("maps the app English Swiss locale to an Azure-supported speech locale", async () => {
+    await createLiveDictationStream({
+      locale: "en-CH",
+      hints: [],
+      callbacks: {
+        onPartial: vi.fn(),
+        onFinal: vi.fn(),
+        onError: vi.fn(),
+      },
+    });
+
+    expect(mocks.speechConfigs[0]?.speechRecognitionLanguage).toBe("en-GB");
   });
 
   it("concatenates buffered transcription segments into one transcript", async () => {

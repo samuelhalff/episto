@@ -99,6 +99,12 @@ export function LetterPreview({
   const signatureDisplayName = typedSignatureName || t("signatureFallbackName");
   const shouldShowGeneratedSignature = resolvedSignatureMode === "typed";
   const shouldShowDrawnSignature = resolvedSignatureMode === "drawn";
+  const shouldShowPrintedSignatoryName = typedSignatureName.length > 0;
+  const signatureNameStyle = {
+    marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
+    fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
+    color: LETTER_COLORS.signatureName,
+  };
   const placeAndDate = senderProfile?.city?.trim()
     ? `${senderProfile.city.trim()}, ${formattedDate}`
     : formattedDate;
@@ -357,14 +363,7 @@ export function LetterPreview({
                   >
                     {signatureDisplayName}
                   </p>
-                  <p
-                    className="signature-name"
-                    style={{
-                      marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
-                      fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
-                      color: LETTER_COLORS.signatureName,
-                    }}
-                  >
+                  <p className="signature-name" style={signatureNameStyle}>
                     {signatureDisplayName}
                   </p>
                 </div>
@@ -381,15 +380,16 @@ export function LetterPreview({
                       objectFit: "contain",
                     }}
                   />
-                  <p
-                    className="signature-name"
-                    style={{
-                      marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signatureName.marginTop),
-                      fontSize: ptToPageCqw(LETTER_LAYOUT_PT.signatureName),
-                      color: LETTER_COLORS.signatureName,
-                    }}
-                  >
+                  <p className="signature-name" style={signatureNameStyle}>
                     {signatureDisplayName}
+                  </p>
+                </div>
+              ) : shouldShowPrintedSignatoryName ? (
+                <div
+                  style={{ marginTop: mmToPageCqw(LETTER_LAYOUT_MM.signature.marginTop) }}
+                >
+                  <p className="signature-name" style={signatureNameStyle}>
+                    {typedSignatureName}
                   </p>
                 </div>
               ) : null}

@@ -8,7 +8,7 @@ import { useTranslations } from "next-intl";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { SignatureFlowMode } from "@episto/shared";
-import { useDraft, useCheckout, useSession } from "@/hooks/use-api";
+import { useDraft, useCheckout, usePhoneVerification, useSession } from "@/hooks/use-api";
 import { useStepTracking } from "@/hooks/use-step-tracking";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
@@ -127,11 +127,14 @@ export default function CheckoutPage({
   const [paymentRecoveryMessage, setPaymentRecoveryMessage] = useState<string | null>(
     null,
   );
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [phoneCode, setPhoneCode] = useState("");
 
   const draft = useDraft(draftId);
   useStepTracking({ step: "draft_checkout", draftId, locale });
   const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
   const checkout = useCheckout(draftId, { quoteEnabled: canRequestQuote });
+  const phoneVerification = usePhoneVerification(draftId);
   const signatureFlowMode = draft.data?.signatureFlowMode ?? SignatureFlowMode.visual;
   const isSwissSignFlow = signatureFlowMode === SignatureFlowMode.swisssign_ses;
 
@@ -203,6 +206,14 @@ export default function CheckoutPage({
   const checkoutErrorCode = getApiErrorCode(checkout.error);
   const checkoutErrorMessage =
     getApiErrorUserMessage(checkout.error) ?? (checkout.error ? t("paymentError") : null);
+  const phoneVerificationErrorMessage = getApiErrorUserMessage(phoneVerification.error);
+  const verifiedPhoneE164 =
+    phoneVerification.verifiedVerification?.phoneE164 ??
+    phoneVerification.status?.phoneE164 ??
+    null;
+  const isPhoneVerified =
+    phoneVerification.verifiedVerification?.status === "verified" ||
+    phoneVerification.status?.status === "verified";
   const hasBlockingPricingError =
     Boolean(checkoutErrorMessage) && !checkout.pricing && !checkout.clientSecret;
   const hasBlockingStripeConfigurationError =
@@ -217,7 +228,7 @@ export default function CheckoutPage({
   const isPricingPending = Boolean(pricingPendingMessage);
 
   function onSubmit(values: CheckoutFormValues) {
-    if (isSubmitting) return;
+    if (isSubmitting || !isPhoneVerified) return;
     setPaymentRecoveryMessage(null);
     setSubmittedCheckoutEmail(values.email);
     void checkout
@@ -237,6 +248,39 @@ export default function CheckoutPage({
           route: `/draft/${draftId}/checkout`,
         });
       });
+  }
+
+  async function handleSendPhoneCode() {
+    if (!phoneNumber.trim() || phoneVerification.isSendingCode) return;
+
+    try {
+      phoneVerification.clearError();
+      setPhoneCode("");
+      await phoneVerification.start(phoneNumber.trim());
+    } catch (err: unknown) {
+      captureException(err instanceof Error ? err : new Error(String(err)), {
+        component: "CheckoutPage",
+        route: `/draft/${draftId}/checkout`,
+        extra: { action: "send_phone_code" },
+      });
+    }
+  }
+
+  async function handleVerifyPhoneCode() {
+    if (!phoneCode.trim() || phoneVerification.isConfirmingCode) return;
+
+    try {
+      phoneVerification.clearError();
+      const result = await phoneVerification.confirm(phoneCode.trim());
+      setPhoneNumber(result.phoneE164);
+      setPhoneCode("");
+    } catch (err: unknown) {
+      captureException(err instanceof Error ? err : new Error(String(err)), {
+        component: "CheckoutPage",
+        route: `/draft/${draftId}/checkout`,
+        extra: { action: "verify_phone_code" },
+      });
+    }
   }
 
   function handlePaymentLoadErrorRecovery(reason: StripePaymentFormLoadRecoveryReason) {
@@ -329,6 +373,107 @@ export default function CheckoutPage({
                 )}
               </div>
 
+              <div className="app-panel rounded-3xl p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <label
+                      htmlFor="phone"
+                      className="block text-sm font-semibold text-[var(--app-fg)]"
+                    >
+                      {t("phone")}
+                    </label>
+                    <p className="mt-1 text-xs text-[var(--app-muted)]">
+                      {t("phoneHelp")}
+                    </p>
+                  </div>
+                  {isPhoneVerified ? (
+                    <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200">
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      {t("phoneVerified")}
+                    </span>
+                  ) : null}
+                </div>
+
+                <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                  <input
+                    id="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    placeholder="+41 79 123 45 67"
+                    value={verifiedPhoneE164 ?? phoneNumber}
+                    disabled={isPhoneVerified}
+                    onChange={(event) => setPhoneNumber(event.target.value)}
+                    className="app-form-control w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-4 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-muted)] transition-[border-color,box-shadow,background-color,color] focus:border-[var(--app-border-strong)] focus:outline-none focus:ring-2 focus:ring-amber-200/60 disabled:opacity-70 dark:focus:ring-amber-300/20"
+                  />
+                  <ActionButton
+                    type="button"
+                    variant="secondary"
+                    disabled={isPhoneVerified || !phoneNumber.trim()}
+                    loading={phoneVerification.isSendingCode}
+                    onClick={() => {
+                      void handleSendPhoneCode();
+                    }}
+                  >
+                    {phoneVerification.pendingVerification
+                      ? t("resendPhoneCode")
+                      : t("sendPhoneCode")}
+                  </ActionButton>
+                </div>
+
+                {!isPhoneVerified && phoneVerification.pendingVerification ? (
+                  <div className="mt-4">
+                    <label
+                      htmlFor="phone-code"
+                      className="block text-sm font-semibold text-[var(--app-fg)]"
+                    >
+                      {t("phoneCode")}
+                    </label>
+                    <p className="mt-1 text-xs text-[var(--app-muted)]">
+                      {t("phoneCodeHelp")}
+                    </p>
+                    <div className="mt-3 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+                      <input
+                        id="phone-code"
+                        type="text"
+                        autoComplete="one-time-code"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
+                        maxLength={6}
+                        value={phoneCode}
+                        onChange={(event) =>
+                          setPhoneCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+                        }
+                        className="app-form-control w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-4 py-3 text-[var(--app-fg)] placeholder:text-[var(--app-muted)] transition-[border-color,box-shadow,background-color,color] focus:border-[var(--app-border-strong)] focus:outline-none focus:ring-2 focus:ring-amber-200/60 dark:focus:ring-amber-300/20"
+                      />
+                      <ActionButton
+                        type="button"
+                        variant="secondary"
+                        disabled={phoneCode.length !== 6}
+                        loading={phoneVerification.isConfirmingCode}
+                        onClick={() => {
+                          void handleVerifyPhoneCode();
+                        }}
+                      >
+                        {t("verifyPhoneCode")}
+                      </ActionButton>
+                    </div>
+                  </div>
+                ) : null}
+
+                {!isPhoneVerified ? (
+                  <p className="mt-3 text-xs text-[var(--app-muted)]">
+                    {t("phoneVerificationRequired")}
+                  </p>
+                ) : null}
+
+                {phoneVerificationErrorMessage ? (
+                  <p role="alert" className="mt-3 text-sm text-destructive">
+                    {phoneVerificationErrorMessage}
+                  </p>
+                ) : null}
+              </div>
+
               <div
                 className={[
                   "app-list-item-muted rounded-2xl p-4 sm:p-5",
@@ -408,7 +553,8 @@ export default function CheckoutPage({
                       !isValid ||
                       hasBlockingPricingError ||
                       hasBlockingStripeConfigurationError ||
-                      !canRequestQuote
+                      !canRequestQuote ||
+                      !isPhoneVerified
                     }
                     loading={isSubmitting || isPricingPending}
                     trailingIcon={

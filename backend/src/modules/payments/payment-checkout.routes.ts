@@ -6,6 +6,7 @@ import { getDb, schema } from "../../db/index.js";
 import { AppError, notFoundError } from "../../shared/errors/index.js";
 import { recordEvent } from "../analytics/index.js";
 import { resolvePaymentDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
+import { assertVerifiedPhoneForCheckout } from "../phone-verification/phone-verification.service.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
 import { assertSignatureFlowSupported } from "../signing/signature-availability.js";
@@ -119,6 +120,9 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
         });
       }
 
+      const verifiedPhone = await assertVerifiedPhoneForCheckout(db, {
+        sessionId: session.id,
+      });
       const resolvedPaymentQuote = await resolvePaymentDispatchQuoteForDraft(db, draftId);
       const amountCents = resolvedPaymentQuote.quote.totalCents;
 
@@ -148,6 +152,8 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             draftId,
             sessionId: session.id,
             amountCents,
+            verifiedPhoneE164: verifiedPhone.phoneE164,
+            phoneVerifiedAt: verifiedPhone.phoneVerifiedAt,
             breakdown: {
               deliveryType: resolvedPaymentQuote.quote.deliveryType,
               providerQuotedCents: resolvedPaymentQuote.quote.providerQuotedCents,

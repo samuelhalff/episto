@@ -25,6 +25,7 @@ import { messageRoutes } from "./modules/messages/index.js";
 import { fileRoutes } from "./modules/files/index.js";
 import { adminAuthRoutes, adminRoutes } from "./modules/admin/index.js";
 import { orderRoutes } from "./modules/orders/index.js";
+import { phoneVerificationRoutes } from "./modules/phone-verification/index.js";
 import { pricingRoutes } from "./modules/pricing/pricing.routes.js";
 import { signingRoutes } from "./modules/signing/index.js";
 import { telemetryRoutes } from "./modules/telemetry/index.js";
@@ -240,6 +241,7 @@ export async function buildApp(logger: pino.Logger) {
   await app.register(streamRoutes, { prefix: "/api/v1" });
   await app.register(dictationRoutes, { prefix: "/api/v1" });
   await app.register(paymentRoutes, { prefix: "/api/v1" });
+  await app.register(phoneVerificationRoutes, { prefix: "/api/v1" });
   await app.register(fileRoutes, { prefix: "/api/v1" });
   await app.register(signingRoutes, { prefix: "/api/v1" });
   await app.register(dispatchRoutes, { prefix: "/api/v1" });

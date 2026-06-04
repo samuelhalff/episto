@@ -10,6 +10,7 @@ const renderTemplateSource = readFileSync(
   path.join(repoRoot, "src/modules/rendering/render-template.ts"),
   "utf8",
 );
+const backendDockerfileSource = readFileSync(path.join(repoRoot, "Dockerfile"), "utf8");
 
 describe("render layout source", () => {
   it("uses the shared letter layout constants instead of duplicated magic numbers", () => {
@@ -31,5 +32,16 @@ describe("render layout source", () => {
     expect(renderTemplateSource).not.toContain("color: #202020;");
     expect(renderTemplateSource).not.toContain("color: #141414;");
     expect(renderTemplateSource).not.toContain("color: #444;");
+  });
+
+  it("resolves the signature font from a production-safe backend asset path", () => {
+    expect(renderTemplateSource).toContain("resolveSignatureFontUrl");
+    expect(renderTemplateSource).toContain("fileURLToPath(import.meta.url)");
+    expect(renderTemplateSource).toContain("../../../frontend/public/fonts");
+  });
+
+  it("packages signature fonts into the backend runtime image", () => {
+    expect(backendDockerfileSource).toContain("frontend/public/fonts");
+    expect(backendDockerfileSource).toContain("./frontend/public/fonts");
   });
 });

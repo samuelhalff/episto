@@ -72,6 +72,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy compiled code
 COPY --from=build --chown=nodeapp:nodejs /app/backend/dist ./dist
 COPY --from=build --chown=nodeapp:nodejs /app/backend/drizzle ./drizzle
+COPY --chown=nodeapp:nodejs frontend/public/fonts ./frontend/public/fonts
 
 # Production-only node_modules (no devDependencies)
 COPY --from=proddeps --chown=nodeapp:nodejs /app/node_modules ./node_modules

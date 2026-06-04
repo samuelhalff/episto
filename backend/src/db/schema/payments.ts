@@ -32,6 +32,8 @@ export const paymentAttempts = pgTable(
     breakdown: jsonb("breakdown").notNull(),
     failureReason: text("failure_reason"),
     refundReason: text("refund_reason"),
+    verifiedPhoneE164: text("verified_phone_e164"),
+    phoneVerifiedAt: ts("phone_verified_at"),
     orderAccessTokenHash: text("order_access_token_hash").unique(),
     orderAccessTokenExpiresAt: ts("order_access_token_expires_at"),
     createdAt: createdAt(),
@@ -41,6 +43,8 @@ export const paymentAttempts = pgTable(
     draftIdIdx: index("payment_attempts_draft_id_idx").on(table.draftId),
     sessionIdIdx: index("payment_attempts_session_id_idx").on(table.sessionId),
     stateIdx: index("payment_attempts_state_idx").on(table.state),
-    orderTokenIdx: index("payment_attempts_order_token_idx").on(table.orderAccessTokenHash),
+    orderTokenIdx: index("payment_attempts_order_token_idx").on(
+      table.orderAccessTokenHash,
+    ),
   }),
 );

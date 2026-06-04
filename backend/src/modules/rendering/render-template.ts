@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import {
   extractAiDocumentMetadata,
   flattenDocumentModel,
@@ -25,15 +26,26 @@ export interface RenderLetterHtmlOptions {
 
 let signatureFontFaceCss: string | null = null;
 
+const signatureFontRelativePaths = [
+  "../../../frontend/public/fonts/allura/Allura-Regular.ttf",
+  "../../../../frontend/public/fonts/allura/Allura-Regular.ttf",
+] as const;
+function resolveSignatureFontUrl(): URL {
+  for (const relativePath of signatureFontRelativePaths) {
+    const fontUrl = new URL(relativePath, import.meta.url);
+    if (existsSync(fontUrl)) {
+      return fontUrl;
+    }
+  }
+  throw new Error(`Signature font not found from ${fileURLToPath(import.meta.url)}`);
+}
+
 function getSignatureFontFaceCss(): string {
   if (signatureFontFaceCss) {
     return signatureFontFaceCss;
   }
 
-  const fontPath = new URL(
-    "../../../../frontend/public/fonts/allura/Allura-Regular.ttf",
-    import.meta.url,
-  );
+  const fontPath = resolveSignatureFontUrl();
   const fontBase64 = readFileSync(fontPath).toString("base64");
 
   signatureFontFaceCss = `@font-face {
@@ -153,6 +165,8 @@ export function renderLetterHtml(
   <div class="signature-script">${escapeHtml(signatureName)}</div>
   <div class="signature-name">${escapeHtml(signatureName)}</div>
 </div>`;
+  } else if (signatureName) {
+    signatureBlock = `<div class="signature-name">${escapeHtml(signatureName)}</div>`;
   }
   const senderBlock = renderAddressBlockHtml(getAddressBlockLines(sender, "sender"));
   const recipientBlock = renderAddressBlockHtml(
@@ -276,6 +290,9 @@ export function renderLetterHtml(
       font-size: ${LETTER_LAYOUT_PT.signatureName}pt;
       letter-spacing: 0.02em;
       color: ${LETTER_COLORS.signatureName};
+    }
+    .body-flow > .signature-name {
+      margin-top: ${LETTER_LAYOUT_MM.signature.marginTop}mm;
     }
     .letter-paragraph {
       margin: 0 0 4mm 0;

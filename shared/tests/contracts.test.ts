@@ -233,6 +233,34 @@ describe("shared contract schemas", () => {
     expect(result.quote.totalCents).toBe(965);
   });
 
+  it("parses a pre-review dispatch quote response before a snapshot exists", () => {
+    const result = DraftDispatchQuoteResponseSchema.parse({
+      quote: {
+        draftId: "11111111-1111-4111-8111-111111111111",
+        snapshotId: null,
+        deliveryType: "standard",
+        providerQuotedCents: 165,
+        swissMailMarkupCents: 340,
+        totalCents: 505,
+        currency: "CHF",
+        providerQuoteReference: null,
+        attachmentHandling: "excluded",
+        lineItems: [
+          { label: "Provider quote", amountCents: 165, source: "provider" },
+          { label: "Episto service", amountCents: 340, source: "swiss_mail" },
+        ],
+      },
+      meta: {
+        source: "matrix",
+        quotedAt: "2026-05-14T12:54:58.810Z",
+        expiresAt: "2026-05-15T12:54:58.810Z",
+      },
+    });
+
+    expect(result.quote.snapshotId).toBeNull();
+    expect(result.quote.totalCents).toBe(505);
+  });
+
   it("requires a recipient name or company when creating recipient profiles", () => {
     expect(() =>
       CreateRecipientProfileInput.parse({
@@ -294,9 +322,7 @@ describe("shared contract schemas", () => {
   });
 
   it("rejects unknown dictation field contexts", () => {
-    expect(() =>
-      DictationFieldContextSchema.parse("body"),
-    ).toThrow();
+    expect(() => DictationFieldContextSchema.parse("body")).toThrow();
   });
 
   it("parses the live dictation websocket event contract", () => {

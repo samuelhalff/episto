@@ -7,6 +7,9 @@ import { extractBufferedWavPcm } from "./buffered-wav-audio.js";
 
 const PCM_BITS_PER_SAMPLE = 16;
 const BATCH_TRANSCRIPTION_GRACE_MS = 15_000;
+const AZURE_SPEECH_LOCALE_OVERRIDES: Record<string, string> = {
+  "en-CH": "en-GB",
+};
 
 export interface LiveDictationCallbacks {
   onPartial: (text: string) => void;
@@ -28,7 +31,7 @@ function createSpeechConfig(locale: string) {
     speechEnv.AZURE_SPEECH_REGION,
   );
 
-  config.speechRecognitionLanguage = locale;
+  config.speechRecognitionLanguage = AZURE_SPEECH_LOCALE_OVERRIDES[locale] ?? locale;
 
   if (speechEnv.AZURE_SPEECH_CUSTOM_ENDPOINT_ID) {
     config.endpointId = speechEnv.AZURE_SPEECH_CUSTOM_ENDPOINT_ID;

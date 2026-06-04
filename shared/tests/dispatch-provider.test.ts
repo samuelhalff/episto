@@ -10,6 +10,22 @@ import {
 } from "../src/dispatch-provider.ts";
 
 describe("dispatch provider contracts", () => {
+  const canonicalDispatchQuote = {
+    draftId: "11111111-1111-4111-8111-111111111111",
+    snapshotId: "22222222-2222-4222-8222-222222222222",
+    deliveryType: "standard",
+    providerQuotedCents: 165,
+    swissMailMarkupCents: 80,
+    totalCents: 245,
+    currency: "CHF",
+    providerQuoteReference: "preview-123",
+    attachmentHandling: "excluded",
+    lineItems: [
+      { label: "Provider quote", amountCents: 165, source: "provider" },
+      { label: "Episto service", amountCents: 80, source: "swiss_mail" },
+    ],
+  } as const;
+
   it("accepts supported postal postage values", () => {
     expect(PostalPostageSchema.parse("A_POST")).toBe("A_POST");
     expect(PostalPostageSchema.parse("REGISTERED")).toBe("REGISTERED");
@@ -73,24 +89,61 @@ describe("dispatch provider contracts", () => {
   });
 
   it("parses a dispatch quote with provider and Episto rows", () => {
-    const result = DispatchQuoteSchema.parse({
-      draftId: "11111111-1111-4111-8111-111111111111",
-      snapshotId: "22222222-2222-4222-8222-222222222222",
-      deliveryType: "standard",
-      providerQuotedCents: 165,
-      swissMailMarkupCents: 80,
-      totalCents: 245,
-      currency: "CHF",
-      providerQuoteReference: "preview-123",
-      attachmentHandling: "excluded",
-      lineItems: [
-        { label: "Provider quote", amountCents: 165, source: "provider" },
-        { label: "Episto service", amountCents: 80, source: "swiss_mail" },
-      ],
-    });
+    const result = DispatchQuoteSchema.parse(canonicalDispatchQuote);
 
     expect(result.totalCents).toBe(245);
     expect(result.lineItems).toHaveLength(2);
+  });
+
+  it("rejects a dispatch quote when the total does not match provider plus Episto fees", () => {
+    expect(() =>
+      DispatchQuoteSchema.parse({
+        ...canonicalDispatchQuote,
+        totalCents: 246,
+      }),
+    ).toThrow();
+  });
+
+  it("rejects a dispatch quote when provider line items do not match the provider fee", () => {
+    expect(() =>
+      DispatchQuoteSchema.parse({
+        ...canonicalDispatchQuote,
+        providerQuotedCents: 166,
+      }),
+    ).toThrow();
+  });
+
+  it("rejects a dispatch quote when Episto line items do not match the service fee", () => {
+    expect(() =>
+      DispatchQuoteSchema.parse({
+        ...canonicalDispatchQuote,
+        swissMailMarkupCents: 81,
+      }),
+    ).toThrow();
+  });
+
+  it("rejects a dispatch quote when line items do not sum to the checkout total", () => {
+    expect(() =>
+      DispatchQuoteSchema.parse({
+        ...canonicalDispatchQuote,
+        lineItems: [
+          { label: "Provider quote", amountCents: 165, source: "provider" },
+          { label: "Episto service", amountCents: 79, source: "swiss_mail" },
+        ],
+      }),
+    ).toThrow();
+  });
+
+  it("rejects negative dispatch quote line items", () => {
+    expect(() =>
+      DispatchQuoteSchema.parse({
+        ...canonicalDispatchQuote,
+        lineItems: [
+          { label: "Provider quote", amountCents: 165, source: "provider" },
+          { label: "Episto service", amountCents: -80, source: "swiss_mail" },
+        ],
+      }),
+    ).toThrow();
   });
 
   it("parses a status lookup with tracking metadata", () => {

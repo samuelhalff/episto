@@ -10,6 +10,7 @@ import {
 } from "./drafting.js";
 import { draftSnapshots, fileAssets } from "./files.js";
 import { paymentAttempts } from "./payments.js";
+import { phoneVerifications } from "./phone-verifications.js";
 import { signatureEvents, signatureSessions } from "./signatures.js";
 
 export const sessionsRelations = relations(sessions, ({ many }) => ({
@@ -18,6 +19,7 @@ export const sessionsRelations = relations(sessions, ({ many }) => ({
   recipientProfiles: many(recipientProfiles),
   fileAssets: many(fileAssets),
   paymentAttempts: many(paymentAttempts),
+  phoneVerifications: many(phoneVerifications),
   signatureSessions: many(signatureSessions),
   supportEvents: many(supportEvents),
   productEvents: many(productEvents),
@@ -44,6 +46,7 @@ export const draftLettersRelations = relations(draftLetters, ({ one, many }) => 
   messages: many(conversationMessages),
   fileAssets: many(fileAssets),
   paymentAttempts: many(paymentAttempts),
+  phoneVerifications: many(phoneVerifications),
   dispatchAttempts: many(dispatchAttempts),
   signatureSessions: many(signatureSessions),
   signatureEvents: many(signatureEvents),
@@ -105,6 +108,17 @@ export const paymentAttemptsRelations = relations(paymentAttempts, ({ one }) => 
   session: one(sessions, {
     fields: [paymentAttempts.sessionId],
     references: [sessions.id],
+  }),
+}));
+
+export const phoneVerificationsRelations = relations(phoneVerifications, ({ one }) => ({
+  session: one(sessions, {
+    fields: [phoneVerifications.sessionId],
+    references: [sessions.id],
+  }),
+  draft: one(draftLetters, {
+    fields: [phoneVerifications.draftId],
+    references: [draftLetters.id],
   }),
 }));
 

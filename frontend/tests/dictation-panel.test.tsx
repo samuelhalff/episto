@@ -37,24 +37,15 @@ vi.mock("next-intl", () => {
 });
 
 import {
-  DictationPanel,
-  type DictationPanelProps,
+  DictationErrorPanel,
+  type DictationErrorPanelProps,
 } from "../src/components/product/draft-flow/DictationPanel";
 
 afterEach(() => cleanup());
 
-function renderPanel(overrides: Partial<DictationPanelProps> = {}) {
-  const props: DictationPanelProps = {
-    isRecording: false,
-    isProcessing: false,
-    audioLevel: 0,
-    elapsedSeconds: 0,
-    maxCaptureSeconds: 120,
-    interimText: "",
-    locale: "en-CH",
+function renderPanel(overrides: Partial<DictationErrorPanelProps> = {}) {
+  const props: DictationErrorPanelProps = {
     error: null,
-    onStop: vi.fn(),
-    onCancel: vi.fn(),
     onRetry: vi.fn(),
     onDismissError: vi.fn(),
     ...overrides,
@@ -62,35 +53,14 @@ function renderPanel(overrides: Partial<DictationPanelProps> = {}) {
 
   return {
     props,
-    ...render(React.createElement(DictationPanel, props)),
+    ...render(React.createElement(DictationErrorPanel, props)),
   };
 }
 
-describe("DictationPanel", () => {
+describe("DictationErrorPanel", () => {
   it("renders nothing in the idle state", () => {
     const { container } = renderPanel();
     expect(container.firstChild).toBeNull();
-  });
-
-  it("renders the listening label with language and timer while recording", () => {
-    renderPanel({ isRecording: true, audioLevel: 0.6, elapsedSeconds: 7 });
-
-    expect(screen.getByText("Listening in English")).toBeTruthy();
-    expect(screen.getByText("0:07 / 2:00")).toBeTruthy();
-    expect(screen.getByRole("button", { name: /^Stop$/ })).toBeTruthy();
-  });
-
-  it("shows the interim transcript while recording", () => {
-    renderPanel({
-      isRecording: true,
-      interimText: "Sehr geehrte Damen und Herren",
-    });
-    expect(screen.getByText("Sehr geehrte Damen und Herren")).toBeTruthy();
-  });
-
-  it("swaps to the transcribing label while processing", () => {
-    renderPanel({ isProcessing: true });
-    expect(screen.getByText("Transcribing…")).toBeTruthy();
   });
 
   it("renders permission-denied error and reveals the help block on click", () => {
@@ -130,17 +100,6 @@ describe("DictationPanel", () => {
       ),
     ).toBeTruthy();
     expect(screen.queryByRole("button", { name: /Try again/ })).toBeNull();
-  });
-
-  it("fires onStop and onCancel from the panel buttons while recording", () => {
-    const onStop = vi.fn();
-    const onCancel = vi.fn();
-    renderPanel({ isRecording: true, onStop, onCancel });
-
-    fireEvent.click(screen.getByRole("button", { name: /^Stop$/ }));
-    fireEvent.click(screen.getByRole("button", { name: /Cancel/ }));
-    expect(onStop).toHaveBeenCalledTimes(1);
-    expect(onCancel).toHaveBeenCalledTimes(1);
   });
 
   it("auto-dismisses transient errors after the timeout", () => {

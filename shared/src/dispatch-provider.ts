@@ -60,11 +60,11 @@ export const DispatchPackageSchema = z.object({
 
 export const DispatchQuoteLineItemSchema = z.object({
   label: z.string().min(1),
-  amountCents: z.number().int(),
+  amountCents: z.number().int().nonnegative(),
   source: z.enum(["provider", "swiss_mail"]),
 });
 
-export const DispatchQuoteSchema = z.object({
+const DispatchQuoteObjectSchema = z.object({
   draftId: z.string().uuid(),
   snapshotId: z.string().uuid(),
   deliveryType: DeliveryTypeSchema,
@@ -76,6 +76,68 @@ export const DispatchQuoteSchema = z.object({
   providerQuoteReference: z.string().nullable(),
   attachmentHandling: z.enum(["excluded", "single_hint", "unverified"]),
 });
+
+interface DispatchQuoteFeeShape {
+  providerQuotedCents: number;
+  swissMailMarkupCents: number;
+  totalCents: number;
+  lineItems: z.infer<typeof DispatchQuoteLineItemSchema>[];
+}
+
+function validateDispatchQuoteFees(
+  quote: DispatchQuoteFeeShape,
+  ctx: z.RefinementCtx,
+): void {
+  const providerLineItemTotal = quote.lineItems
+    .filter((lineItem) => lineItem.source === "provider")
+    .reduce((sum, lineItem) => sum + lineItem.amountCents, 0);
+  const swissMailLineItemTotal = quote.lineItems
+    .filter((lineItem) => lineItem.source === "swiss_mail")
+    .reduce((sum, lineItem) => sum + lineItem.amountCents, 0);
+  const lineItemTotal = providerLineItemTotal + swissMailLineItemTotal;
+
+  if (providerLineItemTotal !== quote.providerQuotedCents) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["providerQuotedCents"],
+      message: "Provider line items must match providerQuotedCents.",
+    });
+  }
+
+  if (swissMailLineItemTotal !== quote.swissMailMarkupCents) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["swissMailMarkupCents"],
+      message: "Episto line items must match swissMailMarkupCents.",
+    });
+  }
+
+  if (lineItemTotal !== quote.totalCents) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["lineItems"],
+      message: "Dispatch quote line items must sum to totalCents.",
+    });
+  }
+
+  if (quote.providerQuotedCents + quote.swissMailMarkupCents !== quote.totalCents) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["totalCents"],
+      message: "Dispatch quote totalCents must equal provider plus Episto fees.",
+    });
+  }
+}
+
+export function createDispatchQuoteSchema<T extends z.ZodTypeAny>(snapshotIdSchema: T) {
+  return DispatchQuoteObjectSchema.extend({ snapshotId: snapshotIdSchema }).superRefine(
+    validateDispatchQuoteFees,
+  );
+}
+
+export const DispatchQuoteSchema = DispatchQuoteObjectSchema.superRefine(
+  validateDispatchQuoteFees,
+);
 
 export const DispatchSubmitResultSchema = z.object({
   state: DispatchStateSchema,

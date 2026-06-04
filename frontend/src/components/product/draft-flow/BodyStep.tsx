@@ -7,7 +7,7 @@ import { BodyComposer } from "./BodyComposer";
 import { BodyGenerationDialog } from "./BodyGenerationDialog";
 import { BodyModeToolbar } from "./BodyModeToolbar";
 import { BodyPreview } from "./BodyPreview";
-import { DictationPanel } from "./DictationPanel";
+import { DictationErrorPanel } from "./DictationPanel";
 import { PromptShortcutBar } from "./PromptShortcutBar";
 import type {
   DraftWorkspacePreviewToggleProps,
@@ -146,21 +146,8 @@ export function BodyStep({
       composer={
         editMode === "ai" ? (
           <>
-            <DictationPanel
-              isRecording={dictation.isRecording}
-              isProcessing={dictation.isProcessing}
-              audioLevel={dictation.audioLevel}
-              elapsedSeconds={dictation.elapsedSeconds}
-              maxCaptureSeconds={dictation.maxCaptureSeconds}
-              interimText={dictation.interimText}
-              locale={locale}
+            <DictationErrorPanel
               error={dictation.error}
-              onStop={() => {
-                void dictation.stopRecording();
-              }}
-              onCancel={() => {
-                void dictation.cancelRecording();
-              }}
               onRetry={() => {
                 dictation.clearError();
                 void dictation.startRecording(locale);

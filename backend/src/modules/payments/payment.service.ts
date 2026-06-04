@@ -30,6 +30,8 @@ export interface PaymentAttemptRow {
   breakdown: unknown;
   failureReason: string | null;
   refundReason: string | null;
+  verifiedPhoneE164: string | null;
+  phoneVerifiedAt: Date | null;
   orderAccessTokenHash: string | null;
   orderAccessTokenExpiresAt: Date | null;
   createdAt: Date;
@@ -51,6 +53,8 @@ function toPaymentRow(
     breakdown: row.breakdown,
     failureReason: row.failureReason,
     refundReason: row.refundReason,
+    verifiedPhoneE164: row.verifiedPhoneE164 ?? null,
+    phoneVerifiedAt: row.phoneVerifiedAt ?? null,
     orderAccessTokenHash: row.orderAccessTokenHash ?? null,
     orderAccessTokenExpiresAt: row.orderAccessTokenExpiresAt ?? null,
     createdAt: row.createdAt,
@@ -69,6 +73,8 @@ export async function createPaymentAttempt(
     sessionId: string;
     amountCents: number;
     breakdown: PaymentBreakdown;
+    verifiedPhoneE164?: string | null | undefined;
+    phoneVerifiedAt?: Date | null | undefined;
   },
 ): Promise<PaymentAttemptRow> {
   if (data.amountCents <= 0) {
@@ -84,6 +90,8 @@ export async function createPaymentAttempt(
       amountCents: data.amountCents,
       currency: "CHF",
       breakdown: data.breakdown,
+      verifiedPhoneE164: data.verifiedPhoneE164 ?? null,
+      phoneVerifiedAt: data.phoneVerifiedAt ?? null,
     })
     .returning();
 

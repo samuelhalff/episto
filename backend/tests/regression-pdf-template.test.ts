@@ -5,7 +5,7 @@
  * - "As a user, my letter PDF contains sender info, recipient address, date,
  *    subject line, salutation, body, closing, and signature."
  * - "As a user, the enclosure note appears when provided."
- * - "As a user, a letter without a signature mode omits the signature block."
+ * - "As a user, a letter without a signature mode still prints my sender name."
  * - "As a user, the first-page layout matches the reviewed right-window postal template."
  * - "As a user, the recipient block shows company, department, name, and full address."
  * - "As a user, the date includes the sender's city when available."
@@ -15,6 +15,7 @@ import type { SnapshotData } from "@episto/shared";
 import { assertDefined } from "./assert-defined";
 
 vi.mock("node:fs", () => ({
+  existsSync: vi.fn().mockReturnValue(true),
   readFileSync: vi.fn().mockReturnValue(Buffer.from("fake-font-data")),
 }));
 
@@ -204,7 +205,7 @@ describe("regression: PDF letter template renders all elements", () => {
     expect(html).toContain("Anna Mueller");
   });
 
-  it("omits signature block element when signatureMode is null", async () => {
+  it("prints the sender name without rendering a signature mark when signatureMode is null", async () => {
     const { renderLetterHtml } =
       await import("../src/modules/rendering/render-template.js");
     const html = renderLetterHtml(makeSnapshotData({ signatureMode: null }));
@@ -212,6 +213,7 @@ describe("regression: PDF letter template renders all elements", () => {
     // CSS class definitions stay in the <style> block, but no element is rendered
     expect(html).not.toContain('<div class="signature-block">');
     expect(html).not.toContain('<div class="signature-script">');
+    expect(html).toContain('<div class="signature-name">Anna Mueller</div>');
   });
 
   it("does not fabricate a typed signature block when drawn mode has no image payload", async () => {

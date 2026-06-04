@@ -85,6 +85,13 @@
       "when": 1778452800001,
       "tag": "0011_legacy_signature_cleanup",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1780599600000,
+      "tag": "0012_phone_verification",
+      "breakpoints": true
     }
   ]
 }

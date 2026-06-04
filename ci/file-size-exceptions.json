@@ -6,12 +6,12 @@
   "backend/src/modules/signing/signature.routes.ts": 721,
   "backend/tests/ai-handler.test.ts": 775,
   "backend/tests/dispatch-quote.integration.test.ts": 809,
-  "backend/tests/payment-checkout.routes.test.ts": 902,
-  "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx": 501,
+  "backend/tests/payment-checkout.routes.test.ts": 940,
+  "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx": 652,
   "frontend/src/app/[locale]/draft/new/page.tsx": 697,
   "frontend/src/components/product/AttachmentUploader.tsx": 519,
   "frontend/src/components/product/draft-flow/IntakeStep.tsx": 501,
-  "frontend/src/components/product/LetterPreview.tsx": 548,
+  "frontend/src/components/product/LetterPreview.tsx": 553,
   "frontend/src/hooks/use-dictation.ts": 501,
   "shared/src/contracts/index.ts": 728
 }

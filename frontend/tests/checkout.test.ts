@@ -38,6 +38,15 @@ const REQUIRED_CHECKOUT_KEYS = [
   "checkoutIntro",
   "email",
   "emailHelp",
+  "phone",
+  "phoneHelp",
+  "phoneCode",
+  "phoneCodeHelp",
+  "sendPhoneCode",
+  "resendPhoneCode",
+  "verifyPhoneCode",
+  "phoneVerified",
+  "phoneVerificationRequired",
   "consentRequired",
   "legalConsent",
   "sendMyLetter",
@@ -116,6 +125,13 @@ describe("checkout footer actions", () => {
 
   it("uses the shared action button in the checkout form", () => {
     expect(checkoutPageSource).toContain("<ActionButton");
+  });
+
+  it("requires phone verification before creating the payment intent", () => {
+    expect(checkoutPageSource).toContain("usePhoneVerification");
+    expect(checkoutPageSource).toContain("isPhoneVerified");
+    expect(checkoutPageSource).toContain("!isPhoneVerified");
+    expect(useCheckoutSource).toContain("createPaymentIntent");
   });
 
   it("provides a route back to review in the checkout page bottom bar", () => {

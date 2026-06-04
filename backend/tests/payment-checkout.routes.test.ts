@@ -20,6 +20,7 @@ const mocks = vi.hoisted(() => ({
   createPaymentIntent: vi.fn(),
   getPaymentIntentForCheckout: vi.fn(),
   updatePaymentIntentReceiptDetails: vi.fn(),
+  assertVerifiedPhoneForCheckout: vi.fn(),
   syncDraftFulfillmentFromPaymentState: vi.fn(),
   getLatestSignatureSession: vi.fn(),
   assertSignatureFlowSupported: vi.fn(),
@@ -89,6 +90,10 @@ vi.mock("../src/modules/dispatch/dispatch-quote.service.js", () => ({
 
 vi.mock("../src/modules/analytics/index.js", () => ({
   recordEvent: mocks.recordEvent,
+}));
+
+vi.mock("../src/modules/phone-verification/phone-verification.service.js", () => ({
+  assertVerifiedPhoneForCheckout: mocks.assertVerifiedPhoneForCheckout,
 }));
 
 vi.mock("../src/modules/signing/fulfillment.service.js", () => ({
@@ -161,6 +166,10 @@ describe("payment checkout routes", () => {
       state: "pending",
       amountCents: 625,
     });
+    mocks.assertVerifiedPhoneForCheckout.mockResolvedValue({
+      phoneE164: "+41791234567",
+      phoneVerifiedAt: new Date("2026-06-04T12:00:00.000Z"),
+    });
     mocks.createPaymentIntent.mockResolvedValue({
       paymentIntentId: "pi_1",
       clientSecret: "cs_test_1",
@@ -208,9 +217,40 @@ describe("payment checkout routes", () => {
     });
 
     expect(response.statusCode).toBe(200);
+    expect(mocks.assertVerifiedPhoneForCheckout).toHaveBeenCalledWith(mocks.db, {
+      sessionId: "session-1",
+    });
     expect(mocks.db.transaction).toHaveBeenCalledTimes(1);
     expect(mocks.tx.update).toHaveBeenCalledWith({ id: "session_id" });
     expect(mocks.db.update).not.toHaveBeenCalled();
+  });
+
+  it("rejects checkout until the session has a verified phone number", async () => {
+    mocks.assertVerifiedPhoneForCheckout.mockRejectedValueOnce(
+      new AppError({
+        family: "policy_refusal",
+        statusCode: 409,
+        code: "PHONE_VERIFICATION_REQUIRED",
+        message: "Checkout requires a verified phone number.",
+        userMessage: "Verify your mobile number before payment.",
+        userAction: "Enter your phone number and confirm the SMS code.",
+      }),
+    );
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toMatchObject({
+      error: {
+        code: "PHONE_VERIFICATION_REQUIRED",
+      },
+    });
+    expect(mocks.resolvePaymentDispatchQuoteForDraft).not.toHaveBeenCalled();
+    expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
   });
 
   it("rejects checkout while the final review render is still pending", async () => {

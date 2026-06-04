@@ -3,12 +3,7 @@ import { createdAt, pk, ts, updatedAt } from "./helpers.js";
 
 export const sessionTypeEnum = pgEnum("session_type", ["guest"]);
 
-export const localeEnum = pgEnum("locale_enum", [
-  "de-CH",
-  "fr-CH",
-  "it-CH",
-  "en-CH",
-]);
+export const localeEnum = pgEnum("locale_enum", ["de-CH", "fr-CH", "it-CH", "en-CH"]);
 
 export const sessions = pgTable(
   "sessions",
@@ -16,6 +11,8 @@ export const sessions = pgTable(
     id: pk(),
     type: sessionTypeEnum("type").default("guest").notNull(),
     email: text("email"),
+    phoneE164: text("phone_e164"),
+    phoneVerifiedAt: ts("phone_verified_at"),
     resumeTokenHash: text("resume_token_hash").notNull().unique(),
     resumeTokenExpiresAt: ts("resume_token_expires_at").notNull(),
     locale: localeEnum("locale").default("de-CH").notNull(),

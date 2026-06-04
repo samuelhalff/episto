@@ -26,7 +26,7 @@ import {
   shouldSendShortcutImmediately,
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
-import { DictationPanel } from "./DictationPanel";
+import { DictationErrorPanel } from "./DictationPanel";
 import { IntakeTips } from "./IntakeTips";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
@@ -243,21 +243,8 @@ export function IntakeStep({
   ]);
   const intakeComposer = (
     <>
-      <DictationPanel
-        isRecording={dictation.isRecording}
-        isProcessing={dictation.isProcessing}
-        audioLevel={dictation.audioLevel}
-        elapsedSeconds={dictation.elapsedSeconds}
-        maxCaptureSeconds={dictation.maxCaptureSeconds}
-        interimText={dictation.interimText}
-        locale={locale}
+      <DictationErrorPanel
         error={dictation.error}
-        onStop={() => {
-          void dictation.stopRecording();
-        }}
-        onCancel={() => {
-          void dictation.cancelRecording();
-        }}
         onRetry={() => {
           dictation.clearError();
           void dictation.startRecording(locale);

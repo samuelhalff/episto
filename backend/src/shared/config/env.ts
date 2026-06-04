@@ -144,6 +144,21 @@ export const EnvSchema = z
     LEGAL_ENTITY_COUNTRY: z.string().min(1).default("Switzerland"),
     LEGAL_ENTITY_UID_VAT: z.string().min(1).default("CHE-107.892.984"),
 
+    // SMS verification
+    SMS_PROVIDER: z.enum(["noop", "budgetsms"]).default("noop"),
+    SMS_SENDER_ID: z
+      .string()
+      .regex(/^[A-Za-z0-9]{1,11}$/)
+      .default("EPISTO"),
+    SMS_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(8000),
+    BUDGETSMS_API_BASE_URL: z
+      .string()
+      .url()
+      .default("https://api.budgetsms.net/sendsms/"),
+    BUDGETSMS_USERNAME: z.string().min(1).optional(),
+    BUDGETSMS_USER_ID: z.string().regex(/^\d+$/).optional(),
+    BUDGETSMS_HANDLE: z.string().min(1).optional(),
+
     // Public URL (customer-facing frontend origin used in emails/links)
     APP_PUBLIC_URL: z.string().url().optional(),
 
@@ -206,6 +221,21 @@ export const EnvSchema = z
       return true;
     },
     { message: "EPOST_API_KEY is required when POSTAL_DISPATCH_PROVIDER=epost" },
+  )
+  .refine(
+    (data) => {
+      if (data.SMS_PROVIDER === "budgetsms") {
+        return Boolean(
+          data.BUDGETSMS_USERNAME && data.BUDGETSMS_USER_ID && data.BUDGETSMS_HANDLE,
+        );
+      }
+
+      return true;
+    },
+    {
+      message:
+        "BUDGETSMS_USERNAME, BUDGETSMS_USER_ID, and BUDGETSMS_HANDLE are required when SMS_PROVIDER=budgetsms",
+    },
   )
   .refine(
     (data) => {

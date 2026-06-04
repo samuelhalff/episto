@@ -14,8 +14,8 @@ import {
 } from "../schemas/index.ts";
 import {
   DispatchAttachmentPolicySchema,
-  DispatchQuoteSchema,
   PostalPostageSchema,
+  createDispatchQuoteSchema,
 } from "../dispatch-provider.ts";
 import { DICTATION_LIMITS, DRAFT_CONTENT_LIMITS } from "../limits.ts";
 
@@ -276,7 +276,7 @@ export interface DraftDispatchQuoteLineItem {
 
 export interface DraftDispatchQuote {
   draftId: string;
-  snapshotId: string;
+  snapshotId: string | null;
   deliveryType: string;
   providerQuotedCents: number;
   swissMailMarkupCents: number;
@@ -293,8 +293,10 @@ export const DraftDispatchQuoteMetaSchema = z.object({
   expiresAt: z.string().datetime().nullable(),
 });
 
+const DraftDispatchQuoteSchema = createDispatchQuoteSchema(z.string().uuid().nullable());
+
 export const DraftDispatchQuoteResponseSchema = z.object({
-  quote: DispatchQuoteSchema,
+  quote: DraftDispatchQuoteSchema,
   meta: DraftDispatchQuoteMetaSchema,
 });
 
