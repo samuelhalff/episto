@@ -42,8 +42,9 @@ describe("draft preview route", () => {
         }
         return request.session;
       }),
-      requireSession: vi.fn().mockImplementation(
-        async (request: { session?: unknown }) => {
+      requireSession: vi
+        .fn()
+        .mockImplementation(async (request: { session?: unknown }) => {
           request.session = {
             id: "preview-session",
             type: "guest",
@@ -54,8 +55,7 @@ describe("draft preview route", () => {
             createdAt: new Date("2026-01-01"),
             updatedAt: new Date("2026-01-01"),
           };
-        },
-      ),
+        }),
       COOKIE_NAME: "session",
     }));
 
@@ -70,6 +70,7 @@ describe("draft preview route", () => {
         body: "Test body",
         enclosureNote: null,
         signatureMode: "typed",
+        signatureAssuranceLevel: "visual",
         signatureAssetId: null,
         senderProfileId: null,
         recipientProfileId: null,
@@ -167,7 +168,8 @@ describe("draft preview route", () => {
 
   it("uses the stored quote resolver even before the first snapshot exists", async () => {
     const draftService = await import("../src/modules/drafting/draft.service.js");
-    const dispatchQuoteService = await import("../src/modules/dispatch/dispatch-quote.service.js");
+    const dispatchQuoteService =
+      await import("../src/modules/dispatch/dispatch-quote.service.js");
 
     vi.mocked(draftService.getDraftById).mockResolvedValueOnce({
       id: "preview-draft",
@@ -179,6 +181,7 @@ describe("draft preview route", () => {
       body: null,
       enclosureNote: null,
       signatureMode: "typed",
+      signatureAssuranceLevel: "visual",
       signatureAssetId: null,
       senderProfileId: null,
       recipientProfileId: null,
@@ -197,7 +200,9 @@ describe("draft preview route", () => {
 
     expect(response.statusCode).toBe(200);
     expect(response.json().preview.priceCents).toBe(918);
-    expect(dispatchQuoteService.resolveDisplayDispatchQuoteForDraft).toHaveBeenCalledTimes(1);
+    expect(
+      dispatchQuoteService.resolveDisplayDispatchQuoteForDraft,
+    ).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -270,6 +275,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
+      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {
@@ -322,6 +328,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
+      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {
@@ -454,6 +461,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
         body: "Body",
         enclosureNote: null,
         signatureMode: "typed",
+        signatureAssuranceLevel: "visual",
         tone: "formal",
         intent: "cancellation",
         sender: {
@@ -532,6 +540,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
         body: "Body",
         enclosureNote: null,
         signatureMode: "typed",
+        signatureAssuranceLevel: "visual",
         tone: "formal",
         intent: "cancellation",
         sender: {
@@ -625,6 +634,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
+      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {
@@ -718,6 +728,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
+      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {
@@ -770,8 +781,12 @@ describeIfIntegrationDb("dispatch quote integration", () => {
         };
       },
       quotePrice,
-      async submit() { throw new Error("not used"); },
-      async checkStatus() { throw new Error("not used"); },
+      async submit() {
+        throw new Error("not used");
+      },
+      async checkStatus() {
+        throw new Error("not used");
+      },
     };
 
     const { loadEnv } = await import("../src/shared/config/index.js");
@@ -803,6 +818,8 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       .where(eq(schema.draftQuoteCache.draftId, draftId))
       .limit(1);
     expect(cached?.expiresAt).not.toBeNull();
-    expect(assertDefined(assertDefined(cached).expiresAt).getTime()).toBeGreaterThanOrEqual(expectedMin);
+    expect(
+      assertDefined(assertDefined(cached).expiresAt).getTime(),
+    ).toBeGreaterThanOrEqual(expectedMin);
   });
 });
