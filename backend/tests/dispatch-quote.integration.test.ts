@@ -151,6 +151,7 @@ describe("draft preview route", () => {
   afterEach(async () => {
     await app.close();
     // Unmock modules that the integration tests below import dynamically
+    vi.doUnmock("../src/db/index.js");
     vi.doUnmock("../src/modules/dispatch/dispatch-quote.service.js");
     vi.doUnmock("../src/modules/rendering/snapshot.service.js");
     vi.doUnmock("../src/shared/config/index.js");
@@ -277,6 +278,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
   let cleanup: (() => Promise<void>) | null = null;
 
   beforeEach(() => {
+    vi.doUnmock("../src/db/index.js");
     vi.doUnmock("../src/modules/dispatch/dispatch-quote.service.js");
     vi.doUnmock("../src/modules/rendering/snapshot.service.js");
     vi.doUnmock("../src/shared/config/index.js");
