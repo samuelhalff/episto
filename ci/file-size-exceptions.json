@@ -5,7 +5,7 @@
   "backend/src/modules/rendering/confirmation-document.ts": 554,
   "backend/src/modules/signing/signature.routes.ts": 721,
   "backend/tests/ai-handler.test.ts": 775,
-  "backend/tests/dispatch-quote.integration.test.ts": 853,
+  "backend/tests/dispatch-quote.integration.test.ts": 855,
   "backend/tests/payment-checkout.routes.test.ts": 940,
   "docs/05-architecture/database-schema.md": 614,
   "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx": 652,

@@ -152,6 +152,7 @@ describe("draft preview route", () => {
     await app.close();
     // Unmock modules that the integration tests below import dynamically
     vi.doUnmock("../src/modules/dispatch/dispatch-quote.service.js");
+    vi.doUnmock("../src/modules/rendering/snapshot.service.js");
     vi.doUnmock("../src/shared/config/index.js");
     vi.resetModules();
   });
@@ -277,6 +278,7 @@ describeIfIntegrationDb("dispatch quote integration", () => {
 
   beforeEach(() => {
     vi.doUnmock("../src/modules/dispatch/dispatch-quote.service.js");
+    vi.doUnmock("../src/modules/rendering/snapshot.service.js");
     vi.doUnmock("../src/shared/config/index.js");
     stubValidEnvForQuoteTests();
   });
