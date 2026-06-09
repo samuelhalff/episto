@@ -154,7 +154,8 @@ describe("signature canvas redesign", () => {
     expect(signatureCanvasSource).toContain("ACTION_ENABLE_DELAY_MS");
     expect(signatureCanvasSource).toContain("actionsEnabled");
     expect(signatureCanvasSource).toContain("actionEnableRef");
-    expect(signatureCanvasSource).toContain("setTimeout(() => setActionsEnabled(true)");
+    expect(signatureCanvasSource).toContain("actionEnableRef.current = setTimeout(");
+    expect(signatureCanvasSource).toContain("setActionsEnabled(true)");
     expect(signatureCanvasSource).toContain("disabled={disabled || !actionsEnabled}");
   });
 
