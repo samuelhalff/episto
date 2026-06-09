@@ -24,7 +24,12 @@ function getTempSchemaName(): string {
 }
 
 function rewriteMigrationSql(sql: string, schemaName: string): string {
-  return sql.replaceAll('"public".', `"${schemaName}".`);
+  return sql
+    .replaceAll('"public".', `"${schemaName}".`)
+    .replace(
+      /WHERE typname = ('[^']+')/g,
+      "WHERE typname = $1 AND typnamespace = current_schema()::regnamespace",
+    );
 }
 
 async function applyMigrations(client: pg.Client, schemaName: string): Promise<void> {

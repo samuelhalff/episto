@@ -96,6 +96,7 @@ jobs:
           node-version: "20"
           cache: "npm"
       - run: npm ci
+      - run: npm run build --workspace=shared
       - run: npm test --workspace=frontend
 
   test-backend:
@@ -214,6 +215,7 @@ jobs:
           node-version: "20"
           cache: "npm"
       - run: npm ci
+      - run: npm run build --workspace=shared
       - name: Run coverage
         run: npm test -- --coverage
       - name: Upload coverage artifact
