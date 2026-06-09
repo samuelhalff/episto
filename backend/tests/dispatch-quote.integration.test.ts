@@ -151,8 +151,8 @@ describe("draft preview route", () => {
   afterEach(async () => {
     await app.close();
     // Unmock modules that the integration tests below import dynamically
-    vi.unmock("../src/modules/dispatch/dispatch-quote.service.js");
-    vi.unmock("../src/shared/config/index.js");
+    vi.doUnmock("../src/modules/dispatch/dispatch-quote.service.js");
+    vi.doUnmock("../src/shared/config/index.js");
     vi.resetModules();
   });
 
@@ -219,6 +219,27 @@ import {
 
 const describeIfIntegrationDb = integrationDatabaseUrl ? describe : describe.skip;
 
+function stubValidEnvForQuoteTests() {
+  Object.assign(process.env, {
+    DATABASE_URL: integrationDatabaseUrl ?? "postgresql://user:pass@localhost:5432/db",
+    REDIS_URL: "redis://localhost:6379",
+    S3_ENDPOINT: "https://s3.example.com",
+    S3_BUCKET: "episto-files",
+    S3_ACCESS_KEY: "test-access-key",
+    S3_SECRET_KEY: "test-secret-key",
+    STRIPE_SECRET_KEY: "sk_test_dispatch_quote",
+    STRIPE_WEBHOOK_SECRET: "whsec_dispatch_quote",
+    ORDER_ACCESS_TOKEN_SECRET: "dispatch-quote-order-secret-32-chars",
+    AZURE_OPENAI_ENDPOINT: "https://openai.azure.com",
+    AZURE_OPENAI_API_KEY: "test-openai-key",
+    AZURE_SPEECH_REGION: "switzerlandnorth",
+    AZURE_SPEECH_API_KEY: "test-speech-key",
+    RESEND_API_KEY: "re_dispatch_quote",
+    POSTAL_DISPATCH_PROVIDER: "stub",
+    EPOST_SUBMISSION_MODE: "mock",
+  });
+}
+
 async function seedSessionAndDraft(options?: {
   estimatedPages?: number | null;
   deliveryType?: "standard" | "registered";
@@ -253,6 +274,12 @@ async function seedSessionAndDraft(options?: {
 
 describeIfIntegrationDb("dispatch quote integration", () => {
   let cleanup: (() => Promise<void>) | null = null;
+
+  beforeEach(() => {
+    vi.doUnmock("../src/modules/dispatch/dispatch-quote.service.js");
+    vi.doUnmock("../src/shared/config/index.js");
+    stubValidEnvForQuoteTests();
+  });
 
   afterEach(async () => {
     vi.resetModules();
