@@ -20,7 +20,7 @@ Valid slugs: `lease-cancellation`, `insurance-cancellation`, `contract-terminati
 - **Title:** `{useCaseTitle} — Episto`
 - **Meta description:** `Draft and send {useCaseDescription} in minutes with Episto. AI-assisted and ready for postal dispatch.`
 - **Structured data:** `HowTo`, `FAQPage`
-- **Canonical:** `https://swissmail.ch/use-cases/{slug}`
+- **Canonical:** `https://episto.ch/use-cases/{slug}`
 
 ### Layout
 

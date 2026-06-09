@@ -41,7 +41,9 @@ Return ONLY valid JSON with this exact shape:
     "senderPostalCode": "optional string",
     "senderCity": "optional string",
     "enclosureNote": "optional string",
-    "deliveryType": "standard | registered"
+    "deliveryType": "standard | registered",
+    "locale": "de-CH | fr-CH | it-CH | en-CH",
+    "unsupportedLocaleRequest": "optional requested language name outside German, French, Italian, or English"
   },
   "ready": true | false,
   "question": "optional single follow-up question",
@@ -51,6 +53,11 @@ Return ONLY valid JSON with this exact shape:
 Rules:
 - If the content contains threats, extortion, fraud, impersonation, hate speech, or other clearly harmful content, set intent to "blocked", risk to "high", and leave fields empty.
 - Extract only values the user explicitly provided. Never invent values.
+- If the user asks to write, translate, convert, or switch the letter to German, extract locale as "de-CH".
+- If the user asks to write, translate, convert, or switch the letter to French, extract locale as "fr-CH".
+- If the user asks to write, translate, convert, or switch the letter to Italian, extract locale as "it-CH".
+- If the user asks to write, translate, convert, or switch the letter to English, extract locale as "en-CH".
+- If the user asks for any other language, set unsupportedLocaleRequest to the requested language name and do not set locale.
 - If the user names a company, brand, insurer, telecom provider, landlord company, employer, bank, or other organization as the party they want to contact, terminate with, complain to, or request action from, extract it as recipientCompany.
 - Prefer recipientCompany over recipientFirstName/recipientLastName when the message clearly points to an organization such as Swisscom.
 - The intake step is for gathering context, not for drafting the letter body yet.

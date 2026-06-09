@@ -121,6 +121,13 @@ describe("review page regressions", () => {
     expect(reviewReadySource).not.toContain("bg-amber-50");
   });
 
+  it("renders review summary status as helper text instead of a badge beside selected options", () => {
+    expect(reviewSummaryCardSource).not.toContain("StatusBadge");
+    expect(reviewSummaryCardSource).toContain("statusLabel ? (");
+    expect(reviewSummaryCardSource).toContain("text-xs leading-5");
+    expect(reviewSummaryCardSource).toContain("{statusLabel}");
+  });
+
   it("removes redundant subject and delivery recap rows from the review summary", () => {
     expect(reviewReadySource).not.toContain('label={t("subjectLine")}');
     expect(reviewReadySource).not.toContain('label={t("deliveryTypeLabel")}');

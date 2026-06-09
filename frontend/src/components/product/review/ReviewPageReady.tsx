@@ -348,9 +348,6 @@ export function ReviewPageReady({
             <ReviewSummaryCard
               title={t("summaryTitle")}
               description={t("reviewReadOnly")}
-              statusTone={
-                isRenderPending ? "warning" : allComplete ? "success" : "warning"
-              }
               statusLabel={
                 isRenderPending
                   ? t("calculatingPrice")

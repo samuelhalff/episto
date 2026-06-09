@@ -7,7 +7,7 @@ export const LEGAL_WEBSITE_HOST = "episto.ch";
 export const LEGAL_OPERATOR = {
   companyName: "West Bay SA",
   addressLines: ["Chemin du Pre-Roset 19", "1294 Genthod", "Switzerland"],
-  supportEmail: "support@swissmail.ch",
+  supportEmail: "contact@episto.ch",
   uidVat: "CHE-107.892.984",
 } as const;
 

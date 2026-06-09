@@ -27,6 +27,7 @@ export const CreateSessionInput = z.object({
 });
 
 export const UpdateDraftInput = z.object({
+  locale: LocaleSchema.optional(),
   subject: z.string().max(DRAFT_CONTENT_LIMITS.subjectChars).optional(),
   body: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).optional(),
   tone: z.string().optional(),

@@ -136,8 +136,8 @@ export const EnvSchema = z
     // Email
     RESEND_API_KEY: z.string().startsWith("re_"),
     APP_DISPLAY_NAME: z.string().min(1).default("Episto"),
-    EMAIL_FROM: z.string().email().default("noreply@swissmail.ch"),
-    SUPPORT_EMAIL: z.string().email().default("support@swissmail.ch"),
+    EMAIL_FROM: z.string().email().default("contact@episto.ch"),
+    SUPPORT_EMAIL: z.string().email().default("contact@episto.ch"),
     LEGAL_ENTITY_NAME: z.string().min(1).default("West Bay SA"),
     LEGAL_ENTITY_ADDRESS_LINE_1: z.string().min(1).default("Chemin du Pre-Roset 19"),
     LEGAL_ENTITY_ADDRESS_LINE_2: z.string().min(1).default("1294 Genthod"),
@@ -235,6 +235,18 @@ export const EnvSchema = z
     {
       message:
         "BUDGETSMS_USERNAME, BUDGETSMS_USER_ID, and BUDGETSMS_HANDLE are required when SMS_PROVIDER=budgetsms",
+    },
+  )
+  .refine(
+    (data) => {
+      if (data.NODE_ENV === "production") {
+        return data.SMS_PROVIDER !== "noop";
+      }
+
+      return true;
+    },
+    {
+      message: "SMS_PROVIDER must use a real provider in production",
     },
   )
   .refine(

@@ -1,9 +1,9 @@
-# Swiss Mail
+# Episto
 
 > A premium formal-letter product with integrated Swiss postal submission.
 
-Describe what you need. Swiss Mail drafts the letter, generates the dispatch-ready PDF, collects
-payment, and submits the resulting package through the configured postal adapter. Swiss Mail does
+Describe what you need. Episto drafts the letter, generates the dispatch-ready PDF, collects
+payment, and submits the resulting package through the configured postal adapter. Episto does
 not operate its own print-and-mail workflow.
 
 **Status:** Core product implementation is complete. Current work is pre-launch hardening, provider
@@ -35,7 +35,7 @@ Start here → **[docs/index.md](docs/index.md)** — navigation hub with readin
 ### Key safety files (read before writing code)
 
 - [AI Implementation Rules](docs/08-guardrails/ai-implementation-rules.md) — anti-hallucination guardrails
-- [Provider Submission Model](docs/04-product/provider-submission-model.md) — what Swiss Mail does vs what the provider does
+- [Provider Submission Model](docs/04-product/provider-submission-model.md) — what Episto does vs what the provider does
 - [Swiss Post API Reference Map](docs/08-guardrails/swiss-post-api-reference-map.md) — which docs depend on API truth, and why
 - [Provider Certainties](docs/08-guardrails/provider-certainties.md) — known vs unknown
 - [Swiss Post Appendix](docs/08-guardrails/swiss-post-appendix.md) — verified facts only

@@ -32,7 +32,8 @@ describe("API error helpers", () => {
     const error = new ApiError(503, {
       error: {
         code: "PROVIDER_OUTAGE",
-        userMessage: "An external service is temporarily unavailable. Please try again shortly.",
+        userMessage:
+          "An external service is temporarily unavailable. Please try again shortly.",
       },
     });
 
@@ -90,8 +91,8 @@ describe("API error helpers", () => {
   });
 
   it("keeps browser requests on the same-origin /api proxy even when a public API origin is configured", async () => {
-    process.env.NEXT_PUBLIC_API_URL = "https://api.swissmail.ch";
-    vi.stubGlobal("window", { location: { origin: "https://swissmail.ch" } });
+    process.env.NEXT_PUBLIC_API_URL = "https://episto.ch/api";
+    vi.stubGlobal("window", { location: { origin: "https://episto.ch" } });
     vi.resetModules();
 
     const { getApiUrl } = await import("../src/lib/api");

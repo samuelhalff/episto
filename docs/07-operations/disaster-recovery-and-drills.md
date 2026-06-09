@@ -12,7 +12,7 @@
 
 A backup that has never been restored successfully is not a trustworthy recovery path.
 
-Swiss Mail must prove recovery through drills, not assumptions.
+Episto must prove recovery through drills, not assumptions.
 
 ---
 
@@ -77,7 +77,7 @@ Do not treat Redis durability as a substitute for canonical backend records.
 
 ## 5. RTO / RPO rule
 
-Swiss Mail should record target recovery values, but only launch with values that are backed by a
+Episto should record target recovery values, but only launch with values that are backed by a
 real drill or provider capability.
 
 If point-in-time recovery is unavailable:

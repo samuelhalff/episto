@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Swiss Mail's AI drafting pipeline now treats model output as a machine-readable document response instead of assuming that visually formatted text is structurally meaningful.
+Episto's AI drafting pipeline now treats model output as a machine-readable document response instead of assuming that visually formatted text is structurally meaningful.
 
 ## Modes
 
@@ -32,4 +32,4 @@ The backend accepts a versioned JSON response contract with these modes:
 
 ## Current limitation
 
-This repository does **not** contain a Microsoft Word add-in or Office.js application layer. The current implementation therefore applies the structured pipeline to Swiss Mail's internal document model, preview renderer, and PDF renderer rather than to Word-native ranges, styles, lists, or tables.
+This repository does **not** contain a Microsoft Word add-in or Office.js application layer. The current implementation therefore applies the structured pipeline to Episto's internal document model, preview renderer, and PDF renderer rather than to Word-native ranges, styles, lists, or tables.

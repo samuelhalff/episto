@@ -1,7 +1,6 @@
 "use client";
 
 import { memo } from "react";
-import { StatusBadge } from "../../ui/status-badge";
 
 export interface ReviewSummaryItem {
   label: string;
@@ -13,7 +12,6 @@ export interface ReviewSummaryItem {
 interface ReviewSummaryCardProps {
   title: string;
   description: string;
-  statusTone: "success" | "warning";
   statusLabel: string;
   items: ReviewSummaryItem[];
 }
@@ -21,20 +19,21 @@ interface ReviewSummaryCardProps {
 export function ReviewSummaryCard({
   title,
   description,
-  statusTone,
   statusLabel,
   items,
 }: ReviewSummaryCardProps) {
   return (
     <div className="app-panel rounded-3xl p-6">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
-            {title}
-          </h2>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
-        </div>
-        <StatusBadge tone={statusTone}>{statusLabel}</StatusBadge>
+      <div>
+        <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          {title}
+        </h2>
+        <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
+        {statusLabel ? (
+          <p className="mt-2 text-xs leading-5 text-zinc-400 dark:text-zinc-500">
+            {statusLabel}
+          </p>
+        ) : null}
       </div>
 
       <div className="mt-6 space-y-4">
@@ -63,7 +62,10 @@ const SummaryBlock = memo(function SummaryBlock({
       <div className="mt-2 space-y-1">
         {hasValue ? (
           values.map((line, index) => (
-            <p key={`${label}-${index}`} className="text-sm leading-6 text-zinc-900 dark:text-zinc-100">
+            <p
+              key={`${label}-${index}`}
+              className="text-sm leading-6 text-zinc-900 dark:text-zinc-100"
+            >
               {line}
             </p>
           ))

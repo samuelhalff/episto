@@ -371,7 +371,7 @@ describe("marketing seo plumbing", () => {
     expect(markup).toContain("Source: Federal Office of Topography");
     expect(markup).toContain("geo.admin.ch");
     expect(markup).toContain("West Bay SA");
-    expect(markup).toContain("support@swissmail.ch");
+    expect(markup).toContain("contact@episto.ch");
     expect(markup).toContain("Swiss Post");
   });
 
@@ -408,7 +408,7 @@ describe("marketing seo plumbing", () => {
 
     expect(markup).toContain("West Bay SA");
     expect(markup).toContain("CHE-107.892.984");
-    expect(markup).toContain("support@swissmail.ch");
+    expect(markup).toContain("contact@episto.ch");
     expect(markup).toContain("episto.ch");
   });
 

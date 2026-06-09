@@ -225,7 +225,7 @@ Flow:
 Flow:
 
 1. Stripe sends the payment receipt immediately.
-2. Swiss Mail dispatch-status emails carry the signed "Order Status" link.
+2. Episto dispatch-status emails carry the signed "Order Status" link.
 3. During transition, legacy hashed links remain readable as a fallback.
 4. User clicks the link → `/status/:orderToken` → shows current dispatch status and receipt.
 5. This link is valid for 90 days (configurable), independent of the original drafting session TTL (configurable — see `docs/08-guardrails/open-decisions.md`).

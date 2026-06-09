@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const BASE_ENV = {
-  NEXT_PUBLIC_SITE_URL: "https://swissmail.test",
+  NEXT_PUBLIC_SITE_URL: "https://episto.test",
   NEXT_PUBLIC_API_URL: "/api",
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_example",
   NEXT_PUBLIC_APP_ENV: "test" as const,
@@ -126,7 +126,8 @@ describe("frontend sentry bootstrap", () => {
   });
 
   it("loads the node bootstrap from instrumentation.register and forwards onRequestError", async () => {
-    const { mod, sentry, loadServerConfig, loadEdgeConfig } = await loadInstrumentation("nodejs");
+    const { mod, sentry, loadServerConfig, loadEdgeConfig } =
+      await loadInstrumentation("nodejs");
 
     await mod.register();
 

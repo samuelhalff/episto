@@ -67,7 +67,7 @@ describe("ThemeProvider hydration", () => {
     expect(serverMarkup).toContain("Light");
 
     const dom = new JSDOM(`<div id="root">${serverMarkup}</div>`, {
-      url: "https://swissmail.ch",
+      url: "https://episto.ch",
     });
     const matchMedia = createMatchMedia(true);
     Object.defineProperty(dom.window, "matchMedia", {

@@ -36,6 +36,10 @@ export async function streamDraftGeneration(
   userInstructions: string,
   updateFields: FieldUpdater,
 ): Promise<void> {
+  const effectiveLocale =
+    typeof fields.locale === "string" && fields.locale.trim().length > 0
+      ? fields.locale
+      : draft.locale;
   const sender = {
     firstName: (fields.senderFirstName as string) ?? "",
     lastName: (fields.senderLastName as string) ?? "",
@@ -59,7 +63,7 @@ export async function streamDraftGeneration(
       subject: (fields.subject as string) ?? draft.subject ?? "",
       intent,
       tone: (fields.tone as string) ?? draft.tone ?? "formal",
-      locale: draft.locale,
+      locale: effectiveLocale,
       sender,
       recipient,
       enclosureNote: (fields.enclosureNote as string | null) ?? draft.enclosureNote,
@@ -75,7 +79,7 @@ export async function streamDraftGeneration(
 
   const validation = await validateOutput({
     generatedContent: applied.body,
-    locale: draft.locale,
+    locale: effectiveLocale,
   });
 
   if (validation.severity === "blocked") {
@@ -104,6 +108,7 @@ export async function streamDraftGeneration(
       : applied.subject || (draft.subject?.trim() ?? "") || null;
 
   await updateFields(draftId, sessionId, {
+    ...(effectiveLocale !== draft.locale ? { locale: effectiveLocale } : {}),
     body: applied.body,
     subject: nextSubject,
     metadata: nextMetadata,
@@ -123,7 +128,9 @@ export async function streamRevision(
   draft: DraftRecord,
   revisionInstruction: string,
   updateFields: FieldUpdater,
+  effectiveLocale?: string | null,
 ): Promise<void> {
+  const targetLocale = effectiveLocale ?? draft.locale;
   const currentDocument =
     extractAiDocumentMetadata(draft.metadata)?.document ?? fallbackDocument(draft.body);
 
@@ -131,7 +138,7 @@ export async function streamRevision(
     {
       currentBody: draft.body ?? "",
       revisionInstruction,
-      locale: draft.locale,
+      locale: targetLocale,
       tone: draft.tone ?? "formal",
     },
     currentDocument,
@@ -144,7 +151,7 @@ export async function streamRevision(
 
   const validation = await validateOutput({
     generatedContent: applied.body,
-    locale: draft.locale,
+    locale: targetLocale,
   });
 
   if (validation.severity === "blocked") {
@@ -165,6 +172,7 @@ export async function streamRevision(
   const nextSubject = applied.subject || draft.subject?.trim() || null;
 
   await updateFields(draftId, sessionId, {
+    ...(targetLocale !== draft.locale ? { locale: targetLocale } : {}),
     body: applied.body,
     subject: nextSubject,
     metadata: nextMetadata,

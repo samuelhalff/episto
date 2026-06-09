@@ -61,7 +61,7 @@ describe("EnvSchema — valid minimal env", () => {
 
   it("applies default EMAIL_FROM", () => {
     const result = EnvSchema.parse(validEnv());
-    expect(result.EMAIL_FROM).toBe("noreply@swissmail.ch");
+    expect(result.EMAIL_FROM).toBe("contact@episto.ch");
   });
 
   it("applies default APP_DISPLAY_NAME", () => {
@@ -71,7 +71,7 @@ describe("EnvSchema — valid minimal env", () => {
 
   it("applies default SUPPORT_EMAIL", () => {
     const result = EnvSchema.parse(validEnv());
-    expect(result.SUPPORT_EMAIL).toBe("support@swissmail.ch");
+    expect(result.SUPPORT_EMAIL).toBe("contact@episto.ch");
   });
 
   it("applies default STATEMENT_RETENTION_DAYS", () => {
@@ -240,6 +240,18 @@ describe("EnvSchema — coercion", () => {
 describe("EnvSchema — validation constraints", () => {
   it("rejects invalid NODE_ENV", () => {
     const result = EnvSchema.safeParse({ ...validEnv(), NODE_ENV: "staging" });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects noop SMS provider in production", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      NODE_ENV: "production",
+      CORS_ORIGIN: "https://episto.ch",
+      APP_PUBLIC_URL: "https://episto.ch",
+      SMS_PROVIDER: "noop",
+    });
+
     expect(result.success).toBe(false);
   });
 

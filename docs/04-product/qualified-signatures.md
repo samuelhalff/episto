@@ -109,7 +109,7 @@ Failure and retry expectations:
 
 ### Privacy
 
-- Raw ID document images are never stored by Swiss Mail. They stay with Skribble / Swisscom as
+- Raw ID document images are never stored by Episto. They stay with Skribble / Swisscom as
   data processors.
 - We store only the provider transaction reference and minimum metadata required for audit.
 - Signer profiles can be purged on request per nFADP / GDPR. Signed evidence packages are

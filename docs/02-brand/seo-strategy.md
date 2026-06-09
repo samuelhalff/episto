@@ -106,7 +106,7 @@ Disallow: /api/
 Disallow: /admin/
 Disallow: /preview/
 
-Sitemap: https://swissmail.ch/sitemap.xml
+Sitemap: https://episto.ch/sitemap.xml
 ```
 
 - [ ] Verify no accidental disallow of marketing pages before launch
@@ -116,11 +116,11 @@ Sitemap: https://swissmail.ch/sitemap.xml
 Every indexable page must declare the full set of language variants:
 
 ```html
-<link rel="alternate" hreflang="de-CH" href="https://swissmail.ch/de/[slug]" />
-<link rel="alternate" hreflang="fr-CH" href="https://swissmail.ch/fr/[slug]" />
-<link rel="alternate" hreflang="it-CH" href="https://swissmail.ch/it/[slug]" />
-<link rel="alternate" hreflang="en-CH" href="https://swissmail.ch/en/[slug]" />
-<link rel="alternate" hreflang="x-default" href="https://swissmail.ch/" />
+<link rel="alternate" hreflang="de-CH" href="https://episto.ch/de/[slug]" />
+<link rel="alternate" hreflang="fr-CH" href="https://episto.ch/fr/[slug]" />
+<link rel="alternate" hreflang="it-CH" href="https://episto.ch/it/[slug]" />
+<link rel="alternate" hreflang="en-CH" href="https://episto.ch/en/[slug]" />
+<link rel="alternate" hreflang="x-default" href="https://episto.ch/" />
 ```
 
 Rules:

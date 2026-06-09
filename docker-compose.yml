@@ -1,4 +1,4 @@
-# Swiss Mail — Development Stack
+# Episto — Development Stack
 #
 # docker compose up -d       → starts everything (infra + app with hot reload)
 # docker compose down        → stop (keeps data)
@@ -14,13 +14,13 @@ services:
     ports:
       - "5432:5432"
     environment:
-      POSTGRES_USER: swissmail
-      POSTGRES_PASSWORD: swissmail
-      POSTGRES_DB: swissmail
+      POSTGRES_USER: ${POSTGRES_USER:?POSTGRES_USER is required}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      POSTGRES_DB: ${POSTGRES_DB:?POSTGRES_DB is required}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U swissmail"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER}"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -45,8 +45,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
     command: server /data --console-address ":9001"
     volumes:
       - miniodata:/data
@@ -60,13 +60,17 @@ services:
   minio-provision:
     profiles: ["manual"]
     image: minio/mc:latest
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      S3_BUCKET: ${S3_BUCKET:?S3_BUCKET is required}
     depends_on:
       minio:
         condition: service_healthy
     entrypoint: >
       /bin/sh -c "
-      mc alias set local http://minio:9000 minioadmin minioadmin;
-      mc mb --ignore-existing local/episto;
+      mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+      mc mb --ignore-existing local/$${S3_BUCKET};
       "
 
   # ── Application (hot reload via volume mount) ─────────────────────────────
@@ -83,12 +87,12 @@ services:
       - path: .env
         required: false
     environment:
-      DATABASE_URL: postgres://swissmail:swissmail@postgres:5432/swissmail
+      DATABASE_URL: postgres://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
       REDIS_URL: redis://redis:6379
       S3_ENDPOINT: http://minio:9000
-      S3_BUCKET: episto
-      S3_ACCESS_KEY: minioadmin
-      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: ${S3_BUCKET:?S3_BUCKET is required}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is required}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:?S3_SECRET_KEY is required}
       CORS_ORIGIN: http://localhost:5000
       NODE_ENV: development
       PORT: "4000"
@@ -131,12 +135,12 @@ services:
       - path: .env
         required: false
     environment:
-      DATABASE_URL: postgres://swissmail:swissmail@postgres:5432/swissmail
+      DATABASE_URL: postgres://${POSTGRES_USER:?POSTGRES_USER is required}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:?POSTGRES_DB is required}
       REDIS_URL: redis://redis:6379
       S3_ENDPOINT: http://minio:9000
-      S3_BUCKET: episto
-      S3_ACCESS_KEY: minioadmin
-      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: ${S3_BUCKET:?S3_BUCKET is required}
+      S3_ACCESS_KEY: ${S3_ACCESS_KEY:?S3_ACCESS_KEY is required}
+      S3_SECRET_KEY: ${S3_SECRET_KEY:?S3_SECRET_KEY is required}
       NODE_ENV: development
       ORDER_ACCESS_TOKEN_SECRET: ${ORDER_ACCESS_TOKEN_SECRET:-dev-order-access-secret-at-least-32-chars}
       AZURE_SPEECH_REGION: ${AZURE_SPEECH_REGION:-switzerlandnorth}

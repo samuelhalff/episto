@@ -96,5 +96,5 @@ Future (not MVP):
 ## Guest vs account rules
 
 - Guest can draft, pay, and send without any account
-- Guest still gets a transactional reference and can receive Stripe receipts plus Swiss Mail dispatch-status emails
+- Guest still gets a transactional reference and can receive Stripe receipts plus Episto dispatch-status emails
 - Account features must be additive — they must not degrade the guest experience when absent

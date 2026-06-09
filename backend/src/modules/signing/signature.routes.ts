@@ -44,7 +44,6 @@ import type {
   SignatureEligibilityStatusValue,
   SignatureFlowModeValue,
 } from "@episto/shared";
-
 const CreateSignatureSessionBody = z.object({
   returnUrl: z.string().url(),
 });
@@ -125,7 +124,7 @@ async function getSignerDisplayName(
   draft: Awaited<ReturnType<typeof getScopedDraft>>["draft"],
 ): Promise<string> {
   if (!draft.senderProfileId) {
-    return "Swiss Mail signer";
+    return "Episto signer";
   }
 
   const [sender] = await db
@@ -139,11 +138,11 @@ async function getSignerDisplayName(
     .limit(1);
 
   if (!sender) {
-    return "Swiss Mail signer";
+    return "Episto signer";
   }
 
   const fullName = [sender.firstName, sender.lastName].filter(Boolean).join(" ").trim();
-  return fullName || sender.company || "Swiss Mail signer";
+  return fullName || sender.company || "Episto signer";
 }
 
 async function getOrCreateEligibilitySession(input: {

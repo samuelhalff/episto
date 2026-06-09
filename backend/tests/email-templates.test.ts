@@ -7,14 +7,14 @@ describe("Email template rendering", () => {
   it("renders dispatch-submitted without an app status link or status-update promise", () => {
     const result = renderTemplate("dispatch-submitted", "en-CH", {
       orderRef: "EP-12345",
-      statusUrl: "https://swissmail.ch/status/token-123",
+      statusUrl: "https://episto.ch/status/token-123",
       deliveryType: "registered",
       senderName: "Alice Sender",
       recipientName: "Bob Recipient",
-      downloadUrl: "https://swissmail.ch/api/v1/orders/token-123/pdf",
+      downloadUrl: "https://episto.ch/api/v1/orders/token-123/pdf",
       statementRetentionDays: 10,
       supportEmail: "support@test.com",
-      appPublicUrl: "https://swissmail.ch",
+      appPublicUrl: "https://episto.ch",
       legalEntityName: "West Bay SA",
       legalEntityAddress: "Test Address",
       legalEntityCountry: "Switzerland",
@@ -26,13 +26,13 @@ describe("Email template rendering", () => {
     expect(result.text).toContain("Alice Sender");
     expect(result.text).toContain("Bob Recipient");
     expect(result.text).toContain("Download letter (PDF)");
-    expect(result.text).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
-    expect(result.text).not.toContain("https://swissmail.ch/status/token-123");
+    expect(result.text).toContain("https://episto.ch/api/v1/orders/token-123/pdf");
+    expect(result.text).not.toContain("https://episto.ch/status/token-123");
     expect(result.text).not.toContain("View order status");
     expect(result.text).not.toContain(
       "You will receive another notification if there are updates.",
     );
-    expect(result.html).not.toContain("https://swissmail.ch/status/token-123");
+    expect(result.html).not.toContain("https://episto.ch/status/token-123");
     expect(result.html).not.toContain("View order status");
     expect(result.html).not.toContain(
       "You will receive another notification if there are updates.",
@@ -63,16 +63,16 @@ describe("Email template rendering", () => {
   it("renders dispatch-accepted with Swiss Post tracking only for registered mail (en-CH)", () => {
     const result = renderTemplate("dispatch-accepted", "en-CH", {
       orderRef: "ORD-ABC",
-      statusUrl: "https://swissmail.ch/status/token-123",
+      statusUrl: "https://episto.ch/status/token-123",
       deliveryType: "registered",
       senderName: "Alice Sender",
       recipientName: "Bob Recipient",
       providerReference: "EPR-T-R-0D2D6C40F706",
       trackingNumber: "98.40.541881.00002354",
-      downloadUrl: "https://swissmail.ch/api/v1/orders/token-123/pdf",
+      downloadUrl: "https://episto.ch/api/v1/orders/token-123/pdf",
       statementRetentionDays: 10,
       supportEmail: "support@test.com",
-      appPublicUrl: "https://swissmail.ch",
+      appPublicUrl: "https://episto.ch",
       legalEntityName: "West Bay SA",
       legalEntityAddress: "Test Address",
       legalEntityCountry: "Switzerland",
@@ -86,20 +86,20 @@ describe("Email template rendering", () => {
     expect(result.text).toContain("Registered mail");
     expect(result.text).toContain("Alice Sender");
     expect(result.text).toContain("Bob Recipient");
-    expect(result.text).not.toContain("https://swissmail.ch/status/token-123");
+    expect(result.text).not.toContain("https://episto.ch/status/token-123");
     expect(result.text).not.toContain("View order status");
     // Swiss Post tracking URL
     expect(result.text).toContain("https://www.post.ch/swisspost-tracking");
     expect(result.text).toContain("98.40.541881.00002354");
-    expect(result.html).not.toContain("https://swissmail.ch/status/token-123");
+    expect(result.html).not.toContain("https://episto.ch/status/token-123");
     expect(result.html).not.toContain("View order status");
     expect(result.html).toContain("https://www.post.ch/swisspost-tracking");
     expect(result.html).toContain("Track on Swiss Post");
     // Download link
     expect(result.text).toContain("Download letter (PDF)");
-    expect(result.text).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
+    expect(result.text).toContain("https://episto.ch/api/v1/orders/token-123/pdf");
     expect(result.html).toContain("Download letter (PDF)");
-    expect(result.html).toContain("https://swissmail.ch/api/v1/orders/token-123/pdf");
+    expect(result.html).toContain("https://episto.ch/api/v1/orders/token-123/pdf");
     expect(result.text).toContain(
       "Your letter PDF is available for download for 10 days.",
     );
@@ -110,17 +110,17 @@ describe("Email template rendering", () => {
 
   it("renders dispatch-accepted without app status or tracking CTAs for standard mail", () => {
     const result = renderTemplate("dispatch-accepted", "en-CH", {
-      statusUrl: "https://swissmail.ch/status/token-standard",
+      statusUrl: "https://episto.ch/status/token-standard",
       orderRef: "ORD-NO-TRACK",
       deliveryType: "standard",
       trackingNumber: "98.40.541881.00002354",
     });
 
     expect(result.text).toContain("Standard mail");
-    expect(result.text).not.toContain("https://swissmail.ch/status/token-standard");
+    expect(result.text).not.toContain("https://episto.ch/status/token-standard");
     expect(result.text).not.toContain("View order status");
     expect(result.text).not.toContain("swiss-post-tracking");
-    expect(result.html).not.toContain("https://swissmail.ch/status/token-standard");
+    expect(result.html).not.toContain("https://episto.ch/status/token-standard");
     expect(result.html).not.toContain("Track on Swiss Post");
   });
 
@@ -151,7 +151,7 @@ describe("Email template rendering", () => {
   // ---- resume-link ----
 
   it("renders resume-link with URL", () => {
-    const url = "https://swissmail.ch/resume/abc123";
+    const url = "https://episto.ch/resume/abc123";
     const result = renderTemplate("resume-link", "en-CH", {
       resumeUrl: url,
     });
@@ -161,7 +161,7 @@ describe("Email template rendering", () => {
   });
 
   it("renders resume-link in French (fr-CH)", () => {
-    const url = "https://swissmail.ch/resume/xyz";
+    const url = "https://episto.ch/resume/xyz";
     const result = renderTemplate("resume-link", "fr-CH", {
       resumeUrl: url,
     });
@@ -178,7 +178,7 @@ describe("Email template rendering", () => {
       orderRef: "ORD-REF",
       amount: "8.90",
       supportEmail: "support@test.com",
-      appPublicUrl: "https://swissmail.ch",
+      appPublicUrl: "https://episto.ch",
       legalEntityName: "West Bay SA",
       legalEntityAddress: "Test Address",
       legalEntityCountry: "Switzerland",

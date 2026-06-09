@@ -40,6 +40,7 @@ import {
 import type { DocumentModel } from "@episto/shared";
 
 const logger = createLogger("ai-service");
+const SUPPORTED_LETTER_LOCALES = new Set(["de-CH", "fr-CH", "it-CH", "en-CH"]);
 
 export function parseJsonResponse<T>(raw: string): T {
   const trimmed = raw.trim();
@@ -110,6 +111,31 @@ function extractStructuredDocumentEnvelope(raw: string): {
   };
 }
 
+function normalizeIntakeFields(fields: unknown): Record<string, unknown> {
+  if (!fields || typeof fields !== "object" || Array.isArray(fields)) {
+    return {};
+  }
+
+  const normalized = { ...(fields as Record<string, unknown>) };
+  if (
+    typeof normalized.locale !== "string" ||
+    !SUPPORTED_LETTER_LOCALES.has(normalized.locale)
+  ) {
+    delete normalized.locale;
+  }
+
+  if (
+    typeof normalized.unsupportedLocaleRequest !== "string" ||
+    normalized.unsupportedLocaleRequest.trim().length === 0
+  ) {
+    delete normalized.unsupportedLocaleRequest;
+  } else {
+    normalized.unsupportedLocaleRequest = normalized.unsupportedLocaleRequest.trim();
+  }
+
+  return normalized;
+}
+
 // ---------------------------------------------------------------------------
 // Combined intake analysis
 // ---------------------------------------------------------------------------
@@ -149,11 +175,13 @@ export async function analyzeIntake(
       });
     }
 
+    const fields = normalizeIntakeFields(result.fields);
+
     return {
       intent: result.intent || "general",
       risk: result.risk || "low",
       summary: result.summary || "Unable to classify",
-      fields: result.fields && typeof result.fields === "object" ? result.fields : {},
+      fields,
       ready: Boolean(result.ready),
       question: result.question,
       message: result.message,

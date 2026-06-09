@@ -1,7 +1,7 @@
 /**
  * Azure AI Project agent adapter — optional execution path for AI calls.
  *
- * This keeps Swiss Mail on the locked Azure provider boundary while allowing
+ * This keeps Episto on the locked Azure provider boundary while allowing
  * response generation through a configured Foundry/AI Project agent reference.
  */
 
@@ -30,7 +30,9 @@ function resolveConfiguredAgent() {
     const [name, version] = config.AZURE_EXISTING_AGENT_ID.split(":");
 
     if (!name || !version) {
-      throw new Error("AZURE_EXISTING_AGENT_ID must use the format <agent-name>:<version>");
+      throw new Error(
+        "AZURE_EXISTING_AGENT_ID must use the format <agent-name>:<version>",
+      );
     }
 
     return { name, version };
@@ -57,7 +59,9 @@ function getProjectClient(): AIProjectClient {
 
   const config = env();
   if (!config.AZURE_AI_PROJECT_ENDPOINT) {
-    throw new Error("AZURE_AI_PROJECT_ENDPOINT is required for azure_ai_project_agent mode");
+    throw new Error(
+      "AZURE_AI_PROJECT_ENDPOINT is required for azure_ai_project_agent mode",
+    );
   }
 
   _projectClient = new AIProjectClient(config.AZURE_AI_PROJECT_ENDPOINT, getCredential());
@@ -186,7 +190,10 @@ function mapAzureProjectError(err: unknown): AppError | Error {
 
   const message = err instanceof Error ? err.message : "Unknown Azure AI Project error";
 
-  if (message.includes("CredentialUnavailableError") || message.includes("authentication")) {
+  if (
+    message.includes("CredentialUnavailableError") ||
+    message.includes("authentication")
+  ) {
     return new AppError({
       family: "provider_outage",
       statusCode: 503,

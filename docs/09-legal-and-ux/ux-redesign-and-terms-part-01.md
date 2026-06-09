@@ -477,7 +477,7 @@ The letter preview modal should be accessible from any step where a draft body e
 **Error states:**
 
 - Signed PDF not yet available (generation in progress): "Your confirmation document is being prepared. Refresh in a moment."
-- Signed PDF expired: "This document is no longer available for download. Contact support@swissmail.ch if you need a copy."
+- Signed PDF expired: "This document is no longer available for download. Contact contact@episto.ch if you need a copy."
 - Signed PDF generation failed: "We couldn't generate your confirmation document. Contact support with reference EP-XXXXXXXX."
 
 ---
@@ -521,6 +521,6 @@ The letter preview modal should be accessible from any step where a draft body e
 **Effective date:** [insert date]  
 **Last updated:** [insert date]  
 **Service provider:** West Bay SA, [registered address], Switzerland (CHE-[UID number])  
-**Contact:** support@swissmail.ch
+**Contact:** contact@episto.ch
 
 ---

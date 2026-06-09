@@ -12,7 +12,7 @@ measurement rules.
 
 ## Core rule
 
-Swiss Mail must measure product usage and operational health **without** becoming a letter-content
+Episto must measure product usage and operational health **without** becoming a letter-content
 surveillance system.
 
 That means:
@@ -27,14 +27,14 @@ That means:
 
 ## 1. Telemetry layers
 
-Swiss Mail needs four distinct telemetry layers.
+Episto needs four distinct telemetry layers.
 
-| Layer | Purpose | Examples |
-|---|---|---|
-| Platform health | Detect outages, latency, and queue pressure | HTTP latency, worker failures, queue depth |
-| Operational truth | Support reconciliation and incident review | payment state changes, dispatch ambiguity, refunds |
-| Product flow | Understand friction, abandonment, and conversion | draft started, review reached, checkout entered |
-| AI quality | Measure drafting usefulness and degradation | refusal rate, regeneration rate, manual-correction rate |
+| Layer             | Purpose                                          | Examples                                                |
+| ----------------- | ------------------------------------------------ | ------------------------------------------------------- |
+| Platform health   | Detect outages, latency, and queue pressure      | HTTP latency, worker failures, queue depth              |
+| Operational truth | Support reconciliation and incident review       | payment state changes, dispatch ambiguity, refunds      |
+| Product flow      | Understand friction, abandonment, and conversion | draft started, review reached, checkout entered         |
+| AI quality        | Measure drafting usefulness and degradation      | refusal rate, regeneration rate, manual-correction rate |
 
 No single dashboard should mix these concerns casually. Keep dashboards scoped so operators can
 answer one question quickly.
@@ -97,51 +97,51 @@ Allowed analytics fields:
 
 ### 4.1 Marketing and entry
 
-| Event | When | Required fields |
-|---|---|---|
-| `marketing_page_viewed` | Marketing page loaded | `route`, `locale`, `source` |
-| `draft_entry_started` | User reaches `/draft/new` and begins interaction | `locale`, `source` |
-| `template_selected` | User starts from a use-case/template | `templateSlug`, `locale` |
+| Event                   | When                                             | Required fields             |
+| ----------------------- | ------------------------------------------------ | --------------------------- |
+| `marketing_page_viewed` | Marketing page loaded                            | `route`, `locale`, `source` |
+| `draft_entry_started`   | User reaches `/draft/new` and begins interaction | `locale`, `source`          |
+| `template_selected`     | User starts from a use-case/template             | `templateSlug`, `locale`    |
 
 ### 4.2 Session and draft flow
 
-| Event | When | Required fields |
-|---|---|---|
-| `session_created` | Guest session created | `sessionId`, `locale` |
-| `resume_banner_shown` | Existing draft detected on `/draft/new` | `sessionId` |
-| `resume_link_opened` | `/resume/:token` successfully resolves | `sessionId`, `result` |
-| `draft_created` | Draft record created | `sessionId`, `draftId` |
-| `draft_first_response_completed` | First AI answer is complete | `draftId`, `durationMs` |
-| `draft_first_full_draft_ready` | First complete draft exists | `draftId`, `durationMs`, `pageCountEstimate` |
-| `draft_conflict_seen` | Client receives stale-write conflict UI | `draftId`, `surface` |
+| Event                            | When                                    | Required fields                              |
+| -------------------------------- | --------------------------------------- | -------------------------------------------- |
+| `session_created`                | Guest session created                   | `sessionId`, `locale`                        |
+| `resume_banner_shown`            | Existing draft detected on `/draft/new` | `sessionId`                                  |
+| `resume_link_opened`             | `/resume/:token` successfully resolves  | `sessionId`, `result`                        |
+| `draft_created`                  | Draft record created                    | `sessionId`, `draftId`                       |
+| `draft_first_response_completed` | First AI answer is complete             | `draftId`, `durationMs`                      |
+| `draft_first_full_draft_ready`   | First complete draft exists             | `draftId`, `durationMs`, `pageCountEstimate` |
+| `draft_conflict_seen`            | Client receives stale-write conflict UI | `draftId`, `surface`                         |
 
 ### 4.3 Files and review
 
-| Event | When | Required fields |
-|---|---|---|
-| `file_upload_started` | User starts upload | `draftId`, `kind`, `countExisting` |
-| `file_upload_failed` | Upload rejected or storage failed | `draftId`, `kind`, `errorFamily` |
-| `review_reached` | User enters review step | `draftId`, `pageCountEstimate`, `attachmentCount` |
-| `review_blocked` | User cannot continue from review | `draftId`, `reason` |
+| Event                 | When                              | Required fields                                   |
+| --------------------- | --------------------------------- | ------------------------------------------------- |
+| `file_upload_started` | User starts upload                | `draftId`, `kind`, `countExisting`                |
+| `file_upload_failed`  | Upload rejected or storage failed | `draftId`, `kind`, `errorFamily`                  |
+| `review_reached`      | User enters review step           | `draftId`, `pageCountEstimate`, `attachmentCount` |
+| `review_blocked`      | User cannot continue from review  | `draftId`, `reason`                               |
 
 ### 4.4 Checkout and payment
 
-| Event | When | Required fields |
-|---|---|---|
-| `checkout_started` | Checkout route shown | `draftId`, `deliveryType`, `priceCents` |
-| `payment_intent_created` | Backend creates PaymentIntent | `draftId`, `paymentAttemptId` |
-| `payment_failed` | Payment confirmation fails | `draftId`, `paymentAttemptId`, `errorFamily` |
-| `payment_captured` | Canonical payment success confirmed | `draftId`, `paymentAttemptId`, `amountCents` |
+| Event                    | When                                | Required fields                              |
+| ------------------------ | ----------------------------------- | -------------------------------------------- |
+| `checkout_started`       | Checkout route shown                | `draftId`, `deliveryType`, `priceCents`      |
+| `payment_intent_created` | Backend creates PaymentIntent       | `draftId`, `paymentAttemptId`                |
+| `payment_failed`         | Payment confirmation fails          | `draftId`, `paymentAttemptId`, `errorFamily` |
+| `payment_captured`       | Canonical payment success confirmed | `draftId`, `paymentAttemptId`, `amountCents` |
 
 ### 4.5 Dispatch and post-payment
 
-| Event | When | Required fields |
-|---|---|---|
-| `dispatch_submitted` | Submission attempt created | `draftId`, `dispatchAttemptId`, `deliveryType` |
-| `dispatch_accepted` | Provider acceptance confirmed | `draftId`, `dispatchAttemptId` |
-| `dispatch_ambiguous` | Dispatch enters `unknown` | `draftId`, `dispatchAttemptId`, `reasonCategory` |
-| `order_status_viewed` | `/status/:orderToken` shown successfully | `draftId`, `dispatchState` |
-| `refund_confirmed` | Refund confirmed | `draftId`, `paymentAttemptId`, `amountCents` |
+| Event                 | When                                     | Required fields                                  |
+| --------------------- | ---------------------------------------- | ------------------------------------------------ |
+| `dispatch_submitted`  | Submission attempt created               | `draftId`, `dispatchAttemptId`, `deliveryType`   |
+| `dispatch_accepted`   | Provider acceptance confirmed            | `draftId`, `dispatchAttemptId`                   |
+| `dispatch_ambiguous`  | Dispatch enters `unknown`                | `draftId`, `dispatchAttemptId`, `reasonCategory` |
+| `order_status_viewed` | `/status/:orderToken` shown successfully | `draftId`, `dispatchState`                       |
+| `refund_confirmed`    | Refund confirmed                         | `draftId`, `paymentAttemptId`, `amountCents`     |
 
 ---
 

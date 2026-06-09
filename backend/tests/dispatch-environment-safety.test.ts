@@ -18,6 +18,13 @@ const validEnv = () => ({
   RESEND_API_KEY: "re_abc123",
 });
 
+const productionSmsEnv = () => ({
+  SMS_PROVIDER: "budgetsms",
+  BUDGETSMS_USERNAME: "user",
+  BUDGETSMS_USER_ID: "123",
+  BUDGETSMS_HANDLE: "handle",
+});
+
 // ---------------------------------------------------------------------------
 // ePost dispatch environment safety
 // ---------------------------------------------------------------------------
@@ -61,8 +68,8 @@ describe("ePost dispatch environment safety", () => {
       NODE_ENV: "production",
       POSTAL_DISPATCH_PROVIDER: "stub",
       EPOST_SUBMISSION_MODE: "live",
-      CORS_ORIGIN: "https://app.swissmail.ch",
-      APP_PUBLIC_URL: "https://app.swissmail.ch",
+      CORS_ORIGIN: "https://episto.ch",
+      APP_PUBLIC_URL: "https://episto.ch",
     });
     expect(result.success).toBe(false);
   });
@@ -82,9 +89,10 @@ describe("ePost dispatch environment safety", () => {
       POSTAL_DISPATCH_PROVIDER: "epost",
       EPOST_API_KEY: "epost-live-key",
       EPOST_SUBMISSION_MODE: "live",
-      CORS_ORIGIN: "https://app.swissmail.ch",
-      APP_PUBLIC_URL: "https://app.swissmail.ch",
+      CORS_ORIGIN: "https://episto.ch",
+      APP_PUBLIC_URL: "https://episto.ch",
       STRIPE_SECRET_KEY: "sk_test_abc123",
+      ...productionSmsEnv(),
     });
     expect(result.success).toBe(true);
   });

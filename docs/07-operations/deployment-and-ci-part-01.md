@@ -75,12 +75,12 @@ Local bucket provisioning is explicit. The stack does **not** auto-create the bu
 
 To avoid port drift, treat these assignments as canonical:
 
-| Port         | Owner                          | Meaning                                                                     |
-| ------------ | ------------------------------ | --------------------------------------------------------------------------- |
-| `80` / `443` | Public domain edge             | Public HTTP/HTTPS for the configured production domain                      |
-| `5000`       | Local Swiss Mail proxy handoff | Plain HTTP listener on the host for the upstream edge proxy to forward into |
-| `3000`       | Internal frontend service      | Next.js app behind the local proxy only                                     |
-| `4000`       | Internal backend service       | Fastify API behind the local proxy only                                     |
+| Port         | Owner                      | Meaning                                                                     |
+| ------------ | -------------------------- | --------------------------------------------------------------------------- |
+| `80` / `443` | Public domain edge         | Public HTTP/HTTPS for the configured production domain                      |
+| `5000`       | Local Episto proxy handoff | Plain HTTP listener on the host for the upstream edge proxy to forward into |
+| `3000`       | Internal frontend service  | Next.js app behind the local proxy only                                     |
+| `4000`       | Internal backend service   | Fastify API behind the local proxy only                                     |
 
 Rules:
 
@@ -107,7 +107,7 @@ services:
     build: ./backend
     ports: ["4000:4000"]
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/swissmail
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/episto
       - REDIS_URL=redis://redis:6379
       - S3_ENDPOINT=http://minio:9000
       # ... (see Section 3 for all env vars)
@@ -118,7 +118,7 @@ services:
     build: ./backend
     command: ["node", "dist/worker.js"]
     environment:
-      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/swissmail
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/episto
       - REDIS_URL=redis://redis:6379
       - S3_ENDPOINT=http://minio:9000
     depends_on: [postgres, redis, minio]
@@ -135,7 +135,7 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: swissmail
+      POSTGRES_DB: episto
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes: [postgres_data:/var/lib/postgresql/data]
@@ -151,8 +151,8 @@ services:
     command: server /data --console-address ":9001"
     ports: ["9000:9000", "9001:9001"]
     environment:
-      MINIO_ROOT_USER: minioadmin
-      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     volumes: [minio_data:/data]
     restart: unless-stopped
 
@@ -163,7 +163,7 @@ services:
     entrypoint:
       - /bin/sh
       - -c
-      - mc alias set local http://minio:9000 minioadmin minioadmin && mc mb --ignore-existing local/episto
+      - mc alias set local http://minio:9000 "$MINIO_ROOT_USER" "$MINIO_ROOT_PASSWORD" && mc mb --ignore-existing "local/$S3_BUCKET"
 
 volumes:
   postgres_data:
@@ -201,9 +201,9 @@ Before calling production infrastructure ready, verify:
 1. The VPS has valid DNS for the hostnames referenced by `NEXT_PUBLIC_SITE_URL`,
    `NEXT_PUBLIC_API_URL`, and `PUBLIC_FRONTEND_SERVER_NAMES`
 2. TLS files exist under `/etc/letsencrypt/live/<PUBLIC_TLS_CERT_NAME or NEXT_PUBLIC_SITE_URL host>/`
-3. `SWISSMAIL_ENV_FILE=/etc/swissmail/production.env docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml up -d --build`
+3. `EPISTO_ENV_FILE=/etc/episto/production.env docker compose --env-file /etc/episto/production.env -f docker-compose.prod.yml up -d --build`
    brings up healthy `frontend`, `backend`, `worker`, `zefix-proxy`, and `proxy` containers
-4. If MinIO is the configured object-storage provider, run `SWISSMAIL_ENV_FILE=/etc/swissmail/production.env docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml run --rm minio-provision`
+4. If MinIO is the configured object-storage provider, run `EPISTO_ENV_FILE=/etc/episto/production.env docker compose --env-file /etc/episto/production.env -f docker-compose.prod.yml run --rm minio-provision`
    once to create the bucket before expecting backend readiness to go green
 5. Public `443` serves the frontend and the configured same-host `/api/*` path or API host serves backend routes
 6. The local upstream handoff on `5000` responds when the edge proxy forwards `Host`,
@@ -220,10 +220,10 @@ All secrets and environment-specific values are injected as environment variable
 
 | Variable                            | Description                                                                                                                                                                                                                           | Example                                                         |
 | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `DATABASE_URL`                      | PostgreSQL connection string                                                                                                                                                                                                          | `postgres://user:pass@host:5432/swissmail`                      |
+| `DATABASE_URL`                      | PostgreSQL connection string                                                                                                                                                                                                          | `postgres://user:pass@host:5432/episto`                         |
 | `REDIS_URL`                         | Redis connection string                                                                                                                                                                                                               | `redis://host:6379`                                             |
 | `S3_ENDPOINT`                       | Object storage endpoint URL                                                                                                                                                                                                           | `https://s3.infomaniak.com`                                     |
-| `S3_BUCKET`                         | S3 bucket name                                                                                                                                                                                                                        | `swissmail-production`                                          |
+| `S3_BUCKET`                         | S3 bucket name                                                                                                                                                                                                                        | `episto-production`                                             |
 | `S3_ACCESS_KEY`                     | S3 access key ID                                                                                                                                                                                                                      | `AKIAIOSFODNN7EXAMPLE`                                          |
 | `S3_SECRET_KEY`                     | S3 secret access key                                                                                                                                                                                                                  | _(secret)_                                                      |
 | `S3_REGION`                         | S3 region (if required by provider)                                                                                                                                                                                                   | `eu-west-1`                                                     |
@@ -236,7 +236,7 @@ All secrets and environment-specific values are injected as environment variable
 | `AI_CLASSIFY_MODEL`                 | Classification/extraction deployment name                                                                                                                                                                                             | `gpt-4.1-mini`                                                  |
 | `AI_PROVIDER_MODE`                  | Azure execution mode                                                                                                                                                                                                                  | `azure_openai` or `azure_ai_project_agent`                      |
 | `AZURE_AI_PROJECT_ENDPOINT`         | Azure AI Project endpoint for agent-backed execution                                                                                                                                                                                  | `https://example.services.ai.azure.com/api/projects/my-project` |
-| `AZURE_EXISTING_AGENT_ID`           | Existing Azure AI Project agent reference in `<agent-name>:<version>` format                                                                                                                                                          | `episto:2`                                                      |
+| `AZURE_EXISTING_AGENT_ID`           | Existing Azure AI Project agent reference in `<agent-name>:<version>` format                                                                                                                                                          | `web-deep-search:5`                                             |
 | `AZURE_AI_AGENT_NAME`               | Azure AI Project agent name                                                                                                                                                                                                           | `web-deep-search`                                               |
 | `AZURE_AI_AGENT_VERSION`            | Azure AI Project agent version                                                                                                                                                                                                        | `5`                                                             |
 | `AZURE_TENANT_ID`                   | Optional Entra tenant for service-principal auth                                                                                                                                                                                      | _(secret / env-specific)_                                       |
@@ -250,7 +250,7 @@ All secrets and environment-specific values are injected as environment variable
 | `SWISS_POST_CLIENT_SECRET`          | Swiss Post OAuth client secret                                                                                                                                                                                                        | _(secret)_                                                      |
 | `SWISS_POST_SCOPE`                  | Swiss Post OAuth scope string if required by onboarding docs                                                                                                                                                                          | `digital-commerce`                                              |
 | `SESSION_SECRET`                    | Secret for cookie signing and related HMAC use, if enabled by the session implementation                                                                                                                                              | 64-char random hex string                                       |
-| `BASE_URL`                          | Public-facing URL                                                                                                                                                                                                                     | `https://swissmail.ch`                                          |
+| `BASE_URL`                          | Public-facing URL                                                                                                                                                                                                                     | `https://episto.ch`                                             |
 | `RESEND_API_KEY`                    | Resend transactional email API key                                                                                                                                                                                                    | _(secret)_                                                      |
 | `ADMIN_SESSION_SECRET`              | HMAC secret for admin session and OAuth state cookies                                                                                                                                                                                 | 64-char random string                                           |
 | `ADMIN_SESSION_TTL_HOURS`           | Admin session lifetime after Microsoft login                                                                                                                                                                                          | `12`                                                            |
@@ -275,16 +275,16 @@ All secrets and environment-specific values are injected as environment variable
 
 ### Public proxy routing (production compose)
 
-| Variable                       | Description                                                  | Example                         |
-| ------------------------------ | ------------------------------------------------------------ | ------------------------------- |
-| `PUBLIC_FRONTEND_SERVER_NAMES` | Optional nginx `server_name` list for frontend hosts         | `swissmail.ch www.swissmail.ch` |
-| `PUBLIC_TLS_CERT_NAME`         | Optional LetsEncrypt live directory name for proxy TLS files | `swissmail.ch`                  |
+| Variable                       | Description                                                  | Example                   |
+| ------------------------------ | ------------------------------------------------------------ | ------------------------- |
+| `PUBLIC_FRONTEND_SERVER_NAMES` | Optional nginx `server_name` list for frontend hosts         | `episto.ch www.episto.ch` |
+| `PUBLIC_TLS_CERT_NAME`         | Optional LetsEncrypt live directory name for proxy TLS files | `episto.ch`               |
 
 ### Notes
 
 - `NEXT_PUBLIC_*` variables are embedded at build time. They must not contain secrets.
 - The production compose stack expects the same external env file to drive both Compose interpolation
-  and container runtime injection. Keep it outside the repo, e.g. `/etc/swissmail/production.env`.
+  and container runtime injection. Keep it outside the repo, e.g. `/etc/episto/production.env`.
 - Leave `PUBLIC_FRONTEND_SERVER_NAMES` and `PUBLIC_TLS_CERT_NAME` empty unless the proxy should
   serve additional frontend aliases or the certificate directory name differs from the
   `NEXT_PUBLIC_SITE_URL` host.
@@ -328,8 +328,8 @@ docker compose exec -T backend npm run dispatch:refresh-rates -w backend
 | Trigger                            | Jobs run                                                                           |
 | ---------------------------------- | ---------------------------------------------------------------------------------- |
 | Pull request (any branch → `main`) | `lint`, `typecheck`, `test-shared`, `test-frontend`, `test-backend`, `build-check` |
-| Merge to `main`                    | All PR jobs + `docker-build` + `docker-push`                                       |
-| Tag `v*`                           | All main jobs + `deploy-production`                                                |
+| Merge to `main`                    | All PR jobs + `docker-build` + `docker-push` + `deploy-production`                 |
+| Tag `v*`                           | All main jobs + image build/push checks                                            |
 
 ### Job definitions
 
@@ -389,7 +389,7 @@ jobs:
       postgres:
         image: postgres:16-alpine
         env:
-          POSTGRES_DB: swissmail_test
+          POSTGRES_DB: episto_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
         options: >-
@@ -405,7 +405,7 @@ jobs:
           --health-timeout 5s
           --health-retries 5
     env:
-      DATABASE_URL: postgres://postgres:postgres@localhost:5432/swissmail_test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/episto_test
       REDIS_URL: redis://localhost:6379
       NODE_ENV: test
     steps:
@@ -440,7 +440,7 @@ jobs:
         with:
           context: ./frontend
           push: false
-          tags: swissmail/frontend:${{ github.sha }}
+          tags: episto/frontend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Build backend image
@@ -448,7 +448,7 @@ jobs:
         with:
           context: ./backend
           push: false
-          tags: swissmail/backend:${{ github.sha }}
+          tags: episto/backend:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -484,13 +484,30 @@ jobs:
   deploy-production:
     runs-on: ubuntu-latest
     needs: [docker-push]
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: github.ref == 'refs/heads/main'
     environment: production
     steps:
-      - name: Deploy to production
+      - uses: actions/checkout@v4
+      - name: Install production deploy key
+        env:
+          PRODUCTION_DEPLOY_KEY: ${{ secrets.PRODUCTION_DEPLOY_KEY }}
+          PROD_HOST: ${{ secrets.PRODUCTION_HOST }}
         run: |
-          echo "Deploy ${{ github.ref_name }} to production"
-          # SSH to VPS and run: docker compose -f docker-compose.prod.yml up -d --build
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$PRODUCTION_DEPLOY_KEY" > ~/.ssh/id_deploy_to_prod
+          chmod 600 ~/.ssh/id_deploy_to_prod
+          ssh-keyscan -H "$PROD_HOST" >> ~/.ssh/known_hosts
+      - name: Write production env file
+        env:
+          PRODUCTION_ENV_FILE: ${{ secrets.PRODUCTION_ENV_FILE }}
+        run: |
+          printf '%s\n' "$PRODUCTION_ENV_FILE" > .env.production
+          chmod 600 .env.production
+      - name: Deploy to production
+        env:
+          PROD_HOST: ${{ secrets.PRODUCTION_HOST }}
+          SSH_KEY: ~/.ssh/id_deploy_to_prod
+        run: ./scripts/deploy.sh
 ```
 
 ### Parallelism

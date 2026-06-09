@@ -150,6 +150,14 @@ describe("signature canvas redesign", () => {
     expect(signatureCanvasSource).toContain("setTimeout(exportSignature");
   });
 
+  it("SignatureCanvas keeps disabled actions visible before ink and enables them after a short delay", () => {
+    expect(signatureCanvasSource).toContain("ACTION_ENABLE_DELAY_MS");
+    expect(signatureCanvasSource).toContain("actionsEnabled");
+    expect(signatureCanvasSource).toContain("actionEnableRef");
+    expect(signatureCanvasSource).toContain("setTimeout(() => setActionsEnabled(true)");
+    expect(signatureCanvasSource).toContain("disabled={disabled || !actionsEnabled}");
+  });
+
   it("SignatureCanvas exports transparent signature assets for preview masking", () => {
     expect(signatureCanvasSource).not.toContain("EXPORT_BG");
     expect(signatureCanvasSource).not.toContain(
@@ -262,8 +270,10 @@ describe("signature atomic replacement (v2 simplification)", () => {
   it("SignatureSection shows saved signature with redraw option", () => {
     expect(signatureSectionSource).toContain("signatureUrl");
     expect(signatureSectionSource).toContain("redrawingFromUrl");
+    expect(signatureSectionSource).toContain("hasActiveCanvasSession");
     expect(signatureSectionSource).toContain("handleRedraw");
     expect(signatureSectionSource).toContain("showSavedSignature");
+    expect(signatureSectionSource).toContain("!hasActiveCanvasSession");
     expect(signatureSectionSource).toContain("height: CANVAS_HEIGHT");
     expect(signatureSectionSource).toContain("h-[120px]");
     expect(signatureSectionSource).toContain("draggable={false}");

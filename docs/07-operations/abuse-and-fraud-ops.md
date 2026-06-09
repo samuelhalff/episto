@@ -12,7 +12,7 @@ fraud-like patterns.
 
 ## Core rule
 
-Swiss Mail must detect harmful operational patterns **without** turning moderation or support into a
+Episto must detect harmful operational patterns **without** turning moderation or support into a
 permanent content archive.
 
 Detection is metadata-first:
@@ -44,13 +44,13 @@ happens after a pattern is flagged.
 
 ## 2. Risk categories
 
-| Category | Example signal | Primary risk |
-|---|---|---|
-| Payment abuse | repeated failed payments, repeated chargeback-like complaints, many refunds | margin loss, support load |
-| Submission abuse | repeated provider rejections, high-volume repeated dispatch attempts | provider trust damage |
-| Identity/representation abuse | repeated suspicious third-party representation patterns | trust, legal exposure |
-| Token abuse | repeated invalid resume-token probing | enumeration or credential abuse |
-| Mixed suspicious behavior | payment failures + dispatch ambiguity + repeated retries | account- or session-level bad-faith use |
+| Category                      | Example signal                                                              | Primary risk                            |
+| ----------------------------- | --------------------------------------------------------------------------- | --------------------------------------- |
+| Payment abuse                 | repeated failed payments, repeated chargeback-like complaints, many refunds | margin loss, support load               |
+| Submission abuse              | repeated provider rejections, high-volume repeated dispatch attempts        | provider trust damage                   |
+| Identity/representation abuse | repeated suspicious third-party representation patterns                     | trust, legal exposure                   |
+| Token abuse                   | repeated invalid resume-token probing                                       | enumeration or credential abuse         |
+| Mixed suspicious behavior     | payment failures + dispatch ambiguity + repeated retries                    | account- or session-level bad-faith use |
 
 ---
 
@@ -73,7 +73,7 @@ Attachment contents and full letter bodies are **not** a default abuse signal so
 
 Exact abuse thresholds remain operationally tunable and must stay configurable.
 
-Swiss Mail may launch with starter heuristics such as:
+Episto may launch with starter heuristics such as:
 
 - repeated failed payment attempts in a short window
 - multiple deterministic refunds tied to the same email or session over a short period

@@ -23,6 +23,7 @@ For a repo-wide map of which internal docs depend on these sources, see
 Official source: https://developer.post.ch/en/digital-commerce-api
 
 Verified from the current page:
+
 - There is an `address` endpoint
 - There is a `delivery` endpoint
 - There is a `barcode` endpoint
@@ -41,6 +42,7 @@ for MVP.
 Official source: https://developer.post.ch/en/digital-commerce-api
 
 Verified from the current page:
+
 - Barcode provides access to generate address labels
 - The docs include FE window-envelope formats for letters with barcode
 
@@ -54,6 +56,7 @@ fulfillment. Do not treat a successful barcode call as dispatch confirmation.
 Official source: https://www.post.ch/en/business-solutions/digital-commerce/track-consignments-web-service
 
 Verified from the current page:
+
 - The service is a SOAP web service
 - A WSDL is published
 - XML request and response examples are published for: `ShipmentsSearch`, `GetAllEvents`,
@@ -69,6 +72,7 @@ reference model. It must not be assumed to work with every reference returned by
 Official source: https://www.epost.ch/en/business-customers/smartsend
 
 Verified from the current public page:
+
 - SmartSend is a current business-mail product
 - ePost positions it as daily business mail sent online
 - ePost distinguishes multiple sending products: SmartSend, SecureSend/IncaMail, and oneAPI
@@ -148,6 +152,7 @@ provisioned for live physical-mail submission.
 Source context: Swiss Post search results as of 2026-03-15
 
 Observed in current search results:
+
 - A recent FAQ states that legacy E-Post Print and Send / E-Post Business reached end of life
 - Current "Print and Send" access is via KLARA
 
@@ -246,7 +251,7 @@ This is implementation evidence for exploration only. It is **not** a provider-c
   - recipient status `SUCCESS`
 - This is stronger operational evidence that request-level sender identity survives into the real
   provider sending record for at least one delivered physical letter
-- But it still does **not** prove the unresolved point that matters most for Swiss Mail: whether an
+- But it still does **not** prove the unresolved point that matters most for Episto: whether an
   undeliverable physical letter will actually be returned using the supplied sender address rather
   than a tenant default or another downstream rule
 - The remaining verified evidence is:
@@ -257,7 +262,7 @@ This is implementation evidence for exploration only. It is **not** a provider-c
     `return-live-1774945593700`
   - the API still does **not** echo the full physical sender-address object back, and we do **not**
     yet have a controlled real-world return proving which address governs physical return routing
-- Until provider-issued documentation or a stronger operational proof says otherwise, Swiss Mail must
+- Until provider-issued documentation or a stronger operational proof says otherwise, Episto must
   treat actual physical **return-routing** as **unproven** rather than guaranteed, even though
   sender identity now appears to carry through into the provider UI for live deliveries
 - Swiss Post's public registered-mail page confirms that return receipt exists as a postal product

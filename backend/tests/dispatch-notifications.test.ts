@@ -41,11 +41,11 @@ vi.mock("../src/queue/index.js", () => ({
 
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
-    CORS_ORIGIN: "https://swissmail.ch",
+    CORS_ORIGIN: "https://episto.ch",
     APP_PUBLIC_URL: undefined,
     STATEMENT_RETENTION_DAYS: 10,
-    APP_DISPLAY_NAME: "Swiss Mail",
-    SUPPORT_EMAIL: "support@swissmail.ch",
+    APP_DISPLAY_NAME: "Episto",
+    SUPPORT_EMAIL: "contact@episto.ch",
     LEGAL_ENTITY_NAME: "West Bay SA",
     LEGAL_ENTITY_ADDRESS_LINE_1: "Test St 1",
     LEGAL_ENTITY_ADDRESS_LINE_2: "1234 City",

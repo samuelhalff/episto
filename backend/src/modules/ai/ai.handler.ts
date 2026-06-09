@@ -22,6 +22,7 @@ import { acquireRedisLock } from "../../shared/redis-lock.js";
 import {
   buildComposeInstructions,
   buildExistingFieldsContext,
+  type ConversationHistoryEntry,
   emitAssistantCompletion,
   loadConversationHistory,
   mergeRecipientName,
@@ -30,6 +31,18 @@ import {
 
 const logger = createLogger("ai-handler");
 const COMPOSE_LOCK_TTL_MS = 10 * 60 * 1000;
+const UNSUPPORTED_LOCALE_MESSAGE =
+  "I can currently prepare Swiss letters only in German, French, Italian, or English. Please choose one of those languages.";
+const SUPPORTED_LOCALE_BY_LANGUAGE = [
+  { locale: "de-CH", pattern: /\b(german|deutsch|allemand|tedesco)\b/i },
+  {
+    locale: "fr-CH",
+    pattern:
+      /\b(french|franzoesisch|franzosisch|französisch|francais|français|francese)\b/i,
+  },
+  { locale: "it-CH", pattern: /\b(italian|italienisch|italien|italiano)\b/i },
+  { locale: "en-CH", pattern: /\b(english|englisch|anglais|inglese)\b/i },
+] as const;
 
 export interface HandleMessageInput {
   draftId: string;
@@ -97,6 +110,36 @@ function getIntakeReplyContent(input: {
   return "Could you provide more details about your letter?";
 }
 
+function detectPromptLocaleRequest(userContent: string): {
+  locale: string | null;
+  unsupportedLocaleRequest: string | null;
+} {
+  const hasLocaleIntent =
+    /\b(translate|switch|change|convert|write|make)\b/i.test(userContent) &&
+    /\b(language|letter|whole|draft|text|to|in)\b/i.test(userContent);
+
+  if (!hasLocaleIntent) {
+    return { locale: null, unsupportedLocaleRequest: null };
+  }
+
+  const supported = SUPPORTED_LOCALE_BY_LANGUAGE.find(({ pattern }) =>
+    pattern.test(userContent),
+  );
+  if (supported) {
+    return { locale: supported.locale, unsupportedLocaleRequest: null };
+  }
+
+  const requestedLanguage =
+    userContent.match(
+      /\b(?:translate|switch|change|convert|write|make)\b.*?\b(?:to|in)\s+([A-Za-zÀ-ÿ-]+)/i,
+    )?.[1] ?? "that language";
+
+  return {
+    locale: null,
+    unsupportedLocaleRequest: requestedLanguage,
+  };
+}
+
 async function applyIntakeAnalysis(input: {
   draftId: string;
   sessionId: string;
@@ -109,6 +152,7 @@ async function applyIntakeAnalysis(input: {
   ready: boolean;
   question?: string | undefined;
   message?: string | undefined;
+  unsupportedLocaleRequest?: string | undefined;
   hasEnoughContext: boolean;
 }> {
   const existingFields = buildExistingFieldsContext(input.draft);
@@ -136,12 +180,23 @@ async function applyIntakeAnalysis(input: {
     ready: analysis.ready,
     question: analysis.question,
     message: analysis.message,
+    unsupportedLocaleRequest:
+      typeof analysis.fields.unsupportedLocaleRequest === "string"
+        ? analysis.fields.unsupportedLocaleRequest
+        : undefined,
     hasEnoughContext: hasEnoughIntakeContext(
       analysis.intent,
       mergedFields,
       input.userMessage,
     ),
   };
+}
+
+async function emitUnsupportedLocaleMessage(
+  draftId: string,
+  conversationHistory: ConversationHistoryEntry[],
+): Promise<void> {
+  await emitAssistantCompletion(draftId, conversationHistory, UNSUPPORTED_LOCALE_MESSAGE);
 }
 
 export async function handleAiMessage(input: HandleMessageInput): Promise<void> {
@@ -157,7 +212,20 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
     const conversationHistory = await loadConversationHistory(draftId);
 
     if (draft.body?.trim() && conversationHistory.length > 2) {
-      await streamRevision(draftId, sessionId, draft, userContent, updateDraftFields);
+      const localeRequest = detectPromptLocaleRequest(userContent);
+      if (localeRequest.unsupportedLocaleRequest) {
+        await emitUnsupportedLocaleMessage(draftId, conversationHistory);
+        return;
+      }
+
+      await streamRevision(
+        draftId,
+        sessionId,
+        draft,
+        userContent,
+        updateDraftFields,
+        localeRequest.locale,
+      );
       return;
     }
 
@@ -168,6 +236,11 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
       userMessage: userContent,
       conversationHistory,
     });
+
+    if (analysis.unsupportedLocaleRequest) {
+      await emitUnsupportedLocaleMessage(draftId, conversationHistory);
+      return;
+    }
 
     await emitAssistantCompletion(
       draftId,
@@ -275,6 +348,11 @@ export async function handleComposeFromContext(
       userMessage: userInstructions,
       conversationHistory,
     });
+
+    if (analysis.unsupportedLocaleRequest) {
+      await emitUnsupportedLocaleMessage(draftId, conversationHistory);
+      return;
+    }
 
     if (analysis.question?.trim() && !analysis.hasEnoughContext) {
       await emitAssistantCompletion(

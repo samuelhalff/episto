@@ -3,7 +3,7 @@ import { createElement } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const BASE_ENV = {
-  NEXT_PUBLIC_SITE_URL: "https://swissmail.test",
+  NEXT_PUBLIC_SITE_URL: "https://episto.test",
   NEXT_PUBLIC_API_URL: "/api",
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_example",
   NEXT_PUBLIC_APP_ENV: "test" as const,

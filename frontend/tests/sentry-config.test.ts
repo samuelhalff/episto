@@ -10,7 +10,7 @@ describe("frontend sentry config", () => {
     ).beforeSend;
     const event: ErrorEvent = {
       request: {
-        url: "https://swissmail.ch/resume/secret-token?next=/status/order-token",
+        url: "https://episto.ch/resume/secret-token?next=/status/order-token",
       },
       tags: {
         route: "/status/order-token",
@@ -27,7 +27,7 @@ describe("frontend sentry config", () => {
     const sanitized = beforeSend(event);
 
     expect(sanitized.request?.url).toBe(
-      "https://swissmail.ch/resume/[token]?next=%2Fstatus%2F%5Btoken%5D",
+      "https://episto.ch/resume/[token]?next=%2Fstatus%2F%5Btoken%5D",
     );
     expect(sanitized.tags?.route).toBe("/status/[token]");
     expect(sanitized.contexts?.safe_metadata).toEqual({
@@ -46,7 +46,7 @@ describe("frontend sentry config", () => {
       type: "transaction",
       transaction: "/resume/secret-token",
       request: {
-        url: "https://swissmail.ch/status/order-token?next=/resume/secret-token",
+        url: "https://episto.ch/status/order-token?next=/resume/secret-token",
       },
       spans: [
         {
@@ -56,7 +56,7 @@ describe("frontend sentry config", () => {
           timestamp: 2,
           description: "GET /resume/secret-token",
           data: {
-            url: "https://swissmail.ch/status/order-token",
+            url: "https://episto.ch/status/order-token",
             route: "/status/order-token",
           },
         },
@@ -71,14 +71,14 @@ describe("frontend sentry config", () => {
     const sanitized = beforeSendTransaction(transactionEvent);
 
     expect(sanitized.request?.url).toBe(
-      "https://swissmail.ch/status/[token]?next=%2Fresume%2F%5Btoken%5D",
+      "https://episto.ch/status/[token]?next=%2Fresume%2F%5Btoken%5D",
     );
     expect(sanitized.transaction).toBe("/resume/[token]");
     expect(sanitized.spans).toEqual([
       expect.objectContaining({
         description: "GET /resume/[token]",
         data: {
-          url: "https://swissmail.ch/status/[token]",
+          url: "https://episto.ch/status/[token]",
           route: "/status/[token]",
         },
       }),

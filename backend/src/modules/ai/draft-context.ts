@@ -14,6 +14,7 @@ import { createMessage } from "../messages/message.service.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
 
 const DRAFT_FIELD_COLUMNS = new Set([
+  "locale",
   "subject",
   "body",
   "tone",

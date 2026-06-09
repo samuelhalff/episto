@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const BASE_ENV = {
-  NEXT_PUBLIC_SITE_URL: "https://swissmail.test",
+  NEXT_PUBLIC_SITE_URL: "https://episto.test",
   NEXT_PUBLIC_API_URL: "/api",
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_example",
   NEXT_PUBLIC_APP_ENV: "test" as const,
@@ -21,7 +21,9 @@ async function loadErrorTrackingModule(envOverrides?: {
 
   const scope = createScopeMock();
   const sentry = {
-    withScope: vi.fn((callback: (scope: ReturnType<typeof createScopeMock>) => void) => callback(scope)),
+    withScope: vi.fn((callback: (scope: ReturnType<typeof createScopeMock>) => void) =>
+      callback(scope),
+    ),
     captureException: vi.fn(),
     captureMessage: vi.fn(),
   };
@@ -47,7 +49,9 @@ afterEach(() => {
 
 describe("frontend error tracking", () => {
   it("acts as a typed no-op when NEXT_PUBLIC_SENTRY_DSN is unset", async () => {
-    const { mod, sentry } = await loadErrorTrackingModule({ NEXT_PUBLIC_SENTRY_DSN: undefined });
+    const { mod, sentry } = await loadErrorTrackingModule({
+      NEXT_PUBLIC_SENTRY_DSN: undefined,
+    });
 
     mod.captureException(new Error("Component crashed"), {
       component: "ComposerPanel",
@@ -155,7 +159,10 @@ describe("frontend error tracking", () => {
 
     mod.captureException(apiLikeError);
 
-    const capturedError = sentry.captureException.mock.calls[0]?.[0] as Record<string, unknown>;
+    const capturedError = sentry.captureException.mock.calls[0]?.[0] as Record<
+      string,
+      unknown
+    >;
     expect(capturedError.message).toBe("API error 500");
     expect(capturedError).not.toHaveProperty("body");
     expect(capturedError).not.toHaveProperty("request");

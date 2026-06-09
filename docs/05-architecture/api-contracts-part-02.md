@@ -335,7 +335,7 @@ const AddressDetailsResponse = z.object({
 
 **Behavior notes:**
 
-- returned fields are normalized into Swiss Mail's sender/recipient form shape
+- returned fields are normalized into Episto's sender/recipient form shape
 - invalid or stale address identifiers are rejected as client errors before or during provider lookup
 - non-Swiss address details are rejected even if someone calls the endpoint directly with an arbitrary provider ID
 - fields may still require user correction; this endpoint improves prefill, it does not replace review
@@ -388,7 +388,7 @@ const RecipientCompanySearchResponse = z.object({
 **Behavior notes:**
 
 - only for company / organization recipient lookup
-- current staging provider is Zefix via an internal Swiss Mail proxy
+- current staging provider is Zefix via an internal Episto proxy
 - results help the user select the company identity
 - once a company is selected, the frontend may fetch company details from the same provider to prefill the
   structured recipient address fields

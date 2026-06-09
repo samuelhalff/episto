@@ -8,7 +8,7 @@ This file defines the support operating posture that the admin build pack must i
 
 ## Core rule
 
-Support for Swiss Mail is **metadata-first and API-submission aware**.
+Support for Episto is **metadata-first and API-submission aware**.
 
 This is strict for provider data: admin may use the minimum provider references needed to re-query
 or reconcile ePost, but admin must not become a raw provider payload archive.

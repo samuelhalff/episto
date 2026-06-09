@@ -1,12 +1,13 @@
-# Copilot Instructions for Swiss Mail
+# Copilot Instructions for Episto
 
-Swiss Mail is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction. The repository has completed both the documentation phase and the core feature implementation. The monorepo is operational with backend, frontend, and shared packages all substantially implemented.
+Episto is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction. The repository has completed both the documentation phase and the core feature implementation. The monorepo is operational with backend, frontend, and shared packages all substantially implemented.
 
 ## Documentation is the source of truth
 
 The `docs/` directory is the canonical authority. Start at `docs/index.md` for navigation. If code conflicts with docs, the docs win unless a newer explicit decision replaces them. Read the docs before generating implementation code.
 
 Key files for implementation safety:
+
 - `docs/08-guardrails/swiss-post-appendix.md` — verified provider facts and forbidden assumptions
 - `docs/05-architecture/stack-decisions.md` — locked technology choices
 - `docs/05-architecture/system-contracts.md` — canonical entities, enums, state machines, and API boundaries
@@ -17,6 +18,7 @@ Key files for implementation safety:
 ## Repository structure
 
 Monorepo with three top-level application directories:
+
 - `frontend/` — Next.js + TypeScript, Tailwind, shadcn/ui primitives
 - `backend/` — Node.js + TypeScript, modular monolith (Fastify, Drizzle ORM, BullMQ)
 - `shared/` — canonical TypeScript schemas, enums, state machines, query keys, and contracts used by both sides
@@ -63,6 +65,7 @@ These are the most critical rules for AI-assisted development:
 ## Backend conventions
 
 Backend modules: `sessions`, `drafting`, `rendering`, `files`, `payments`, `dispatch`, `tracking`, `retention`, `admin`.
+
 <!-- Note: `accounts` is post-MVP and not in the canonical MVP module list. See backend-architecture.md. -->
 
 - Backend owns all state transitions, adapter translation, and retention cleanup
@@ -95,6 +98,6 @@ Map all errors to canonical families: validation, policy refusal, payment failur
 ## Git workflow preference
 
 - Work directly on `main` for this repository unless the user explicitly asks for something else.
-- Do not create git worktrees for Swiss Mail.
-- Do not create feature branches for Swiss Mail.
+- Do not create git worktrees for Episto.
+- Do not create feature branches for Episto.
 - Make regular, descriptive commits while working.

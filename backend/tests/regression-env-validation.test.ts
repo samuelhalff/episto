@@ -15,10 +15,10 @@ function makeValidEnv(overrides?: Record<string, unknown>) {
   return {
     NODE_ENV: "development",
     PORT: 3001,
-    DATABASE_URL: "postgresql://localhost:5432/swissmail",
+    DATABASE_URL: "postgresql://localhost:5432/episto",
     REDIS_URL: "redis://localhost:6379",
     S3_ENDPOINT: "http://localhost:9000",
-    S3_BUCKET: "swissmail",
+    S3_BUCKET: "episto",
     S3_ACCESS_KEY: "minio",
     S3_SECRET_KEY: "minio123",
     STRIPE_SECRET_KEY: "sk_test_abc123456",
@@ -33,6 +33,15 @@ function makeValidEnv(overrides?: Record<string, unknown>) {
   };
 }
 
+function productionSmsEnv(): Record<string, unknown> {
+  return {
+    SMS_PROVIDER: "budgetsms",
+    BUDGETSMS_USERNAME: "user",
+    BUDGETSMS_USER_ID: "123",
+    BUDGETSMS_HANDLE: "handle",
+  };
+}
+
 describe("regression: env validation accepts valid configs", () => {
   it("accepts a standard development config with test Stripe keys", () => {
     const result = EnvSchema.safeParse(makeValidEnv());
@@ -44,8 +53,9 @@ describe("regression: env validation accepts valid configs", () => {
       makeValidEnv({
         NODE_ENV: "production",
         STRIPE_SECRET_KEY: "sk_live_prod_key_123",
-        CORS_ORIGIN: "https://swissmail.ch",
-        APP_PUBLIC_URL: "https://swissmail.ch",
+        CORS_ORIGIN: "https://episto.ch",
+        APP_PUBLIC_URL: "https://episto.ch",
+        ...productionSmsEnv(),
       }),
     );
     expect(result.success).toBe(true);
@@ -116,7 +126,7 @@ describe("regression: env validation accepts valid configs", () => {
       expect(result.data.EPOST_SUBMISSION_MODE).toBe("mock");
       expect(result.data.POSTAL_DISPATCH_PROVIDER).toBe("stub");
       expect(result.data.APP_DISPLAY_NAME).toBe("Episto");
-      expect(result.data.SUPPORT_EMAIL).toBe("support@swissmail.ch");
+      expect(result.data.SUPPORT_EMAIL).toBe("contact@episto.ch");
     }
   });
 
@@ -126,7 +136,7 @@ describe("regression: env validation accepts valid configs", () => {
         NODE_ENV: "production",
         STRIPE_SECRET_KEY: "sk_live_prod",
         CORS_ORIGIN: "http://insecure.example.com",
-        APP_PUBLIC_URL: "https://swissmail.ch",
+        APP_PUBLIC_URL: "https://episto.ch",
       }),
     );
     expect(result.success).toBe(false);

@@ -17,6 +17,10 @@ export function isTemporaryAiFailureMessage(content: string): boolean {
   );
 }
 
+function isAssistantReadyMessage(content: string): boolean {
+  return content.trim().toLowerCase().includes("i have enough to start");
+}
+
 function buildUserContextText(messages: ConversationMessage[]): string {
   return messages
     .filter((message) => message.role === "user" && message.content.trim().length > 0)
@@ -51,6 +55,10 @@ export function getIntakeThreadActionMode(
 
   if (isTemporaryAiFailureMessage(latestAssistantMessage.content)) {
     return "subtle";
+  }
+
+  if (isAssistantReadyMessage(latestAssistantMessage.content)) {
+    return "prominent";
   }
 
   return hasMeaningfulIntakeProgress(draft, messages) ? "prominent" : "subtle";

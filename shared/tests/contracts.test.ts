@@ -13,6 +13,7 @@ import {
   DraftFilesResponseSchema,
   OrderStatusResponseSchema,
   PublicPricingResponseSchema,
+  UpdateDraftInput,
 } from "../src/contracts/index.ts";
 
 function createPublicPricingResponse() {
@@ -132,6 +133,11 @@ function createOrderStatusResponse() {
 }
 
 describe("shared contract schemas", () => {
+  it("accepts only supported locales on draft updates", () => {
+    expect(UpdateDraftInput.parse({ locale: "fr-CH" }).locale).toBe("fr-CH");
+    expect(() => UpdateDraftInput.parse({ locale: "es-ES" })).toThrow();
+  });
+
   it("parses a draft files response with attachment constraints", () => {
     const result = DraftFilesResponseSchema.parse({
       files: [

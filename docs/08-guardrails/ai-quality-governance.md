@@ -68,7 +68,7 @@ If the answers are unclear, do not silently ship the change.
 
 ## 4. Degradation and kill switches
 
-Swiss Mail must be able to degrade AI behavior honestly.
+Episto must be able to degrade AI behavior honestly.
 
 Examples:
 

@@ -113,8 +113,8 @@ minio-provision:
       condition: service_healthy
   entrypoint: >
     /bin/sh -c "
-    mc alias set local http://minio:9000 ${MINIO_ROOT_USER:-minioadmin} ${MINIO_ROOT_PASSWORD:-minioadmin};
-    mc mb --ignore-existing local/${S3_BUCKET:-episto};
+    mc alias set local http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
+    mc mb --ignore-existing local/$${S3_BUCKET};
     "
 ```
 

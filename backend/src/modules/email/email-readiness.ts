@@ -1,6 +1,6 @@
 import { env } from "../../shared/config/index.js";
 
-const PRODUCTION_SENDER_DOMAIN = "swissmail.ch";
+const PRODUCTION_SENDER_DOMAIN = "episto.ch";
 
 export interface EmailReadinessStatus {
   ok: boolean;
@@ -26,7 +26,7 @@ export function checkEmailReadiness(): EmailReadinessStatus {
     return {
       ok: false,
       detail:
-        "Non-production email still uses swissmail.ch. Configure a verified development sender domain until the production domain is verified in Resend.",
+        "Non-production email still uses episto.ch. Configure a verified development sender domain until the production domain is verified in Resend.",
       senderAddress: config.EMAIL_FROM,
       supportAddress: config.SUPPORT_EMAIL,
       senderDomain,

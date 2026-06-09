@@ -27,22 +27,31 @@ export function SignatureSection({
 }: SignatureSectionProps) {
   const t = useTranslations("draft");
   const [redrawingFromUrl, setRedrawingFromUrl] = useState<string | null>(null);
+  const [hasActiveCanvasSession, setHasActiveCanvasSession] = useState(false);
 
   const handleRedraw = useCallback(() => {
     setRedrawingFromUrl(signatureUrl);
+    setHasActiveCanvasSession(true);
   }, [signatureUrl]);
 
   const handleDrawnSignatureInternal = useCallback(
     (blob: Blob) => {
+      setHasActiveCanvasSession(true);
       onDrawnSignature(blob);
     },
     [onDrawnSignature],
   );
 
+  const handleClearDrawnInternal = useCallback(() => {
+    setHasActiveCanvasSession(false);
+    onClearDrawn();
+  }, [onClearDrawn]);
+
   const showSavedSignature =
     hasDrawnAsset &&
     Boolean(signatureUrl) &&
     !isUploading &&
+    !hasActiveCanvasSession &&
     redrawingFromUrl !== signatureUrl;
 
   return (
@@ -91,7 +100,7 @@ export function SignatureSection({
           ) : (
             <SignatureCanvas
               onSignature={handleDrawnSignatureInternal}
-              onClear={onClearDrawn}
+              onClear={handleClearDrawnInternal}
               disabled={isUploading}
             />
           )}

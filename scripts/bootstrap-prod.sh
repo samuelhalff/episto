@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Swiss Mail — first-time prod host bootstrap.
+# Episto — first-time prod host bootstrap.
 #
 # Idempotent: safe to re-run. Installs docker engine + compose v2 plugin from
 # Docker's official apt repo, adds the SSH user to the docker group, and
@@ -16,8 +16,8 @@ cd "$REPO_ROOT"
 SSH_KEY="${SSH_KEY:-$HOME/.ssh/id_deploy_to_prod}"
 SSH_USER="${SSH_USER:-ubuntu}"
 PROD_PATH="${PROD_PATH:-/home/ubuntu/episto}"
-REMOTE_ENV_DIR="${REMOTE_ENV_DIR:-/etc/swissmail}"
-REMOTE_WEBROOT_PATH="${REMOTE_WEBROOT_PATH:-/var/lib/swissmail-www}"
+REMOTE_ENV_DIR="${REMOTE_ENV_DIR:-/etc/episto}"
+REMOTE_WEBROOT_PATH="${REMOTE_WEBROOT_PATH:-/var/lib/episto-www}"
 
 [[ -r "$SSH_KEY" ]] || { echo "missing $SSH_KEY"; exit 1; }
 if [[ -z "${PROD_HOST:-}" ]]; then

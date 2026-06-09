@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Swiss Mail — production deploy
+# Episto — production deploy
 #
 # Builds the prod docker images on this machine (the prod VPS only has 2 GB
 # RAM — too small to build), saves them as compressed tarballs, ships them
@@ -29,8 +29,8 @@ PROD_PATH="${PROD_PATH:-/home/ubuntu/episto}"
 ENV_FILE="${ENV_FILE:-.env.production}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.prod.yml}"
 PROJECT_NAME="${PROJECT_NAME:-}"
-REMOTE_ENV_PATH="${REMOTE_ENV_PATH:-/etc/swissmail/production.env}"
-REMOTE_WEBROOT_PATH="${REMOTE_WEBROOT_PATH:-/var/lib/swissmail-www}"
+REMOTE_ENV_PATH="${REMOTE_ENV_PATH:-/etc/episto/production.env}"
+REMOTE_WEBROOT_PATH="${REMOTE_WEBROOT_PATH:-/var/lib/episto-www}"
 REMOTE_ENV_UPLOAD="${REMOTE_ENV_UPLOAD:-$PROD_PATH/.production.env.upload}"
 SKIP_BUILD="${SKIP_BUILD:-0}"
 SKIP_UPLOAD="${SKIP_UPLOAD:-0}"
@@ -184,7 +184,7 @@ if [[ "$SKIP_BUILD" != "1" ]]; then
   say "Building production images locally…"
   # Compose needs all NEXT_PUBLIC_* and POSTGRES_* etc. for interpolation; pass
   # the prod env file so build args resolve.
-  SWISSMAIL_ENV_FILE="$REPO_ROOT/$ENV_FILE" \
+  EPISTO_ENV_FILE="$REPO_ROOT/$ENV_FILE" \
     docker compose --project-name "$PROJECT_NAME" \
     --env-file "$ENV_FILE" -f "$COMPOSE_FILE" build
 else
@@ -245,25 +245,25 @@ if [[ "$SKIP_RESTART" != "1" ]]; then
     echo '→ Loading new images'
     docker load -i '$(basename "$TARBALL")'
     echo '→ Stopping current stack'
-    SWISSMAIL_ENV_FILE='$REMOTE_ENV_PATH' \\
+    EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
       docker compose --project-name '$PROJECT_NAME' \\
       --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' down --remove-orphans
     echo '→ Starting infrastructure services'
-    SWISSMAIL_ENV_FILE='$REMOTE_ENV_PATH' \\
+    EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
       docker compose --project-name '$PROJECT_NAME' \\
       --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' up -d postgres redis minio zefix-proxy
     echo '→ Ensuring MinIO bucket exists'
-    SWISSMAIL_ENV_FILE='$REMOTE_ENV_PATH' \\
+    EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
       docker compose --project-name '$PROJECT_NAME' \\
       --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' --profile manual run --rm minio-provision
     echo '→ Starting app + proxy services'
-    SWISSMAIL_ENV_FILE='$REMOTE_ENV_PATH' \\
+    EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
       docker compose --project-name '$PROJECT_NAME' \\
       --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' up -d backend worker frontend proxy
     echo '→ Running certbot certonly via the shared webroot'
     sudo certbot $CERTBOT_ARGS_ESCAPED
     echo '→ Reloading proxy with current certificate set'
-    SWISSMAIL_ENV_FILE='$REMOTE_ENV_PATH' \\
+    EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
       docker compose --project-name '$PROJECT_NAME' \\
       --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' up -d --force-recreate proxy
     if [ '$PRUNE_REMOTE' = '1' ]; then

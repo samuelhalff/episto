@@ -64,7 +64,7 @@ Each page documents the **emotional intent** — the feeling the user should hav
 - **Meta description:** `Draft, review, and send formal letters in Switzerland — in minutes. AI-assisted drafting, postal delivery, and careful data handling.`
 - **OG image:** Hero mockup, navy background, product screenshot
 - **Structured data:** `Organization`, `WebSite` with `SearchAction`, `FAQPage` (for FAQ section)
-- **Canonical:** `https://swissmail.ch/`
+- **Canonical:** `https://episto.ch/`
 
 ### Layout
 

@@ -19,15 +19,15 @@
 
 Staging is identical to production in infrastructure. Differences are configuration-only:
 
-| Aspect             | Staging                                                             | Production                 |
-| ------------------ | ------------------------------------------------------------------- | -------------------------- |
-| Database           | Separate DB, same schema                                            | Production DB              |
-| Stripe             | Test mode (`sk_test_...`)                                           | Live mode (`sk_live_...`)  |
-| Postal provider    | Chosen provider sandbox or explicitly non-production adapter        | Chosen production provider |
-| Email              | Real delivery to test addresses                                     | Real delivery              |
-| Domain             | `staging.swissmail.ch` (prod staging), `localhost:5000` (local dev) | `swissmail.ch`             |
-| Sentry environment | `staging`                                                           | `production`               |
-| `NODE_ENV`         | `production` (same runtime)                                         | `production`               |
+| Aspect             | Staging                                                         | Production                 |
+| ------------------ | --------------------------------------------------------------- | -------------------------- |
+| Database           | Separate DB, same schema                                        | Production DB              |
+| Stripe             | Test mode (`sk_test_...`)                                       | Live mode (`sk_live_...`)  |
+| Postal provider    | Chosen provider sandbox or explicitly non-production adapter    | Chosen production provider |
+| Email              | Real delivery to test addresses                                 | Real delivery              |
+| Domain             | `ark-fid.ddns.net` (prod staging), `localhost:5000` (local dev) | `episto.ch`                |
+| Sentry environment | `staging`                                                       | `production`               |
+| `NODE_ENV`         | `production` (same runtime)                                     | `production`               |
 
 ### Feature flags (MVP)
 
@@ -56,18 +56,20 @@ All CI secrets are stored in **GitHub Actions encrypted secrets** (Settings → 
 
 Required CI secrets:
 
-| Secret name             | Used in                             |
-| ----------------------- | ----------------------------------- |
-| `GITHUB_TOKEN`          | Docker push to GHCR (auto-provided) |
-| `PRODUCTION_DEPLOY_KEY` | SSH key for production deployment   |
-| `STAGING_DEPLOY_KEY`    | SSH key for staging deployment      |
-| Stripe, S3, DB, etc.    | `test-backend` job environment      |
+| Secret name             | Used in                                      |
+| ----------------------- | -------------------------------------------- |
+| `GITHUB_TOKEN`          | Docker push to GHCR (auto-provided)          |
+| `PRODUCTION_HOST`       | Production VPS hostname for main deployments |
+| `PRODUCTION_DEPLOY_KEY` | SSH key for production deployment            |
+| `PRODUCTION_ENV_FILE`   | Full production `.env.production` contents   |
+| `STAGING_DEPLOY_KEY`    | SSH key for staging deployment               |
+| Stripe, S3, DB, etc.    | `test-backend` job environment               |
 
 ### Production secrets
 
 For the VPS deployment:
 
-- Secrets live in `/etc/swissmail/production.env`, outside the repo, readable only by the deploy user.
+- Secrets live in `/etc/episto/production.env`, outside the repo, readable only by the deploy user.
 - `docker-compose.prod.yml` injects this file into all containers via `env_file`.
 - Do not store secrets in Docker images, Dockerfiles, or version control.
 
@@ -345,7 +347,7 @@ CORS is configured via `@fastify/cors`:
 import cors from "@fastify/cors";
 
 await app.register(cors, {
-  origin: process.env.BASE_URL, // e.g., https://swissmail.ch
+  origin: process.env.BASE_URL, // e.g., https://episto.ch
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Request-ID"],

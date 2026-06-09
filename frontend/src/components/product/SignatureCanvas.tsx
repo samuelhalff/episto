@@ -16,6 +16,7 @@ export const CANVAS_HEIGHT = 160;
 const DPR_CLAMP = 2;
 /** Wait this long after the last stroke before exporting (ms). */
 const STROKE_DEBOUNCE_MS = 800;
+const ACTION_ENABLE_DELAY_MS = 120;
 const PAD_OPTIONS = {
   penColor: "#1a1a1a",
   minWidth: 1.2,
@@ -84,7 +85,9 @@ export function SignatureCanvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const padRef = useRef<SignaturePad | null>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const actionEnableRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
+  const [actionsEnabled, setActionsEnabled] = useState(false);
 
   const exportSignature = useCallback(() => {
     const pad = padRef.current;
@@ -122,6 +125,13 @@ export function SignatureCanvas({
     }
 
     setIsEmpty(false);
+    if (actionEnableRef.current) {
+      clearTimeout(actionEnableRef.current);
+    }
+    actionEnableRef.current = setTimeout(
+      () => setActionsEnabled(true),
+      ACTION_ENABLE_DELAY_MS,
+    );
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -196,6 +206,9 @@ export function SignatureCanvas({
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
       }
+      if (actionEnableRef.current) {
+        clearTimeout(actionEnableRef.current);
+      }
     };
   }, []);
 
@@ -220,6 +233,7 @@ export function SignatureCanvas({
     }
     padRef.current?.clear();
     setIsEmpty(true);
+    setActionsEnabled(false);
     onClear();
   }
 
@@ -245,7 +259,7 @@ export function SignatureCanvas({
         <button
           type="button"
           onClick={handleClear}
-          disabled={disabled || isEmpty}
+          disabled={disabled || !actionsEnabled}
           className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium text-zinc-500 transition hover:bg-zinc-100 disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-zinc-800"
         >
           <Eraser className="h-3.5 w-3.5" />

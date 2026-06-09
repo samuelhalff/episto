@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Prepare Swiss Mail for future SwissSign / SwissID signature integration without inventing private APIs, while preserving the current non-signature send flow.
+**Goal:** Prepare Episto for future SwissSign / SwissID signature integration without inventing private APIs, while preserving the current non-signature send flow.
 
 **Architecture:** Extend the existing draft, payment, and dispatch foundations with a new signature domain plus an explicit order-fulfillment workflow. Keep SwissID OIDC and SwissSign transaction handling behind config-backed services and mock adapters so the live provider can be plugged in later with minimal refactor.
 

@@ -20,6 +20,13 @@ const validEnv = () => ({
   RESEND_API_KEY: "re_abc123",
 });
 
+const productionSmsEnv = () => ({
+  SMS_PROVIDER: "budgetsms",
+  BUDGETSMS_USERNAME: "user",
+  BUDGETSMS_USER_ID: "123",
+  BUDGETSMS_HANDLE: "handle",
+});
+
 // ---------------------------------------------------------------------------
 // Stripe environment safety — live keys must never be used outside production
 // ---------------------------------------------------------------------------
@@ -76,8 +83,9 @@ describe("Stripe environment safety", () => {
       ...validEnv(),
       NODE_ENV: "production",
       STRIPE_SECRET_KEY: "sk_live_abc123",
-      CORS_ORIGIN: "https://app.swissmail.ch",
-      APP_PUBLIC_URL: "https://app.swissmail.ch",
+      CORS_ORIGIN: "https://episto.ch",
+      APP_PUBLIC_URL: "https://episto.ch",
+      ...productionSmsEnv(),
     });
     expect(result.success).toBe(true);
   });
@@ -87,8 +95,9 @@ describe("Stripe environment safety", () => {
       ...validEnv(),
       NODE_ENV: "production",
       STRIPE_SECRET_KEY: "sk_test_abc123",
-      CORS_ORIGIN: "https://staging.swissmail.ch",
-      APP_PUBLIC_URL: "https://staging.swissmail.ch",
+      CORS_ORIGIN: "https://ark-fid.ddns.net",
+      APP_PUBLIC_URL: "https://ark-fid.ddns.net",
+      ...productionSmsEnv(),
     });
     expect(result.success).toBe(true);
   });

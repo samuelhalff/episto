@@ -79,7 +79,7 @@ If a task touches more than one row, read the union of those docs before coding.
 - **Never** bypass the shared contracts layer.
 - **Never** write provider-specific logic outside its designated adapter module.
 - **Never** treat label or barcode generation as proof of physical dispatch.
-- **Never** model Swiss Mail as operating its own print-and-mail workflow.
+- **Never** model Episto as operating its own print-and-mail workflow.
 - **Never** make guest users depend on account-only assumptions.
 - **Never** resolve a conflict between two docs by choosing the more convenient implementation.
 - **Never** follow a cross-reference to a missing file by guessing what that file probably said.

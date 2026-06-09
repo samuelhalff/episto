@@ -142,6 +142,7 @@ export async function updateDraft(
   draftId: string,
   sessionId: string,
   updates: {
+    locale?: string | undefined;
     subject?: string | null | undefined;
     body?: string | null | undefined;
     tone?: string | null | undefined;
@@ -166,6 +167,7 @@ export async function updateDraft(
 
   const values: Record<string, unknown> = { updatedAt: new Date() };
 
+  if (updates.locale !== undefined) values.locale = updates.locale;
   if (updates.subject !== undefined) values.subject = updates.subject;
   if (updates.body !== undefined) values.body = updates.body;
   if (updates.tone !== undefined) values.tone = updates.tone;

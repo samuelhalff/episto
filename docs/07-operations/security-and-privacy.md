@@ -31,14 +31,14 @@ must reference this section rather than redefine values.
 
 The following HTTP response headers must be set on all application responses:
 
-| Header | Value |
-|---|---|
+| Header                      | Value                                          |
+| --------------------------- | ---------------------------------------------- |
 | `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` |
-| `X-Frame-Options` | `DENY` |
-| `X-Content-Type-Options` | `nosniff` |
-| `X-XSS-Protection` | `0` |
-| `Referrer-Policy` | `strict-origin-when-cross-origin` |
-| `Permissions-Policy` | `camera=(), microphone=(self), geolocation=()` |
+| `X-Frame-Options`           | `DENY`                                         |
+| `X-Content-Type-Options`    | `nosniff`                                      |
+| `X-XSS-Protection`          | `0`                                            |
+| `Referrer-Policy`           | `strict-origin-when-cross-origin`              |
+| `Permissions-Policy`        | `camera=(), microphone=(self), geolocation=()` |
 
 ### Content Security Policy
 
@@ -119,17 +119,18 @@ nDSG/FADP expectations). If complex, communicate the extended timeline to the re
 
 Disclosable data classes:
 
-| Class | Source | Format |
-|---|---|---|
-| Draft content and conversation | Application DB | JSON export |
-| Recipient and sender addresses | Application DB | JSON export |
-| Uploaded files and signatures | Object storage | Original file format |
-| Payment amounts, dates, state | Application DB | JSON export |
-| Dispatch state and reference | Application DB | JSON export |
-| Email addresses on file | Application DB | JSON export |
-| Session metadata (locale, created) | Application DB | JSON export |
+| Class                              | Source         | Format               |
+| ---------------------------------- | -------------- | -------------------- |
+| Draft content and conversation     | Application DB | JSON export          |
+| Recipient and sender addresses     | Application DB | JSON export          |
+| Uploaded files and signatures      | Object storage | Original file format |
+| Payment amounts, dates, state      | Application DB | JSON export          |
+| Dispatch state and reference       | Application DB | JSON export          |
+| Email addresses on file            | Application DB | JSON export          |
+| Session metadata (locale, created) | Application DB | JSON export          |
 
 Do not include:
+
 - raw Stripe payment tokens or card fingerprints (these live provider-side)
 - internal admin/support event logs (operational, not user-owned)
 - hashed resume tokens (not useful to the user)
@@ -166,12 +167,12 @@ deliberately removed.
 
 ### Provider-side data coordination
 
-| Provider | User data held | Deletion mechanism | Notes |
-|---|---|---|---|
-| Stripe | Payment method tokens, charge records | Stripe Dashboard or API (`Customer.delete`) | Stripe retains records for their own compliance; deletion removes from our Stripe account |
-| Resend | Transactional email logs | Resend retention auto-expires | We do not store email bodies; Resend logs are time-limited by their policy |
-| Azure AI | Request/response logs | Azure data retention settings | We do not persist prompts or completions beyond the AI call; Azure log retention is configurable |
-| Swiss Post | Dispatch reference, submission payload | No self-service deletion available | Explain honestly: dispatch records are held by the postal provider and cannot be removed on demand |
+| Provider   | User data held                         | Deletion mechanism                          | Notes                                                                                              |
+| ---------- | -------------------------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Stripe     | Payment method tokens, charge records  | Stripe Dashboard or API (`Customer.delete`) | Stripe retains records for their own compliance; deletion removes from our Stripe account          |
+| Resend     | Transactional email logs               | Resend retention auto-expires               | We do not store email bodies; Resend logs are time-limited by their policy                         |
+| Azure AI   | Request/response logs                  | Azure data retention settings               | We do not persist prompts or completions beyond the AI call; Azure log retention is configurable   |
+| Swiss Post | Dispatch reference, submission payload | No self-service deletion available          | Explain honestly: dispatch records are held by the postal provider and cannot be removed on demand |
 
 When processing a deletion request, document which providers were contacted or acknowledged and
 which retain data outside our control.
@@ -212,18 +213,19 @@ still exist.
 
 The product must account for:
 
-| Risk | Mitigation |
-|---|---|
-| Company-name or brand misuse in letters | Content flagging, not pre-approval; support escalation path |
-| Third-party representation abuse | Clear non-legal-service disclaimer; audit trail |
-| Abusive or threatening letter content | Detection and refusal policy; documented in moderation rules |
-| Repeated suspicious failure/refund patterns | Flagged in admin dashboard for manual review |
+| Risk                                        | Mitigation                                                   |
+| ------------------------------------------- | ------------------------------------------------------------ |
+| Company-name or brand misuse in letters     | Content flagging, not pre-approval; support escalation path  |
+| Third-party representation abuse            | Clear non-legal-service disclaimer; audit trail              |
+| Abusive or threatening letter content       | Detection and refusal policy; documented in moderation rules |
+| Repeated suspicious failure/refund patterns | Flagged in admin dashboard for manual review                 |
 
 ## Legal-service boundary
 
-Swiss Mail is not a substitute for legal counsel.
+Episto is not a substitute for legal counsel.
 
 The product must not:
+
 - Claim to certify the legal correctness of any letter
 - Market itself as legal advice
 - Imply that registered sending alone makes letter content legally valid

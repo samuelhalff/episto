@@ -20,19 +20,16 @@ describe("getIntakeThreadActionMode", () => {
 
   it("returns null before the assistant has replied", () => {
     expect(
-      getIntakeThreadActionMode(
-        { intent: "cancellation", metadata: recipientMetadata },
-        [
-          {
-            id: "user-1",
-            draftId: "draft-1",
-            role: "user",
-            content: "I need help cancelling a contract.",
-            toolCalls: null,
-            createdAt: new Date(),
-          },
-        ],
-      ),
+      getIntakeThreadActionMode({ intent: "cancellation", metadata: recipientMetadata }, [
+        {
+          id: "user-1",
+          draftId: "draft-1",
+          role: "user",
+          content: "I need help cancelling a contract.",
+          toolCalls: null,
+          createdAt: new Date(),
+        },
+      ]),
     ).toBeNull();
   });
 
@@ -68,27 +65,24 @@ describe("getIntakeThreadActionMode", () => {
 
   it("keeps the action subtle when the draft body is still too thin", () => {
     expect(
-      getIntakeThreadActionMode(
-        { intent: "cancellation", metadata: recipientMetadata },
-        [
-          {
-            id: "user-1",
-            draftId: "draft-1",
-            role: "user",
-            content: "Cancel Swisscom internet.",
-            toolCalls: null,
-            createdAt: new Date(),
-          },
-          {
-            id: "assistant-1",
-            draftId: "draft-1",
-            role: "assistant",
-            content: "I can help with that. Who is the letter for?",
-            toolCalls: null,
-            createdAt: new Date(),
-          },
-        ],
-      ),
+      getIntakeThreadActionMode({ intent: "cancellation", metadata: recipientMetadata }, [
+        {
+          id: "user-1",
+          draftId: "draft-1",
+          role: "user",
+          content: "Cancel Swisscom internet.",
+          toolCalls: null,
+          createdAt: new Date(),
+        },
+        {
+          id: "assistant-1",
+          draftId: "draft-1",
+          role: "assistant",
+          content: "I can help with that. Who is the letter for?",
+          toolCalls: null,
+          createdAt: new Date(),
+        },
+      ]),
     ).toBe("subtle");
   });
 
@@ -119,6 +113,31 @@ describe("getIntakeThreadActionMode", () => {
           },
         ],
       ),
+    ).toBe("prominent");
+  });
+
+  it("shows the prominent continue action when the assistant explicitly says intake is ready before draft metadata refreshes", () => {
+    expect(
+      getIntakeThreadActionMode({ intent: null, metadata: null }, [
+        {
+          id: "user-1",
+          draftId: "draft-1",
+          role: "user",
+          content:
+            "I want to cancel my Swisscom internet contract because I am moving abroad at the end of June and need the cancellation to take effect then.",
+          toolCalls: null,
+          createdAt: new Date(),
+        },
+        {
+          id: "assistant-1",
+          draftId: "draft-1",
+          role: "assistant",
+          content:
+            "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
+          toolCalls: null,
+          createdAt: new Date(),
+        },
+      ]),
     ).toBe("prominent");
   });
 });

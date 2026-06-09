@@ -339,7 +339,7 @@ Users may accidentally navigate away during payment processing:
 **Scenario: User closes tab during processing:**
 
 - Payment may complete in the background (Stripe processes server-side).
-- If payment succeeds: Stripe sends the payment receipt. User can return via the order-status link from later Swiss Mail dispatch email.
+- If payment succeeds: Stripe sends the payment receipt. User can return via the order-status link from later Episto dispatch email.
 - If payment fails: no charge. Draft remains available.
 
 **Scenario: User's internet drops mid-payment:**

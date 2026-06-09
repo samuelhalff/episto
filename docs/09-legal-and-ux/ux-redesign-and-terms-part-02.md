@@ -273,7 +273,7 @@ in any of the following circumstances:
 
 ## 16. Refund Policy
 
-16.1. **Before dispatch submission**: If we have not yet submitted your letter for dispatch, and the dispatch has not progressed beyond the initial queuing stage, you may request a cancellation and full refund by contacting support@swissmail.ch.
+16.1. **Before dispatch submission**: If we have not yet submitted your letter for dispatch, and the dispatch has not progressed beyond the initial queuing stage, you may request a cancellation and full refund by contacting contact@episto.ch.
 
 16.2. **After dispatch submission**: Once your letter has been submitted to the dispatch provider, the submission cannot be reversed or recalled. We cannot retrieve letters that are in the postal system.
 
@@ -344,7 +344,7 @@ in any of the following circumstances:
 
 20.1. We process personal data in connection with your use of Episto in accordance with applicable Swiss data protection law (DSG) and, where applicable, the EU General Data Protection Regulation (GDPR).
 
-20.2. Our Privacy Policy, available at [swissmail.ch/privacy], describes in detail what personal data we collect, how we use it, who we share it with, and your rights regarding your data.
+20.2. Our Privacy Policy, available at [episto.ch/privacy], describes in detail what personal data we collect, how we use it, who we share it with, and your rights regarding your data.
 
 20.3. By using Episto, you acknowledge that certain personal data (including sender and recipient address information) is necessarily shared with our dispatch provider for the purpose of fulfilling the postal dispatch. This sharing is an essential part of the service you request.
 
@@ -433,8 +433,8 @@ in any of the following circumstances:
  [Registered address]  
  [City, postal code], Switzerland
 
-**Email:** support@swissmail.ch  
- **Website:** swissmail.ch
+**Email:** contact@episto.ch  
+ **Website:** episto.ch
 
 27.2. We aim to respond to support requests within 2 business days. Complaints regarding dispatch issues will be investigated in coordination with our dispatch provider where necessary.
 

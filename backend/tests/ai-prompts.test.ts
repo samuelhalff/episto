@@ -46,6 +46,20 @@ describe("analyzeIntakePrompt", () => {
     expect(system).toContain("Recent conversation:");
     expect(system).toContain("Swiss German");
   });
+
+  it("extracts supported locale changes and flags unsupported language requests", () => {
+    const messages = analyzeIntakePrompt({
+      userMessage: "Translate the whole letter to Spanish.",
+      existingFields: { body: "Existing letter body" },
+      locale: "de-CH",
+    });
+
+    const system = getMessageContent(messages, 0);
+    expect(system).toContain('"locale": "de-CH | fr-CH | it-CH | en-CH"');
+    expect(system).toContain('"unsupportedLocaleRequest"');
+    expect(system).toContain("German, French, Italian, or English");
+    expect(system).toContain("do not set locale");
+  });
 });
 
 describe("classifyIntentPrompt", () => {
@@ -101,7 +115,9 @@ describe("extractFieldsPrompt", () => {
     });
     const system = getMessageContent(messages, 0);
     expect(system).toContain("extract it as recipientCompany");
-    expect(system).toContain("Prefer recipientCompany over recipientFirstName/recipientLastName");
+    expect(system).toContain(
+      "Prefer recipientCompany over recipientFirstName/recipientLastName",
+    );
     expect(system).toContain("Swisscom");
   });
 
@@ -111,7 +127,10 @@ describe("extractFieldsPrompt", () => {
       existingFields: {},
       locale: "de-CH",
       conversationHistory: [
-        { role: "user", content: "My name is Sam Example and I live at Bahnhofstrasse 1, 8001 Zurich." },
+        {
+          role: "user",
+          content: "My name is Sam Example and I live at Bahnhofstrasse 1, 8001 Zurich.",
+        },
         { role: "assistant", content: "Understood." },
       ],
     });
@@ -164,7 +183,9 @@ describe("askFollowUpPrompt", () => {
     });
     const system = getMessageContent(messages, 0);
     expect(system).toContain("do NOT ask for its full address in chat");
-    expect(system).toContain("Do NOT treat sender or recipient postal addresses as required");
+    expect(system).toContain(
+      "Do NOT treat sender or recipient postal addresses as required",
+    );
   });
 
   it("treats ready as enough context to move on, not a command to draft immediately", () => {
@@ -174,7 +195,9 @@ describe("askFollowUpPrompt", () => {
       locale: "en-CH",
     });
     const system = getMessageContent(messages, 0);
-    expect(system).toContain('Treat "ready" as "the user has given enough context to move on without getting stuck"');
+    expect(system).toContain(
+      'Treat "ready" as "the user has given enough context to move on without getting stuck"',
+    );
     expect(system).toContain("Never draft the letter body or preview in this step");
   });
 
@@ -197,7 +220,9 @@ describe("askFollowUpPrompt", () => {
       locale: "en-CH",
     });
     const system = getMessageContent(messages, 0);
-    expect(system).toContain('If the minimum ready bar is already met but one more useful detail would improve the later draft');
+    expect(system).toContain(
+      "If the minimum ready bar is already met but one more useful detail would improve the later draft",
+    );
     expect(system).toContain('{"ready": true, "question": "your question here"}');
   });
 
@@ -209,7 +234,8 @@ describe("askFollowUpPrompt", () => {
       conversationHistory: [
         {
           role: "assistant",
-          content: "Which company or provider should this cancellation letter be addressed to?",
+          content:
+            "Which company or provider should this cancellation letter be addressed to?",
         },
       ],
     });

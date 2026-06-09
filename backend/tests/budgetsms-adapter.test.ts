@@ -10,7 +10,7 @@ describe("BudgetSmsProvider", () => {
   it("sends BudgetSMS requests with server-side credentials and normalized destination", async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValue(new Response("123456789", { status: 200 }));
+      .mockResolvedValue(new Response("OK 123456789", { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
 
     const provider = new BudgetSmsProvider({
@@ -43,7 +43,7 @@ describe("BudgetSmsProvider", () => {
   it("turns BudgetSMS error codes into provider errors", async () => {
     vi.stubGlobal(
       "fetch",
-      vi.fn().mockResolvedValue(new Response("30", { status: 200 })),
+      vi.fn().mockResolvedValue(new Response("ERR 3001", { status: 200 })),
     );
 
     const provider = new BudgetSmsProvider({
@@ -60,6 +60,29 @@ describe("BudgetSmsProvider", () => {
         toE164: "+41791234567",
         message: "Episto code: 123456. Expires in 10 minutes.",
       }),
-    ).rejects.toThrow("BudgetSMS failed with code 30");
+    ).rejects.toThrow("BudgetSMS failed with code 3001");
+  });
+
+  it("does not treat malformed provider responses as sent messages", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response("unexpected response", { status: 200 })),
+    );
+
+    const provider = new BudgetSmsProvider({
+      username: "user",
+      userId: "123",
+      handle: "handle",
+      senderId: "EPISTO",
+      apiBaseUrl: "https://api.budgetsms.net/sendsms/",
+      timeoutMs: 5000,
+    });
+
+    await expect(
+      provider.sendSms({
+        toE164: "+41791234567",
+        message: "Episto code: 123456. Expires in 10 minutes.",
+      }),
+    ).rejects.toThrow("BudgetSMS unexpected response");
   });
 });

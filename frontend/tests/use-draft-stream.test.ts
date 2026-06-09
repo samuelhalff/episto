@@ -17,7 +17,10 @@ const mocks = vi.hoisted(() => {
     });
 
     readyState = MockEventSource.OPEN;
-    private readonly listeners = new Map<string, Set<(event: MessageEvent<string>) => void>>();
+    private readonly listeners = new Map<
+      string,
+      Set<(event: MessageEvent<string>) => void>
+    >();
 
     constructor(url: string, init?: EventSourceInit | undefined) {
       this.url = url;
@@ -26,7 +29,8 @@ const mocks = vi.hoisted(() => {
     }
 
     addEventListener(type: string, listener: (event: MessageEvent<string>) => void) {
-      const listeners = this.listeners.get(type) ?? new Set<(event: MessageEvent<string>) => void>();
+      const listeners =
+        this.listeners.get(type) ?? new Set<(event: MessageEvent<string>) => void>();
       listeners.add(listener);
       this.listeners.set(type, listeners);
     }
@@ -96,22 +100,27 @@ describe("useDraftStream", () => {
         value: "Termination notice",
         updatedAt: "2026-04-07T00:00:00.000Z",
       });
+      getActiveEventSource()?.emit("field_update", {
+        field: "locale",
+        value: "fr-CH",
+        updatedAt: "2026-04-07T00:00:01.000Z",
+      });
     });
 
     expect(firstListener).toHaveBeenLastCalledWith({
       type: "field_update",
       data: {
-        field: "subject",
-        value: "Termination notice",
-        updatedAt: "2026-04-07T00:00:00.000Z",
+        field: "locale",
+        value: "fr-CH",
+        updatedAt: "2026-04-07T00:00:01.000Z",
       },
     });
     expect(secondListener).toHaveBeenLastCalledWith({
       type: "field_update",
       data: {
-        field: "subject",
-        value: "Termination notice",
-        updatedAt: "2026-04-07T00:00:00.000Z",
+        field: "locale",
+        value: "fr-CH",
+        updatedAt: "2026-04-07T00:00:01.000Z",
       },
     });
   });

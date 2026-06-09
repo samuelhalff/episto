@@ -56,14 +56,14 @@ Without an email address, these cannot be delivered. "Optional email" creates su
 
 ---
 
-## Swiss Mail email templates
+## Episto email templates
 
-All Swiss Mail email templates must be:
+All Episto email templates must be:
 
 - Responsive (mobile-first)
 - Plain-text fallback included
-- Sent from `noreply@swissmail.ch`
-- Reply-to set to `support@swissmail.ch`
+- Sent from `contact@episto.ch`
+- Reply-to set to `contact@episto.ch`
 - All user-facing strings passed through the i18n layer (templates must support de-CH, fr-CH, it-CH, en-CH)
 - Free of letter body content (privacy)
 - Free of full recipient address in email body
@@ -82,8 +82,8 @@ At launch, the product may send:
 Launch ownership rules:
 
 - Stripe is the payment receipt sender for launch.
-- Swiss Mail sends dispatch-submitted, later accepted/rejected updates, and refund/resume emails.
-- Swiss Mail dispatch emails do not link back to Swiss Mail order-status pages at launch.
+- Episto sends dispatch-submitted, later accepted/rejected updates, and refund/resume emails.
+- Episto dispatch emails do not link back to Episto order-status pages at launch.
 - Only registered-mail acceptance emails may include a Swiss Post tracking link when a real tracking number exists.
 
 Do not add abandoned-cart drips, marketing sequences, or "your letter is on the way" claims in
@@ -97,7 +97,7 @@ MVP transactional email.
 **Trigger:** `PaymentState` transitions to `captured`
 **Timing:** Stripe sends the receipt on successful capture using the checkout email.
 
-Swiss Mail does not send a duplicate app-level payment receipt at launch. The confirmation page must describe this as a payment receipt, while dispatch progress remains a separate Swiss Mail email flow.
+Episto does not send a duplicate app-level payment receipt at launch. The confirmation page must describe this as a payment receipt, while dispatch progress remains a separate Episto email flow.
 
 ---
 
@@ -251,11 +251,11 @@ Requirements:
 
 ## Sender and reply-to configuration
 
-| Field        | Value                  |
-| ------------ | ---------------------- |
-| From         | `noreply@swissmail.ch` |
-| Reply-To     | `support@swissmail.ch` |
-| Display name | `Episto`               |
+| Field        | Value               |
+| ------------ | ------------------- |
+| From         | `contact@episto.ch` |
+| Reply-To     | `contact@episto.ch` |
+| Display name | `Episto`            |
 
 The `noreply` address must not bounce silently — configure it to forward or discard with logging so bounce loops don't affect deliverability scores.
 
@@ -271,7 +271,7 @@ The `noreply` address must not bounce silently — configure it to forward or di
 
 ## Deliverability configuration
 
-Before any email is sent in production, the following DNS records must be configured for `swissmail.ch`:
+Before any email is sent in production, the following DNS records must be configured for `episto.ch`:
 
 | Record                  | Purpose                   | Status                                                           |
 | ----------------------- | ------------------------- | ---------------------------------------------------------------- |

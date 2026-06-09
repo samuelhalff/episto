@@ -79,8 +79,8 @@ describe("admin-api", () => {
   });
 
   it("keeps browser admin requests on the same-origin /api proxy even with a public API origin", async () => {
-    process.env.NEXT_PUBLIC_API_URL = "https://api.swissmail.ch";
-    vi.stubGlobal("window", { location: { origin: "https://swissmail.ch" } });
+    process.env.NEXT_PUBLIC_API_URL = "https://episto.ch/api";
+    vi.stubGlobal("window", { location: { origin: "https://episto.ch" } });
     const { fetchAdminAuthSession } = await loadAdminApiModule();
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,

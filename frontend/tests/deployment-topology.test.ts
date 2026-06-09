@@ -31,6 +31,11 @@ const deployProdScriptSource = readFileSync(
   "utf8",
 );
 
+const ciWorkflowSource = readFileSync(
+  path.join(repoRoot, ".github/workflows/ci.yml"),
+  "utf8",
+);
+
 afterEach(() => {
   vi.resetModules();
   delete process.env.NEXT_PUBLIC_SENTRY_DSN;
@@ -121,7 +126,7 @@ describe("deployment topology", () => {
     expect(proxyBlock).toContain(
       "./nginx/render-prod-proxy.sh:/etc/nginx/render-prod-proxy.sh:ro",
     );
-    expect(proxyBlock).toContain("- /var/lib/swissmail-www:/var/www:ro");
+    expect(proxyBlock).toContain("- /var/lib/episto-www:/var/www:ro");
     expect(proxyBlock).toContain(
       "NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL is required}",
     );
@@ -138,10 +143,10 @@ describe("deployment topology", () => {
     expect(frontendBlock).toContain("NEXT_PUBLIC_APP_ENV: production");
     expect(frontendBlock).not.toContain('- "3000:3000"');
     expect(dockerComposeProdSource).toContain(
-      "docker compose --env-file /etc/swissmail/production.env -f docker-compose.prod.yml up -d --build",
+      "docker compose --env-file /etc/episto/production.env -f docker-compose.prod.yml up -d --build",
     );
     expect(dockerComposeProdSource).toContain(
-      "path: ${SWISSMAIL_ENV_FILE:-/etc/swissmail/production.env}",
+      "path: ${EPISTO_ENV_FILE:-/etc/episto/production.env}",
     );
     expect(backendBlock).toContain(
       "CORS_ORIGIN: ${CORS_ORIGIN:?CORS_ORIGIN is required}",
@@ -165,13 +170,13 @@ describe("deployment topology", () => {
     expect(postgresBlock).toContain(
       "${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}",
     );
-    expect(postgresBlock).not.toContain("POSTGRES_PASSWORD: swissmail");
     expect(minioBlock).toContain(
       "${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}",
     );
-    expect(minioBlock).not.toContain("MINIO_ROOT_PASSWORD: minioadmin");
-    expect(backendBlock).not.toContain("swissmail:swissmail@postgres");
-    expect(backendBlock).not.toContain("S3_SECRET_KEY: minioadmin");
+    expect(backendBlock).toContain("${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}");
+    expect(backendBlock).toContain(
+      "${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}",
+    );
 
     // Network isolation: infra on internal, proxy-facing services on proxy
     expect(dockerComposeProdSource).toContain("networks:");
@@ -209,7 +214,7 @@ describe("deployment topology", () => {
     expect(buildContentSecurityPolicy(false)).toContain(
       "connect-src 'self' https://api.stripe.com ws: wss:",
     );
-    expect(buildContentSecurityPolicy(false)).not.toContain("https://api.swissmail.ch");
+    expect(buildContentSecurityPolicy(false)).not.toContain("https://episto.ch/api");
   });
 
   it("adds the configured absolute API origin to the frontend CSP", async () => {
@@ -245,12 +250,12 @@ describe("deployment topology", () => {
 
   it("bootstraps certbot and keeps the production env outside the repo checkout", () => {
     expect(bootstrapProdScriptSource).toContain("certbot");
-    expect(bootstrapProdScriptSource).toContain("/etc/swissmail");
-    expect(bootstrapProdScriptSource).toContain("/var/lib/swissmail-www");
+    expect(bootstrapProdScriptSource).toContain("/etc/episto");
+    expect(bootstrapProdScriptSource).toContain("/var/lib/episto-www");
     expect(bootstrapProdScriptSource).toContain("install -d -o root -g");
 
     expect(deployProdScriptSource).toContain("REMOTE_ENV_PATH");
-    expect(deployProdScriptSource).toContain("/etc/swissmail/production.env");
+    expect(deployProdScriptSource).toContain("/etc/episto/production.env");
     expect(deployProdScriptSource).toContain("COMPOSE_PROJECT_NAME");
     expect(deployProdScriptSource).toContain("nginx/render-prod-proxy.sh");
     expect(deployProdScriptSource).toContain("certbot certonly");
@@ -258,6 +263,18 @@ describe("deployment topology", () => {
     expect(deployProdScriptSource).toContain("install -o root -g");
     expect(deployProdScriptSource).toContain("-m 0640");
     expect(deployProdScriptSource).toContain("id -gn");
+  });
+
+  it("deploys production from main with the same root-compose deploy script", () => {
+    expect(ciWorkflowSource).toContain("deploy-production:");
+    expect(ciWorkflowSource).toContain("if: github.ref == 'refs/heads/main'");
+    expect(ciWorkflowSource).toContain("PRODUCTION_DEPLOY_KEY");
+    expect(ciWorkflowSource).toContain("PRODUCTION_ENV_FILE");
+    expect(ciWorkflowSource).toContain("PROD_HOST: ${{ secrets.PRODUCTION_HOST }}");
+    expect(ciWorkflowSource).toContain("scripts/deploy.sh");
+    expect(ciWorkflowSource).not.toContain(
+      "# SSH to VPS and run: docker compose -f docker-compose.prod.yml up -d --build",
+    );
   });
 
   it("adds the Sentry ingest origin to connect-src when a public DSN is configured", async () => {

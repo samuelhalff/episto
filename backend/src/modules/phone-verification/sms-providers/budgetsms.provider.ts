@@ -9,10 +9,8 @@ interface BudgetSmsProviderOptions {
   timeoutMs: number;
 }
 
-// BudgetSMS signals application errors via HTTP 200 with a 1–3 digit numeric body
-// (e.g. "30" = invalid destination, "31" = sender too long). Successful sends always
-// return a long numeric message ID. This pattern deliberately matches only short bodies.
-const BUDGETSMS_ERROR_PATTERN = /^\d{1,3}$/;
+const BUDGETSMS_OK_PATTERN = /^OK\s+(\d+)(?:\s+.*)?$/i;
+const BUDGETSMS_ERROR_PATTERN = /^ERR\s+(\d+)$/i;
 
 export class BudgetSmsProvider implements SmsProvider {
   constructor(private readonly options: BudgetSmsProviderOptions) {}
@@ -37,13 +35,19 @@ export class BudgetSmsProvider implements SmsProvider {
         throw new Error(`BudgetSMS HTTP ${response.status}: ${body}`);
       }
 
-      if (BUDGETSMS_ERROR_PATTERN.test(body)) {
-        throw new Error(`BudgetSMS failed with code ${body}`);
+      const errorMatch = body.match(BUDGETSMS_ERROR_PATTERN);
+      if (errorMatch) {
+        throw new Error(`BudgetSMS failed with code ${errorMatch[1]}`);
+      }
+
+      const okMatch = body.match(BUDGETSMS_OK_PATTERN);
+      if (!okMatch) {
+        throw new Error(`BudgetSMS unexpected response: ${body}`);
       }
 
       return {
         provider: "budgetsms",
-        providerMessageId: body || null,
+        providerMessageId: okMatch[1] ?? null,
       };
     } finally {
       clearTimeout(timeout);

@@ -193,7 +193,7 @@ describe("payment webhook routes", () => {
     await tamperedApp.close();
   });
 
-  it("does not enqueue a Swiss Mail dispatch email from payment capture", async () => {
+  it("does not enqueue a Episto dispatch email from payment capture", async () => {
     mocks.constructWebhookEvent.mockReturnValue({
       type: "payment_intent.succeeded",
       data: {

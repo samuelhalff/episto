@@ -273,8 +273,8 @@ describe("adminHealthRoutes", () => {
       AZURE_EXISTING_AIPROJECT_RESOURCE_ID: undefined,
       AZURE_EXISTING_RESOURCE_ID: undefined,
       NODE_ENV: "development",
-      EMAIL_FROM: "noreply@swissmail.ch",
-      SUPPORT_EMAIL: "support@swissmail.ch",
+      EMAIL_FROM: "contact@episto.ch",
+      SUPPORT_EMAIL: "contact@episto.ch",
     });
 
     let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
@@ -299,7 +299,7 @@ describe("adminHealthRoutes", () => {
     expect(body).toMatchObject({
       email: {
         ok: false,
-        senderAddress: "noreply@swissmail.ch",
+        senderAddress: "contact@episto.ch",
       },
     });
   });

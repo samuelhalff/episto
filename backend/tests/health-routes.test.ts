@@ -185,8 +185,8 @@ describe("health routes", () => {
     };
     mocks.env.mockReturnValue({
       NODE_ENV: "development",
-      EMAIL_FROM: "noreply@swissmail.ch",
-      SUPPORT_EMAIL: "support@swissmail.ch",
+      EMAIL_FROM: "contact@episto.ch",
+      SUPPORT_EMAIL: "contact@episto.ch",
     });
 
     await healthRoutes(app as never);
@@ -209,7 +209,7 @@ describe("health routes", () => {
     );
   });
 
-  it("treats the swissmail.ch sender domain as ready in production", async () => {
+  it("treats the episto.ch sender domain as ready in production", async () => {
     let readinessHandler:
       | ((req: unknown, reply: ReturnType<typeof makeReply>) => Promise<void>)
       | undefined;
@@ -222,8 +222,8 @@ describe("health routes", () => {
     };
     mocks.env.mockReturnValue({
       NODE_ENV: "production",
-      EMAIL_FROM: "noreply@swissmail.ch",
-      SUPPORT_EMAIL: "support@swissmail.ch",
+      EMAIL_FROM: "contact@episto.ch",
+      SUPPORT_EMAIL: "contact@episto.ch",
     });
 
     await healthRoutes(app as never);

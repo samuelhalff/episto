@@ -417,11 +417,11 @@ All interactive elements on mobile:
 All marketing pages must include `hreflang` tags for all four locales:
 
 ```html
-<link rel="alternate" hreflang="de-CH" href="https://swissmail.ch/de/" />
-<link rel="alternate" hreflang="fr-CH" href="https://swissmail.ch/fr/" />
-<link rel="alternate" hreflang="it-CH" href="https://swissmail.ch/it/" />
-<link rel="alternate" hreflang="en-CH" href="https://swissmail.ch/en/" />
-<link rel="alternate" hreflang="x-default" href="https://swissmail.ch/de/" />
+<link rel="alternate" hreflang="de-CH" href="https://episto.ch/de/" />
+<link rel="alternate" hreflang="fr-CH" href="https://episto.ch/fr/" />
+<link rel="alternate" hreflang="it-CH" href="https://episto.ch/it/" />
+<link rel="alternate" hreflang="en-CH" href="https://episto.ch/en/" />
+<link rel="alternate" hreflang="x-default" href="https://episto.ch/de/" />
 ```
 
 ### 8.4 Performance Requirements
