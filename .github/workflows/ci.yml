@@ -296,7 +296,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=/api
             NEXT_PUBLIC_SITE_URL=https://ci-docker-build.example.com
-            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_placeholder
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_dummy
       - name: Build backend image
         uses: docker/build-push-action@v5
         with:
@@ -332,7 +332,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_API_URL=/api
             NEXT_PUBLIC_SITE_URL=https://ci-docker-push.example.com
-            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_placeholder
+            NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_dummy
       - name: Push backend image
         uses: docker/build-push-action@v5
         with:
