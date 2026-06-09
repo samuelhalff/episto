@@ -374,7 +374,7 @@ jobs:
       - name: Deploy to production
         env:
           PROD_HOST: ${{ secrets.PRODUCTION_HOST }}
-          SSH_KEY: ~/.ssh/id_deploy_to_prod
+          SSH_KEY: /home/runner/.ssh/id_deploy_to_prod
         run: |
           set -Eeuo pipefail
           ./scripts/deploy.sh
