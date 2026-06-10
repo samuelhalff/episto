@@ -16,7 +16,6 @@ export const CANVAS_HEIGHT = 160;
 const DPR_CLAMP = 2;
 /** Wait this long after the last stroke before exporting (ms). */
 const STROKE_DEBOUNCE_MS = 800;
-const ACTION_ENABLE_DELAY_MS = 120;
 const PAD_OPTIONS = {
   penColor: "#1a1a1a",
   minWidth: 1.2,
@@ -84,10 +83,14 @@ export function SignatureCanvas({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const padRef = useRef<SignaturePad | null>(null);
+  const onSignatureRef = useRef(onSignature);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const actionEnableRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [isEmpty, setIsEmpty] = useState(true);
   const [actionsEnabled, setActionsEnabled] = useState(false);
+
+  useEffect(() => {
+    onSignatureRef.current = onSignature;
+  }, [onSignature]);
 
   const exportSignature = useCallback(() => {
     const pad = padRef.current;
@@ -109,13 +112,13 @@ export function SignatureCanvas({
     exportCanvas.toBlob(
       (blob) => {
         if (blob) {
-          onSignature(blob);
+          onSignatureRef.current(blob);
         }
       },
       "image/png",
       1,
     );
-  }, [onSignature]);
+  }, []);
 
   const handleEnd = useCallback(() => {
     const pad = padRef.current;
@@ -125,13 +128,7 @@ export function SignatureCanvas({
     }
 
     setIsEmpty(false);
-    if (actionEnableRef.current) {
-      clearTimeout(actionEnableRef.current);
-    }
-    actionEnableRef.current = setTimeout(
-      () => setActionsEnabled(true),
-      ACTION_ENABLE_DELAY_MS,
-    );
+    setActionsEnabled(true);
     if (debounceRef.current) {
       clearTimeout(debounceRef.current);
     }
@@ -205,9 +202,6 @@ export function SignatureCanvas({
     return () => {
       if (debounceRef.current) {
         clearTimeout(debounceRef.current);
-      }
-      if (actionEnableRef.current) {
-        clearTimeout(actionEnableRef.current);
       }
     };
   }, []);

@@ -149,11 +149,9 @@ describe("signature canvas redesign", () => {
     expect(signatureCanvasSource).toContain("setTimeout(exportSignature");
   });
 
-  it("SignatureCanvas keeps disabled actions visible before ink and enables them after a short delay", () => {
-    expect(signatureCanvasSource).toContain("ACTION_ENABLE_DELAY_MS");
+  it("SignatureCanvas keeps disabled actions visible before ink and enables them on stroke end", () => {
     expect(signatureCanvasSource).toContain("actionsEnabled");
-    expect(signatureCanvasSource).toContain("actionEnableRef");
-    expect(signatureCanvasSource).toContain("actionEnableRef.current = setTimeout(");
+    expect(signatureCanvasSource).toContain("onSignatureRef");
     expect(signatureCanvasSource).toContain("setActionsEnabled(true)");
     expect(signatureCanvasSource).toContain("disabled={disabled || !actionsEnabled}");
   });
