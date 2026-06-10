@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+import type { BudgetSmsProviderError } from "../src/modules/phone-verification/sms-providers/budgetsms.provider.js";
 import { BudgetSmsProvider } from "../src/modules/phone-verification/sms-providers/budgetsms.provider.js";
 
 describe("BudgetSmsProvider", () => {
@@ -61,6 +62,32 @@ describe("BudgetSmsProvider", () => {
         message: "Episto code: 123456. Expires in 10 minutes.",
       }),
     ).rejects.toThrow("BudgetSMS failed with code 3001");
+  });
+
+  it("preserves BudgetSMS error codes for operational diagnostics", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue(new Response("ERR 1002", { status: 200 })),
+    );
+
+    const provider = new BudgetSmsProvider({
+      username: "user",
+      userId: "123",
+      handle: "handle",
+      senderId: "EPISTO",
+      apiBaseUrl: "https://api.budgetsms.net/sendsms/",
+      timeoutMs: 5000,
+    });
+
+    await expect(
+      provider.sendSms({
+        toE164: "+41791234567",
+        message: "Episto code: 123456. Expires in 10 minutes.",
+      }),
+    ).rejects.toMatchObject({
+      name: "BudgetSmsProviderError",
+      code: "1002",
+    } satisfies Partial<BudgetSmsProviderError>);
   });
 
   it("does not treat malformed provider responses as sent messages", async () => {

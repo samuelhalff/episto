@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  createPhoneVerificationSmsFailureError,
   buildPhoneVerificationMessage,
   hashPhoneVerificationCode,
   normalizeSwissMobilePhone,
@@ -54,5 +55,18 @@ describe("phone verification", () => {
 
     expect(message).toBe("Episto code: 123456. Expires in 10 minutes.");
     expect(message.length).toBeLessThanOrEqual(160);
+  });
+
+  it("maps SMS provider failures to a controlled provider outage", () => {
+    const cause = new Error("BudgetSMS failed with code 1002");
+    const error = createPhoneVerificationSmsFailureError(cause);
+
+    expect(error.family).toBe("provider_outage");
+    expect(error.statusCode).toBe(503);
+    expect(error.code).toBe("PROVIDER_OUTAGE");
+    expect(error.userMessage).toBe(
+      "SMS delivery is temporarily unavailable. Please try again shortly.",
+    );
+    expect(error.cause).toBe(cause);
   });
 });

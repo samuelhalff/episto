@@ -12,6 +12,16 @@ interface BudgetSmsProviderOptions {
 const BUDGETSMS_OK_PATTERN = /^OK\s+(\d+)(?:\s+.*)?$/i;
 const BUDGETSMS_ERROR_PATTERN = /^ERR\s+(\d+)$/i;
 
+export class BudgetSmsProviderError extends Error {
+  constructor(
+    message: string,
+    readonly code: string,
+  ) {
+    super(message);
+    this.name = "BudgetSmsProviderError";
+  }
+}
+
 export class BudgetSmsProvider implements SmsProvider {
   constructor(private readonly options: BudgetSmsProviderOptions) {}
 
@@ -37,7 +47,11 @@ export class BudgetSmsProvider implements SmsProvider {
 
       const errorMatch = body.match(BUDGETSMS_ERROR_PATTERN);
       if (errorMatch) {
-        throw new Error(`BudgetSMS failed with code ${errorMatch[1]}`);
+        const errorCode = errorMatch[1] ?? "unknown";
+        throw new BudgetSmsProviderError(
+          `BudgetSMS failed with code ${errorCode}`,
+          errorCode,
+        );
       }
 
       const okMatch = body.match(BUDGETSMS_OK_PATTERN);

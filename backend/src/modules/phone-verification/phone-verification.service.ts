@@ -71,6 +71,18 @@ export function buildPhoneVerificationMessage(code: string): string {
   return `Episto code: ${code}. Expires in 10 minutes.`;
 }
 
+export function createPhoneVerificationSmsFailureError(cause: unknown): AppError {
+  return new AppError({
+    family: "provider_outage",
+    statusCode: 503,
+    code: "PROVIDER_OUTAGE",
+    message: "SMS delivery provider is unavailable",
+    userMessage: "SMS delivery is temporarily unavailable. Please try again shortly.",
+    userAction: "Wait a moment, then request a new SMS code.",
+    cause,
+  });
+}
+
 function getCodeSecret(): string {
   return env().ORDER_ACCESS_TOKEN_SECRET;
 }
@@ -182,9 +194,17 @@ export async function startPhoneVerification(
     secret: getCodeSecret(),
   });
 
+  let smsResult: Awaited<ReturnType<SmsProvider["sendSms"]>>;
   try {
-    const smsResult = await smsProvider.sendSms({ toE164: phoneE164, message });
+    smsResult = await smsProvider.sendSms({ toE164: phoneE164, message });
+  } catch (err) {
+    await db
+      .delete(schema.phoneVerifications)
+      .where(eq(schema.phoneVerifications.id, verification.id));
+    throw createPhoneVerificationSmsFailureError(err);
+  }
 
+  try {
     await db
       .update(schema.phoneVerifications)
       .set({
