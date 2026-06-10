@@ -92,6 +92,13 @@
       "when": 1780599600000,
       "tag": "0012_phone_verification",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1780599600001,
+      "tag": "0013_remove_qes_swisssign_signing",
+      "breakpoints": true
     }
   ]
 }

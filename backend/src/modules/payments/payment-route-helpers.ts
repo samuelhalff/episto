@@ -4,7 +4,6 @@ import { enqueueDispatchSubmission } from "../dispatch/dispatch.jobs.js";
 import { canSubmitDispatchForDraft } from "../dispatch/dispatch-eligibility.js";
 import { getLatestSnapshot } from "../rendering/snapshot.service.js";
 import { getPaymentAttemptById } from "./payment.service.js";
-import { getLatestSignatureSession } from "../signing/signature-session.service.js";
 import { schema } from "../../db/index.js";
 import { eq } from "drizzle-orm";
 
@@ -26,7 +25,7 @@ export async function enqueueDispatchIfEligible(options: {
   } = options;
 
   try {
-    const [draft, payment, snapshot, signatureSession] = await Promise.all([
+    const [draft, payment, snapshot] = await Promise.all([
       db
         .select({
           signatureFlowMode: schema.draftLetters.signatureFlowMode,
@@ -37,7 +36,6 @@ export async function enqueueDispatchIfEligible(options: {
         .then((rows) => rows[0] ?? null),
       getPaymentAttemptById(db, paymentId),
       getLatestSnapshot(db, draftId),
-      getLatestSignatureSession(db, draftId),
     ]);
 
     if (
@@ -55,8 +53,6 @@ export async function enqueueDispatchIfEligible(options: {
           | "refund_pending"
           | "refunded"
           | "partially_refunded",
-        signatureSessionStatus: signatureSession?.status ?? null,
-        signedFileAssetId: signatureSession?.signedFileAssetId ?? null,
         renderedPdfAssetId: snapshot.renderedPdfAssetId,
       })
     ) {

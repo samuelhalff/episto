@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Expand, Loader2, RefreshCw, X } from "lucide-react";
-import type { SignatureAssuranceLevelValue } from "@episto/shared";
 import { useDraft } from "@/hooks/use-api";
 import { useLetterPreview } from "@/hooks/use-letter-preview";
 import { LetterPreview } from "../LetterPreview";
@@ -30,11 +29,7 @@ export function WorkspacePreviewPane({
   const draft = useDraft(draftId);
   const { previewData, isStale, isLoading, error, refreshPreview, isRefreshing } =
     useLetterPreview(draftId);
-  const signatureAssuranceLevel = (previewData?.signatureAssuranceLevel ??
-    draft.data?.signatureAssuranceLevel ??
-    "visual") as SignatureAssuranceLevelValue;
   const publicSignatureChoice = getPublicSignatureChoice(
-    signatureAssuranceLevel,
     (previewData?.signatureMode ?? draft.data?.signatureMode ?? "drawn") as SignatureMode,
   );
   const shouldShowBlockingError = Boolean(error) && !draft.data;

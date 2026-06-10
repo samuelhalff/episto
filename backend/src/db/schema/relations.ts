@@ -11,7 +11,6 @@ import {
 import { draftSnapshots, fileAssets } from "./files.js";
 import { paymentAttempts } from "./payments.js";
 import { phoneVerifications } from "./phone-verifications.js";
-import { signatureEvents, signatureSessions } from "./signatures.js";
 
 export const sessionsRelations = relations(sessions, ({ many }) => ({
   drafts: many(draftLetters),
@@ -20,7 +19,6 @@ export const sessionsRelations = relations(sessions, ({ many }) => ({
   fileAssets: many(fileAssets),
   paymentAttempts: many(paymentAttempts),
   phoneVerifications: many(phoneVerifications),
-  signatureSessions: many(signatureSessions),
   supportEvents: many(supportEvents),
   productEvents: many(productEvents),
 }));
@@ -48,8 +46,6 @@ export const draftLettersRelations = relations(draftLetters, ({ one, many }) => 
   paymentAttempts: many(paymentAttempts),
   phoneVerifications: many(phoneVerifications),
   dispatchAttempts: many(dispatchAttempts),
-  signatureSessions: many(signatureSessions),
-  signatureEvents: many(signatureEvents),
   supportEvents: many(supportEvents),
 }));
 
@@ -119,40 +115,6 @@ export const phoneVerificationsRelations = relations(phoneVerifications, ({ one 
   draft: one(draftLetters, {
     fields: [phoneVerifications.draftId],
     references: [draftLetters.id],
-  }),
-}));
-
-export const signatureSessionsRelations = relations(
-  signatureSessions,
-  ({ one, many }) => ({
-    draft: one(draftLetters, {
-      fields: [signatureSessions.draftId],
-      references: [draftLetters.id],
-    }),
-    session: one(sessions, {
-      fields: [signatureSessions.sessionId],
-      references: [sessions.id],
-    }),
-    paymentAttempt: one(paymentAttempts, {
-      fields: [signatureSessions.paymentAttemptId],
-      references: [paymentAttempts.id],
-    }),
-    signedFileAsset: one(fileAssets, {
-      fields: [signatureSessions.signedFileAssetId],
-      references: [fileAssets.id],
-    }),
-    events: many(signatureEvents),
-  }),
-);
-
-export const signatureEventsRelations = relations(signatureEvents, ({ one }) => ({
-  draft: one(draftLetters, {
-    fields: [signatureEvents.draftId],
-    references: [draftLetters.id],
-  }),
-  signatureSession: one(signatureSessions, {
-    fields: [signatureEvents.signatureSessionId],
-    references: [signatureSessions.id],
   }),
 }));
 

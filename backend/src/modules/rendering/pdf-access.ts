@@ -16,8 +16,6 @@ import { schema } from "../../db/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-mode.js";
 import { BRAND_NAME } from "../../shared/brand.js";
-import { downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
-import { getLatestSignatureSession } from "../signing/signature-session.service.js";
 import { renderConfirmationDocumentHtml } from "./confirmation-document.js";
 import { renderLetterHtml, renderPdfBufferFromHtml } from "./render.service.js";
 import { loadSignatureImageAsset } from "./signature-image.js";
@@ -123,7 +121,6 @@ async function mergePdfBuffers(buffers: Buffer[]): Promise<Buffer> {
 
 async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buffer> {
   const renderedLetter = await getRenderedLetterAsset(db, draftId);
-  const latestSignatureSession = await getLatestSignatureSession(db, draftId);
   const signatureImage = await loadSignatureImageAsset(db, renderedLetter.snapshotData);
   const [[dispatch], attachmentNames] = await Promise.all([
     db
@@ -142,35 +139,10 @@ async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buff
     getAttachmentNames(db, renderedLetter.snapshotData.attachmentAssetIds),
   ]);
 
-  let renderedLetterPdf: { pdfBuffer: Buffer; pageCount: number };
-  if (latestSignatureSession?.signedFileAssetId) {
-    const [signedPdfAsset] = await db
-      .select({
-        storageKey: schema.fileAssets.storageKey,
-      })
-      .from(schema.fileAssets)
-      .where(eq(schema.fileAssets.id, latestSignatureSession.signedFileAssetId))
-      .limit(1);
-
-    if (signedPdfAsset) {
-      const signedPdf = await downloadObjectBuffer(signedPdfAsset.storageKey);
-      const signedDocument = await PDFDocument.load(signedPdf.buffer);
-      renderedLetterPdf = {
-        pdfBuffer: signedPdf.buffer,
-        pageCount: signedDocument.getPageCount(),
-      };
-    } else {
-      const letterHtml = renderLetterHtml(renderedLetter.snapshotData, {
-        signatureImage,
-      });
-      renderedLetterPdf = await renderPdfBufferFromHtml(letterHtml);
-    }
-  } else {
-    const letterHtml = renderLetterHtml(renderedLetter.snapshotData, {
-      signatureImage,
-    });
-    renderedLetterPdf = await renderPdfBufferFromHtml(letterHtml);
-  }
+  const letterHtml = renderLetterHtml(renderedLetter.snapshotData, {
+    signatureImage,
+  });
+  const renderedLetterPdf = await renderPdfBufferFromHtml(letterHtml);
 
   const _letterPdf = await PDFDocument.load(renderedLetterPdf.pdfBuffer);
   const providerMode: "mock" | "live" | null = dispatch

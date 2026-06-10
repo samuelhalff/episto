@@ -15,23 +15,18 @@ const previewHookSource = readFileSync(
 );
 
 describe("draft signature assurance source of truth", () => {
-  it("stores the selected assurance level on the draft instead of in local browser state", () => {
+  it("does not keep a separate signature assurance state hook", () => {
     expect(
       existsSync(
         path.join(repoRoot, "frontend/src/hooks/use-draft-signature-assurance.ts"),
       ),
     ).toBe(false);
     expect(logisticsStepSource).not.toContain("useDraftSignatureAssuranceLevel");
-    expect(logisticsStepSource).toContain("draft.data?.signatureAssuranceLevel");
-    expect(logisticsStepSource).toContain("SignatureAssuranceLevelValue");
-    expect(logisticsStepSource).toContain(
-      "signatureAssuranceLevel: SignatureAssuranceLevel.visual",
-    );
+    expect(logisticsStepSource).not.toContain("signatureAssuranceLevel");
+    expect(logisticsStepSource).toContain('signatureFlowMode: "visual"');
   });
 
-  it("includes signature assurance in the preview payload shape", () => {
-    expect(previewHookSource).toContain(
-      "signatureAssuranceLevel: SignatureAssuranceLevelValue;",
-    );
+  it("does not include signature assurance in the preview payload shape", () => {
+    expect(previewHookSource).not.toContain("signatureAssuranceLevel");
   });
 });

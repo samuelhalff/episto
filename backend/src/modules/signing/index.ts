@@ -1,21 +1,10 @@
-// Phase 0 seam: taxonomy and adapter contract only. No routes, no services.
-// Provider-backed signing routes and services.
-
 export {
-  getSigningAdapter,
-  setSigningAdapter,
-  isSignatureAssuranceLevelSupported,
-  assertSignatureAssuranceLevelSupported,
-} from "./adapters/signing.adapter.js";
-export { signingRoutes } from "./signature.routes.js";
-export type {
-  SigningAdapter,
-  SigningAdapterCapabilities,
-  SignerIdentity,
-  IdentVerificationRequest,
-  IdentVerificationSession,
-  IdentVerificationResult,
-  SigningRequest,
-  SigningSessionHandle,
-  SignedArtifact,
-} from "./adapters/signing.adapter.js";
+  getDraftFulfillmentStatus,
+  setInitialDraftFulfillmentStatus,
+  syncDraftFulfillmentFromPaymentState,
+  transitionDraftFulfillmentStatus,
+} from "./fulfillment.service.js";
+export {
+  buildDraftFulfillmentResponse,
+  resolveDraftFulfillmentNextAction,
+} from "./fulfillment-response.service.js";

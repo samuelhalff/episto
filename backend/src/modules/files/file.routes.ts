@@ -45,6 +45,25 @@ function isDrawnSignatureMimeType(
   return mimeType === "image/png" || mimeType === "image/jpeg";
 }
 
+async function getValidatedSignatureImageObject(input: {
+  db: ReturnType<typeof getDb>;
+  fileId: string;
+  sessionId: string;
+}) {
+  const file = await getFileAsset(input.db, input.fileId, input.sessionId);
+  if (!file || file.kind !== "signature" || !file.mimeType.startsWith("image/")) {
+    throw notFoundError("file");
+  }
+
+  const object = await downloadObjectBuffer(file.storageKey);
+  const mimeType = object.contentType ?? file.mimeType;
+  if (!isDrawnSignatureMimeType(mimeType)) {
+    throw notFoundError("file");
+  }
+
+  return { file, object, mimeType };
+}
+
 export async function fileRoutes(app: FastifyInstance): Promise<void> {
   // POST /drafts/:id/files — upload attachment or signature (multipart)
   app.post<{ Params: { id: string } }>(
@@ -338,16 +357,11 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { fileId } = request.params;
 
-      const file = await getFileAsset(db, fileId, session.id);
-      if (!file || file.kind !== "signature" || !file.mimeType.startsWith("image/")) {
-        throw notFoundError("file");
-      }
-
-      const object = await downloadObjectBuffer(file.storageKey);
-      const mimeType = object.contentType ?? file.mimeType;
-      if (!isDrawnSignatureMimeType(mimeType)) {
-        throw notFoundError("file");
-      }
+      const { object, mimeType } = await getValidatedSignatureImageObject({
+        db,
+        fileId,
+        sessionId: session.id,
+      });
 
       const body = buildBlueSignatureSvgResponse({
         mimeType,
@@ -373,16 +387,11 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { fileId } = request.params;
 
-      const file = await getFileAsset(db, fileId, session.id);
-      if (!file || file.kind !== "signature" || !file.mimeType.startsWith("image/")) {
-        throw notFoundError("file");
-      }
-
-      const object = await downloadObjectBuffer(file.storageKey);
-      const mimeType = object.contentType ?? file.mimeType;
-      if (!isDrawnSignatureMimeType(mimeType)) {
-        throw notFoundError("file");
-      }
+      const { object, mimeType } = await getValidatedSignatureImageObject({
+        db,
+        fileId,
+        sessionId: session.id,
+      });
 
       reply.header("Content-Type", mimeType);
       reply.header("Content-Length", String(object.buffer.byteLength));

@@ -153,9 +153,9 @@ describe("review page regressions", () => {
     expect(reviewSummaryCardSource).not.toContain("key={line}");
   });
 
-  it("shows the persisted signature assurance level in the review surface", () => {
-    expect(reviewReadySource).toContain("previewData?.signatureAssuranceLevel");
-    expect(reviewReadySource).toContain("draftData?.signatureAssuranceLevel");
+  it("shows the persisted public signature choice in the review surface", () => {
+    expect(reviewReadySource).not.toContain("signatureAssuranceLevel");
+    expect(reviewReadySource).toContain("getPublicSignatureChoice");
     expect(reviewReadySource).toContain("signatureTiers");
     expect(reviewReadySource).toContain("StatusBadge");
   });

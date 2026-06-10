@@ -22,8 +22,6 @@ const mocks = vi.hoisted(() => ({
   updatePaymentIntentReceiptDetails: vi.fn(),
   assertVerifiedPhoneForCheckout: vi.fn(),
   syncDraftFulfillmentFromPaymentState: vi.fn(),
-  getLatestSignatureSession: vi.fn(),
-  assertSignatureFlowSupported: vi.fn(),
   resolvePaymentDispatchQuoteForDraft: vi.fn(),
   resolveDisplayDispatchQuoteForDraft: vi.fn(),
   getLatestSnapshot: vi.fn(),
@@ -100,14 +98,6 @@ vi.mock("../src/modules/signing/fulfillment.service.js", () => ({
   syncDraftFulfillmentFromPaymentState: mocks.syncDraftFulfillmentFromPaymentState,
 }));
 
-vi.mock("../src/modules/signing/signature-session.service.js", () => ({
-  getLatestSignatureSession: mocks.getLatestSignatureSession,
-}));
-
-vi.mock("../src/modules/signing/signature-availability.js", () => ({
-  assertSignatureFlowSupported: mocks.assertSignatureFlowSupported,
-}));
-
 import { paymentRoutes } from "../src/modules/payments/payment.routes.js";
 
 describe("payment checkout routes", () => {
@@ -125,7 +115,6 @@ describe("payment checkout routes", () => {
               deliveryType: "standard",
               locale: "de-CH",
               status: "ready",
-              signatureAssuranceLevel: "visual",
               signatureFlowMode: "visual",
             },
           ]),
@@ -180,8 +169,6 @@ describe("payment checkout routes", () => {
       latestChargeId: null,
     });
     mocks.syncDraftFulfillmentFromPaymentState.mockResolvedValue(undefined);
-    mocks.getLatestSignatureSession.mockResolvedValue(null);
-    mocks.assertSignatureFlowSupported.mockImplementation(() => {});
     mocks.getLatestSnapshot.mockResolvedValue(null);
     mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
     mocks.setPaymentIntentId.mockResolvedValue(undefined);
@@ -263,7 +250,6 @@ describe("payment checkout routes", () => {
               deliveryType: "standard",
               locale: "de-CH",
               status: "rendering",
-              signatureAssuranceLevel: "visual",
               signatureFlowMode: "visual",
             },
           ]),
@@ -281,50 +267,6 @@ describe("payment checkout routes", () => {
     expect(response.json()).toMatchObject({
       error: {
         code: "DRAFT_RENDER_PENDING",
-      },
-    });
-    expect(mocks.resolvePaymentDispatchQuoteForDraft).not.toHaveBeenCalled();
-    expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
-  });
-
-  it("refuses stale ready_to_sign drafts when the signature tier is unsupported", async () => {
-    mocks.assertSignatureFlowSupported.mockImplementationOnce(() => {
-      throw new AppError({
-        family: "policy_refusal",
-        statusCode: 409,
-        code: "SIGNATURE_ASSURANCE_UNAVAILABLE",
-        message: "mock unsupported",
-        userMessage: "mock unsupported",
-        userAction: null,
-      });
-    });
-    mocks.db.select.mockReturnValueOnce({
-      from: vi.fn(() => ({
-        where: vi.fn(() => ({
-          limit: vi.fn().mockResolvedValue([
-            {
-              id: "draft-1",
-              deliveryType: "standard",
-              locale: "de-CH",
-              status: "ready_to_sign",
-              signatureAssuranceLevel: "advanced",
-              signatureFlowMode: "swisssign_ses",
-            },
-          ]),
-        })),
-      })),
-    });
-
-    const response = await app.inject({
-      method: "POST",
-      url: "/drafts/draft-1/checkout",
-      payload: { email: "payer@example.com" },
-    });
-
-    expect(response.statusCode).toBe(409);
-    expect(response.json()).toMatchObject({
-      error: {
-        code: "SIGNATURE_ASSURANCE_UNAVAILABLE",
       },
     });
     expect(mocks.resolvePaymentDispatchQuoteForDraft).not.toHaveBeenCalled();

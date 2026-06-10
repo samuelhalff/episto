@@ -104,7 +104,6 @@ describe("draft review route", () => {
         status: "fields_complete",
         locale: "en-CH",
         deliveryType: "standard",
-        signatureAssuranceLevel: "visual",
         subject: "Long letter",
         body: "This body eventually renders to more than five pages.",
         enclosureNote: null,
@@ -125,7 +124,6 @@ describe("draft review route", () => {
         status: "fields_complete",
         locale: "en-CH",
         deliveryType: "standard",
-        signatureAssuranceLevel: "visual",
         subject: "Long letter",
         body: "This body eventually renders to more than five pages.",
         enclosureNote: null,
@@ -179,12 +177,6 @@ describe("draft review route", () => {
 
     vi.doMock("../src/modules/analytics/index.js", () => ({
       recordEvent: vi.fn(),
-    }));
-
-    vi.doMock("../src/shared/config/index.js", () => ({
-      env: () => ({
-        SIGNATURE_PROVIDER_MODE: "disabled",
-      }),
     }));
 
     vi.doMock("../src/queue/index.js", () => ({
@@ -253,7 +245,6 @@ describe("draft review route", () => {
       snapshot: {
         id: "snapshot-review",
         draftId: "draft-review",
-        signatureAssuranceLevel: "visual",
         priceCents: 505,
       },
     });
@@ -285,68 +276,6 @@ describe("draft review route", () => {
       "draft-review",
       "review-session",
       "ready",
-    );
-  });
-
-  it("rejects unsupported signature tiers on draft updates", async () => {
-    const { updateDraft } = await import("../src/modules/drafting/draft.service.js");
-
-    const response = await app.inject({
-      method: "PATCH",
-      url: "/drafts/draft-review",
-      payload: {
-        signatureAssuranceLevel: "advanced",
-      },
-    });
-
-    expect(response.statusCode).toBe(409);
-    expect(response.json()).toMatchObject({
-      code: "SIGNATURE_ASSURANCE_UNAVAILABLE",
-    });
-    expect(updateDraft).not.toHaveBeenCalled();
-  });
-
-  it("rejects review when an unsupported signature tier is set", async () => {
-    const { getDraftById, transitionDraftStatus } =
-      await import("../src/modules/drafting/draft.service.js");
-
-    vi.mocked(getDraftById).mockResolvedValueOnce({
-      id: "draft-review",
-      sessionId: "review-session",
-      status: "fields_complete",
-      locale: "en-CH",
-      deliveryType: "standard",
-      signatureAssuranceLevel: "advanced",
-      subject: "Long letter",
-      body: "This body eventually renders to more than five pages.",
-      enclosureNote: null,
-      signatureMode: null,
-      senderProfileId: "sender-1",
-      recipientProfileId: "recipient-1",
-      estimatedPages: 1,
-      schemaVersion: 1,
-      tone: null,
-      intent: null,
-      metadata: null,
-      updatedAt: new Date("2026-01-01"),
-    });
-
-    const response = await app.inject({
-      method: "POST",
-      url: "/drafts/draft-review/review",
-      payload: {},
-    });
-
-    expect(response.statusCode).toBe(409);
-    expect(response.json()).toMatchObject({
-      code: "SIGNATURE_ASSURANCE_UNAVAILABLE",
-    });
-    expect(enqueueRenderJob).not.toHaveBeenCalled();
-    expect(transitionDraftStatus).not.toHaveBeenCalledWith(
-      expect.anything(),
-      "draft-review",
-      "review-session",
-      "reviewed",
     );
   });
 });

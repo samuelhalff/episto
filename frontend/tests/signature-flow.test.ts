@@ -90,10 +90,9 @@ describe("signature canvas redesign", () => {
     expect(logisticsStepSource).not.toContain("sigInputRef");
   });
 
-  it("LogisticsStep reads and stores signature assurance per draft", () => {
-    expect(logisticsStepSource).toContain("signatureAssuranceLevel");
-    expect(logisticsStepSource).toContain("draft.data?.signatureAssuranceLevel");
-    expect(logisticsStepSource).toContain("SignatureAssuranceLevel");
+  it("LogisticsStep stores only the public visual signature choice", () => {
+    expect(logisticsStepSource).not.toContain("signatureAssuranceLevel");
+    expect(logisticsStepSource).toContain('signatureFlowMode: "visual"');
     expect(logisticsStepSource).toContain("getPublicSignatureChoice");
     expect(logisticsStepSource).toContain("handleSelectSignatureChoice");
   });
@@ -195,9 +194,9 @@ describe("signature canvas redesign", () => {
     expect(previewPaneSource).toContain("signatureMode={previewData?.signatureMode}");
   });
 
-  it("WorkspacePreviewPane can show the persisted signature assurance", () => {
-    expect(previewPaneSource).toContain("previewData?.signatureAssuranceLevel");
-    expect(previewPaneSource).toContain("draft.data?.signatureAssuranceLevel");
+  it("WorkspacePreviewPane can show the persisted public signature choice", () => {
+    expect(previewPaneSource).not.toContain("signatureAssuranceLevel");
+    expect(previewPaneSource).toContain("getPublicSignatureChoice");
     expect(previewPaneSource).toContain("signatureTiers");
     expect(previewPaneSource).toContain("StatusBadge");
   });

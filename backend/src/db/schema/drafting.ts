@@ -25,28 +25,13 @@ export const draftStatusEnum = pgEnum("draft_status", [
 ]);
 
 export const deliveryTypeEnum = pgEnum("delivery_type", ["standard", "registered"]);
-export const signatureAssuranceLevelEnum = pgEnum("signature_assurance_level", [
-  "visual",
-  "advanced",
-]);
-export const signatureFlowModeEnum = pgEnum("signature_flow_mode", [
-  "none",
-  "visual",
-  "swisssign_ses",
-]);
+export const signatureFlowModeEnum = pgEnum("signature_flow_mode", ["none", "visual"]);
 export const orderFulfillmentStatusEnum = pgEnum("order_fulfillment_status", [
   "draft_created",
   "draft_completed",
   "preview_ready",
   "signature_not_required",
-  "signature_selected",
-  "signature_eligibility_confirmed",
   "payment_authorized",
-  "identity_stepup_started",
-  "signature_session_created",
-  "signature_in_progress",
-  "signature_completed",
-  "signed_document_attached",
   "dispatch_submitted",
   "payment_captured",
   "dispatch_confirmed",
@@ -124,9 +109,6 @@ export const draftLetters = pgTable(
     status: draftStatusEnum("status").default("collecting").notNull(),
     locale: localeEnum("locale").notNull(),
     deliveryType: deliveryTypeEnum("delivery_type").default("standard").notNull(),
-    signatureAssuranceLevel: signatureAssuranceLevelEnum("signature_assurance_level")
-      .default("visual")
-      .notNull(),
     signatureFlowMode: signatureFlowModeEnum("signature_flow_mode")
       .default("visual")
       .notNull(),

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "@episto/shared";
-import type { SignatureAssuranceLevelValue } from "@episto/shared";
 import type { SignatureFlowModeValue } from "@episto/shared";
 import { apiFetch } from "../lib/api";
 import { useDraftStream } from "./use-draft-stream";
@@ -15,7 +14,6 @@ import { useDraftStream } from "./use-draft-stream";
 export interface LetterPreviewData {
   draftId: string;
   snapshotId: string | null;
-  signatureAssuranceLevel: SignatureAssuranceLevelValue;
   sender: {
     firstName: string;
     lastName: string;

@@ -27,7 +27,6 @@ import { getQueue, QUEUE_NAMES, type RenderPdfJob } from "../../queue/index.js";
 import { handleComposeFromContext } from "../ai/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import { getReviewMissingFields } from "./review-validation.js";
-import { assertSignatureFlowSupported } from "../signing/signature-availability.js";
 import { z } from "zod";
 
 const logger = createLogger("draft-routes");
@@ -146,13 +145,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const { draftId } = request.params;
 
       const body = UpdateDraftInput.parse(request.body);
-      if (body.signatureAssuranceLevel !== undefined) {
-        assertSignatureFlowSupported({
-          signatureAssuranceLevel: body.signatureAssuranceLevel ?? null,
-          signatureFlowMode: body.signatureFlowMode ?? null,
-          signatureMode: body.signatureMode ?? null,
-        });
-      }
       const draft = await updateDraft(db, draftId, session.id, body);
 
       reply.send({ draft });
@@ -315,8 +307,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       // Verify ownership
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
-      assertSignatureFlowSupported(draft);
-
       // Signature is a soft warning at review; keep only the documented required fields blocking.
       const missingFields = getReviewMissingFields(draft);
       if (missingFields.length > 0) {
@@ -386,7 +376,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         schemaVersion: draft.schemaVersion,
         locale: draft.locale,
         deliveryType: draft.deliveryType,
-        signatureAssuranceLevel: draft.signatureAssuranceLevel,
         signatureFlowMode: draft.signatureFlowMode,
         subject: draft.subject,
         body: draft.body,
@@ -475,7 +464,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           schemaVersion: snapshotData.schemaVersion,
           locale: snapshotData.locale,
           deliveryType: snapshotData.deliveryType,
-          signatureAssuranceLevel: snapshotData.signatureAssuranceLevel,
           subject: snapshotData.subject,
           body: snapshotData.body,
           enclosureNote: snapshotData.enclosureNote,
@@ -592,8 +580,6 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           snapshotId: latestSnapshot?.id ?? null,
           locale: snapshotData?.locale ?? draft.locale,
           deliveryType,
-          signatureAssuranceLevel:
-            snapshotData?.signatureAssuranceLevel ?? draft.signatureAssuranceLevel,
           signatureFlowMode: snapshotData?.signatureFlowMode ?? draft.signatureFlowMode,
           subject: snapshotData?.subject ?? draft.subject,
           body: snapshotData?.body ?? draft.body,

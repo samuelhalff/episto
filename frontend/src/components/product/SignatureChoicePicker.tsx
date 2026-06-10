@@ -5,19 +5,19 @@ import { useTranslations } from "next-intl";
 import { Check, PenLine, Type } from "lucide-react";
 import type { PublicSignatureChoice } from "@/lib/signature-choice";
 
-interface SignatureAssuranceTierPickerProps {
+interface SignatureChoicePickerProps {
   selectedChoice: PublicSignatureChoice | null;
   onChoiceChange: (choice: PublicSignatureChoice) => void;
   isCompactViewport?: boolean;
   children: ReactNode;
 }
 
-export function SignatureAssuranceTierPicker({
+export function SignatureChoicePicker({
   selectedChoice,
   onChoiceChange,
   isCompactViewport = false,
   children,
-}: SignatureAssuranceTierPickerProps) {
+}: SignatureChoicePickerProps) {
   const t = useTranslations("signatureTiers");
 
   const choices: Array<{

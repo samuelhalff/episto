@@ -3,7 +3,6 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { assertTransitionDraft, type DraftStatusValue } from "@episto/shared";
-import { resolveSignatureFlowMode } from "../signing/signature-flow.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -15,7 +14,6 @@ export interface DraftRow {
   status: string;
   locale: string;
   deliveryType: string;
-  signatureAssuranceLevel: string;
   signatureFlowMode: string;
   fulfillmentStatus: string;
   subject: string | null;
@@ -42,7 +40,6 @@ function toDraftRow(row: typeof schema.draftLetters.$inferSelect): DraftRow {
     status: row.status,
     locale: row.locale,
     deliveryType: row.deliveryType,
-    signatureAssuranceLevel: row.signatureAssuranceLevel,
     signatureFlowMode: row.signatureFlowMode,
     fulfillmentStatus: row.fulfillmentStatus,
     subject: row.subject,
@@ -79,7 +76,6 @@ export async function createDraft(
       status: "collecting",
       locale: locale as "de-CH" | "fr-CH" | "it-CH" | "en-CH",
       deliveryType: "standard",
-      signatureAssuranceLevel: "visual",
       signatureFlowMode: "visual",
       signatureMode: "drawn",
       fulfillmentStatus: "draft_created",
@@ -148,7 +144,6 @@ export async function updateDraft(
     tone?: string | null | undefined;
     intent?: string | null | undefined;
     deliveryType?: string | undefined;
-    signatureAssuranceLevel?: string | undefined;
     signatureFlowMode?: string | undefined;
     enclosureNote?: string | null | undefined;
     signatureMode?: string | null | undefined;
@@ -173,15 +168,6 @@ export async function updateDraft(
   if (updates.tone !== undefined) values.tone = updates.tone;
   if (updates.intent !== undefined) values.intent = updates.intent;
   if (updates.deliveryType !== undefined) values.deliveryType = updates.deliveryType;
-  if (updates.signatureAssuranceLevel !== undefined) {
-    values.signatureAssuranceLevel = updates.signatureAssuranceLevel;
-    if (updates.signatureFlowMode === undefined) {
-      values.signatureFlowMode = resolveSignatureFlowMode({
-        signatureAssuranceLevel: updates.signatureAssuranceLevel,
-        signatureMode: updates.signatureMode,
-      });
-    }
-  }
   if (updates.signatureFlowMode !== undefined) {
     values.signatureFlowMode = updates.signatureFlowMode;
   }

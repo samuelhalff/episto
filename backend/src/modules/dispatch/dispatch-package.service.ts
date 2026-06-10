@@ -10,8 +10,6 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { assertDispatchPolicyConstraints } from "./dispatch-policy.js";
-import { getSignatureSessionForDraftPayment } from "../signing/signature-session.service.js";
-import { isSwissSignFlowMode } from "../signing/signature-flow.js";
 
 function toDispatchFileAsset(
   asset: typeof schema.fileAssets.$inferSelect,
@@ -74,7 +72,6 @@ export async function buildDispatchPackage(
   const [draft] = await db
     .select({
       estimatedPages: schema.draftLetters.estimatedPages,
-      signatureFlowMode: schema.draftLetters.signatureFlowMode,
     })
     .from(schema.draftLetters)
     .where(eq(schema.draftLetters.id, draftId))
@@ -108,12 +105,7 @@ export async function buildDispatchPackage(
     estimatedPages,
   });
 
-  const signatureSession =
-    options?.paymentAttemptId && isSwissSignFlowMode(draft.signatureFlowMode)
-      ? await getSignatureSessionForDraftPayment(db, draftId, options.paymentAttemptId)
-      : null;
-  const primaryPdfAssetId =
-    signatureSession?.signedFileAssetId ?? snapshot.renderedPdfAssetId ?? null;
+  const primaryPdfAssetId = snapshot.renderedPdfAssetId ?? null;
   const assetIds = [
     ...(primaryPdfAssetId ? [primaryPdfAssetId] : []),
     ...snapshotData.attachmentAssetIds,

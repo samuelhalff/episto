@@ -48,10 +48,6 @@ vi.mock("../src/modules/files/adapters/s3.adapter.js", () => ({
   downloadObjectBuffer: mocks.downloadObjectBuffer,
 }));
 
-vi.mock("../src/modules/signing/signature-session.service.js", () => ({
-  getLatestSignatureSession: vi.fn().mockResolvedValue(null),
-}));
-
 vi.mock("../src/modules/rendering/confirmation-document.js", () => ({
   renderConfirmationDocumentHtml: mocks.renderConfirmationDocumentHtml,
 }));
@@ -88,7 +84,6 @@ describe("pdf-access", () => {
         schemaVersion: 1,
         locale: "en-CH",
         deliveryType: "registered",
-        signatureAssuranceLevel: "visual",
         subject: "Termination notice",
         body: "Please accept this cancellation notice effective immediately.",
         enclosureNote: null,
@@ -237,7 +232,6 @@ describe("pdf-access", () => {
         schemaVersion: 1,
         locale: "en-CH",
         deliveryType: "registered",
-        signatureAssuranceLevel: "visual",
         subject: "Termination notice",
         body: "Please accept this cancellation notice effective immediately.",
         enclosureNote: null,
@@ -351,7 +345,6 @@ describe("pdf-access", () => {
         schemaVersion: 1,
         locale: "en-CH",
         deliveryType: "registered",
-        signatureAssuranceLevel: "visual",
         subject: "Termination notice",
         body: "Please accept this cancellation notice effective immediately.",
         enclosureNote: null,
@@ -441,7 +434,6 @@ describe("pdf-access", () => {
         schemaVersion: 1,
         locale: "en-CH",
         deliveryType: "standard",
-        signatureAssuranceLevel: "visual",
         subject: "Long summary",
         body: "Long summary paragraph. ".repeat(40),
         enclosureNote: null,

@@ -43,28 +43,6 @@ export const EnvSchema = z
     STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
     STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_"),
 
-    // Provider-backed signing
-    SIGNATURE_PROVIDER_MODE: z
-      .enum(["disabled", "swisssign_mock", "swisssign"])
-      .default("swisssign_mock"),
-    SIGNATURE_CALLBACK_SECRET: z
-      .string()
-      .min(16)
-      .default("dev-signature-callback-secret"),
-    SIGNATURE_PENDING_TTL_MINUTES: z.coerce.number().int().positive().default(30),
-    SWISSID_OIDC_ISSUER: z.string().url().optional(),
-    SWISSID_OIDC_CLIENT_ID: z.string().min(1).optional(),
-    SWISSID_OIDC_CLIENT_SECRET: z.string().min(1).optional(),
-    SWISSID_OIDC_REDIRECT_URI: z.string().url().optional(),
-    SWISSID_OIDC_SCOPES: z.string().min(1).default("openid profile email"),
-    SWISSID_OIDC_STEPUP_PURPOSE: z.string().min(1).default("SIGNING"),
-    SWISSID_OIDC_ENABLE_PKCE: z
-      .enum(["true", "false"])
-      .default("false")
-      .transform((value) => value === "true"),
-    SWISSSIGN_API_BASE_URL: z.string().url().optional(),
-    SWISSSIGN_API_KEY: z.string().min(1).optional(),
-
     // Session
     SESSION_TTL_HOURS: z.coerce.number().int().positive().default(72),
     RESUME_INACTIVITY_HOURS: z.coerce.number().int().positive().default(48),
@@ -368,24 +346,6 @@ export const EnvSchema = z
     {
       message:
         "Admin Microsoft SSO requires ADMIN_SESSION_SECRET, ADMIN_MICROSOFT_CLIENT_ID, ADMIN_MICROSOFT_CLIENT_SECRET, ADMIN_MICROSOFT_REDIRECT_URI, and a specific ADMIN_MICROSOFT_TENANT_ID (not 'common')",
-    },
-  )
-  .refine(
-    (data) => {
-      if (data.SIGNATURE_PROVIDER_MODE !== "swisssign") {
-        return true;
-      }
-
-      return Boolean(
-        data.SWISSID_OIDC_ISSUER &&
-        data.SWISSID_OIDC_CLIENT_ID &&
-        data.SWISSID_OIDC_REDIRECT_URI &&
-        data.SWISSSIGN_API_BASE_URL,
-      );
-    },
-    {
-      message:
-        "Live provider-backed signing mode requires SWISSID_OIDC_ISSUER, SWISSID_OIDC_CLIENT_ID, SWISSID_OIDC_REDIRECT_URI, and SWISSSIGN_API_BASE_URL",
     },
   );
 

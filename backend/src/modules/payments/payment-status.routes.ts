@@ -5,7 +5,6 @@ import { notFoundError } from "../../shared/errors/index.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
-import { getLatestSignatureSession } from "../signing/signature-session.service.js";
 import { getPaymentIntentForCheckout } from "./adapters/stripe.adapter.js";
 import { getPaymentForDraft, transitionPaymentState } from "./payment.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
@@ -69,7 +68,6 @@ export async function registerPaymentStatusRoutes(app: FastifyInstance): Promise
 
       let payment = await getPaymentForDraft(db, draftId);
       if (!payment) throw notFoundError("payment");
-      const signatureSession = await getLatestSignatureSession(db, draftId);
 
       if (payment.state === "pending" && payment.stripePaymentIntentId) {
         const stripeIntent = await getPaymentIntentForCheckout(
@@ -84,7 +82,6 @@ export async function registerPaymentStatusRoutes(app: FastifyInstance): Promise
           await syncDraftFulfillmentFromPaymentState(db, draftId, {
             signatureFlowMode: draft.signatureFlowMode,
             paymentState: "authorized",
-            signatureSessionStatus: signatureSession?.status ?? null,
           });
           await enqueueDispatchIfEligible({
             db,
@@ -103,7 +100,6 @@ export async function registerPaymentStatusRoutes(app: FastifyInstance): Promise
           await syncDraftFulfillmentFromPaymentState(db, draftId, {
             signatureFlowMode: draft.signatureFlowMode,
             paymentState: "captured",
-            signatureSessionStatus: signatureSession?.status ?? null,
           });
           await enqueueDispatchIfEligible({
             db,

@@ -30,7 +30,6 @@ const baseDraft: DraftLetter = {
   status: "collecting",
   locale: "en-CH",
   deliveryType: "standard",
-  signatureAssuranceLevel: "visual",
   signatureFlowMode: "visual",
   subject: "Cancellation",
   body: "Please cancel my contract.",

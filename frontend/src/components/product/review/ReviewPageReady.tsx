@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { DraftDispatchQuote, DraftLetter } from "@episto/shared";
-import type { SignatureAssuranceLevelValue } from "@episto/shared";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 import { useUpdateDraft, useReviewDraft, useTransitionDraft } from "@/hooks/use-api";
 import type { UseLetterPreviewReturn } from "@/hooks/use-letter-preview";
@@ -60,9 +59,6 @@ export function ReviewPageReady({
   const [backError, setBackError] = useState<string | null>(null);
   const draftData = draft.data;
   const previewData = preview.previewData;
-  const displaySignatureAssuranceLevel = (previewData?.signatureAssuranceLevel ??
-    draftData?.signatureAssuranceLevel ??
-    "visual") as SignatureAssuranceLevelValue;
   const previewLocale = previewData?.locale ?? draftData?.locale ?? "de-CH";
   const normalizedDraftSubject = normalizeLetterSubject(
     draftData?.subject,
@@ -76,10 +72,7 @@ export function ReviewPageReady({
   const signatureFileId =
     previewData?.signatureFileId ?? draftData?.signatureAssetId ?? null;
   const signatureUrl = getSignaturePreviewUrl(signatureFileId);
-  const publicSignatureChoice = getPublicSignatureChoice(
-    displaySignatureAssuranceLevel,
-    signatureMode as SignatureMode,
-  );
+  const publicSignatureChoice = getPublicSignatureChoice(signatureMode as SignatureMode);
   const senderLines = getAddressLines(previewData?.sender, "sender");
   const recipientLines = getAddressLines(previewData?.recipient, "recipient");
   const attachmentCount = previewData?.attachmentCount ?? attachments.length;

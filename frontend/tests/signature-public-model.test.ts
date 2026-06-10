@@ -12,7 +12,7 @@ import itCH from "../src/messages/it-CH.json";
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 
 const pickerSource = readFileSync(
-  path.join(repoRoot, "frontend/src/components/product/SignatureAssuranceTierPicker.tsx"),
+  path.join(repoRoot, "frontend/src/components/product/SignatureChoicePicker.tsx"),
   "utf8",
 );
 const reviewReadySource = readFileSync(
@@ -56,15 +56,11 @@ describe("public signature model", () => {
     expect(draftServiceSource).toContain('signatureMode: "drawn"');
   });
 
-  it("derives preview and review labels from the public choice, not the raw assurance enum", () => {
+  it("derives preview and review labels from the public choice", () => {
     expect(reviewReadySource).toContain("getPublicSignatureChoice");
     expect(workspacePreviewSource).toContain("getPublicSignatureChoice");
-    expect(reviewReadySource).not.toContain(
-      "`${displaySignatureAssuranceLevel as SignatureAssuranceLevelValue}.label`",
-    );
-    expect(workspacePreviewSource).not.toContain(
-      "`${signatureAssuranceLevel as SignatureAssuranceLevelValue}.label`",
-    );
+    expect(reviewReadySource).not.toContain("SignatureAssuranceLevelValue");
+    expect(workspacePreviewSource).not.toContain("SignatureAssuranceLevelValue");
   });
 
   for (const locale of locales) {

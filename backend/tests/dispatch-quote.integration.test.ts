@@ -70,7 +70,6 @@ describe("draft preview route", () => {
         body: "Test body",
         enclosureNote: null,
         signatureMode: "typed",
-        signatureAssuranceLevel: "visual",
         signatureAssetId: null,
         senderProfileId: null,
         recipientProfileId: null,
@@ -183,7 +182,6 @@ describe("draft preview route", () => {
       body: null,
       enclosureNote: null,
       signatureMode: "typed",
-      signatureAssuranceLevel: "visual",
       signatureAssetId: null,
       senderProfileId: null,
       recipientProfileId: null,
@@ -306,7 +304,6 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
-      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {
@@ -359,7 +356,6 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
-      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {
@@ -492,7 +488,6 @@ describeIfIntegrationDb("dispatch quote integration", () => {
         body: "Body",
         enclosureNote: null,
         signatureMode: "typed",
-        signatureAssuranceLevel: "visual",
         tone: "formal",
         intent: "cancellation",
         sender: {
@@ -571,7 +566,6 @@ describeIfIntegrationDb("dispatch quote integration", () => {
         body: "Body",
         enclosureNote: null,
         signatureMode: "typed",
-        signatureAssuranceLevel: "visual",
         tone: "formal",
         intent: "cancellation",
         sender: {
@@ -665,7 +659,6 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
-      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {
@@ -759,7 +752,6 @@ describeIfIntegrationDb("dispatch quote integration", () => {
       body: "Body",
       enclosureNote: null,
       signatureMode: "typed",
-      signatureAssuranceLevel: "visual",
       tone: "formal",
       intent: "cancellation",
       sender: {

@@ -3,8 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Check, CheckCircle2, Loader2, Mail, Paperclip, Send } from "lucide-react";
-import { SignatureAssuranceLevel } from "@episto/shared";
-import type { SignatureAssuranceLevelValue } from "@episto/shared";
 import {
   useDraft,
   useUpdateDraft,
@@ -28,7 +26,7 @@ import {
 import { useTheme } from "@/lib/theme";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { SignatureSection } from "../SignatureSection";
-import { SignatureAssuranceTierPicker } from "../SignatureAssuranceTierPicker";
+import { SignatureChoicePicker } from "../SignatureChoicePicker";
 import { ActionCard, Card, DashedCard, DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast } from "./step-feedback";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
@@ -60,8 +58,6 @@ export function LogisticsStep({
     "standard" | "registered" | null
   >(null);
   const deliveryType = draft.data?.deliveryType ?? "standard";
-  const assuranceLevel = (draft.data?.signatureAssuranceLevel ??
-    SignatureAssuranceLevel.visual) as SignatureAssuranceLevelValue;
   const senderName = getSenderDisplayName(preview.previewData?.sender);
   const signatureDisplayName = senderName || t("signatureFallbackName");
   const recipientName = getRecipientDisplayName(preview.previewData?.recipient);
@@ -83,10 +79,7 @@ export function LogisticsStep({
   const signatureFileId = files.signature?.id ?? null;
   const hasDrawnAsset = Boolean(signatureFileId);
   const signatureUrl = getSignatureInlineUrl(signatureFileId);
-  const selectedSignatureChoice = getPublicSignatureChoice(
-    assuranceLevel,
-    currentSignatureMode,
-  );
+  const selectedSignatureChoice = getPublicSignatureChoice(currentSignatureMode);
   const canProceed = getLogisticsStepValidation({
     hasSubject,
     hasBody,
@@ -113,7 +106,6 @@ export function LogisticsStep({
   const handleSelectSignatureChoice = useCallback(
     (choice: PublicSignatureChoice) => {
       void updateDraft.mutateAsync({
-        signatureAssuranceLevel: SignatureAssuranceLevel.visual,
         signatureFlowMode: "visual",
         signatureMode: choice,
         ...(choice === "typed" ? { signatureAssetId: null } : {}),
@@ -357,7 +349,7 @@ export function LogisticsStep({
           </div>
 
           <Card isCompactViewport={isCompactViewport} density="thin">
-            <SignatureAssuranceTierPicker
+            <SignatureChoicePicker
               selectedChoice={selectedSignatureChoice}
               onChoiceChange={handleSelectSignatureChoice}
               isCompactViewport={isCompactViewport ?? false}
@@ -371,7 +363,7 @@ export function LogisticsStep({
                 onDrawnSignature={handleDrawnSignature}
                 onClearDrawn={handleClearDrawn}
               />
-            </SignatureAssuranceTierPicker>
+            </SignatureChoicePicker>
           </Card>
         </section>
 

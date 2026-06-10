@@ -175,11 +175,11 @@ describe("render-pdf worker", () => {
     });
   });
 
-  it("freezes SwissSign drafts for signing instead of dispatching immediately", async () => {
+  it("treats visual signing drafts as ready after rendering", async () => {
     mocks.currentDb = createDbMock({
       status: "rendering",
       sessionId: "session-1",
-      signatureFlowMode: "swisssign_ses",
+      signatureFlowMode: "visual",
       fulfillmentStatus: "draft_created",
     });
     mocks.renderSnapshotToPdf.mockResolvedValue({
@@ -201,17 +201,13 @@ describe("render-pdf worker", () => {
       mocks.currentDb,
       "draft-3",
       "session-1",
-      "ready_to_sign",
+      "ready",
     );
     expect(mocks.setInitialDraftFulfillmentStatus).toHaveBeenCalledWith(
       mocks.currentDb,
       "draft-3",
-      "swisssign_ses",
+      "visual",
     );
-    expect(mocks.getPaymentForDraft).not.toHaveBeenCalled();
-    expect(mocks.enqueueDispatchSubmission).not.toHaveBeenCalled();
-    expect(job.log).toHaveBeenCalledWith(
-      "PDF rendered and frozen for signing: asset=asset-provider",
-    );
+    expect(mocks.getPaymentForDraft).toHaveBeenCalledWith(mocks.currentDb, "draft-3");
   });
 });

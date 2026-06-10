@@ -9,7 +9,6 @@ const mocks = vi.hoisted(() => ({
   transitionPaymentState: vi.fn(),
   constructWebhookEvent: vi.fn(),
   syncDraftFulfillmentFromPaymentState: vi.fn(),
-  getLatestSignatureSession: vi.fn(),
   getLatestSnapshot: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
   recordEvent: vi.fn(),
@@ -60,10 +59,6 @@ vi.mock("../src/modules/signing/fulfillment.service.js", () => ({
   syncDraftFulfillmentFromPaymentState: mocks.syncDraftFulfillmentFromPaymentState,
 }));
 
-vi.mock("../src/modules/signing/signature-session.service.js", () => ({
-  getLatestSignatureSession: mocks.getLatestSignatureSession,
-}));
-
 import { paymentRoutes } from "../src/modules/payments/payment.routes.js";
 
 describe("payment webhook routes", () => {
@@ -78,7 +73,6 @@ describe("payment webhook routes", () => {
         })),
       })),
     }));
-    mocks.getLatestSignatureSession.mockResolvedValue(null);
     mocks.syncDraftFulfillmentFromPaymentState.mockResolvedValue(undefined);
     app = Fastify();
     await app.register(paymentRoutes);

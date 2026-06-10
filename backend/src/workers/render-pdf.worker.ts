@@ -9,7 +9,6 @@ import { getPaymentForDraft } from "../modules/payments/payment.service.js";
 import { enqueueDispatchSubmission } from "../modules/dispatch/dispatch.jobs.js";
 import { transitionDraftStatus } from "../modules/drafting/draft.service.js";
 import { setInitialDraftFulfillmentStatus } from "../modules/signing/fulfillment.service.js";
-import { isSwissSignFlowMode } from "../modules/signing/signature-flow.js";
 
 const logger = createLogger("render-pdf-worker");
 
@@ -75,17 +74,8 @@ export async function processRenderPdfJob(job: Job<RenderPdfJob>): Promise<void>
     return;
   }
 
-  const nextStatus = isSwissSignFlowMode(current.signatureFlowMode)
-    ? "ready_to_sign"
-    : "ready";
-
-  await transitionDraftStatus(db, draftId, current.sessionId, nextStatus);
+  await transitionDraftStatus(db, draftId, current.sessionId, "ready");
   await setInitialDraftFulfillmentStatus(db, draftId, current.signatureFlowMode);
-
-  if (nextStatus !== "ready") {
-    job.log(`PDF rendered and frozen for signing: asset=${result.pdfAssetId}`);
-    return;
-  }
 
   const payment = await getPaymentForDraft(db, draftId);
   if (payment && ["authorized", "captured"].includes(payment.state)) {

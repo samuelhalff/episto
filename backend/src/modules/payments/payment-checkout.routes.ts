@@ -9,9 +9,6 @@ import { resolvePaymentDispatchQuoteForDraft } from "../dispatch/dispatch-quote.
 import { assertVerifiedPhoneForCheckout } from "../phone-verification/phone-verification.service.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
-import { assertSignatureFlowSupported } from "../signing/signature-availability.js";
-import { getLatestSignatureSession } from "../signing/signature-session.service.js";
-import { isSwissSignFlowMode } from "../signing/signature-flow.js";
 import {
   createPaymentIntent,
   getPaymentIntentForCheckout,
@@ -71,7 +68,6 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
           deliveryType: schema.draftLetters.deliveryType,
           locale: schema.draftLetters.locale,
           status: schema.draftLetters.status,
-          signatureAssuranceLevel: schema.draftLetters.signatureAssuranceLevel,
           signatureFlowMode: schema.draftLetters.signatureFlowMode,
         })
         .from(schema.draftLetters)
@@ -84,30 +80,6 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
         .limit(1);
 
       if (!draft) throw notFoundError("draft");
-      assertSignatureFlowSupported(draft);
-
-      const signatureRequired = isSwissSignFlowMode(draft.signatureFlowMode);
-      const latestSignatureSession = signatureRequired
-        ? await getLatestSignatureSession(db, draftId)
-        : null;
-
-      if (
-        signatureRequired &&
-        (!latestSignatureSession ||
-          !["eligible", "conditionally_eligible"].includes(
-            latestSignatureSession.eligibilityStatus,
-          ))
-      ) {
-        throw new AppError({
-          family: "policy_refusal",
-          statusCode: 409,
-          code: "SIGNATURE_ELIGIBILITY_REQUIRED",
-          message:
-            "Provider-backed signing checkout requires an eligibility confirmation first.",
-          userMessage: "Please review the signing requirements before payment.",
-          userAction: "Open the signature eligibility step and continue from there.",
-        });
-      }
 
       if (!CHECKOUT_READY_DRAFT_STATUSES.has(draft.status)) {
         throw new AppError({
@@ -172,7 +144,7 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             customerEmail: body.email,
             orderRef,
             deliveryType: draft.deliveryType,
-            captureStrategy: signatureRequired ? "manual" : "automatic",
+            captureStrategy: "automatic",
           });
 
           await setPaymentIntentId(tx, payment.id, stripeResult.paymentIntentId);
@@ -316,7 +288,6 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             await syncDraftFulfillmentFromPaymentState(db, draftId, {
               signatureFlowMode: draft.signatureFlowMode,
               paymentState: "captured",
-              signatureSessionStatus: latestSignatureSession?.status ?? null,
             });
             await enqueueDispatchIfEligible({
               db,
