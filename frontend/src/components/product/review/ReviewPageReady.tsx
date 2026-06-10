@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type { DraftDispatchQuote, DraftLetter } from "@episto/shared";
 import type { SignatureAssuranceLevelValue } from "@episto/shared";
-import { SignatureFlowMode } from "@episto/shared";
 import { ChevronRight, ArrowLeft } from "lucide-react";
 import { useUpdateDraft, useReviewDraft, useTransitionDraft } from "@/hooks/use-api";
 import type { UseLetterPreviewReturn } from "@/hooks/use-letter-preview";
@@ -86,10 +85,6 @@ export function ReviewPageReady({
   const attachmentCount = previewData?.attachmentCount ?? attachments.length;
   const displayDeliveryType =
     previewData?.deliveryType ?? draftData?.deliveryType ?? "standard";
-  const signatureFlowMode =
-    previewData?.signatureFlowMode ??
-    draftData?.signatureFlowMode ??
-    SignatureFlowMode.visual;
   const displayBody = previewData?.body ?? draftData?.body ?? null;
   const displayEnclosureNote =
     previewData?.enclosureNote ?? draftData?.enclosureNote ?? null;
@@ -202,10 +197,7 @@ export function ReviewPageReady({
   const handleProceedToPayment = useCallback(() => {
     if (!draftData || !reviewActionState.canProceed) return;
 
-    const nextPath =
-      signatureFlowMode === SignatureFlowMode.swisssign_ses
-        ? `/draft/${draftId}/signature/eligibility`
-        : `/draft/${draftId}/checkout`;
+    const nextPath = `/draft/${draftId}/checkout`;
 
     if (alreadyPrepared) {
       router.push(nextPath);
@@ -254,7 +246,6 @@ export function ReviewPageReady({
     reviewActionState.canProceed,
     reviewDraft,
     router,
-    signatureFlowMode,
     signatureFileId,
     signatureMode,
     updateDraft,

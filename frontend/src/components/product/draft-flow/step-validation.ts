@@ -63,19 +63,15 @@ export function getLogisticsStepValidation(input: {
   hasBody: boolean;
   hasSender: boolean;
   hasRecipient: boolean;
-  signatureFlowMode: string | null;
   signatureMode: "typed" | "drawn" | null;
   signatureFileId: string | null;
 }) {
-  const hasSignatureFlow = input.signatureFlowMode === "swisssign_ses";
-
   return {
     canProceed:
       input.hasSubject &&
       input.hasBody &&
       input.hasSender &&
       input.hasRecipient &&
-      (hasSignatureFlow ||
-        hasConcreteSignature(input.signatureMode, input.signatureFileId)),
+      hasConcreteSignature(input.signatureMode, input.signatureFileId),
   };
 }

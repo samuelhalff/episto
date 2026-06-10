@@ -119,16 +119,9 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
       return;
     }
 
-    const target =
-      nextAction === "resume_signature"
-        ? `/draft/${draftId}/signature/resume`
-        : nextAction === "eligibility_gate"
-          ? `/draft/${draftId}/signature/eligibility`
-          : nextAction === "checkout"
-            ? `/draft/${draftId}/checkout`
-            : `/draft/${draftId}/signature/pending`;
-
-    router.replace(target);
+    if (nextAction === "checkout") {
+      router.replace(`/draft/${draftId}/checkout`);
+    }
   }, [draftId, nextAction, router]);
 
   const copyRef = useCallback(async () => {
@@ -155,35 +148,6 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
       >
         <Loader2 className="mx-auto h-12 w-12 animate-spin text-primary" />
         <p className="text-sm text-zinc-500 dark:text-zinc-400">{t("verifying")}</p>
-      </main>
-    );
-  }
-
-  if (nextAction === "retry_signature") {
-    return (
-      <main
-        id="main-content"
-        className={[
-          NARROW_APP_PAGE_SHELL_CLASS_NAME,
-          APP_PAGE_STACK_CLASS_NAME,
-          "text-center",
-        ].join(" ")}
-      >
-        <AlertCircle className="mx-auto h-16 w-16 text-amber-500" />
-        <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
-          Your signature still needs attention
-        </h1>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          The signing attempt was not completed. You can resume the flow or start a fresh
-          signing attempt.
-        </p>
-        <ActionLink
-          href={`/draft/${draftId}/signature/resume`}
-          variant="secondary"
-          leadingIcon={<ArrowLeft className="h-4 w-4 shrink-0" />}
-        >
-          Resume signature
-        </ActionLink>
       </main>
     );
   }

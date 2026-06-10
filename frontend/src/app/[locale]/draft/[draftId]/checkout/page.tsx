@@ -7,7 +7,6 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { SignatureFlowMode } from "@episto/shared";
 import { useDraft, useCheckout, usePhoneVerification, useSession } from "@/hooks/use-api";
 import { useStepTracking } from "@/hooks/use-step-tracking";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -135,8 +134,6 @@ export default function CheckoutPage({
   const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
   const checkout = useCheckout(draftId, { quoteEnabled: canRequestQuote });
   const phoneVerification = usePhoneVerification(draftId);
-  const signatureFlowMode = draft.data?.signatureFlowMode ?? SignatureFlowMode.visual;
-  const isSwissSignFlow = signatureFlowMode === SignatureFlowMode.swisssign_ses;
 
   const checkoutSchema = createCheckoutSchema(t("consentRequired"));
   const {
@@ -149,9 +146,7 @@ export default function CheckoutPage({
   });
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const returnUrl = `${origin}/${locale}/draft/${draftId}/${
-    isSwissSignFlow ? "signature/return" : "confirmation"
-  }`;
+  const returnUrl = `${origin}/${locale}/draft/${draftId}/confirmation`;
   const backToReviewHref =
     getCustomerFlowBackPath(draftId, "checkout") ?? `/draft/${draftId}/review`;
   const billingEmail = submittedCheckoutEmail ?? session.session?.email ?? "";
@@ -175,15 +170,10 @@ export default function CheckoutPage({
       return;
     }
 
-    if (isSwissSignFlow && checkout.paymentState?.state === "authorized") {
-      router.replace(`/draft/${draftId}/signature/return`);
-      return;
-    }
-
-    if (!isSwissSignFlow && checkout.paymentState?.state === "captured") {
+    if (checkout.paymentState?.state === "captured") {
       router.replace(`/draft/${draftId}/confirmation`);
     }
-  }, [checkout.paymentState?.state, draft.data, draftId, isSwissSignFlow, router]);
+  }, [checkout.paymentState?.state, draft.data, draftId, router]);
 
   if (draft.isLoading) {
     return (
@@ -235,11 +225,7 @@ export default function CheckoutPage({
       .createPaymentIntent(values.email)
       .then((result) => {
         if (!result.clientSecret) {
-          router.push(
-            isSwissSignFlow
-              ? `/draft/${draftId}/signature/return`
-              : `/draft/${draftId}/confirmation`,
-          );
+          router.push(`/draft/${draftId}/confirmation`);
         }
       })
       .catch((err: unknown) => {
@@ -324,17 +310,6 @@ export default function CheckoutPage({
               {t("checkoutIntro")}
             </p>
           </div>
-
-          {isSwissSignFlow ? (
-            <div className="rounded-[2rem] border border-amber-200/70 bg-amber-50/70 p-5 text-sm text-amber-950 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-100">
-              <p className="font-semibold">Payment is authorized first</p>
-              <p className="mt-2 leading-6 text-amber-900/80 dark:text-amber-100/80">
-                For provider-backed signing we place an authorization first, continue with
-                identity and signing, and only finalize the order after the signed PDF and
-                dispatch checks are complete.
-              </p>
-            </div>
-          ) : null}
 
           {!checkout.clientSecret && !showCheckoutBlockedState && (
             <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">

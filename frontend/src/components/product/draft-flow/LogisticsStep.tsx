@@ -62,7 +62,6 @@ export function LogisticsStep({
   const deliveryType = draft.data?.deliveryType ?? "standard";
   const assuranceLevel = (draft.data?.signatureAssuranceLevel ??
     SignatureAssuranceLevel.visual) as SignatureAssuranceLevelValue;
-  const signatureFlowMode = draft.data?.signatureFlowMode ?? "visual";
   const senderName = getSenderDisplayName(preview.previewData?.sender);
   const signatureDisplayName = senderName || t("signatureFallbackName");
   const recipientName = getRecipientDisplayName(preview.previewData?.recipient);
@@ -93,7 +92,6 @@ export function LogisticsStep({
     hasBody,
     hasSender,
     hasRecipient,
-    signatureFlowMode,
     signatureMode: currentSignatureMode,
     signatureFileId,
   }).canProceed;
