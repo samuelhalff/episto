@@ -67,6 +67,7 @@ vi.mock("../src/modules/payments/payment.service.js", () => ({
 }));
 
 vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
+  SWISS_CHECKOUT_PAYMENT_METHOD_TYPES: ["twint", "card"],
   createPaymentIntent: mocks.createPaymentIntent,
   constructWebhookEvent: vi.fn(),
   getPaymentIntentForCheckout: mocks.getPaymentIntentForCheckout,
@@ -400,6 +401,50 @@ describe("payment checkout routes", () => {
 
     expect(response.statusCode).toBe(200);
     expect(mocks.getPaymentIntentForCheckout).toHaveBeenCalledWith("pi_cancelled");
+    expect(mocks.transitionPaymentState).toHaveBeenCalledWith(
+      mocks.db,
+      "payment-old",
+      "cancelled",
+    );
+    expect(mocks.createPaymentAttempt).toHaveBeenCalledTimes(1);
+    expect(response.json()).toMatchObject({
+      paymentAttemptId: "payment-1",
+      clientSecret: "cs_test_1",
+    });
+  });
+
+  it("cancels a pending checkout and recreates it when Stripe returns non-Swiss payment methods", async () => {
+    mocks.getPaymentForDraft
+      .mockResolvedValueOnce({
+        id: "payment-old",
+        state: "pending",
+        stripePaymentIntentId: "pi_automatic",
+        amountCents: 625,
+        breakdown: {
+          deliveryType: "standard",
+          providerQuotedCents: 290,
+          swissMailMarkupCents: 335,
+          totalCents: 625,
+          providerQuoteReference: "quote-old",
+          attachmentHandling: "excluded",
+          lineItems: [],
+        },
+      })
+      .mockResolvedValueOnce(null);
+    mocks.getPaymentIntentForCheckout.mockResolvedValueOnce({
+      status: "requires_payment_method",
+      clientSecret: "cs_automatic",
+      latestChargeId: null,
+      paymentMethodTypes: ["card", "klarna", "amazon_pay"],
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/drafts/draft-1/checkout",
+      payload: { email: "payer@example.com" },
+    });
+
+    expect(response.statusCode).toBe(200);
     expect(mocks.transitionPaymentState).toHaveBeenCalledWith(
       mocks.db,
       "payment-old",

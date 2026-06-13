@@ -88,6 +88,11 @@ function buildStripeReceiptDescription(
   return `${BRAND_NAME} order ${orderRef} (${deliveryLabel})`;
 }
 
+export const SWISS_CHECKOUT_PAYMENT_METHOD_TYPES = [
+  "twint",
+  "card",
+] satisfies NonNullable<Stripe.PaymentIntentCreateParams["payment_method_types"]>;
+
 // ---------------------------------------------------------------------------
 // Create PaymentIntent
 // ---------------------------------------------------------------------------
@@ -124,9 +129,8 @@ export async function createPaymentIntent(
           deliveryType: metadata.deliveryType,
         },
         // Signature-led flows need separate authorization and later capture.
-        // Stripe automatically filters out methods that don't support manual capture.
         capture_method: metadata.captureStrategy === "manual" ? "manual" : "automatic",
-        automatic_payment_methods: { enabled: true },
+        payment_method_types: SWISS_CHECKOUT_PAYMENT_METHOD_TYPES,
       },
       { idempotencyKey: metadata.paymentAttemptId },
     );
@@ -191,6 +195,7 @@ export interface CheckoutPaymentIntent {
   status: Stripe.PaymentIntent.Status;
   clientSecret: string | null;
   latestChargeId: string | null;
+  paymentMethodTypes: string[];
 }
 
 export async function getPaymentIntentForCheckout(
@@ -203,6 +208,7 @@ export async function getPaymentIntentForCheckout(
       clientSecret: intent.client_secret ?? null,
       latestChargeId:
         typeof intent.latest_charge === "string" ? intent.latest_charge : null,
+      paymentMethodTypes: intent.payment_method_types,
     };
   } catch (err) {
     if (err instanceof AppError) {

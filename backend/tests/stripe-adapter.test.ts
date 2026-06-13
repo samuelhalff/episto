@@ -65,7 +65,7 @@ describe("createPaymentIntent", () => {
       expect.objectContaining({
         amount: 625,
         currency: "chf",
-        automatic_payment_methods: { enabled: true },
+        payment_method_types: ["twint", "card"],
         metadata: expect.objectContaining({
           draftId: "draft-1",
           sessionId: "session-1",
@@ -74,6 +74,29 @@ describe("createPaymentIntent", () => {
       }),
       { idempotencyKey: "payment-1" },
     );
+  });
+
+  it("does not use automatic payment methods that can surface dashboard-only methods", async () => {
+    paymentIntentsCreate.mockResolvedValue({
+      id: "pi_test_1",
+      client_secret: "cs_test_1",
+    });
+
+    const { createPaymentIntent } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
+
+    await createPaymentIntent(625, {
+      draftId: "draft-1",
+      sessionId: "session-1",
+      paymentAttemptId: "payment-1",
+      customerEmail: "payer@example.com",
+      orderRef: "EP-ORDER-1",
+      deliveryType: "standard",
+    });
+
+    const [createPayload] = assertDefined(paymentIntentsCreate.mock.calls[0]);
+
+    expect(createPayload).not.toHaveProperty("automatic_payment_methods");
   });
 
   it("passes receipt_email and a customer-visible order description on create", async () => {

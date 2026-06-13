@@ -33,9 +33,11 @@ describe("stripe configuration guards", () => {
 });
 
 describe("createPaymentIntent configuration", () => {
-  it("uses automatic_payment_methods so Stripe surfaces Twint and wallets", () => {
-    expect(stripeAdapterSource).toContain("automatic_payment_methods");
-    expect(stripeAdapterSource).toContain("enabled: true");
+  it("uses an explicit Swiss payment method list", () => {
+    expect(stripeAdapterSource).toContain("payment_method_types");
+    expect(stripeAdapterSource).toContain('"twint"');
+    expect(stripeAdapterSource).toContain('"card"');
+    expect(stripeAdapterSource).not.toContain("automatic_payment_methods");
   });
 
   it("uses manual capture only for signature-led authorization flows", () => {
