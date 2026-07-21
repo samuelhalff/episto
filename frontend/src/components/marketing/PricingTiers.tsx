@@ -26,7 +26,7 @@ function TariffRow({
   fallback: string;
 }) {
   return (
-    <div className="hairline flex items-start justify-between gap-6 border-t py-6 first:border-t-0 first:pt-0">
+    <div className="hairline flex flex-col gap-2 border-t py-6 first:border-t-0 first:pt-0 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
       <div className="min-w-0">
         <MarketingHeading
           as="dt"

@@ -96,13 +96,14 @@ export function PricingFaqSection({ pricingFaqs }: { pricingFaqs: MarketingFaqIt
                   key={faq.id}
                   className="hairline group border-t py-4 first:border-t-0 first:pt-0"
                 >
-                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
-                    <MarketingHeading
-                      as="h3"
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/60">
+                    <MarketingBody
+                      as="span"
+                      tone="emphasis"
                       className="text-base font-semibold tracking-[-0.01em]"
                     >
                       {faq.question}
-                    </MarketingHeading>
+                    </MarketingBody>
                     <ChevronDown
                       aria-hidden="true"
                       className="h-4 w-4 shrink-0 text-[var(--app-muted)] transition-transform duration-200 group-open:rotate-180"
