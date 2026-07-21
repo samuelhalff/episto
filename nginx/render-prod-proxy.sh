@@ -179,6 +179,10 @@ else
   location ~ ^/api/v1/drafts/[^/]+/stream {
     set $backend_upstream http://backend:4000;
     proxy_pass $backend_upstream;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
     proxy_set_header Connection '';
     proxy_buffering off;
     proxy_cache off;
@@ -189,6 +193,10 @@ else
   location /api/ {
     set $backend_upstream http://backend:4000;
     proxy_pass $backend_upstream;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
     proxy_set_header Upgrade    $http_upgrade;
     proxy_set_header Connection $connection_upgrade;
     proxy_read_timeout 600s;
@@ -258,6 +266,10 @@ EOF
   location ~ ^/api/v1/drafts/[^/]+/stream {
     set $backend_upstream http://backend:4000;
     proxy_pass $backend_upstream;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
     proxy_set_header Connection '';
     proxy_buffering off;
     proxy_cache off;
@@ -268,6 +280,10 @@ EOF
   location /api/ {
     set $backend_upstream http://backend:4000;
     proxy_pass $backend_upstream;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $forwarded_proto;
     proxy_set_header Upgrade    $http_upgrade;
     proxy_set_header Connection $connection_upgrade;
     proxy_read_timeout 600s;
@@ -334,6 +350,10 @@ server {
   location / {
     set \$backend_upstream http://backend:4000;
     proxy_pass \$backend_upstream;
+    proxy_set_header Host              \$host;
+    proxy_set_header X-Real-IP         \$remote_addr;
+    proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$forwarded_proto;
     proxy_set_header Upgrade    \$http_upgrade;
     proxy_set_header Connection \$connection_upgrade;
     proxy_read_timeout 600s;
