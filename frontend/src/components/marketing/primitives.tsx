@@ -121,6 +121,40 @@ export function SectionHeader({
   );
 }
 
+export function EditorialHeader({
+  eyebrow,
+  title,
+  intro,
+  className,
+  titleClassName,
+}: {
+  eyebrow: ReactNode;
+  title: ReactNode;
+  intro?: ReactNode;
+  className?: string;
+  titleClassName?: string;
+}) {
+  return (
+    <div className={cx("max-w-xl", className)}>
+      <SectionLabel>{eyebrow}</SectionLabel>
+      <MarketingHeading
+        as="h2"
+        className={cx(
+          "mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl md:text-[2.75rem] md:leading-[1.05]",
+          titleClassName,
+        )}
+      >
+        {title}
+      </MarketingHeading>
+      {intro ? (
+        <MarketingBody className="mt-4 text-sm leading-6 sm:text-base sm:leading-7">
+          {intro}
+        </MarketingBody>
+      ) : null}
+    </div>
+  );
+}
+
 export function SectionGrid({
   children,
   className,

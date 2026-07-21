@@ -26,6 +26,7 @@ vi.mock("next-intl", () => {
     );
 
   return {
+    useLocale: () => "en-CH",
     useTranslations(namespace?: string) {
       return (key: string, values?: Record<string, unknown>) => {
         const base = namespace
@@ -178,13 +179,6 @@ const marketingIconTokenPath = path.join(
 const marketingIconTokenSource = existsSync(marketingIconTokenPath)
   ? readFileSync(marketingIconTokenPath, "utf8")
   : "";
-const marketingFeatureSectionPath = path.join(
-  repoRoot,
-  "frontend/src/components/marketing/MarketingFeatureSection.tsx",
-);
-const marketingFeatureSectionSource = existsSync(marketingFeatureSectionPath)
-  ? readFileSync(marketingFeatureSectionPath, "utf8")
-  : "";
 const homepageComponentPaths = {
   hero: path.join(repoRoot, "frontend/src/components/marketing/HomepageHero.tsx"),
   windowDots: path.join(
@@ -318,21 +312,23 @@ describe("marketing homepage shared visual primitives", () => {
     expect(marketingIconTokenSource).toContain("text-rose-700");
   });
 
-  it("restores the hero as a full-height split section with stronger contrast and a visual companion panel", () => {
+  it("keeps the hero as a left-aligned split anchored by a letter specimen", () => {
     const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
 
-    expect(heroSource).toContain("min-h-[calc(100svh-5rem)]");
     expect(heroSource).toContain("lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]");
     expect(heroSource).toContain('variant="heroSecondary"');
-    expect(heroSource).toContain("paper-noise");
+    expect(heroSource).toContain("<LetterSpecimen");
+    // Content-led height and no old browser-chrome mockup.
+    expect(heroSource).not.toContain("min-h-[calc(100svh-5rem)]");
+    expect(heroSource).not.toContain("paper-noise");
   });
 
-  it("avoids numeric badges in the landing-page step visuals", () => {
+  it("numbers the how-it-works route while keeping the hero specimen number-free", () => {
     const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
     const howItWorksSource = readFileSync(homepageComponentPaths.howItWorks, "utf8");
 
+    expect(howItWorksSource).toContain('padStart(2, "0")');
     expect(heroSource).not.toContain('padStart(2, "0")');
-    expect(howItWorksSource).not.toContain('padStart(2, "0")');
   });
 
   it("uses theme-aware hero copy instead of white text in light mode", () => {
@@ -355,36 +351,31 @@ describe("marketing homepage shared visual primitives", () => {
     expect(confidenceMarkup).toContain("bg-[var(--app-surface-muted)]/55");
   });
 
-  it("routes the three mid-page homepage blocks through one shared feature section wrapper", () => {
+  it("lets each mid-page section own its editorial layout instead of one shared card wrapper", () => {
     const howItWorksSource = readFileSync(homepageComponentPaths.howItWorks, "utf8");
     const confidenceSource = readFileSync(homepageComponentPaths.confidence, "utf8");
     const useCasesSource = readFileSync(homepageComponentPaths.useCases, "utf8");
 
-    expect(existsSync(marketingFeatureSectionPath)).toBe(true);
-    expect(marketingFeatureSectionSource).toContain(
-      "export function MarketingFeatureSection",
-    );
-    expect(marketingFeatureSectionSource).toContain("<SectionHeader");
-    expect(marketingFeatureSectionSource).toContain("<SectionGrid");
-    expect(marketingFeatureSectionSource).toContain("<MarketingFeatureCard");
-    expect(howItWorksSource).toContain("<MarketingFeatureSection");
-    expect(confidenceSource).toContain("<MarketingFeatureSection");
-    expect(useCasesSource).toContain("<MarketingFeatureSection");
+    for (const source of [howItWorksSource, confidenceSource, useCasesSource]) {
+      expect(source).not.toContain("<MarketingFeatureSection");
+      expect(source).toContain("EditorialHeader");
+    }
+    expect(primitivesSource).toContain("export function EditorialHeader");
   });
 
-  it("uses distinct light-and-dark-safe icon tones and drops numeric step badges in the shared mid-page sections", () => {
+  it("renders the mid-page sections as hairline ledgers with a numbered route", () => {
     const messages = readLocaleMessages("en-CH");
     const howItWorksMarkup = renderWithMessages(HowItWorksSteps, messages);
     const confidenceMarkup = renderWithMessages(ConfidenceBlock, messages);
     const useCasesMarkup = renderWithMessages(UseCaseGrid, messages);
 
-    expect(howItWorksMarkup).not.toContain(">01<");
-    expect(howItWorksMarkup).toContain("bg-sky-50");
-    expect(howItWorksMarkup).toContain("dark:bg-sky-500/20");
-    expect(confidenceMarkup).toContain("bg-emerald-50");
-    expect(confidenceMarkup).toContain("dark:bg-emerald-500/20");
-    expect(useCasesMarkup).toContain("bg-amber-50");
-    expect(useCasesMarkup).toContain("dark:bg-amber-500/20");
+    expect(howItWorksMarkup).toContain(">01<");
+    expect(howItWorksMarkup).toContain("route-rail");
+    expect(confidenceMarkup).toContain("hairline");
+    expect(useCasesMarkup).toContain("hairline");
+    // The old coloured icon tiles are gone from the mid-page sections.
+    expect(howItWorksMarkup).not.toContain("bg-sky-50");
+    expect(confidenceMarkup).not.toContain("bg-emerald-50");
   });
 
   it("uses clearer English headings for the three mid-page sections", () => {
