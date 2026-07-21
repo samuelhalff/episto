@@ -48,7 +48,7 @@ export function RecoveryScreen({
           </div>
 
           {eyebrow && statusLabel ? (
-            <p className="mt-5 text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            <p className="mt-5 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
               {eyebrow}
             </p>
           ) : null}
@@ -57,14 +57,12 @@ export function RecoveryScreen({
             {title}
           </h1>
 
-          <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">{description}</p>
+          <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+            {description}
+          </p>
 
           <div className="mt-8 flex w-full flex-col gap-3 sm:flex-row">
-            <ActionLink
-              href={primaryHref}
-              fullWidth
-              className="sm:flex-1"
-            >
+            <ActionLink href={primaryHref} fullWidth className="sm:flex-1">
               {primaryLabel}
             </ActionLink>
 

@@ -135,7 +135,7 @@ export function DispatchConfirmation({
       {/* Provider reference */}
       {primaryReference && (
         <div className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
             {primaryReferenceLabel}
           </p>
           <p className="mt-2 font-mono text-base font-semibold leading-snug text-zinc-950 dark:text-zinc-50">

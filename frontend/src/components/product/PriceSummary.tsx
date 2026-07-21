@@ -50,7 +50,7 @@ export function PriceSummary({
     <div className="app-panel rounded-3xl p-6 transition-colors">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
             {t("orderSummary")}
           </h2>
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">{summaryNote}</p>
@@ -91,7 +91,7 @@ export function PriceSummary({
                   className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300"
                 >
                   <span>{label}</span>
-                  <span className="font-medium text-zinc-900 dark:text-zinc-100">
+                  <span className="font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
                     {formatCentsAsCHF(lineItem.amountCents)}
                   </span>
                 </div>

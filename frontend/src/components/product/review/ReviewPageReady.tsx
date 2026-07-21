@@ -284,7 +284,7 @@ export function ReviewPageReady({
         ].join(" ")}
       >
         <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
             {t("finalCheck")}
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">

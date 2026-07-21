@@ -116,7 +116,7 @@ export function DraftShell({
           </div>
         ) : (
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
               {tc("appName")}
             </p>
             <div className="flex items-center gap-2">

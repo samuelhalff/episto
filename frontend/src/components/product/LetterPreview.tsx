@@ -131,7 +131,7 @@ export function LetterPreview({
         {!isImmersive && showHeader ? (
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--app-border)] pb-3">
             <div>
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
                 {t("preview")}
               </p>
               <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">

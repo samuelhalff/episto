@@ -55,7 +55,7 @@ export function WorkspacePreviewPane({
     >
       <div className="flex shrink-0 items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
             {t("preview")}
           </p>
           {publicSignatureChoice ? (

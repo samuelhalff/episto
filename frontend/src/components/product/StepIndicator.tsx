@@ -22,14 +22,14 @@ export function StepIndicator({
         <p className="min-w-0 truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">
           {t(currentStepKey)}
         </p>
-        <div className="app-panel-muted shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-300">
+        <div className="app-panel-muted shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500 dark:text-zinc-300">
           {clampedStep + 1}/{STEPS.length}
         </div>
       </div>
 
       <div className="mt-1.5 h-1 rounded-full bg-zinc-200 dark:bg-zinc-800">
         <div
-          className="h-full rounded-full bg-zinc-950 transition-[width] duration-300 dark:bg-amber-400"
+          className="h-full rounded-full bg-[var(--action-primary-bg)] transition-[width] duration-300"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
