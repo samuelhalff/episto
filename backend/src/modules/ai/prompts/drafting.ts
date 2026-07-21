@@ -2,8 +2,10 @@ import type { ChatMessage } from "../adapters/azure-openai.js";
 import {
   DOCUMENT_WITH_SUBJECT_RESPONSE_RULES,
   SAFETY_PREAMBLE,
+  ANTI_INJECTION_INSTRUCTION,
   localeInstruction,
   toChatHistory,
+  wrapUserContent,
   type PromptConversationMessage,
 } from "./shared.js";
 
@@ -70,7 +72,7 @@ Use facts ONLY from the user's input. Never invent dates, reference numbers, amo
     ...toChatHistory(input.conversationHistory),
     {
       role: "user",
-      content: input.userInstructions,
+      content: wrapUserContent(input.userInstructions),
     },
   ];
 }
@@ -86,7 +88,9 @@ export function generateSubjectPrompt(input: GenerateSubjectInput): ChatMessage[
   return [
     {
       role: "system",
-      content: `You write concise, professional subject lines for formal Swiss letters.
+      content: `${ANTI_INJECTION_INSTRUCTION}
+
+You write concise, professional subject lines for formal Swiss letters.
 
 ${localeInstruction(input.locale)}
 
@@ -105,7 +109,7 @@ Rules:
       content: `Intent: ${input.intent}
 
 User instructions:
-${input.userInstructions}
+${wrapUserContent(input.userInstructions)}
 
 Drafted body:
 ${input.body}`,
@@ -143,7 +147,7 @@ Use facts ONLY from the existing letter and user instruction. Never invent new f
     },
     {
       role: "user",
-      content: input.revisionInstruction,
+      content: wrapUserContent(input.revisionInstruction),
     },
   ];
 }

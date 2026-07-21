@@ -942,6 +942,8 @@
         "title": "Code prioritarie",
         "ambiguous": "Invii ambigui",
         "ambiguousInfo": "Revisione manuale invio",
+        "failedDispatches": "Invii falliti",
+        "failedDispatchesInfo": "Rifiutato o sconosciuto",
         "suspicious": "Sessioni sospette",
         "suspiciousInfo": "Revisione frode o abuso"
       },
@@ -1059,6 +1061,9 @@
       "failed": "Fallito",
       "refundPending": "Rimborso in attesa",
       "refunded": "Rimborsato"
+    },
+    "refund": {
+      "confirmWarning": "La lettera potrebbe essere già stata inviata — conferma che il fornitore NON l'abbia inviata prima di procedere al rimborso."
     }
   },
   "help": {

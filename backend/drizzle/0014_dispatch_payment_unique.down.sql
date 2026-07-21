@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS dispatch_attempts_payment_attempt_id_uniq;

@@ -52,10 +52,19 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
     "/drafts",
     {
       config: {
+        // Per-IP cap on draft creation (each draft can trigger AI cost). Keyed on
+        // req.ip: @fastify/rate-limit runs in the onRequest phase, BEFORE the
+        // requireSession preHandler, so req.session is not yet populated — a
+        // `req.session?.id ?? req.ip` key silently always fell back to req.ip. A
+        // per-session cap was considered but is weaker against abuse (a bot can
+        // rotate sessions, bounded only loosely by the 60/hour/IP session-creation
+        // limit). The 1-hour window (was "1 day") keeps the abuse bound tight while
+        // avoiding a harsh "retry in 24 hours" for users behind shared NAT / CGNAT.
+        // In prod TRUST_PROXY=true, so req.ip is the real client IP, not the nginx hop.
         rateLimit: {
           max: 20,
-          timeWindow: "1 day",
-          keyGenerator: (req: FastifyRequest) => req.session?.id ?? req.ip,
+          timeWindow: "1 hour",
+          keyGenerator: (req: FastifyRequest) => req.ip,
         },
       },
     },

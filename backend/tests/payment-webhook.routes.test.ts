@@ -1,6 +1,8 @@
 import Fastify, { type FastifyInstance } from "fastify";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppError } from "../src/shared/errors/index.js";
+import type * as StripeAdapter from "../src/modules/payments/adapters/stripe.adapter.js";
+import type * as PaymentRouteHelpers from "../src/modules/payments/payment-route-helpers.js";
 
 const mocks = vi.hoisted(() => ({
   db: { tag: "db" },
@@ -37,11 +39,38 @@ vi.mock("../src/modules/payments/payment.service.js", () => ({
   transitionPaymentState: mocks.transitionPaymentState,
 }));
 
-vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
-  createPaymentIntent: vi.fn(),
-  constructWebhookEvent: mocks.constructWebhookEvent,
-  getPaymentIntentClientSecret: vi.fn(),
-}));
+vi.mock("../src/modules/payments/adapters/stripe.adapter.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof StripeAdapter>();
+  return {
+    ...actual,
+    createPaymentIntent: vi.fn(),
+    constructWebhookEvent: mocks.constructWebhookEvent,
+    getPaymentIntentClientSecret: vi.fn(),
+  };
+});
+
+vi.mock("../src/modules/payments/payment-route-helpers.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof PaymentRouteHelpers>();
+  const { getLatestSnapshot } =
+    await import("../src/modules/rendering/snapshot.service.js");
+  return {
+    ...actual,
+    enqueueDispatchIfEligible: async (options: {
+      db: unknown;
+      draftId: string;
+      paymentId: string;
+    }) => {
+      const snapshot = await getLatestSnapshot(options.db, options.draftId);
+      if (snapshot) {
+        await mocks.enqueueDispatchSubmission({
+          draftId: options.draftId,
+          snapshotId: snapshot.id,
+          paymentId: options.paymentId,
+        });
+      }
+    },
+  };
+});
 
 vi.mock("../src/modules/rendering/snapshot.service.js", () => ({
   getLatestSnapshot: mocks.getLatestSnapshot,

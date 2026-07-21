@@ -1,5 +1,15 @@
 import { sql } from "drizzle-orm";
-import { boolean, index, integer, jsonb, pgEnum, pgTable, text, uniqueIndex, uuid } from "drizzle-orm/pg-core";
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from "drizzle-orm/pg-core";
 import { deliveryTypeEnum, draftLetters } from "./drafting.js";
 import { draftSnapshots } from "./files.js";
 import { createdAt, pk, ts, updatedAt } from "./helpers.js";
@@ -54,6 +64,9 @@ export const dispatchAttempts = pgTable(
       table.providerReference,
     ),
     stateIdx: index("dispatch_attempts_state_idx").on(table.state),
+    paymentAttemptIdUniq: uniqueIndex("dispatch_attempts_payment_attempt_id_uniq")
+      .on(table.paymentAttemptId)
+      .where(sql`${table.paymentAttemptId} IS NOT NULL`),
   }),
 );
 

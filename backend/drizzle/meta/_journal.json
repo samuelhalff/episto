@@ -99,6 +99,13 @@
       "when": 1780599600001,
       "tag": "0013_remove_qes_swisssign_signing",
       "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1780599600002,
+      "tag": "0014_dispatch_payment_unique",
+      "breakpoints": true
     }
   ]
 }

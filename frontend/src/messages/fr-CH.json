@@ -942,6 +942,8 @@
         "title": "Files prioritaires",
         "ambiguous": "Envois ambigus",
         "ambiguousInfo": "Revue manuelle d'envoi",
+        "failedDispatches": "Envois échoués",
+        "failedDispatchesInfo": "Rejeté ou inconnu",
         "suspicious": "Sessions suspectes",
         "suspiciousInfo": "Revue fraude ou abus"
       },
@@ -1059,6 +1061,9 @@
       "failed": "Échoué",
       "refundPending": "Remboursement en attente",
       "refunded": "Remboursé"
+    },
+    "refund": {
+      "confirmWarning": "La lettre a peut-être déjà été envoyée — confirmez que le prestataire ne l'a PAS envoyée avant de procéder au remboursement."
     }
   },
   "help": {

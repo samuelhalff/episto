@@ -1,10 +1,6 @@
 import type { Job, Worker } from "bullmq";
-import { and, eq, lt } from "drizzle-orm";
-import {
-  createWorker,
-  QUEUE_NAMES,
-  type CleanupAssetsJob,
-} from "../queue/index.js";
+import { eq, lt, sql } from "drizzle-orm";
+import { createWorker, QUEUE_NAMES, type CleanupAssetsJob } from "../queue/index.js";
 import { createLogger } from "../shared/logging/index.js";
 import { getDb } from "../db/index.js";
 import { schema } from "../db/index.js";
@@ -18,11 +14,11 @@ const logger = createLogger("cleanup-assets-worker");
  *
  * Trigger: Scheduled (e.g., every hour via a cron-like BullMQ repeatable job).
  * Steps:
- *   1. Find expired sessions and their drafts
- *   2. Mark file assets as pending_deletion
- *   3. Delete objects from S3
- *   4. Mark file assets as deleted
- *   5. Clean up expired session records
+ *   1. Find expired sessions
+ *   2. Find file assets with pending_deletion status
+ *   3. Delete objects from S3 and mark as deleted
+ *   4. Mark dispatched PDFs as pending_deletion (PDF_RETENTION_HOURS_POST_DISPATCH after dispatch)
+ *   5. Mark old non-PDF active file assets as pending_deletion (CONTENT_RETENTION_DAYS)
  */
 export function startCleanupAssetsWorker(): Worker<CleanupAssetsJob> {
   return createWorker<CleanupAssetsJob>(
@@ -76,34 +72,55 @@ export function startCleanupAssetsWorker(): Worker<CleanupAssetsJob> {
         }
       }
 
-      // 4. Mark old active file assets as pending_deletion based on retention policy
-      const contentRetentionDays = config.CONTENT_RETENTION_DAYS;
-      const contentCutoff = new Date(
-        now.getTime() - contentRetentionDays * 24 * 60 * 60 * 1000,
-      );
+      // 4. Mark dispatched PDF assets (rendered_pdf, signed_pdf) as pending_deletion
+      //    based on PDF_RETENTION_HOURS_POST_DISPATCH after the dispatch submission time.
+      const pdfRetentionHours = config.PDF_RETENTION_HOURS_POST_DISPATCH;
 
-      const markedForDeletion = await db
-        .update(schema.fileAssets)
-        .set({ status: "pending_deletion" })
-        .where(
-          and(
-            eq(schema.fileAssets.status, "active"),
-            lt(schema.fileAssets.createdAt, contentCutoff),
-          ),
+      const pdfResult = await db.execute<{ id: string }>(sql`
+        UPDATE file_assets
+        SET status = 'pending_deletion'
+        WHERE id IN (
+          SELECT fa.id FROM file_assets fa
+          INNER JOIN dispatch_attempts da ON fa.draft_id = da.draft_id
+          WHERE fa.kind IN ('rendered_pdf', 'signed_pdf')
+            AND fa.status = 'active'
+            AND da.submitted_at IS NOT NULL
+            AND da.submitted_at < NOW() - make_interval(hours => ${pdfRetentionHours})
+          LIMIT ${batchSize}
         )
-        .returning({ id: schema.fileAssets.id });
+        RETURNING id
+      `);
+      const pdfMarkedForDeletion = pdfResult.rows;
+
+      // 5. Mark old non-PDF active file assets as pending_deletion based on CONTENT_RETENTION_DAYS
+      const contentRetentionDays = config.CONTENT_RETENTION_DAYS;
+
+      const contentResult = await db.execute<{ id: string }>(sql`
+        UPDATE file_assets
+        SET status = 'pending_deletion'
+        WHERE id IN (
+          SELECT id FROM file_assets
+          WHERE status = 'active'
+            AND kind NOT IN ('rendered_pdf', 'signed_pdf')
+            AND created_at < NOW() - make_interval(days => ${contentRetentionDays})
+          LIMIT ${batchSize}
+        )
+        RETURNING id
+      `);
+      const contentMarkedForDeletion = contentResult.rows;
 
       logger.info(
         {
           deletedFiles,
-          markedForDeletion: markedForDeletion.length,
+          pdfMarkedForDeletion: pdfMarkedForDeletion.length,
+          contentMarkedForDeletion: contentMarkedForDeletion.length,
           expiredSessions,
         },
         "Asset cleanup complete",
       );
 
       job.log(
-        `Cleanup: ${deletedFiles} files deleted, ${markedForDeletion.length} marked for deletion, ${expiredSessions} expired sessions found`,
+        `Cleanup: ${deletedFiles} files deleted, ${pdfMarkedForDeletion.length} PDFs marked for deletion, ${contentMarkedForDeletion.length} content assets marked for deletion, ${expiredSessions} expired sessions found`,
       );
     },
     { concurrency: 1 },

@@ -89,7 +89,9 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
         updatedAt: draft.updatedAt.toISOString(),
         contentRetained,
         actions: {
-          canRefund: payment?.state === "captured",
+          canRefund:
+            payment?.state === "captured" &&
+            (!dispatch || !["submitted", "accepted"].includes(dispatch.state)),
           canViewContent: contentRetained,
           canReconcile: dispatch
             ? canManuallyReconcileDispatch(dispatch.state, dispatch.providerReference)

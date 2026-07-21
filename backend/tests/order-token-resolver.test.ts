@@ -26,6 +26,9 @@ function makeSelectChain(rows: unknown[]) {
   };
 }
 
+// Use a date far in the future that won't become stale as the system clock advances.
+const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+
 describe("resolveOrderAccessPayment", () => {
   beforeEach(() => {
     verifyOrderAccessToken.mockReset();
@@ -38,7 +41,7 @@ describe("resolveOrderAccessPayment", () => {
         makeSelectChain([
           {
             id: "payment-1",
-            orderAccessTokenExpiresAt: new Date("2026-07-10T12:00:00.000Z"),
+            orderAccessTokenExpiresAt: futureDate,
           },
         ]),
       ),
@@ -46,12 +49,11 @@ describe("resolveOrderAccessPayment", () => {
 
     verifyOrderAccessToken.mockResolvedValue({
       paymentAttemptId: "payment-1",
-      expiresAt: "2026-07-10T12:00:00.000Z",
+      expiresAt: futureDate.toISOString(),
     });
 
-    const { resolveOrderAccessPayment } = await import(
-      "../src/modules/orders/order-token-resolver.js"
-    );
+    const { resolveOrderAccessPayment } =
+      await import("../src/modules/orders/order-token-resolver.js");
 
     const payment = await resolveOrderAccessPayment(db as never, "signed-token");
 
@@ -65,7 +67,7 @@ describe("resolveOrderAccessPayment", () => {
           {
             id: "payment-legacy",
             orderAccessTokenHash: "hashed:legacy-token",
-            orderAccessTokenExpiresAt: new Date("2026-07-10T12:00:00.000Z"),
+            orderAccessTokenExpiresAt: futureDate,
           },
         ]),
       ),
@@ -75,9 +77,8 @@ describe("resolveOrderAccessPayment", () => {
       new OrderAccessTokenVerificationError("invalid signed order access token"),
     );
 
-    const { resolveOrderAccessPayment } = await import(
-      "../src/modules/orders/order-token-resolver.js"
-    );
+    const { resolveOrderAccessPayment } =
+      await import("../src/modules/orders/order-token-resolver.js");
 
     const payment = await resolveOrderAccessPayment(db as never, "legacy-token");
 
@@ -94,9 +95,8 @@ describe("resolveOrderAccessPayment", () => {
       new OrderAccessTokenExpiredError("signed order access token expired"),
     );
 
-    const { resolveOrderAccessPayment } = await import(
-      "../src/modules/orders/order-token-resolver.js"
-    );
+    const { resolveOrderAccessPayment } =
+      await import("../src/modules/orders/order-token-resolver.js");
 
     await expect(
       resolveOrderAccessPayment(db as never, "expired-signed-token"),
@@ -118,15 +118,14 @@ describe("resolveOrderAccessPayment", () => {
 
     verifyOrderAccessToken.mockResolvedValue({
       paymentAttemptId: "payment-1",
-      expiresAt: "2026-07-10T12:00:00.000Z",
+      expiresAt: futureDate.toISOString(),
     });
 
-    const { resolveOrderAccessPayment } = await import(
-      "../src/modules/orders/order-token-resolver.js"
-    );
+    const { resolveOrderAccessPayment } =
+      await import("../src/modules/orders/order-token-resolver.js");
 
-    await expect(
-      resolveOrderAccessPayment(db as never, "signed-token"),
-    ).rejects.toThrow("database offline");
+    await expect(resolveOrderAccessPayment(db as never, "signed-token")).rejects.toThrow(
+      "database offline",
+    );
   });
 });

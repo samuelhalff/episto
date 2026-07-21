@@ -23,5 +23,9 @@ shared/coverage/
 .fuse_hidden*
 test-results/
 screenshots/
+# Playwright E2E generated artifacts
+e2e/report/
+playwright-report/
+.last-run.json
 tmp-*
 *.tmp.html

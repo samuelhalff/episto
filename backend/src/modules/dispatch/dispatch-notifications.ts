@@ -55,3 +55,33 @@ export async function enqueueDispatchAcceptedEmail(
     jobId: `dispatch-accepted-${args.dispatchAttemptId}`,
   });
 }
+
+export async function enqueueDispatchFailedEmail(
+  db: Db,
+  args: {
+    dispatchAttemptId: string;
+    draftId: string;
+    paymentId: string;
+    failureReason: string;
+  },
+): Promise<void> {
+  const context = await buildDispatchEmailContext(db, {
+    draftId: args.draftId,
+    paymentId: args.paymentId,
+  });
+  if (!context) return;
+
+  const job: SendEmailJob = {
+    to: context.to,
+    template: "dispatch-failed",
+    locale: context.locale,
+    data: {
+      ...context,
+      failureReason: args.failureReason,
+    },
+  };
+
+  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("dispatch-failed", job, {
+    jobId: `dispatch-failed-${args.dispatchAttemptId}`,
+  });
+}

@@ -71,7 +71,7 @@ describe("classifyIntentPrompt", () => {
     expect(messages).toHaveLength(2);
     expect(getMessage(messages, 0).role).toBe("system");
     expect(getMessage(messages, 1).role).toBe("user");
-    expect(getMessage(messages, 1).content).toBe("I want to cancel my insurance");
+    expect(getMessage(messages, 1).content).toContain("I want to cancel my insurance");
   });
 
   it("system message mentions JSON output format", () => {

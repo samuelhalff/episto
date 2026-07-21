@@ -11,6 +11,7 @@ import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs
 import {
   enqueueDispatchAcceptedEmail,
   enqueueDispatchSubmittedEmail,
+  enqueueDispatchFailedEmail,
 } from "../modules/dispatch/dispatch-notifications.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
 import { recordEvent } from "../modules/analytics/index.js";
@@ -85,6 +86,25 @@ export async function processSubmitDispatchJob(
     await transitionDispatchState(db, attempt.id, "rejected", {
       failureReason: message,
     });
+
+    // Notify user of dispatch failure (best-effort; do not block retry)
+    try {
+      await enqueueDispatchFailedEmail(db, {
+        dispatchAttemptId: attempt.id,
+        draftId,
+        paymentId,
+        failureReason: message,
+      });
+    } catch (emailErr) {
+      logger.error(
+        {
+          draftId,
+          dispatchId: attempt.id,
+          err: emailErr instanceof Error ? emailErr.message : "Unknown error",
+        },
+        "Failed to enqueue dispatch failure email after adapter rejection",
+      );
+    }
 
     logger.error({ draftId, dispatchId: attempt.id, err: message }, "Dispatch rejected");
     throw err; // Re-throw for BullMQ retry logic
@@ -201,6 +221,27 @@ export async function processSubmitDispatchJob(
                 : "Unknown error",
           },
           "Failed to enqueue accepted dispatch email after immediate acceptance",
+        );
+      }
+    }
+
+    if (result.state === "rejected" && settlement?.payment) {
+      try {
+        await enqueueDispatchFailedEmail(db, {
+          dispatchAttemptId: attempt.id,
+          draftId,
+          paymentId: settlement.payment.id,
+          failureReason: result.failureReason ?? "Dispatch rejected by provider",
+        });
+      } catch (failedEmailErr) {
+        logger.error(
+          {
+            draftId,
+            dispatchId: attempt.id,
+            err:
+              failedEmailErr instanceof Error ? failedEmailErr.message : "Unknown error",
+          },
+          "Failed to enqueue dispatch failure email after provider rejection",
         );
       }
     }

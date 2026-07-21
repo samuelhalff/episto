@@ -2,10 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { requireAdmin, getRequiredAdmin } from "../../shared/middleware/require-admin.js";
-import {
-  recordSupportEvent,
-  listSupportEventsForDraft,
-} from "./index.js";
+import { recordSupportEvent, listSupportEventsForDraft } from "./index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { adminActionRoutes } from "./admin-actions.routes.js";
 import { adminHealthRoutes } from "./admin-health.routes.js";
@@ -15,6 +12,7 @@ import { adminSessionsRoutes } from "./admin-sessions.routes.js";
 import { adminRetentionRoutes } from "./admin-retention.routes.js";
 import { adminCaseRoutes } from "./admin-case.routes.js";
 import { adminFlagsRoutes } from "./admin-flags.routes.js";
+import { adminDispatchRoutes } from "./admin-dispatch.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin read-only routes (timeline, session details, content access)
@@ -106,7 +104,10 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
           from: null,
           to: p.state,
           actor: "system",
-          meta: { amountCents: p.amountCents, stripePaymentIntentId: p.stripePaymentIntentId },
+          meta: {
+            amountCents: p.amountCents,
+            stripePaymentIntentId: p.stripePaymentIntentId,
+          },
           occurredAt: (p.updatedAt ?? p.createdAt).toISOString(),
         });
       }
@@ -178,6 +179,9 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
   await app.register(adminCaseRoutes);
   await app.register(adminFlagsRoutes);
+
+  // Register admin dispatch visibility endpoint
+  await app.register(adminDispatchRoutes);
 
   // Register analytics dashboard endpoints
   await app.register(adminMetricsRoutes);

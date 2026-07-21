@@ -45,9 +45,9 @@ describe("formatCentsAsCHF — edge cases", () => {
   });
 
   it("is consistent: CHF 4.90 matches backend default price constant", () => {
-    // Backend default: PRICE_STANDARD_CENTS=490
+    // Backend default: PRICE_STANDARD_MARKUP_CENTS=490
     expect(formatCentsAsCHF(490)).toBe("CHF 4.90");
-    // Backend default: PRICE_REGISTERED_CENTS=890
+    // Backend default: PRICE_REGISTERED_MARKUP_CENTS=890
     expect(formatCentsAsCHF(890)).toBe("CHF 8.90");
   });
 });

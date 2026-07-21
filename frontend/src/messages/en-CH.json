@@ -942,6 +942,8 @@
         "title": "Priority queues",
         "ambiguous": "Ambiguous dispatches",
         "ambiguousInfo": "Manual dispatch review",
+        "failedDispatches": "Failed dispatches",
+        "failedDispatchesInfo": "Rejected or unknown state",
         "suspicious": "Suspicious sessions",
         "suspiciousInfo": "Fraud or abuse review"
       },
@@ -1059,6 +1061,9 @@
       "failed": "Failed",
       "refundPending": "Refund pending",
       "refunded": "Refunded"
+    },
+    "refund": {
+      "confirmWarning": "The letter may already have been sent — confirm the provider did NOT send it before refunding."
     }
   },
   "help": {

@@ -40,6 +40,7 @@ export interface OverviewResponse {
   dispatch: Record<string, number>;
   payments: Record<string, number>;
   ambiguousDispatchQueue: number;
+  failedDispatches: number;
   recentRefunds: number;
   suspiciousActivityQueue: number;
   generatedAt: string;

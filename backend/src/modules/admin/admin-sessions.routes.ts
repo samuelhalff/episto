@@ -1,7 +1,7 @@
 import type { FastifyInstance } from "fastify";
-import { sql, eq } from "drizzle-orm";
+import { sql, eq, and, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
-import { notFoundError } from "../../shared/errors/index.js";
+import { notFoundError, AppError } from "../../shared/errors/index.js";
 import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { recordSupportEvent } from "./index.js";
 import type { AdminSessionListResponse, AdminSessionListItem } from "@episto/shared";
@@ -170,6 +170,205 @@ export async function adminSessionsRoutes(app: FastifyInstance): Promise<void> {
         cleared: cleared.rows.length,
         sessionId: id,
         message: `Cleared content for ${cleared.rows.length} draft(s). Metadata preserved.`,
+      });
+    },
+  );
+
+  // POST /admin/sessions/:id/erase — GDPR/FADP right-to-erasure with retention
+  app.post<{ Params: { id: string } }>(
+    "/admin/sessions/:id/erase",
+    async (request, reply) => {
+      const db = getDb();
+      const { id } = request.params;
+      const admin = getRequiredAdmin(request);
+
+      const result = await db.transaction(async (tx) => {
+        // Load session
+        const [session] = await tx
+          .select({ id: schema.sessions.id, expiresAt: schema.sessions.expiresAt })
+          .from(schema.sessions)
+          .where(eq(schema.sessions.id, id))
+          .limit(1);
+
+        if (!session) throw notFoundError("session");
+
+        // Load all drafts for the session (safety cap: refuse above 1000 to keep tx bounded)
+        const [countRow] = await tx
+          .select({ count: sql<number>`count(*)::int` })
+          .from(schema.draftLetters)
+          .where(eq(schema.draftLetters.sessionId, id))
+          .limit(1);
+
+        const totalDrafts = countRow?.count ?? 0;
+
+        if (totalDrafts > 1000) {
+          throw new AppError({
+            family: "validation_error",
+            statusCode: 400,
+            code: "TOO_MANY_DRAFTS",
+            message: `Session has ${totalDrafts} drafts (max 1000 for erase). Contact engineering.`,
+            userMessage: "Too many drafts to erase at once. Please contact support.",
+            userAction: null,
+          });
+        }
+
+        const drafts = await tx
+          .select()
+          .from(schema.draftLetters)
+          .where(eq(schema.draftLetters.sessionId, id))
+          .limit(1000);
+        let draftsErased = 0;
+        let paidOrdersRetained = 0;
+        let filesMarkedForDeletion = 0;
+
+        const terminalPaidStates: string[] = [
+          "captured",
+          "refunded",
+          "partially_refunded",
+        ];
+        const terminalDispatchStates: string[] = ["submitted", "accepted"];
+
+        for (const draft of drafts) {
+          // Check for a paid payment — latest row governs retention
+          const [payment] = await tx
+            .select({
+              id: schema.paymentAttempts.id,
+              state: schema.paymentAttempts.state,
+            })
+            .from(schema.paymentAttempts)
+            .where(eq(schema.paymentAttempts.draftId, draft.id))
+            .orderBy(desc(schema.paymentAttempts.createdAt))
+            .limit(1);
+
+          const isPaid =
+            payment !== undefined && terminalPaidStates.includes(payment.state);
+
+          // Check for a submitted/accepted dispatch — latest row governs retention
+          const [dispatch] = await tx
+            .select({
+              id: schema.dispatchAttempts.id,
+              state: schema.dispatchAttempts.state,
+            })
+            .from(schema.dispatchAttempts)
+            .where(eq(schema.dispatchAttempts.draftId, draft.id))
+            .orderBy(desc(schema.dispatchAttempts.createdAt))
+            .limit(1);
+
+          const isDispatched =
+            dispatch !== undefined && terminalDispatchStates.includes(dispatch.state);
+
+          if (isPaid || isDispatched) {
+            paidOrdersRetained++;
+            continue; // RETAIN — do not modify
+          }
+
+          // UNPAID and not dispatched → erase PII
+          // Check all three nullable PII columns to avoid false-positive idempotency skip
+          // when a draft legitimately has null subject (e.g., early collecting state)
+          const alreadyErased =
+            draft.subject === null && draft.body === null && draft.tone === null;
+
+          if (!alreadyErased) {
+            // Redact draft letter PII fields
+            await tx
+              .update(schema.draftLetters)
+              .set({
+                subject: null,
+                body: null,
+                tone: null,
+                intent: null,
+                enclosureNote: null,
+                updatedAt: new Date(),
+              })
+              .where(eq(schema.draftLetters.id, draft.id));
+
+            // Redact sender profile
+            if (draft.senderProfileId) {
+              await tx
+                .update(schema.senderProfiles)
+                .set({
+                  firstName: "[erased]",
+                  lastName: "[erased]",
+                  company: null,
+                  addressLine1: "[erased]",
+                  addressLine2: null,
+                  postalCode: "0000",
+                  city: "[erased]",
+                  country: "CH",
+                  phone: null,
+                  email: null,
+                  updatedAt: new Date(),
+                })
+                .where(eq(schema.senderProfiles.id, draft.senderProfileId));
+            }
+
+            // Redact recipient profile
+            if (draft.recipientProfileId) {
+              await tx
+                .update(schema.recipientProfiles)
+                .set({
+                  firstName: null,
+                  lastName: null,
+                  company: null,
+                  department: null,
+                  addressLine1: "[erased]",
+                  addressLine2: null,
+                  postalCode: "0000",
+                  city: "[erased]",
+                  country: "CH",
+                  updatedAt: new Date(),
+                })
+                .where(eq(schema.recipientProfiles.id, draft.recipientProfileId));
+            }
+
+            draftsErased++;
+          }
+
+          // Mark active file assets as pending_deletion (reuse existing cleanup worker)
+          const fileResult = await tx
+            .update(schema.fileAssets)
+            .set({ status: "pending_deletion" })
+            .where(
+              and(
+                eq(schema.fileAssets.draftId, draft.id),
+                eq(schema.fileAssets.status, "active"),
+              ),
+            )
+            .returning({ id: schema.fileAssets.id });
+
+          filesMarkedForDeletion += fileResult.length;
+        }
+
+        // Soft-expire the session
+        if (session.expiresAt > new Date()) {
+          await tx
+            .update(schema.sessions)
+            .set({ expiresAt: new Date(), updatedAt: new Date() })
+            .where(eq(schema.sessions.id, id));
+        }
+
+        return { draftsErased, paidOrdersRetained, filesMarkedForDeletion, totalDrafts };
+      });
+
+      // Record audit trail (outside transaction: only written on success; if tx threw, we never reach here)
+      await recordSupportEvent(db, {
+        sessionId: id,
+        eventType: "session_data_erased",
+        actor: admin.actor,
+        details: {
+          draftsErased: result.draftsErased,
+          paidOrdersRetained: result.paidOrdersRetained,
+          filesMarkedForDeletion: result.filesMarkedForDeletion,
+          totalDrafts: result.totalDrafts,
+        },
+      });
+
+      reply.send({
+        sessionId: id,
+        draftsErased: result.draftsErased,
+        paidOrdersRetained: result.paidOrdersRetained,
+        filesMarkedForDeletion: result.filesMarkedForDeletion,
+        totalDrafts: result.totalDrafts,
       });
     },
   );

@@ -1,5 +1,10 @@
 import type { ChatMessage } from "../adapters/azure-openai.js";
-import { formatRecentConversation, localeInstruction } from "./shared.js";
+import {
+  formatRecentConversation,
+  localeInstruction,
+  wrapUserContent,
+  ANTI_INJECTION_INSTRUCTION,
+} from "./shared.js";
 
 export interface AnalyzeIntakeInput {
   userMessage: string;
@@ -14,7 +19,9 @@ export function analyzeIntakePrompt(input: AnalyzeIntakeInput): ChatMessage[] {
   return [
     {
       role: "system",
-      content: `You are an Episto intake analysis engine. In ONE pass, do all of the following:
+      content: `${ANTI_INJECTION_INSTRUCTION}
+
+You are an Episto intake analysis engine. In ONE pass, do all of the following:
 - classify the user's intent
 - assess whether the content is blocked
 - extract any concrete draft fields that were explicitly provided
@@ -77,11 +84,11 @@ Rules:
 
 Current fields: ${JSON.stringify(input.existingFields)}
 Recent conversation:
-${recentConversation || "(none)"}`,
+${wrapUserContent(recentConversation || "(none)")}`,
     },
     {
       role: "user",
-      content: input.userMessage,
+      content: wrapUserContent(input.userMessage),
     },
   ];
 }
@@ -95,7 +102,9 @@ export function classifyIntentPrompt(input: ClassifyIntentInput): ChatMessage[] 
   return [
     {
       role: "system",
-      content: `You are a classification engine. Analyze the user's message and return a JSON object with these fields:
+      content: `${ANTI_INJECTION_INSTRUCTION}
+
+You are a classification engine. Analyze the user's message and return a JSON object with these fields:
 - "intent": one of "complaint", "cancellation", "demand", "inquiry", "notice", "general", "blocked"
 - "risk": one of "low", "medium", "high"
 - "summary": a brief one-line summary of what the user wants to write about
@@ -106,7 +115,7 @@ Return ONLY valid JSON, no markdown fences.`,
     },
     {
       role: "user",
-      content: input.userMessage,
+      content: wrapUserContent(input.userMessage),
     },
   ];
 }
@@ -124,7 +133,9 @@ export function extractFieldsPrompt(input: ExtractFieldsInput): ChatMessage[] {
   return [
     {
       role: "system",
-      content: `You are a field extraction engine. Given the user's latest message, the recent conversation, and existing draft fields, extract any new or updated values for the following letter fields:
+      content: `${ANTI_INJECTION_INSTRUCTION}
+
+You are a field extraction engine. Given the user's latest message, the recent conversation, and existing draft fields, extract any new or updated values for the following letter fields:
 
 - subject (string, max 200 chars)
 - tone ("formal", "neutral", "firm")
@@ -145,10 +156,10 @@ Current fields: ${JSON.stringify(input.existingFields)}`,
     {
       role: "user",
       content: `Recent conversation:
-${recentConversation || "(none)"}
+${wrapUserContent(recentConversation || "(none)")}
 
 Latest user message:
-${input.userMessage}`,
+${wrapUserContent(input.userMessage)}`,
     },
   ];
 }
@@ -166,12 +177,14 @@ export function askFollowUpPrompt(input: AskFollowUpInput): ChatMessage[] {
   return [
     {
       role: "system",
-      content: `You are a letter drafting assistant helping a user prepare a formal Swiss letter.
+      content: `${ANTI_INJECTION_INSTRUCTION}
+
+You are a letter drafting assistant helping a user prepare a formal Swiss letter.
 
 The user's intent is: "${input.intent}"
 Current draft fields: ${JSON.stringify(input.existingFields)}
 Recent conversation:
-${recentConversation || "(none)"}
+${wrapUserContent(recentConversation || "(none)")}
 
 Identify the SINGLE most important missing piece of information needed to draft this letter.
 Ask ONE clear, specific question to obtain it.

@@ -942,6 +942,8 @@
         "title": "Prioritäre Warteschlangen",
         "ambiguous": "Unklare Versandfälle",
         "ambiguousInfo": "Manuelle Versandprüfung",
+        "failedDispatches": "Fehlgeschlagene Sendungen",
+        "failedDispatchesInfo": "Abgelehnt oder unbekannt",
         "suspicious": "Verdächtige Sitzungen",
         "suspiciousInfo": "Betrugs- oder Missbrauchsprüfung"
       },
@@ -1059,6 +1061,9 @@
       "failed": "Fehlgeschlagen",
       "refundPending": "Rückerstattung ausstehend",
       "refunded": "Rückerstattet"
+    },
+    "refund": {
+      "confirmWarning": "Der Brief wurde möglicherweise bereits versendet — bestätigen Sie, dass der Anbieter ihn NICHT versendet hat, bevor Sie die Rückerstattung durchführen."
     }
   },
   "help": {

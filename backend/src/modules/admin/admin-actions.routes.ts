@@ -252,6 +252,27 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
+      // Refuse refund if dispatch is already submitted or accepted —
+      // the letter may already have been sent.
+      const [dispatch] = await db
+        .select({ state: schema.dispatchAttempts.state })
+        .from(schema.dispatchAttempts)
+        .where(eq(schema.dispatchAttempts.draftId, id))
+        .limit(1);
+
+      if (dispatch && ["submitted", "accepted"].includes(dispatch.state)) {
+        throw new AppError({
+          family: "policy_refusal",
+          statusCode: 409,
+          code: "DISPATCH_IN_PROGRESS",
+          message: `Cannot refund: dispatch is in '${dispatch.state}' state. The letter may already have been sent.`,
+          userMessage:
+            "Cannot refund while the letter may already have been sent. Confirm the provider did NOT send it before refunding.",
+          userAction:
+            "Confirm with the dispatch provider that the letter was not sent, then retry.",
+        });
+      }
+
       const { refundId } = await createRefund(payment.stripePaymentIntentId, body.reason);
 
       await transitionPaymentState(db, payment.id, "refund_pending", {

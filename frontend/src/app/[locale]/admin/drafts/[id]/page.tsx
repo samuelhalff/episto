@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useParams, usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@episto/shared";
@@ -104,6 +105,7 @@ function ReasonAction({
 export default function DraftCasePage() {
   const pathname = usePathname();
   const { id } = useParams<{ id: string }>();
+  const t = useTranslations("admin");
   const [contentError, setContentError] = useState("");
   const [contentLoading, setContentLoading] = useState(false);
   const [content, setContent] = useState<ViewedDraftResponse["draft"] | null>(null);
@@ -146,6 +148,8 @@ export default function DraftCasePage() {
   }
 
   async function handleRefund(reason: string) {
+    if (!window.confirm(t("refund.confirmWarning"))) return;
+
     setRefundLoading(true);
     setRefundError("");
     setRefundSuccess("");

@@ -22,15 +22,19 @@
     "prepare": "node .husky/install.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:smoke": "playwright test smoke-crawl",
+    "test:e2e:ui": "playwright test --ui",
     "clean": "rm -rf shared/dist backend/dist frontend/.next **/tsconfig.tsbuildinfo"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^2.1.9",
     "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.61.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@typescript-eslint/eslint-plugin": "^8.0.0",
     "@typescript-eslint/parser": "^8.0.0",
+    "@vitest/coverage-v8": "^2.1.9",
     "eslint": "^9.0.0",
     "eslint-plugin-react-hooks": "^7.0.1",
     "husky": "^9.1.7",
@@ -44,6 +48,5 @@
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs}": "eslint --fix",
     "*.{ts,tsx,js,mjs,cjs,json,md,yml,yaml}": "prettier --write"
-  },
-  "dependencies": {}
+  }
 }

@@ -20,16 +20,18 @@ const ADMIN_MICROSOFT_CALLBACK_PATH = "/api/v1/admin/auth/microsoft/callback";
 function isMicrosoftSsoConfigured(config = env()): boolean {
   return Boolean(
     config.ADMIN_SESSION_SECRET &&
-      config.ADMIN_MICROSOFT_CLIENT_ID &&
-      config.ADMIN_MICROSOFT_CLIENT_SECRET &&
-      config.ADMIN_MICROSOFT_REDIRECT_URI &&
-      config.ADMIN_MICROSOFT_TENANT_ID &&
-      config.ADMIN_MICROSOFT_TENANT_ID !== "common",
+    config.ADMIN_MICROSOFT_CLIENT_ID &&
+    config.ADMIN_MICROSOFT_CLIENT_SECRET &&
+    config.ADMIN_MICROSOFT_REDIRECT_URI &&
+    config.ADMIN_MICROSOFT_TENANT_ID &&
+    config.ADMIN_MICROSOFT_TENANT_ID !== "common",
   );
 }
 
 function isSecureCookie(request: FastifyRequest): boolean {
-  return env().NODE_ENV === "production" || request.headers["x-forwarded-proto"] === "https";
+  return (
+    env().NODE_ENV === "production" || request.headers["x-forwarded-proto"] === "https"
+  );
 }
 
 function setAdminCookie(
@@ -48,7 +50,11 @@ function setAdminCookie(
   });
 }
 
-function clearAdminCookie(reply: FastifyReply, request: FastifyRequest, name: string): void {
+function clearAdminCookie(
+  reply: FastifyReply,
+  request: FastifyRequest,
+  name: string,
+): void {
   reply.setCookie(name, "", {
     httpOnly: true,
     secure: isSecureCookie(request),
@@ -96,11 +102,7 @@ function isRoutableCallbackHost(host: string): boolean {
   const normalizedHost = host.replace(/^\[|\]$/g, "");
   const hostName = normalizedHost.split(":")[0] ?? normalizedHost;
 
-  if (
-    hostName === "localhost" ||
-    hostName === "127.0.0.1" ||
-    hostName === "::1"
-  ) {
+  if (hostName === "localhost" || hostName === "127.0.0.1" || hostName === "::1") {
     return true;
   }
 
@@ -127,7 +129,6 @@ function resolveAdminMicrosoftRedirectUri(
   const protocol = forwardedProto ?? (isSecureCookie(request) ? "https" : "http");
   return `${protocol}://${host}${ADMIN_MICROSOFT_CALLBACK_PATH}`;
 }
-
 
 function readAdminSession(request: FastifyRequest) {
   const token = request.cookies[ADMIN_SESSION_COOKIE_NAME];
@@ -165,10 +166,16 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
 
   app.get(
     "/admin/auth/microsoft/login",
-    async (
-      request: FastifyRequest<{ Querystring: { returnTo?: string } }>,
-      reply,
-    ) => {
+    {
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: "5 minutes",
+          keyGenerator: (req) => req.ip,
+        },
+      },
+    },
+    async (request: FastifyRequest<{ Querystring: { returnTo?: string } }>, reply) => {
       const config = env();
       if (
         !config.ADMIN_SESSION_SECRET ||
@@ -215,6 +222,15 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
 
   app.get(
     "/admin/auth/microsoft/callback",
+    {
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: "5 minutes",
+          keyGenerator: (req) => req.ip,
+        },
+      },
+    },
     async (
       request: FastifyRequest<{ Querystring: { code?: string; state?: string } }>,
       reply,
@@ -265,7 +281,9 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
           return;
         }
 
-        if (identity.tid.trim().toLowerCase() !== configuredTenantId.trim().toLowerCase()) {
+        if (
+          identity.tid.trim().toLowerCase() !== configuredTenantId.trim().toLowerCase()
+        ) {
           reply.redirect(appendAuthError(returnTo, "access_denied"));
           return;
         }

@@ -103,6 +103,12 @@ export default function OverviewPage() {
                 sub: t("overview.priority.ambiguousInfo"),
               },
               {
+                label: t("overview.priority.failedDispatches"),
+                value: overview.data.failedDispatches,
+                alert: overview.data.failedDispatches > 0,
+                sub: t("overview.priority.failedDispatchesInfo"),
+              },
+              {
                 label: t("overview.priority.suspicious"),
                 value: overview.data.suspiciousActivityQueue,
                 alert: overview.data.suspiciousActivityQueue > 0,
