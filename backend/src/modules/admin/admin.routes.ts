@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { eq, desc } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { requireAdmin, getRequiredAdmin } from "../../shared/middleware/require-admin.js";
+import { requireAllowlistedAdminIp } from "../../shared/middleware/require-allowlisted-admin-ip.js";
 import { recordSupportEvent, listSupportEventsForDraft } from "./index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
 import { adminActionRoutes } from "./admin-actions.routes.js";
@@ -19,6 +20,7 @@ import { adminDispatchRoutes } from "./admin-dispatch.routes.js";
 // ---------------------------------------------------------------------------
 
 export async function adminRoutes(app: FastifyInstance): Promise<void> {
+  app.addHook("preHandler", requireAllowlistedAdminIp);
   app.addHook("preHandler", requireAdmin);
 
   // GET /admin/drafts/:id/timeline — full ordered event timeline for a draft

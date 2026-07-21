@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../../shared/config/index.js";
+import { requireAllowlistedAdminIp } from "../../shared/middleware/require-allowlisted-admin-ip.js";
 import {
   ADMIN_OAUTH_STATE_COOKIE_NAME,
   ADMIN_SESSION_COOKIE_NAME,
@@ -142,6 +143,8 @@ function readAdminSession(request: FastifyRequest) {
 }
 
 export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
+  app.addHook("preHandler", requireAllowlistedAdminIp);
+
   app.get("/admin/auth/session", async (request, reply) => {
     const config = env();
     const session = readAdminSession(request);

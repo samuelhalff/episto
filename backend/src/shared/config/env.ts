@@ -150,6 +150,7 @@ export const EnvSchema = z
     ADMIN_MICROSOFT_CLIENT_SECRET: z.string().min(1).optional(),
     ADMIN_MICROSOFT_TENANT_ID: z.string().min(1).default("common"),
     ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
+    ADMIN_IP_ALLOWLIST: z.string().default(""),
 
     // Pricing (integer cents, CHF only)
     PRICE_STANDARD_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
