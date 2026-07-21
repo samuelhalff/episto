@@ -488,7 +488,10 @@ describe("pricing page source contract", () => {
     expect(pricingTiersSource).toContain('t("standardAdditionalPageLabel")');
     expect(pricingTiersSource).toContain('t("registeredAdditionalPageLabel")');
     expect(pricingTiersSource).toContain("PricingSimulator");
-    expect(pricingTiersSource).toContain('tone="soft"');
+    // Tariff rows use tabular figures + hairline rules instead of the old soft card.
+    expect(pricingTiersSource).toContain("numeral");
+    expect(pricingTiersSource).toContain("hairline");
+    expect(pricingTiersSource).not.toContain('tone="soft"');
     expect(pricingTiersSource).not.toContain('tone="contrast"');
     expect(pricingTiersSource).not.toContain("registeredSurchargeDisplayPrice");
     expect(pricingSimulatorSource).toContain("PricingValueRow");
@@ -540,14 +543,18 @@ describe("pricing page source contract", () => {
     expect(pricingFaqSource).toContain('t("faqMoreBody")');
     expect(pricingFaqSource).toContain('t("faqMoreCta")');
     expect(pricingFaqSource).toContain('href="/help"');
-    expect(pricingFaqSource).toContain('variant="secondary"');
+    expect(pricingFaqSource).toContain('variant="heroSecondary"');
     expect(pricingFaqSource).toContain("MarketingFaqItem");
     expect(pricingFaqSource).toContain("key={faq.id}");
     expect(pricingFaqSource).not.toContain("key={faq.question}");
-    expect(pricingFaqSource).toContain("text-emerald-700 dark:text-emerald-300");
-    expect(pricingFaqSource).toContain("text-red-700 dark:text-red-300");
-    expect(pricingFaqSource).toContain("dark:bg-amber-950 dark:text-amber-200");
-    expect(pricingFaqSource).toContain('<MarketingCard className="h-full">');
+    // Included/excluded is a hairline ledger; FAQ uses native disclosure rows.
+    expect(pricingFaqSource).toContain("<details");
+    expect(pricingFaqSource).toContain("group-open:rotate-180");
+    expect(pricingFaqSource).toContain("hairline");
+    expect(pricingFaqSource).not.toContain("MarketingCard");
+    expect(pricingFaqSource).not.toContain("text-emerald-700 dark:text-emerald-300");
+    expect(pricingFaqSource).not.toContain("text-red-700 dark:text-red-300");
+    expect(pricingFaqSource).not.toContain("ShieldQuestion");
     expect(pricingSharedSource).toContain(
       "flex min-h-14 items-center gap-3 rounded-2xl px-4 py-3",
     );

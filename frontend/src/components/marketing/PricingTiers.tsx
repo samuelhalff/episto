@@ -1,8 +1,8 @@
 "use client";
 
 import { getPerPageIncrementDisplayPrice } from "./pricing-calculations";
-import { MarketingCard, MarketingNotice, MarketingSection } from "./primitives";
-import { PriceAmount, PricingValueRow } from "./pricing-shared";
+import { MarketingNotice, MarketingSection } from "./primitives";
+import { PriceAmount } from "./pricing-shared";
 import { PricingSimulator } from "./PricingSimulator";
 import type { PricingProvider, PricingTier } from "./pricing-types";
 import { MarketingBody, MarketingHeading } from "./typography";
@@ -10,92 +10,48 @@ import { MarketingBody, MarketingHeading } from "./typography";
 type TranslationValues = Record<string, string | number | Date>;
 type TranslationFn = (key: string, values?: TranslationValues) => string;
 
-interface PriceChangeItem {
-  label: string;
-  value: string | undefined;
-}
-
-function createPriceChange({
-  label,
-  loading,
-  value,
-}: {
-  label: string;
-  loading: boolean;
-  value: string | undefined;
-}): PriceChangeItem | null {
-  if (!loading && !value) {
-    return null;
-  }
-
-  return {
-    label,
-    value,
-  };
-}
-
-function PricingOptionCard({
-  loading,
-  priceChanges,
+function TariffRow({
   title,
-  totalDisplayPrice,
-  t,
+  caption,
+  note,
+  loading,
+  price,
+  fallback,
 }: {
-  loading: boolean;
-  priceChanges: PriceChangeItem[];
   title: string;
-  totalDisplayPrice: string | undefined;
-  t: TranslationFn;
+  caption: string;
+  note?: string | undefined;
+  loading: boolean;
+  price: string | undefined;
+  fallback: string;
 }) {
   return (
-    <div className="marketing-surface-muted min-w-0 rounded-[1.75rem] p-5">
-      <MarketingBody
-        as="p"
-        tone="label"
-        className="text-sm font-semibold uppercase tracking-[0.14em]"
-      >
-        {title}
-      </MarketingBody>
+    <div className="hairline flex items-start justify-between gap-6 border-t py-6 first:border-t-0 first:pt-0">
+      <div className="min-w-0">
+        <MarketingHeading
+          as="dt"
+          className="text-lg font-semibold tracking-[-0.02em] sm:text-xl"
+        >
+          {title}
+        </MarketingHeading>
+        <MarketingBody className="mt-1.5 text-sm leading-6">{caption}</MarketingBody>
+        {note ? (
+          <MarketingBody tone="muted" className="mt-1 text-sm">
+            {note}
+          </MarketingBody>
+        ) : null}
+      </div>
       <MarketingHeading
-        as="div"
-        className="mt-3 text-3xl font-semibold tracking-[-0.04em]"
+        as="dd"
+        className="numeral shrink-0 text-3xl font-semibold tracking-[-0.03em] sm:text-4xl"
       >
-        <PriceAmount
-          loading={loading}
-          value={totalDisplayPrice}
-          fallback={t("priceUnavailable")}
-        />
+        <PriceAmount loading={loading} value={price} fallback={fallback} />
       </MarketingHeading>
-      <MarketingBody className="mt-2 text-sm leading-6">
-        {t("priceCaption")}
-      </MarketingBody>
-
-      {priceChanges.length > 0 ? (
-        <div className="mt-5 space-y-3">
-          {priceChanges.map((item) => (
-            <div
-              key={item.label}
-              className="rounded-2xl bg-[var(--app-surface-soft)]/85 px-4 py-3 dark:bg-zinc-950/30"
-            >
-              <PricingValueRow
-                label={item.label}
-                value={
-                  <PriceAmount
-                    loading={loading}
-                    value={item.value}
-                    fallback={t("priceUnavailable")}
-                  />
-                }
-              />
-            </div>
-          ))}
-        </div>
-      ) : null}
     </div>
   );
 }
 
-function PricingTotalsCard({
+function PricingTariff({
   loading,
   provider,
   registered,
@@ -108,55 +64,48 @@ function PricingTotalsCard({
   standard: PricingTier | null;
   t: TranslationFn;
 }) {
-  const standardPerPageIncrement = provider
+  const standardPerPage = provider
     ? getPerPageIncrementDisplayPrice(provider.pageCountExamples.standard)
     : undefined;
-  const registeredPerPageIncrement = provider
+  const registeredPerPage = provider
     ? getPerPageIncrementDisplayPrice(provider.pageCountExamples.registered)
     : undefined;
 
-  const standardPriceChanges = [
-    createPriceChange({
-      label: t("standardAdditionalPageLabel"),
-      loading,
-      value: standardPerPageIncrement,
-    }),
-  ].filter((item): item is PriceChangeItem => item !== null);
-
-  const registeredPriceChanges = [
-    createPriceChange({
-      label: t("registeredAdditionalPageLabel"),
-      loading,
-      value: registeredPerPageIncrement,
-    }),
-  ].filter((item): item is PriceChangeItem => item !== null);
-
   return (
-    <MarketingCard tone="soft">
+    <div>
       <MarketingHeading
         as="h2"
-        className="text-3xl font-semibold tracking-[-0.04em] md:text-4xl"
+        className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl md:text-4xl"
       >
         {t("summaryCardTitle")}
       </MarketingHeading>
-
-      <div className="mt-8 grid gap-4 lg:grid-cols-2">
-        <PricingOptionCard
-          loading={loading}
-          priceChanges={standardPriceChanges}
+      <dl className="mt-8">
+        <TariffRow
           title={t("standardOptionTitle")}
-          totalDisplayPrice={standard?.displayPrice}
-          t={t}
-        />
-        <PricingOptionCard
+          caption={t("priceCaption")}
+          note={
+            !loading && standardPerPage
+              ? `${t("standardAdditionalPageLabel")} ${standardPerPage}`
+              : undefined
+          }
           loading={loading}
-          priceChanges={registeredPriceChanges}
-          title={t("registeredOptionTitle")}
-          totalDisplayPrice={registered?.displayPrice}
-          t={t}
+          price={standard?.displayPrice}
+          fallback={t("priceUnavailable")}
         />
-      </div>
-    </MarketingCard>
+        <TariffRow
+          title={t("registeredOptionTitle")}
+          caption={t("priceCaption")}
+          note={
+            !loading && registeredPerPage
+              ? `${t("registeredAdditionalPageLabel")} ${registeredPerPage}`
+              : undefined
+          }
+          loading={loading}
+          price={registered?.displayPrice}
+          fallback={t("priceUnavailable")}
+        />
+      </dl>
+    </div>
   );
 }
 
@@ -179,7 +128,7 @@ export function PricingTiersSection({
 }) {
   return (
     <MarketingSection spacing="tight" trimTop trimBottom>
-      <div className="space-y-6">
+      <div className="space-y-12">
         {showMissingPricingNotice ? (
           <MarketingNotice>
             <MarketingBody>{t("pricingUnavailableBody")}</MarketingBody>
@@ -188,7 +137,7 @@ export function PricingTiersSection({
 
         {showPriceSections ? (
           <>
-            <PricingTotalsCard
+            <PricingTariff
               loading={loading}
               provider={provider}
               registered={registered}

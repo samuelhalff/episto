@@ -1,11 +1,52 @@
 "use client";
 
-import { ShieldQuestion } from "lucide-react";
+import { Check, ChevronDown, Minus } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { MarketingFaqItem } from "./faq-content";
-import { ExcludedItem, IncludedItem } from "./pricing-shared";
-import { MarketingActionLink, MarketingCard, MarketingSection } from "./primitives";
+import { MarketingActionLink, MarketingSection } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
+
+function LedgerColumn({
+  title,
+  items,
+  variant,
+}: {
+  title: string;
+  items: string[];
+  variant: "included" | "excluded";
+}) {
+  const Icon = variant === "included" ? Check : Minus;
+  const iconClass =
+    variant === "included"
+      ? "text-amber-600 dark:text-amber-400"
+      : "text-[var(--app-muted)]";
+
+  return (
+    <div>
+      <MarketingHeading
+        as="h3"
+        className="text-lg font-semibold tracking-[-0.02em] sm:text-xl"
+      >
+        {title}
+      </MarketingHeading>
+      <ul className="mt-5">
+        {items.map((item) => (
+          <li
+            key={item}
+            className="hairline flex items-start gap-3 border-t py-3 first:border-t-0 first:pt-0"
+          >
+            <Icon
+              aria-hidden="true"
+              className={`mt-0.5 h-4 w-4 shrink-0 ${iconClass}`}
+              strokeWidth={2}
+            />
+            <MarketingBody className="text-sm leading-6">{item}</MarketingBody>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 export function PricingFaqSection({ pricingFaqs }: { pricingFaqs: MarketingFaqItem[] }) {
   const t = useTranslations("pricing");
@@ -13,90 +54,88 @@ export function PricingFaqSection({ pricingFaqs }: { pricingFaqs: MarketingFaqIt
   return (
     <>
       <MarketingSection>
-        <div className="grid gap-6 lg:grid-cols-2">
-          <MarketingCard className="h-full">
-            <MarketingHeading
-              as="h3"
-              className="text-2xl font-semibold tracking-[-0.03em] text-emerald-700 dark:text-emerald-300"
-            >
-              {t("includedCardTitle")}
-            </MarketingHeading>
-            <div className="mt-6 space-y-3">
-              <IncludedItem>{t("includedDrafting")}</IncludedItem>
-              <IncludedItem>{t("includedFormatting")}</IncludedItem>
-              <IncludedItem>{t("includedRendering")}</IncludedItem>
-              <IncludedItem>{t("includedDispatch")}</IncludedItem>
-            </div>
-          </MarketingCard>
-
-          <MarketingCard className="h-full">
-            <MarketingHeading
-              as="h3"
-              className="text-2xl font-semibold tracking-[-0.03em] text-red-700 dark:text-red-300"
-            >
-              {t("excludedCardTitle")}
-            </MarketingHeading>
-            <div className="mt-6 space-y-3">
-              <ExcludedItem>{t("excludedLegalReview")}</ExcludedItem>
-              <ExcludedItem>{t("excludedGuaranteedOutcome")}</ExcludedItem>
-              <ExcludedItem>{t("excludedTranslation")}</ExcludedItem>
-              <ExcludedItem>{t("excludedDesign")}</ExcludedItem>
-            </div>
-          </MarketingCard>
+        <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
+          <LedgerColumn
+            title={t("includedCardTitle")}
+            variant="included"
+            items={[
+              t("includedDrafting"),
+              t("includedFormatting"),
+              t("includedRendering"),
+              t("includedDispatch"),
+            ]}
+          />
+          <LedgerColumn
+            title={t("excludedCardTitle")}
+            variant="excluded"
+            items={[
+              t("excludedLegalReview"),
+              t("excludedGuaranteedOutcome"),
+              t("excludedTranslation"),
+              t("excludedDesign"),
+            ]}
+          />
         </div>
       </MarketingSection>
 
       <MarketingSection muted>
-        <div className="space-y-6">
-          <div className="max-w-3xl">
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,20rem)_1fr] lg:gap-16">
+          <div className="lg:sticky lg:top-28 lg:self-start">
             <MarketingHeading
               as="h2"
-              className="text-3xl font-semibold tracking-[-0.04em] md:text-4xl"
+              className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl md:text-4xl"
             >
               {t("faqTitle")}
             </MarketingHeading>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {pricingFaqs.map((faq) => (
-              <MarketingCard key={faq.id} className="p-5">
-                <div className="flex gap-3">
-                  <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-200">
-                    <ShieldQuestion className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <MarketingHeading as="h3" className="text-base font-semibold">
+          <div>
+            <div>
+              {pricingFaqs.map((faq) => (
+                <details
+                  key={faq.id}
+                  className="hairline group border-t py-4 first:border-t-0 first:pt-0"
+                >
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
+                    <MarketingHeading
+                      as="h3"
+                      className="text-base font-semibold tracking-[-0.01em]"
+                    >
                       {faq.question}
                     </MarketingHeading>
-                    <MarketingBody className="mt-2 text-sm leading-7">
-                      {faq.answer}
-                    </MarketingBody>
-                  </div>
-                </div>
-              </MarketingCard>
-            ))}
-          </div>
-
-          <MarketingCard className="grid gap-4 p-6 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
-            <div>
-              <MarketingHeading
-                as="h3"
-                className="text-xl font-semibold tracking-[-0.03em]"
-              >
-                {t("faqMoreTitle")}
-              </MarketingHeading>
-              <MarketingBody className="mt-2 text-sm leading-7">
-                {t("faqMoreBody")}
-              </MarketingBody>
+                    <ChevronDown
+                      aria-hidden="true"
+                      className="h-4 w-4 shrink-0 text-[var(--app-muted)] transition-transform duration-200 group-open:rotate-180"
+                    />
+                  </summary>
+                  <MarketingBody className="mt-3 max-w-2xl text-sm leading-7">
+                    {faq.answer}
+                  </MarketingBody>
+                </details>
+              ))}
             </div>
-            <MarketingActionLink
-              href="/help"
-              variant="secondary"
-              className="w-full md:w-auto md:justify-self-end"
-            >
-              {t("faqMoreCta")}
-            </MarketingActionLink>
-          </MarketingCard>
+
+            <div className="hairline mt-8 flex flex-col gap-4 border-t pt-8 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <MarketingHeading
+                  as="h3"
+                  className="text-lg font-semibold tracking-[-0.02em]"
+                >
+                  {t("faqMoreTitle")}
+                </MarketingHeading>
+                <MarketingBody className="mt-1.5 text-sm leading-6">
+                  {t("faqMoreBody")}
+                </MarketingBody>
+              </div>
+              <MarketingActionLink
+                href="/help"
+                variant="heroSecondary"
+                className="w-full shrink-0 sm:w-auto"
+              >
+                {t("faqMoreCta")}
+              </MarketingActionLink>
+            </div>
+          </div>
         </div>
       </MarketingSection>
     </>

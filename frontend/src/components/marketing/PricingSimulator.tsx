@@ -8,7 +8,7 @@ import {
   getPageBounds,
   getPerPageIncrementDisplayPrice,
 } from "./pricing-calculations";
-import { MarketingCard, MarketingNotice } from "./primitives";
+import { MarketingNotice } from "./primitives";
 import { PriceAmount, PricingValueRow } from "./pricing-shared";
 import type { PricingProvider } from "./pricing-types";
 import {
@@ -174,7 +174,7 @@ export function PricingSimulator({
   const controlsDisabled = loading || !bounds;
 
   return (
-    <MarketingCard tone="muted">
+    <div className="hairline rounded-[1.5rem] border bg-[var(--app-surface-muted)]/50 p-6 sm:p-8">
       <MarketingHeading as="h3" className="text-2xl font-semibold tracking-[-0.03em]">
         {t("simulatorTitle")}
       </MarketingHeading>
@@ -233,7 +233,7 @@ export function PricingSimulator({
           <PricingValueRow
             label={summary}
             labelClassName="font-medium"
-            valueClassName="text-xl tracking-[-0.03em]"
+            valueClassName="numeral text-xl tracking-[-0.03em]"
             value={
               <PriceAmount
                 loading={loading}
@@ -261,6 +261,6 @@ export function PricingSimulator({
           <MarketingBody>{t("priceUnavailable")}</MarketingBody>
         </MarketingNotice>
       )}
-    </MarketingCard>
+    </div>
   );
 }
