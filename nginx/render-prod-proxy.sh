@@ -102,6 +102,13 @@ server {
   location ~ ^/api/v1/drafts/[^/]+/stream {
     set \$backend_upstream http://backend:4000;
     proxy_pass \$backend_upstream;
+    # Re-declare forwarding headers: a location with its own proxy_set_header
+    # does NOT inherit the server-level ones, so the backend would otherwise
+    # see the nginx container IP (breaks trustProxy / rate limits / IP allowlist).
+    proxy_set_header Host              \$host;
+    proxy_set_header X-Real-IP         \$remote_addr;
+    proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$forwarded_proto;
     proxy_set_header Connection '';
     proxy_buffering off;
     proxy_cache off;
@@ -112,6 +119,12 @@ server {
   location /api/ {
     set \$backend_upstream http://backend:4000;
     proxy_pass \$backend_upstream;
+    # Re-declare forwarding headers (see note above) so the backend sees the
+    # real client IP via X-Forwarded-For, not the nginx container IP.
+    proxy_set_header Host              \$host;
+    proxy_set_header X-Real-IP         \$remote_addr;
+    proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$forwarded_proto;
     proxy_set_header Upgrade    \$http_upgrade;
     proxy_set_header Connection \$connection_upgrade;
     proxy_read_timeout 600s;
@@ -304,6 +317,13 @@ server {
   location ~ ^/api/v1/drafts/[^/]+/stream {
     set \$backend_upstream http://backend:4000;
     proxy_pass \$backend_upstream;
+    # Re-declare forwarding headers: a location with its own proxy_set_header
+    # does NOT inherit the server-level ones, so the backend would otherwise
+    # see the nginx container IP (breaks trustProxy / rate limits / IP allowlist).
+    proxy_set_header Host              \$host;
+    proxy_set_header X-Real-IP         \$remote_addr;
+    proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$forwarded_proto;
     proxy_set_header Connection '';
     proxy_buffering off;
     proxy_cache off;
