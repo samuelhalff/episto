@@ -86,7 +86,7 @@ export function DeliverySelector({
                 </div>
               </div>
               <span
-                className={`shrink-0 text-base font-semibold ${selected ? "text-white dark:text-zinc-950" : "text-zinc-900 dark:text-zinc-50"}`}
+                className={`shrink-0 text-base font-semibold tabular-nums ${selected ? "text-white dark:text-zinc-950" : "text-zinc-900 dark:text-zinc-50"}`}
               >
                 {opt.price}
               </span>

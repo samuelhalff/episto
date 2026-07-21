@@ -108,7 +108,7 @@ export function PriceSummary({
           <div className="app-list-item-muted rounded-2xl px-4 py-4">
             <div className="flex items-center justify-between font-semibold text-zinc-900 dark:text-zinc-50">
               <span>{t("total")}</span>
-              <span className="text-lg">{totalValue}</span>
+              <span className="text-lg tabular-nums">{totalValue}</span>
             </div>
           </div>
         )}
