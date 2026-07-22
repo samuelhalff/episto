@@ -6,11 +6,13 @@ import {
   CreditCard,
   Home,
   Languages,
+  MessageSquare,
   Palette,
   PenSquare,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
+import { openFeedback } from "../feedback/AppFeedbackLauncher";
 import { LanguageSwitcher } from "../marketing/LanguageSwitcher";
 import { ThemeToggle } from "../marketing/ThemeToggle";
 import { getAppButtonClassName } from "../ui/app-button";
@@ -63,6 +65,21 @@ export function SiteMenuPanel({
             <ChevronRight className="h-4 w-4 shrink-0 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--app-muted-strong)]" />
           </Link>
         ))}
+
+        <button
+          type="button"
+          onClick={() => {
+            onNavigate?.();
+            openFeedback();
+          }}
+          className="group app-list-item flex min-h-12 w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium text-[var(--app-muted-strong)] hover:text-[var(--app-fg)]"
+        >
+          <span className="app-list-item-muted inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[var(--app-muted)] transition-colors group-hover:text-[var(--app-muted-strong)]">
+            <MessageSquare className="h-4 w-4" />
+          </span>
+          <span className="min-w-0 flex-1 text-left">Feedback</span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5 group-hover:text-[var(--app-muted-strong)]" />
+        </button>
       </nav>
 
       <div className="border-t border-[var(--app-border)] pt-4">

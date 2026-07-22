@@ -1,6 +1,7 @@
 import { useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { Link } from "../../i18n/navigation";
+import { FeedbackTrigger } from "../feedback/FeedbackTrigger";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { MarketingCard } from "./primitives";
@@ -47,6 +48,10 @@ export function Footer() {
             >
               {t("footer.imprint")}
             </Link>
+            {/* "Feedback" is an identical loanword across de/fr/it/en-CH. */}
+            <FeedbackTrigger className="text-left transition-colors hover:text-zinc-950 dark:hover:text-white">
+              Feedback
+            </FeedbackTrigger>
           </MarketingMeta>
 
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">

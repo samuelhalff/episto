@@ -28,6 +28,7 @@ import { orderRoutes } from "./modules/orders/index.js";
 import { phoneVerificationRoutes } from "./modules/phone-verification/index.js";
 import { pricingRoutes } from "./modules/pricing/pricing.routes.js";
 import { telemetryRoutes } from "./modules/telemetry/index.js";
+import { feedbackRoutes } from "./modules/feedback/index.js";
 
 const PERMISSIONS_POLICY = "camera=(), microphone=(self), geolocation=()";
 
@@ -249,6 +250,7 @@ export async function buildApp(logger: pino.Logger) {
   await app.register(adminRoutes, { prefix: "/api/v1" });
   await app.register(pricingRoutes, { prefix: "/api/v1" });
   await app.register(telemetryRoutes, { prefix: "/api/v1" });
+  await app.register(feedbackRoutes, { prefix: "/api/v1" });
 
   return app;
 }
