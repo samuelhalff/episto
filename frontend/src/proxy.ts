@@ -35,7 +35,10 @@ function generateNonce(): string {
 export const config = {
   matcher: [
     {
-      source: "/((?!api|_next|_vercel|.*\\..*).*)",
+      // `opengraph-image` is a root metadata route with no file extension, so
+      // it must be excluded explicitly or next-intl redirects it to a localized
+      // path that 404s (breaking the social share card).
+      source: "/((?!api|_next|_vercel|opengraph-image|.*\\..*).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },
