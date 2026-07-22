@@ -18,9 +18,8 @@ import {
   LANDING_UI,
 } from "@/lib/landing-content";
 
-// The hub only exists for landing locales. See the [slug] route note: under
-// next-intl's dynamic rendering this expresses intent but does not by itself
-// force a 404 status (soft-404 handled via a middleware follow-up).
+// The hub only exists for landing locales; other locales get a genuine 404 from
+// the middleware guard in proxy.ts (see the [slug] route note). Defense-in-depth.
 export const dynamicParams = false;
 
 export function generateStaticParams() {

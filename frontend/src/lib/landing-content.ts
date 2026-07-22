@@ -10,20 +10,20 @@ import { DE_LANDING_PAGES } from "./landing/de";
 import { FR_LANDING_PAGES } from "./landing/fr";
 import { IT_LANDING_PAGES } from "./landing/it";
 import type { LandingPage } from "./landing/types";
+import { LANDING_LOCALES, type LandingLocale } from "./landing-routes";
 
 export type { LandingPage, LandingStep, LandingFaq, LandingNote } from "./landing/types";
 
-export const LANDING_LOCALES = ["de-CH", "fr-CH", "it-CH"] as const;
-export type LandingLocale = (typeof LANDING_LOCALES)[number];
+// Locales and slugs live in the lightweight ./landing-routes registry (shared
+// with the edge middleware); re-exported here so existing imports keep working.
+export { LANDING_LOCALES, LANDING_SLUGS } from "./landing-routes";
+export type { LandingLocale } from "./landing-routes";
 
 const LANDING_CONTENT: Record<LandingLocale, LandingPage[]> = {
   "de-CH": DE_LANDING_PAGES,
   "fr-CH": FR_LANDING_PAGES,
   "it-CH": IT_LANDING_PAGES,
 };
-
-// Slugs are identical across locales (the German set is the source of truth).
-export const LANDING_SLUGS = DE_LANDING_PAGES.map((page) => page.slug);
 
 export function isLandingLocale(locale: string): locale is LandingLocale {
   return (LANDING_LOCALES as readonly string[]).includes(locale);
