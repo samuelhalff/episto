@@ -9,17 +9,11 @@ import {
   LANDING_UI,
   type LandingPage,
 } from "@/lib/landing-content";
+import { POPULAR_LANDING_SLUGS } from "@/lib/landing-routes";
 
-// High-intent slugs surfaced on the homepage to give the lead-gen landing pages
-// internal links + crawl depth from the site's strongest page.
-const POPULAR_SLUGS = [
-  "wohnung-kuendigen",
-  "krankenkasse-kuendigen",
-  "abo-kuendigen",
-  "versicherung-kuendigen",
-  "einschreiben-online",
-  "beschwerde-schreiben",
-] as const;
+// High-intent slugs (shared with the 404 page) that give the lead-gen landing
+// pages internal links + crawl depth from the site's strongest page.
+const POPULAR_SLUGS = POPULAR_LANDING_SLUGS;
 
 export function PopularTemplates({ locale }: { locale: Locale }) {
   if (!isLandingLocale(locale)) return null;

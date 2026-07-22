@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { LANDING_LOCALES, LANDING_SLUGS } from "../src/lib/landing-routes";
+import {
+  LANDING_LOCALES,
+  LANDING_SLUGS,
+  POPULAR_LANDING_SLUGS,
+} from "../src/lib/landing-routes";
 import { getLandingPages } from "../src/lib/landing-content";
 
 // The lightweight landing-routes registry is imported by the edge middleware
@@ -25,5 +29,13 @@ describe("landing-routes registry stays in sync with landing content", () => {
 
   it("has no duplicate slugs", () => {
     expect(new Set(LANDING_SLUGS).size).toBe(LANDING_SLUGS.length);
+  });
+
+  it("POPULAR_LANDING_SLUGS is a subset of LANDING_SLUGS with no duplicates", () => {
+    const all = new Set<string>(LANDING_SLUGS);
+    for (const slug of POPULAR_LANDING_SLUGS) {
+      expect(all.has(slug)).toBe(true);
+    }
+    expect(new Set(POPULAR_LANDING_SLUGS).size).toBe(POPULAR_LANDING_SLUGS.length);
   });
 });

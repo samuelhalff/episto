@@ -27,3 +27,16 @@ export const LANDING_SLUGS = [
   "brief-online-versenden",
   "nebenkostenabrechnung-pruefen",
 ] as const;
+
+/**
+ * Highest-intent slugs surfaced as internal links (homepage band + 404 page).
+ * Must be a subset of LANDING_SLUGS — enforced by landing-routes.test.ts.
+ */
+export const POPULAR_LANDING_SLUGS = [
+  "wohnung-kuendigen",
+  "krankenkasse-kuendigen",
+  "abo-kuendigen",
+  "versicherung-kuendigen",
+  "einschreiben-online",
+  "beschwerde-schreiben",
+] as const;

@@ -16,6 +16,8 @@ interface RecoveryScreenProps {
   tertiaryLabel?: string;
   onTertiaryAction?: () => void;
   icon?: ReactNode;
+  /** Optional extra content rendered below the actions (e.g. suggested links). */
+  footer?: ReactNode;
   className?: string;
   style?: CSSProperties;
 }
@@ -32,6 +34,7 @@ export function RecoveryScreen({
   tertiaryLabel,
   onTertiaryAction,
   icon = <AlertCircle className="h-5 w-5" />,
+  footer,
   className = "",
   style,
 }: RecoveryScreenProps) {
@@ -87,6 +90,8 @@ export function RecoveryScreen({
               {tertiaryLabel}
             </button>
           ) : null}
+
+          {footer}
         </div>
       </div>
     </div>

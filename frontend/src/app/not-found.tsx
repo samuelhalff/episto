@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { routing } from "../i18n/routing";
 import { BRAND_NAME } from "../lib/brand";
+import { NotFoundTemplateSuggestions } from "../components/marketing/NotFoundTemplateSuggestions";
 
 type SupportedLocale = (typeof routing.locales)[number];
 
@@ -93,6 +94,8 @@ export default function RootNotFound() {
               {copy.secondary}
             </Link>
           </div>
+
+          <NotFoundTemplateSuggestions locale={locale} />
         </div>
       </div>
     </div>
