@@ -66,7 +66,11 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
     snapshot.draftId,
     snapshot.snapshotData,
   );
-  const signatureImage = await loadSignatureImageAsset(db, snapshotData);
+  const signatureImage = await loadSignatureImageAsset(
+    db,
+    snapshotData,
+    snapshot.draftId,
+  );
   const html = renderLetterHtml(snapshotData, { signatureImage });
   const { pdfBuffer, pageCount } = await renderPdfBufferFromHtml(html);
 
