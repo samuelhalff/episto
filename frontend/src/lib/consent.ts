@@ -1,10 +1,11 @@
 /**
  * Consent infrastructure for analytics.
  *
- * The site loads Google Analytics only after the visitor explicitly grants
- * analytics consent (strict opt-in). Until then nothing is sent to Google.
- * Consent is persisted in localStorage and broadcast so the banner and the
- * GA loader react without a reload.
+ * Google Analytics runs in Consent Mode v2: the tag loads with analytics
+ * consent defaulted to "denied", so no analytics cookies or personal data are
+ * collected until the visitor explicitly opts in. On opt-in a `consent update`
+ * flips analytics_storage to "granted". Consent is persisted in localStorage
+ * and broadcast so the banner and the GA loader react without a reload.
  */
 
 const ACK_KEY = "privacy_acknowledged";

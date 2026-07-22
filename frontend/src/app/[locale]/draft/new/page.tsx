@@ -16,6 +16,7 @@ import {
   type Session,
 } from "@episto/shared";
 import { useLocale, useTranslations } from "next-intl";
+import { trackEvent } from "@/lib/analytics";
 import { useSearchParams } from "next/navigation";
 
 import { BrandMark } from "@/components/branding/BrandMark";
@@ -205,6 +206,11 @@ export default function NewDraftPage() {
 
         queryClient.setQueryData(queryKeys.draft(seededDraft.id), seededDraft);
 
+        trackEvent({
+          event: "draft_entry_started",
+          locale: sessionLocale,
+          source: "draft_new",
+        });
         startTransition(() => {
           router.replace(`/draft/${seededDraft.id}`);
         });

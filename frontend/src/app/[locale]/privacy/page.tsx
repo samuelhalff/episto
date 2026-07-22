@@ -122,10 +122,11 @@ export default async function PrivacyPage({
         <LegalSection title="Analytics (Google Analytics)">
           <LegalParagraph>
             We use Google Analytics 4 to understand how the site is used and to improve
-            it. It loads only after you grant analytics consent in the privacy banner. If
-            you decline, no analytics cookies are set and no data is sent to Google. You
-            can revoke consent at any time by clearing this site&rsquo;s data in your
-            browser.
+            it, operated in Google&rsquo;s Consent Mode with analytics consent defaulted
+            to &ldquo;denied&rdquo;. Until you grant analytics consent in the privacy
+            banner, no analytics cookies are set and no personal data is collected. If you
+            decline, it stays that way. You can revoke consent at any time by clearing
+            this site&rsquo;s data in your browser.
           </LegalParagraph>
           <LegalParagraph>
             When enabled, Google Analytics sets cookies and processes usage data (such as

@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useEffect, useMemo, useState } from "react";
+import { use, useEffect, useMemo, useRef, useState } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -152,6 +153,17 @@ export default function CheckoutPage({
   const billingEmail = submittedCheckoutEmail ?? session.session?.email ?? "";
 
   const isSubmitting = checkout.isProcessing;
+
+  // GA4 funnel: fire once when the priced checkout is ready.
+  const checkoutTrackedRef = useRef(false);
+  useEffect(() => {
+    if (checkoutTrackedRef.current) return;
+    const deliveryType = draft.data?.deliveryType;
+    const priceCents = checkout.pricing?.totalCents;
+    if (!deliveryType || priceCents == null) return;
+    checkoutTrackedRef.current = true;
+    trackEvent({ event: "checkout_started", draftId, deliveryType, priceCents });
+  }, [draft.data?.deliveryType, checkout.pricing?.totalCents, draftId]);
 
   const stripeOptions = useMemo(
     () =>

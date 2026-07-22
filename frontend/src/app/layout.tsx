@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     "Draft and send formal letters via Swiss Post — quickly, securely, and professionally.",
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   manifest: "/manifest.json",
+  // Google Search Console verification (HTML-tag method; always present,
+  // independent of analytics consent).
+  verification: { google: "0-fl7n9_LBdxLlHbjN0r6m1a1oWCiLKxRR6ugsKqpdI" },
 };
 
 export const viewport: Viewport = {

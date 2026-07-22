@@ -1,6 +1,7 @@
 "use client";
 
-import { use, useState, useCallback, Suspense, useEffect } from "react";
+import { use, useState, useCallback, Suspense, useEffect, useRef } from "react";
+import { trackEvent } from "@/lib/analytics";
 import { useTranslations } from "next-intl";
 import { buildOrderReference } from "@episto/shared";
 import { useDraftFulfillment } from "@/hooks/use-api";
@@ -113,6 +114,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
   const payment = fulfillment.data?.payment ?? null;
   const dispatch = fulfillment.data?.dispatch ?? null;
   const nextAction = fulfillment.data?.nextAction ?? null;
+  const dispatchState = dispatch?.state ?? "queued";
 
   useEffect(() => {
     if (!nextAction || nextAction === "view_confirmation") {
@@ -123,6 +125,15 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
       router.replace(`/draft/${draftId}/checkout`);
     }
   }, [draftId, nextAction, router]);
+
+  // GA4 funnel: fire the conversion once the letter reaches a dispatched state.
+  const dispatchTrackedRef = useRef(false);
+  useEffect(() => {
+    if (dispatchTrackedRef.current) return;
+    if (!DISPATCH_COMPLETE_STATES.includes(dispatchState)) return;
+    dispatchTrackedRef.current = true;
+    trackEvent({ event: "letter_dispatched", draftId });
+  }, [dispatchState, draftId]);
 
   const copyRef = useCallback(async () => {
     try {
@@ -196,7 +207,6 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     );
   }
 
-  const dispatchState = dispatch?.state ?? "queued";
   const stateCopy = {
     queued: {
       subtitle: t("queuedSubtitle"),

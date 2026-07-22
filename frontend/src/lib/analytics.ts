@@ -8,9 +8,18 @@
  * or tokens. Only opaque IDs, locale, route, event name, timestamps,
  * durations, and counts.
  *
- * MVP sink: structured console output. Replace with a privacy-first
- * vendor SDK (e.g. PostHog, Plausible) when available.
+ * Events are forwarded to Google Analytics 4 (as key events) whenever the
+ * visitor has granted analytics consent and gtag is loaded; otherwise they
+ * fall back to structured console output only.
  */
+
+import { hasAnalyticsConsent } from "./consent";
+
+declare global {
+  interface Window {
+    gtag?: (...args: unknown[]) => void;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Event types — client-side events from taxonomy §4.1–4.3
@@ -29,7 +38,14 @@ export type FrontendAnalyticsEvent =
   | { event: "file_upload_failed"; draftId: string; kind: string; errorFamily: string }
   | { event: "review_blocked"; draftId: string; reason: string }
   // §4.4 Checkout
-  | { event: "checkout_started"; draftId: string; deliveryType: string; priceCents: number };
+  | {
+      event: "checkout_started";
+      draftId: string;
+      deliveryType: string;
+      priceCents: number;
+    }
+  // §4.5 Dispatch (conversion)
+  | { event: "letter_dispatched"; draftId: string; deliveryType?: string };
 
 // ---------------------------------------------------------------------------
 // Sink interface — allows swapping analytics backend
@@ -43,12 +59,22 @@ export interface FrontendAnalyticsSink {
 // Default sink — structured console (MVP)
 // ---------------------------------------------------------------------------
 
+function forwardToGoogleAnalytics(event: FrontendAnalyticsEvent): void {
+  if (typeof window === "undefined") return;
+  if (!hasAnalyticsConsent()) return;
+  const gtag = window.gtag;
+  if (typeof gtag !== "function") return;
+  const { event: name, ...params } = event;
+  gtag("event", name, params);
+}
+
 const consoleSink: FrontendAnalyticsSink = {
   record(event: FrontendAnalyticsEvent): void {
     if (typeof window !== "undefined" && process.env.NODE_ENV !== "test") {
       const { event: name, ...fields } = event;
       console.info(`[analytics] ${name}`, fields);
     }
+    forwardToGoogleAnalytics(event);
   },
 };
 
