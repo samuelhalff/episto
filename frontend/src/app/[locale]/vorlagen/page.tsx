@@ -18,8 +18,6 @@ import {
   LANDING_UI,
 } from "@/lib/landing-content";
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return LANDING_LOCALES.map((locale) => ({ locale }));
 }

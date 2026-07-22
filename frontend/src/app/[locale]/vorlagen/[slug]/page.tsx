@@ -29,8 +29,6 @@ import {
   type LandingUi,
 } from "@/lib/landing-content";
 
-export const dynamicParams = false;
-
 export function generateStaticParams() {
   return LANDING_LOCALES.flatMap((locale) =>
     LANDING_SLUGS.map((slug) => ({ locale, slug })),
