@@ -43,11 +43,17 @@ export function buildContentSecurityPolicy(
   // dropped. When no nonce is provided (e.g. as a fallback for routes that
   // bypass proxy), we fall back to `'unsafe-inline'` so the app keeps
   // working — proxy always provides a nonce in normal operation.
+  // Google Analytics domains are only permitted when a measurement ID is
+  // configured, so non-GA builds keep the tightest possible policy. GA still
+  // only loads after explicit analytics consent (see GoogleAnalytics.tsx).
+  const gaEnabled = Boolean(process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID);
+
   const scriptSrcParts = [
     "script-src 'self'",
     nonce ? `'nonce-${nonce}'` : "'unsafe-inline'",
     ...(isDevelopment ? ["'unsafe-eval'"] : []),
     "https://js.stripe.com",
+    ...(gaEnabled ? ["https://www.googletagmanager.com"] : []),
   ];
   const scriptSrc = scriptSrcParts.join(" ");
 
@@ -55,6 +61,14 @@ export function buildContentSecurityPolicy(
     "connect-src 'self' https://api.stripe.com ws: wss:",
     getApiConnectOrigin(),
     getSentryConnectOrigin(),
+    ...(gaEnabled
+      ? [
+          "https://www.googletagmanager.com",
+          "https://www.google-analytics.com",
+          "https://*.google-analytics.com",
+          "https://*.analytics.google.com",
+        ]
+      : []),
   ]
     .filter(Boolean)
     .join(" ");

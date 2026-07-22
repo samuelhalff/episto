@@ -4,6 +4,7 @@ import { Inter } from "next/font/google";
 import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { AppProviders } from "../components/ui/AppProviders";
+import { GoogleAnalytics } from "../components/analytics/GoogleAnalytics";
 import { env } from "../lib/env";
 import { getThemeInitScript } from "../lib/theme-script";
 import { BRAND_NAME } from "../lib/brand";
@@ -53,6 +54,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         suppressHydrationWarning
       >
         <AppProviders>{children}</AppProviders>
+        <GoogleAnalytics nonce={nonce} />
       </body>
     </html>
   );

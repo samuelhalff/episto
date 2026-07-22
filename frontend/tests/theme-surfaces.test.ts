@@ -105,7 +105,9 @@ describe("theme surface regressions", () => {
     expect(privacyNoticeSource).toContain("app-sticky-bar");
     expect(privacyNoticeSource).toContain("inset-x-4");
     expect(privacyNoticeSource).toContain("bottom-4");
-    expect(privacyNoticeSource).toContain('useTranslations("common")');
+    // Consent banner: localized + wired to the analytics consent choice.
+    expect(privacyNoticeSource).toContain("useLocale");
+    expect(privacyNoticeSource).toContain("setAnalyticsConsent");
     expect(privacyNoticeSource).not.toContain("Episto uses a single essential cookie");
   });
 

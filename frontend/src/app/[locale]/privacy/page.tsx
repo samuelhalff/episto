@@ -119,6 +119,25 @@ export default async function PrivacyPage({
           </LegalParagraph>
         </LegalSection>
 
+        <LegalSection title="Analytics (Google Analytics)">
+          <LegalParagraph>
+            We use Google Analytics 4 to understand how the site is used and to improve
+            it. It loads only after you grant analytics consent in the privacy banner. If
+            you decline, no analytics cookies are set and no data is sent to Google. You
+            can revoke consent at any time by clearing this site&rsquo;s data in your
+            browser.
+          </LegalParagraph>
+          <LegalParagraph>
+            When enabled, Google Analytics sets cookies and processes usage data (such as
+            pages viewed, approximate location, and device and browser information) on our
+            behalf. The provider is Google; see{" "}
+            <LegalExternalLink href="https://policies.google.com/privacy">
+              Google&rsquo;s privacy policy
+            </LegalExternalLink>
+            .
+          </LegalParagraph>
+        </LegalSection>
+
         <LegalSection title="Retention">
           <LegalParagraph>
             We retain data only for as long as needed for service delivery, support, abuse
