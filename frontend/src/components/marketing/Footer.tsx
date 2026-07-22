@@ -1,4 +1,4 @@
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { Link } from "../../i18n/navigation";
 import { FeedbackTrigger } from "../feedback/FeedbackTrigger";
@@ -9,6 +9,7 @@ import { MarketingMeta } from "./typography";
 
 export function Footer() {
   const t = useTranslations("marketing");
+  const locale = useLocale();
 
   return (
     <footer
@@ -30,6 +31,15 @@ export function Footer() {
             >
               {t("footer.help")}
             </Link>
+            {/* Landing pages are de-CH only for now; link only where they exist. */}
+            {locale === "de-CH" ? (
+              <Link
+                href="/vorlagen"
+                className="transition-colors hover:text-zinc-950 dark:hover:text-white"
+              >
+                Vorlagen
+              </Link>
+            ) : null}
             <Link
               href="/privacy"
               className="transition-colors hover:text-zinc-950 dark:hover:text-white"

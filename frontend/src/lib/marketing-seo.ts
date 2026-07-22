@@ -10,6 +10,12 @@ type MarketingMetadataInput = {
   pathname: string;
   title: string;
   description: string;
+  /**
+   * Locales to advertise via hreflang. Defaults to all site locales; pass a
+   * subset for pages that only exist in some locales (e.g. de-CH-only landing
+   * pages) so hreflang never points at a 404.
+   */
+  hreflangLocales?: Locale[];
 };
 
 type FaqItem = {
@@ -45,15 +51,20 @@ export function buildMarketingMetadata({
   pathname,
   title,
   description,
+  hreflangLocales,
 }: MarketingMetadataInput): Metadata {
   const siteUrl = getSiteUrl();
   const canonicalUrl = buildLocaleUrl(locale, pathname);
+  const alternateLocales = hreflangLocales ?? [...routing.locales];
   const languages = Object.fromEntries(
-    routing.locales.map((candidateLocale) => [
+    alternateLocales.map((candidateLocale) => [
       candidateLocale,
       buildLocaleUrl(candidateLocale, pathname),
     ]),
   );
+  const xDefaultLocale = alternateLocales.includes(routing.defaultLocale)
+    ? routing.defaultLocale
+    : (alternateLocales[0] ?? routing.defaultLocale);
 
   return {
     metadataBase: new URL(siteUrl),
@@ -63,7 +74,7 @@ export function buildMarketingMetadata({
       canonical: canonicalUrl,
       languages: {
         ...languages,
-        "x-default": buildLocaleUrl(routing.defaultLocale, pathname),
+        "x-default": buildLocaleUrl(xDefaultLocale, pathname),
       },
     },
     openGraph: {
@@ -141,6 +152,42 @@ export function buildFaqJsonLd(items: FaqItem[]) {
         "@type": "Answer",
         text: answer,
       },
+    })),
+  };
+}
+
+export function buildHowToJsonLd({
+  name,
+  description,
+  steps,
+}: {
+  name: string;
+  description: string;
+  steps: Array<{ title: string; text: string }>;
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name,
+    description,
+    step: steps.map((step, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      name: step.title,
+      text: step.text,
+    })),
+  };
+}
+
+export function buildBreadcrumbJsonLd(items: Array<{ name: string; url: string }>) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items.map((item, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: item.name,
+      item: item.url,
     })),
   };
 }
