@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { routing } from "../i18n/routing";
 import { BRAND_NAME } from "./brand";
+import { LEGAL_OPERATOR } from "./legal-config";
 import { env } from "./env";
+
+/** Price band (CHF) surfaced in Offer structured data — postage-inclusive. */
+const PRICE_STANDARD_CHF = "5.90";
+const PRICE_REGISTERED_CHF = "10.90";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -94,13 +99,40 @@ export function buildMarketingMetadata({
 }
 
 export function buildOrganizationJsonLd() {
+  const siteUrl = getSiteUrl();
+  const streetAddress = LEGAL_OPERATOR.addressLines[0] ?? "";
+  // "1294 Genthod" → postal code + locality.
+  const [postalCode = "", ...localityParts] = (
+    LEGAL_OPERATOR.addressLines[1] ?? ""
+  ).split(" ");
+  const addressLocality = localityParts.join(" ");
+
   return {
     "@context": "https://schema.org",
     "@type": "Organization",
+    "@id": `${siteUrl}/#organization`,
     name: BRAND_NAME,
-    url: getSiteUrl(),
+    legalName: LEGAL_OPERATOR.companyName,
+    url: siteUrl,
+    logo: `${siteUrl}/icon.svg`,
+    image: `${siteUrl}/opengraph-image`,
+    email: LEGAL_OPERATOR.supportEmail,
+    vatID: LEGAL_OPERATOR.uidVat,
     areaServed: "CH",
     availableLanguage: [...routing.locales],
+    address: {
+      "@type": "PostalAddress",
+      streetAddress,
+      postalCode,
+      addressLocality,
+      addressCountry: "CH",
+    },
+    contactPoint: {
+      "@type": "ContactPoint",
+      contactType: "customer support",
+      email: LEGAL_OPERATOR.supportEmail,
+      availableLanguage: [...routing.locales],
+    },
   };
 }
 
@@ -135,8 +167,17 @@ export function buildServiceJsonLd({
     availableLanguage: locale,
     provider: {
       "@type": "Organization",
+      "@id": `${getSiteUrl()}/#organization`,
       name: BRAND_NAME,
       url: getSiteUrl(),
+    },
+    offers: {
+      "@type": "AggregateOffer",
+      priceCurrency: "CHF",
+      lowPrice: PRICE_STANDARD_CHF,
+      highPrice: PRICE_REGISTERED_CHF,
+      offerCount: 2,
+      availability: "https://schema.org/InStock",
     },
   };
 }

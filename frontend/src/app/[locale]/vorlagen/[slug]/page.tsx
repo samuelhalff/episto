@@ -29,6 +29,14 @@ import {
   type LandingUi,
 } from "@/lib/landing-content";
 
+// Only the pre-generated locale/slug pairs are valid pages. NOTE: because
+// next-intl renders the [locale] tree dynamically, this flag does not by itself
+// force a 404 status for unknown slugs — notFound() still renders the localized
+// 404 body but with HTTP 200 (a soft-404). A hard-404 status needs a
+// middleware-level guard (tracked as follow-up). Kept here to express the
+// allowlist intent and to gate any statically-eligible rendering.
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return LANDING_LOCALES.flatMap((locale) =>
     LANDING_SLUGS.map((slug) => ({ locale, slug })),

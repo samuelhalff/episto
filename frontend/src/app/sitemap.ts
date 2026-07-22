@@ -14,6 +14,12 @@ const STATIC_ROUTES = [
   "/imprint",
 ] as const;
 
+// Stable content-revision dates (not `new Date()`, which would advertise every
+// URL as "just changed" on every crawl and erode lastmod trust). Bump these
+// when the corresponding content is meaningfully updated.
+const MARKETING_LAST_MODIFIED = new Date("2026-07-22");
+const LANDING_LAST_MODIFIED = new Date("2026-07-22");
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = getSiteUrl();
   const entries: MetadataRoute.Sitemap = [];
@@ -22,7 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const locale of LOCALES) {
       entries.push({
         url: `${baseUrl}/${locale}${route}`,
-        lastModified: new Date(),
+        lastModified: MARKETING_LAST_MODIFIED,
         changeFrequency: route === "" ? "weekly" : "monthly",
         priority: route === "" ? 1.0 : 0.7,
       });
@@ -33,14 +39,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
   for (const landingLocale of LANDING_LOCALES) {
     entries.push({
       url: `${baseUrl}/${landingLocale}/vorlagen`,
-      lastModified: new Date(),
+      lastModified: LANDING_LAST_MODIFIED,
       changeFrequency: "weekly",
       priority: 0.8,
     });
     for (const slug of LANDING_SLUGS) {
       entries.push({
         url: `${baseUrl}/${landingLocale}/vorlagen/${slug}`,
-        lastModified: new Date(),
+        lastModified: LANDING_LAST_MODIFIED,
         changeFrequency: "monthly",
         priority: 0.8,
       });

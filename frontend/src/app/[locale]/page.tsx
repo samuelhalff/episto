@@ -9,6 +9,7 @@ import { MarketingLayout } from "../../components/marketing/MarketingLayout";
 import { PricingFromText } from "../../components/marketing/PricingFromText";
 import { TrustStrip } from "../../components/marketing/TrustStrip";
 import { UseCaseGrid } from "../../components/marketing/UseCaseGrid";
+import { PopularTemplates } from "../../components/marketing/PopularTemplates";
 import {
   buildMarketingMetadata,
   buildOrganizationJsonLd,
@@ -61,6 +62,7 @@ export default async function HomePage({
         <HowItWorksSteps />
         <ConfidenceBlock />
         <UseCaseGrid />
+        <PopularTemplates locale={locale} />
         <MarketingSection>
           <FinalCTABand
             title={t("ctaTitle")}

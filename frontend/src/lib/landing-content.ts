@@ -61,6 +61,8 @@ export interface LandingUi {
   hubIntro: string;
   hubMetaTitle: string;
   hubMetaDescription: string;
+  popularEyebrow: string;
+  popularTitle: string;
 }
 
 export const LANDING_UI: Record<LandingLocale, LandingUi> = {
@@ -90,6 +92,8 @@ export const LANDING_UI: Record<LandingLocale, LandingUi> = {
     hubMetaTitle: "Vorlagen & Anleitungen für offizielle Briefe | Episto",
     hubMetaDescription:
       "Anleitungen für Kündigungen, Beschwerden, Einsprachen und mehr – mit Schweizer Fristen und Formvorschriften. Brief schreiben lassen und versenden mit Episto.",
+    popularEyebrow: "Beliebt",
+    popularTitle: "Beliebte Vorlagen",
   },
   "fr-CH": {
     breadcrumbHome: "Accueil",
@@ -117,6 +121,8 @@ export const LANDING_UI: Record<LandingLocale, LandingUi> = {
     hubMetaTitle: "Modèles & guides pour lettres officielles | Episto",
     hubMetaDescription:
       "Guides pour résiliations, réclamations, oppositions et plus – avec les délais et formes suisses. Faites rédiger et envoyer votre lettre avec Episto.",
+    popularEyebrow: "Populaire",
+    popularTitle: "Modèles populaires",
   },
   "it-CH": {
     breadcrumbHome: "Home",
@@ -144,5 +150,7 @@ export const LANDING_UI: Record<LandingLocale, LandingUi> = {
     hubMetaTitle: "Modelli e guide per lettere ufficiali | Episto",
     hubMetaDescription:
       "Guide per disdette, reclami, opposizioni e altro – con termini e forme svizzere. Faccia scrivere e inviare la Sua lettera con Episto.",
+    popularEyebrow: "Popolari",
+    popularTitle: "Modelli popolari",
   },
 };
