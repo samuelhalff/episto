@@ -1,11 +1,14 @@
 #!/usr/bin/env node
 /**
  * Guards against untranslated, hardcoded user-facing strings in the frontend
- * UI. It flags literal JSX text and literal user-facing props (placeholder,
- * aria-label, alt, title) that should go through next-intl (useTranslations)
- * or an allowlisted per-locale module.
+ * UI. It flags same-line literal JSX text and literal `placeholder` /
+ * `aria-label` props (quoted with " or ') that should go through next-intl
+ * (useTranslations) or an allowlisted per-locale module.
  *
- * Heuristic by nature — tune via ci/hardcoded-string-allowlist.json.
+ * Best-effort heuristic, NOT exhaustive: it does not catch strings inside
+ * expressions (`aria-label={'x'}`), template literals, or multiline JSX text.
+ * It is a regression tripwire for the common cases, not a formal i18n proof.
+ * Tune via ci/hardcoded-string-allowlist.json.
  * Usage: node ci/check-hardcoded-strings.mjs [--staged]
  */
 import { execFileSync } from "node:child_process";
@@ -80,7 +83,7 @@ for (const file of listFiles()) {
   lines.forEach((line, index) => {
     const code = line.replace(/\/\/.*$/, "");
     for (const prop of USER_FACING_PROPS) {
-      const re = new RegExp(`\\b${prop}\\s*=\\s*"([^"]+)"`, "g");
+      const re = new RegExp(`\\b${prop}\\s*=\\s*["']([^"']+)["']`, "g");
       let m;
       while ((m = re.exec(code))) {
         if (looksLikeText(m[1]))

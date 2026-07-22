@@ -140,12 +140,12 @@ export const FR_LANDING_PAGES: LandingPage[] = [
   {
     slug: "krankenkasse-kuendigen",
     category: "Résiliation",
-    metaTitle: "Résilier sa caisse maladie & changer – lettre & délai",
+    metaTitle: "Résilier sa caisse-maladie & changer – lettre & délai",
     metaDescription:
       "Résilier l’assurance de base avant le 30 novembre et changer de caisse. Episto rédige et envoie votre résiliation – en recommandé si vous le souhaitez.",
-    h1: "Résilier et changer de caisse maladie – dans les délais pour la fin d’année",
+    h1: "Résilier et changer de caisse-maladie – dans les délais pour la fin d’année",
     quickAnswer:
-      "Pour résilier votre assurance de base, adressez à votre caisse maladie une résiliation écrite qui lui parvient au plus tard le 30 novembre ; l’assurance prend alors fin le 31 décembre. Inscrivez-vous simultanément auprès d’une nouvelle assurance de base – celle-ci est tenue de vous accepter. Un envoi recommandé assure la preuve.",
+      "Pour résilier votre assurance de base, adressez à votre caisse-maladie une résiliation écrite qui lui parvient au plus tard le 30 novembre ; l’assurance prend alors fin le 31 décembre. Inscrivez-vous simultanément auprès d’une nouvelle assurance de base – celle-ci est tenue de vous accepter. Un envoi recommandé assure la preuve.",
     steps: [
       {
         title: "Choisir une nouvelle caisse en même temps",
@@ -174,7 +174,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     notes: [
       {
         title: "Délai : 30 novembre",
-        body: "La résiliation de l’assurance de base doit parvenir à la caisse maladie au plus tard le 30 novembre. C’est la réception qui fait foi, pas le cachet postal – envoyez donc à temps, idéalement d’ici mi-novembre.",
+        body: "La résiliation de l’assurance de base doit parvenir à la caisse-maladie au plus tard le 30 novembre. C’est la réception qui fait foi, pas le cachet postal – envoyez donc à temps, idéalement d’ici mi-novembre.",
       },
       {
         title: "S’inscrire simultanément – ne pas attendre de confirmation",
@@ -183,7 +183,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     ],
     faqs: [
       {
-        question: "Jusqu’à quand dois-je résilier ma caisse maladie ?",
+        question: "Jusqu’à quand dois-je résilier ma caisse-maladie ?",
         answer:
           "La résiliation doit parvenir à la caisse au plus tard le 30 novembre ; l’assurance prend alors fin le 31 décembre. C’est la réception, et non le cachet postal, qui fait foi. Inscrivez-vous simultanément auprès de la nouvelle caisse.",
       },
