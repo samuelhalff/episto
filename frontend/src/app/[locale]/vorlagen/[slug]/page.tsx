@@ -19,15 +19,22 @@ import {
   buildServiceJsonLd,
   getSiteUrl,
 } from "@/lib/marketing-seo";
-import { getLandingPage, LANDING_SLUGS, type LandingPage } from "@/lib/landing-content";
-
-const PAGE_LOCALE: Locale = "de-CH";
+import {
+  getLandingPage,
+  isLandingLocale,
+  LANDING_LOCALES,
+  LANDING_SLUGS,
+  LANDING_UI,
+  type LandingPage,
+  type LandingUi,
+} from "@/lib/landing-content";
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  // de-CH only for the first launch; other locales 404 via dynamicParams=false.
-  return LANDING_SLUGS.map((slug) => ({ locale: PAGE_LOCALE, slug }));
+  return LANDING_LOCALES.flatMap((locale) =>
+    LANDING_SLUGS.map((slug) => ({ locale, slug })),
+  );
 }
 
 export async function generateMetadata({
@@ -36,17 +43,17 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const page = getLandingPage(slug);
-  if (!page || locale !== PAGE_LOCALE) {
+  const page = getLandingPage(locale, slug);
+  if (!page || !isLandingLocale(locale)) {
     return {};
   }
 
   return buildMarketingMetadata({
-    locale: PAGE_LOCALE,
+    locale,
     pathname: `/vorlagen/${slug}`,
     title: `${page.metaTitle} | Episto`,
     description: page.metaDescription,
-    hreflangLocales: [PAGE_LOCALE],
+    hreflangLocales: [...LANDING_LOCALES],
   });
 }
 
@@ -56,20 +63,21 @@ export default async function LandingPageRoute({
   params: Promise<{ locale: Locale; slug: string }>;
 }) {
   const { locale, slug } = await params;
-  const page = getLandingPage(slug);
-  if (!page || locale !== PAGE_LOCALE) {
+  const page = getLandingPage(locale, slug);
+  if (!page || !isLandingLocale(locale)) {
     notFound();
   }
 
+  const ui = LANDING_UI[locale];
   const site = getSiteUrl();
-  const pageUrl = `${site}/${PAGE_LOCALE}/vorlagen/${slug}`;
+  const pageUrl = `${site}/${locale}/vorlagen/${slug}`;
 
   return (
     <>
       <JsonLd
         data={[
           buildServiceJsonLd({
-            locale: PAGE_LOCALE,
+            locale,
             title: page.metaTitle,
             description: page.metaDescription,
             pathname: `/vorlagen/${slug}`,
@@ -81,30 +89,28 @@ export default async function LandingPageRoute({
           }),
           buildFaqJsonLd(page.faqs),
           buildBreadcrumbJsonLd([
-            { name: "Start", url: `${site}/${PAGE_LOCALE}` },
-            { name: "Vorlagen", url: `${site}/${PAGE_LOCALE}/vorlagen` },
+            { name: ui.breadcrumbHome, url: `${site}/${locale}` },
+            { name: ui.breadcrumbHub, url: `${site}/${locale}/vorlagen` },
             { name: page.h1, url: pageUrl },
           ]),
         ]}
       />
       <MarketingLayout>
-        <LandingHero page={page} />
-        <LandingSteps page={page} />
-        <LandingChecklistAndNotes page={page} />
-        <LandingFaq page={page} />
-        <LandingRelated page={page} />
+        <LandingHero page={page} ui={ui} />
+        <LandingSteps page={page} ui={ui} />
+        <LandingChecklistAndNotes page={page} ui={ui} />
+        <LandingFaq page={page} ui={ui} />
+        <LandingRelated page={page} ui={ui} locale={locale} />
         <MarketingSection spacing="compact" trimTop>
           <MarketingMeta className="max-w-3xl text-xs leading-5">
-            Dieser Text bietet allgemeine Informationen zu einem Anliegen in der Schweiz
-            und ist keine Rechtsberatung. Massgebend sind Ihr Vertrag und die geltenden
-            gesetzlichen Bestimmungen.
+            {ui.disclaimer}
           </MarketingMeta>
         </MarketingSection>
         <MarketingSection>
           <FinalCTABand
-            title="Bereit, Ihren Brief zu verfassen?"
-            body="Beschreiben Sie Ihr Anliegen – Episto schreibt den Brief und versendet ihn, auf Wunsch als Einschreiben."
-            primaryAction={{ href: "/draft/new", label: "Brief verfassen" }}
+            title={ui.ctaBandTitle}
+            body={ui.ctaBandBody}
+            primaryAction={{ href: "/draft/new", label: ui.ctaLabel }}
           />
         </MarketingSection>
       </MarketingLayout>
@@ -112,20 +118,20 @@ export default async function LandingPageRoute({
   );
 }
 
-function LandingHero({ page }: { page: LandingPage }) {
+function LandingHero({ page, ui }: { page: LandingPage; ui: LandingUi }) {
   return (
     <MarketingSection spacing="compact">
       <nav aria-label="Breadcrumb">
         <MarketingMeta as="ol" className="flex flex-wrap items-center gap-2 text-xs">
           <li>
             <Link href="/" className="hover:underline">
-              Start
+              {ui.breadcrumbHome}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
           <li>
             <Link href="/vorlagen" className="hover:underline">
-              Vorlagen
+              {ui.breadcrumbHub}
             </Link>
           </li>
           <li aria-hidden="true">/</li>
@@ -145,7 +151,7 @@ function LandingHero({ page }: { page: LandingPage }) {
 
         {/* Definition-first quick answer (above the fold) for GEO. */}
         <div className="letter-sheet mt-6 rounded-[1.5rem] p-6 sm:p-7">
-          <p className="section-label">Kurz erklärt</p>
+          <p className="section-label">{ui.quickAnswerLabel}</p>
           <MarketingBody className="mt-2 text-base leading-7">
             {page.quickAnswer}
           </MarketingBody>
@@ -153,7 +159,7 @@ function LandingHero({ page }: { page: LandingPage }) {
 
         <div className="mt-7">
           <Link href="/draft/new" className="btn-primary">
-            Brief verfassen
+            {ui.ctaLabel}
           </Link>
         </div>
       </div>
@@ -161,17 +167,17 @@ function LandingHero({ page }: { page: LandingPage }) {
   );
 }
 
-function LandingSteps({ page }: { page: LandingPage }) {
+function LandingSteps({ page, ui }: { page: LandingPage; ui: LandingUi }) {
   return (
     <MarketingSection contentClassName="max-w-6xl" spacing="tight">
       <div className="grid gap-10 lg:grid-cols-[minmax(0,18rem)_1fr] lg:gap-16">
         <div className="lg:sticky lg:top-28 lg:self-start">
-          <p className="section-label">So funktioniert es</p>
+          <p className="section-label">{ui.stepsEyebrow}</p>
           <MarketingHeading
             as="h2"
             className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
           >
-            In wenigen Schritten erledigt
+            {ui.stepsTitle}
           </MarketingHeading>
         </div>
         <ol className="relative pl-7 sm:pl-9">
@@ -206,17 +212,17 @@ function LandingSteps({ page }: { page: LandingPage }) {
   );
 }
 
-function LandingChecklistAndNotes({ page }: { page: LandingPage }) {
+function LandingChecklistAndNotes({ page, ui }: { page: LandingPage; ui: LandingUi }) {
   return (
     <MarketingSection contentClassName="max-w-6xl" muted spacing="tight">
       <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
-          <p className="section-label">Das gehört in den Brief</p>
+          <p className="section-label">{ui.checklistEyebrow}</p>
           <MarketingHeading
             as="h2"
             className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
           >
-            Checkliste
+            {ui.checklistTitle}
           </MarketingHeading>
           <ul className="mt-6">
             {page.checklist.map((item) => (
@@ -236,12 +242,12 @@ function LandingChecklistAndNotes({ page }: { page: LandingPage }) {
         </div>
 
         <div>
-          <p className="section-label">Wichtig in der Schweiz</p>
+          <p className="section-label">{ui.notesEyebrow}</p>
           <MarketingHeading
             as="h2"
             className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
           >
-            Gut zu wissen
+            {ui.notesTitle}
           </MarketingHeading>
           <div className="mt-6 space-y-6">
             {page.notes.map((note) => (
@@ -267,7 +273,7 @@ function LandingChecklistAndNotes({ page }: { page: LandingPage }) {
   );
 }
 
-function LandingFaq({ page }: { page: LandingPage }) {
+function LandingFaq({ page, ui }: { page: LandingPage; ui: LandingUi }) {
   return (
     <MarketingSection contentClassName="max-w-6xl" spacing="tight">
       <div className="grid gap-10 lg:grid-cols-[minmax(0,20rem)_1fr] lg:gap-16">
@@ -276,7 +282,7 @@ function LandingFaq({ page }: { page: LandingPage }) {
             as="h2"
             className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
           >
-            Häufige Fragen
+            {ui.faqTitle}
           </MarketingHeading>
         </div>
         <div>
@@ -311,21 +317,29 @@ function LandingFaq({ page }: { page: LandingPage }) {
   );
 }
 
-function LandingRelated({ page }: { page: LandingPage }) {
+function LandingRelated({
+  page,
+  ui,
+  locale,
+}: {
+  page: LandingPage;
+  ui: LandingUi;
+  locale: Locale;
+}) {
   const related = page.related
-    .map((slug) => getLandingPage(slug))
+    .map((slug) => getLandingPage(locale, slug))
     .filter((entry): entry is LandingPage => Boolean(entry));
 
   if (related.length === 0) return null;
 
   return (
     <MarketingSection contentClassName="max-w-6xl" muted spacing="tight">
-      <p className="section-label">Auch hilfreich</p>
+      <p className="section-label">{ui.relatedEyebrow}</p>
       <MarketingHeading
         as="h2"
         className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
       >
-        Verwandte Briefe
+        {ui.relatedTitle}
       </MarketingHeading>
       <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {related.map((entry) => (

@@ -193,11 +193,11 @@ export function LanguageSwitcher({
       return;
     }
 
-    // Some routes exist only in de-CH (the /vorlagen landing pages). Switching
-    // them to another locale would 404, so fall back to that locale's home.
-    const deChOnly = pathname === "/vorlagen" || pathname.startsWith("/vorlagen/");
+    // The /vorlagen landing pages exist in de/fr/it-CH but not en-CH. Switching
+    // to a locale without them would 404, so fall back to that locale's home.
+    const landingPath = pathname === "/vorlagen" || pathname.startsWith("/vorlagen/");
     const target =
-      deChOnly && nextLocale !== "de-CH"
+      landingPath && nextLocale === "en-CH"
         ? "/"
         : buildLocalizedRoute(pathname, searchParams);
 

@@ -1,6 +1,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import { Suspense } from "react";
 import { Link } from "../../i18n/navigation";
+import { isLandingLocale, LANDING_UI } from "../../lib/landing-content";
 import { FeedbackTrigger } from "../feedback/FeedbackTrigger";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
@@ -31,13 +32,13 @@ export function Footer() {
             >
               {t("footer.help")}
             </Link>
-            {/* Landing pages are de-CH only for now; link only where they exist. */}
-            {locale === "de-CH" ? (
+            {/* Landing pages exist in de/fr/it-CH; link only where they exist. */}
+            {isLandingLocale(locale) ? (
               <Link
                 href="/vorlagen"
                 className="transition-colors hover:text-zinc-950 dark:hover:text-white"
               >
-                Vorlagen
+                {LANDING_UI[locale].breadcrumbHub}
               </Link>
             ) : null}
             <Link

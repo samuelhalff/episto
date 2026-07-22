@@ -12,6 +12,8 @@
   "frontend/src/components/product/AttachmentUploader.tsx": 523,
   "frontend/src/components/product/LetterPreview.tsx": 553,
   "frontend/src/hooks/use-dictation.ts": 501,
-  "frontend/src/lib/landing-content.ts": 1200,
+  "frontend/src/lib/landing/de.ts": 1200,
+  "frontend/src/lib/landing/fr.ts": 1300,
+  "frontend/src/lib/landing/it.ts": 1300,
   "shared/src/contracts/index.ts": 728
 }

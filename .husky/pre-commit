@@ -1,2 +1,3 @@
 npm run check:file-sizes -- --staged
+npm run check:hardcoded-strings -- --staged
 npx lint-staged

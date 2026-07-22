@@ -11,9 +11,18 @@ import {
   buildMarketingMetadata,
   getSiteUrl,
 } from "@/lib/marketing-seo";
-import { LANDING_PAGES } from "@/lib/landing-content";
+import {
+  getLandingPages,
+  isLandingLocale,
+  LANDING_LOCALES,
+  LANDING_UI,
+} from "@/lib/landing-content";
 
-const PAGE_LOCALE: Locale = "de-CH";
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return LANDING_LOCALES.map((locale) => ({ locale }));
+}
 
 export async function generateMetadata({
   params,
@@ -21,15 +30,15 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
-  if (locale !== PAGE_LOCALE) return {};
+  if (!isLandingLocale(locale)) return {};
+  const ui = LANDING_UI[locale];
 
   return buildMarketingMetadata({
-    locale: PAGE_LOCALE,
+    locale,
     pathname: "/vorlagen",
-    title: "Vorlagen & Anleitungen für offizielle Briefe | Episto",
-    description:
-      "Anleitungen für Kündigungen, Beschwerden, Einsprachen und mehr – mit Schweizer Fristen und Formvorschriften. Brief schreiben lassen und versenden mit Episto.",
-    hreflangLocales: [PAGE_LOCALE],
+    title: ui.hubMetaTitle,
+    description: ui.hubMetaDescription,
+    hreflangLocales: [...LANDING_LOCALES],
   });
 }
 
@@ -39,37 +48,37 @@ export default async function VorlagenHubPage({
   params: Promise<{ locale: Locale }>;
 }) {
   const { locale } = await params;
-  if (locale !== PAGE_LOCALE) notFound();
+  if (!isLandingLocale(locale)) notFound();
 
+  const ui = LANDING_UI[locale];
+  const pages = getLandingPages(locale);
   const site = getSiteUrl();
-  const categories = [...new Set(LANDING_PAGES.map((page) => page.category))];
+  const categories = [...new Set(pages.map((page) => page.category))];
 
   return (
     <>
       <JsonLd
         data={buildBreadcrumbJsonLd([
-          { name: "Start", url: `${site}/${PAGE_LOCALE}` },
-          { name: "Vorlagen", url: `${site}/${PAGE_LOCALE}/vorlagen` },
+          { name: ui.breadcrumbHome, url: `${site}/${locale}` },
+          { name: ui.breadcrumbHub, url: `${site}/${locale}/vorlagen` },
         ])}
       />
       <MarketingLayout>
         <MarketingSection spacing="compact">
           <div className="max-w-3xl">
-            <p className="section-label">Vorlagen & Anleitungen</p>
+            <p className="section-label">{ui.hubEyebrow}</p>
             <MarketingHeading
               as="h1"
               tone="hero"
               className="mt-3 text-3xl font-semibold leading-[1.05] tracking-[-0.04em] sm:text-4xl md:text-5xl"
             >
-              Offizielle Briefe schreiben – mit Schweizer Fristen
+              {ui.hubTitle}
             </MarketingHeading>
             <MarketingBody
               tone="hero"
               className="mt-5 text-base leading-7 md:text-lg md:leading-8"
             >
-              Anleitungen für die häufigsten Anliegen – von der Kündigung bis zur
-              Einsprache. Beschreiben Sie Ihre Situation, und Episto schreibt den Brief
-              und versendet ihn, auf Wunsch als Einschreiben.
+              {ui.hubIntro}
             </MarketingBody>
           </div>
         </MarketingSection>
@@ -83,33 +92,35 @@ export default async function VorlagenHubPage({
               {category}
             </MarketingHeading>
             <ul className="mt-5 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {LANDING_PAGES.filter((page) => page.category === category).map((page) => (
-                <li key={page.slug}>
-                  <Link
-                    href={`/vorlagen/${page.slug}`}
-                    className="app-panel block h-full rounded-2xl p-5 transition-colors hover:border-[var(--app-border-strong)]"
-                  >
-                    <MarketingHeading
-                      as="h3"
-                      className="text-base font-semibold tracking-[-0.01em]"
+              {pages
+                .filter((page) => page.category === category)
+                .map((page) => (
+                  <li key={page.slug}>
+                    <Link
+                      href={`/vorlagen/${page.slug}`}
+                      className="app-panel block h-full rounded-2xl p-5 transition-colors hover:border-[var(--app-border-strong)]"
                     >
-                      {page.h1}
-                    </MarketingHeading>
-                    <MarketingBody tone="muted" className="mt-1.5 text-sm leading-6">
-                      {page.metaDescription}
-                    </MarketingBody>
-                  </Link>
-                </li>
-              ))}
+                      <MarketingHeading
+                        as="h3"
+                        className="text-base font-semibold tracking-[-0.01em]"
+                      >
+                        {page.h1}
+                      </MarketingHeading>
+                      <MarketingBody tone="muted" className="mt-1.5 text-sm leading-6">
+                        {page.metaDescription}
+                      </MarketingBody>
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </MarketingSection>
         ))}
 
         <MarketingSection>
           <FinalCTABand
-            title="Bereit, Ihren Brief zu verfassen?"
-            body="Beschreiben Sie Ihr Anliegen – Episto schreibt den Brief und versendet ihn, auf Wunsch als Einschreiben."
-            primaryAction={{ href: "/draft/new", label: "Brief verfassen" }}
+            title={ui.ctaBandTitle}
+            body={ui.ctaBandBody}
+            primaryAction={{ href: "/draft/new", label: ui.ctaLabel }}
           />
         </MarketingSection>
       </MarketingLayout>

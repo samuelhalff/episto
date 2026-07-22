@@ -1,12 +1,9 @@
 import type { MetadataRoute } from "next";
 import { routing } from "../i18n/routing";
-import { LANDING_SLUGS } from "../lib/landing-content";
+import { LANDING_LOCALES, LANDING_SLUGS } from "../lib/landing-content";
 import { getSiteUrl } from "../lib/marketing-seo";
 
 const LOCALES = routing.locales;
-
-// Lead-gen landing pages currently exist only in de-CH (see landing-content.ts).
-const LANDING_LOCALE = "de-CH";
 
 const STATIC_ROUTES = [
   "",
@@ -32,20 +29,22 @@ export default function sitemap(): MetadataRoute.Sitemap {
     }
   }
 
-  // Landing-page hub + individual lead-gen pages (de-CH).
-  entries.push({
-    url: `${baseUrl}/${LANDING_LOCALE}/vorlagen`,
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: 0.8,
-  });
-  for (const slug of LANDING_SLUGS) {
+  // Landing-page hub + individual lead-gen pages (de/fr/it-CH).
+  for (const landingLocale of LANDING_LOCALES) {
     entries.push({
-      url: `${baseUrl}/${LANDING_LOCALE}/vorlagen/${slug}`,
+      url: `${baseUrl}/${landingLocale}/vorlagen`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
+      changeFrequency: "weekly",
       priority: 0.8,
     });
+    for (const slug of LANDING_SLUGS) {
+      entries.push({
+        url: `${baseUrl}/${landingLocale}/vorlagen/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: "monthly",
+        priority: 0.8,
+      });
+    }
   }
 
   return entries;
