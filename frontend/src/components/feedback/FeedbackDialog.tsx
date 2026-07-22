@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { apiFetch } from "../../lib/api";
@@ -109,15 +109,21 @@ export function FeedbackDialog({
   const canSubmit =
     message.trim().length >= MIN_MESSAGE_LENGTH && status !== "submitting";
 
-  function reset() {
+  // Start every open with a clean form (avoids a leaky close-timeout race).
+  // A controlled-prop reset via effect is intentional here: Radix onOpenChange
+  // does not fire for programmatic opens (the launcher sets `open` directly).
+  useEffect(() => {
+    if (!open) return;
+    /* eslint-disable react-hooks/set-state-in-effect */
     setMessage("");
     setEmail("");
     setCompany("");
     setStatus("idle");
-  }
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, [open]);
 
-  async function handleSubmit(event: React.FormEvent) {
-    event.preventDefault();
+  async function handleSubmit(event?: React.FormEvent) {
+    event?.preventDefault();
     if (!canSubmit) return;
     setStatus("submitting");
     try {
@@ -140,13 +146,7 @@ export function FeedbackDialog({
     "w-full rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface)] px-4 py-3 text-sm text-[var(--app-fg)] outline-none transition-colors placeholder:text-[var(--app-muted)] focus-visible:border-[var(--app-border-strong)] focus-visible:ring-2 focus-visible:ring-amber-400/50";
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        onOpenChange(next);
-        if (!next) window.setTimeout(reset, 200);
-      }}
-    >
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         aria-modal="true"
         className="flex items-center justify-center bg-transparent p-4 sm:p-6"
@@ -199,6 +199,12 @@ export function FeedbackDialog({
                     rows={4}
                     value={message}
                     onChange={(event) => setMessage(event.target.value)}
+                    onKeyDown={(event) => {
+                      if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
+                        event.preventDefault();
+                        void handleSubmit();
+                      }
+                    }}
                     placeholder={copy.messagePlaceholder}
                     className={`${inputClass} resize-none`}
                   />

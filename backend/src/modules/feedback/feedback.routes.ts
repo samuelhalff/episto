@@ -26,6 +26,8 @@ export async function feedbackRoutes(app: FastifyInstance): Promise<void> {
   app.post(
     "/feedback",
     {
+      // Cap the body well below the global limit — the schema fields are small.
+      bodyLimit: 16 * 1024,
       config: {
         rateLimit: {
           max: 5,
@@ -51,7 +53,7 @@ export async function feedbackRoutes(app: FastifyInstance): Promise<void> {
         `Page: ${input.page ?? "—"}`,
         `Reply-to: ${replyToEmail ?? "(not provided)"}`,
         `Session: ${session?.id ?? "—"}`,
-        `IP: ${request.ip}`,
+        `Request ID: ${request.id}`,
         `Received: ${new Date().toISOString()}`,
       ];
 
