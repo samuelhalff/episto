@@ -193,7 +193,15 @@ export function LanguageSwitcher({
       return;
     }
 
-    router.replace(buildLocalizedRoute(pathname, searchParams), { locale: nextLocale });
+    // Some routes exist only in de-CH (the /vorlagen landing pages). Switching
+    // them to another locale would 404, so fall back to that locale's home.
+    const deChOnly = pathname === "/vorlagen" || pathname.startsWith("/vorlagen/");
+    const target =
+      deChOnly && nextLocale !== "de-CH"
+        ? "/"
+        : buildLocalizedRoute(pathname, searchParams);
+
+    router.replace(target, { locale: nextLocale });
   }
 
   if (variant === "menu") {

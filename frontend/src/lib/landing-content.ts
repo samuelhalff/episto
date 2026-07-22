@@ -50,7 +50,7 @@ export const LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Wohnung kündigen in der Schweiz – Brief & Versand",
     metaDescription:
-      "Mietvertrag korrekt kündigen: Kündigungsfrist, Termin und Formvorschriften in der Schweiz. Episto schreibt Ihre Kündigung und versendet sie – auch als Einschreiben.",
+      "Mietvertrag in der Schweiz korrekt kündigen: Frist, Termin und Form. Episto schreibt Ihre Kündigung und versendet sie – auf Wunsch als Einschreiben.",
     h1: "Wohnung kündigen: Mietvertrag korrekt und fristgerecht beenden",
     quickAnswer:
       "Um Ihre Wohnung in der Schweiz zu kündigen, senden Sie dem Vermieter eine schriftliche Kündigung, die spätestens am letzten Tag vor Fristbeginn eintrifft. Bei unbefristeten Mietverträgen gilt in der Regel eine Frist von drei Monaten auf den ortsüblichen Termin. Ein Einschreiben gilt als Nachweis.",
@@ -118,7 +118,7 @@ export const LANDING_PAGES: LandingPage[] = [
     category: "Versand",
     metaTitle: "Einschreiben online versenden – ohne Poststelle",
     metaDescription:
-      "Einschreiben online schreiben und versenden lassen, ohne zur Poststelle zu gehen. Episto druckt Ihren Brief und übergibt ihn als eingeschriebene Sendung der Schweizer Post.",
+      "Einschreiben online schreiben und versenden, ohne zur Poststelle zu gehen. Episto druckt Ihren Brief und übergibt ihn der Schweizer Post – mit Nachweis.",
     h1: "Einschreiben online versenden – ohne Gang zur Poststelle",
     quickAnswer:
       "Ein Einschreiben online zu versenden bedeutet: Sie schreiben den Brief digital, und ein Dienst druckt ihn aus und übergibt ihn als eingeschriebene Sendung der Post. So erhalten Sie einen Zustellnachweis, ohne selbst zur Poststelle zu gehen. Mit Episto ist das in wenigen Minuten erledigt.",
@@ -186,14 +186,14 @@ export const LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Krankenkasse kündigen & wechseln – Brief & Frist",
     metaDescription:
-      "Grundversicherung fristgerecht kündigen und die Krankenkasse wechseln. Termine, Fristen und Formvorschriften in der Schweiz – Episto schreibt und versendet Ihre Kündigung.",
+      "Grundversicherung bis 30. November kündigen und die Kasse wechseln. Episto schreibt und versendet Ihre Kündigung – auf Wunsch als Einschreiben.",
     h1: "Krankenkasse kündigen und wechseln – fristgerecht zum Jahresende",
     quickAnswer:
-      "Um Ihre Grundversicherung zu kündigen, senden Sie der Krankenkasse eine schriftliche Kündigung, die bis Ende November bei ihr eintrifft; die Versicherung endet dann per 31. Dezember. Der Wechsel ist nur gültig, wenn die neue Kasse Sie ab dem 1. Januar aufnimmt. Ein Einschreiben sichert den Nachweis.",
+      "Um Ihre Grundversicherung zu kündigen, senden Sie der Krankenkasse eine schriftliche Kündigung, die bis am 30. November bei ihr eintrifft; die Versicherung endet dann per 31. Dezember. Melden Sie sich gleichzeitig bei einer neuen Grundversicherung an – dort besteht Aufnahmepflicht. Ein Einschreiben sichert den Nachweis.",
     steps: [
       {
-        title: "Neue Kasse zuerst sichern",
-        text: "Stellen Sie sicher, dass eine neue Krankenkasse Sie ab dem 1. Januar in der Grundversicherung aufnimmt, bevor Sie kündigen.",
+        title: "Neue Kasse zeitgleich wählen",
+        text: "Melden Sie sich zeitgleich mit der Kündigung bei einer neuen Grundversicherung an. Dort gilt Aufnahmepflicht – jede Kasse muss Sie aufnehmen. Warten Sie mit dem Kündigen nicht auf eine Bestätigung.",
       },
       {
         title: "Kündigung verfassen",
@@ -217,19 +217,19 @@ export const LANDING_PAGES: LandingPage[] = [
     ],
     notes: [
       {
-        title: "Frist Ende November",
-        body: "Für die Grundversicherung muss die Kündigung bis zum letzten Werktag im November bei der Krankenkasse eingetroffen sein. Massgebend ist der Zugang, nicht das Briefdatum.",
+        title: "Frist: 30. November",
+        body: "Die Kündigung der Grundversicherung muss bis am 30. November bei der Krankenkasse eingetroffen sein. Massgebend ist der Eingang, nicht der Poststempel – versenden Sie deshalb rechtzeitig, idealerweise bis Mitte November.",
       },
       {
-        title: "Erst neue Kasse, dann kündigen",
-        body: "Kündigen Sie erst, wenn die Aufnahme bei der neuen Grundversicherung bestätigt ist – sonst riskieren Sie eine Deckungslücke.",
+        title: "Gleichzeitig anmelden – nicht auf Bestätigung warten",
+        body: "Kündigen Sie fristgerecht und melden Sie sich gleichzeitig bei der neuen Kasse an. Warten Sie nicht auf eine Bestätigung, sonst verpassen Sie die Frist. Die alte Versicherung endet, sobald die lückenlose Deckung durch die neue Grundversicherung gemeldet ist.",
       },
     ],
     faqs: [
       {
         question: "Bis wann muss ich die Krankenkasse kündigen?",
         answer:
-          "Für die Grundversicherung muss die Kündigung bis Ende November bei der Kasse eintreffen; die Versicherung endet dann per 31. Dezember. Massgebend ist der Zugang der Kündigung.",
+          "Die Kündigung muss bis am 30. November bei der Kasse eintreffen; die Versicherung endet dann per 31. Dezember. Massgebend ist der Eingang, nicht der Poststempel. Melden Sie sich gleichzeitig bei der neuen Kasse an.",
       },
       {
         question: "Muss ich per Einschreiben kündigen?",

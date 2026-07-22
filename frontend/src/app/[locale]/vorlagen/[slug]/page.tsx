@@ -83,7 +83,7 @@ export default async function LandingPageRoute({
           buildBreadcrumbJsonLd([
             { name: "Start", url: `${site}/${PAGE_LOCALE}` },
             { name: "Vorlagen", url: `${site}/${PAGE_LOCALE}/vorlagen` },
-            { name: page.category, url: pageUrl },
+            { name: page.h1, url: pageUrl },
           ]),
         ]}
       />
@@ -93,6 +93,13 @@ export default async function LandingPageRoute({
         <LandingChecklistAndNotes page={page} />
         <LandingFaq page={page} />
         <LandingRelated page={page} />
+        <MarketingSection spacing="compact" trimTop>
+          <MarketingMeta className="max-w-3xl text-xs leading-5">
+            Dieser Text bietet allgemeine Informationen zu einem Anliegen in der Schweiz
+            und ist keine Rechtsberatung. Massgebend sind Ihr Vertrag und die geltenden
+            gesetzlichen Bestimmungen.
+          </MarketingMeta>
+        </MarketingSection>
         <MarketingSection>
           <FinalCTABand
             title="Bereit, Ihren Brief zu verfassen?"
