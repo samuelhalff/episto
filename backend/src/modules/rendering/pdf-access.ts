@@ -121,7 +121,11 @@ async function mergePdfBuffers(buffers: Buffer[]): Promise<Buffer> {
 
 async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buffer> {
   const renderedLetter = await getRenderedLetterAsset(db, draftId);
-  const signatureImage = await loadSignatureImageAsset(db, renderedLetter.snapshotData);
+  const signatureImage = await loadSignatureImageAsset(
+    db,
+    renderedLetter.snapshotData,
+    draftId,
+  );
   const [[dispatch], attachmentNames] = await Promise.all([
     db
       .select({
