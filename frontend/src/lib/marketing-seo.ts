@@ -4,9 +4,15 @@ import { BRAND_NAME } from "./brand";
 import { LEGAL_OPERATOR } from "./legal-config";
 import { env } from "./env";
 
-/** Price band (CHF) surfaced in Offer structured data — postage-inclusive. */
-const PRICE_STANDARD_CHF = "5.90";
-const PRICE_REGISTERED_CHF = "10.90";
+/**
+ * Price band (CHF) surfaced in Offer structured data — the TOTAL price a
+ * customer pays (postage + service), matching what the pricing pages show via
+ * live data (standard CHF 7.55, registered CHF 17.15). These are the real
+ * transaction totals, not the service markup. Keep in sync with the ePost
+ * reference rate matrix if postage changes.
+ */
+const PRICE_STANDARD_CHF = "7.55";
+const PRICE_REGISTERED_CHF = "17.15";
 
 type Locale = (typeof routing.locales)[number];
 
