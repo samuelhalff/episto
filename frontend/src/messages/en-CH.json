@@ -258,7 +258,7 @@
     "disputeResolution": "Dispute Resolution",
     "privacy": {
       "pageDescription": "How {companyName} processes personal data when you use {serviceName}.",
-      "referenceNotice": "English is the reference language. This translation is provided for convenience only. If any translation differs, The English version prevails.",
+      "referenceNotice": "English is the reference language for all versions of this document. Translations into other languages are provided for convenience only; if any translation differs, the English version prevails.",
       "controllerTitle": "Controller",
       "controllerBody": "The controller for this service is {companyName}, {address}. Contact: {supportEmail}.",
       "categoriesTitle": "Categories of data",
@@ -286,7 +286,7 @@
     },
     "terms": {
       "pageDescription": "Terms for using {serviceName}, the letter-preparation and dispatch-submission service operated by {companyName}.",
-      "referenceNotice": "English is the reference language. This translation is provided for convenience only. If any translation differs, The English version prevails.",
+      "referenceNotice": "English is the reference language for all versions of this document. Translations into other languages are provided for convenience only; if any translation differs, the English version prevails.",
       "importantTitle": "Important",
       "importantItem1": "Your contract is with West Bay SA, not with Swiss Post.",
       "importantItem2": "At least one day is required, at the earliest, before your PDF can be printed and handed over to Swiss Post delivery services.",
@@ -325,7 +325,7 @@
       "contactLine": "Contact: {companyName}, {supportEmail}"
     },
     "imprint": {
-      "referenceNotice": "English is the reference language. This translation is provided for convenience only. If any translation differs, the English version prevails.",
+      "referenceNotice": "English is the reference language for all versions of this document. Translations into other languages are provided for convenience only; if any translation differs, the English version prevails.",
       "serviceTitle": "Service",
       "serviceBody": "{serviceName} is operated by {companyName}.",
       "operatorDetailsTitle": "Operator details",
