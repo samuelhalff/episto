@@ -25,7 +25,9 @@ describe("RootLayout", () => {
   it("marks the nonce-bearing theme bootstrap script as hydration-ignored", async () => {
     vi.stubGlobal("React", React);
     vi.doMock("next/font/google", () => ({
-      Inter: () => ({ variable: "font-test" }),
+      Source_Sans_3: () => ({ variable: "font-sans-test" }),
+      Source_Serif_4: () => ({ variable: "font-serif-test" }),
+      IBM_Plex_Mono: () => ({ variable: "font-mono-test" }),
     }));
     vi.doMock("next/headers", () => ({
       headers: async () => new Headers({ "x-nonce": "test-nonce" }),

@@ -98,9 +98,7 @@ describe("shared button system", () => {
     expect(globalsCssSource).toContain("--action-primary-hover:");
     expect(globalsCssSource).toContain("--action-secondary-bg:");
     expect(globalsCssSource).toContain("--action-secondary-border:");
-    expect(globalsCssSource).toContain(
-      "--action-secondary-border: rgba(24, 24, 27, 0.16);",
-    );
+    expect(globalsCssSource).toContain("--action-secondary-border: #161616;");
     expect(globalsCssSource).toContain("background-color: var(--action-primary-bg);");
     expect(globalsCssSource).toContain("background-color: var(--action-secondary-bg);");
   });

@@ -23,7 +23,9 @@ const config: Config = {
         destructive: "#dc2626",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        serif: ["var(--font-serif)", "Georgia", "Cambria", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
       },
       borderRadius: {
         "2.5xl": "1.25rem",
@@ -31,13 +33,13 @@ const config: Config = {
         "4xl": "2rem",
       },
       boxShadow: {
+        // Restrained shadows. Depth belongs to real/rendered paper artifacts,
+        // not to navigation, panels, or template rows — so the ambient
+        // "floating card" look is gone; dialogs keep a modest lift.
         subtle: "0 1px 2px 0 rgb(0 0 0 / 0.04)",
-        elevated:
-          "0 4px 16px -2px rgb(0 0 0 / 0.06), 0 1px 3px -1px rgb(0 0 0 / 0.04)",
-        prominent:
-          "0 16px 48px -8px rgb(0 0 0 / 0.08), 0 4px 8px -4px rgb(0 0 0 / 0.04)",
-        "prominent-warm":
-          "0 20px 60px -8px rgb(120 53 15 / 0.10), 0 4px 8px -4px rgb(0 0 0 / 0.03)",
+        elevated: "0 2px 6px -2px rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.04)",
+        prominent: "0 8px 24px -8px rgb(0 0 0 / 0.10), 0 2px 6px -4px rgb(0 0 0 / 0.05)",
+        "prominent-warm": "0 1px 2px 0 rgb(22 22 22 / 0.05)",
       },
       transitionDuration: {
         "150": "150ms",

@@ -40,7 +40,7 @@ export function MarketingHeading<T extends ElementType = "h2">({
   return (
     <Component
       {...props}
-      className={cx(getMarketingHeadingToneClassName(tone), className)}
+      className={cx("font-serif", getMarketingHeadingToneClassName(tone), className)}
     >
       {children}
     </Component>

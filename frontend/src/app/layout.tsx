@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Source_Serif_4, Source_Sans_3, IBM_Plex_Mono } from "next/font/google";
 import { headers } from "next/headers";
 import { getLocale } from "next-intl/server";
 import { AppProviders } from "../components/ui/AppProviders";
@@ -10,9 +10,22 @@ import { getThemeInitScript } from "../lib/theme-script";
 import { BRAND_NAME } from "../lib/brand";
 import "./globals.css";
 
-const inter = Inter({
+// Editorial type system: a serif for headings/leads, a humanist sans for body
+// and UI, and a mono reserved for postal metadata (order refs, tracking, docket).
+const sans = Source_Sans_3({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-sans",
+  display: "swap",
+});
+const serif = Source_Serif_4({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+});
+const mono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -47,7 +60,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   return (
     <html
       lang={locale}
-      className={inter.variable}
+      className={`${sans.variable} ${serif.variable} ${mono.variable}`}
       data-theme-ready="false"
       suppressHydrationWarning
     >

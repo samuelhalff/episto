@@ -11,30 +11,32 @@
 @layer base {
   :root {
     color-scheme: light;
-    --app-bg: #fffaf2;
-    --app-bg-start: rgba(245, 158, 11, 0.12);
-    --app-bg-mid: #fff7ec;
-    --app-bg-end: #ffffff;
-    --app-fg: #18181b;
-    --app-surface: rgba(255, 255, 255, 0.92);
+    /* Four-neutral paper system: paper, document white, ink, secondary ink,
+       and a defined hairline rule. Action yellow stays the only accent. */
+    --app-bg: #f5f2ea; /* paper */
+    --app-bg-start: transparent;
+    --app-bg-mid: #f5f2ea;
+    --app-bg-end: #f5f2ea;
+    --app-fg: #161616; /* ink */
+    --app-surface: #ffffff; /* document white (opaque, no translucency) */
     --app-surface-strong: #ffffff;
-    --app-surface-muted: #f6f4ef;
-    --app-surface-soft: #faf7f1;
-    --app-border: rgba(24, 24, 27, 0.08);
-    --app-border-strong: rgba(24, 24, 27, 0.14);
-    --app-muted: #71717a;
-    --app-muted-strong: #3f3f46;
-    --app-elevated-shadow: 0 20px 60px rgba(15, 23, 42, 0.08);
+    --app-surface-muted: #efe9dd; /* subtly darker paper for alternating bands */
+    --app-surface-soft: #f0ece2;
+    --app-border: #d7d2c8; /* rule */
+    --app-border-strong: #c8c2b5;
+    --app-muted: #5d5a54; /* secondary ink */
+    --app-muted-strong: #3a382f;
+    --app-elevated-shadow: 0 1px 2px rgba(22, 22, 22, 0.05);
     --action-primary-bg: #f6c54a;
     --action-primary-hover: #e9b93d;
-    --action-primary-fg: #18181b;
-    --action-secondary-bg: rgba(255, 255, 255, 0.92);
-    --action-secondary-hover: #f4efe6;
-    --action-secondary-fg: #52525b;
-    --action-secondary-border: rgba(24, 24, 27, 0.16);
+    --action-primary-fg: #161616;
+    --action-secondary-bg: #ffffff;
+    --action-secondary-hover: #f0ece2;
+    --action-secondary-fg: #3a382f;
+    --action-secondary-border: #161616;
     --action-choice-active-bg: rgba(246, 197, 74, 0.22);
-    --action-choice-active-fg: #744d00;
-    --action-choice-active-border: rgba(201, 137, 20, 0.28);
+    --action-choice-active-fg: #6b4700;
+    --action-choice-active-border: rgba(201, 137, 20, 0.32);
   }
 
   .dark {
@@ -72,16 +74,10 @@
 
   body {
     @apply antialiased;
+    /* Flat paper — no gradient. Depth comes from real artifacts, not ambient
+       washes. */
     background-color: var(--app-bg);
     color: var(--app-fg);
-    background-image:
-      radial-gradient(circle at top, var(--app-bg-start), transparent 32%),
-      linear-gradient(
-        180deg,
-        var(--app-bg-end) 0%,
-        var(--app-bg-mid) 38%,
-        var(--app-bg-end) 100%
-      );
     transition:
       background-color 220ms ease,
       color 220ms ease,
@@ -268,7 +264,7 @@
 
   /* Primary action button */
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-3.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98];
     background-color: var(--action-primary-bg);
     color: var(--action-primary-fg);
   }
@@ -283,7 +279,7 @@
 
   /* Secondary / outlined button */
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98];
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-3.5 text-sm font-semibold transition-all duration-200 active:scale-[0.98];
     background-color: var(--action-secondary-bg);
     color: var(--action-secondary-fg);
     border: 1px solid var(--action-secondary-border);
@@ -301,7 +297,7 @@
   }
 
   .btn-warning {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-3.5 text-sm font-semibold transition-all duration-200;
     background-color: #fef3c7;
     color: #78350f;
   }
@@ -324,7 +320,7 @@
   }
 
   .btn-destructive {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold text-white transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-3.5 text-sm font-semibold text-white transition-all duration-200;
     background-color: #dc2626;
   }
 
@@ -346,7 +342,7 @@
   }
 
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3.5 text-sm font-semibold transition-all duration-200;
+    @apply inline-flex items-center justify-center gap-2 rounded-md px-5 py-3.5 text-sm font-semibold transition-all duration-200;
     background-color: transparent;
     color: var(--app-muted-strong);
   }
