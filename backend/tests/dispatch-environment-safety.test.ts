@@ -121,4 +121,19 @@ describe("ePost dispatch environment safety", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it("caps service markups so an outrageous premium can't ship (regression guard)", () => {
+    const overpriced = EnvSchema.safeParse({
+      ...validEnv(),
+      PRICE_REGISTERED_MARKUP_CENTS: 1090,
+    });
+    expect(overpriced.success).toBe(false);
+
+    const sane = EnvSchema.safeParse({
+      ...validEnv(),
+      PRICE_STANDARD_MARKUP_CENTS: 290,
+      PRICE_REGISTERED_MARKUP_CENTS: 290,
+    });
+    expect(sane.success).toBe(true);
+  });
 });

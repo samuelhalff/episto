@@ -152,9 +152,22 @@ export const EnvSchema = z
     ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
     ADMIN_IP_ALLOWLIST: z.string().default(""),
 
-    // Pricing (integer cents, CHF only)
-    PRICE_STANDARD_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
-    PRICE_REGISTERED_MARKUP_CENTS: z.coerce.number().int().nonnegative().default(340),
+    // Pricing (integer cents, CHF only). Markups are capped at CHF 6.00 as a
+    // sanity guard so an accidental/outrageous premium (e.g. the old CHF 10.90)
+    // can never silently ship. Raise MAX_MARKUP_CENTS deliberately if a higher
+    // premium is ever truly intended.
+    PRICE_STANDARD_MARKUP_CENTS: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .max(600)
+      .default(290),
+    PRICE_REGISTERED_MARKUP_CENTS: z.coerce
+      .number()
+      .int()
+      .nonnegative()
+      .max(600)
+      .default(290),
 
     // Dispatch rate matrix refresh
     DISPATCH_RATE_MATRIX_TTL_HOURS: z.coerce.number().int().positive().default(24),

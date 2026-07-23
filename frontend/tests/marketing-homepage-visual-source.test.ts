@@ -43,15 +43,15 @@ describe("marketing homepage visual source coverage (letter system)", () => {
     expect(heroSource).not.toContain("Sparkles");
   });
 
-  it("renders the specimen as a flat real document plus a dispatch docket", () => {
-    expect(specimenSource).toContain("SPECIMEN_COPY");
-    // A mono dispatch docket replaces the decorative fake-mail styling.
-    expect(specimenSource).toContain("docket");
-    expect(specimenSource).toContain("font-mono");
-    // No fake postmark, no script signature, no tilt.
+  it("uses a real rendered letter image per locale, not a fake mock", () => {
+    // The hero shows an actual pipeline-rendered letter (per UI language) with
+    // an honest caption — no invented mock styling.
+    expect(specimenSource).toContain("/hero/letter-");
+    expect(specimenSource).toContain("HERO_CAPTION");
     expect(specimenSource).not.toContain("signature-script");
     expect(specimenSource).not.toContain("postmark");
     expect(specimenSource).not.toContain("rotate-[");
+    expect(specimenSource).not.toContain("letter-sheet");
   });
 
   it("presents the steps as numbered rows on a black rule (no yellow rail)", () => {
