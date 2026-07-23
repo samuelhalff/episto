@@ -53,7 +53,7 @@ export interface UseCheckoutReturn {
   paymentState: PaymentState | null;
   clientSecret: string | null;
   /** Initiates or resumes a payment intent and returns the latest checkout payload. */
-  createPaymentIntent: (email: string) => Promise<CheckoutResponse>;
+  createPaymentIntent: (email: string, promoCode?: string) => Promise<CheckoutResponse>;
   resetClientSecret: () => void;
   isProcessing: boolean;
   isBootstrapping: boolean;
@@ -94,10 +94,16 @@ export function useCheckout(
   });
 
   const checkoutMutation = useMutation({
-    mutationFn: (email: string) =>
+    mutationFn: ({
+      email,
+      promoCode,
+    }: {
+      email: string;
+      promoCode?: string | undefined;
+    }) =>
       apiFetch<CheckoutResponse>(`/v1/drafts/${draftId}/checkout`, {
         method: "POST",
-        body: JSON.stringify({ email }),
+        body: JSON.stringify(promoCode ? { email, promoCode } : { email }),
       }),
     onSuccess: (data) => {
       setClientSecret(data.clientSecret);
@@ -107,8 +113,8 @@ export function useCheckout(
   });
 
   const createPaymentIntent = useCallback(
-    async (email: string): Promise<CheckoutResponse> =>
-      checkoutMutation.mutateAsync(email),
+    async (email: string, promoCode?: string): Promise<CheckoutResponse> =>
+      checkoutMutation.mutateAsync({ email, promoCode }),
     [checkoutMutation],
   );
   const resetClientSecret = useCallback(() => {

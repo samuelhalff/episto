@@ -282,6 +282,14 @@ export const PaymentBreakdownSchema = z.object({
       source: z.enum(["provider", "swiss_mail"]),
     }),
   ),
+  // Present when a promo code reduced the price (audit trail).
+  promo: z
+    .object({
+      code: z.string().min(1),
+      kind: z.enum(["free", "percent", "fixed"]),
+      discountCents: z.number().int().nonnegative(),
+    })
+    .nullish(),
 });
 
 export const PaymentAttemptSchema = z.object({

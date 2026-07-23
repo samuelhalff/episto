@@ -15,6 +15,7 @@ import {
   SWISS_CHECKOUT_PAYMENT_METHOD_TYPES,
   updatePaymentIntentReceiptDetails,
 } from "./adapters/stripe.adapter.js";
+import { captureFreeOrder } from "./free-order.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 import {
   createPaymentAttempt,
@@ -22,9 +23,15 @@ import {
   setPaymentIntentId,
   transitionPaymentState,
 } from "./payment.service.js";
+import {
+  applyPromoToTotal,
+  recordPromoRedemption,
+  type AppliedPromo,
+} from "./promo.service.js";
 
 const CheckoutBody = z.object({
   email: z.string().email().max(254),
+  promoCode: z.string().trim().min(1).max(64).optional(),
 });
 
 const CHECKOUT_READY_DRAFT_STATUSES = new Set([
@@ -108,7 +115,74 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
         sessionId: session.id,
       });
       const resolvedPaymentQuote = await resolvePaymentDispatchQuoteForDraft(db, draftId);
-      const amountCents = resolvedPaymentQuote.quote.totalCents;
+      const baseQuote = resolvedPaymentQuote.quote;
+
+      // Apply a promo code strictly server-side; the client only submits the
+      // code string, and the charged total is (re)computed here.
+      let chargeCents = baseQuote.totalCents;
+      let appliedPromo: AppliedPromo | null = null;
+      if (body.promoCode) {
+        appliedPromo = await applyPromoToTotal(db, {
+          code: body.promoCode,
+          baseTotalCents: baseQuote.totalCents,
+        });
+        chargeCents = appliedPromo.finalCents;
+      }
+
+      const orderBreakdown = {
+        deliveryType: baseQuote.deliveryType,
+        providerQuotedCents: baseQuote.providerQuotedCents,
+        swissMailMarkupCents: baseQuote.swissMailMarkupCents,
+        totalCents: chargeCents,
+        providerQuoteReference: baseQuote.providerQuoteReference,
+        attachmentHandling: baseQuote.attachmentHandling,
+        lineItems: baseQuote.lineItems,
+        promo: appliedPromo
+          ? {
+              code: appliedPromo.code,
+              kind: appliedPromo.kind,
+              discountCents: appliedPromo.discountCents,
+            }
+          : null,
+      };
+
+      // Free order (fully discounted): capture directly, skipping Stripe.
+      // See captureFreeOrder for the existing-attempt reuse/cancel semantics.
+      if (chargeCents === 0 && appliedPromo) {
+        const outcome = await captureFreeOrder(db, {
+          draftId,
+          sessionId: session.id,
+          email: body.email,
+          promoCodeId: appliedPromo.promoCodeId,
+          signatureFlowMode: draft.signatureFlowMode,
+          verifiedPhone,
+          orderBreakdown,
+        });
+
+        await enqueueDispatchIfEligible({
+          db,
+          draftId,
+          paymentId: outcome.payment.id,
+          log: request.log,
+          failureMessage: "Failed to enqueue dispatch after free-order capture",
+          suppressFailure: true,
+        });
+        if (outcome.created) {
+          recordEvent({
+            event: "checkout_started",
+            draftId,
+            deliveryType: draft.deliveryType,
+            priceCents: 0,
+          });
+        }
+        return reply.send({
+          paymentAttemptId: outcome.payment.id,
+          clientSecret: null,
+          priceCents: outcome.payment.amountCents,
+          currency: "CHF" as const,
+          quote: outcome.created ? orderBreakdown : outcome.payment.breakdown,
+        });
+      }
 
       const createOrResumeCheckout = async () =>
         db.transaction(async (tx) => {
@@ -120,7 +194,15 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
           }
 
           const existing = await getPaymentForDraft(tx, draftId);
-          if (existing && NON_TERMINAL_STATES.includes(existing.state)) {
+          // A pending attempt whose amount no longer matches the (re)computed
+          // charge — e.g. a promo code was added on resume — is cancelled here so
+          // the block below creates a fresh attempt at the correct price. Only
+          // `pending` is safe to replace; an authorised/captured/settling order is
+          // already in flight with Stripe and must be reused untouched.
+          const amountChanged = existing?.amountCents !== chargeCents;
+          if (existing && existing.state === "pending" && amountChanged) {
+            await transitionPaymentState(tx, existing.id, "cancelled");
+          } else if (existing && NON_TERMINAL_STATES.includes(existing.state)) {
             return {
               isExisting: true as const,
               paymentAttemptId: existing.id,
@@ -132,24 +214,43 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             };
           }
 
+          // Defensive: a zero charge must never reach Stripe (handled above).
+          if (chargeCents <= 0) {
+            throw new AppError({
+              family: "payment_failure",
+              statusCode: 400,
+              code: "PAYMENT_INVALID_REQUEST",
+              message: "A zero-amount order cannot create a Stripe payment intent",
+              userMessage: "We could not start this checkout. Please try again.",
+              userAction: "Refresh and retry.",
+            });
+          }
+
+          // A discount (>0) consumes one redemption when the attempt is created.
+          if (appliedPromo) {
+            const consumed = await recordPromoRedemption(tx, appliedPromo.promoCodeId);
+            if (!consumed) {
+              throw new AppError({
+                family: "validation_error",
+                statusCode: 400,
+                code: "PROMO_LIMIT_REACHED",
+                message: "Promo code fully redeemed",
+                userMessage: "This promo code has reached its limit.",
+                userAction: "Remove the code to continue, or try another.",
+              });
+            }
+          }
+
           const payment = await createPaymentAttempt(tx, {
             draftId,
             sessionId: session.id,
-            amountCents,
+            amountCents: chargeCents,
             verifiedPhoneE164: verifiedPhone.phoneE164,
             phoneVerifiedAt: verifiedPhone.phoneVerifiedAt,
-            breakdown: {
-              deliveryType: resolvedPaymentQuote.quote.deliveryType,
-              providerQuotedCents: resolvedPaymentQuote.quote.providerQuotedCents,
-              swissMailMarkupCents: resolvedPaymentQuote.quote.swissMailMarkupCents,
-              totalCents: resolvedPaymentQuote.quote.totalCents,
-              providerQuoteReference: resolvedPaymentQuote.quote.providerQuoteReference,
-              attachmentHandling: resolvedPaymentQuote.quote.attachmentHandling,
-              lineItems: resolvedPaymentQuote.quote.lineItems,
-            },
+            breakdown: orderBreakdown,
           });
 
-          const stripeResult = await createPaymentIntent(amountCents, {
+          const stripeResult = await createPaymentIntent(chargeCents, {
             draftId,
             sessionId: session.id,
             paymentAttemptId: payment.id,
@@ -167,8 +268,8 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             paymentState: payment.state,
             stripePaymentIntentId: stripeResult.paymentIntentId,
             clientSecret: stripeResult.clientSecret,
-            priceCents: amountCents,
-            quote: resolvedPaymentQuote.quote,
+            priceCents: chargeCents,
+            quote: orderBreakdown,
           };
         });
 

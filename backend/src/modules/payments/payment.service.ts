@@ -77,8 +77,10 @@ export async function createPaymentAttempt(
     phoneVerifiedAt?: Date | null | undefined;
   },
 ): Promise<PaymentAttemptRow> {
-  if (data.amountCents <= 0) {
-    throw validationError("Amount must be a positive integer in cents.");
+  // 0 is allowed only for fully-discounted (free-promo) orders, which skip
+  // Stripe and are captured directly. Negative amounts are always invalid.
+  if (data.amountCents < 0 || !Number.isInteger(data.amountCents)) {
+    throw validationError("Amount must be a non-negative integer in cents.");
   }
 
   const [row] = await db

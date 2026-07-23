@@ -712,7 +712,9 @@
     "continueToPayment": "Avanti",
     "calculatingPayment": "Calcolo…",
     "backToReview": "Indietro",
-    "paymentMethodsHelp": "TWINT appare per primo, seguito da carta, Apple Pay, Google Pay e dagli altri wallet supportati quando Stripe e il Suo dispositivo li rendono disponibili."
+    "paymentMethodsHelp": "TWINT appare per primo, seguito da carta, Apple Pay, Google Pay e dagli altri wallet supportati quando Stripe e il Suo dispositivo li rendono disponibili.",
+    "promoCode": "Codice promozionale (facoltativo)",
+    "promoCodeHelp": "Se ha un codice promozionale o un buono."
   },
   "attachments": {
     "title": "Allegati",
