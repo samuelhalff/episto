@@ -218,6 +218,9 @@ services:
       NODE_ENV: production
       PORT: "3000"
       HOSTNAME: "0.0.0.0"
+      # Server-side (RSC) calls to the backend on the shared proxy network — used
+      # by getServicePriceBand to read the cached pricing snapshot for JSON-LD.
+      API_URL: http://backend:4000
     depends_on:
       backend:
         condition: service_healthy
