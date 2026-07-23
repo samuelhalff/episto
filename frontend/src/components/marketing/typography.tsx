@@ -93,9 +93,10 @@ export function MarketingBody<T extends ElementType = "p">({
 }
 
 const MARKETING_META_TONE_CLASS_NAMES = {
-  default: "text-zinc-400 dark:text-zinc-500",
-  muted: "text-zinc-500 dark:text-zinc-400",
-  accent: "text-zinc-500 dark:text-amber-200/80",
+  // Secondary ink rather than pale zinc, so metadata stays legible on paper.
+  default: "text-[var(--app-muted)] dark:text-zinc-500",
+  muted: "text-[var(--app-muted)] dark:text-zinc-400",
+  accent: "text-[var(--app-muted-strong)] dark:text-amber-200/80",
   hero: "text-zinc-600 dark:text-white/70",
   inverse: "text-white/70",
   inherit: "text-inherit",

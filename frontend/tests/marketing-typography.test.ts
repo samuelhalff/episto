@@ -72,7 +72,7 @@ describe("marketing typography primitives", () => {
 
     expect(typographySource).toContain("text-zinc-950 dark:text-zinc-50");
     expect(typographySource).toContain("text-zinc-600 dark:text-zinc-300");
-    expect(typographySource).toContain("text-zinc-400 dark:text-zinc-500");
+    expect(typographySource).toContain("text-[var(--app-muted)] dark:text-zinc-500");
 
     for (const relativePath of auditedMarketingTextFiles) {
       const source = readFileSync(path.join(repoRoot, relativePath), "utf8");
