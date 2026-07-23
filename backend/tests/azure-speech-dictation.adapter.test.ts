@@ -43,16 +43,30 @@ const mocks = vi.hoisted(() => {
     constructor() {
       MockSpeechRecognizer.instances.push(this);
     }
+
+    // Auto-detect recognizer factory used by the adapter.
+    static FromConfig(
+      _config: unknown,
+      autoDetect: { languages: string[] },
+      _audioConfig: unknown,
+    ) {
+      autoDetectCandidates.push(autoDetect.languages);
+      return new MockSpeechRecognizer();
+    }
   }
+
+  const autoDetectCandidates: string[][] = [];
 
   return {
     pushStream,
     phraseList,
     speechConfigs,
+    autoDetectCandidates,
     fromSubscription: vi.fn(() => {
       const config = {
         speechRecognitionLanguage: "",
-        endpointId: undefined,
+        endpointId: undefined as string | undefined,
+        setProperty: vi.fn(),
       };
       speechConfigs.push(config);
       return config;
@@ -63,6 +77,7 @@ const mocks = vi.hoisted(() => {
 });
 
 vi.mock("../src/shared/config/index.js", () => ({
+  isEnvLoaded: () => false,
   env: () => ({
     AZURE_SPEECH_REGION: "switzerlandnorth",
     AZURE_SPEECH_API_KEY: "speech-key",
@@ -88,6 +103,12 @@ vi.mock("microsoft-cognitiveservices-speech-sdk", () => ({
   SpeechConfig: {
     fromSubscription: mocks.fromSubscription,
   },
+  PropertyId: {
+    SpeechServiceConnection_LanguageIdMode: "SpeechServiceConnection_LanguageIdMode",
+  },
+  AutoDetectSourceLanguageConfig: {
+    fromLanguages: vi.fn((languages: string[]) => ({ languages })),
+  },
   CancellationReason: {
     EndOfStream: "EndOfStream",
   },
@@ -98,9 +119,28 @@ vi.mock("microsoft-cognitiveservices-speech-sdk", () => ({
 }));
 
 import {
+  buildCandidateLanguages,
   createLiveDictationStream,
   transcribeBufferedWav,
 } from "../src/modules/drafting/adapters/azure-speech-dictation.adapter.js";
+
+describe("buildCandidateLanguages", () => {
+  it("leads with the requested locale and always offers all four languages", () => {
+    expect(buildCandidateLanguages("de-CH")).toEqual([
+      "de-CH",
+      "fr-CH",
+      "it-CH",
+      "en-GB",
+    ]);
+    expect(buildCandidateLanguages("fr-CH")[0]).toBe("fr-CH");
+    expect(buildCandidateLanguages("it-CH")[0]).toBe("it-CH");
+    // en-CH maps to Azure's en-GB and must not be duplicated.
+    const en = buildCandidateLanguages("en-CH");
+    expect(en[0]).toBe("en-GB");
+    expect(en).toHaveLength(4);
+    expect(new Set(en).size).toBe(4);
+  });
+});
 
 function buildTestWav(pcmBytes: Uint8Array) {
   const header = new ArrayBuffer(44);
@@ -132,6 +172,7 @@ describe("Azure speech dictation adapter", () => {
   beforeEach(() => {
     mocks.MockSpeechRecognizer.instances.length = 0;
     mocks.speechConfigs.length = 0;
+    mocks.autoDetectCandidates.length = 0;
     mocks.fromSubscription.mockClear();
     mocks.pushStream.write.mockReset();
     mocks.pushStream.close.mockReset();
@@ -177,7 +218,7 @@ describe("Azure speech dictation adapter", () => {
     expect(mocks.phraseList.addPhrase).toHaveBeenCalledWith("Swiss Post");
   });
 
-  it("maps the app English Swiss locale to an Azure-supported speech locale", async () => {
+  it("uses automatic language detection with the English Swiss locale mapped to en-GB, first", async () => {
     await createLiveDictationStream({
       locale: "en-CH",
       hints: [],
@@ -188,7 +229,14 @@ describe("Azure speech dictation adapter", () => {
       },
     });
 
-    expect(mocks.speechConfigs[0]?.speechRecognitionLanguage).toBe("en-GB");
+    const candidates = mocks.autoDetectCandidates[0];
+    // The UI locale (en-CH → en-GB) leads, and all four supported languages are
+    // candidates so the spoken language is detected regardless of UI language.
+    expect(candidates?.[0]).toBe("en-GB");
+    expect(candidates).toEqual(
+      expect.arrayContaining(["de-CH", "fr-CH", "it-CH", "en-GB"]),
+    );
+    expect(candidates).toHaveLength(4);
   });
 
   it("concatenates buffered transcription segments into one transcript", async () => {

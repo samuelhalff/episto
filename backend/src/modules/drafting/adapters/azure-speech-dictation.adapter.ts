@@ -3,13 +3,48 @@ import * as speechsdk from "microsoft-cognitiveservices-speech-sdk";
 
 import { env } from "../../../shared/config/index.js";
 import { providerOutageError } from "../../../shared/errors/index.js";
+import { createLogger } from "../../../shared/logging/index.js";
 import { extractBufferedWavPcm } from "./buffered-wav-audio.js";
+
+const logger = createLogger("azure-speech-dictation");
 
 const PCM_BITS_PER_SAMPLE = 16;
 const BATCH_TRANSCRIPTION_GRACE_MS = 15_000;
 const AZURE_SPEECH_LOCALE_OVERRIDES: Record<string, string> = {
   "en-CH": "en-GB",
 };
+
+// The languages Episto supports, mapped to Azure recognition locales. Used as
+// the candidate set for automatic language identification so a speaker is
+// transcribed in the language they actually speak — not the UI/browser locale
+// (a French speaker on an English browser must not be recognised as English).
+const SUPPORTED_DICTATION_LOCALES = ["de-CH", "fr-CH", "it-CH", "en-CH"] as const;
+// At-start language identification allows at most four candidate languages,
+// which is exactly Switzerland's set here.
+const MAX_LANGUAGE_ID_CANDIDATES = 4;
+
+function resolveAzureLocale(locale: string): string {
+  return AZURE_SPEECH_LOCALE_OVERRIDES[locale] ?? locale;
+}
+
+/**
+ * Candidate languages for automatic language identification. The requested UI
+ * locale goes first (a tie-break hint that keeps, e.g., a German UI leaning
+ * German), followed by the rest of the supported languages.
+ */
+export function buildCandidateLanguages(locale: string): string[] {
+  const primary = resolveAzureLocale(locale);
+  const seen = new Set<string>([primary]);
+  const candidates = [primary];
+  for (const supported of SUPPORTED_DICTATION_LOCALES) {
+    const azureLocale = resolveAzureLocale(supported);
+    if (!seen.has(azureLocale)) {
+      seen.add(azureLocale);
+      candidates.push(azureLocale);
+    }
+  }
+  return candidates.slice(0, MAX_LANGUAGE_ID_CANDIDATES);
+}
 
 export interface LiveDictationCallbacks {
   onPartial: (text: string) => void;
@@ -24,20 +59,54 @@ export interface LiveDictationSession {
   close: () => Promise<void>;
 }
 
-function createSpeechConfig(locale: string) {
+function createBaseSpeechConfig() {
   const speechEnv = env();
-  const config = speechsdk.SpeechConfig.fromSubscription(
+  return speechsdk.SpeechConfig.fromSubscription(
     speechEnv.AZURE_SPEECH_API_KEY,
     speechEnv.AZURE_SPEECH_REGION,
   );
+}
 
-  config.speechRecognitionLanguage = AZURE_SPEECH_LOCALE_OVERRIDES[locale] ?? locale;
-
+/** Single fixed recognition language — the pre-auto-detect behaviour, kept as a
+ * fallback and for custom-endpoint deployments (which can't use multi-language
+ * identification). */
+function createSingleLanguageRecognizer(
+  locale: string,
+  audioConfig: speechsdk.AudioConfig,
+) {
+  const speechEnv = env();
+  const config = createBaseSpeechConfig();
+  config.speechRecognitionLanguage = resolveAzureLocale(locale);
   if (speechEnv.AZURE_SPEECH_CUSTOM_ENDPOINT_ID) {
     config.endpointId = speechEnv.AZURE_SPEECH_CUSTOM_ENDPOINT_ID;
   }
+  return new speechsdk.SpeechRecognizer(config, audioConfig);
+}
 
-  return config;
+/** Recognizer with automatic language identification across the supported
+ * languages, so the spoken language is detected rather than assumed from the
+ * UI locale. Falls back to single-language recognition on any setup failure so
+ * dictation can never be worse than before. */
+function createAutoDetectRecognizer(locale: string, audioConfig: speechsdk.AudioConfig) {
+  try {
+    const config = createBaseSpeechConfig();
+    // Detect the language once at the start of the utterance (lower latency than
+    // continuous LID, and a dictation turn is a single language).
+    config.setProperty(
+      speechsdk.PropertyId.SpeechServiceConnection_LanguageIdMode,
+      "AtStart",
+    );
+    const autoDetectConfig = speechsdk.AutoDetectSourceLanguageConfig.fromLanguages(
+      buildCandidateLanguages(locale),
+    );
+    return speechsdk.SpeechRecognizer.FromConfig(config, autoDetectConfig, audioConfig);
+  } catch (error) {
+    logger.warn(
+      { err: error instanceof Error ? error.message : String(error), locale },
+      "Auto language-detection setup failed; falling back to single language",
+    );
+    return createSingleLanguageRecognizer(locale, audioConfig);
+  }
 }
 
 function createPushStream() {
@@ -124,10 +193,12 @@ function createRecognizer(
   audioConfig: speechsdk.AudioConfig,
   hints: string[],
 ) {
-  const recognizer = new speechsdk.SpeechRecognizer(
-    createSpeechConfig(locale),
-    audioConfig,
-  );
+  // A custom endpoint targets one language model, which is incompatible with
+  // multi-language identification — keep single-language there.
+  const useAutoDetect = !env().AZURE_SPEECH_CUSTOM_ENDPOINT_ID;
+  const recognizer = useAutoDetect
+    ? createAutoDetectRecognizer(locale, audioConfig)
+    : createSingleLanguageRecognizer(locale, audioConfig);
 
   applyPhraseHints(recognizer, hints);
 
