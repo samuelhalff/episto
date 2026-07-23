@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/shared/config/index.js", () => ({
+  isEnvLoaded: () => false,
   env: () => ({
     EPOST_API_BASE_URL: "https://api.epost.ch",
     EPOST_API_KEY: "test-api-key",

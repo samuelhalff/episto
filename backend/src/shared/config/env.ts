@@ -254,6 +254,23 @@ export const EnvSchema = z
   )
   .refine(
     (data) => {
+      // Guard the silent-charge footgun: in production the ePost provider must
+      // run in live mode. Mock mode would fake an "accepted" dispatch and let
+      // the payment capture WITHOUT ever submitting a letter to Swiss Post.
+      if (data.NODE_ENV === "production" && data.POSTAL_DISPATCH_PROVIDER === "epost") {
+        return data.EPOST_SUBMISSION_MODE === "live";
+      }
+
+      return true;
+    },
+    {
+      message:
+        "In production with POSTAL_DISPATCH_PROVIDER=epost, EPOST_SUBMISSION_MODE must be 'live'. " +
+        "Mock mode would charge customers without sending any letter — refusing to start.",
+    },
+  )
+  .refine(
+    (data) => {
       if (
         data.AZURE_AI_PROJECT_ENDPOINT &&
         data.AZURE_EXISTING_AIPROJECT_ENDPOINT &&

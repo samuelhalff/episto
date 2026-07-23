@@ -106,4 +106,19 @@ describe("ePost dispatch environment safety", () => {
     });
     expect(result.success).toBe(true);
   });
+
+  it("rejects mock ePost in production (silent-charge footgun)", () => {
+    const result = EnvSchema.safeParse({
+      ...validEnv(),
+      NODE_ENV: "production",
+      POSTAL_DISPATCH_PROVIDER: "epost",
+      EPOST_API_KEY: "epost-live-key",
+      EPOST_SUBMISSION_MODE: "mock",
+      CORS_ORIGIN: "https://episto.ch",
+      APP_PUBLIC_URL: "https://episto.ch",
+      STRIPE_SECRET_KEY: "sk_test_abc123",
+      ...productionSmsEnv(),
+    });
+    expect(result.success).toBe(false);
+  });
 });

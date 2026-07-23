@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/shared/config/index.js", () => ({
+  isEnvLoaded: () => false,
   env: () => ({
     EPOST_API_BASE_URL: "https://api.epost.ch",
     EPOST_API_KEY: "test-api-key",
@@ -69,6 +70,25 @@ describe("EpostDispatchAdapter mock submission mode", () => {
     });
 
     expect(httpClient.requestJson).not.toHaveBeenCalled();
+  });
+
+  it("refuses a mock submission when NODE_ENV=production (never fake-send in prod)", async () => {
+    const httpClient = {
+      requestJson: vi.fn(),
+      createPricingPreview: vi.fn(),
+    } satisfies EpostHttpClientLike;
+    const adapter = new EpostDispatchAdapter({ submissionMode: "mock", httpClient });
+
+    const previous = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    try {
+      await expect(adapter.submit(basePackage)).rejects.toMatchObject({
+        code: "EPOST_MOCK_IN_PRODUCTION",
+      });
+      expect(httpClient.requestJson).not.toHaveBeenCalled();
+    } finally {
+      process.env.NODE_ENV = previous;
+    }
   });
 
   it("returns a deterministic accepted status lookup for mock references", async () => {
