@@ -5,6 +5,7 @@ import { MarketingHero } from "@/components/marketing/MarketingHero";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { PricingBreakdownSection } from "@/components/marketing/PricingPageClient";
 import { buildMarketingMetadata, buildServiceJsonLd } from "@/lib/marketing-seo";
+import { getServicePriceBand } from "@/lib/server-pricing";
 
 export async function generateMetadata({
   params,
@@ -31,6 +32,7 @@ export default async function PricingPage({
   const t = await getTranslations({ locale, namespace: "pricing" });
   const tm = await getTranslations({ locale, namespace: "marketing" });
   const seo = await getTranslations({ locale, namespace: "seo" });
+  const priceBand = await getServicePriceBand();
 
   return (
     <>
@@ -40,6 +42,7 @@ export default async function PricingPage({
           title: seo("pricing.title"),
           description: seo("pricing.description"),
           pathname: "/pricing",
+          priceBand,
         })}
       />
       <MarketingLayout>

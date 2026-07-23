@@ -16,6 +16,7 @@ import {
   buildServiceJsonLd,
   buildWebsiteJsonLd,
 } from "../../lib/marketing-seo";
+import { getServicePriceBand } from "../../lib/server-pricing";
 import { MarketingSection } from "../../components/marketing/primitives";
 
 export async function generateMetadata({
@@ -42,6 +43,7 @@ export default async function HomePage({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "marketing" });
   const seo = await getTranslations({ locale, namespace: "seo" });
+  const priceBand = await getServicePriceBand();
 
   return (
     <>
@@ -53,6 +55,7 @@ export default async function HomePage({
             locale,
             title: seo("home.title"),
             description: seo("home.description"),
+            priceBand,
           }),
         ]}
       />

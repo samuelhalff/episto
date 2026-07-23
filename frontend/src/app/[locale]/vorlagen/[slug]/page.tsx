@@ -19,6 +19,7 @@ import {
   buildServiceJsonLd,
   getSiteUrl,
 } from "@/lib/marketing-seo";
+import { getServicePriceBand } from "@/lib/server-pricing";
 import {
   getLandingPage,
   isLandingLocale,
@@ -75,6 +76,7 @@ export default async function LandingPageRoute({
   const ui = LANDING_UI[locale];
   const site = getSiteUrl();
   const pageUrl = `${site}/${locale}/vorlagen/${slug}`;
+  const priceBand = await getServicePriceBand();
 
   return (
     <>
@@ -85,6 +87,7 @@ export default async function LandingPageRoute({
             title: page.metaTitle,
             description: page.metaDescription,
             pathname: `/vorlagen/${slug}`,
+            priceBand,
           }),
           buildHowToJsonLd({
             name: page.h1,

@@ -8,6 +8,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(repoRoot, "frontend/src"),
+      // `server-only` is a Next.js runtime marker with no test-env equivalent;
+      // stub it so server modules that import it can be unit-tested.
+      "server-only": path.resolve(repoRoot, "frontend/test/stubs/server-only.ts"),
     },
   },
   test: {

@@ -3,16 +3,7 @@ import { routing } from "../i18n/routing";
 import { BRAND_NAME } from "./brand";
 import { LEGAL_OPERATOR } from "./legal-config";
 import { env } from "./env";
-
-/**
- * Price band (CHF) surfaced in Offer structured data — the TOTAL price a
- * customer pays (postage + service), matching what the pricing pages show via
- * live data (standard CHF 7.55, registered CHF 17.15). These are the real
- * transaction totals, not the service markup. Keep in sync with the ePost
- * reference rate matrix if postage changes.
- */
-const PRICE_STANDARD_CHF = "7.55";
-const PRICE_REGISTERED_CHF = "17.15";
+import type { ServicePriceBand } from "./server-pricing";
 
 type Locale = (typeof routing.locales)[number];
 
@@ -168,11 +159,18 @@ export function buildServiceJsonLd({
   title,
   description,
   pathname = "",
+  priceBand,
 }: {
   locale: Locale;
   title: string;
   description: string;
   pathname?: string | undefined;
+  /**
+   * Postage-inclusive price band sourced from the cached rate matrix
+   * (see getServicePriceBand). Omitted when unavailable so a stale/wrong price
+   * is never advertised in structured data.
+   */
+  priceBand?: ServicePriceBand | null | undefined;
 }) {
   return {
     "@context": "https://schema.org",
@@ -188,14 +186,18 @@ export function buildServiceJsonLd({
       name: BRAND_NAME,
       url: getSiteUrl(),
     },
-    offers: {
-      "@type": "AggregateOffer",
-      priceCurrency: "CHF",
-      lowPrice: PRICE_STANDARD_CHF,
-      highPrice: PRICE_REGISTERED_CHF,
-      offerCount: 2,
-      availability: "https://schema.org/InStock",
-    },
+    ...(priceBand
+      ? {
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: priceBand.currency,
+            lowPrice: priceBand.lowPrice,
+            highPrice: priceBand.highPrice,
+            offerCount: 2,
+            availability: "https://schema.org/InStock",
+          },
+        }
+      : {}),
   };
 }
 
