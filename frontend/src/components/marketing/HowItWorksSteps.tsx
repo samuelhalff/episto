@@ -20,17 +20,13 @@ export function HowItWorksSteps() {
           className="lg:sticky lg:top-28 lg:self-start"
         />
 
-        <ol className="relative pl-7 sm:pl-9">
-          <span
-            aria-hidden="true"
-            className="route-rail absolute bottom-3 left-0 top-3 w-[3px] rounded-full"
-          />
+        <ol className="relative">
           {stepKeys.map((key, index) => (
             <li
               key={key}
-              className="hairline grid grid-cols-[auto_1fr] gap-x-5 border-t py-7 first:border-t-0 first:pt-0 sm:gap-x-7"
+              className="grid grid-cols-[auto_1fr] gap-x-5 border-t-2 border-[var(--app-fg)] py-7 first:pt-0 sm:gap-x-7"
             >
-              <span className="numeral text-3xl font-semibold text-[var(--action-choice-active-fg)] sm:text-4xl dark:text-amber-200/90">
+              <span className="numeral text-3xl font-semibold text-[var(--app-fg)] sm:text-4xl">
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div className="pt-1">

@@ -43,16 +43,21 @@ describe("marketing homepage visual source coverage (letter system)", () => {
     expect(heroSource).not.toContain("Sparkles");
   });
 
-  it("renders the letter specimen with sheet, signature and postmark details", () => {
-    expect(specimenSource).toContain("letter-sheet");
-    expect(specimenSource).toContain("signature-script");
-    expect(specimenSource).toContain("postmark");
+  it("renders the specimen as a flat real document plus a dispatch docket", () => {
     expect(specimenSource).toContain("SPECIMEN_COPY");
+    // A mono dispatch docket replaces the decorative fake-mail styling.
+    expect(specimenSource).toContain("docket");
+    expect(specimenSource).toContain("font-mono");
+    // No fake postmark, no script signature, no tilt.
+    expect(specimenSource).not.toContain("signature-script");
+    expect(specimenSource).not.toContain("postmark");
+    expect(specimenSource).not.toContain("rotate-[");
   });
 
-  it("presents the steps as a numbered route joined by a yellow rail", () => {
+  it("presents the steps as numbered rows on a black rule (no yellow rail)", () => {
     expect(howItWorksSource).toContain('padStart(2, "0")');
-    expect(howItWorksSource).toContain("route-rail");
+    expect(howItWorksSource).toContain("border-t-2 border-[var(--app-fg)]");
+    expect(howItWorksSource).not.toContain("route-rail");
     expect(howItWorksSource).not.toContain("MarketingFeatureSection");
   });
 

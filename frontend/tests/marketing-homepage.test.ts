@@ -370,7 +370,7 @@ describe("marketing homepage shared visual primitives", () => {
     const useCasesMarkup = renderWithMessages(UseCaseGrid, messages);
 
     expect(howItWorksMarkup).toContain(">01<");
-    expect(howItWorksMarkup).toContain("route-rail");
+    expect(howItWorksMarkup).not.toContain("route-rail");
     expect(confidenceMarkup).toContain("hairline");
     expect(useCasesMarkup).toContain("hairline");
     // The old coloured icon tiles are gone from the mid-page sections.

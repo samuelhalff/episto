@@ -1,64 +1,110 @@
 import type { Locale } from "../../i18n/routing";
 
 /**
- * A realistic specimen of Swiss formal correspondence, used as the homepage
- * hero visual. It shows the actual product (a drafted, print-ready letter)
- * rather than an abstract app mockup. Decorative: hidden from assistive tech.
+ * Homepage hero visual: a flat, straight, real typeset sample letter (clearly
+ * marked MUSTER) with a mono "dispatch docket" beneath it — the physical output
+ * of the product, shown honestly. No grey placeholder bars, no fake date stamp,
+ * no decorative script signature, no tilt.
  *
- * Copy here is intentionally local (not in the message catalog): it is an
- * illustrative sample, and the per-locale labels keep the specimen believable
- * to a Swiss reader without churning the translation files.
+ * Copy is intentionally local (not in the message catalog): it is an
+ * illustrative, clearly-labelled sample, and keeping it here avoids churning the
+ * translation files for non-user-facing specimen text.
  */
-export const SPECIMEN_COPY: Record<
-  Locale,
-  {
-    city: string;
-    betreff: string;
-    subject: string;
-    salutation: string;
-    closing: string;
-    signatory: string;
-  }
-> = {
+interface SpecimenCopy {
+  sampleLabel: string;
+  city: string;
+  subjectLabel: string;
+  subject: string;
+  salutation: string;
+  body: string;
+  closing: string;
+  signatory: string;
+  docket: {
+    dispatch: string;
+    dispatchValue: string;
+    pages: string;
+    status: string;
+    statusValue: string;
+  };
+}
+
+export const SPECIMEN_COPY: Record<Locale, SpecimenCopy> = {
   "de-CH": {
+    sampleLabel: "Muster",
     city: "Zürich",
-    betreff: "Betreff",
-    subject: "Kündigung Mietvertrag",
-    salutation: "Sehr geehrte Damen und Herren,",
+    subjectLabel: "Betreff",
+    subject: "Kündigung Mietvertrag, Bahnhofstrasse 12",
+    salutation: "Sehr geehrte Damen und Herren",
+    body: "Hiermit kündige ich den Mietvertrag für die oben genannte Wohnung ordentlich und fristgerecht per 30. September. Ich bitte Sie um eine schriftliche Bestätigung des Kündigungstermins.",
     closing: "Freundliche Grüsse",
-    signatory: "M. Keller",
+    signatory: "Martin Keller",
+    docket: {
+      dispatch: "Versandart",
+      dispatchValue: "Einschreiben",
+      pages: "Seiten",
+      status: "Status",
+      statusValue: "Bereit zur Freigabe",
+    },
   },
   "fr-CH": {
+    sampleLabel: "Modèle",
     city: "Genève",
-    betreff: "Objet",
-    subject: "Résiliation du bail",
-    salutation: "Madame, Monsieur,",
+    subjectLabel: "Objet",
+    subject: "Résiliation du bail, rue du Rhône 12",
+    salutation: "Madame, Monsieur",
+    body: "Par la présente, je résilie le bail de l'appartement susmentionné dans les délais ordinaires pour le 30 septembre. Je vous prie de bien vouloir me confirmer par écrit la date de résiliation.",
     closing: "Meilleures salutations",
-    signatory: "M. Rochat",
+    signatory: "Martin Rochat",
+    docket: {
+      dispatch: "Envoi",
+      dispatchValue: "Recommandé",
+      pages: "Pages",
+      status: "Statut",
+      statusValue: "Prêt à valider",
+    },
   },
   "it-CH": {
+    sampleLabel: "Fac-simile",
     city: "Lugano",
-    betreff: "Oggetto",
-    subject: "Disdetta del contratto di locazione",
-    salutation: "Egregi Signori,",
+    subjectLabel: "Oggetto",
+    subject: "Disdetta del contratto di locazione, via Nassa 12",
+    salutation: "Egregi Signori",
+    body: "Con la presente disdico il contratto di locazione dell'appartamento sopra indicato nei termini ordinari per il 30 settembre. Vi prego di confermarmi per iscritto la data di disdetta.",
     closing: "Distinti saluti",
-    signatory: "M. Bernasconi",
+    signatory: "Martin Bernasconi",
+    docket: {
+      dispatch: "Spedizione",
+      dispatchValue: "Raccomandata",
+      pages: "Pagine",
+      status: "Stato",
+      statusValue: "Pronto per l'invio",
+    },
   },
   "en-CH": {
+    sampleLabel: "Sample",
     city: "Zurich",
-    betreff: "Subject",
-    subject: "Termination of lease agreement",
-    salutation: "Dear Sir or Madam,",
+    subjectLabel: "Subject",
+    subject: "Termination of lease, Bahnhofstrasse 12",
+    salutation: "Dear Sir or Madam",
+    body: "I hereby terminate the lease for the above apartment with ordinary notice, effective 30 September. Please confirm the termination date to me in writing.",
     closing: "Kind regards",
-    signatory: "M. Keller",
+    signatory: "Martin Keller",
+    docket: {
+      dispatch: "Dispatch",
+      dispatchValue: "Registered",
+      pages: "Pages",
+      status: "Status",
+      statusValue: "Ready to send",
+    },
   },
 };
 
-function Bar({ className }: { className?: string }) {
+function DocketRow({ label, value }: { label: string; value: string }) {
   return (
-    <span
-      className={`block rounded-full bg-zinc-300/70 dark:bg-zinc-600/50 ${className ?? ""}`}
-    />
+    <div className="flex items-center justify-between gap-4 border-t border-[var(--app-border)] py-1.5 first:border-t-0">
+      <span className="uppercase tracking-[0.12em] text-[var(--app-muted)]">{label}</span>
+      <span className="text-[var(--app-fg)]">{value}</span>
+    </div>
   );
 }
 
@@ -70,68 +116,49 @@ export function LetterSpecimen({ locale }: { locale: Locale }) {
     year: "numeric",
     timeZone: "Europe/Zurich",
   }).format(new Date());
-  const stamp = new Intl.DateTimeFormat("de-CH", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "2-digit",
-    timeZone: "Europe/Zurich",
-  }).format(new Date());
 
   return (
-    <div aria-hidden="true" className="relative mx-auto w-full max-w-[30rem]">
-      <div className="letter-sheet rotate-[1.4deg] rounded-[1.5rem] px-7 py-8 sm:px-9 sm:py-10">
-        {/* Postmark — restrained, static */}
-        <div className="pointer-events-none absolute right-3 top-3 sm:right-5 sm:top-6">
-          <div className="postmark flex h-16 w-16 flex-col items-center justify-center text-center text-[8px] font-semibold uppercase leading-tight tracking-wide sm:h-[4.75rem] sm:w-[4.75rem]">
-            <span>8000</span>
-            <span className="text-[10px]">Zürich</span>
-            <span>{stamp}</span>
-          </div>
-        </div>
-
-        {/* Sender + date */}
-        <div className="flex items-start justify-between gap-6">
-          <div className="space-y-1.5 pt-0.5">
-            <Bar className="h-2 w-24" />
-            <Bar className="h-2 w-20" />
-          </div>
-          <p className="numeral shrink-0 pt-0.5 text-[11px] text-zinc-500 dark:text-zinc-400">
+    <div aria-hidden="true" className="relative mx-auto w-full max-w-[27rem]">
+      {/* The letter — flat, straight document white on the paper background. */}
+      <div className="rounded-sm border border-[var(--app-border)] bg-white px-8 py-9 text-zinc-800 shadow-[0_1px_2px_rgba(22,22,22,0.06)] sm:px-10 sm:py-11">
+        <div className="flex items-start justify-between gap-6 font-sans">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[var(--app-muted)]">
+            {copy.sampleLabel}
+          </p>
+          <p className="numeral shrink-0 text-[11px] text-zinc-500">
             {copy.city}, {dateLabel}
           </p>
         </div>
 
-        {/* Recipient */}
-        <div className="mt-8 space-y-2">
-          <Bar className="h-2.5 w-40" />
-          <Bar className="h-2.5 w-32" />
-          <Bar className="h-2.5 w-36" />
-        </div>
-
-        {/* Subject */}
-        <p className="mt-8 text-sm font-semibold text-zinc-800 dark:text-zinc-100">
-          <span className="text-zinc-500 dark:text-zinc-400">{copy.betreff}: </span>
-          {copy.subject}
+        <p className="mt-8 font-sans text-sm text-zinc-900">
+          <span className="text-zinc-500">{copy.subjectLabel}: </span>
+          <span className="font-semibold">{copy.subject}</span>
         </p>
 
-        {/* Salutation + body */}
-        <p className="mt-5 text-[13px] text-zinc-600 dark:text-zinc-300">
-          {copy.salutation}
+        <p className="mt-6 font-serif text-[15px] leading-7 text-zinc-700">
+          {copy.salutation},
         </p>
-        <div className="mt-4 space-y-2.5">
-          <Bar className="h-2 w-full" />
-          <Bar className="h-2 w-[94%]" />
-          <Bar className="h-2 w-[97%]" />
-          <Bar className="h-2 w-[88%]" />
-          <Bar className="h-2 w-[62%]" />
-        </div>
+        <p className="mt-3 font-serif text-[15px] leading-7 text-zinc-700">{copy.body}</p>
 
-        {/* Closing + signature */}
-        <p className="mt-7 text-[13px] text-zinc-600 dark:text-zinc-300">
+        <p className="mt-6 font-serif text-[15px] leading-7 text-zinc-700">
           {copy.closing}
         </p>
-        <p className="signature-script mt-1 text-zinc-800 dark:text-amber-100/90">
-          {copy.signatory}
-        </p>
+        <p className="mt-1 font-serif text-[15px] text-zinc-900">{copy.signatory}</p>
+      </div>
+
+      {/* Dispatch docket — mono, thin rules, one yellow status marker. */}
+      <div className="mt-4 rounded-sm border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-5 py-3 font-mono text-[11px]">
+        <DocketRow label={copy.docket.dispatch} value={copy.docket.dispatchValue} />
+        <DocketRow label={copy.docket.pages} value="01" />
+        <div className="flex items-center justify-between gap-4 border-t border-[var(--app-border)] py-1.5">
+          <span className="uppercase tracking-[0.12em] text-[var(--app-muted)]">
+            {copy.docket.status}
+          </span>
+          <span className="inline-flex items-center gap-2 text-[var(--app-fg)]">
+            <span className="h-2 w-2 rounded-full bg-[var(--action-primary-bg)]" />
+            {copy.docket.statusValue}
+          </span>
+        </div>
       </div>
     </div>
   );
