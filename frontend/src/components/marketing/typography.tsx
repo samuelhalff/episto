@@ -35,12 +35,20 @@ export function MarketingHeading<T extends ElementType = "h2">({
   children,
   ...props
 }: MarketingTextProps<T, MarketingHeadingTone>) {
-  const Component = (as ?? "h2") as ElementType;
+  const tag = as ?? "h2";
+  const Component = tag as ElementType;
+  // Serif is reserved for display-scale headings (h1/h2); smaller headings and
+  // non-heading uses (span/h3+) stay in the sans so they don't turn fussy.
+  const isDisplay = tag === "h1" || tag === "h2";
 
   return (
     <Component
       {...props}
-      className={cx("font-serif", getMarketingHeadingToneClassName(tone), className)}
+      className={cx(
+        isDisplay ? "font-serif" : "font-sans",
+        getMarketingHeadingToneClassName(tone),
+        className,
+      )}
     >
       {children}
     </Component>

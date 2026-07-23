@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowRight } from "lucide-react";
-import { MarketingActionLink, cx } from "./primitives";
+import { Link } from "../../i18n/navigation";
+import { cx } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
 
 interface ActionLink {
@@ -26,44 +27,37 @@ export function FinalCTABand({
   return (
     <div
       className={cx(
-        "marketing-cta-band rounded-[2.5rem] px-6 py-10 md:px-10 md:py-14",
+        // Calm closing panel on paper — not a full-bleed yellow billboard.
+        // The only yellow is the primary button (accent kept to a minimum).
+        "rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-6 py-10 md:px-10 md:py-12",
         className,
       )}
     >
-      {eyebrow ? (
-        <MarketingBody
-          as="p"
-          tone="accentMuted"
-          className="text-[11px] font-semibold uppercase tracking-widest"
-        >
-          {eyebrow}
-        </MarketingBody>
-      ) : null}
+      {eyebrow ? <p className="section-label">{eyebrow}</p> : null}
       <MarketingHeading
         as="h2"
-        tone="accent"
-        className="mt-3 max-w-3xl text-3xl font-semibold tracking-[-0.05em] md:text-5xl"
+        className="mt-3 max-w-2xl text-3xl font-semibold tracking-[-0.03em] md:text-4xl"
       >
         {title}
       </MarketingHeading>
       {body ? (
         <MarketingBody
           as="div"
-          tone="accentMuted"
+          tone="muted"
           className="mt-4 max-w-2xl text-sm leading-7 md:text-base"
         >
           {body}
         </MarketingBody>
       ) : null}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <MarketingActionLink href={primaryAction.href} variant="inverse">
+        <Link href={primaryAction.href} className="btn-primary px-5 py-3">
           {primaryAction.label}
           <ArrowRight className="h-4 w-4" />
-        </MarketingActionLink>
+        </Link>
         {secondaryAction ? (
-          <MarketingActionLink href={secondaryAction.href} variant="ghostInverse">
+          <Link href={secondaryAction.href} className="btn-secondary px-5 py-3">
             {secondaryAction.label}
-          </MarketingActionLink>
+          </Link>
         ) : null}
       </div>
     </div>

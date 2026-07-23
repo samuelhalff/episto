@@ -417,8 +417,10 @@ describe("marketing homepage shared visual primitives", () => {
     expect(homepageSource).not.toContain("text-white/70");
     expect(finalCtaBandSource).toContain("MarketingHeading");
     expect(finalCtaBandSource).toContain("MarketingBody");
-    expect(finalCtaBandSource).toContain('tone="accent"');
-    expect(finalCtaBandSource).toContain('tone="accentMuted"');
+    // The closing CTA is a calm paper panel with a single yellow button — not a
+    // full-bleed yellow billboard.
+    expect(finalCtaBandSource).toContain("btn-primary");
+    expect(finalCtaBandSource).toContain("bg-[var(--app-surface-muted)]");
     expect(pricingFromTextSource).toContain("MarketingHeading");
     expect(pricingFromTextSource).toContain("MarketingBody");
     expect(pricingFromTextSource).toContain('tone="accent"');

@@ -7,7 +7,6 @@ import { BrandMark } from "../branding/BrandMark";
 import { MenuTriggerButton } from "../layout/MenuTriggerButton";
 import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";
 import { SiteMenuPanel } from "../layout/SiteMenuPanel";
-import { ThemeToggle } from "./ThemeToggle";
 import {
   getSheetSurfaceClassName,
   Sheet,
@@ -17,7 +16,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "../ui/sheet";
-import { cx } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
 
 export function Header() {
@@ -29,17 +27,17 @@ export function Header() {
     <header
       role="banner"
       data-theme-chrome="marketing"
-      className="sticky top-0 z-50 bg-white/97 shadow-[0_1px_0_rgba(0,0,0,0.05)] backdrop-blur-xl transition-colors dark:bg-zinc-950/92 dark:shadow-[0_1px_0_rgba(255,255,255,0.06)]"
+      className="sticky top-0 z-50 border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur transition-colors"
     >
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
         <Link
           href="/"
-          className="inline-flex min-w-0 items-center gap-3 transition-colors"
+          className="inline-flex min-w-0 items-center gap-2.5 transition-colors"
         >
-          <BrandMark className="h-10 w-10 shrink-0" />
+          <BrandMark className="h-7 w-7 shrink-0" />
           <MarketingHeading
             as="span"
-            className="truncate text-lg font-semibold tracking-tight sm:text-xl"
+            className="truncate font-serif text-xl font-semibold tracking-tight"
           >
             {tc("appName")}
           </MarketingHeading>
@@ -48,39 +46,27 @@ export function Header() {
         <MarketingBody
           as="nav"
           aria-label="Main navigation"
-          className="marketing-surface hidden items-center gap-1 rounded-2xl p-1.5 text-sm md:flex"
+          className="hidden items-center gap-7 text-sm md:flex"
         >
           <Link
             href="/pricing"
-            className={cx(
-              "rounded-xl px-4 py-2 transition-colors",
-              "hover:bg-zinc-50 hover:text-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-white",
-            )}
+            className="text-[var(--app-muted)] transition-colors hover:text-[var(--app-fg)]"
           >
             {t("nav.pricing")}
           </Link>
           <Link
             href="/help"
-            className={cx(
-              "rounded-xl px-4 py-2 transition-colors",
-              "hover:bg-zinc-50 hover:text-zinc-950 dark:hover:bg-zinc-800 dark:hover:text-white",
-            )}
+            className="text-[var(--app-muted)] transition-colors hover:text-[var(--app-fg)]"
           >
             {t("nav.help")}
           </Link>
         </MarketingBody>
 
-        <div className="flex items-center gap-2">
-          <div className="hidden md:block">
-            <ThemeToggle compact />
-          </div>
+        <div className="flex items-center gap-4">
           <div className="hidden md:block">
             <HeaderLanguageMenu />
           </div>
-          <Link
-            href="/draft/new"
-            className="btn-primary hidden px-5 py-2.5 md:inline-flex"
-          >
+          <Link href="/draft/new" className="btn-primary hidden px-4 py-2 md:inline-flex">
             {t("nav.writeLetter")}
           </Link>
 

@@ -2,7 +2,11 @@ import { ArrowRight } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import type { Locale } from "@/i18n/routing";
 import { MarketingSection } from "@/components/marketing/primitives";
-import { MarketingBody, MarketingHeading } from "@/components/marketing/typography";
+import {
+  MarketingBody,
+  MarketingHeading,
+  MarketingMeta,
+} from "@/components/marketing/typography";
 import {
   getLandingPage,
   isLandingLocale,
@@ -46,22 +50,35 @@ export function PopularTemplates({ locale }: { locale: Locale }) {
         </Link>
       </div>
 
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {pages.map((page) => (
+      <ul className="mt-8">
+        {pages.map((page, index) => (
           <li key={page.slug}>
             <Link
               href={`/vorlagen/${page.slug}`}
-              className="app-panel group block h-full rounded-2xl p-5 transition-colors hover:border-[var(--app-border-strong)]"
+              className="hairline group grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t py-4 transition-colors first:border-t-0 hover:bg-[var(--app-surface-muted)]"
             >
-              <MarketingHeading
-                as="h3"
-                className="text-base font-semibold tracking-[-0.01em]"
+              <span className="numeral font-mono text-sm text-[var(--app-muted)]">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <MarketingBody
+                as="span"
+                tone="emphasis"
+                className="text-base font-medium tracking-[-0.01em] group-hover:underline"
               >
                 {page.h1}
-              </MarketingHeading>
-              <MarketingBody tone="muted" className="mt-1.5 text-sm leading-6">
-                {page.category}
               </MarketingBody>
+              <span className="flex items-center gap-3">
+                <MarketingMeta
+                  as="span"
+                  className="hidden text-xs uppercase tracking-wider sm:inline"
+                >
+                  {page.category}
+                </MarketingMeta>
+                <ArrowRight
+                  aria-hidden="true"
+                  className="h-4 w-4 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5"
+                />
+              </span>
             </Link>
           </li>
         ))}
