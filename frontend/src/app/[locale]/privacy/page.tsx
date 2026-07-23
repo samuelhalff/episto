@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/lib/legal-config";
 import { buildMarketingMetadata } from "@/lib/marketing-seo";
 import { MarketingMeta } from "@/components/marketing/typography";
+import { renderRichText } from "@/lib/next-intl-rich";
 
 export async function generateMetadata({
   params,
@@ -41,18 +43,15 @@ export default async function PrivacyPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "legal" });
-  const isEnglishReference = locale === "en-CH";
 
   return (
     <LegalPageLayout>
       <LegalPageHeader
         title={t("privacyTitle")}
-        description={
-          <>
-            How {LEGAL_OPERATOR.companyName} processes personal data when you use{" "}
-            {LEGAL_SERVICE_NAME}.
-          </>
-        }
+        description={t("privacy.pageDescription", {
+          serviceName: LEGAL_SERVICE_NAME,
+          companyName: LEGAL_OPERATOR.companyName,
+        })}
         eyebrow={
           <MarketingMeta
             as="p"
@@ -62,108 +61,90 @@ export default async function PrivacyPage({
           </MarketingMeta>
         }
         notice={
-          !isEnglishReference ? (
-            <LegalReferenceNotice>
-              English reference version. Reviewed translations are not yet published. If
-              future translations differ from this text, the English version prevails.
-            </LegalReferenceNotice>
-          ) : undefined
+          <LegalReferenceNotice>
+            {t("privacy.referenceNotice", {
+              referenceLanguage: LEGAL_REFERENCE_LANGUAGE,
+            })}
+          </LegalReferenceNotice>
         }
       />
 
       <LegalPageStack>
-        <LegalSection title="Controller">
+        <LegalSection title={t("privacy.controllerTitle")}>
           <LegalParagraph>
-            The controller for this service is {LEGAL_OPERATOR.companyName},{" "}
-            {LEGAL_OPERATOR.addressLines.join(", ")}. Contact:{" "}
-            {LEGAL_OPERATOR.supportEmail}.
+            {t("privacy.controllerBody", {
+              companyName: LEGAL_OPERATOR.companyName,
+              address: LEGAL_OPERATOR.addressLines.join(", "),
+              supportEmail: LEGAL_OPERATOR.supportEmail,
+            })}
           </LegalParagraph>
         </LegalSection>
 
-        <LegalSection title="Categories of data">
+        <LegalSection title={t("privacy.categoriesTitle")}>
           <LegalList
             items={[
-              "draft and letter content, including sender, recipient, and attachment data",
-              "contact data you provide, especially your email address",
-              "payment and transaction data needed for checkout, fraud prevention, and accounting",
-              "technical and security data such as session, device, IP, and event logs",
+              t("privacy.categoriesItem1"),
+              t("privacy.categoriesItem2"),
+              t("privacy.categoriesItem3"),
+              t("privacy.categoriesItem4"),
             ]}
           />
         </LegalSection>
 
-        <LegalSection title="Purposes">
+        <LegalSection title={t("privacy.purposesTitle")}>
           <LegalList
             items={[
-              "operate the drafting and review flow",
-              "generate the final PDF and prepare dispatch metadata",
-              "submit the order for postal dispatch and communicate status updates",
-              "process payment, provide support, prevent abuse, and comply with legal obligations",
+              t("privacy.purposesItem1"),
+              t("privacy.purposesItem2"),
+              t("privacy.purposesItem3"),
+              t("privacy.purposesItem4"),
             ]}
           />
         </LegalSection>
 
-        <LegalSection title="Service providers and recipients">
+        <LegalSection title={t("privacy.providersTitle")}>
+          <LegalParagraph>{t("privacy.providersBody1")}</LegalParagraph>
           <LegalParagraph>
-            We use specialized providers for hosting, storage, email delivery, payment
-            processing, address lookup where used, and postal dispatch. Where necessary
-            for the service, relevant data is shared with Swiss Post / ePost and other
-            production or delivery subcontractors.
-          </LegalParagraph>
-          <LegalParagraph>
-            Once data enters Swiss Post systems for dispatch, Swiss Post's own privacy
-            information also applies. See{" "}
-            <LegalExternalLink href={SWISS_POST_LINKS.privacy}>
-              Swiss Post data protection and disclaimer information
-            </LegalExternalLink>
-            .
+            {renderRichText(t, "privacy.providersBody2", {
+              swissPostPrivacyLink: (chunks: ReactNode) => (
+                <LegalExternalLink href={SWISS_POST_LINKS.privacy}>
+                  {chunks}
+                </LegalExternalLink>
+              ),
+            })}
           </LegalParagraph>
         </LegalSection>
 
-        <LegalSection title="Analytics (Google Analytics)">
+        <LegalSection title={t("privacy.analyticsTitle")}>
+          <LegalParagraph>{t("privacy.analyticsBody1")}</LegalParagraph>
           <LegalParagraph>
-            We use Google Analytics 4 to understand how the site is used and to improve
-            it, operated in Google&rsquo;s Consent Mode with analytics consent defaulted
-            to &ldquo;denied&rdquo;. Until you grant analytics consent in the privacy
-            banner, no analytics cookies are set and no personal data is collected. If you
-            decline, it stays that way. You can revoke consent at any time by clearing
-            this site&rsquo;s data in your browser.
-          </LegalParagraph>
-          <LegalParagraph>
-            When enabled, Google Analytics sets cookies and processes usage data (such as
-            pages viewed, approximate location, and device and browser information) on our
-            behalf. The provider is Google; see{" "}
-            <LegalExternalLink href="https://policies.google.com/privacy">
-              Google&rsquo;s privacy policy
-            </LegalExternalLink>
-            .
+            {renderRichText(t, "privacy.analyticsBody2", {
+              googlePrivacyLink: (chunks: ReactNode) => (
+                <LegalExternalLink href="https://policies.google.com/privacy">
+                  {chunks}
+                </LegalExternalLink>
+              ),
+            })}
           </LegalParagraph>
         </LegalSection>
 
-        <LegalSection title="Retention">
-          <LegalParagraph>
-            We retain data only for as long as needed for service delivery, support, abuse
-            prevention, dispute handling, and legal retention duties. Payment and
-            accounting data may be retained longer where required by law.
-          </LegalParagraph>
+        <LegalSection title={t("privacy.retentionTitle")}>
+          <LegalParagraph>{t("privacy.retentionBody")}</LegalParagraph>
         </LegalSection>
 
-        <LegalSection title="Your rights">
-          <LegalParagraph>
-            Subject to applicable Swiss data-protection law, you may request access,
-            correction, deletion, restriction where applicable, and information about the
-            main processing of your personal data.
-          </LegalParagraph>
+        <LegalSection title={t("privacy.rightsTitle")}>
+          <LegalParagraph>{t("privacy.rightsBody")}</LegalParagraph>
         </LegalSection>
 
         <LegalSection title={t("addressAssistTitle")}>
           <LegalParagraph>{t("addressAssistBody")}</LegalParagraph>
         </LegalSection>
 
-        <LegalSection title="Reference language">
+        <LegalSection title={t("privacy.referenceLanguageTitle")}>
           <LegalParagraph>
-            This policy is maintained in {LEGAL_REFERENCE_LANGUAGE}. Any translation is
-            provided for convenience only. If a translation differs, the{" "}
-            {LEGAL_REFERENCE_LANGUAGE} version prevails.
+            {t("privacy.referenceLanguageBody", {
+              referenceLanguage: LEGAL_REFERENCE_LANGUAGE,
+            })}
           </LegalParagraph>
         </LegalSection>
       </LegalPageStack>

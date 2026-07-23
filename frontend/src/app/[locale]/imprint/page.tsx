@@ -10,6 +10,7 @@ import {
 import { LegalPageHeader, LegalPageLayout } from "@/components/marketing/LegalPageLayout";
 import {
   LEGAL_OPERATOR,
+  LEGAL_REFERENCE_LANGUAGE,
   LEGAL_SERVICE_NAME,
   LEGAL_WEBSITE_HOST,
 } from "@/lib/legal-config";
@@ -38,34 +39,36 @@ export default async function ImprintPage({
 }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "legal" });
-  const isEnglishReference = locale === "en-CH";
 
   return (
     <LegalPageLayout>
       <LegalPageHeader
         title={t("imprintTitle")}
         notice={
-          !isEnglishReference ? (
-            <LegalReferenceNotice>
-              English reference version. Reviewed translations are not yet published.
-            </LegalReferenceNotice>
-          ) : undefined
+          <LegalReferenceNotice>
+            {t("imprint.referenceNotice", {
+              referenceLanguage: LEGAL_REFERENCE_LANGUAGE,
+            })}
+          </LegalReferenceNotice>
         }
       />
 
       <LegalPageStack>
-        <LegalSection title="Service">
+        <LegalSection title={t("imprint.serviceTitle")}>
           <LegalParagraph>
-            {LEGAL_SERVICE_NAME} is operated by {LEGAL_OPERATOR.companyName}.
+            {t("imprint.serviceBody", {
+              serviceName: LEGAL_SERVICE_NAME,
+              companyName: LEGAL_OPERATOR.companyName,
+            })}
           </LegalParagraph>
         </LegalSection>
 
-        <LegalSection title="Operator details">
+        <LegalSection title={t("imprint.operatorDetailsTitle")}>
           <LegalDefinitionList
             items={[
-              { label: "Operator", value: LEGAL_OPERATOR.companyName },
+              { label: t("imprint.operatorLabel"), value: LEGAL_OPERATOR.companyName },
               {
-                label: "Address",
+                label: t("imprint.addressLabel"),
                 value: (
                   <span className="whitespace-pre-line">
                     {LEGAL_OPERATOR.addressLines.join("\n")}
@@ -73,7 +76,7 @@ export default async function ImprintPage({
                 ),
               },
               {
-                label: "Support email",
+                label: t("imprint.supportEmailLabel"),
                 value: (
                   <a
                     href={`mailto:${LEGAL_OPERATOR.supportEmail}`}
@@ -83,8 +86,8 @@ export default async function ImprintPage({
                   </a>
                 ),
               },
-              { label: "Website", value: LEGAL_WEBSITE_HOST },
-              { label: "UID / VAT", value: LEGAL_OPERATOR.uidVat },
+              { label: t("imprint.websiteLabel"), value: LEGAL_WEBSITE_HOST },
+              { label: t("imprint.uidVatLabel"), value: LEGAL_OPERATOR.uidVat },
             ]}
           />
         </LegalSection>
