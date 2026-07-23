@@ -27,9 +27,9 @@ export function FinalCTABand({
   return (
     <div
       className={cx(
-        // Calm closing panel on paper — not a full-bleed yellow billboard.
-        // The only yellow is the primary button (accent kept to a minimum).
-        "rounded-lg border border-[var(--app-border)] bg-[var(--app-surface-muted)] px-6 py-10 md:px-10 md:py-12",
+        // Closing panel on paper — not a full-bleed billboard, but a deliberate
+        // yellow top rule marks the conversion moment so it doesn't disappear.
+        "rounded-lg border border-[var(--app-border)] border-t-[3px] border-t-[var(--action-primary-bg)] bg-[var(--app-surface-muted)] px-6 py-10 md:px-10 md:py-12",
         className,
       )}
     >

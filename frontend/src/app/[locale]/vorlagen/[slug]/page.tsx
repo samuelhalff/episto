@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { JsonLd } from "@/components/marketing/JsonLd";
@@ -348,22 +348,27 @@ function LandingRelated({
       >
         {ui.relatedTitle}
       </MarketingHeading>
-      <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {related.map((entry) => (
+      <ul className="mt-6">
+        {related.map((entry, index) => (
           <li key={entry.slug}>
             <Link
               href={`/vorlagen/${entry.slug}`}
-              className="app-panel group block h-full rounded-2xl p-5 transition-colors hover:border-[var(--app-border-strong)]"
+              className="hairline group grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t py-4 transition-colors first:border-t-0 hover:bg-[var(--app-surface)]"
             >
-              <MarketingHeading
-                as="h3"
-                className="text-base font-semibold tracking-[-0.01em]"
+              <span className="numeral font-mono text-sm text-[var(--app-muted)]">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <MarketingBody
+                as="span"
+                tone="emphasis"
+                className="text-base font-medium tracking-[-0.01em] group-hover:underline"
               >
                 {entry.h1}
-              </MarketingHeading>
-              <MarketingBody tone="muted" className="mt-1.5 text-sm leading-6">
-                {entry.category}
               </MarketingBody>
+              <ArrowRight
+                aria-hidden="true"
+                className="h-4 w-4 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5"
+              />
             </Link>
           </li>
         ))}

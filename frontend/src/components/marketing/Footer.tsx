@@ -5,7 +5,6 @@ import { isLandingLocale, LANDING_UI } from "../../lib/landing-content";
 import { FeedbackTrigger } from "../feedback/FeedbackTrigger";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
-import { MarketingCard } from "./primitives";
 import { MarketingMeta } from "./typography";
 
 export function Footer() {
@@ -19,7 +18,7 @@ export function Footer() {
       className="border-t border-zinc-100 bg-[var(--app-surface-muted)] transition-colors dark:border-zinc-800 dark:bg-zinc-950"
     >
       <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-10">
-        <MarketingCard className="flex flex-col gap-5 rounded-3xl p-5 md:flex-row md:items-center md:justify-between">
+        <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <MarketingMeta
             as="nav"
             aria-label="Footer navigation"
@@ -78,7 +77,7 @@ export function Footer() {
               <LanguageSwitcher variant="menu" className="w-full sm:w-auto" />
             </Suspense>
           </div>
-        </MarketingCard>
+        </div>
 
         <MarketingMeta className="text-center text-sm md:text-left">
           {t("footer.copyright")}

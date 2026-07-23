@@ -28,7 +28,7 @@ export function MarketingHero({
   const hasPanel = panel !== undefined && panel !== null;
 
   return (
-    <section className="relative px-4 pb-8 pt-10 sm:px-6 md:pb-12 md:pt-14 lg:pb-16 lg:pt-20">
+    <section className="relative px-4 pb-6 pt-8 sm:px-6 md:pb-8 md:pt-12">
       <div
         className={
           hasPanel
@@ -41,13 +41,13 @@ export function MarketingHero({
           <MarketingHeading
             as="h1"
             tone="hero"
-            className="mt-5 max-w-3xl text-4xl font-semibold leading-[1.02] tracking-[-0.05em] sm:text-5xl md:text-6xl"
+            className="mt-4 max-w-3xl text-3xl font-semibold leading-[1.05] tracking-[-0.04em] sm:text-4xl md:text-5xl"
           >
             {title}
           </MarketingHeading>
           <MarketingBody
             tone="hero"
-            className="mt-5 max-w-2xl text-base leading-7 md:text-lg md:leading-8"
+            className="mt-4 max-w-2xl text-base leading-7 md:text-lg md:leading-8"
           >
             {subtitle}
           </MarketingBody>
