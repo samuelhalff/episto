@@ -353,7 +353,7 @@ function LandingRelated({
           <li key={entry.slug}>
             <Link
               href={`/vorlagen/${entry.slug}`}
-              className="hairline group grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t py-4 transition-colors first:border-t-0 hover:bg-[var(--app-surface)]"
+              className="hairline group -mx-4 grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t px-4 py-4 transition-colors first:border-t-0 hover:bg-[var(--app-surface)]"
             >
               <span className="numeral font-mono text-sm text-[var(--app-muted)]">
                 {String(index + 1).padStart(2, "0")}

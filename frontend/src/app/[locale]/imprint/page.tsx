@@ -80,7 +80,7 @@ export default async function ImprintPage({
                 value: (
                   <a
                     href={`mailto:${LEGAL_OPERATOR.supportEmail}`}
-                    className="font-medium text-primary underline underline-offset-4"
+                    className="font-medium text-amber-700 underline underline-offset-4 dark:text-amber-300"
                   >
                     {LEGAL_OPERATOR.supportEmail}
                   </a>

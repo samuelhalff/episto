@@ -97,7 +97,7 @@ export function LegalExternalLink({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="font-medium text-primary underline underline-offset-4"
+      className="font-medium text-amber-700 underline underline-offset-4 dark:text-amber-300"
     >
       {children}
     </a>

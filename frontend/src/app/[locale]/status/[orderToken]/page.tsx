@@ -61,7 +61,7 @@ export default function StatusPage({
       <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
         <AlertCircle className="h-12 w-12 text-destructive" />
         <p className="text-sm text-muted-foreground">{tc("error")}</p>
-        <Link href="/" className="text-sm text-primary underline">
+        <Link href="/" className="text-sm text-amber-700 underline dark:text-amber-300">
           {tc("backToHome")}
         </Link>
       </div>

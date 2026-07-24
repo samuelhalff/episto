@@ -131,7 +131,7 @@ export default async function VorlagenHubPage({
                         <li key={page.slug}>
                           <Link
                             href={`/vorlagen/${page.slug}`}
-                            className="hairline group block border-t py-5 transition-colors first:border-t-0 first:pt-0 hover:bg-[var(--app-surface-muted)]"
+                            className="hairline group -mx-4 block border-t px-4 py-5 transition-colors first:border-t-0 first:pt-0 hover:bg-[var(--app-surface-muted)]"
                           >
                             <MarketingHeading
                               as="h3"
