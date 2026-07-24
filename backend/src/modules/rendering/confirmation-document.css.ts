@@ -39,6 +39,7 @@ export const CONFIRMATION_DOCUMENT_CSS = `@page {
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--muted);
+      white-space: nowrap;
     }
     /* --- Rules --- */
     .anchor-rule {
