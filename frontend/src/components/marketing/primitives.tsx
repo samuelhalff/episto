@@ -140,7 +140,7 @@ export function EditorialHeader({
       <MarketingHeading
         as="h2"
         className={cx(
-          "mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl md:text-[2.75rem] md:leading-[1.05]",
+          "mt-4 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl md:text-[2.75rem] md:leading-[1.05]",
           titleClassName,
         )}
       >

@@ -53,7 +53,7 @@ export function PricingFaqSection({ pricingFaqs }: { pricingFaqs: MarketingFaqIt
 
   return (
     <>
-      <MarketingSection>
+      <MarketingSection spacing="compact">
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-16">
           <LedgerColumn
             title={t("includedCardTitle")}

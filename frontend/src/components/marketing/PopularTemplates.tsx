@@ -36,7 +36,7 @@ export function PopularTemplates({ locale }: { locale: Locale }) {
           <p className="section-label">{ui.popularEyebrow}</p>
           <MarketingHeading
             as="h2"
-            className="mt-3 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
+            className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
           >
             {ui.popularTitle}
           </MarketingHeading>
@@ -55,7 +55,7 @@ export function PopularTemplates({ locale }: { locale: Locale }) {
           <li key={page.slug}>
             <Link
               href={`/vorlagen/${page.slug}`}
-              className="hairline group grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t py-4 transition-colors first:border-t-0 hover:bg-[var(--app-surface-muted)]"
+              className="hairline group grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t py-5 transition-colors first:border-t-0 hover:bg-[var(--app-surface-muted)]"
             >
               <span className="numeral font-mono text-sm text-[var(--app-muted)]">
                 {String(index + 1).padStart(2, "0")}

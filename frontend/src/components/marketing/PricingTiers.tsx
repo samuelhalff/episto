@@ -26,7 +26,7 @@ function TariffRow({
   fallback: string;
 }) {
   return (
-    <div className="hairline flex flex-col gap-2 border-t py-6 first:border-t-0 first:pt-0 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
+    <div className="hairline flex flex-col gap-1.5 border-t py-5 first:border-t-0 first:pt-0 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-baseline sm:gap-x-12">
       <div className="min-w-0">
         <MarketingHeading
           as="dt"
@@ -79,7 +79,7 @@ function PricingTariff({
       >
         {t("summaryCardTitle")}
       </MarketingHeading>
-      <dl className="mt-8">
+      <dl className="mt-8 max-w-3xl">
         <TariffRow
           title={t("standardOptionTitle")}
           caption={t("priceCaption")}

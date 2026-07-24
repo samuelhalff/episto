@@ -24,12 +24,12 @@ export function HowItWorksSteps() {
           {stepKeys.map((key, index) => (
             <li
               key={key}
-              className="grid grid-cols-[auto_1fr] gap-x-5 border-t-2 border-[var(--app-fg)] py-7 first:pt-0 sm:gap-x-7"
+              className="grid grid-cols-[auto_1fr] items-baseline gap-x-5 border-t-2 border-[var(--app-fg)] py-6 first:pt-0 sm:gap-x-7"
             >
               <span className="numeral text-3xl font-semibold text-[var(--app-fg)] sm:text-4xl">
                 {String(index + 1).padStart(2, "0")}
               </span>
-              <div className="pt-1">
+              <div>
                 <MarketingHeading
                   as="h3"
                   className="text-lg font-semibold tracking-[-0.02em] sm:text-xl"
