@@ -30,6 +30,7 @@ import {
 import { getCustomerFlowPath } from "@/lib/customer-flow";
 import { getAppButtonClassName } from "@/components/ui/app-button";
 import { StatusBadge } from "@/components/ui/status-badge";
+import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
 
 // ---------------------------------------------------------------------------
@@ -116,15 +117,23 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
   const nextAction = fulfillment.data?.nextAction ?? null;
   const dispatchState = dispatch?.state ?? "queued";
 
+  // Stripe appends redirect_status when returning from a redirect method (TWINT,
+  // wallets). On a successful/processing return the payment may not be captured
+  // yet (webhook lag), so fulfillment still reports nextAction "checkout" — do
+  // NOT bounce back to checkout; stay here and poll (every 3s) until it settles.
+  const redirectStatus = useSearchParams().get("redirect_status");
+  const settlingAfterRedirect =
+    redirectStatus === "succeeded" || redirectStatus === "processing";
+
   useEffect(() => {
     if (!nextAction || nextAction === "view_confirmation") {
       return;
     }
 
-    if (nextAction === "checkout") {
+    if (nextAction === "checkout" && !settlingAfterRedirect) {
       router.replace(`/draft/${draftId}/checkout`);
     }
-  }, [draftId, nextAction, router]);
+  }, [draftId, nextAction, router, settlingAfterRedirect]);
 
   // GA4 funnel: fire the conversion once the letter reaches a dispatched state.
   const dispatchTrackedRef = useRef(false);

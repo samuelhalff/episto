@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 import type { StripeError } from "@stripe/stripe-js";
 import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { Lock, Mail, ShieldCheck, Truck } from "lucide-react";
@@ -65,17 +65,9 @@ export function StripePaymentForm({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [paymentElementLoadFailed, setPaymentElementLoadFailed] = useState(false);
 
-  useEffect(() => {
-    if (!isSubmitting) return;
-
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      event.preventDefault();
-      event.returnValue = "";
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-  }, [isSubmitting]);
+  // NB: no beforeunload guard here. Redirect-based methods (TWINT, and other
+  // wallets) navigate away as part of a successful payment, and a "leave page?"
+  // prompt on that intended redirect is confusing and looks broken.
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -124,9 +116,10 @@ export function StripePaymentForm({
 
   function handleLoadError(loadErrorEvent: PaymentElementLoadErrorEvent) {
     const message = loadErrorEvent.error.message ?? t("paymentError");
-    const recoveryReason: StripePaymentFormLoadRecoveryReason = isTerminalPaymentIntentLoadError(message)
-      ? "terminal_payment_intent"
-      : "payment_form_unavailable";
+    const recoveryReason: StripePaymentFormLoadRecoveryReason =
+      isTerminalPaymentIntentLoadError(message)
+        ? "terminal_payment_intent"
+        : "payment_form_unavailable";
     const context = {
       component: "StripePaymentForm",
       route: typeof window !== "undefined" ? window.location.pathname : undefined,
