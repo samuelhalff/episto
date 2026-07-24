@@ -3,6 +3,7 @@ import { assertDefined } from "./assert-defined";
 
 const paymentIntentsCreate = vi.fn();
 const paymentIntentsUpdate = vi.fn();
+const accountsRetrieve = vi.fn();
 
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
@@ -25,6 +26,10 @@ vi.mock("stripe", () => {
       cancel: vi.fn(),
     };
 
+    accounts = {
+      retrieve: accountsRetrieve,
+    };
+
     refunds = {
       create: vi.fn(),
     };
@@ -44,6 +49,13 @@ describe("createPaymentIntent", () => {
   });
 
   it("passes the payment attempt id as the Stripe idempotency key", async () => {
+    accountsRetrieve.mockResolvedValue({
+      capabilities: {
+        card_payments: "active",
+        twint_payments: "active",
+        link_payments: "active",
+      },
+    });
     paymentIntentsCreate.mockResolvedValue({
       id: "pi_test_1",
       client_secret: "cs_test_1",
@@ -65,7 +77,7 @@ describe("createPaymentIntent", () => {
       expect.objectContaining({
         amount: 625,
         currency: "chf",
-        automatic_payment_methods: { enabled: true },
+        payment_method_types: ["card", "twint", "link"],
         metadata: expect.objectContaining({
           draftId: "draft-1",
           sessionId: "session-1",
@@ -76,7 +88,16 @@ describe("createPaymentIntent", () => {
     );
   });
 
-  it("delegates payment-method selection to the Stripe account (Dashboard-driven)", async () => {
+  it("offers only allowlisted, currently-active methods (no TWINT while pending, never Klarna)", async () => {
+    accountsRetrieve.mockResolvedValue({
+      capabilities: {
+        card_payments: "active",
+        twint_payments: "pending",
+        link_payments: "active",
+        klarna_payments: "active",
+        amazon_pay_payments: "active",
+      },
+    });
     paymentIntentsCreate.mockResolvedValue({
       id: "pi_test_1",
       client_secret: "cs_test_1",
@@ -96,12 +117,33 @@ describe("createPaymentIntent", () => {
 
     const [createPayload] = assertDefined(paymentIntentsCreate.mock.calls[0]);
 
-    // Methods are controlled by the Stripe Dashboard so an inactive method
-    // (e.g. TWINT pending review) never rejects the whole intent.
-    expect(createPayload).toHaveProperty("automatic_payment_methods", {
-      enabled: true,
+    // TWINT is pending → excluded (no whole-intent rejection); Klarna/Amazon Pay
+    // are active on the account but never offered because they are not allowlisted.
+    expect(createPayload).toHaveProperty("payment_method_types", ["card", "link"]);
+    expect(createPayload).not.toHaveProperty("automatic_payment_methods");
+  });
+
+  it("falls back to card only when the account lookup fails", async () => {
+    accountsRetrieve.mockRejectedValue(new Error("network"));
+    paymentIntentsCreate.mockResolvedValue({
+      id: "pi_test_1",
+      client_secret: "cs_test_1",
     });
-    expect(createPayload).not.toHaveProperty("payment_method_types");
+
+    const { createPaymentIntent } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
+
+    await createPaymentIntent(625, {
+      draftId: "draft-1",
+      sessionId: "session-1",
+      paymentAttemptId: "payment-1",
+      customerEmail: "payer@example.com",
+      orderRef: "EP-ORDER-1",
+      deliveryType: "standard",
+    });
+
+    const [createPayload] = assertDefined(paymentIntentsCreate.mock.calls[0]);
+    expect(createPayload).toHaveProperty("payment_method_types", ["card"]);
   });
 
   it("passes receipt_email and a customer-visible order description on create", async () => {

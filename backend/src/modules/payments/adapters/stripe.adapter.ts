@@ -88,6 +88,56 @@ function buildStripeReceiptDescription(
   return `${BRAND_NAME} order ${orderRef} (${deliveryLabel})`;
 }
 
+// We only ever offer these methods, in this order, and only when their account
+// capability is "active". TWINT is therefore auto-included the moment Stripe
+// activates it (and silently skipped while pending) — an inactive capability
+// never rejects the whole PaymentIntent. Crucially, methods enabled in the
+// Stripe Dashboard that we do NOT want in this flow (Link, Klarna, Amazon Pay …)
+// are never surfaced, because they are not on this allowlist.
+// card also carries Apple Pay / Google Pay wallets automatically — no separate
+// type needed. Klarna, Amazon Pay, BLIK, EPS, Pix, etc. are deliberately absent.
+const PREFERRED_METHOD_CAPABILITIES = [
+  { method: "card", capability: "card_payments" },
+  { method: "twint", capability: "twint_payments" },
+  { method: "link", capability: "link_payments" },
+] as const;
+
+/** The full set we ever allow — used to detect/heal stale intents downstream. */
+export const ALLOWED_PAYMENT_METHOD_TYPES = new Set<string>(
+  PREFERRED_METHOD_CAPABILITIES.map((m) => m.method),
+);
+
+type StripeMethodType = NonNullable<
+  Stripe.PaymentIntentCreateParams["payment_method_types"]
+>[number];
+
+let cachedMethodTypes: { value: StripeMethodType[]; at: number } | undefined;
+const METHOD_TYPES_TTL_MS = 5 * 60 * 1000;
+
+/**
+ * Resolve the payment method types to offer, from our allowlist intersected
+ * with the account's currently-active capabilities. Cached briefly; falls back
+ * to card-only if the account lookup fails so checkout never hard-breaks.
+ */
+async function resolvePaymentMethodTypes(): Promise<StripeMethodType[]> {
+  const now = Date.now();
+  if (cachedMethodTypes && now - cachedMethodTypes.at < METHOD_TYPES_TTL_MS) {
+    return cachedMethodTypes.value;
+  }
+  try {
+    const account = await getStripe().accounts.retrieve();
+    const caps = (account.capabilities ?? {}) as Record<string, string>;
+    const active = PREFERRED_METHOD_CAPABILITIES.filter(
+      (m) => caps[m.capability] === "active",
+    ).map((m) => m.method as StripeMethodType);
+    const value = active.length > 0 ? active : (["card"] as StripeMethodType[]);
+    cachedMethodTypes = { value, at: now };
+    return value;
+  } catch {
+    return ["card"] as StripeMethodType[];
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Create PaymentIntent
 // ---------------------------------------------------------------------------
@@ -105,6 +155,7 @@ export async function createPaymentIntent(
   },
 ): Promise<{ paymentIntentId: string; clientSecret: string }> {
   try {
+    const paymentMethodTypes = await resolvePaymentMethodTypes();
     const intent = await getStripe().paymentIntents.create(
       {
         amount: amountCents,
@@ -125,12 +176,7 @@ export async function createPaymentIntent(
         },
         // Signature-led flows need separate authorization and later capture.
         capture_method: metadata.captureStrategy === "manual" ? "manual" : "automatic",
-        // Let Stripe present exactly the payment methods activated on the
-        // account (Dashboard-driven): card today, TWINT the moment its
-        // capability goes active, and nothing breaks if a method is disabled.
-        // This avoids the "one inactive method rejects the whole intent" failure
-        // that a hardcoded payment_method_types list caused.
-        automatic_payment_methods: { enabled: true },
+        payment_method_types: paymentMethodTypes,
       },
       { idempotencyKey: metadata.paymentAttemptId },
     );

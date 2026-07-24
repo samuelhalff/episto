@@ -33,11 +33,15 @@ describe("stripe configuration guards", () => {
 });
 
 describe("createPaymentIntent configuration", () => {
-  it("delegates payment methods to the Stripe account via automatic_payment_methods", () => {
-    // The account's Dashboard config decides which methods appear, so an
-    // inactive method (e.g. TWINT pending review) can't reject the whole intent.
-    expect(stripeAdapterSource).toContain("automatic_payment_methods: { enabled: true }");
-    expect(stripeAdapterSource).not.toContain("payment_method_types:");
+  it("offers an allowlist of methods filtered by active account capabilities", () => {
+    // Explicit allowlist (card / twint / link) intersected with active
+    // capabilities — never automatic_payment_methods, which would surface every
+    // Dashboard-enabled method (Klarna, Amazon Pay, BLIK, …).
+    expect(stripeAdapterSource).toContain("payment_method_types: paymentMethodTypes");
+    expect(stripeAdapterSource).toContain("twint_payments");
+    expect(stripeAdapterSource).toContain("card_payments");
+    expect(stripeAdapterSource).toContain("link_payments");
+    expect(stripeAdapterSource).not.toContain("automatic_payment_methods");
   });
 
   it("uses manual capture only for signature-led authorization flows", () => {

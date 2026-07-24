@@ -10,6 +10,7 @@ import { assertVerifiedPhoneForCheckout } from "../phone-verification/phone-veri
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
 import {
+  ALLOWED_PAYMENT_METHOD_TYPES,
   createPaymentIntent,
   getPaymentIntentForCheckout,
   updatePaymentIntentReceiptDetails,
@@ -47,6 +48,14 @@ const RESUMABLE_STRIPE_INTENT_STATUSES = new Set([
   "requires_action",
   "processing",
 ]);
+
+// A resumed intent created under a different method configuration (e.g. an old
+// intent that still offers Klarna / Amazon Pay) is stale: recreate it so the
+// customer only ever sees our allowlisted methods.
+function hasUnexpectedPaymentMethods(paymentMethodTypes?: string[]): boolean {
+  if (!paymentMethodTypes) return false;
+  return paymentMethodTypes.some((method) => !ALLOWED_PAYMENT_METHOD_TYPES.has(method));
+}
 export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promise<void> {
   app.post<{ Params: { draftId: string } }>(
     "/drafts/:draftId/checkout",
@@ -314,6 +323,13 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
           );
 
           if (RESUMABLE_STRIPE_INTENT_STATUSES.has(stripeIntent.status)) {
+            if (hasUnexpectedPaymentMethods(stripeIntent.paymentMethodTypes)) {
+              await recreateCheckoutFromStaleStripeIntent(
+                `PaymentIntent ${result.stripePaymentIntentId} offers non-allowlisted methods: ${stripeIntent.paymentMethodTypes.join(", ")}`,
+              );
+              continue;
+            }
+
             if (!stripeIntent.clientSecret) {
               throw new AppError({
                 family: "payment_failure",
