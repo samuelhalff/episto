@@ -31,23 +31,14 @@ export function PopularTemplates({ locale }: { locale: Locale }) {
 
   return (
     <MarketingSection contentClassName="max-w-6xl" muted spacing="tight">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="section-label">{ui.popularEyebrow}</p>
-          <MarketingHeading
-            as="h2"
-            className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
-          >
-            {ui.popularTitle}
-          </MarketingHeading>
-        </div>
-        <Link
-          href="/vorlagen"
-          className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--app-fg)] hover:underline"
+      <div>
+        <p className="section-label">{ui.popularEyebrow}</p>
+        <MarketingHeading
+          as="h2"
+          className="mt-4 text-2xl font-semibold tracking-[-0.04em] sm:text-3xl"
         >
-          {ui.breadcrumbHub}
-          <ArrowRight aria-hidden="true" className="h-4 w-4" />
-        </Link>
+          {ui.popularTitle}
+        </MarketingHeading>
       </div>
 
       <ul className="mt-8">
@@ -83,6 +74,16 @@ export function PopularTemplates({ locale }: { locale: Locale }) {
           </li>
         ))}
       </ul>
+
+      <div className="mt-10">
+        <Link
+          href="/vorlagen"
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--app-fg)] underline underline-offset-4 hover:no-underline"
+        >
+          {ui.breadcrumbHub}
+          <ArrowRight aria-hidden="true" className="h-4 w-4" />
+        </Link>
+      </div>
     </MarketingSection>
   );
 }
