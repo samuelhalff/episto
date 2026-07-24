@@ -65,7 +65,7 @@ describe("createPaymentIntent", () => {
       expect.objectContaining({
         amount: 625,
         currency: "chf",
-        payment_method_types: ["twint", "card"],
+        automatic_payment_methods: { enabled: true },
         metadata: expect.objectContaining({
           draftId: "draft-1",
           sessionId: "session-1",
@@ -76,7 +76,7 @@ describe("createPaymentIntent", () => {
     );
   });
 
-  it("does not use automatic payment methods that can surface dashboard-only methods", async () => {
+  it("delegates payment-method selection to the Stripe account (Dashboard-driven)", async () => {
     paymentIntentsCreate.mockResolvedValue({
       id: "pi_test_1",
       client_secret: "cs_test_1",
@@ -96,7 +96,12 @@ describe("createPaymentIntent", () => {
 
     const [createPayload] = assertDefined(paymentIntentsCreate.mock.calls[0]);
 
-    expect(createPayload).not.toHaveProperty("automatic_payment_methods");
+    // Methods are controlled by the Stripe Dashboard so an inactive method
+    // (e.g. TWINT pending review) never rejects the whole intent.
+    expect(createPayload).toHaveProperty("automatic_payment_methods", {
+      enabled: true,
+    });
+    expect(createPayload).not.toHaveProperty("payment_method_types");
   });
 
   it("passes receipt_email and a customer-visible order description on create", async () => {

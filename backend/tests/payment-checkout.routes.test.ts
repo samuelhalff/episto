@@ -413,50 +413,6 @@ describe("payment checkout routes", () => {
     });
   });
 
-  it("cancels a pending checkout and recreates it when Stripe returns non-Swiss payment methods", async () => {
-    mocks.getPaymentForDraft
-      .mockResolvedValueOnce({
-        id: "payment-old",
-        state: "pending",
-        stripePaymentIntentId: "pi_automatic",
-        amountCents: 625,
-        breakdown: {
-          deliveryType: "standard",
-          providerQuotedCents: 290,
-          swissMailMarkupCents: 335,
-          totalCents: 625,
-          providerQuoteReference: "quote-old",
-          attachmentHandling: "excluded",
-          lineItems: [],
-        },
-      })
-      .mockResolvedValueOnce(null);
-    mocks.getPaymentIntentForCheckout.mockResolvedValueOnce({
-      status: "requires_payment_method",
-      clientSecret: "cs_automatic",
-      latestChargeId: null,
-      paymentMethodTypes: ["card", "klarna", "amazon_pay"],
-    });
-
-    const response = await app.inject({
-      method: "POST",
-      url: "/drafts/draft-1/checkout",
-      payload: { email: "payer@example.com" },
-    });
-
-    expect(response.statusCode).toBe(200);
-    expect(mocks.transitionPaymentState).toHaveBeenCalledWith(
-      mocks.db,
-      "payment-old",
-      "cancelled",
-    );
-    expect(mocks.createPaymentAttempt).toHaveBeenCalledTimes(1);
-    expect(response.json()).toMatchObject({
-      paymentAttemptId: "payment-1",
-      clientSecret: "cs_test_1",
-    });
-  });
-
   it("reconciles a requires_capture pending Stripe intent as authorized and enqueues dispatch", async () => {
     mocks.getPaymentForDraft.mockResolvedValueOnce({
       id: "payment-authorized",

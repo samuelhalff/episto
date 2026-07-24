@@ -88,15 +88,6 @@ function buildStripeReceiptDescription(
   return `${BRAND_NAME} order ${orderRef} (${deliveryLabel})`;
 }
 
-// NOTE: only list payment methods that are ACTIVATED on the Stripe account.
-// Stripe rejects the entire PaymentIntent if any listed type is not enabled,
-// which blocks card payments too. TWINT was listed but never activated, so the
-// first real checkout failed with "payment method type twint is invalid".
-// Re-add "twint" here the moment it is enabled in the Stripe dashboard.
-export const SWISS_CHECKOUT_PAYMENT_METHOD_TYPES = ["card"] satisfies NonNullable<
-  Stripe.PaymentIntentCreateParams["payment_method_types"]
->;
-
 // ---------------------------------------------------------------------------
 // Create PaymentIntent
 // ---------------------------------------------------------------------------
@@ -134,7 +125,12 @@ export async function createPaymentIntent(
         },
         // Signature-led flows need separate authorization and later capture.
         capture_method: metadata.captureStrategy === "manual" ? "manual" : "automatic",
-        payment_method_types: SWISS_CHECKOUT_PAYMENT_METHOD_TYPES,
+        // Let Stripe present exactly the payment methods activated on the
+        // account (Dashboard-driven): card today, TWINT the moment its
+        // capability goes active, and nothing breaks if a method is disabled.
+        // This avoids the "one inactive method rejects the whole intent" failure
+        // that a hardcoded payment_method_types list caused.
+        automatic_payment_methods: { enabled: true },
       },
       { idempotencyKey: metadata.paymentAttemptId },
     );

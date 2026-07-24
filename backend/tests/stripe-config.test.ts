@@ -33,11 +33,11 @@ describe("stripe configuration guards", () => {
 });
 
 describe("createPaymentIntent configuration", () => {
-  it("uses an explicit Swiss payment method list", () => {
-    expect(stripeAdapterSource).toContain("payment_method_types");
-    expect(stripeAdapterSource).toContain('"twint"');
-    expect(stripeAdapterSource).toContain('"card"');
-    expect(stripeAdapterSource).not.toContain("automatic_payment_methods");
+  it("delegates payment methods to the Stripe account via automatic_payment_methods", () => {
+    // The account's Dashboard config decides which methods appear, so an
+    // inactive method (e.g. TWINT pending review) can't reject the whole intent.
+    expect(stripeAdapterSource).toContain("automatic_payment_methods: { enabled: true }");
+    expect(stripeAdapterSource).not.toContain("payment_method_types:");
   });
 
   it("uses manual capture only for signature-led authorization flows", () => {

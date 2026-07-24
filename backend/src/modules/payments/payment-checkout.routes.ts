@@ -12,7 +12,6 @@ import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.ser
 import {
   createPaymentIntent,
   getPaymentIntentForCheckout,
-  SWISS_CHECKOUT_PAYMENT_METHOD_TYPES,
   updatePaymentIntentReceiptDetails,
 } from "./adapters/stripe.adapter.js";
 import { captureFreeOrder } from "./free-order.service.js";
@@ -48,18 +47,6 @@ const RESUMABLE_STRIPE_INTENT_STATUSES = new Set([
   "requires_action",
   "processing",
 ]);
-const SWISS_CHECKOUT_PAYMENT_METHOD_SET = new Set<string>(
-  SWISS_CHECKOUT_PAYMENT_METHOD_TYPES,
-);
-
-function hasUnexpectedPaymentMethods(paymentMethodTypes?: string[]): boolean {
-  if (!paymentMethodTypes) return false;
-  return (
-    paymentMethodTypes.length !== SWISS_CHECKOUT_PAYMENT_METHOD_TYPES.length ||
-    paymentMethodTypes.some((method) => !SWISS_CHECKOUT_PAYMENT_METHOD_SET.has(method))
-  );
-}
-
 export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promise<void> {
   app.post<{ Params: { draftId: string } }>(
     "/drafts/:draftId/checkout",
@@ -327,13 +314,6 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
           );
 
           if (RESUMABLE_STRIPE_INTENT_STATUSES.has(stripeIntent.status)) {
-            if (hasUnexpectedPaymentMethods(stripeIntent.paymentMethodTypes)) {
-              await recreateCheckoutFromStaleStripeIntent(
-                `PaymentIntent ${result.stripePaymentIntentId} has unsupported payment methods: ${stripeIntent.paymentMethodTypes.join(", ")}`,
-              );
-              continue;
-            }
-
             if (!stripeIntent.clientSecret) {
               throw new AppError({
                 family: "payment_failure",
