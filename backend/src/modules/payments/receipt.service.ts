@@ -13,6 +13,7 @@ import {
 import { renderPdfBufferFromHtml } from "../rendering/render.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { computeReceiptAmounts, formatReceiptNumber } from "./receipt-amounts.js";
+import { enqueuePaymentReceiptEmailSafe } from "./receipt-notifications.js";
 
 const logger = createLogger("receipt-service");
 
@@ -144,7 +145,7 @@ export async function issueReceiptForCapturedPayment(
   const storageKey = receiptStorageKey(paymentAttemptId);
   await uploadObject(storageKey, pdfBuffer, "application/pdf");
 
-  await db
+  const inserted = await db
     .insert(schema.receipts)
     .values({
       paymentAttemptId,
@@ -160,5 +161,14 @@ export async function issueReceiptForCapturedPayment(
       orderRef,
       storageKey,
     })
-    .onConflictDoNothing({ target: schema.receipts.paymentAttemptId });
+    .onConflictDoNothing({ target: schema.receipts.paymentAttemptId })
+    .returning({ id: schema.receipts.id });
+
+  // Enqueue the receipt email only when a NEW receipt row was created — a
+  // concurrent racer that lost the onConflictDoNothing gets no row back and must
+  // not re-send. Fire-and-forget: never let an email failure break the receipt
+  // or payment flow.
+  if (inserted.length > 0) {
+    enqueuePaymentReceiptEmailSafe(db, paymentAttemptId);
+  }
 }

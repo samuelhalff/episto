@@ -94,6 +94,7 @@ export interface SendEmailJob {
   template: string;
   locale: string;
   data: Record<string, unknown>;
+  attachments?: Array<{ filename: string; contentBase64: string }>;
 }
 
 export interface CleanupAssetsJob {

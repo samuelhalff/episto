@@ -19,7 +19,7 @@ export function startEmailWorker(): Worker<SendEmailJob> {
   return createWorker<SendEmailJob>(
     QUEUE_NAMES.SEND_EMAIL,
     async (job: Job<SendEmailJob>) => {
-      const { to, template, locale, data } = job.data;
+      const { to, template, locale, data, attachments } = job.data;
 
       const rendered = renderTemplate(template, locale, data);
 
@@ -28,6 +28,14 @@ export function startEmailWorker(): Worker<SendEmailJob> {
         subject: rendered.subject,
         html: rendered.html,
         text: rendered.text,
+        ...(attachments && attachments.length > 0
+          ? {
+              attachments: attachments.map((attachment) => ({
+                filename: attachment.filename,
+                content: attachment.contentBase64,
+              })),
+            }
+          : {}),
       });
 
       job.log(`Email sent: ${messageId} (template=${template}, locale=${locale})`);

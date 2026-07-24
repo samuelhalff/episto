@@ -19,6 +19,7 @@ import {
   heading,
   paragraph,
   mutedText,
+  formatCHF,
   swissPostTrackingUrl,
   type EmailLayoutConfig,
 } from "./email-layout.js";
@@ -29,6 +30,7 @@ import {
   DISPATCH_ACCEPTED_STRINGS,
   RESUME_LINK_STRINGS,
   REFUND_CONFIRMED_STRINGS,
+  PAYMENT_RECEIPT_STRINGS,
 } from "./email-strings.js";
 
 // ---------------------------------------------------------------------------
@@ -358,6 +360,78 @@ function renderRefundConfirmed(
 }
 
 // ---------------------------------------------------------------------------
+// Template: payment-receipt
+// ---------------------------------------------------------------------------
+
+function renderPaymentReceipt(
+  locale: string,
+  data: Record<string, unknown>,
+): RenderedEmail {
+  const s = PAYMENT_RECEIPT_STRINGS[resolveLocale(locale)];
+  const config = layoutConfig(locale, data);
+  const orderRef = readString(data, "orderRef");
+  const totalCents = readInteger(data, "totalCents", 0);
+  const totalFormatted = formatCHF(totalCents);
+  const totalLine = `${totalFormatted} ${s.vatNote}`;
+  const downloadUrl = readString(data, "downloadUrl");
+  const statementRetentionDays = readInteger(data, "statementRetentionDays", 10);
+  const supportEmail = readString(data, "supportEmail");
+
+  const rows = [
+    detailRow(s.orderLabel, orderRef),
+    detailRow(s.totalLabel, totalLine),
+  ].join("\n");
+
+  const bodyParts = [
+    heading(s.heading),
+    paragraph(escapeHtml(s.body)),
+    detailTable(rows),
+  ];
+
+  if (downloadUrl) {
+    bodyParts.push(primaryButton(downloadUrl, s.downloadCta));
+    bodyParts.push(
+      mutedText(
+        escapeHtml(replaceRetentionDays(s.retentionNotice, statementRetentionDays)),
+      ),
+    );
+  }
+
+  bodyParts.push(sectionDivider());
+  bodyParts.push(mutedText(escapeHtml(s.attachmentNote)));
+
+  if (supportEmail) {
+    bodyParts.push(
+      mutedText(
+        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#1a1a1a;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
+      ),
+    );
+  }
+
+  const textLines = [
+    s.heading.toUpperCase(),
+    "",
+    s.body,
+    "",
+    `${s.orderLabel}: ${orderRef}`,
+    `${s.totalLabel}: ${totalLine}`,
+    "",
+    downloadUrl ? `${s.downloadLabel}: ${downloadUrl}` : null,
+    downloadUrl ? replaceRetentionDays(s.retentionNotice, statementRetentionDays) : null,
+    "",
+    s.attachmentNote,
+    "",
+    supportEmail ? `${s.supportLine} ${supportEmail}` : null,
+  ].filter((line): line is string => line !== null);
+
+  return {
+    subject: s.subject,
+    text: textLines.join("\n"),
+    html: wrapEmailHtml(config, bodyParts.filter(Boolean).join("\n")),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Template registry
 // ---------------------------------------------------------------------------
 
@@ -369,6 +443,7 @@ const TEMPLATE_RENDERERS: Record<
   "dispatch-accepted": renderDispatchAccepted,
   "resume-link": renderResumeLink,
   "refund-confirmed": renderRefundConfirmed,
+  "payment-receipt": renderPaymentReceipt,
 };
 
 export function renderTemplate(

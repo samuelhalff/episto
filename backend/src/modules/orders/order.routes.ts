@@ -1,13 +1,21 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt, sql } from "drizzle-orm";
 import { buildOrderReference, OrderStatusResponseSchema } from "@episto/shared";
 import { getDb, schema } from "../../db/index.js";
 import { AppError, notFoundError } from "../../shared/errors/index.js";
+import { createLogger } from "../../shared/logging/index.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { recordEvent } from "../analytics/index.js";
 import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-mode.js";
+import { enqueuePaymentReceiptEmailSafe } from "../payments/receipt-notifications.js";
 import { isStatementWithinRetentionWindow } from "./order-access-window.js";
 import { resolveOrderAccessPayment } from "./order-token-resolver.js";
+
+const logger = createLogger("order-routes");
+
+// Cap the number of recent orders re-sent per request — prevents a single call
+// from fanning out into an unbounded number of emails.
+const RESEND_LINK_MAX_ORDERS = 10;
 
 /**
  * Resolve an order access token to its payment attempt.
@@ -177,6 +185,68 @@ export async function orderRoutes(app: FastifyInstance): Promise<void> {
 
       if (!draft) throw notFoundError("order");
       await sendRenderedDraftPdf(db, draft.id, reply);
+    },
+  );
+
+  // POST /orders/resend-link — re-send secure links + receipts for recent orders
+  // matching an email. Always returns a generic 200 to avoid enumeration.
+  app.post<{ Body: { email?: unknown } }>(
+    "/orders/resend-link",
+    {
+      config: {
+        rateLimit: {
+          max: 5,
+          timeWindow: "1 hour",
+          keyGenerator: ipKey,
+        },
+      },
+    },
+    async (request, reply) => {
+      // Generic response — NEVER reveals whether the email exists or how many
+      // orders it has. Returned identically for every code path below.
+      const genericResponse = {
+        message: "If that email has recent orders, we've sent the links.",
+      } as const;
+
+      const rawEmail = (request.body as { email?: unknown } | undefined)?.email;
+      const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+      if (!email) {
+        reply.send(genericResponse);
+        return;
+      }
+
+      try {
+        const db = getDb();
+        const now = new Date();
+
+        const rows = await db
+          .select({ paymentAttemptId: schema.paymentAttempts.id })
+          .from(schema.paymentAttempts)
+          .innerJoin(
+            schema.sessions,
+            eq(schema.paymentAttempts.sessionId, schema.sessions.id),
+          )
+          .where(
+            and(
+              // Case-insensitive: session emails are stored as the user typed
+              // them, while the lookup email is normalized to lowercase.
+              eq(sql`lower(${schema.sessions.email})`, email),
+              eq(schema.paymentAttempts.state, "captured"),
+              gt(schema.paymentAttempts.orderAccessTokenExpiresAt, now),
+            ),
+          )
+          .orderBy(desc(schema.paymentAttempts.createdAt))
+          .limit(RESEND_LINK_MAX_ORDERS);
+
+        for (const row of rows) {
+          enqueuePaymentReceiptEmailSafe(db, row.paymentAttemptId);
+        }
+      } catch (err) {
+        // Swallow: an internal failure must not leak via a differing response.
+        logger.error({ err }, "resend-link enqueue failed");
+      }
+
+      reply.send(genericResponse);
     },
   );
 }

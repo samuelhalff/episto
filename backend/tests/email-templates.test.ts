@@ -210,18 +210,25 @@ describe("Email template rendering", () => {
     );
   });
 
-  it("throws for removed payment-receipt template", () => {
-    expect(() => renderTemplate("payment-receipt", "en-CH", {})).toThrow(
-      "Unknown email template: payment-receipt",
-    );
+  it("renders the payment-receipt template", () => {
+    const result = renderTemplate("payment-receipt", "en-CH", {
+      orderRef: "ORD-TEST",
+      totalCents: 490,
+      downloadUrl: "https://example.com/api/v1/orders/tok/pdf",
+      appPublicUrl: "https://example.com",
+    });
+    expect(result.subject).toBeTruthy();
+    expect(result.text).toContain("CHF 4.90");
+    expect(result.html).toContain("https://example.com/api/v1/orders/tok/pdf");
   });
 
-  it("covers all 4 expected templates", () => {
+  it("covers all 5 expected templates", () => {
     const expectedTemplates = [
       "dispatch-submitted",
       "dispatch-accepted",
       "resume-link",
       "refund-confirmed",
+      "payment-receipt",
     ];
 
     for (const name of expectedTemplates) {
