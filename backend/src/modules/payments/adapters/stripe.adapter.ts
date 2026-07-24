@@ -88,10 +88,14 @@ function buildStripeReceiptDescription(
   return `${BRAND_NAME} order ${orderRef} (${deliveryLabel})`;
 }
 
-export const SWISS_CHECKOUT_PAYMENT_METHOD_TYPES = [
-  "twint",
-  "card",
-] satisfies NonNullable<Stripe.PaymentIntentCreateParams["payment_method_types"]>;
+// NOTE: only list payment methods that are ACTIVATED on the Stripe account.
+// Stripe rejects the entire PaymentIntent if any listed type is not enabled,
+// which blocks card payments too. TWINT was listed but never activated, so the
+// first real checkout failed with "payment method type twint is invalid".
+// Re-add "twint" here the moment it is enabled in the Stripe dashboard.
+export const SWISS_CHECKOUT_PAYMENT_METHOD_TYPES = ["card"] satisfies NonNullable<
+  Stripe.PaymentIntentCreateParams["payment_method_types"]
+>;
 
 // ---------------------------------------------------------------------------
 // Create PaymentIntent
