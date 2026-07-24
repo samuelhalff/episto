@@ -17,7 +17,7 @@ type MarketingTextProps<T extends ElementType, Tone extends string> = {
 
 const MARKETING_HEADING_TONE_CLASS_NAMES = {
   default: "text-zinc-950 dark:text-zinc-50",
-  accent: "text-zinc-950",
+  accent: "text-zinc-950 dark:text-zinc-50",
   hero: "text-zinc-950 dark:text-white",
   inverse: "text-white",
 } as const;
@@ -62,7 +62,7 @@ const MARKETING_BODY_TONE_CLASS_NAMES = {
   label: "text-zinc-700 dark:text-zinc-300",
   muted: "text-zinc-500 dark:text-zinc-400",
   emphasis: "text-zinc-900 dark:text-zinc-100",
-  accentMuted: "text-zinc-800/80",
+  accentMuted: "text-zinc-800/80 dark:text-zinc-300/80",
   contrast: "text-white dark:text-zinc-950",
   hero: "text-zinc-700 dark:text-white/80",
   inverse: "text-white/80",
