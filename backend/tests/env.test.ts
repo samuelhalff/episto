@@ -76,7 +76,7 @@ describe("EnvSchema — valid minimal env", () => {
 
   it("applies default STATEMENT_RETENTION_DAYS", () => {
     const result = EnvSchema.parse(validEnv());
-    expect(result.STATEMENT_RETENTION_DAYS).toBe(10);
+    expect(result.STATEMENT_RETENTION_DAYS).toBe(15);
   });
 
   it("applies default S3_REGION", () => {

@@ -46,14 +46,14 @@ export const EnvSchema = z
     // Session
     SESSION_TTL_HOURS: z.coerce.number().int().positive().default(72),
     RESUME_INACTIVITY_HOURS: z.coerce.number().int().positive().default(48),
-    ORDER_ACCESS_DAYS: z.coerce.number().int().positive().default(90),
+    ORDER_ACCESS_DAYS: z.coerce.number().int().positive().default(15),
     ORDER_ACCESS_TOKEN_SECRET: z.string().min(32),
 
     // Retention
-    CONTENT_RETENTION_DAYS: z.coerce.number().int().positive().default(7),
-    PDF_RETENTION_HOURS_POST_DISPATCH: z.coerce.number().int().positive().default(24),
+    CONTENT_RETENTION_DAYS: z.coerce.number().int().positive().default(15),
+    PDF_RETENTION_HOURS_POST_DISPATCH: z.coerce.number().int().positive().default(360),
     METADATA_RETENTION_YEARS: z.coerce.number().int().positive().default(7),
-    STATEMENT_RETENTION_DAYS: z.coerce.number().int().positive().default(10),
+    STATEMENT_RETENTION_DAYS: z.coerce.number().int().positive().default(15),
 
     // AI
     AI_PROVIDER_MODE: z

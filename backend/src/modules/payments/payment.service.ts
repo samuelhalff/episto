@@ -3,14 +3,12 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError, AppError } from "../../shared/errors/index.js";
 import { generateResumeToken, hashResumeToken } from "../sessions/session.service.js";
+import { env } from "../../shared/config/index.js";
 import {
   assertTransitionPayment,
   type PaymentState,
   type PaymentBreakdown,
 } from "@episto/shared";
-
-// Order access token TTL: 90 days per docs/05-architecture/session-management.md §Paid Orders
-const ORDER_ACCESS_TOKEN_TTL_DAYS = 90;
 
 // ---------------------------------------------------------------------------
 // Types
@@ -253,8 +251,10 @@ export async function transitionPaymentState(
   let rawOrderAccessToken: string | null = null;
   if (newState === "captured" && !existing.orderAccessTokenHash) {
     rawOrderAccessToken = generateResumeToken();
+    // Order access token lifetime tracks content retention so a paid order stays
+    // accessible for exactly as long as its content is retained.
     const expiresAt = new Date();
-    expiresAt.setDate(expiresAt.getDate() + ORDER_ACCESS_TOKEN_TTL_DAYS);
+    expiresAt.setDate(expiresAt.getDate() + env().ORDER_ACCESS_DAYS);
     values.orderAccessTokenHash = hashResumeToken(rawOrderAccessToken);
     values.orderAccessTokenExpiresAt = expiresAt;
   }

@@ -12,6 +12,10 @@ import {
   type PaymentAttemptRow,
 } from "./payment.service.js";
 import { recordPromoRedemption } from "./promo.service.js";
+import { issueReceiptForCapturedPayment } from "./receipt.service.js";
+import { createLogger } from "../../shared/logging/index.js";
+
+const logger = createLogger("free-order-service");
 
 export interface FreeOrderInput {
   draftId: string;
@@ -40,7 +44,7 @@ export async function captureFreeOrder(
   db: Db,
   input: FreeOrderInput,
 ): Promise<FreeOrderOutcome> {
-  return db.transaction(async (tx) => {
+  const outcome = await db.transaction(async (tx) => {
     // Serialize concurrent checkouts for the same draft: without this lock two
     // parallel free-order requests could both see "no captured payment", each
     // capture a free order and enqueue dispatch, mailing the letter twice.
@@ -106,4 +110,17 @@ export async function captureFreeOrder(
     });
     return { created: true as const, payment: captured };
   });
+
+  // Fire-and-forget receipt issuance after the capture transaction commits.
+  // Idempotent + defensive: a receipt failure must never break the free order.
+  if (outcome.created) {
+    void issueReceiptForCapturedPayment(db, outcome.payment.id).catch((err: unknown) => {
+      logger.error(
+        { err, paymentAttemptId: outcome.payment.id, draftId: input.draftId },
+        "Failed to issue receipt after free-order capture",
+      );
+    });
+  }
+
+  return outcome;
 }

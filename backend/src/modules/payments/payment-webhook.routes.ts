@@ -7,6 +7,7 @@ import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.ser
 import { constructWebhookEvent } from "./adapters/stripe.adapter.js";
 import { getPaymentAttemptById, transitionPaymentState } from "./payment.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
+import { issueReceiptForCapturedPayment } from "./receipt.service.js";
 
 export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promise<void> {
   app.removeContentTypeParser("application/json");
@@ -115,6 +116,15 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
           paymentId: payment.id,
           log: request.log,
           failureMessage: "Failed to enqueue dispatch after webhook capture",
+        });
+
+        // Fire-and-forget: a receipt failure must never break the payment flow
+        // or block dispatch. Idempotent, so retries are safe.
+        void issueReceiptForCapturedPayment(db, payment.id).catch((err: unknown) => {
+          request.log.error(
+            { err, paymentAttemptId: payment.id, draftId },
+            "Failed to issue receipt after webhook capture",
+          );
         });
 
         recordEvent({

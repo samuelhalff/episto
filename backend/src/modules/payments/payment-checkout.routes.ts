@@ -17,6 +17,7 @@ import {
 } from "./adapters/stripe.adapter.js";
 import { captureFreeOrder } from "./free-order.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
+import { issueReceiptSafe } from "./receipt.service.js";
 import {
   createPaymentAttempt,
   getPaymentForDraft,
@@ -49,9 +50,8 @@ const RESUMABLE_STRIPE_INTENT_STATUSES = new Set([
   "processing",
 ]);
 
-// A resumed intent created under a different method configuration (e.g. an old
-// intent that still offers Klarna / Amazon Pay) is stale: recreate it so the
-// customer only ever sees our allowlisted methods.
+// A resumed intent offering a non-allowlisted method (e.g. a stale Klarna/Amazon
+// Pay intent) is recreated so the customer only sees our allowlisted methods.
 function hasUnexpectedPaymentMethods(paymentMethodTypes?: string[]): boolean {
   if (!paymentMethodTypes) return false;
   return paymentMethodTypes.some((method) => !ALLOWED_PAYMENT_METHOD_TYPES.has(method));
@@ -422,6 +422,7 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
                 "Failed to enqueue dispatch after checkout capture reconciliation",
               suppressFailure: true,
             });
+            issueReceiptSafe(db, payment.id);
             result = {
               ...result,
               paymentState: payment.state,
