@@ -689,7 +689,8 @@
     "attachmentsPreviewSubtitle": "Imprimées et envoyées avec votre lettre",
     "attachmentLabel": "Annexe {index} : {name}",
     "attachmentOpen": "Ouvrir le fichier",
-    "attachmentsInPreviewHint": "Visibles ci-dessous, telles qu’elles seront envoyées."
+    "attachmentsInPreviewHint": "Visibles ci-dessous, telles qu’elles seront envoyées.",
+    "attachmentMorePages": "Ouvrir les {count} pages restantes"
   },
   "checkout": {
     "title": "Paiement",

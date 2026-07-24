@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { ExternalLink } from "lucide-react";
+import type { PDFDocumentLoadingTask } from "pdfjs-dist";
 import type { FileAsset } from "@episto/shared";
 import { getAttachmentInlineUrl } from "@/lib/letter-content";
 
@@ -10,6 +11,11 @@ import { getAttachmentInlineUrl } from "@/lib/letter-content";
 // letter, so the review preview reflects the complete physical package.
 // Images render inline; PDFs are rasterised page-by-page with pdf.js and fall
 // back to an "open file" link if rendering fails — so this never blocks review.
+
+// Bound the work so a large/scanned PDF can't exhaust browser memory (mobile
+// Safari has a hard canvas ceiling): render the first pages, link out for more.
+const MAX_PREVIEW_PAGES = 6;
+const TARGET_CANVAS_WIDTH = 900;
 
 function AttachmentOpenLink({ url, label }: { url: string; label: string }) {
   return (
@@ -25,13 +31,38 @@ function AttachmentOpenLink({ url, label }: { url: string; label: string }) {
   );
 }
 
-function PdfAttachment({ url, openLabel }: { url: string; openLabel: string }) {
+function ImageAttachment({ url, openLabel }: { url: string; openLabel: string }) {
+  const [failed, setFailed] = useState(false);
+  if (failed) return <AttachmentOpenLink url={url} label={openLabel} />;
+  return (
+    <img
+      src={url}
+      alt=""
+      aria-hidden="true"
+      loading="lazy"
+      onError={() => setFailed(true)}
+      className="w-full rounded-sm border border-[var(--app-border)] bg-white shadow-sm"
+    />
+  );
+}
+
+function PdfAttachment({
+  url,
+  openLabel,
+  morePagesLabel,
+}: {
+  url: string;
+  openLabel: string;
+  morePagesLabel: (extra: number) => string;
+}) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [status, setStatus] = useState<"loading" | "ok" | "error">("loading");
+  const [extraPages, setExtraPages] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     const container = containerRef.current;
+    let loadingTask: PDFDocumentLoadingTask | undefined;
 
     void (async () => {
       try {
@@ -41,13 +72,17 @@ function PdfAttachment({ url, openLabel }: { url: string; openLabel: string }) {
           import.meta.url,
         ).toString();
 
-        const pdf = await pdfjs.getDocument({ url, withCredentials: true }).promise;
+        loadingTask = pdfjs.getDocument({ url, withCredentials: true });
+        const pdf = await loadingTask.promise;
         if (cancelled || !container) return;
         container.replaceChildren();
 
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+        const renderCount = Math.min(pdf.numPages, MAX_PREVIEW_PAGES);
+        for (let pageNumber = 1; pageNumber <= renderCount; pageNumber += 1) {
           const page = await pdf.getPage(pageNumber);
-          const viewport = page.getViewport({ scale: 1.5 });
+          const base = page.getViewport({ scale: 1 });
+          const scale = Math.min(2, TARGET_CANVAS_WIDTH / base.width);
+          const viewport = page.getViewport({ scale });
           const canvas = document.createElement("canvas");
           const context = canvas.getContext("2d");
           if (!context) continue;
@@ -60,7 +95,9 @@ function PdfAttachment({ url, openLabel }: { url: string; openLabel: string }) {
           if (cancelled) return;
           container.appendChild(canvas);
         }
-        if (!cancelled) setStatus("ok");
+        if (cancelled) return;
+        setExtraPages(pdf.numPages - renderCount);
+        setStatus("ok");
       } catch {
         if (!cancelled) setStatus("error");
       }
@@ -68,6 +105,7 @@ function PdfAttachment({ url, openLabel }: { url: string; openLabel: string }) {
 
     return () => {
       cancelled = true;
+      loadingTask?.destroy();
     };
   }, [url]);
 
@@ -80,6 +118,11 @@ function PdfAttachment({ url, openLabel }: { url: string; openLabel: string }) {
       <div ref={containerRef} />
       {status === "loading" ? (
         <div className="h-40 w-full animate-pulse rounded-sm border border-[var(--app-border)] bg-[var(--app-surface)]" />
+      ) : null}
+      {extraPages > 0 ? (
+        <p className="mt-2">
+          <AttachmentOpenLink url={url} label={morePagesLabel(extraPages)} />
+        </p>
       ) : null}
     </div>
   );
@@ -121,14 +164,13 @@ export function AttachmentPackagePreview({ attachments }: { attachments: FileAss
                 {label}
               </p>
               {file.mimeType.startsWith("image/") ? (
-                <img
-                  src={url}
-                  alt=""
-                  aria-hidden="true"
-                  className="w-full rounded-sm border border-[var(--app-border)] bg-white shadow-sm"
-                />
+                <ImageAttachment url={url} openLabel={t("attachmentOpen")} />
               ) : file.mimeType === "application/pdf" ? (
-                <PdfAttachment url={url} openLabel={t("attachmentOpen")} />
+                <PdfAttachment
+                  url={url}
+                  openLabel={t("attachmentOpen")}
+                  morePagesLabel={(extra) => t("attachmentMorePages", { count: extra })}
+                />
               ) : (
                 <AttachmentOpenLink url={url} label={t("attachmentOpen")} />
               )}

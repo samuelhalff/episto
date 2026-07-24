@@ -45,6 +45,14 @@ function isDrawnSignatureMimeType(
   return mimeType === "image/png" || mimeType === "image/jpeg";
 }
 
+// Types we allow to be streamed inline from the app origin. Matches the upload
+// allowlist; deliberately excludes anything script-capable (e.g. SVG/HTML).
+const ATTACHMENT_INLINE_MIME_TYPES = new Set<string>([
+  "application/pdf",
+  "image/png",
+  "image/jpeg",
+]);
+
 async function getValidatedSignatureImageObject(input: {
   db: ReturnType<typeof getDb>;
   fileId: string;
@@ -421,7 +429,15 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const object = await downloadObjectBuffer(file.storageKey);
       const mimeType = object.contentType ?? file.mimeType;
 
+      // Only ever serve the validated upload types inline. Anything else (e.g. a
+      // future MIME-list change, or a mismatched stored content-type) is refused
+      // rather than streamed to the browser as an active document.
+      if (!ATTACHMENT_INLINE_MIME_TYPES.has(mimeType)) {
+        throw notFoundError("file");
+      }
+
       reply.header("Content-Type", mimeType);
+      reply.header("X-Content-Type-Options", "nosniff");
       reply.header("Content-Length", String(object.buffer.byteLength));
       reply.header("Content-Disposition", "inline");
       reply.header("Cache-Control", "private, max-age=300");

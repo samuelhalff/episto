@@ -182,6 +182,14 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
 
       const createOrResumeCheckout = async () =>
         db.transaction(async (tx) => {
+          // Serialize concurrent checkouts for the same draft (see captureFreeOrder)
+          // so parallel requests can't create two live payment attempts.
+          await tx
+            .select({ id: schema.draftLetters.id })
+            .from(schema.draftLetters)
+            .where(eq(schema.draftLetters.id, draftId))
+            .for("update");
+
           if (body.email) {
             await tx
               .update(schema.sessions)

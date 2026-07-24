@@ -689,7 +689,8 @@
     "attachmentsPreviewSubtitle": "Gedruckt und mit Ihrem Brief versendet",
     "attachmentLabel": "Beilage {index}: {name}",
     "attachmentOpen": "Datei öffnen",
-    "attachmentsInPreviewHint": "Unten sichtbar – so, wie sie versendet werden."
+    "attachmentsInPreviewHint": "Unten sichtbar – so, wie sie versendet werden.",
+    "attachmentMorePages": "Restliche {count} Seiten öffnen"
   },
   "checkout": {
     "title": "Zahlung",

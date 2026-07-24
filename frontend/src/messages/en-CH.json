@@ -689,7 +689,8 @@
     "attachmentsPreviewSubtitle": "Printed and mailed together with your letter",
     "attachmentLabel": "Attachment {index}: {name}",
     "attachmentOpen": "Open file",
-    "attachmentsInPreviewHint": "Shown below, exactly as they will be sent."
+    "attachmentsInPreviewHint": "Shown below, exactly as they will be sent.",
+    "attachmentMorePages": "Open the remaining {count} pages"
   },
   "checkout": {
     "title": "Checkout",

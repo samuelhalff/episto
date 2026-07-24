@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
   },
   tx: {
     update: vi.fn(),
+    select: vi.fn(),
   },
   getPaymentForDraft: vi.fn(),
   getPaymentAttemptById: vi.fn(),
@@ -131,6 +132,14 @@ describe("payment checkout routes", () => {
 
     mocks.db.update.mockReturnValue(updateChain);
     mocks.tx.update.mockReturnValue(updateChain);
+    // tx.select(...).from(...).where(...).for("update") — the per-draft lock.
+    mocks.tx.select.mockReturnValue({
+      from: vi.fn(() => ({
+        where: vi.fn(() => ({
+          for: vi.fn().mockResolvedValue([{ id: "draft-1" }]),
+        })),
+      })),
+    });
     mocks.db.transaction.mockImplementation(
       async (callback: (tx: typeof mocks.tx) => unknown) => callback(mocks.tx),
     );

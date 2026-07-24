@@ -689,7 +689,8 @@
     "attachmentsPreviewSubtitle": "Stampati e spediti insieme alla lettera",
     "attachmentLabel": "Allegato {index}: {name}",
     "attachmentOpen": "Apri il file",
-    "attachmentsInPreviewHint": "Visibili qui sotto, come verranno inviati."
+    "attachmentsInPreviewHint": "Visibili qui sotto, come verranno inviati.",
+    "attachmentMorePages": "Apri le altre {count} pagine"
   },
   "checkout": {
     "title": "Pagamento",

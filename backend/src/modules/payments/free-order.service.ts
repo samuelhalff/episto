@@ -41,6 +41,15 @@ export async function captureFreeOrder(
   input: FreeOrderInput,
 ): Promise<FreeOrderOutcome> {
   return db.transaction(async (tx) => {
+    // Serialize concurrent checkouts for the same draft: without this lock two
+    // parallel free-order requests could both see "no captured payment", each
+    // capture a free order and enqueue dispatch, mailing the letter twice.
+    await tx
+      .select({ id: schema.draftLetters.id })
+      .from(schema.draftLetters)
+      .where(eq(schema.draftLetters.id, input.draftId))
+      .for("update");
+
     if (input.email) {
       await tx
         .update(schema.sessions)
@@ -51,7 +60,13 @@ export async function captureFreeOrder(
     const existing = await getPaymentForDraft(tx, input.draftId);
     if (
       existing &&
-      ["authorized", "captured", "refund_pending", "refunded"].includes(existing.state)
+      [
+        "authorized",
+        "captured",
+        "refund_pending",
+        "refunded",
+        "partially_refunded",
+      ].includes(existing.state)
     ) {
       // Order already paid / settling — don't re-process it.
       return { created: false as const, payment: existing };
