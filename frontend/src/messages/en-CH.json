@@ -94,7 +94,8 @@
           "describe": "Describe the situation",
           "review": "Review the draft",
           "send": "Send when you're ready"
-        }
+        },
+        "priceReassurance": "postage included, pay only when you send"
       },
       "trustStrip": {
         "postal": "Sent by post in Switzerland",
@@ -159,6 +160,29 @@
         "authority": {
           "title": "Write to an authority",
           "description": "Prepare an official letter that sounds organised, respectful, and complete from the start."
+        }
+      },
+      "journey": {
+        "eyebrow": "From draft to letterbox",
+        "title": "We handle the mailing",
+        "intro": "You approve the letter — we print it, put it in an envelope, and hand it to Swiss Post.",
+        "steps": {
+          "draft": {
+            "title": "You approve",
+            "body": "Review the draft and release it."
+          },
+          "printed": {
+            "title": "Printed in Switzerland",
+            "body": "We print and envelope it professionally."
+          },
+          "sent": {
+            "title": "Handed to Swiss Post",
+            "body": "As A-Mail or registered with tracking."
+          },
+          "delivered": {
+            "title": "In the letterbox",
+            "body": "Delivered to the recipient — no trip to the post office."
+          }
         }
       }
     }

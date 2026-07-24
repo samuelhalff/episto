@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import type { Locale } from "../../i18n/routing";
 import { JsonLd } from "../../components/marketing/JsonLd";
 import { ConfidenceBlock } from "../../components/marketing/ConfidenceBlock";
+import { DispatchJourney } from "../../components/marketing/DispatchJourney";
 import { FinalCTABand } from "../../components/marketing/FinalCTABand";
 import { HomepageHero } from "../../components/marketing/HomepageHero";
 import { HowItWorksSteps } from "../../components/marketing/HowItWorksSteps";
@@ -63,6 +64,7 @@ export default async function HomePage({
         <HomepageHero />
         <TrustStrip />
         <HowItWorksSteps />
+        <DispatchJourney />
         <ConfidenceBlock />
         <UseCaseGrid />
         <PopularTemplates locale={locale} />

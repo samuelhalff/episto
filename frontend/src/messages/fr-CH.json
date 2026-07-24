@@ -94,7 +94,8 @@
           "describe": "Décrivez la situation",
           "review": "Relisez le projet",
           "send": "Envoyez quand tout vous convient"
-        }
+        },
+        "priceReassurance": "envoi inclus, payez seulement à l’envoi"
       },
       "trustStrip": {
         "postal": "Envoi postal en Suisse",
@@ -159,6 +160,29 @@
         "authority": {
           "title": "Écrire à une autorité",
           "description": "Préparez un courrier officiel, structuré, respectueux et complet dès la première version."
+        }
+      },
+      "journey": {
+        "eyebrow": "Du brouillon à la boîte aux lettres",
+        "title": "Nous nous occupons de l’envoi",
+        "intro": "Vous validez la lettre — nous l’imprimons, la mettons sous pli et la confions à la Poste suisse.",
+        "steps": {
+          "draft": {
+            "title": "Vous validez",
+            "body": "Vérifiez le brouillon et validez-le."
+          },
+          "printed": {
+            "title": "Imprimé en Suisse",
+            "body": "Nous imprimons et mettons sous pli avec soin."
+          },
+          "sent": {
+            "title": "Remis à la Poste",
+            "body": "En courrier A ou recommandé avec suivi."
+          },
+          "delivered": {
+            "title": "Dans la boîte aux lettres",
+            "body": "Distribué au destinataire, sans passer à la poste."
+          }
         }
       }
     }

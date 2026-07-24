@@ -1,6 +1,7 @@
 import { ArrowRight } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "../../i18n/routing";
+import { HeroPrice } from "./HeroPrice";
 import { LetterSpecimen } from "./LetterSpecimen";
 import { MarketingActionLink } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
@@ -43,6 +44,7 @@ export function HomepageHero() {
               {t("homepage.hero.secondaryCta")}
             </MarketingActionLink>
           </div>
+          <HeroPrice />
           <div className="hairline mt-9 flex items-center gap-2.5 border-t pt-5">
             <span
               aria-hidden="true"

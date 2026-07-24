@@ -94,7 +94,8 @@
           "describe": "Descrivere la situazione",
           "review": "Verificare la bozza",
           "send": "Spedire quando è pronta"
-        }
+        },
+        "priceReassurance": "spedizione inclusa, paghi solo all’invio"
       },
       "trustStrip": {
         "postal": "Spedizione postale in Svizzera",
@@ -159,6 +160,29 @@
         "authority": {
           "title": "Scrivere a un'autorità",
           "description": "Prepari una lettera ufficiale ordinata, rispettosa e completa fin dall'inizio."
+        }
+      },
+      "journey": {
+        "eyebrow": "Dalla bozza alla cassetta",
+        "title": "Alla spedizione pensiamo noi",
+        "intro": "Lei approva la lettera — noi la stampiamo, la imbustiamo e la consegniamo alla Posta svizzera.",
+        "steps": {
+          "draft": {
+            "title": "Lei approva",
+            "body": "Controlli la bozza e la approvi."
+          },
+          "printed": {
+            "title": "Stampata in Svizzera",
+            "body": "Stampiamo e imbustiamo con cura."
+          },
+          "sent": {
+            "title": "Consegnata alla Posta",
+            "body": "Come posta A o raccomandata con tracciabilità."
+          },
+          "delivered": {
+            "title": "Nella cassetta",
+            "body": "Recapitata al destinatario, senza andare alla posta."
+          }
         }
       }
     }

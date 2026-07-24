@@ -94,7 +94,8 @@
           "describe": "Situation beschreiben",
           "review": "Entwurf prüfen",
           "send": "Versenden, wenn alles stimmt"
-        }
+        },
+        "priceReassurance": "inkl. Versand, Zahlung erst beim Versand"
       },
       "trustStrip": {
         "postal": "Versand in der Schweiz",
@@ -159,6 +160,29 @@
         "authority": {
           "title": "An eine Behörde schreiben",
           "description": "Bereiten Sie ein offizielles Schreiben vor, das von Anfang an geordnet, respektvoll und vollständig wirkt."
+        }
+      },
+      "journey": {
+        "eyebrow": "Vom Entwurf bis zum Briefkasten",
+        "title": "Den Versand übernehmen wir",
+        "intro": "Sie geben den Brief frei – wir drucken, kuvertieren und bringen ihn zur Schweizerischen Post.",
+        "steps": {
+          "draft": {
+            "title": "Sie geben frei",
+            "body": "Prüfen Sie den Entwurf und geben Sie ihn frei."
+          },
+          "printed": {
+            "title": "Gedruckt in der Schweiz",
+            "body": "Wir drucken und kuvertieren professionell."
+          },
+          "sent": {
+            "title": "Per Post aufgegeben",
+            "body": "Als A-Post oder Einschreiben mit Sendungsverfolgung."
+          },
+          "delivered": {
+            "title": "Im Briefkasten",
+            "body": "Zugestellt an den Empfänger – ohne Ihren Gang zur Post."
+          }
         }
       }
     }
