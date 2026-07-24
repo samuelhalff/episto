@@ -136,6 +136,12 @@ export function getSignatureInlineUrl(
   return signatureFileId ? getApiUrl(`/v1/files/${signatureFileId}/inline`) : null;
 }
 
+// Same-origin URL that streams an uploaded attachment (PDF/image) so the review
+// page can preview the exact files that will be mailed. Cookies flow with it.
+export function getAttachmentInlineUrl(fileId: string): string {
+  return getApiUrl(`/v1/files/${fileId}/attachment`);
+}
+
 export function hasConcreteSignature(
   signatureMode: string | null | undefined,
   signatureFileId: string | null | undefined,

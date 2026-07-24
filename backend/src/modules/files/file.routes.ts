@@ -402,6 +402,34 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
     },
   );
 
+  // GET /files/:fileId/attachment — stream an uploaded attachment (PDF/image)
+  // through the app origin so the review page can preview the exact files that
+  // will be mailed with the letter. Session-scoped; attachments only.
+  app.get<{ Params: { fileId: string } }>(
+    "/files/:fileId/attachment",
+    { preHandler: [requireSession] },
+    async (request, reply) => {
+      const session = getRequiredSession(request);
+      const db = getDb();
+      const { fileId } = request.params;
+
+      const file = await getFileAsset(db, fileId, session.id);
+      if (!file || file.kind !== "attachment" || file.status !== "active") {
+        throw notFoundError("file");
+      }
+
+      const object = await downloadObjectBuffer(file.storageKey);
+      const mimeType = object.contentType ?? file.mimeType;
+
+      reply.header("Content-Type", mimeType);
+      reply.header("Content-Length", String(object.buffer.byteLength));
+      reply.header("Content-Disposition", "inline");
+      reply.header("Cache-Control", "private, max-age=300");
+
+      await reply.send(object.buffer);
+    },
+  );
+
   // GET /files/:fileId/download — keep raw downloads on the presigned-storage path.
   app.get<{ Params: { fileId: string } }>(
     "/files/:fileId/download",

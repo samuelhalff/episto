@@ -17,6 +17,7 @@ import { ActionButton } from "../ActionButton";
 import { DraftStepMenu } from "../DraftStepMenu";
 import { StatusBadge } from "../../ui/status-badge";
 import { ReviewSummaryCard, type ReviewSummaryItem } from "./ReviewSummaryCard";
+import { AttachmentPackagePreview } from "./AttachmentPackagePreview";
 import { useReviewPrimaryActionState } from "./review-action-state";
 import { formatCentsAsCHF } from "@/hooks/use-pricing";
 import { captureException } from "@/lib/error-tracking";
@@ -135,12 +136,17 @@ export function ReviewPageReady({
       {
         label: t("attachments"),
         value: hasAttachments
-          ? t("attachmentCount", { count: attachmentCount })
+          ? attachments
+              .filter((file) => file.kind === "attachment")
+              .map((file, index) => file.originalFilename ?? `#${index + 1}`)
           : t("noAttachments"),
-        helperText: !hasAttachments ? t("attachmentsOptionalHelp") : undefined,
+        helperText: hasAttachments
+          ? t("attachmentsInPreviewHint")
+          : t("attachmentsOptionalHelp"),
       },
     ],
     [
+      attachments,
       attachmentCount,
       hasAttachments,
       hasSignature,
@@ -326,6 +332,8 @@ export function ReviewPageReady({
                 showHeader={false}
               />
             </section>
+
+            <AttachmentPackagePreview attachments={attachments} />
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-28">

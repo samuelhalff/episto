@@ -684,7 +684,12 @@
     "proceedToPayment": "Paiement",
     "backToDraft": "Retour",
     "total": "Total",
-    "drawnSignature": "Signature dessinée"
+    "drawnSignature": "Signature dessinée",
+    "attachmentsPreviewTitle": "Pièces jointes ({count})",
+    "attachmentsPreviewSubtitle": "Imprimées et envoyées avec votre lettre",
+    "attachmentLabel": "Annexe {index} : {name}",
+    "attachmentOpen": "Ouvrir le fichier",
+    "attachmentsInPreviewHint": "Visibles ci-dessous, telles qu’elles seront envoyées."
   },
   "checkout": {
     "title": "Paiement",
