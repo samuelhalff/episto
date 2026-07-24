@@ -40,6 +40,9 @@ export async function buildApp(logger: pino.Logger) {
     genReqId: () => randomUUID(),
     requestTimeout: 30_000,
     bodyLimit: 5 * 1024 * 1024, // 5 MB
+    // Order-access links carry a signed JWT (~200 chars) as a path param; the
+    // default maxParamLength of 100 makes those routes 404. Raise the ceiling.
+    maxParamLength: 500,
     trustProxy: config.TRUST_PROXY,
   });
 
