@@ -6,7 +6,7 @@ import { Link } from "../../i18n/navigation";
 import { StepIndicator } from "./StepIndicator";
 import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";
 import { CustomerSiteMenu } from "../layout/CustomerSiteMenu";
-import { BrandMark } from "../branding/BrandMark";
+import { Logo } from "../branding/Logo";
 
 interface FlowHeaderProps {
   currentStep: number;
@@ -32,12 +32,8 @@ export function FlowHeader({
         <div className="py-3">
           <div className="sm:hidden">
             <div className="flex items-center justify-between gap-3">
-              <Link
-                href="/"
-                className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold tracking-[-0.02em] text-zinc-950 dark:text-zinc-50"
-              >
-                <BrandMark className="h-8 w-8 shrink-0" />
-                <span>{tc("appName")}</span>
+              <Link href="/" className="inline-flex shrink-0 items-center">
+                <Logo iconClassName="h-8 w-8" wordmarkClassName="text-base" />
               </Link>
               <CustomerSiteMenu
                 title={tc("appName")}
@@ -50,12 +46,8 @@ export function FlowHeader({
             </div>
           </div>
           <div className="hidden min-h-14 items-center gap-3 sm:flex">
-            <Link
-              href="/"
-              className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold tracking-[-0.02em] text-zinc-950 dark:text-zinc-50"
-            >
-              <BrandMark className="h-8 w-8 shrink-0" />
-              <span>{tc("appName")}</span>
+            <Link href="/" className="inline-flex shrink-0 items-center">
+              <Logo iconClassName="h-8 w-8" wordmarkClassName="text-base" />
             </Link>
 
             <div className="min-w-0 flex-1">

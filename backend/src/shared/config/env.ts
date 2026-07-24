@@ -113,7 +113,7 @@ export const EnvSchema = z
 
     // Email
     RESEND_API_KEY: z.string().startsWith("re_"),
-    APP_DISPLAY_NAME: z.string().min(1).default("Episto"),
+    APP_DISPLAY_NAME: z.string().min(1).default("episto"),
     EMAIL_FROM: z.string().email().default("contact@episto.ch"),
     SUPPORT_EMAIL: z.string().email().default("contact@episto.ch"),
     LEGAL_ENTITY_NAME: z.string().min(1).default("West Bay SA"),

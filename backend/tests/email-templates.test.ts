@@ -144,8 +144,8 @@ describe("Email template rendering", () => {
       brandName: "Episto",
     });
 
-    expect(result.html).toContain('line-height:36px;">E</span>');
-    expect(result.html).not.toContain('line-height:36px;">S</span>');
+    expect(result.html).toContain('line-height:32px;">E</span>');
+    expect(result.html).not.toContain('line-height:32px;">S</span>');
   });
 
   // ---- resume-link ----

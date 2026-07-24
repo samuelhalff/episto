@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Episto",
+    "appName": "episto",
     "loading": "Wird geladen…",
     "error": "Es ist ein Fehler aufgetreten",
     "tryAgain": "Erneut versuchen",
@@ -79,9 +79,9 @@
       "terms": "AGB",
       "imprint": "Impressum",
       "help": "Hilfe",
-      "copyright": "© 2025 Episto. Alle Rechte vorbehalten."
+      "copyright": "© 2025 episto. Alle Rechte vorbehalten."
     },
-    "appName": "Episto",
+    "appName": "episto",
     "homepage": {
       "hero": {
         "badge": "Für wichtige Briefe gemacht",
@@ -275,7 +275,7 @@
     "amendmentsTitle": "Änderungen",
     "imprintTitle": "Impressum",
     "operatedBy": "Dieser Dienst wird betrieben von:",
-    "companyName": "Episto",
+    "companyName": "episto",
     "contactEmail": "E-Mail",
     "commercialRegister": "Handelsregister",
     "vatNumber": "Mehrwertsteuernummer",

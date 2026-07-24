@@ -14,6 +14,7 @@ export interface ConfirmationCopy {
   providerReference: string;
   trackingNumber: string;
   attachments: string;
+  references: string;
   sender: string;
   recipient: string;
   subject: string;
@@ -24,10 +25,12 @@ export interface ConfirmationCopy {
   noteCurrent: string;
   noteLive: string;
   noteBundle: string;
+  envoiHeading: string;
   attestationHeading: string;
   contentSummaryHeading: string;
   fingerprintHeading: string;
   fingerprintNote: string;
+  fingerprintVerifyShort: string;
   enclosureHashesLabel: string;
   noEnclosures: string;
   letterLabel: string;
@@ -38,6 +41,14 @@ export interface ConfirmationCopy {
   attestation: (date: string, deliveryType: string) => string;
   /** issuer fields → "Established by …" issuer line. */
   issuerLine: (issuer: { name: string; address: string; uidVat: string }) => string;
+  /** Short one-line basis statement, sourced from La Poste deposit data. */
+  issuerBasis: string;
+  /** letterPages, enclosurePages, totalPages → "Letter 2 pages + …" summary. */
+  contentBreakdown: (
+    letterPages: string,
+    enclosurePages: string,
+    totalPages: string,
+  ) => string;
 }
 
 export function pageWord(copy: ConfirmationCopy, count: number): string {
@@ -55,6 +66,7 @@ const DEFAULT_COPY: ConfirmationCopy = {
   providerReference: "Provider reference",
   trackingNumber: "Tracking number",
   attachments: "Attachments",
+  references: "References",
   sender: "Sender",
   recipient: "Recipient",
   subject: "Subject",
@@ -76,11 +88,14 @@ const DEFAULT_COPY: ConfirmationCopy = {
   noteLive:
     "Provider identifiers are shown exactly as returned by the dispatch integration.",
   noteBundle: "The exact letter PDF follows on the next page.",
+  envoiHeading: "Dispatch",
   attestationHeading: "Attestation",
   contentSummaryHeading: "Content overview",
   fingerprintHeading: "Letter fingerprint",
   fingerprintNote:
     "Anyone can recompute the SHA-256 fingerprint of the file and compare it with the one shown here; an identical fingerprint establishes that the document is strictly identical to the one handed over to Swiss Post.",
+  fingerprintVerifyShort:
+    "Recompute the SHA-256 of a file and compare; an identical value proves the file is unchanged.",
   enclosureHashesLabel: "Enclosure fingerprints",
   noEnclosures: "No enclosures.",
   letterLabel: "Letter",
@@ -89,8 +104,10 @@ const DEFAULT_COPY: ConfirmationCopy = {
   pagePlural: "pages",
   attestation: (date, deliveryType) =>
     `This statement certifies that the letter and enclosures reproduced on the following pages were deposited with Swiss Post on ${date} as ${deliveryType}, and that their content is identical to what was handed over.`,
-  issuerLine: (issuer) =>
-    `Established by ${issuer.name}, ${issuer.address}, ${issuer.uidVat} — on the basis of the deposit data transmitted by Swiss Post Ltd.`,
+  issuerLine: (issuer) => `${issuer.name} — ${issuer.address} · ${issuer.uidVat} VAT · `,
+  issuerBasis: "On the basis of the deposit data transmitted by Swiss Post Ltd.",
+  contentBreakdown: (letterPages, enclosurePages, totalPages) =>
+    `Letter ${letterPages} + enclosures ${enclosurePages} = ${totalPages}`,
 };
 
 const COPY = {
@@ -106,6 +123,7 @@ const COPY = {
     providerReference: "Anbieterreferenz",
     trackingNumber: "Sendungsnummer",
     attachments: "Beilagen",
+    references: "Referenzen",
     sender: "Absender",
     recipient: "Empfänger",
     subject: "Betreff",
@@ -127,11 +145,14 @@ const COPY = {
     noteLive:
       "Anbieterkennungen werden exakt wie von der Versandintegration geliefert angezeigt.",
     noteBundle: "Das exakte Brief-PDF beginnt auf der nächsten Seite.",
+    envoiHeading: "Versand",
     attestationHeading: "Bestätigung",
     contentSummaryHeading: "Inhaltsübersicht",
     fingerprintHeading: "Brief-Fingerabdruck",
     fingerprintNote:
       "Jede Person kann den SHA-256-Fingerabdruck der Datei neu berechnen und mit dem hier angezeigten vergleichen; ein identischer Fingerabdruck belegt, dass das Dokument mit dem der Post übergebenen exakt übereinstimmt.",
+    fingerprintVerifyShort:
+      "SHA-256 einer Datei neu berechnen und vergleichen; ein identischer Wert belegt, dass die Datei unverändert ist.",
     enclosureHashesLabel: "Fingerabdrücke der Beilagen",
     noEnclosures: "Keine Beilagen.",
     letterLabel: "Brief",
@@ -141,7 +162,11 @@ const COPY = {
     attestation: (date, deliveryType) =>
       `Dieser Nachweis bestätigt, dass der Brief und die auf den folgenden Seiten wiedergegebenen Beilagen am ${date} als ${deliveryType} bei der Schweizerischen Post aufgegeben wurden und dass ihr Inhalt mit dem übergebenen identisch ist.`,
     issuerLine: (issuer) =>
-      `Erstellt durch ${issuer.name}, ${issuer.address}, ${issuer.uidVat} — auf der Grundlage der von der Schweizerischen Post AG übermittelten Aufgabedaten.`,
+      `${issuer.name} — ${issuer.address} · ${issuer.uidVat} MWST · `,
+    issuerBasis:
+      "Auf der Grundlage der von der Schweizerischen Post AG übermittelten Aufgabedaten.",
+    contentBreakdown: (letterPages, enclosurePages, totalPages) =>
+      `Brief ${letterPages} + Beilagen ${enclosurePages} = ${totalPages}`,
   },
   "fr-CH": {
     eyebrow: BRAND_NAME,
@@ -154,6 +179,7 @@ const COPY = {
     providerReference: "Référence prestataire",
     trackingNumber: "Numéro de suivi",
     attachments: "Pièces jointes",
+    references: "Références",
     sender: "Expéditeur",
     recipient: "Destinataire",
     subject: "Objet",
@@ -175,11 +201,14 @@ const COPY = {
     noteLive:
       "Les identifiants prestataire sont affichés exactement comme renvoyés par l'intégration d'envoi.",
     noteBundle: "Le PDF exact de la lettre commence à la page suivante.",
+    envoiHeading: "Envoi",
     attestationHeading: "Attestation",
     contentSummaryHeading: "Récapitulatif du contenu",
     fingerprintHeading: "Empreinte de la lettre",
     fingerprintNote:
       "Toute personne peut recalculer l'empreinte SHA-256 du fichier et la comparer à celle-ci ; une empreinte identique établit que le document est strictement identique à celui remis à la Poste.",
+    fingerprintVerifyShort:
+      "Recalculez le SHA-256 d'un fichier et comparez ; une valeur identique prouve que le fichier est inchangé.",
     enclosureHashesLabel: "Empreintes des pièces jointes",
     noEnclosures: "Aucune pièce jointe.",
     letterLabel: "Lettre",
@@ -189,7 +218,10 @@ const COPY = {
     attestation: (date, deliveryType) =>
       `Ce justificatif atteste que la lettre et les pièces jointes reproduites sur les pages suivantes ont été déposées à la Poste suisse le ${date} en envoi ${deliveryType}, et que leur contenu est identique à ce qui a été remis.`,
     issuerLine: (issuer) =>
-      `Établi par ${issuer.name}, ${issuer.address}, ${issuer.uidVat} — sur la base des données de dépôt transmises par La Poste Suisse SA.`,
+      `${issuer.name} — ${issuer.address} · ${issuer.uidVat} TVA · `,
+    issuerBasis: "Sur la base des données de dépôt transmises par La Poste Suisse SA.",
+    contentBreakdown: (letterPages, enclosurePages, totalPages) =>
+      `Lettre ${letterPages} + pièces jointes ${enclosurePages} = ${totalPages}`,
   },
   "it-CH": {
     eyebrow: BRAND_NAME,
@@ -202,6 +234,7 @@ const COPY = {
     providerReference: "Riferimento fornitore",
     trackingNumber: "Numero di tracciamento",
     attachments: "Allegati",
+    references: "Riferimenti",
     sender: "Mittente",
     recipient: "Destinatario",
     subject: "Oggetto",
@@ -223,11 +256,14 @@ const COPY = {
     noteLive:
       "Gli identificativi del fornitore sono riportati esattamente come restituiti dall'integrazione di spedizione.",
     noteBundle: "Il PDF esatto della lettera inizia alla pagina successiva.",
+    envoiHeading: "Spedizione",
     attestationHeading: "Attestazione",
     contentSummaryHeading: "Riepilogo del contenuto",
     fingerprintHeading: "Impronta della lettera",
     fingerprintNote:
       "Chiunque può ricalcolare l'impronta SHA-256 del file e confrontarla con quella qui riportata; un'impronta identica dimostra che il documento è esattamente identico a quello consegnato alla Posta.",
+    fingerprintVerifyShort:
+      "Ricalcolate lo SHA-256 di un file e confrontatelo; un valore identico dimostra che il file è invariato.",
     enclosureHashesLabel: "Impronte degli allegati",
     noEnclosures: "Nessun allegato.",
     letterLabel: "Lettera",
@@ -237,7 +273,10 @@ const COPY = {
     attestation: (date, deliveryType) =>
       `La presente attestazione certifica che la lettera e gli allegati riprodotti nelle pagine seguenti sono stati depositati alla Posta svizzera il ${date} come ${deliveryType}, e che il loro contenuto è identico a quanto consegnato.`,
     issuerLine: (issuer) =>
-      `Rilasciato da ${issuer.name}, ${issuer.address}, ${issuer.uidVat} — sulla base dei dati di deposito trasmessi da La Posta Svizzera SA.`,
+      `${issuer.name} — ${issuer.address} · ${issuer.uidVat} IVA · `,
+    issuerBasis: "Sulla base dei dati di deposito trasmessi da La Posta Svizzera SA.",
+    contentBreakdown: (letterPages, enclosurePages, totalPages) =>
+      `Lettera ${letterPages} + allegati ${enclosurePages} = ${totalPages}`,
   },
 } satisfies Record<ConfirmationLocale, ConfirmationCopy>;
 

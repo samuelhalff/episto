@@ -15,6 +15,7 @@ import {
   secondaryLink,
   sectionDivider,
   detailRow,
+  detailRowMono,
   detailTable,
   heading,
   paragraph,
@@ -128,7 +129,7 @@ function renderDispatchSubmitted(
   const supportEmail = readString(data, "supportEmail");
 
   const rows = [
-    detailRow(s.orderLabel, orderRef),
+    detailRowMono(s.orderLabel, orderRef),
     deliveryType ? detailRow(s.deliveryTypeLabel, deliveryType) : "",
     senderName ? detailRow(s.senderLabel, senderName) : "",
     recipientName ? detailRow(s.recipientLabel, recipientName) : "",
@@ -162,7 +163,7 @@ function renderDispatchSubmitted(
     bodyParts.push(sectionDivider());
     bodyParts.push(
       mutedText(
-        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#1a1a1a;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
+        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#161616;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
       ),
     );
   }
@@ -214,12 +215,12 @@ function renderDispatchAccepted(
   const showTracking = deliveryType === "registered" && Boolean(trackingNumber);
 
   const rows = [
-    detailRow(s.orderLabel, orderRef),
+    detailRowMono(s.orderLabel, orderRef),
     deliveryTypeLabel ? detailRow(s.deliveryTypeLabel, deliveryTypeLabel) : "",
     senderName ? detailRow(s.senderLabel, senderName) : "",
     recipientName ? detailRow(s.recipientLabel, recipientName) : "",
-    providerReference ? detailRow(s.referenceLabel, providerReference) : "",
-    showTracking ? detailRow(s.trackingLabel, trackingNumber) : "",
+    providerReference ? detailRowMono(s.referenceLabel, providerReference) : "",
+    showTracking ? detailRowMono(s.trackingLabel, trackingNumber) : "",
   ]
     .filter(Boolean)
     .join("\n");
@@ -251,7 +252,7 @@ function renderDispatchAccepted(
     bodyParts.push(sectionDivider());
     bodyParts.push(
       mutedText(
-        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#1a1a1a;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
+        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#161616;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
       ),
     );
   }
@@ -322,7 +323,7 @@ function renderRefundConfirmed(
   const supportEmail = readString(data, "supportEmail");
 
   const rows = [
-    detailRow(s.orderLabel, orderRef),
+    detailRowMono(s.orderLabel, orderRef),
     detailRow(s.amountLabel, `CHF ${amount}`),
   ].join("\n");
 
@@ -336,7 +337,7 @@ function renderRefundConfirmed(
     bodyParts.push(sectionDivider());
     bodyParts.push(
       mutedText(
-        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#1a1a1a;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
+        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#161616;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
       ),
     );
   }
@@ -378,7 +379,7 @@ function renderPaymentReceipt(
   const supportEmail = readString(data, "supportEmail");
 
   const rows = [
-    detailRow(s.orderLabel, orderRef),
+    detailRowMono(s.orderLabel, orderRef),
     detailRow(s.totalLabel, totalLine),
   ].join("\n");
 
@@ -403,7 +404,7 @@ function renderPaymentReceipt(
   if (supportEmail) {
     bodyParts.push(
       mutedText(
-        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#1a1a1a;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
+        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#161616;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
       ),
     );
   }

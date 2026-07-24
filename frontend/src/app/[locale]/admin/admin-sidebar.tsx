@@ -14,7 +14,7 @@ import {
   Activity,
   X,
 } from "lucide-react";
-import { BrandMark } from "@/components/branding/BrandMark";
+import { Logo } from "@/components/branding/Logo";
 import { useAdminAuth } from "./admin-auth-context";
 import { getAdminPagePath } from "@/lib/admin-paths";
 
@@ -59,12 +59,9 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
     <>
       <div className="flex items-center justify-between px-5 pb-6 pt-6">
         <div className="flex items-center gap-2">
-          <BrandMark className="h-6 w-6 shrink-0" />
-          <span
-            className="text-sm font-semibold tracking-wide"
-            style={{ color: "var(--app-fg)" }}
-          >
-            EPISTO ADMIN
+          <Logo iconClassName="h-6 w-6" wordmarkClassName="text-base" />
+          <span className="text-xs font-medium uppercase tracking-wide text-[var(--app-fg)]/60">
+            admin
           </span>
         </div>
         {/* Close button visible only on mobile */}

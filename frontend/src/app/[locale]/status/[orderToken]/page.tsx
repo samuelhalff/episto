@@ -8,7 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { apiFetch } from "@/lib/api";
 import { OrderStatusResponseSchema, queryKeys } from "@episto/shared";
 import type { OrderStatusResponse } from "@episto/shared";
-import { BrandMark } from "@/components/branding/BrandMark";
+import { Logo } from "@/components/branding/Logo";
 import {
   APP_PAGE_STACK_CLASS_NAME,
   STATUS_PAGE_SHELL_CLASS_NAME,
@@ -77,12 +77,8 @@ export default function StatusPage({
     <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf4_0%,#ffffff_28%)] dark:bg-zinc-950">
       <header className="border-b border-zinc-200/80 bg-white/95 px-4 py-4 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95 sm:px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3 font-semibold tracking-tight text-zinc-950 dark:text-zinc-50"
-          >
-            <BrandMark className="h-10 w-10 shrink-0" />
-            {tc("appName")}
+          <Link href="/" className="inline-flex items-center">
+            <Logo iconClassName="h-10 w-10" wordmarkClassName="text-2xl" />
           </Link>
           <div className="hidden items-center gap-3 sm:flex">
             <HeaderLanguageMenu />

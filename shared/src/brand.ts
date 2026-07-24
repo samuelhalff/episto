@@ -1,4 +1,4 @@
-export const BRAND_NAME = "Episto";
+export const BRAND_NAME = "episto";
 export const BRAND_COLOR = "#f6c54a";
 export const BRAND_REFERENCE_PREFIX = "EP";
 export const BRAND_MARK_VIEW_BOX = "0 0 56 56";

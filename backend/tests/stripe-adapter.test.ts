@@ -169,7 +169,7 @@ describe("createPaymentIntent", () => {
     expect(createPayload).toEqual(
       expect.objectContaining({
         receipt_email: "payer@example.com",
-        description: "Episto order EP-ORDER-1 (standard letter)",
+        description: "episto order EP-ORDER-1 (standard letter)",
         metadata: expect.objectContaining({
           orderRef: "EP-ORDER-1",
           deliveryType: "standard",
@@ -197,7 +197,7 @@ describe("createPaymentIntent", () => {
       "pi_existing",
       expect.objectContaining({
         receipt_email: "payer@example.com",
-        description: "Episto order EP-ORDER-1 (registered letter)",
+        description: "episto order EP-ORDER-1 (registered letter)",
         metadata: expect.objectContaining({
           orderRef: "EP-ORDER-1",
           deliveryType: "registered",

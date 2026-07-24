@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Episto",
+    "appName": "episto",
     "loading": "Caricamento…",
     "error": "Si è verificato un errore",
     "tryAgain": "Riprovare",
@@ -79,9 +79,9 @@
       "terms": "Condizioni",
       "imprint": "Colofone",
       "help": "Aiuto",
-      "copyright": "© 2025 Episto. Tutti i diritti riservati."
+      "copyright": "© 2025 episto. Tutti i diritti riservati."
     },
-    "appName": "Episto",
+    "appName": "episto",
     "homepage": {
       "hero": {
         "badge": "Pensato per lettere importanti",
@@ -275,7 +275,7 @@
     "amendmentsTitle": "Modifiche",
     "imprintTitle": "Colofone",
     "operatedBy": "Questo servizio è gestito da:",
-    "companyName": "Episto",
+    "companyName": "episto",
     "contactEmail": "E-mail",
     "commercialRegister": "Registro di commercio",
     "vatNumber": "Numero IVA",

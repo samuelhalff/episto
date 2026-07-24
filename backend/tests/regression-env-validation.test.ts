@@ -125,7 +125,7 @@ describe("regression: env validation accepts valid configs", () => {
       expect(result.data.STATEMENT_RETENTION_DAYS).toBe(15);
       expect(result.data.EPOST_SUBMISSION_MODE).toBe("mock");
       expect(result.data.POSTAL_DISPATCH_PROVIDER).toBe("stub");
-      expect(result.data.APP_DISPLAY_NAME).toBe("Episto");
+      expect(result.data.APP_DISPLAY_NAME).toBe("episto");
       expect(result.data.SUPPORT_EMAIL).toBe("contact@episto.ch");
     }
   });

@@ -66,7 +66,7 @@ describe("EnvSchema — valid minimal env", () => {
 
   it("applies default APP_DISPLAY_NAME", () => {
     const result = EnvSchema.parse(validEnv());
-    expect(result.APP_DISPLAY_NAME).toBe("Episto");
+    expect(result.APP_DISPLAY_NAME).toBe("episto");
   });
 
   it("applies default SUPPORT_EMAIL", () => {

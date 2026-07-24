@@ -19,7 +19,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { trackEvent } from "@/lib/analytics";
 import { useSearchParams } from "next/navigation";
 
-import { BrandMark } from "@/components/branding/BrandMark";
+import { Logo } from "@/components/branding/Logo";
 import { CustomerSiteMenu } from "@/components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "@/components/layout/HeaderLanguageMenu";
 import { ActionButton, ActionLink } from "@/components/product/ActionButton";
@@ -487,8 +487,7 @@ function EntryHeader() {
           href="/"
           className="inline-flex min-w-0 items-center gap-3 text-sm font-semibold tracking-tight text-[var(--app-fg)]"
         >
-          <BrandMark className="h-10 w-10 shrink-0" />
-          <span className="truncate">{tc("appName")}</span>
+          <Logo iconClassName="h-10 w-10" wordmarkClassName="truncate text-base" />
         </Link>
 
         <div className="hidden items-center gap-2 sm:flex">

@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Episto",
+    "appName": "episto",
     "loading": "Loading…",
     "error": "An error occurred",
     "tryAgain": "Try again",
@@ -79,9 +79,9 @@
       "terms": "Terms",
       "imprint": "Imprint",
       "help": "Help",
-      "copyright": "© 2025 Episto. All rights reserved."
+      "copyright": "© 2025 episto. All rights reserved."
     },
-    "appName": "Episto",
+    "appName": "episto",
     "homepage": {
       "hero": {
         "badge": "Built for important letters",
@@ -275,7 +275,7 @@
     "amendmentsTitle": "Amendments",
     "imprintTitle": "Imprint",
     "operatedBy": "This service is operated by:",
-    "companyName": "Episto",
+    "companyName": "episto",
     "contactEmail": "Email",
     "commercialRegister": "Commercial Register",
     "vatNumber": "VAT Number",

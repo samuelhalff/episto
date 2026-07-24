@@ -91,7 +91,7 @@ export function groupHash(hash: string): string {
 }
 
 function formatAddress(address: ConfirmationAddress): string {
-  return [
+  const lines = [
     address.company,
     "department" in address ? address.department : null,
     [address.firstName, address.lastName].filter(Boolean).join(" ") || null,
@@ -99,18 +99,16 @@ function formatAddress(address: ConfirmationAddress): string {
     address.addressLine2,
     `${address.postalCode} ${address.city}`,
     address.country && address.country !== "CH" ? address.country : null,
-  ]
-    .filter((line): line is string => Boolean(line && line.trim().length > 0))
-    .map((line) => escapeHtml(line))
+  ].filter((line): line is string => Boolean(line && line.trim().length > 0));
+
+  // First line is the party name → rendered 600 (bold) in sans.
+  return lines
+    .map((line, index) =>
+      index === 0
+        ? `<span class="party-name">${escapeHtml(line)}</span>`
+        : escapeHtml(line),
+    )
     .join("<br>");
-}
-
-function formatList(items: string[], fallback: string): string {
-  if (items.length === 0) {
-    return `<span class="value-muted">${escapeHtml(fallback)}</span>`;
-  }
-
-  return items.map((item) => `<span class="tag">${escapeHtml(item)}</span>`).join("");
 }
 
 function resolveControlNote(
@@ -125,7 +123,8 @@ function resolveControlNote(
 }
 
 function renderBrandMark(): string {
-  return renderBrandMarkSvg(56);
+  // ~8mm at 96dpi ≈ 30px.
+  return renderBrandMarkSvg(30);
 }
 
 export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput): string {
@@ -153,116 +152,96 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
   const showProviderReference = Boolean(
     input.providerMode === "live" && input.providerReference,
   );
-  const showReferenceCard = showTracking || showProviderReference;
-  const primaryReferenceLabel = input.trackingNumber
-    ? copy.trackingNumber
-    : copy.providerReference;
-  const primaryReferenceValue =
-    input.trackingNumber ?? input.providerReference ?? copy.notAvailable;
-  const providerReferenceValue = input.providerReference ?? copy.notAvailable;
-  const providerReferenceMeta =
-    showTracking && showProviderReference
-      ? `<p class="reference-meta"><span class="reference-meta-label">${escapeHtml(
-          copy.providerReference,
-        )}</span>${escapeHtml(providerReferenceValue)}</p>`
-      : "";
+  // Hero identifier: tracking number when available, else the provider ref.
+  const heroValue = showTracking
+    ? (input.trackingNumber as string)
+    : showProviderReference
+      ? (input.providerReference as string)
+      : copy.notAvailable;
+
+  // References fact column: provider ref + order ref (mono).
+  const referenceLines: string[] = [];
+  if (showProviderReference) {
+    referenceLines.push(escapeHtml(input.providerReference as string));
+  }
+  referenceLines.push(escapeHtml(input.orderRef));
+  const referencesValue = referenceLines.join("<br>");
+
   const subjectValue = input.subject
     ? escapeHtml(input.subject)
     : `<span class="value-muted">${escapeHtml(copy.notAvailable)}</span>`;
-  const attachmentTags =
-    input.attachmentNames.length > 0
-      ? formatList(input.attachmentNames, copy.notAvailable)
-      : "";
-  const metaItems: string[] = [];
-
-  if (input.subject) {
-    metaItems.push(`<div>
-          <div class="label">${escapeHtml(copy.subject)}</div>
-          <div class="meta-value">${subjectValue}</div>
-        </div>`);
-  }
-
-  if (input.attachmentNames.length > 0) {
-    metaItems.push(`<div>
-          <div class="label">${escapeHtml(copy.attachments)}</div>
-          <div class="tag-list">${attachmentTags}</div>
-        </div>`);
-  }
 
   // ---- Court-grade justificatif sections (attestation / summary / hash) ----
   const letterPageCount = input.letterPageCount ?? input.pageCount;
   const enclosures = input.enclosures ?? [];
+  const enclosurePageTotal = enclosures.reduce((sum, e) => sum + e.pageCount, 0);
   const totalContentPages =
-    input.totalContentPages ??
-    letterPageCount + enclosures.reduce((sum, e) => sum + e.pageCount, 0);
+    input.totalContentPages ?? letterPageCount + enclosurePageTotal;
 
-  const issuerLine = input.issuer
-    ? `<p class="issuer-line">${escapeHtml(
-        copy.issuerLine({
-          name: input.issuer.name,
-          address: [
-            input.issuer.addressLine1,
-            input.issuer.addressLine2,
-            input.issuer.country,
-          ]
-            .filter(Boolean)
-            .join(", "),
-          uidVat: input.issuer.uidVat,
-        }),
-      )} ${escapeHtml(input.issuer.supportEmail)}</p>`
-    : "";
-
-  const attestationSection = `<section class="section-card">
-      <div class="label">${escapeHtml(copy.attestationHeading)}</div>
-      <p class="attestation-text">${escapeHtml(
-        copy.attestation(depositedAt, deliveryFormForAttestation(deliveryTypeLabel)),
-      )}</p>
-      ${issuerLine}
-    </section>`;
-
-  const enclosureSummary =
+  // Zone B: plain enclosure list — "facture.pdf (3 pages) · photo.jpg (1 page)".
+  const enclosureListHtml =
     enclosures.length > 0
-      ? enclosures
+      ? `<span class="enclosure-list">${enclosures
           .map(
             (e) =>
-              `${escapeHtml(e.name)} (${e.pageCount} ${escapeHtml(
+              `<span class="enc-name">${escapeHtml(e.name)}</span> <span class="enc-count">(${e.pageCount} ${escapeHtml(
                 pageWord(copy, e.pageCount),
-              )})`,
+              )})</span>`,
           )
-          .join(", ")
-      : escapeHtml(copy.noEnclosures);
+          .join(`<span class="enclosure-sep"> · </span>`)}</span>`
+      : `<span class="value-muted">${escapeHtml(copy.noEnclosures)}</span>`;
 
-  const contentSummarySection = `<section class="section-card">
-      <div class="label">${escapeHtml(copy.contentSummaryHeading)}</div>
-      <p class="summary-text"><strong>${escapeHtml(copy.letterLabel)}:</strong> ${letterPageCount} ${escapeHtml(
-        pageWord(copy, letterPageCount),
-      )}. <strong>${escapeHtml(copy.attachments)}:</strong> ${enclosureSummary} <strong>${escapeHtml(
-        copy.totalContentLabel,
-      )}:</strong> ${totalContentPages} ${escapeHtml(pageWord(copy, totalContentPages))}.</p>
-    </section>`;
+  // Zone B: "Lettre 2 pages + pièces jointes 4 pages = 6 pages".
+  const contentBreakdown = escapeHtml(
+    copy.contentBreakdown(
+      `${letterPageCount} ${pageWord(copy, letterPageCount)}`,
+      `${enclosurePageTotal} ${pageWord(copy, enclosurePageTotal)}`,
+      `${totalContentPages} ${pageWord(copy, totalContentPages)}`,
+    ),
+  );
+
+  // Zone C: issuer signature line (name 600 ink, rest muted) + basis note.
+  const issuerBlock = input.issuer
+    ? `<p class="issuer-line"><span class="issuer-name">${escapeHtml(
+        input.issuer.name,
+      )}</span>${escapeHtml(
+        copy
+          .issuerLine({
+            name: input.issuer.name,
+            address: [
+              input.issuer.addressLine1,
+              input.issuer.addressLine2,
+              input.issuer.country,
+            ]
+              .filter(Boolean)
+              .join(", "),
+            uidVat: input.issuer.uidVat,
+          })
+          .replace(input.issuer.name, ""),
+      )}${escapeHtml(input.issuer.supportEmail)}</p>
+      <p class="issuer-basis">${escapeHtml(copy.issuerBasis)}</p>`
+    : "";
 
   const enclosureHashes = input.enclosureHashes ?? [];
-  const enclosureHashRows =
-    enclosureHashes.length > 0
-      ? `<div class="enclosure-hashes">
-          <div class="label">${escapeHtml(copy.enclosureHashesLabel)}</div>
-          ${enclosureHashes
-            .map(
-              (e) =>
-                `<p class="hash-row"><span class="hash-name">${escapeHtml(
-                  e.name,
-                )}</span><span class="hash-value">${escapeHtml(groupHash(e.sha256))}</span></p>`,
-            )
-            .join("")}
-        </div>`
-      : "";
+  const enclosureHashRows = enclosureHashes
+    .map(
+      (e) =>
+        `<div class="hash-entry"><div class="hash-name">${escapeHtml(
+          e.name,
+        )}</div><div class="hash-value">${escapeHtml(groupHash(e.sha256))}</div></div>`,
+    )
+    .join("");
 
   const fingerprintSection = input.letterSha256
-    ? `<section class="section-card fingerprint-card">
-      <div class="label">${escapeHtml(copy.fingerprintHeading)}</div>
-      <p class="hash-value hash-value-primary">${escapeHtml(groupHash(input.letterSha256))}</p>
-      <p class="hash-note">${escapeHtml(copy.fingerprintNote)}</p>
-      ${enclosureHashRows}
+    ? `<section class="fingerprint">
+      <span class="eyebrow">${escapeHtml(copy.fingerprintHeading)}</span>
+      <p class="fingerprint-note">${escapeHtml(copy.fingerprintVerifyShort)}</p>
+      <div class="hash-block">
+        <div class="hash-entry"><div class="hash-name">${escapeHtml(
+          copy.letterLabel,
+        )}</div><div class="hash-value">${escapeHtml(groupHash(input.letterSha256))}</div></div>
+        ${enclosureHashRows}
+      </div>
     </section>`
     : "";
 
@@ -276,86 +255,88 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
 </head>
 <body>
   <main class="confirmation-page">
-    <section class="header-card">
-      <div class="brand">
-        ${renderBrandMark()}
-        <div class="brand-copy">
-          <small>${escapeHtml(copy.eyebrow)}</small>
-          <h1>${escapeHtml(copy.title)}</h1>
+    <header class="masthead">
+      <div>
+        <div class="masthead-brand">
+          ${renderBrandMark()}
+          <span class="masthead-wordmark">${escapeHtml(copy.eyebrow)}</span>
         </div>
+        <h1 class="masthead-title">${escapeHtml(copy.title)}</h1>
       </div>
-      <div class="header-meta">
-        <div class="header-meta-label">${escapeHtml(copy.issuedOn)}</div>
-        <div class="header-meta-value">${escapeHtml(issuedAt)}</div>
-      </div>
-    </section>
+      <div class="masthead-date">${escapeHtml(copy.issuedOn)} ${escapeHtml(issuedAt)}</div>
+    </header>
+    <div class="anchor-rule"></div>
 
-    ${
-      showReferenceCard
-        ? `<section class="reference-card">
-        <div class="label">${escapeHtml(primaryReferenceLabel)}</div>
-        <div class="reference-value${showTracking ? " tracking-value" : ""}">${escapeHtml(primaryReferenceValue)}</div>
-        <p class="reference-meta reference-deposit"><span class="reference-meta-label">${escapeHtml(
-          copy.depositedOn,
-        )}</span>${escapeHtml(depositedAt)}</p>
-        ${providerReferenceMeta}
-      </section>`
-        : ""
-    }
-
-    <section class="fact-card">
-      <div class="facts-grid">
-        <div>
-          <div class="label">${escapeHtml(copy.orderRef)}</div>
-          <div class="fact-value">${escapeHtml(input.orderRef)}</div>
+    <section class="zone">
+      <span class="eyebrow">${escapeHtml(copy.envoiHeading)}</span>
+      <div class="hero-tracking">${escapeHtml(heroValue)}</div>
+      <div class="fact-row">
+        <div class="fact-col">
+          <span class="eyebrow">${escapeHtml(copy.depositedOn)}</span>
+          <div class="fact-value">${escapeHtml(depositedAt)}</div>
         </div>
-        <div>
-          <div class="label">${escapeHtml(copy.dispatchStatus)}</div>
-          <div class="fact-value">${escapeHtml(dispatchStatusLabel)}</div>
+        <div class="fact-col">
+          <span class="eyebrow">${escapeHtml(copy.dispatchStatus)}</span>
+          <div class="fact-value">
+            <span class="status-line"><span class="status-dot"></span><span class="status-label">${escapeHtml(dispatchStatusLabel)}</span></span>
+          </div>
         </div>
-        <div>
-          <div class="label">${escapeHtml(copy.deliveryType)}</div>
+        <div class="fact-col">
+          <span class="eyebrow">${escapeHtml(copy.deliveryType)}</span>
           <div class="fact-value">${escapeHtml(deliveryTypeLabel)}</div>
         </div>
-        ${
-          showReferenceCard
-            ? ""
-            : `<div>
-          <div class="label">${escapeHtml(copy.depositedOn)}</div>
-          <div class="fact-value">${escapeHtml(depositedAt)}</div>
-        </div>`
-        }
+        <div class="fact-col">
+          <span class="eyebrow">${escapeHtml(copy.references)}</span>
+          <div class="fact-value mono">${referencesValue}</div>
+        </div>
       </div>
     </section>
 
-    <section class="parties-grid">
-      <article class="party-card">
-        <div class="label">${escapeHtml(copy.sender)}</div>
-        <div class="party-value">${formatAddress(input.sender)}</div>
-      </article>
-      <article class="party-card">
-        <div class="label">${escapeHtml(copy.recipient)}</div>
-        <div class="party-value">${formatAddress(input.recipient)}</div>
-      </article>
+    <hr class="hairline" style="margin-top:18pt">
+
+    <section class="zone">
+      <div class="parties">
+        <div class="party">
+          <span class="eyebrow">${escapeHtml(copy.sender)}</span>
+          <div class="party-value">${formatAddress(input.sender)}</div>
+        </div>
+        <div class="party">
+          <span class="eyebrow">${escapeHtml(copy.recipient)}</span>
+          <div class="party-value">${formatAddress(input.recipient)}</div>
+        </div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">${escapeHtml(copy.subject)}</div>
+        <div class="ledger-value">${subjectValue}</div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">${escapeHtml(copy.attachments)}</div>
+        <div class="ledger-value">${enclosureListHtml}</div>
+      </div>
+      <div class="ledger-row">
+        <div class="ledger-label">${escapeHtml(copy.totalContentLabel)}</div>
+        <div class="ledger-value">${contentBreakdown}</div>
+      </div>
     </section>
 
-    ${
-      metaItems.length > 0
-        ? `<section class="meta-card">
-      <div class="meta-grid">${metaItems.join("")}</div>
-    </section>`
-        : ""
-    }
+    <hr class="hairline" style="margin-top:18pt">
 
-    ${attestationSection}
-
-    ${contentSummarySection}
+    <div class="cert-anchor"></div>
+    <section class="zone" style="margin-top:14pt">
+      <span class="eyebrow">${escapeHtml(copy.attestationHeading)}</span>
+      <p class="attestation-text">${escapeHtml(
+        copy.attestation(depositedAt, deliveryFormForAttestation(deliveryTypeLabel)),
+      )}</p>
+      ${issuerBlock}
+    </section>
 
     ${fingerprintSection}
 
-    <section class="footer-note">
-      <p>${escapeHtml(controlNote)}</p>
-      <p>${escapeHtml(copy.noteBundle)}</p>
+    <section class="footer">
+      <hr class="hairline">
+      <div class="footer-inner">
+        <div class="footer-note-text">${escapeHtml(controlNote)} ${escapeHtml(copy.noteBundle)}</div>
+      </div>
     </section>
   </main>
   ${letterHtml ? `<section class="page-break">${letterHtml}</section>` : ""}

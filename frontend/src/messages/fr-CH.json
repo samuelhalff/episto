@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Episto",
+    "appName": "episto",
     "loading": "Chargement…",
     "error": "Une erreur est survenue",
     "tryAgain": "Réessayer",
@@ -79,9 +79,9 @@
       "terms": "Conditions",
       "imprint": "Mentions légales",
       "help": "Aide",
-      "copyright": "© 2025 Episto. Tous droits réservés."
+      "copyright": "© 2025 episto. Tous droits réservés."
     },
-    "appName": "Episto",
+    "appName": "episto",
     "homepage": {
       "hero": {
         "badge": "Pensé pour les courriers importants",
@@ -275,7 +275,7 @@
     "amendmentsTitle": "Modifications",
     "imprintTitle": "Mentions légales",
     "operatedBy": "Ce service est exploité par :",
-    "companyName": "Episto",
+    "companyName": "episto",
     "contactEmail": "E-mail",
     "commercialRegister": "Registre du commerce",
     "vatNumber": "Numéro de TVA",

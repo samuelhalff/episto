@@ -56,20 +56,24 @@ describe("confirmation document template", () => {
       },
     });
 
-    expect(html).toContain("Episto");
+    expect(html).toContain("episto");
     expect(html).toContain("Dispatch statement");
     // Court-grade justificatif sections.
     expect(html).toContain("Attestation");
     expect(html).toContain("deposited with Swiss Post");
-    expect(html).toContain("Content overview");
+    // Zone B content breakdown ("Letter 2 pages + enclosures 3 pages = 5 pages").
+    expect(html).toContain("Letter 2 pages + enclosures 3 pages = 5 pages");
     expect(html).toContain("Letter fingerprint");
     // Hash is grouped into 8-char clusters at render time (stored hash untouched).
     expect(html).toContain(`${"a".repeat(8)} ${"a".repeat(8)}`);
     expect(html).not.toContain("a".repeat(64));
-    expect(html).toContain("recompute the SHA-256 fingerprint");
-    expect(html).toContain("contract-scan.pdf (3 pages)");
+    // Short verify explainer replaces the long fingerprint note on the cover.
+    expect(html).toContain("Recompute the SHA-256");
+    // Plain enclosure list (no pill chips): filename + page count.
+    expect(html).toContain("contract-scan.pdf");
+    expect(html).toContain("(3 pages)");
     expect(html).toContain(`${"b".repeat(8)} ${"b".repeat(8)}`);
-    // Issuer block naming the deposit-data source.
+    // Issuer signature line naming the deposit-data source.
     expect(html).toContain("West Bay SA");
     expect(html).toContain("CHE-107.892.984");
     expect(html).toContain("Swiss Post Ltd");
@@ -78,18 +82,30 @@ describe("confirmation document template", () => {
     expect(html).toContain("Swiss time");
     expect(html).toContain("Statement issued on");
     expect(html).toContain("Deposited on");
+    // Order ref appears in the References fact column (mono).
     expect(html).toContain("EP-4FD8704A");
+    // The tracking number is the mono hero identifier (no "Tracking number" label).
     expect(html).toContain("98.40.541881.00002354");
-    expect(html).toContain("Tracking number");
+    // Ledger palette: amber accent only, ink text, print-clean white background.
     expect(html).toContain("#f6c54a");
-    expect(html).toContain("#fffaf2");
-    expect(html).toContain("#18181b");
-    expect(html).toContain("font-weight: 900");
+    expect(html).toContain("#ffffff");
+    expect(html).toContain("#161616");
+    // The amber is reserved for the status dot, never a pill/green background.
+    expect(html).toContain("status-dot");
+    // No cards: no shadows, no card classes, no tinted section backgrounds.
+    expect(html).not.toContain("box-shadow");
+    expect(html).not.toContain("header-card");
+    expect(html).not.toContain("section-card");
+    expect(html).not.toContain("reference-card");
+    expect(html).not.toContain("#fffaf2");
+    // The anchor rule (1.5pt ink) is the document's spine.
+    expect(html).toContain("anchor-rule");
+    // Mono hero identifier for the tracking number.
+    expect(html).toContain("hero-tracking");
     expect(html).toContain('<circle cx="26" cy="30" r="10.5"');
     expect(html).toContain('<circle cx="36.5" cy="19.5" r="4.5"');
     expect(html).not.toContain("M18 28h16");
     expect(html).toContain("min-height: 297mm");
-    expect(html).toContain("break-inside: avoid");
     expect(html).not.toMatch(/\.confirmation-page\s*\{\s*height:\s*297mm/);
     expect(html).not.toContain("overflow: hidden");
     expect(html).not.toContain("Content summary");
@@ -148,8 +164,9 @@ describe("confirmation document template", () => {
     expect(html).toContain("Justificatif établi le");
     expect(html).toContain("Courrier recommandé");
     expect(html).toContain("98.40.541881.00002354");
-    expect(html).toContain("tracking-value");
-    expect(html).toContain("font-weight: 900");
+    // Tracking is the mono hero identifier under the ENVOI eyebrow.
+    expect(html).toContain("hero-tracking");
+    expect(html).toContain("Envoi");
     expect(html).not.toContain("Preview");
     // Localized attestation (accented, "en envoi recommandé") + graceful default.
     expect(html).toContain("déposées à la Poste suisse");

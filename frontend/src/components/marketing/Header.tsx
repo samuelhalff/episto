@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
-import { BrandMark } from "../branding/BrandMark";
+import { Logo } from "../branding/Logo";
 import { MenuTriggerButton } from "../layout/MenuTriggerButton";
 import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";
 import { SiteMenuPanel } from "../layout/SiteMenuPanel";
@@ -34,13 +34,7 @@ export function Header() {
           href="/"
           className="inline-flex min-w-0 items-center gap-2.5 transition-colors"
         >
-          <BrandMark className="h-7 w-7 shrink-0" />
-          <MarketingHeading
-            as="span"
-            className="truncate font-serif text-xl font-semibold tracking-tight"
-          >
-            {tc("appName")}
-          </MarketingHeading>
+          <Logo iconClassName="h-7 w-7" wordmarkClassName="truncate text-xl" />
         </Link>
 
         <MarketingBody

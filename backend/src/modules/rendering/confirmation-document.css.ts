@@ -5,246 +5,262 @@ export const CONFIRMATION_DOCUMENT_CSS = `@page {
       margin: 0;
     }
     :root {
-      --pdf-bg: #fffaf2;
-      --pdf-surface: #ffffff;
-      --pdf-surface-soft: #faf7f1;
-      --pdf-border: rgba(24, 24, 27, 0.08);
-      --pdf-border-strong: rgba(24, 24, 27, 0.14);
-      --pdf-text: #18181b;
-      --pdf-muted: #71717a;
-      --pdf-muted-strong: #3f3f46;
-      --pdf-accent: ${BRAND_COLOR};
-      --pdf-shadow: none;
+      --ink: #161616;
+      --muted: #5d5a54;
+      --hairline: #b9b3a7;
+      --amber: ${BRAND_COLOR};
+      --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+      --sans: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+      --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: var(--pdf-text);
-      background: var(--pdf-bg);
+      font-family: var(--sans);
+      color: var(--ink);
+      background: #ffffff;
     }
     .confirmation-page {
       min-height: 297mm;
-      padding: 14mm 14mm 12mm;
-      display: flex;
-      flex-direction: column;
-      gap: 8mm;
+      padding: 20mm 22mm 18mm;
     }
-    .header-card,
-    .hero-card,
-    .section-card,
-    .party-card,
-    .meta-card,
-    .footer-note {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      border: 1px solid var(--pdf-border);
-      border-radius: 16px;
-      background: var(--pdf-surface);
-      box-shadow: var(--pdf-shadow);
+    .eyebrow {
+      font-family: var(--sans);
+      font-size: 7.5pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
     }
-    .header-card {
+    /* --- Rules --- */
+    .anchor-rule {
+      height: 1.5pt;
+      background: var(--ink);
+      margin: 10pt 0 0;
+    }
+    .hairline {
+      height: 0.5pt;
+      background: var(--hairline);
+      border: 0;
+      margin: 0;
+    }
+    /* --- Masthead --- */
+    .masthead {
       display: flex;
       justify-content: space-between;
-      align-items: flex-end;
+      align-items: flex-start;
       gap: 12mm;
-      padding: 10mm;
     }
-    .brand {
+    .masthead-brand {
       display: flex;
       align-items: center;
-      gap: 14px;
-    }
-    .brand-copy small,
-    .label,
-    .reference-meta-label,
-    .header-meta-label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 8.5pt;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--pdf-muted);
-    }
-    .brand-copy h1 {
-      margin: 0;
-      font-size: 22pt;
-      line-height: 1.05;
-      font-weight: 800;
-    }
-    .header-meta {
-      min-width: 46mm;
-      text-align: right;
-    }
-    .header-meta-value,
-    .fact-value,
-    .meta-value,
-    .party-value,
-    .reference-value,
-    .footer-note p {
-      word-break: break-word;
-    }
-    .header-meta-value {
-      font-size: 11pt;
-      line-height: 1.35;
-      font-weight: 700;
-      color: var(--pdf-text);
-    }
-    .fact-card,
-    .reference-card {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      border: 1px solid var(--pdf-border);
-      border-radius: 16px;
-      background: var(--pdf-surface);
-    }
-    .fact-card,
-    .party-card,
-    .meta-card,
-    .reference-card {
-      padding: 8mm;
-    }
-    .facts-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px 16px;
-    }
-    .reference-card {
-      background: var(--pdf-surface-soft);
-      border-color: var(--pdf-border-strong);
-    }
-    .reference-value {
-      font-size: 18pt;
-      line-height: 1.15;
-      font-weight: 900;
-      color: var(--pdf-text);
-    }
-    .tracking-value {
-      color: #18181b;
-      font-weight: 900;
-      letter-spacing: 0.02em;
-    }
-    .value-muted {
-      color: var(--pdf-muted);
-      font-weight: 500;
-    }
-    .reference-meta {
-      margin: 10px 0 0;
-      font-size: 9pt;
-      line-height: 1.5;
-      color: var(--pdf-muted-strong);
-    }
-    .fact-value,
-    .meta-value,
-    .party-value {
-      font-size: 10.75pt;
-      line-height: 1.55;
-      font-weight: 700;
-      color: var(--pdf-text);
-    }
-    .parties-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 12px 14px;
-    }
-    .footer-note {
-      padding: 6mm 8mm;
-      background: var(--pdf-surface-soft);
-    }
-    .footer-note p {
-      margin: 0;
-      font-size: 9.25pt;
-      line-height: 1.55;
-      color: var(--pdf-muted-strong);
-    }
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: var(--pdf-surface-soft);
-      border: 1px solid var(--pdf-border);
-      font-size: 9pt;
+    .masthead-wordmark {
+      font-family: var(--serif);
+      font-size: 16pt;
       font-weight: 600;
-      color: var(--pdf-text);
+      letter-spacing: -0.01em;
+      text-transform: none;
+      color: var(--ink);
+      line-height: 1;
+    }
+    .masthead-title {
+      margin: 6px 0 0;
+      font-family: var(--serif);
+      font-size: 24pt;
+      font-weight: 600;
+      line-height: 1.05;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+    .masthead-date {
+      font-size: 8pt;
+      color: var(--muted);
+      text-align: right;
+      padding-top: 2px;
+      white-space: nowrap;
+    }
+    /* --- Zone A: envoi --- */
+    .zone {
+      margin-top: 28pt;
+    }
+    .zone .eyebrow + .hero-tracking { margin-top: 6pt; }
+    .hero-tracking {
+      font-family: var(--mono);
+      font-size: 15pt;
+      font-weight: 500;
+      color: var(--ink);
+      word-break: break-all;
+    }
+    .fact-row {
+      display: flex;
+      gap: 8mm;
+      margin-top: 16pt;
+    }
+    .fact-col {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+    .fact-col .eyebrow { display: block; margin-bottom: 5pt; }
+    .fact-value {
+      font-size: 10pt;
+      line-height: 1.4;
+      color: var(--ink);
+    }
+    .fact-value.mono {
+      font-family: var(--mono);
+      font-size: 8.5pt;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    .status-line {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-dot {
+      display: inline-block;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--amber);
+      flex: 0 0 auto;
+    }
+    .status-label {
+      font-size: 10pt;
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .value-muted {
+      color: var(--muted);
+    }
+    /* --- Zone B: parties + content --- */
+    .parties {
+      display: flex;
+      gap: 8mm;
+    }
+    .party {
+      flex: 1 1 50%;
+      min-width: 0;
+    }
+    .party .eyebrow { display: block; margin-bottom: 6pt; }
+    .party-value {
+      font-size: 10pt;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .party-value .party-name { font-weight: 600; }
+    .ledger-row {
+      display: flex;
+      gap: 10mm;
+      margin-top: 12pt;
+      align-items: baseline;
+    }
+    .ledger-label {
+      flex: 0 0 42mm;
+      font-size: 8pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      padding-top: 1pt;
+    }
+    .ledger-value {
+      flex: 1 1 0;
+      min-width: 0;
+      font-size: 10pt;
+      line-height: 1.5;
+      color: var(--ink);
+    }
+    .enclosure-list .enc-name {
+      font-family: var(--mono);
+      font-size: 9pt;
+    }
+    .enclosure-list .enc-count {
+      color: var(--muted);
+    }
+    .enclosure-sep { color: var(--muted); }
+    /* --- Zone C: certification --- */
+    .cert-anchor {
+      height: 1.5pt;
+      background: var(--ink);
+      margin: 28pt 0 0;
+    }
+    .attestation-text {
+      margin: 6pt 0 0;
+      font-family: var(--serif);
+      font-size: 10.5pt;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+    .issuer-line {
+      margin: 14pt 0 0;
+      font-size: 8.5pt;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .issuer-line .issuer-name {
+      font-weight: 600;
+      color: var(--ink);
+    }
+    .issuer-basis {
+      margin: 4pt 0 0;
+      font-size: 7.5pt;
+      font-style: italic;
+      color: var(--muted);
+    }
+    .fingerprint {
+      margin-top: 20pt;
+    }
+    .fingerprint .eyebrow { display: inline; }
+    .fingerprint-note {
+      margin: 4pt 0 0;
+      font-size: 7pt;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+    .hash-block {
+      margin-top: 8pt;
+    }
+    .hash-name {
+      font-family: var(--mono);
+      font-size: 8pt;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .hash-value {
+      font-family: var(--mono);
+      font-size: 7.5pt;
+      font-weight: 400;
+      line-height: 1.5;
+      color: var(--muted);
+      word-break: break-all;
+      margin: 1pt 0 0;
+    }
+    .hash-entry { margin-top: 6pt; }
+    /* --- Footer --- */
+    .footer {
+      margin-top: 24pt;
+    }
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-top: 6pt;
+      gap: 8mm;
+    }
+    .footer-note-text {
+      font-size: 7pt;
+      line-height: 1.5;
+      color: var(--muted);
+      flex: 1 1 0;
+    }
+    .footer-page {
+      font-size: 7pt;
+      color: var(--muted);
+      white-space: nowrap;
     }
     .page-break {
       page-break-before: always;
-    }
-    .section-card {
-      padding: 7mm 8mm;
-    }
-    .attestation-text,
-    .summary-text {
-      margin: 6px 0 0;
-      font-size: 10pt;
-      line-height: 1.6;
-      color: var(--pdf-muted-strong);
-    }
-    .summary-text strong {
-      color: var(--pdf-text);
-    }
-    .issuer-line {
-      margin: 8px 0 0;
-      padding-top: 8px;
-      border-top: 1px solid var(--pdf-border);
-      font-size: 8.75pt;
-      line-height: 1.5;
-      color: var(--pdf-muted);
-    }
-    .reference-deposit {
-      font-weight: 700;
-      color: var(--pdf-text);
-    }
-    .reference-deposit .reference-meta-label {
-      color: var(--pdf-muted);
-    }
-    .fingerprint-card {
-      background: var(--pdf-surface-soft);
-      border-color: var(--pdf-border-strong);
-    }
-    .hash-value {
-      font-family: "SFMono-Regular", "Menlo", "Consolas", "Liberation Mono", monospace;
-      font-size: 8.5pt;
-      line-height: 1.5;
-      color: var(--pdf-text);
-      word-break: break-all;
-    }
-    .hash-value-primary {
-      margin: 6px 0 0;
-      font-size: 9.5pt;
-      font-weight: 700;
-    }
-    .hash-note {
-      margin: 6px 0 0;
-      font-size: 8.75pt;
-      line-height: 1.5;
-      color: var(--pdf-muted);
-    }
-    .enclosure-hashes {
-      margin-top: 8px;
-      padding-top: 8px;
-      border-top: 1px solid var(--pdf-border);
-    }
-    .hash-row {
-      margin: 4px 0 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .hash-name {
-      font-size: 8.5pt;
-      font-weight: 600;
-      color: var(--pdf-muted-strong);
     }`;
