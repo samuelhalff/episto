@@ -7,6 +7,7 @@ import {
   pageWord,
 } from "./confirmation-strings.js";
 import { CONFIRMATION_DOCUMENT_CSS } from "./confirmation-document.css.js";
+import { EMBEDDED_FONTS_CSS } from "./fonts.css.js";
 
 type ConfirmationLocale = SnapshotData["locale"];
 type ConfirmationAddress = SnapshotData["sender"] | SnapshotData["recipient"];
@@ -159,10 +160,13 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
       ? (input.providerReference as string)
       : copy.notAvailable;
 
-  // References fact column: provider ref + order ref (mono).
+  // References fact column: the ePost delivery id (tagged so it can be matched
+  // against the ePost account) + our internal order ref (mono).
   const referenceLines: string[] = [];
   if (showProviderReference) {
-    referenceLines.push(escapeHtml(input.providerReference as string));
+    referenceLines.push(
+      `${escapeHtml(input.providerReference as string)} <span class="ref-tag">ePost</span>`,
+    );
   }
   referenceLines.push(escapeHtml(input.orderRef));
   const referencesValue = referenceLines.join("<br>");
@@ -250,6 +254,7 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
 <head>
   <meta charset="UTF-8">
   <style>
+    ${EMBEDDED_FONTS_CSS}
     ${CONFIRMATION_DOCUMENT_CSS}
   </style>
 </head>

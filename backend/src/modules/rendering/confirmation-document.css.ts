@@ -32,6 +32,14 @@ export const CONFIRMATION_DOCUMENT_CSS = `@page {
       letter-spacing: 0.1em;
       color: var(--muted);
     }
+    .ref-tag {
+      font-family: var(--sans);
+      font-size: 6.5pt;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
     /* --- Rules --- */
     .anchor-rule {
       height: 1.5pt;

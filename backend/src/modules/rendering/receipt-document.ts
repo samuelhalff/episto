@@ -1,6 +1,7 @@
 import { BRAND_NAME, renderBrandMarkSvg } from "../../shared/brand.js";
 import { type ReceiptCopy, type ReceiptLocale, getCopy } from "./receipt-strings.js";
 import { RECEIPT_DOCUMENT_CSS } from "./receipt-document.css.js";
+import { EMBEDDED_FONTS_CSS } from "./fonts.css.js";
 
 export type { ReceiptLocale } from "./receipt-strings.js";
 
@@ -109,6 +110,7 @@ export function renderReceiptDocumentHtml(input: ReceiptDocumentInput): string {
 <head>
   <meta charset="UTF-8">
   <style>
+    ${EMBEDDED_FONTS_CSS}
     ${RECEIPT_DOCUMENT_CSS}
   </style>
 </head>

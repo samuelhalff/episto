@@ -60,7 +60,7 @@ describe("confirmation document template", () => {
     expect(html).toContain("Dispatch statement");
     // Court-grade justificatif sections.
     expect(html).toContain("Attestation");
-    expect(html).toContain("deposited with Swiss Post");
+    expect(html).toContain("via the ePost interface");
     // Zone B content breakdown ("Letter 2 pages + enclosures 3 pages = 5 pages").
     expect(html).toContain("Letter 2 pages + enclosures 3 pages = 5 pages");
     expect(html).toContain("Letter fingerprint");
@@ -76,12 +76,12 @@ describe("confirmation document template", () => {
     // Issuer signature line naming the deposit-data source.
     expect(html).toContain("West Bay SA");
     expect(html).toContain("CHE-107.892.984");
-    expect(html).toContain("Swiss Post Ltd");
+    expect(html).toContain("Swiss Post (ePost)");
     expect(html).toContain("contact@episto.ch");
     // Timezone-stamped timestamps.
     expect(html).toContain("Swiss time");
     expect(html).toContain("Statement issued on");
-    expect(html).toContain("Deposited on");
+    expect(html).toContain("Submitted on");
     // Order ref appears in the References fact column (mono).
     expect(html).toContain("EP-4FD8704A");
     // The tracking number is the mono hero identifier (no "Tracking number" label).
@@ -169,13 +169,13 @@ describe("confirmation document template", () => {
     expect(html).toContain("Envoi");
     expect(html).not.toContain("Preview");
     // Localized attestation (accented, "en envoi recommandé") + graceful default.
-    expect(html).toContain("déposées à la Poste suisse");
-    expect(html).toContain("en envoi recommandé");
+    expect(html).toContain("via l'interface ePost");
+    expect(html).toContain("pour un envoi recommandé");
     expect(html).toContain("Aucune pièce jointe.");
     expect(html).not.toContain("Empreinte de la lettre");
     // Timezone in Swiss French.
     expect(html).toContain("heure suisse");
-    expect(html).toContain("Déposé le");
+    expect(html).toContain("Transmis le");
   });
 
   it("groups a hex fingerprint into 8-char clusters without altering the digits", async () => {

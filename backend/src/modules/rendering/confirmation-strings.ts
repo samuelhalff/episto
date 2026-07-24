@@ -59,11 +59,11 @@ const DEFAULT_COPY: ConfirmationCopy = {
   eyebrow: BRAND_NAME,
   title: "Dispatch statement",
   issuedOn: "Statement issued on",
-  depositedOn: "Deposited on",
+  depositedOn: "Submitted on",
   orderRef: "Order reference",
   dispatchStatus: "Status",
   deliveryType: "Delivery type",
-  providerReference: "Provider reference",
+  providerReference: "ePost reference",
   trackingNumber: "Tracking number",
   attachments: "Attachments",
   references: "References",
@@ -93,7 +93,7 @@ const DEFAULT_COPY: ConfirmationCopy = {
   contentSummaryHeading: "Content overview",
   fingerprintHeading: "Letter fingerprint",
   fingerprintNote:
-    "Anyone can recompute the SHA-256 fingerprint of the file and compare it with the one shown here; an identical fingerprint establishes that the document is strictly identical to the one handed over to Swiss Post.",
+    "Anyone can recompute the SHA-256 fingerprint of the file and compare it with the one shown here; an identical fingerprint establishes that the document is strictly identical to the one transmitted to Swiss Post via ePost.",
   fingerprintVerifyShort:
     "Recompute the SHA-256 of a file and compare; an identical value proves the file is unchanged.",
   enclosureHashesLabel: "Enclosure fingerprints",
@@ -103,9 +103,9 @@ const DEFAULT_COPY: ConfirmationCopy = {
   page: "page",
   pagePlural: "pages",
   attestation: (date, deliveryType) =>
-    `This statement certifies that the letter and enclosures reproduced on the following pages were deposited with Swiss Post on ${date} as ${deliveryType}, and that their content is identical to what was handed over.`,
+    `This statement certifies that the letter and enclosures reproduced on the following pages were submitted to Swiss Post for ${deliveryType} dispatch via the ePost interface on ${date}, and that their content is identical to what was transmitted.`,
   issuerLine: (issuer) => `${issuer.name} — ${issuer.address} · ${issuer.uidVat} VAT · `,
-  issuerBasis: "On the basis of the deposit data transmitted by Swiss Post Ltd.",
+  issuerBasis: "On the basis of the delivery data returned by Swiss Post (ePost).",
   contentBreakdown: (letterPages, enclosurePages, totalPages) =>
     `Letter ${letterPages} + enclosures ${enclosurePages} = ${totalPages}`,
 };
@@ -116,11 +116,11 @@ const COPY = {
     eyebrow: BRAND_NAME,
     title: "Versandnachweis",
     issuedOn: "Bestätigung erstellt am",
-    depositedOn: "Aufgegeben am",
+    depositedOn: "Übermittelt am",
     orderRef: "Bestellreferenz",
     dispatchStatus: "Versandstatus",
     deliveryType: "Versandart",
-    providerReference: "Anbieterreferenz",
+    providerReference: "ePost-Referenz",
     trackingNumber: "Sendungsnummer",
     attachments: "Beilagen",
     references: "Referenzen",
@@ -150,7 +150,7 @@ const COPY = {
     contentSummaryHeading: "Inhaltsübersicht",
     fingerprintHeading: "Brief-Fingerabdruck",
     fingerprintNote:
-      "Jede Person kann den SHA-256-Fingerabdruck der Datei neu berechnen und mit dem hier angezeigten vergleichen; ein identischer Fingerabdruck belegt, dass das Dokument mit dem der Post übergebenen exakt übereinstimmt.",
+      "Jede Person kann den SHA-256-Fingerabdruck der Datei neu berechnen und mit dem hier angezeigten vergleichen; ein identischer Fingerabdruck belegt, dass das Dokument mit dem der Post via ePost übermittelten exakt übereinstimmt.",
     fingerprintVerifyShort:
       "SHA-256 einer Datei neu berechnen und vergleichen; ein identischer Wert belegt, dass die Datei unverändert ist.",
     enclosureHashesLabel: "Fingerabdrücke der Beilagen",
@@ -160,11 +160,11 @@ const COPY = {
     page: "Seite",
     pagePlural: "Seiten",
     attestation: (date, deliveryType) =>
-      `Dieser Nachweis bestätigt, dass der Brief und die auf den folgenden Seiten wiedergegebenen Beilagen am ${date} als ${deliveryType} bei der Schweizerischen Post aufgegeben wurden und dass ihr Inhalt mit dem übergebenen identisch ist.`,
+      `Dieser Nachweis bestätigt, dass der Brief und die auf den folgenden Seiten wiedergegebenen Beilagen am ${date} über die ePost-Schnittstelle als ${deliveryType} an die Schweizerische Post übermittelt wurden und dass ihr Inhalt mit dem übermittelten identisch ist.`,
     issuerLine: (issuer) =>
       `${issuer.name} — ${issuer.address} · ${issuer.uidVat} MWST · `,
     issuerBasis:
-      "Auf der Grundlage der von der Schweizerischen Post AG übermittelten Aufgabedaten.",
+      "Auf Grundlage der von der Schweizerischen Post (ePost) übermittelten Zustelldaten.",
     contentBreakdown: (letterPages, enclosurePages, totalPages) =>
       `Brief ${letterPages} + Beilagen ${enclosurePages} = ${totalPages}`,
   },
@@ -172,11 +172,11 @@ const COPY = {
     eyebrow: BRAND_NAME,
     title: "Justificatif d'envoi",
     issuedOn: "Justificatif établi le",
-    depositedOn: "Déposé le",
+    depositedOn: "Transmis le",
     orderRef: "Référence de commande",
     dispatchStatus: "Statut d'envoi",
     deliveryType: "Mode d'envoi",
-    providerReference: "Référence prestataire",
+    providerReference: "Référence ePost",
     trackingNumber: "Numéro de suivi",
     attachments: "Pièces jointes",
     references: "Références",
@@ -206,7 +206,7 @@ const COPY = {
     contentSummaryHeading: "Récapitulatif du contenu",
     fingerprintHeading: "Empreinte de la lettre",
     fingerprintNote:
-      "Toute personne peut recalculer l'empreinte SHA-256 du fichier et la comparer à celle-ci ; une empreinte identique établit que le document est strictement identique à celui remis à la Poste.",
+      "Toute personne peut recalculer l'empreinte SHA-256 du fichier et la comparer à celle-ci ; une empreinte identique établit que le document est strictement identique à celui transmis à la Poste via ePost.",
     fingerprintVerifyShort:
       "Recalculez le SHA-256 d'un fichier et comparez ; une valeur identique prouve que le fichier est inchangé.",
     enclosureHashesLabel: "Empreintes des pièces jointes",
@@ -216,10 +216,11 @@ const COPY = {
     page: "page",
     pagePlural: "pages",
     attestation: (date, deliveryType) =>
-      `Ce justificatif atteste que la lettre et les pièces jointes reproduites sur les pages suivantes ont été déposées à la Poste suisse le ${date} en envoi ${deliveryType}, et que leur contenu est identique à ce qui a été remis.`,
+      `Ce justificatif atteste que la lettre et les pièces jointes reproduites sur les pages suivantes ont été transmises à la Poste suisse via l'interface ePost le ${date} pour un envoi ${deliveryType}, et que leur contenu est identique à celui transmis.`,
     issuerLine: (issuer) =>
       `${issuer.name} — ${issuer.address} · ${issuer.uidVat} TVA · `,
-    issuerBasis: "Sur la base des données de dépôt transmises par La Poste Suisse SA.",
+    issuerBasis:
+      "Sur la base des données de remise transmises par la Poste suisse (ePost).",
     contentBreakdown: (letterPages, enclosurePages, totalPages) =>
       `Lettre ${letterPages} + pièces jointes ${enclosurePages} = ${totalPages}`,
   },
@@ -227,11 +228,11 @@ const COPY = {
     eyebrow: BRAND_NAME,
     title: "Attestazione di spedizione",
     issuedOn: "Attestazione emessa il",
-    depositedOn: "Depositato il",
+    depositedOn: "Trasmesso il",
     orderRef: "Riferimento ordine",
     dispatchStatus: "Stato spedizione",
     deliveryType: "Tipo di invio",
-    providerReference: "Riferimento fornitore",
+    providerReference: "Riferimento ePost",
     trackingNumber: "Numero di tracciamento",
     attachments: "Allegati",
     references: "Riferimenti",
@@ -261,7 +262,7 @@ const COPY = {
     contentSummaryHeading: "Riepilogo del contenuto",
     fingerprintHeading: "Impronta della lettera",
     fingerprintNote:
-      "Chiunque può ricalcolare l'impronta SHA-256 del file e confrontarla con quella qui riportata; un'impronta identica dimostra che il documento è esattamente identico a quello consegnato alla Posta.",
+      "Chiunque può ricalcolare l'impronta SHA-256 del file e confrontarla con quella qui riportata; un'impronta identica dimostra che il documento è esattamente identico a quello trasmesso alla Posta via ePost.",
     fingerprintVerifyShort:
       "Ricalcolate lo SHA-256 di un file e confrontatelo; un valore identico dimostra che il file è invariato.",
     enclosureHashesLabel: "Impronte degli allegati",
@@ -271,10 +272,11 @@ const COPY = {
     page: "pagina",
     pagePlural: "pagine",
     attestation: (date, deliveryType) =>
-      `La presente attestazione certifica che la lettera e gli allegati riprodotti nelle pagine seguenti sono stati depositati alla Posta svizzera il ${date} come ${deliveryType}, e che il loro contenuto è identico a quanto consegnato.`,
+      `La presente attestazione certifica che la lettera e gli allegati riprodotti nelle pagine seguenti sono stati trasmessi alla Posta svizzera tramite l'interfaccia ePost il ${date} come ${deliveryType}, e che il loro contenuto è identico a quanto trasmesso.`,
     issuerLine: (issuer) =>
       `${issuer.name} — ${issuer.address} · ${issuer.uidVat} IVA · `,
-    issuerBasis: "Sulla base dei dati di deposito trasmessi da La Posta Svizzera SA.",
+    issuerBasis:
+      "Sulla base dei dati di consegna trasmessi dalla Posta svizzera (ePost).",
     contentBreakdown: (letterPages, enclosurePages, totalPages) =>
       `Lettera ${letterPages} + allegati ${enclosurePages} = ${totalPages}`,
   },
