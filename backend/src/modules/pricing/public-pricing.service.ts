@@ -351,7 +351,10 @@ export function buildPublicPricingResponse(args: {
           standard: standardExamples,
           registered: registeredExamples,
         },
-        pricesExcludeVat: true,
+        // Displayed prices are VAT-inclusive (8.1% MWST) — required for B2C
+        // under the Swiss Price Disclosure Ordinance (PBV). The receipt backs
+        // the VAT out of this gross total.
+        pricesExcludeVat: false,
         currency: "CHF",
       },
     });

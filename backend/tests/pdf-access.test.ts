@@ -1,28 +1,51 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type * as ConfigModule from "../src/shared/config/index.js";
 
 const mocks = vi.hoisted(() => {
-  const frontPdf = {
-    id: "front",
-    getPageIndices: vi.fn(() => [0]),
-    getPageCount: vi.fn(() => 1),
-  };
-  const letterPdf = {
-    id: "letter",
-    getPageIndices: vi.fn(() => [0, 1]),
-    getPageCount: vi.fn(() => 2),
-  };
-  const bundlePdf = {
-    copyPages: vi.fn(async (source: { id: string }, indexes: number[]) =>
-      indexes.map((index) => ({ sourceId: source.id, index })),
-    ),
-    addPage: vi.fn(),
-    save: vi.fn(async () => Buffer.from("merged-pdf")),
-  };
+  // A loaded source PDF (letter / statement / attachment / re-loaded content bundle).
+  function makeLoadedPdf(id: string, pageCount: number) {
+    return {
+      id,
+      getPageIndices: vi.fn(() => Array.from({ length: pageCount }, (_, i) => i)),
+      getPageCount: vi.fn(() => pageCount),
+    };
+  }
+
+  // A freshly created PDFDocument that pages get copied into.
+  function makeCreatedPdf(id: string, saveOutput: string) {
+    return {
+      id,
+      copyPages: vi.fn(async (source: { id: string }, indexes: number[]) =>
+        indexes.map((index) => ({ sourceId: source.id, index })),
+      ),
+      addPage: vi.fn(),
+      getPageIndices: vi.fn(() => [0, 1]),
+      embedPng: vi.fn(async () => ({ width: 100, height: 200 })),
+      embedJpg: vi.fn(async () => ({ width: 100, height: 200 })),
+      embedFont: vi.fn(async () => ({
+        widthOfTextAtSize: vi.fn(() => 100),
+      })),
+      getPages: vi.fn(() => [
+        { getSize: () => ({ width: 595, height: 842 }), drawText: vi.fn() },
+        { getSize: () => ({ width: 595, height: 842 }), drawText: vi.fn() },
+      ]),
+      save: vi.fn(async () => Buffer.from(saveOutput)),
+    };
+  }
+
+  const frontPdf = makeLoadedPdf("front", 1);
+  const letterPdf = makeLoadedPdf("letter", 2);
+  const attachmentPdf = makeLoadedPdf("attachment", 3);
+  const contentBundle = makeCreatedPdf("content-bundle", "content-bundle-bytes");
+  const finalBundle = makeCreatedPdf("final-bundle", "merged-pdf");
 
   return {
     frontPdf,
     letterPdf,
-    bundlePdf,
+    attachmentPdf,
+    contentBundle,
+    finalBundle,
+    makeLoadedPdf,
     loadPdf: vi.fn(),
     createPdf: vi.fn(),
     getLatestSnapshot: vi.fn(),
@@ -38,6 +61,8 @@ vi.mock("pdf-lib", () => ({
     load: mocks.loadPdf,
     create: mocks.createPdf,
   },
+  StandardFonts: { Helvetica: "Helvetica" },
+  rgb: (r: number, g: number, b: number) => ({ r, g, b }),
 }));
 
 vi.mock("../src/modules/rendering/snapshot.service.js", () => ({
@@ -60,6 +85,21 @@ vi.mock("../src/modules/rendering/render.service.js", () => ({
 vi.mock("../src/modules/dispatch/adapters/epost-submission-mode.js", () => ({
   isMockEpostProviderName: (providerName: string) => providerName === "epost-oneapi-mock",
 }));
+
+vi.mock("../src/shared/config/index.js", async (importOriginal) => {
+  const actual = await importOriginal<typeof ConfigModule>();
+  return {
+    ...actual,
+    env: () => ({
+      LEGAL_ENTITY_NAME: "West Bay SA",
+      LEGAL_ENTITY_ADDRESS_LINE_1: "Chemin du Pre-Roset 19",
+      LEGAL_ENTITY_ADDRESS_LINE_2: "1294 Genthod",
+      LEGAL_ENTITY_COUNTRY: "Switzerland",
+      LEGAL_ENTITY_UID_VAT: "CHE-107.892.984",
+      SUPPORT_EMAIL: "contact@episto.ch",
+    }),
+  };
+});
 
 function makeSelectChain(result: unknown[]) {
   const chain: Record<string, unknown> = {};
@@ -136,14 +176,30 @@ describe("pdf-access", () => {
       };
     });
 
+    mocks.downloadObjectBuffer.mockResolvedValue({
+      buffer: Buffer.from("attachment-pdf"),
+      contentType: "application/pdf",
+    });
+
     mocks.loadPdf.mockImplementation(async (buffer: Uint8Array) => {
       const value = Buffer.from(buffer).toString("utf8");
       if (value === "front-pdf") {
         return mocks.frontPdf;
       }
+      if (value === "attachment-pdf") {
+        return mocks.attachmentPdf;
+      }
+      if (value === "content-bundle-bytes") {
+        // Re-loaded content bundle: letter (2) + attachment (3) = 5 pages.
+        return mocks.makeLoadedPdf("content-source", 5);
+      }
       return mocks.letterPdf;
     });
-    mocks.createPdf.mockResolvedValue(mocks.bundlePdf);
+
+    // First create() → the content bundle; second → the final bundle.
+    mocks.createPdf
+      .mockResolvedValueOnce(mocks.contentBundle)
+      .mockResolvedValueOnce(mocks.finalBundle);
   });
 
   it("builds a fresh confirmation bundle from the latest snapshot layout instead of appending a stale stored letter pdf", async () => {
@@ -163,6 +219,7 @@ describe("pdf-access", () => {
           id: "11111111-1111-4111-8111-111111111111",
           originalFilename: "contract-scan.pdf",
           storageKey: "attachments/session/contract-scan.pdf",
+          mimeType: "application/pdf",
         },
       ],
     ];
@@ -198,7 +255,17 @@ describe("pdf-access", () => {
         providerReference: "EPR-T-R-0D2D6C40F706",
         trackingNumber: "98.40.541881.00002354",
         pageCount: 2,
+        letterPageCount: 2,
+        totalContentPages: 5,
         attachmentNames: ["contract-scan.pdf"],
+        enclosures: [{ name: "contract-scan.pdf", pageCount: 3 }],
+        letterSha256: expect.stringMatching(/^[0-9a-f]{64}$/),
+        enclosureHashes: [
+          {
+            name: "contract-scan.pdf",
+            sha256: expect.stringMatching(/^[0-9a-f]{64}$/),
+          },
+        ],
       }),
     );
     expect(mocks.renderPdfBufferFromHtml).toHaveBeenCalledWith(
@@ -213,8 +280,14 @@ describe("pdf-access", () => {
       },
     );
     expect(mocks.renderPdfBufferFromHtml).toHaveBeenCalledWith("<html>letter</html>");
-    expect(mocks.downloadObjectBuffer).not.toHaveBeenCalled();
-    expect(mocks.bundlePdf.copyPages).toHaveBeenCalledTimes(2);
+    // Attachment bytes are pulled from object storage and merged into the bundle.
+    expect(mocks.downloadObjectBuffer).toHaveBeenCalledWith(
+      "attachments/session/contract-scan.pdf",
+    );
+    // Content bundle: letter + 1 attachment PDF copied in.
+    expect(mocks.contentBundle.copyPages).toHaveBeenCalledTimes(2);
+    // Final bundle: statement page(s) + content bundle pages copied in.
+    expect(mocks.finalBundle.copyPages).toHaveBeenCalledTimes(2);
     expect(reply.header).toHaveBeenCalledWith("Content-Type", "application/pdf");
     expect(reply.header).toHaveBeenCalledWith(
       "Content-Disposition",

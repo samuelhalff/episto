@@ -1,5 +1,12 @@
 import type { SnapshotData } from "@episto/shared";
-import { BRAND_NAME, BRAND_COLOR, renderBrandMarkSvg } from "../../shared/brand.js";
+import { renderBrandMarkSvg } from "../../shared/brand.js";
+import {
+  type ConfirmationCopy,
+  deliveryFormForAttestation,
+  getCopy,
+  pageWord,
+} from "./confirmation-strings.js";
+import { CONFIRMATION_DOCUMENT_CSS } from "./confirmation-document.css.js";
 
 type ConfirmationLocale = SnapshotData["locale"];
 type ConfirmationAddress = SnapshotData["sender"] | SnapshotData["recipient"];
@@ -21,160 +28,25 @@ export interface ConfirmationDocumentInput {
   subject: string | null;
   contentSummary: string;
   letterHtml?: string;
-}
-
-interface ConfirmationCopy {
-  eyebrow: string;
-  title: string;
-  issuedOn: string;
-  orderRef: string;
-  dispatchStatus: string;
-  deliveryType: string;
-  providerReference: string;
-  trackingNumber: string;
-  attachments: string;
-  sender: string;
-  recipient: string;
-  subject: string;
-  notAvailable: string;
-  dispatchStates: Record<string, string>;
-  deliveryTypes: Record<SnapshotData["deliveryType"], string>;
-  noteCurrent: string;
-  noteLive: string;
-  noteBundle: string;
-}
-
-const DEFAULT_COPY: ConfirmationCopy = {
-  eyebrow: BRAND_NAME,
-  title: "Dispatch statement",
-  issuedOn: "Issued on",
-  orderRef: "Order reference",
-  dispatchStatus: "Status",
-  deliveryType: "Delivery type",
-  providerReference: "Provider reference",
-  trackingNumber: "Tracking number",
-  attachments: "Attachments",
-  sender: "Sender",
-  recipient: "Recipient",
-  subject: "Subject",
-  notAvailable: "Not available",
-  dispatchStates: {
-    queued: "Queued",
-    submitted: "Submitted",
-    accepted: "Accepted",
-    reconciled: "Confirmed",
-    rejected: "Rejected",
-    unknown: "Pending clarification",
-  },
-  deliveryTypes: {
-    standard: "Standard post",
-    registered: "Registered post",
-  },
-  noteCurrent: "This statement reflects the current dispatch record.",
-  noteLive:
-    "Provider identifiers are shown exactly as returned by the dispatch integration.",
-  noteBundle: "The exact letter PDF follows on the next page.",
-};
-
-const COPY = {
-  "en-CH": DEFAULT_COPY,
-  "de-CH": {
-    eyebrow: BRAND_NAME,
-    title: "Versandnachweis",
-    issuedOn: "Ausgestellt am",
-    orderRef: "Bestellreferenz",
-    dispatchStatus: "Versandstatus",
-    deliveryType: "Versandart",
-    providerReference: "Anbieterreferenz",
-    trackingNumber: "Sendungsnummer",
-    attachments: "Beilagen",
-    sender: "Absender",
-    recipient: "Empfaenger",
-    subject: "Betreff",
-    notAvailable: "Nicht verfuegbar",
-    dispatchStates: {
-      queued: "In Warteschlange",
-      submitted: "Eingereicht",
-      accepted: "Akzeptiert",
-      reconciled: "Bestaetigt",
-      rejected: "Abgelehnt",
-      unknown: "In Klaerung",
-    },
-    deliveryTypes: {
-      standard: "A-Post",
-      registered: "Einschreiben",
-    },
-    noteCurrent: "Dieser Versandnachweis zeigt den aktuellen Versandstand.",
-    noteLive:
-      "Anbieterkennungen werden exakt wie von der Versandintegration geliefert angezeigt.",
-    noteBundle: "Das exakte Brief-PDF beginnt auf der naechsten Seite.",
-  },
-  "fr-CH": {
-    eyebrow: BRAND_NAME,
-    title: "Justificatif d'envoi",
-    issuedOn: "Etabli le",
-    orderRef: "Reference de commande",
-    dispatchStatus: "Statut d'envoi",
-    deliveryType: "Mode d'envoi",
-    providerReference: "Reference prestataire",
-    trackingNumber: "Numero de suivi",
-    attachments: "Pieces jointes",
-    sender: "Expediteur",
-    recipient: "Destinataire",
-    subject: "Objet",
-    notAvailable: "Non disponible",
-    dispatchStates: {
-      queued: "En attente",
-      submitted: "Soumis",
-      accepted: "Accepte",
-      reconciled: "Confirme",
-      rejected: "Rejete",
-      unknown: "En verification",
-    },
-    deliveryTypes: {
-      standard: "Courrier standard",
-      registered: "Courrier recommande",
-    },
-    noteCurrent: "Ce justificatif reflete l'etat actuel de l'envoi.",
-    noteLive:
-      "Les identifiants prestataire sont affiches exactement comme renvoyes par l'integration d'envoi.",
-    noteBundle: "Le PDF exact de la lettre commence a la page suivante.",
-  },
-  "it-CH": {
-    eyebrow: BRAND_NAME,
-    title: "Attestazione di spedizione",
-    issuedOn: "Emesso il",
-    orderRef: "Riferimento ordine",
-    dispatchStatus: "Stato spedizione",
-    deliveryType: "Tipo di invio",
-    providerReference: "Riferimento fornitore",
-    trackingNumber: "Numero di tracciamento",
-    attachments: "Allegati",
-    sender: "Mittente",
-    recipient: "Destinatario",
-    subject: "Oggetto",
-    notAvailable: "Non disponibile",
-    dispatchStates: {
-      queued: "In coda",
-      submitted: "Inviato",
-      accepted: "Accettato",
-      reconciled: "Confermato",
-      rejected: "Rifiutato",
-      unknown: "In verifica",
-    },
-    deliveryTypes: {
-      standard: "Posta standard",
-      registered: "Raccomandata",
-    },
-    noteCurrent: "Questa attestazione riflette lo stato corrente della spedizione.",
-    noteLive:
-      "Gli identificativi del fornitore sono riportati esattamente come restituiti dall'integrazione di spedizione.",
-    noteBundle: "Il PDF esatto della lettera inizia alla pagina successiva.",
-  },
-} satisfies Record<ConfirmationLocale, ConfirmationCopy>;
-
-function getCopy(locale: ConfirmationLocale): ConfirmationCopy {
-  return COPY[locale as keyof typeof COPY] ?? DEFAULT_COPY;
+  /** Page count of the letter only. Defaults to `pageCount` when omitted. */
+  letterPageCount?: number;
+  /** Per-enclosure name + page count, in dispatch order. */
+  enclosures?: Array<{ name: string; pageCount: number }>;
+  /** Total pages of letter + enclosures, excluding this statement page. */
+  totalContentPages?: number;
+  /** Hex SHA-256 fingerprint of the exact letter PDF bytes. */
+  letterSha256?: string;
+  /** Optional per-enclosure hex SHA-256 fingerprints. */
+  enclosureHashes?: Array<{ name: string; sha256: string }>;
+  /** Issuer (attester) identity, from LEGAL_ENTITY_* / SUPPORT_EMAIL env. */
+  issuer?: {
+    name: string;
+    addressLine1: string;
+    addressLine2: string;
+    country: string;
+    uidVat: string;
+    supportEmail: string;
+  };
 }
 
 function escapeHtml(value: string): string {
@@ -185,20 +57,37 @@ function escapeHtml(value: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/**
+ * Format an instant in Europe/Zurich with an explicit timezone suffix
+ * ("heure suisse" / "Schweizer Zeit" / …). Never hand-rolls offsets — the
+ * Intl formatter applies CET/CEST automatically for the given instant.
+ */
 function formatDateTime(
   locale: ConfirmationLocale,
   value: Date | null,
   fallback: string,
+  timezoneSuffix: string,
 ): string {
   if (!value) {
     return fallback;
   }
 
-  return new Intl.DateTimeFormat(locale, {
+  const formatted = new Intl.DateTimeFormat(locale, {
     dateStyle: "long",
     timeStyle: "short",
     timeZone: "Europe/Zurich",
   }).format(value);
+
+  return `${formatted} (${timezoneSuffix})`;
+}
+
+/**
+ * Group a hex fingerprint into 8-char clusters separated by spaces
+ * (e.g. `3a7bd3e2 360a3d29 …`) for easier eyeball comparison. Only the
+ * rendered form changes — the stored/computed hash is untouched.
+ */
+export function groupHash(hash: string): string {
+  return hash.replace(/(.{8})(?=.)/g, "$1 ");
 }
 
 function formatAddress(address: ConfirmationAddress): string {
@@ -245,10 +134,19 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
     copy.dispatchStates[input.dispatchState] ?? input.dispatchState;
   const deliveryTypeLabel = copy.deliveryTypes[input.deliveryType] ?? input.deliveryType;
   const controlNote = resolveControlNote(copy, input.providerMode ?? null);
+  // Two distinct instants: the deposit fact (submittedAt, evidentiary) and the
+  // moment this justificatif was generated (now).
+  const depositedAt = formatDateTime(
+    input.locale,
+    input.submittedAt,
+    copy.notAvailable,
+    copy.timezoneSuffix,
+  );
   const issuedAt = formatDateTime(
     input.locale,
-    input.submittedAt ?? new Date(),
+    new Date(),
     copy.notAvailable,
+    copy.timezoneSuffix,
   );
   const letterHtml = input.letterHtml?.trim() ?? "";
   const showTracking = Boolean(input.trackingNumber);
@@ -291,193 +189,89 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
         </div>`);
   }
 
+  // ---- Court-grade justificatif sections (attestation / summary / hash) ----
+  const letterPageCount = input.letterPageCount ?? input.pageCount;
+  const enclosures = input.enclosures ?? [];
+  const totalContentPages =
+    input.totalContentPages ??
+    letterPageCount + enclosures.reduce((sum, e) => sum + e.pageCount, 0);
+
+  const issuerLine = input.issuer
+    ? `<p class="issuer-line">${escapeHtml(
+        copy.issuerLine({
+          name: input.issuer.name,
+          address: [
+            input.issuer.addressLine1,
+            input.issuer.addressLine2,
+            input.issuer.country,
+          ]
+            .filter(Boolean)
+            .join(", "),
+          uidVat: input.issuer.uidVat,
+        }),
+      )} ${escapeHtml(input.issuer.supportEmail)}</p>`
+    : "";
+
+  const attestationSection = `<section class="section-card">
+      <div class="label">${escapeHtml(copy.attestationHeading)}</div>
+      <p class="attestation-text">${escapeHtml(
+        copy.attestation(depositedAt, deliveryFormForAttestation(deliveryTypeLabel)),
+      )}</p>
+      ${issuerLine}
+    </section>`;
+
+  const enclosureSummary =
+    enclosures.length > 0
+      ? enclosures
+          .map(
+            (e) =>
+              `${escapeHtml(e.name)} (${e.pageCount} ${escapeHtml(
+                pageWord(copy, e.pageCount),
+              )})`,
+          )
+          .join(", ")
+      : escapeHtml(copy.noEnclosures);
+
+  const contentSummarySection = `<section class="section-card">
+      <div class="label">${escapeHtml(copy.contentSummaryHeading)}</div>
+      <p class="summary-text"><strong>${escapeHtml(copy.letterLabel)}:</strong> ${letterPageCount} ${escapeHtml(
+        pageWord(copy, letterPageCount),
+      )}. <strong>${escapeHtml(copy.attachments)}:</strong> ${enclosureSummary} <strong>${escapeHtml(
+        copy.totalContentLabel,
+      )}:</strong> ${totalContentPages} ${escapeHtml(pageWord(copy, totalContentPages))}.</p>
+    </section>`;
+
+  const enclosureHashes = input.enclosureHashes ?? [];
+  const enclosureHashRows =
+    enclosureHashes.length > 0
+      ? `<div class="enclosure-hashes">
+          <div class="label">${escapeHtml(copy.enclosureHashesLabel)}</div>
+          ${enclosureHashes
+            .map(
+              (e) =>
+                `<p class="hash-row"><span class="hash-name">${escapeHtml(
+                  e.name,
+                )}</span><span class="hash-value">${escapeHtml(groupHash(e.sha256))}</span></p>`,
+            )
+            .join("")}
+        </div>`
+      : "";
+
+  const fingerprintSection = input.letterSha256
+    ? `<section class="section-card fingerprint-card">
+      <div class="label">${escapeHtml(copy.fingerprintHeading)}</div>
+      <p class="hash-value hash-value-primary">${escapeHtml(groupHash(input.letterSha256))}</p>
+      <p class="hash-note">${escapeHtml(copy.fingerprintNote)}</p>
+      ${enclosureHashRows}
+    </section>`
+    : "";
+
   return `<!DOCTYPE html>
 <html lang="${escapeHtml(input.locale)}">
 <head>
   <meta charset="UTF-8">
   <style>
-    @page {
-      size: A4;
-      margin: 0;
-    }
-    :root {
-      --pdf-bg: #fffaf2;
-      --pdf-surface: #ffffff;
-      --pdf-surface-soft: #faf7f1;
-      --pdf-border: rgba(24, 24, 27, 0.08);
-      --pdf-border-strong: rgba(24, 24, 27, 0.14);
-      --pdf-text: #18181b;
-      --pdf-muted: #71717a;
-      --pdf-muted-strong: #3f3f46;
-      --pdf-accent: ${BRAND_COLOR};
-      --pdf-shadow: none;
-    }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-      color: var(--pdf-text);
-      background: var(--pdf-bg);
-    }
-    .confirmation-page {
-      min-height: 297mm;
-      padding: 14mm 14mm 12mm;
-      display: flex;
-      flex-direction: column;
-      gap: 8mm;
-    }
-    .header-card,
-    .hero-card,
-    .section-card,
-    .party-card,
-    .meta-card,
-    .footer-note {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      border: 1px solid var(--pdf-border);
-      border-radius: 16px;
-      background: var(--pdf-surface);
-      box-shadow: var(--pdf-shadow);
-    }
-    .header-card {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      gap: 12mm;
-      padding: 10mm;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-    .brand-copy small,
-    .label,
-    .reference-meta-label,
-    .header-meta-label {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 8.5pt;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--pdf-muted);
-    }
-    .brand-copy h1 {
-      margin: 0;
-      font-size: 22pt;
-      line-height: 1.05;
-      font-weight: 800;
-    }
-    .header-meta {
-      min-width: 46mm;
-      text-align: right;
-    }
-    .header-meta-value,
-    .fact-value,
-    .meta-value,
-    .party-value,
-    .reference-value,
-    .footer-note p {
-      word-break: break-word;
-    }
-    .header-meta-value {
-      font-size: 11pt;
-      line-height: 1.35;
-      font-weight: 700;
-      color: var(--pdf-text);
-    }
-    .fact-card,
-    .reference-card {
-      break-inside: avoid;
-      page-break-inside: avoid;
-      border: 1px solid var(--pdf-border);
-      border-radius: 16px;
-      background: var(--pdf-surface);
-    }
-    .fact-card,
-    .party-card,
-    .meta-card,
-    .reference-card {
-      padding: 8mm;
-    }
-    .facts-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px 16px;
-    }
-    .reference-card {
-      background: var(--pdf-surface-soft);
-      border-color: var(--pdf-border-strong);
-    }
-    .reference-value {
-      font-size: 18pt;
-      line-height: 1.15;
-      font-weight: 900;
-      color: var(--pdf-text);
-    }
-    .tracking-value {
-      color: #18181b;
-      font-weight: 900;
-      letter-spacing: 0.02em;
-    }
-    .value-muted {
-      color: var(--pdf-muted);
-      font-weight: 500;
-    }
-    .reference-meta {
-      margin: 10px 0 0;
-      font-size: 9pt;
-      line-height: 1.5;
-      color: var(--pdf-muted-strong);
-    }
-    .fact-value,
-    .meta-value,
-    .party-value {
-      font-size: 10.75pt;
-      line-height: 1.55;
-      font-weight: 700;
-      color: var(--pdf-text);
-    }
-    .parties-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 10px;
-    }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      gap: 12px 14px;
-    }
-    .footer-note {
-      padding: 6mm 8mm;
-      background: var(--pdf-surface-soft);
-    }
-    .footer-note p {
-      margin: 0;
-      font-size: 9.25pt;
-      line-height: 1.55;
-      color: var(--pdf-muted-strong);
-    }
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      min-height: 28px;
-      padding: 0 10px;
-      border-radius: 999px;
-      background: var(--pdf-surface-soft);
-      border: 1px solid var(--pdf-border);
-      font-size: 9pt;
-      font-weight: 600;
-      color: var(--pdf-text);
-    }
-    .page-break {
-      page-break-before: always;
-    }
+    ${CONFIRMATION_DOCUMENT_CSS}
   </style>
 </head>
 <body>
@@ -501,6 +295,9 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
         ? `<section class="reference-card">
         <div class="label">${escapeHtml(primaryReferenceLabel)}</div>
         <div class="reference-value${showTracking ? " tracking-value" : ""}">${escapeHtml(primaryReferenceValue)}</div>
+        <p class="reference-meta reference-deposit"><span class="reference-meta-label">${escapeHtml(
+          copy.depositedOn,
+        )}</span>${escapeHtml(depositedAt)}</p>
         ${providerReferenceMeta}
       </section>`
         : ""
@@ -520,6 +317,14 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
           <div class="label">${escapeHtml(copy.deliveryType)}</div>
           <div class="fact-value">${escapeHtml(deliveryTypeLabel)}</div>
         </div>
+        ${
+          showReferenceCard
+            ? ""
+            : `<div>
+          <div class="label">${escapeHtml(copy.depositedOn)}</div>
+          <div class="fact-value">${escapeHtml(depositedAt)}</div>
+        </div>`
+        }
       </div>
     </section>
 
@@ -541,6 +346,12 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
     </section>`
         : ""
     }
+
+    ${attestationSection}
+
+    ${contentSummarySection}
+
+    ${fingerprintSection}
 
     <section class="footer-note">
       <p>${escapeHtml(controlNote)}</p>
