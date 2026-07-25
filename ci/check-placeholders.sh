@@ -10,8 +10,11 @@ PATTERNS=(
 )
 
 COMBINED=$(IFS='|'; echo "${PATTERNS[*]}")
-MATCHES=$(grep -rniE "$COMBINED" frontend/src/ backend/src/ shared/src/ \
+# Match standalone markers only. This avoids flagging normal words such as
+# Italian "Metodo" (which contains "todo") and excludes generated font data.
+MATCHES=$(grep -rniE "(^|[^[:alnum:]_])($COMBINED)([^[:alnum:]_]|$)" frontend/src/ backend/src/ shared/src/ \
   --include='*.ts' --include='*.tsx' \
+  --exclude='fonts.css.ts' \
   || true)
 
 if [ -n "$MATCHES" ]; then

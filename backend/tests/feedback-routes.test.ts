@@ -4,14 +4,21 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { AppError } from "../src/shared/errors/index.js";
 
-const { mockSendEmail, mockGetOptionalSession } = vi.hoisted(() => ({
-  mockSendEmail: vi.fn(),
-  mockGetOptionalSession: vi.fn(),
-}));
+const { mockSendEmail, mockGetOptionalSession, mockRecordSupportEvent, mockGetDb } =
+  vi.hoisted(() => ({
+    mockSendEmail: vi.fn(),
+    mockGetOptionalSession: vi.fn(),
+    mockRecordSupportEvent: vi.fn(),
+    mockGetDb: vi.fn(),
+  }));
 
 vi.mock("../src/modules/email/index.js", () => ({ sendEmail: mockSendEmail }));
 vi.mock("../src/modules/sessions/session.middleware.js", () => ({
   getOptionalSession: mockGetOptionalSession,
+}));
+vi.mock("../src/db/index.js", () => ({ getDb: mockGetDb }));
+vi.mock("../src/modules/admin/index.js", () => ({
+  recordSupportEvent: mockRecordSupportEvent,
 }));
 vi.mock("../src/shared/config/env.js", () => ({
   env: () => ({ SUPPORT_EMAIL: "support@test.ch", EMAIL_FROM: "contact@test.ch" }),
@@ -31,6 +38,8 @@ describe("feedback routes", () => {
   beforeEach(() => {
     mockSendEmail.mockReset().mockResolvedValue("email-id");
     mockGetOptionalSession.mockReset().mockResolvedValue(null);
+    mockGetDb.mockReset().mockReturnValue({});
+    mockRecordSupportEvent.mockReset().mockResolvedValue({ id: "event-1" });
   });
 
   afterEach(() => {
@@ -78,6 +87,10 @@ describe("feedback routes", () => {
     expect(email.subject).toContain("user@example.com");
     expect(email.text).toContain("The checkout button does nothing");
     expect(email.text).toContain("/de-CH/draft/abc/checkout");
+    expect(mockRecordSupportEvent).toHaveBeenCalledWith(
+      {},
+      expect.objectContaining({ eventType: "user_feedback", actor: "user" }),
+    );
     await app.close();
   });
 

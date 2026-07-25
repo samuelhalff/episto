@@ -70,24 +70,42 @@ export async function dashboardData(
     alertFeedback,
   ] = await Promise.all([
     db.execute<{ count: number }>(sql`
-      SELECT COUNT(*)::int AS count FROM payment_attempts
-      WHERE state = 'captured' AND updated_at > ${curStart}
+      WITH latest AS (
+        SELECT DISTINCT ON (draft_id) draft_id
+        FROM payment_attempts
+        WHERE state = 'captured' AND updated_at > ${curStart}
+        ORDER BY draft_id, updated_at DESC, id DESC
+      )
+      SELECT COUNT(*)::int AS count FROM latest
     `),
     db.execute<{ count: number }>(sql`
-      SELECT COUNT(*)::int AS count FROM payment_attempts
-      WHERE state = 'captured' AND updated_at > ${prevStart} AND updated_at <= ${prevEnd}
+      WITH latest AS (
+        SELECT DISTINCT ON (draft_id) draft_id
+        FROM payment_attempts
+        WHERE state = 'captured' AND updated_at > ${prevStart} AND updated_at <= ${prevEnd}
+        ORDER BY draft_id, updated_at DESC, id DESC
+      )
+      SELECT COUNT(*)::int AS count FROM latest
     `),
     db.execute<CapturedOrderRow>(sql`
       SELECT ${BREAKDOWN_TOTAL_SQL} AS total_cents,
              ${BREAKDOWN_PROVIDER_SQL} AS provider_quoted_cents
       FROM payment_attempts
-      WHERE state = 'captured' AND updated_at > ${curStart}
+      WHERE id IN (
+        SELECT DISTINCT ON (draft_id) id FROM payment_attempts
+        WHERE state = 'captured' AND updated_at > ${curStart}
+        ORDER BY draft_id, updated_at DESC, id DESC
+      )
     `),
     db.execute<CapturedOrderRow>(sql`
       SELECT ${BREAKDOWN_TOTAL_SQL} AS total_cents,
              ${BREAKDOWN_PROVIDER_SQL} AS provider_quoted_cents
       FROM payment_attempts
-      WHERE state = 'captured' AND updated_at > ${prevStart} AND updated_at <= ${prevEnd}
+      WHERE id IN (
+        SELECT DISTINCT ON (draft_id) id FROM payment_attempts
+        WHERE state = 'captured' AND updated_at > ${prevStart} AND updated_at <= ${prevEnd}
+        ORDER BY draft_id, updated_at DESC, id DESC
+      )
     `),
     db.execute<{ gross: number; vat: number }>(sql`
       SELECT COALESCE(SUM(total_cents), 0)::int AS gross,
@@ -135,7 +153,11 @@ export async function dashboardData(
         COALESCE(SUM(r.net_cents), 0)::int AS net
       FROM payment_attempts p
       LEFT JOIN receipts r ON r.payment_attempt_id = p.id
-      WHERE p.state = 'captured' AND p.updated_at > ${curStart}
+      WHERE p.id IN (
+        SELECT DISTINCT ON (draft_id) id FROM payment_attempts
+        WHERE state = 'captured' AND updated_at > ${curStart}
+        ORDER BY draft_id, updated_at DESC, id DESC
+      )
       GROUP BY day
       ORDER BY day
     `),
@@ -143,7 +165,12 @@ export async function dashboardData(
       SELECT
         COUNT(*) FILTER (WHERE delivery_type = 'standard')::int AS standard,
         COUNT(*) FILTER (WHERE delivery_type = 'registered')::int AS registered
-      FROM receipts WHERE created_at > ${curStart}
+      FROM receipts r
+      WHERE r.payment_attempt_id IN (
+        SELECT DISTINCT ON (draft_id) id FROM payment_attempts
+        WHERE state = 'captured' AND updated_at > ${curStart}
+        ORDER BY draft_id, updated_at DESC, id DESC
+      )
     `),
     // Current-state alerts — intentionally NOT filtered by the period.
     db.execute<{ count: number }>(sql`
@@ -155,7 +182,8 @@ export async function dashboardData(
     `),
     db.execute<{ count: number }>(sql`
       SELECT COUNT(*)::int AS count FROM support_events
-      WHERE created_at > NOW() - make_interval(hours => 24)
+      WHERE event_type = 'user_feedback'
+        AND created_at > NOW() - make_interval(hours => 24)
     `),
   ]);
 
@@ -352,7 +380,8 @@ export async function feedbackData(
       se.details AS details
     FROM support_events se
     LEFT JOIN draft_letters d ON d.id = se.draft_id
-    WHERE se.created_at > NOW() - make_interval(days => ${days})
+    WHERE se.event_type = 'user_feedback'
+      AND se.created_at > NOW() - make_interval(days => ${days})
     ORDER BY se.created_at DESC
     LIMIT 200
   `);

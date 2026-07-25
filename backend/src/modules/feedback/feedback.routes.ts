@@ -4,6 +4,8 @@ import { env } from "../../shared/config/env.js";
 import { providerOutageError } from "../../shared/errors/index.js";
 import { sendEmail } from "../email/index.js";
 import { getOptionalSession } from "../sessions/session.middleware.js";
+import { getDb } from "../../db/index.js";
+import { recordSupportEvent } from "../admin/index.js";
 
 const FeedbackInput = z.object({
   message: z.string().trim().min(10).max(4000),
@@ -66,6 +68,17 @@ export async function feedbackRoutes(app: FastifyInstance): Promise<void> {
     ${metaLines.map((line) => `<li>${escapeHtml(line)}</li>`).join("\n    ")}
   </ul>
 </div>`;
+
+      await recordSupportEvent(getDb(), {
+        sessionId: session?.id ?? null,
+        eventType: "user_feedback",
+        actor: "user",
+        details: {
+          message: input.message,
+          page: input.page ?? null,
+          hasReplyTo: Boolean(replyToEmail),
+        },
+      });
 
       try {
         await sendEmail({

@@ -169,7 +169,12 @@ export async function financialsData(
         ${bucketExpr} AS bucket
       FROM payment_attempts p
       LEFT JOIN receipts r ON r.payment_attempt_id = p.id
-      WHERE p.state = 'captured' AND p.updated_at >= ${start} AND p.updated_at < ${end}
+      WHERE p.id IN (
+        SELECT DISTINCT ON (draft_id) id
+        FROM payment_attempts
+        WHERE state = 'captured' AND updated_at >= ${start} AND updated_at < ${end}
+        ORDER BY draft_id, updated_at DESC, id DESC
+      )
     `),
     db.execute<{ amount_cents: number }>(sql`
       SELECT amount_cents FROM monthly_fixed_costs WHERE year_month = ${yearMonth}

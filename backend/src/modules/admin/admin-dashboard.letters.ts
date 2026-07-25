@@ -59,7 +59,12 @@ export async function lettersData(query: LettersQuery): Promise<AdminLettersResp
       LIMIT 1
     ) da ON true
     LEFT JOIN receipts r ON r.payment_attempt_id = p.id
-    WHERE ${where}
+    WHERE p.id IN (
+      SELECT DISTINCT ON (draft_id) id
+      FROM payment_attempts
+      ORDER BY draft_id, updated_at DESC, id DESC
+    )
+      AND ${where}
   `;
 
   const [rows, totals] = await Promise.all([

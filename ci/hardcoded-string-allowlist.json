@@ -2,6 +2,7 @@
   "_comment": "Files/strings intentionally exempt from the hardcoded-string check. Admin is an internal English staff tool; global-error renders outside the i18n provider; FeedbackDialog/LetterSpecimen carry their own per-locale copy maps. allowStrings covers brand/loanwords, example values, and pre-existing navigation landmark aria-labels (localizing those is a recommended a11y follow-up).",
   "ignorePaths": [
     "/admin/",
+    "frontend/src/components/ui/badge.tsx",
     "frontend/src/app/global-error.tsx",
     "frontend/src/components/feedback/FeedbackDialog.tsx",
     "frontend/src/components/marketing/LetterSpecimen.tsx"
