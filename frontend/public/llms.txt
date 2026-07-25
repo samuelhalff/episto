@@ -1,0 +1,22 @@
+# episto
+
+> episto is a Swiss service for writing and sending formal letters. You describe your situation, episto drafts a clear, formal letter with the correct Swiss form and deadlines, you review and approve it, and episto submits it to Swiss Post via the ePost interface. Swiss Post then prints, envelopes and delivers the letter (standard or registered mail) anywhere in Switzerland. No account, printer, stamps or trip to the post office is needed. Pricing is per letter with postage included, shown in full before payment.
+
+## Key facts
+- Coverage: recipient addresses in Switzerland; interface in German, French, Italian and English (de-CH, fr-CH, it-CH, en-CH).
+- Fulfilment: episto prepares the letter and submits it to Swiss Post via ePost; Swiss Post prints and physically delivers it. episto does not run its own print or delivery network.
+- Common uses: cancelling a subscription, insurance, gym, phone contract or lease; filing a complaint; raising an objection (Einsprache); sending a payment reminder (Mahnung); writing to an authority; sending registered mail online.
+- Proof: registered mail returns a submission/delivery record; episto issues a dated proof-of-sending document.
+
+## Guides and templates
+- [Templates & guides (DE)](https://episto.ch/de-CH/vorlagen)
+- [Modèles & guides (FR)](https://episto.ch/fr-CH/vorlagen)
+- [Modelli e guide (IT)](https://episto.ch/it-CH/vorlagen)
+
+## Main pages
+- [How it works (EN)](https://episto.ch/en-CH)
+- [Pricing](https://episto.ch/en-CH/pricing)
+- [Help & FAQ](https://episto.ch/en-CH/help)
+
+## Sitemap
+- [XML sitemap](https://episto.ch/sitemap.xml)
