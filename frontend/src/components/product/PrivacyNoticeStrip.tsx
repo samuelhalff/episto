@@ -18,7 +18,7 @@ interface ConsentCopy {
 // Self-contained per-locale copy for the consent banner (mirrors the other
 // contained widgets). Honestly discloses Google Analytics + offers a choice.
 const DE_CONSENT_COPY: ConsentCopy = {
-  body: "Wir nutzen Google Analytics, um zu verstehen, wie Episto genutzt wird. Sie entscheiden, ob wir dürfen.",
+  body: "Wir nutzen Google Analytics, um zu verstehen, wie episto genutzt wird. Sie entscheiden, ob wir dürfen.",
   policy: "Datenschutz",
   accept: "Akzeptieren",
   decline: "Ablehnen",
@@ -27,19 +27,19 @@ const DE_CONSENT_COPY: ConsentCopy = {
 const COPY: Record<string, ConsentCopy> = {
   "de-CH": DE_CONSENT_COPY,
   "fr-CH": {
-    body: "Nous utilisons Google Analytics pour comprendre comment Episto est utilisé. C'est votre choix.",
+    body: "Nous utilisons Google Analytics pour comprendre comment episto est utilisé. C'est votre choix.",
     policy: "Confidentialité",
     accept: "Accepter",
     decline: "Refuser",
   },
   "it-CH": {
-    body: "Utilizziamo Google Analytics per capire come viene usato Episto. La scelta è Sua.",
+    body: "Utilizziamo Google Analytics per capire come viene usato episto. La scelta è Sua.",
     policy: "Privacy",
     accept: "Accetto",
     decline: "Rifiuto",
   },
   "en-CH": {
-    body: "We use Google Analytics to understand how Episto is used. It's your choice.",
+    body: "We use Google Analytics to understand how episto is used. It's your choice.",
     policy: "Privacy",
     accept: "Accept",
     decline: "Decline",

@@ -6,7 +6,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Wohnung kündigen in der Schweiz – Brief & Versand",
     metaDescription:
-      "Mietvertrag in der Schweiz korrekt kündigen: Frist, Termin und Form. Episto schreibt Ihre Kündigung und versendet sie – auf Wunsch als Einschreiben.",
+      "Mietvertrag in der Schweiz korrekt kündigen: Frist, Termin und Form. episto schreibt Ihre Kündigung und versendet sie – auf Wunsch als Einschreiben.",
     h1: "Wohnung kündigen: Mietvertrag korrekt und fristgerecht beenden",
     quickAnswer:
       "Um Ihre Wohnung in der Schweiz zu kündigen, senden Sie dem Vermieter eine schriftliche Kündigung, die spätestens am letzten Tag vor Fristbeginn eintrifft. Bei unbefristeten Mietverträgen gilt in der Regel eine Frist von drei Monaten auf den ortsüblichen Termin. Ein Einschreiben gilt als Nachweis.",
@@ -21,11 +21,11 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Kündigung verfassen",
-        text: "Formulieren Sie ein klares Schreiben mit Betreff, Kündigungsdatum und Unterschrift. Episto erstellt daraus in Minuten einen sauberen Brief.",
+        text: "Formulieren Sie ein klares Schreiben mit Betreff, Kündigungsdatum und Unterschrift. episto erstellt daraus in Minuten einen sauberen Brief.",
       },
       {
         title: "Nachweisbar versenden",
-        text: "Versenden Sie die Kündigung als Einschreiben, damit Sie den fristgerechten Zugang belegen können. Episto druckt und verschickt den Brief für Sie.",
+        text: "Versenden Sie die Kündigung als Einschreiben, damit Sie den fristgerechten Zugang belegen können. episto druckt und verschickt den Brief für Sie.",
       },
     ],
     checklist: [
@@ -62,7 +62,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
           "Ja. Sie können ausserterminlich kündigen, wenn Sie einen zumutbaren Nachmieter vorschlagen, der bereit und zahlungsfähig ist und den Vertrag zu den bestehenden Bedingungen übernimmt.",
       },
       {
-        question: "Was kostet der Versand mit Episto?",
+        question: "Was kostet der Versand mit episto?",
         answer:
           "Sie sehen den genauen Preis vor der Zahlung. Er setzt sich aus dem Porto und einer transparenten Servicepauschale zusammen; ein Einschreiben kostet etwas mehr als ein Standardbrief.",
       },
@@ -74,14 +74,14 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Versand",
     metaTitle: "Einschreiben online versenden – ohne Poststelle",
     metaDescription:
-      "Einschreiben online schreiben und versenden, ohne zur Poststelle zu gehen. Episto druckt Ihren Brief und übergibt ihn der Schweizer Post – mit Nachweis.",
+      "Einschreiben online schreiben und versenden, ohne zur Poststelle zu gehen. episto druckt Ihren Brief und übergibt ihn der Schweizer Post – mit Nachweis.",
     h1: "Einschreiben online versenden – ohne Gang zur Poststelle",
     quickAnswer:
-      "Ein Einschreiben online zu versenden bedeutet: Sie schreiben den Brief digital, und ein Dienst druckt ihn aus und übergibt ihn als eingeschriebene Sendung der Post. So erhalten Sie einen Zustellnachweis, ohne selbst zur Poststelle zu gehen. Mit Episto ist das in wenigen Minuten erledigt.",
+      "Ein Einschreiben online zu versenden bedeutet: Sie schreiben den Brief digital, und ein Dienst druckt ihn aus und übergibt ihn als eingeschriebene Sendung der Post. So erhalten Sie einen Zustellnachweis, ohne selbst zur Poststelle zu gehen. Mit episto ist das in wenigen Minuten erledigt.",
     steps: [
       {
         title: "Brief digital erstellen",
-        text: "Beschreiben Sie Ihr Anliegen. Episto formuliert daraus ein sauberes, formelles Schreiben, das Sie prüfen und anpassen können.",
+        text: "Beschreiben Sie Ihr Anliegen. episto formuliert daraus ein sauberes, formelles Schreiben, das Sie prüfen und anpassen können.",
       },
       {
         title: "Einschreiben wählen",
@@ -89,7 +89,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Druck und Übergabe",
-        text: "Episto druckt den Brief, kuvertiert ihn und übergibt ihn als eingeschriebene Sendung der Schweizer Post.",
+        text: "episto druckt den Brief, kuvertiert ihn und übergibt ihn als eingeschriebene Sendung der Schweizer Post.",
       },
       {
         title: "Zustellung nachverfolgen",
@@ -110,14 +110,14 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Nur an Schweizer Adressen",
-        body: "Episto versendet Briefe an Empfängeradressen in der Schweiz. Die Adresse prüfen Sie vor dem Versand.",
+        body: "episto versendet Briefe an Empfängeradressen in der Schweiz. Die Adresse prüfen Sie vor dem Versand.",
       },
     ],
     faqs: [
       {
         question: "Kann ich ein Einschreiben versenden, ohne zur Post zu gehen?",
         answer:
-          "Ja. Sie schreiben den Brief online, und Episto druckt ihn und übergibt ihn als Einschreiben der Schweizer Post. Ein Gang zur Poststelle ist nicht nötig.",
+          "Ja. Sie schreiben den Brief online, und episto druckt ihn und übergibt ihn als Einschreiben der Schweizer Post. Ein Gang zur Poststelle ist nicht nötig.",
       },
       {
         question: "Erhalte ich einen Zustellnachweis?",
@@ -142,7 +142,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Krankenkasse kündigen & wechseln – Brief & Frist",
     metaDescription:
-      "Grundversicherung bis 30. November kündigen und die Kasse wechseln. Episto schreibt und versendet Ihre Kündigung – auf Wunsch als Einschreiben.",
+      "Grundversicherung bis 30. November kündigen und die Kasse wechseln. episto schreibt und versendet Ihre Kündigung – auf Wunsch als Einschreiben.",
     h1: "Krankenkasse kündigen und wechseln – fristgerecht zum Jahresende",
     quickAnswer:
       "Um Ihre Grundversicherung zu kündigen, senden Sie der Krankenkasse eine schriftliche Kündigung, die bis am 30. November bei ihr eintrifft; die Versicherung endet dann per 31. Dezember. Melden Sie sich gleichzeitig bei einer neuen Grundversicherung an – dort besteht Aufnahmepflicht. Ein Einschreiben sichert den Nachweis.",
@@ -153,7 +153,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Kündigung verfassen",
-        text: "Schreiben Sie eine Kündigung mit Versichertennummer, Namen und dem gewünschten Enddatum (31. Dezember). Episto erstellt den Brief in Minuten.",
+        text: "Schreiben Sie eine Kündigung mit Versichertennummer, Namen und dem gewünschten Enddatum (31. Dezember). episto erstellt den Brief in Minuten.",
       },
       {
         title: "Rechtzeitig versenden",
@@ -198,9 +198,9 @@ export const DE_LANDING_PAGES: LandingPage[] = [
           "Ein Wechsel der Grundversicherung ist in der Regel auf Ende Jahr möglich. Unter bestimmten Voraussetzungen, etwa bei einer Prämienerhöhung, bestehen zusätzliche Kündigungsmöglichkeiten.",
       },
       {
-        question: "Schreibt Episto die Kündigung für mich?",
+        question: "Schreibt episto die Kündigung für mich?",
         answer:
-          "Ja. Sie geben Ihre Angaben ein, Episto formuliert die Kündigung und versendet sie – auf Wunsch als Einschreiben mit Zustellnachweis.",
+          "Ja. Sie geben Ihre Angaben ein, episto formuliert die Kündigung und versendet sie – auf Wunsch als Einschreiben mit Zustellnachweis.",
       },
     ],
     related: ["versicherung-kuendigen", "abo-kuendigen", "einschreiben-online"],
@@ -210,10 +210,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Abo kündigen in der Schweiz – Vorlage & Versand",
     metaDescription:
-      "Streaming-, Magazin- oder Mitglieder-Abo korrekt kündigen: Frist, Laufzeit und Nachweis prüfen. Episto schreibt und versendet Ihre Kündigung – sicher per Post.",
+      "Streaming-, Magazin- oder Mitglieder-Abo korrekt kündigen: Frist, Laufzeit und Nachweis prüfen. episto schreibt und versendet Ihre Kündigung – sicher per Post.",
     h1: "Abo kündigen: Vertrag rechtzeitig und nachweisbar beenden",
     quickAnswer:
-      "Wenn Sie ein Abo kündigen, prüfen Sie zuerst Laufzeit, Kündigungsfrist und die verlangte Form in Vertrag oder AGB. Nennen Sie Kundennummer und gewünschtes Enddatum und verlangen Sie eine Bestätigung. In der Schweiz besteht bei Online-Abschlüssen kein allgemeines Widerrufsrecht. Episto formuliert Ihre Kündigung und versendet sie für Sie.",
+      "Wenn Sie ein Abo kündigen, prüfen Sie zuerst Laufzeit, Kündigungsfrist und die verlangte Form in Vertrag oder AGB. Nennen Sie Kundennummer und gewünschtes Enddatum und verlangen Sie eine Bestätigung. In der Schweiz besteht bei Online-Abschlüssen kein allgemeines Widerrufsrecht. episto formuliert Ihre Kündigung und versendet sie für Sie.",
     steps: [
       {
         title: "Vertrag und AGB prüfen",
@@ -225,11 +225,11 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Kündigung klar formulieren",
-        text: "Kündigen Sie auf den nächstmöglichen Termin und bitten Sie um eine schriftliche Bestätigung. Episto erstellt daraus einen sauberen Brief.",
+        text: "Kündigen Sie auf den nächstmöglichen Termin und bitten Sie um eine schriftliche Bestätigung. episto erstellt daraus einen sauberen Brief.",
       },
       {
         title: "Fristgerecht versenden",
-        text: "Senden Sie die Kündigung rechtzeitig und bei wichtigen oder teuren Abos nachweisbar. Episto übernimmt Druck und Postversand.",
+        text: "Senden Sie die Kündigung rechtzeitig und bei wichtigen oder teuren Abos nachweisbar. episto übernimmt Druck und Postversand.",
       },
     ],
     checklist: [
@@ -278,10 +278,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Arbeitsvertrag kündigen – Brief, Frist & Versand",
     metaDescription:
-      "Arbeitsvertrag in der Schweiz korrekt kündigen: Frist, Enddatum und Zustellung beachten. Episto formuliert und versendet Ihre Kündigung – auch als Einschreiben.",
+      "Arbeitsvertrag in der Schweiz korrekt kündigen: Frist, Enddatum und Zustellung beachten. episto formuliert und versendet Ihre Kündigung – auch als Einschreiben.",
     h1: "Arbeitsvertrag kündigen: korrekt und professionell vorgehen",
     quickAnswer:
-      "Wenn Sie Ihren Arbeitsvertrag kündigen, prüfen Sie Vertrag und allfälligen Gesamtarbeitsvertrag auf Kündigungsfrist und Termin. Die Kündigung muss dem Arbeitgeber rechtzeitig zugehen; schriftlich ist sie aus Beweisgründen meist sinnvoll. Nennen Sie das Enddatum und bitten Sie um Bestätigung sowie Arbeitszeugnis. Episto formuliert und versendet Ihre Kündigung.",
+      "Wenn Sie Ihren Arbeitsvertrag kündigen, prüfen Sie Vertrag und allfälligen Gesamtarbeitsvertrag auf Kündigungsfrist und Termin. Die Kündigung muss dem Arbeitgeber rechtzeitig zugehen; schriftlich ist sie aus Beweisgründen meist sinnvoll. Nennen Sie das Enddatum und bitten Sie um Bestätigung sowie Arbeitszeugnis. episto formuliert und versendet Ihre Kündigung.",
     steps: [
       {
         title: "Kündigungsregeln prüfen",
@@ -297,7 +297,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Zugang dokumentieren",
-        text: "Übergeben Sie den Brief gegen Empfangsbestätigung oder versenden Sie ihn nachweisbar. Episto übernimmt auf Wunsch den Versand als Einschreiben.",
+        text: "Übergeben Sie den Brief gegen Empfangsbestätigung oder versenden Sie ihn nachweisbar. episto übernimmt auf Wunsch den Versand als Einschreiben.",
       },
     ],
     checklist: [
@@ -334,9 +334,9 @@ export const DE_LANDING_PAGES: LandingPage[] = [
           "Bei einer ordentlichen Kündigung müssen Arbeitnehmerinnen und Arbeitnehmer normalerweise keinen Grund nennen. Ein kurzer Dank kann den professionellen Ton wahren, ist aber freiwillig.",
       },
       {
-        question: "Kann Episto auch um ein Arbeitszeugnis bitten?",
+        question: "Kann episto auch um ein Arbeitszeugnis bitten?",
         answer:
-          "Ja. Episto kann die Bitte um ein qualifiziertes Arbeitszeugnis und eine schriftliche Bestätigung des Austrittsdatums direkt in die Kündigung aufnehmen.",
+          "Ja. episto kann die Bitte um ein qualifiziertes Arbeitszeugnis und eine schriftliche Bestätigung des Austrittsdatums direkt in die Kündigung aufnehmen.",
       },
     ],
     related: ["abo-kuendigen", "einschreiben-online", "brief-an-behoerde"],
@@ -346,10 +346,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Versicherung kündigen – Brief, Frist & Versand",
     metaDescription:
-      "Zusatz-, Hausrat- oder Haftpflichtversicherung korrekt kündigen: Police, Frist und Versicherungsjahr prüfen. Episto schreibt und versendet den Brief sicher.",
+      "Zusatz-, Hausrat- oder Haftpflichtversicherung korrekt kündigen: Police, Frist und Versicherungsjahr prüfen. episto schreibt und versendet den Brief sicher.",
     h1: "Versicherung kündigen: Police fristgerecht beenden",
     quickAnswer:
-      "Wenn Sie eine Versicherung kündigen, prüfen Sie Police und Versicherungsbedingungen auf Laufzeit, Kündigungsfrist und Ende des Versicherungsjahres. Nennen Sie Policennummer und gewünschten Termin und lassen Sie sich die Auflösung bestätigen. Bei einem Wechsel sollte die neue Deckung vorher gesichert sein. Episto formuliert Ihre Kündigung und versendet sie nachweisbar.",
+      "Wenn Sie eine Versicherung kündigen, prüfen Sie Police und Versicherungsbedingungen auf Laufzeit, Kündigungsfrist und Ende des Versicherungsjahres. Nennen Sie Policennummer und gewünschten Termin und lassen Sie sich die Auflösung bestätigen. Bei einem Wechsel sollte die neue Deckung vorher gesichert sein. episto formuliert Ihre Kündigung und versendet sie nachweisbar.",
     steps: [
       {
         title: "Police und Bedingungen lesen",
@@ -361,11 +361,11 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Kündigung erstellen",
-        text: "Nennen Sie Versicherungsart, Policennummer und Endtermin. Episto formuliert daraus eine klare, formelle Kündigung.",
+        text: "Nennen Sie Versicherungsart, Policennummer und Endtermin. episto formuliert daraus eine klare, formelle Kündigung.",
       },
       {
         title: "Rechtzeitig zustellen",
-        text: "Planen Sie den Postweg ein und bewahren Sie Versand- und Kündigungsbestätigung auf. Episto versendet auf Wunsch als Einschreiben.",
+        text: "Planen Sie den Postweg ein und bewahren Sie Versand- und Kündigungsbestätigung auf. episto versendet auf Wunsch als Einschreiben.",
       },
     ],
     checklist: [
@@ -414,10 +414,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Handyabo kündigen – Vorlage, Frist & Versand",
     metaDescription:
-      "Handy- oder Internetabo korrekt kündigen: Mindestlaufzeit, Frist, Rufnummer und Gerätegebühren prüfen. Episto schreibt und versendet die Kündigung sicher.",
+      "Handy- oder Internetabo korrekt kündigen: Mindestlaufzeit, Frist, Rufnummer und Gerätegebühren prüfen. episto schreibt und versendet die Kündigung sicher.",
     h1: "Handyabo kündigen: Frist, Rufnummer und Wechsel im Griff",
     quickAnswer:
-      "Wenn Sie ein Handyabo kündigen, prüfen Sie Mindestvertragsdauer, Kündigungsfrist und mögliche Restkosten für Geräte oder Rabatte. Geben Sie Kunden- und Rufnummer sowie den gewünschten Endtermin an. Bei einem Anbieterwechsel sollte die Rufnummernportierung abgestimmt sein. Episto formuliert Ihre Kündigung und versendet sie für Sie.",
+      "Wenn Sie ein Handyabo kündigen, prüfen Sie Mindestvertragsdauer, Kündigungsfrist und mögliche Restkosten für Geräte oder Rabatte. Geben Sie Kunden- und Rufnummer sowie den gewünschten Endtermin an. Bei einem Anbieterwechsel sollte die Rufnummernportierung abgestimmt sein. episto formuliert Ihre Kündigung und versendet sie für Sie.",
     steps: [
       {
         title: "Vertragslaufzeit prüfen",
@@ -429,7 +429,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Kündigung formulieren",
-        text: "Nennen Sie Kunden-, Vertrags- und Rufnummer sowie den gewünschten Termin. Episto erstellt einen eindeutigen Kündigungsbrief.",
+        text: "Nennen Sie Kunden-, Vertrags- und Rufnummer sowie den gewünschten Termin. episto erstellt einen eindeutigen Kündigungsbrief.",
       },
       {
         title: "Bestätigung kontrollieren",
@@ -482,10 +482,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Kündigung",
     metaTitle: "Fitnessabo kündigen – Brief, Frist & Versand",
     metaDescription:
-      "Fitnessabo korrekt kündigen: Laufzeit, Verlängerung, Frist und Sonderfälle prüfen. Episto formuliert und versendet Ihre Kündigung sicher und bequem per Post.",
+      "Fitnessabo korrekt kündigen: Laufzeit, Verlängerung, Frist und Sonderfälle prüfen. episto formuliert und versendet Ihre Kündigung sicher und bequem per Post.",
     h1: "Fitnessabo kündigen: Mitgliedschaft fristgerecht beenden",
     quickAnswer:
-      "Wenn Sie ein Fitnessabo kündigen, prüfen Sie Vertrag und AGB auf Mindestlaufzeit, automatische Verlängerung, Kündigungsfrist und verlangte Form. Nennen Sie Mitgliedsnummer und gewünschten Endtermin. Krankheit oder Umzug führen nicht automatisch zur Vertragsauflösung; oft gelten besondere Bedingungen. Episto formuliert Ihre Kündigung und versendet sie nachweisbar.",
+      "Wenn Sie ein Fitnessabo kündigen, prüfen Sie Vertrag und AGB auf Mindestlaufzeit, automatische Verlängerung, Kündigungsfrist und verlangte Form. Nennen Sie Mitgliedsnummer und gewünschten Endtermin. Krankheit oder Umzug führen nicht automatisch zur Vertragsauflösung; oft gelten besondere Bedingungen. episto formuliert Ihre Kündigung und versendet sie nachweisbar.",
     steps: [
       {
         title: "Laufzeit und Frist prüfen",
@@ -497,7 +497,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Kündigungsbrief erstellen",
-        text: "Nennen Sie Mitgliedsnummer, Standort und gewünschten Endtermin. Episto formuliert das Schreiben klar und höflich.",
+        text: "Nennen Sie Mitgliedsnummer, Standort und gewünschten Endtermin. episto formuliert das Schreiben klar und höflich.",
       },
       {
         title: "Bestätigung sichern",
@@ -550,10 +550,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Reklamation",
     metaTitle: "Beschwerde schreiben – Vorlage für die Schweiz",
     metaDescription:
-      "Eine sachliche Beschwerde schreiben, Forderung klar nennen und Belege beifügen. Episto formuliert und versendet Ihren Reklamationsbrief – auch als Einschreiben.",
+      "Eine sachliche Beschwerde schreiben, Forderung klar nennen und Belege beifügen. episto formuliert und versendet Ihren Reklamationsbrief – auch als Einschreiben.",
     h1: "Beschwerde schreiben: sachlich, klar und überzeugend",
     quickAnswer:
-      "Wenn Sie eine Beschwerde schreiben, schildern Sie den Vorfall chronologisch, nennen Sie Vertrag, Bestellung oder Rechnung und formulieren Sie eine konkrete Lösung. Belegen Sie Ihre Darstellung mit relevanten Unterlagen und setzen Sie bei Bedarf eine angemessene Antwortfrist. Episto macht daraus einen professionellen Beschwerdebrief und versendet ihn für Sie.",
+      "Wenn Sie eine Beschwerde schreiben, schildern Sie den Vorfall chronologisch, nennen Sie Vertrag, Bestellung oder Rechnung und formulieren Sie eine konkrete Lösung. Belegen Sie Ihre Darstellung mit relevanten Unterlagen und setzen Sie bei Bedarf eine angemessene Antwortfrist. episto macht daraus einen professionellen Beschwerdebrief und versendet ihn für Sie.",
     steps: [
       {
         title: "Sachverhalt ordnen",
@@ -565,7 +565,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Beschwerde verfassen",
-        text: "Bleiben Sie höflich und bestimmt, nennen Sie Belege und setzen Sie bei Bedarf eine realistische Antwortfrist. Episto strukturiert den Brief.",
+        text: "Bleiben Sie höflich und bestimmt, nennen Sie Belege und setzen Sie bei Bedarf eine realistische Antwortfrist. episto strukturiert den Brief.",
       },
       {
         title: "Versand dokumentieren",
@@ -618,10 +618,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Forderung",
     metaTitle: "Mahnung schreiben – Zahlung wirksam einfordern",
     metaDescription:
-      "Eine klare Mahnung mit Rechnungsbezug, offenem Betrag und neuer Zahlungsfrist schreiben. Episto formuliert und versendet Ihren Brief – auch als Einschreiben.",
+      "Eine klare Mahnung mit Rechnungsbezug, offenem Betrag und neuer Zahlungsfrist schreiben. episto formuliert und versendet Ihren Brief – auch als Einschreiben.",
     h1: "Mahnung schreiben: offene Zahlung professionell einfordern",
     quickAnswer:
-      "Wenn Sie eine Mahnung schreiben, nennen Sie Rechnung, offenen Betrag, ursprüngliche Fälligkeit und eine neue angemessene Zahlungsfrist. Formulieren Sie sachlich, geben Sie die Zahlungsverbindung an und kündigen Sie weitere Schritte nur an, wenn Sie diese prüfen und umsetzen wollen. Episto erstellt Ihre Mahnung und versendet sie nachweisbar.",
+      "Wenn Sie eine Mahnung schreiben, nennen Sie Rechnung, offenen Betrag, ursprüngliche Fälligkeit und eine neue angemessene Zahlungsfrist. Formulieren Sie sachlich, geben Sie die Zahlungsverbindung an und kündigen Sie weitere Schritte nur an, wenn Sie diese prüfen und umsetzen wollen. episto erstellt Ihre Mahnung und versendet sie nachweisbar.",
     steps: [
       {
         title: "Forderung kontrollieren",
@@ -633,7 +633,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Mahnung verfassen",
-        text: "Führen Sie Betrag, Rechnungsnummer, Fälligkeit und Zahlungsangaben klar auf. Episto formuliert das Schreiben professionell und bestimmt.",
+        text: "Führen Sie Betrag, Rechnungsnummer, Fälligkeit und Zahlungsangaben klar auf. episto formuliert das Schreiben professionell und bestimmt.",
       },
       {
         title: "Versand und Reaktion festhalten",
@@ -686,10 +686,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Fristbrief",
     metaTitle: "Einsprache erheben – Frist & Brief für die Schweiz",
     metaDescription:
-      "Einsprache gegen Rechnung, Entscheid oder Verfügung erheben: Frist, zuständige Stelle, Begründung und Belege prüfen. Episto erstellt den Brief korrekt.",
+      "Einsprache gegen Rechnung, Entscheid oder Verfügung erheben: Frist, zuständige Stelle, Begründung und Belege prüfen. episto erstellt den Brief korrekt.",
     h1: "Einsprache erheben: fristgerecht und nachvollziehbar reagieren",
     quickAnswer:
-      "Wenn Sie Einsprache erheben, prüfen Sie zuerst, welches Rechtsmittel zulässig ist, welche Stelle zuständig ist und wann die Frist endet. Bezeichnen Sie den angefochtenen Entscheid genau, stellen Sie einen klaren Antrag und begründen Sie ihn mit Belegen. Bei Rechnungen genügt häufig ein schriftlicher Einwand. Episto formuliert und versendet Ihr Schreiben.",
+      "Wenn Sie Einsprache erheben, prüfen Sie zuerst, welches Rechtsmittel zulässig ist, welche Stelle zuständig ist und wann die Frist endet. Bezeichnen Sie den angefochtenen Entscheid genau, stellen Sie einen klaren Antrag und begründen Sie ihn mit Belegen. Bei Rechnungen genügt häufig ein schriftlicher Einwand. episto formuliert und versendet Ihr Schreiben.",
     steps: [
       {
         title: "Rechtsmittel und Frist prüfen",
@@ -701,7 +701,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Schreiben verfassen",
-        text: "Bezeichnen Sie das Dokument mit Datum und Aktenzeichen und formulieren Sie Antrag und Begründung klar. Episto strukturiert den Brief.",
+        text: "Bezeichnen Sie das Dokument mit Datum und Aktenzeichen und formulieren Sie Antrag und Begründung klar. episto strukturiert den Brief.",
       },
       {
         title: "Fristgerecht einreichen",
@@ -754,10 +754,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Mietrecht",
     metaTitle: "Mietzins senken – Senkungsbegehren schreiben",
     metaDescription:
-      "Mietzinssenkung wegen tieferem Referenzzinssatz verlangen: Grundlage, Termin und Fristen prüfen. Episto schreibt Ihr Begehren und versendet es per Post.",
+      "Mietzinssenkung wegen tieferem Referenzzinssatz verlangen: Grundlage, Termin und Fristen prüfen. episto schreibt Ihr Begehren und versendet es per Post.",
     h1: "Mietzins senken: Senkungsbegehren korrekt stellen",
     quickAnswer:
-      "Wer den Mietzins senken will, vergleicht den Referenzzinssatz, auf dem der aktuelle Mietzins beruht, mit dem heute massgebenden Stand. Besteht grundsätzlich ein Anspruch, stellen Sie der Vermieterschaft ein schriftliches Senkungsbegehren auf den nächstmöglichen Kündigungstermin. Weitere Kostenfaktoren können die Reduktion beeinflussen. Episto formuliert und versendet Ihr Begehren.",
+      "Wer den Mietzins senken will, vergleicht den Referenzzinssatz, auf dem der aktuelle Mietzins beruht, mit dem heute massgebenden Stand. Besteht grundsätzlich ein Anspruch, stellen Sie der Vermieterschaft ein schriftliches Senkungsbegehren auf den nächstmöglichen Kündigungstermin. Weitere Kostenfaktoren können die Reduktion beeinflussen. episto formuliert und versendet Ihr Begehren.",
     steps: [
       {
         title: "Ausgangslage bestimmen",
@@ -769,7 +769,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Senkungsbegehren verfassen",
-        text: "Verlangen Sie die Anpassung des Nettomietzinses auf den nächstmöglichen Termin und bitten Sie um eine nachvollziehbare Berechnung. Episto erstellt den Brief.",
+        text: "Verlangen Sie die Anpassung des Nettomietzinses auf den nächstmöglichen Termin und bitten Sie um eine nachvollziehbare Berechnung. episto erstellt den Brief.",
       },
       {
         title: "Antwort und Fristen überwachen",
@@ -826,10 +826,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Behördenbrief",
     metaTitle: "Brief an Behörde schreiben & online versenden",
     metaDescription:
-      "Einen klaren Brief an Amt, Gemeinde oder Verwaltung schreiben: Aktenzeichen, Antrag, Frist und Belege richtig aufführen. Episto hilft beim sicheren Versand.",
+      "Einen klaren Brief an Amt, Gemeinde oder Verwaltung schreiben: Aktenzeichen, Antrag, Frist und Belege richtig aufführen. episto hilft beim sicheren Versand.",
     h1: "Brief an Behörde schreiben: klar, vollständig und fristgerecht",
     quickAnswer:
-      "Wenn Sie einen Brief an eine Behörde schreiben, nennen Sie die zuständige Stelle, Ihre Personalien und ein vorhandenes Aktenzeichen. Formulieren Sie Ihr Anliegen oder Ihren Antrag eindeutig, begründen Sie ihn knapp und fügen Sie verlangte Belege bei. Beachten Sie Fristen und Formvorgaben. Episto erstellt und versendet Ihren Behördenbrief.",
+      "Wenn Sie einen Brief an eine Behörde schreiben, nennen Sie die zuständige Stelle, Ihre Personalien und ein vorhandenes Aktenzeichen. Formulieren Sie Ihr Anliegen oder Ihren Antrag eindeutig, begründen Sie ihn knapp und fügen Sie verlangte Belege bei. Beachten Sie Fristen und Formvorgaben. episto erstellt und versendet Ihren Behördenbrief.",
     steps: [
       {
         title: "Zuständigkeit klären",
@@ -841,7 +841,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Anliegen formulieren",
-        text: "Schreiben Sie klar, was Sie beantragen oder wissen möchten, und ordnen Sie die wichtigsten Gründe. Episto bringt Ihr Anliegen in eine professionelle Form.",
+        text: "Schreiben Sie klar, was Sie beantragen oder wissen möchten, und ordnen Sie die wichtigsten Gründe. episto bringt Ihr Anliegen in eine professionelle Form.",
       },
       {
         title: "Fristgerecht einreichen",
@@ -894,14 +894,14 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Versand",
     metaTitle: "Brief online versenden – Druck & Schweizer Post",
     metaDescription:
-      "Brief online schreiben und über die Schweizer Post versenden lassen – ohne Drucker und Poststellenbesuch. Episto übernimmt Formulierung, Druck und Versand.",
+      "Brief online schreiben und über die Schweizer Post versenden lassen – ohne Drucker und Poststellenbesuch. episto übernimmt Formulierung, Druck und Versand.",
     h1: "Brief online versenden – ohne Drucker oder Poststellenbesuch",
     quickAnswer:
-      "Wer einen Brief online versenden möchte, erfasst Inhalt und Empfänger digital, prüft das fertige Schreiben und beauftragt Druck, Kuvertierung und Postaufgabe. Je nach Anliegen wählen Sie Standardpost oder Einschreiben. So sparen Sie Drucker und Weg zur Poststelle. Mit Episto erledigen Sie alles online in wenigen Minuten.",
+      "Wer einen Brief online versenden möchte, erfasst Inhalt und Empfänger digital, prüft das fertige Schreiben und beauftragt Druck, Kuvertierung und Postaufgabe. Je nach Anliegen wählen Sie Standardpost oder Einschreiben. So sparen Sie Drucker und Weg zur Poststelle. Mit episto erledigen Sie alles online in wenigen Minuten.",
     steps: [
       {
         title: "Anliegen eingeben",
-        text: "Beschreiben Sie, an wen Sie schreiben und was Sie erreichen möchten. Episto formuliert daraus einen passenden, professionellen Brief.",
+        text: "Beschreiben Sie, an wen Sie schreiben und was Sie erreichen möchten. episto formuliert daraus einen passenden, professionellen Brief.",
       },
       {
         title: "Brief prüfen",
@@ -913,7 +913,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Druck und Versand übergeben",
-        text: "Episto druckt und kuvertiert Ihr Schreiben und übergibt es der Schweizer Post. Sie müssen weder drucken noch zur Poststelle gehen.",
+        text: "episto druckt und kuvertiert Ihr Schreiben und übergibt es der Schweizer Post. Sie müssen weder drucken noch zur Poststelle gehen.",
       },
     ],
     checklist: [
@@ -930,19 +930,19 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Adresse vor Freigabe prüfen",
-        body: "Episto versendet an Empfängeradressen in der Schweiz. Kontrollieren Sie Name, Strasse, Hausnummer, PLZ und Ort sorgfältig, bevor Sie den Auftrag bestätigen.",
+        body: "episto versendet an Empfängeradressen in der Schweiz. Kontrollieren Sie Name, Strasse, Hausnummer, PLZ und Ort sorgfältig, bevor Sie den Auftrag bestätigen.",
       },
     ],
     faqs: [
       {
         question: "Wie kann ich einen Brief online versenden?",
         answer:
-          "Sie geben Inhalt und Adresse digital ein, prüfen den fertigen Brief und wählen die Versandart. Episto übernimmt Druck, Kuvertierung und Übergabe an die Schweizer Post.",
+          "Sie geben Inhalt und Adresse digital ein, prüfen den fertigen Brief und wählen die Versandart. episto übernimmt Druck, Kuvertierung und Übergabe an die Schweizer Post.",
       },
       {
         question: "Brauche ich dafür einen Drucker oder Briefmarken?",
         answer:
-          "Nein. Sie erstellen und bezahlen den Brief online; Episto kümmert sich um Papier, Druck, Couvert, Frankierung und Postaufgabe.",
+          "Nein. Sie erstellen und bezahlen den Brief online; episto kümmert sich um Papier, Druck, Couvert, Frankierung und Postaufgabe.",
       },
       {
         question: "Kann ich den Brief als Einschreiben senden?",
@@ -962,10 +962,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Mietrecht",
     metaTitle: "Nebenkostenabrechnung prüfen & Einwand schreiben",
     metaDescription:
-      "Nebenkostenabrechnung prüfen, Belege verlangen und unklare Positionen schriftlich beanstanden. Episto formuliert und versendet Ihren Einwand per Schweizer Post.",
+      "Nebenkostenabrechnung prüfen, Belege verlangen und unklare Positionen schriftlich beanstanden. episto formuliert und versendet Ihren Einwand per Schweizer Post.",
     h1: "Nebenkostenabrechnung prüfen und Unstimmigkeiten beanstanden",
     quickAnswer:
-      "Wenn Sie eine Nebenkostenabrechnung prüfen, vergleichen Sie Abrechnungsperiode, vertraglich vereinbarte Kostenarten, Akontozahlungen und Verteilschlüssel. Verlangen Sie bei Unklarheiten eine detaillierte Aufstellung und Einsicht in die Belege. Beanstanden Sie konkrete Positionen schriftlich, statt die ganze Rechnung pauschal abzulehnen. Episto formuliert und versendet Ihren Einwand.",
+      "Wenn Sie eine Nebenkostenabrechnung prüfen, vergleichen Sie Abrechnungsperiode, vertraglich vereinbarte Kostenarten, Akontozahlungen und Verteilschlüssel. Verlangen Sie bei Unklarheiten eine detaillierte Aufstellung und Einsicht in die Belege. Beanstanden Sie konkrete Positionen schriftlich, statt die ganze Rechnung pauschal abzulehnen. episto formuliert und versendet Ihren Einwand.",
     steps: [
       {
         title: "Mietvertrag vergleichen",
@@ -981,7 +981,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Einwand konkret versenden",
-        text: "Bezeichnen Sie strittige Positionen und Ihre Fragen präzise. Episto formuliert daraus einen sachlichen Brief an die Vermieterschaft oder Verwaltung.",
+        text: "Bezeichnen Sie strittige Positionen und Ihre Fragen präzise. episto formuliert daraus einen sachlichen Brief an die Vermieterschaft oder Verwaltung.",
       },
     ],
     checklist: [

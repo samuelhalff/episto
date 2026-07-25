@@ -6,7 +6,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Disdetta",
     metaTitle: "Disdire un appartamento in Svizzera – lettera e invio",
     metaDescription:
-      "Disdire correttamente il contratto di locazione in Svizzera: termine, scadenza e forma. Episto redige la disdetta e La invia – anche come raccomandata.",
+      "Disdire correttamente il contratto di locazione in Svizzera: termine, scadenza e forma. episto redige la disdetta e La invia – anche come raccomandata.",
     h1: "Disdire un appartamento: terminare il contratto di locazione correttamente e nei termini",
     quickAnswer:
       "Per disdire il Suo appartamento in Svizzera, invii al locatore una disdetta scritta che pervenga al più tardi l'ultimo giorno prima dell'inizio del termine. Per i contratti di locazione a tempo indeterminato vale di regola un termine di tre mesi sulla scadenza usuale della località. Un invio raccomandato funge da prova.",
@@ -21,11 +21,11 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Redigere la disdetta",
-        text: "Formuli una lettera chiara con oggetto, data di disdetta e firma. Episto La aiuta a creare una lettera precisa in pochi minuti.",
+        text: "Formuli una lettera chiara con oggetto, data di disdetta e firma. episto La aiuta a creare una lettera precisa in pochi minuti.",
       },
       {
         title: "Inviare con prova di ricezione",
-        text: "Invii la disdetta come raccomandata per poter comprovare il ricevimento entro i termini. Episto stampa e spedisce la lettera per Lei.",
+        text: "Invii la disdetta come raccomandata per poter comprovare il ricevimento entro i termini. episto stampa e spedisce la lettera per Lei.",
       },
     ],
     checklist: [
@@ -62,7 +62,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
           "Sì. Può disdire fuori termine se propone un subentrante idoneo, disposto e solvibile, che riprenda il contratto alle condizioni esistenti.",
       },
       {
-        question: "Quanto costa l'invio con Episto?",
+        question: "Quanto costa l'invio con episto?",
         answer:
           "Il prezzo esatto è visibile prima del pagamento. È composto dall'affrancatura e da una tariffa di servizio trasparente; un invio raccomandato costa leggermente più di una lettera standard.",
       },
@@ -74,14 +74,14 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Invio",
     metaTitle: "Spedire una raccomandata online – senza ufficio postale",
     metaDescription:
-      "Scrivere e inviare una raccomandata online, senza andare all'ufficio postale. Episto stampa la Sua lettera e la consegna alla Posta Svizzera – con prova.",
+      "Scrivere e inviare una raccomandata online, senza andare all'ufficio postale. episto stampa la Sua lettera e la consegna alla Posta Svizzera – con prova.",
     h1: "Spedire una raccomandata online – senza recarsi all'ufficio postale",
     quickAnswer:
-      "Spedire una raccomandata online significa: scrivere la lettera in formato digitale e un servizio la stampa e la consegna alla Posta come invio raccomandato. In questo modo si ottiene una prova di recapito senza doversi recare personalmente all'ufficio postale. Con Episto è tutto fatto in pochi minuti.",
+      "Spedire una raccomandata online significa: scrivere la lettera in formato digitale e un servizio la stampa e la consegna alla Posta come invio raccomandato. In questo modo si ottiene una prova di recapito senza doversi recare personalmente all'ufficio postale. Con episto è tutto fatto in pochi minuti.",
     steps: [
       {
         title: "Creare la lettera in digitale",
-        text: "Descriva la Sua richiesta. Episto La aiuta a formulare una lettera formale chiara, che Lei potrà verificare e adattare.",
+        text: "Descriva la Sua richiesta. episto La aiuta a formulare una lettera formale chiara, che Lei potrà verificare e adattare.",
       },
       {
         title: "Scegliere l'invio raccomandato",
@@ -89,7 +89,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Stampa e consegna",
-        text: "Episto stampa la lettera, la imbusta e la consegna alla Posta Svizzera come invio raccomandato.",
+        text: "episto stampa la lettera, la imbusta e la consegna alla Posta Svizzera come invio raccomandato.",
       },
       {
         title: "Tracciare il recapito",
@@ -110,14 +110,14 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Solo per indirizzi svizzeri",
-        body: "Episto spedisce lettere a indirizzi di destinatari in Svizzera. Verifichi l'indirizzo prima dell'invio.",
+        body: "episto spedisce lettere a indirizzi di destinatari in Svizzera. Verifichi l'indirizzo prima dell'invio.",
       },
     ],
     faqs: [
       {
         question: "Posso spedire una raccomandata senza andare alla posta?",
         answer:
-          "Sì. Lei scrive la lettera online ed Episto la stampa e la consegna alla Posta Svizzera come raccomandata. Non è necessario recarsi all'ufficio postale.",
+          "Sì. Lei scrive la lettera online ed episto la stampa e la consegna alla Posta Svizzera come raccomandata. Non è necessario recarsi all'ufficio postale.",
       },
       {
         question: "Ricevo una prova di recapito?",
@@ -142,7 +142,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Disdetta",
     metaTitle: "Disdire e cambiare cassa malati – lettera e termine",
     metaDescription:
-      "Disdire l'assicurazione di base entro il 30 novembre e cambiare cassa. Episto redige e invia per posta la Sua disdetta – se desiderato come raccomandata.",
+      "Disdire l'assicurazione di base entro il 30 novembre e cambiare cassa. episto redige e invia per posta la Sua disdetta – se desiderato come raccomandata.",
     h1: "Disdire e cambiare la cassa malati – entro i termini per fine anno",
     quickAnswer:
       "Per disdire la Sua assicurazione di base, invii alla cassa malati una disdetta scritta che pervenga entro il 30 novembre; l'assicurazione termina al 31 dicembre. Si iscriva contemporaneamente presso una nuova assicurazione di base – vige l'obbligo di ammissione. Una raccomandata garantisce la prova.",
@@ -153,7 +153,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Redigere la disdetta",
-        text: "Scriva una disdetta con il numero di assicurato, il nome e la data di fine desiderata (31 dicembre). Episto crea la lettera in pochi minuti.",
+        text: "Scriva una disdetta con il numero di assicurato, il nome e la data di fine desiderata (31 dicembre). episto crea la lettera in pochi minuti.",
       },
       {
         title: "Inviare per tempo",
@@ -198,9 +198,9 @@ export const IT_LANDING_PAGES: LandingPage[] = [
           "Il cambio dell'assicurazione di base è di regola possibile a fine anno. A determinate condizioni, ad esempio in caso di aumento del premio, esistono ulteriori possibilità di disdetta.",
       },
       {
-        question: "Episto scrive la disdetta per me?",
+        question: "episto scrive la disdetta per me?",
         answer:
-          "Sì. Lei inserisce i Suoi dati, Episto formula la disdetta e La invia – se desiderato come raccomandata con prova di recapito.",
+          "Sì. Lei inserisce i Suoi dati, episto formula la disdetta e La invia – se desiderato come raccomandata con prova di recapito.",
       },
     ],
     related: ["versicherung-kuendigen", "abo-kuendigen", "einschreiben-online"],
@@ -210,10 +210,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Disdetta",
     metaTitle: "Disdire un abbonamento in Svizzera – modello e invio",
     metaDescription:
-      "Disdire un abbonamento streaming, a una rivista o associazione: verificare termine, durata e prova. Episto redige e invia la disdetta in modo sicuro.",
+      "Disdire un abbonamento streaming, a una rivista o associazione: verificare termine, durata e prova. episto redige e invia la disdetta in modo sicuro.",
     h1: "Disdire un abbonamento: terminare il contratto per tempo e con prova",
     quickAnswer:
-      "Per disdire un abbonamento, verifichi innanzitutto durata, termine di disdetta e forma richiesta nel contratto o nelle CGC. Indichi il numero cliente e la data di fine desiderata e chieda una conferma. In Svizzera non esiste un diritto generale di revoca per i contratti conclusi online. Episto formula la Sua disdetta e La invia per Lei.",
+      "Per disdire un abbonamento, verifichi innanzitutto durata, termine di disdetta e forma richiesta nel contratto o nelle CGC. Indichi il numero cliente e la data di fine desiderata e chieda una conferma. In Svizzera non esiste un diritto generale di revoca per i contratti conclusi online. episto formula la Sua disdetta e La invia per Lei.",
     steps: [
       {
         title: "Verificare contratto e CGC",
@@ -225,11 +225,11 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Formulare la disdetta in modo chiaro",
-        text: "Disdica sul prossimo termine utile e chieda una conferma scritta. Episto La aiuta a creare una lettera precisa.",
+        text: "Disdica sul prossimo termine utile e chieda una conferma scritta. episto La aiuta a creare una lettera precisa.",
       },
       {
         title: "Inviare entro i termini",
-        text: "Invii la disdetta per tempo e, per abbonamenti importanti o costosi, con prova di ricezione. Episto si occupa di stampa e invio postale.",
+        text: "Invii la disdetta per tempo e, per abbonamenti importanti o costosi, con prova di ricezione. episto si occupa di stampa e invio postale.",
       },
     ],
     checklist: [
@@ -278,10 +278,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Disdetta",
     metaTitle: "Disdire un contratto di lavoro – lettera, termine e invio",
     metaDescription:
-      "Disdire correttamente il contratto di lavoro in Svizzera: termine, data di fine e notifica. Episto formula e invia la Sua disdetta – anche come raccomandata.",
+      "Disdire correttamente il contratto di lavoro in Svizzera: termine, data di fine e notifica. episto formula e invia la Sua disdetta – anche come raccomandata.",
     h1: "Disdire il contratto di lavoro: procedere in modo corretto e professionale",
     quickAnswer:
-      "Per disdire il Suo contratto di lavoro, verifichi il contratto e l'eventuale contratto collettivo di lavoro per quanto riguarda termine e scadenza di disdetta. La disdetta deve pervenire per tempo al datore di lavoro; per iscritto è generalmente consigliabile per motivi di prova. Indichi la data di fine e chieda conferma e certificato di lavoro. Episto formula e invia la Sua disdetta.",
+      "Per disdire il Suo contratto di lavoro, verifichi il contratto e l'eventuale contratto collettivo di lavoro per quanto riguarda termine e scadenza di disdetta. La disdetta deve pervenire per tempo al datore di lavoro; per iscritto è generalmente consigliabile per motivi di prova. Indichi la data di fine e chieda conferma e certificato di lavoro. episto formula e invia la Sua disdetta.",
     steps: [
       {
         title: "Verificare le regole di disdetta",
@@ -297,7 +297,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Documentare la ricezione",
-        text: "Consegni la lettera contro ricevuta o la invii con prova di ricezione. Episto si occupa su richiesta dell'invio come raccomandata.",
+        text: "Consegni la lettera contro ricevuta o la invii con prova di ricezione. episto si occupa su richiesta dell'invio come raccomandata.",
       },
     ],
     checklist: [
@@ -334,9 +334,9 @@ export const IT_LANDING_PAGES: LandingPage[] = [
           "In caso di disdetta ordinaria, i lavoratori non devono di regola indicare un motivo. Un breve ringraziamento può mantenere un tono professionale, ma è facoltativo.",
       },
       {
-        question: "Episto può anche richiedere un certificato di lavoro?",
+        question: "episto può anche richiedere un certificato di lavoro?",
         answer:
-          "Sì. Episto può includere direttamente nella disdetta la richiesta di un certificato di lavoro qualificato e di una conferma scritta della data di uscita.",
+          "Sì. episto può includere direttamente nella disdetta la richiesta di un certificato di lavoro qualificato e di una conferma scritta della data di uscita.",
       },
     ],
     related: ["abo-kuendigen", "einschreiben-online", "brief-an-behoerde"],
@@ -346,10 +346,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Disdetta",
     metaTitle: "Disdire un'assicurazione – lettera, termine e invio",
     metaDescription:
-      "Disdire un'assicurazione complementare, mobilia domestica o RC: verificare polizza, termine e anno assicurativo. Episto redige e invia la lettera.",
+      "Disdire un'assicurazione complementare, mobilia domestica o RC: verificare polizza, termine e anno assicurativo. episto redige e invia la lettera.",
     h1: "Disdire un'assicurazione: terminare la polizza entro i termini",
     quickAnswer:
-      "Per disdire un'assicurazione, verifichi polizza e condizioni di assicurazione per durata, termine di disdetta e fine dell'anno assicurativo. Indichi il numero di polizza e la scadenza desiderata e si faccia confermare lo scioglimento. In caso di cambio, la nuova copertura dovrebbe essere garantita in anticipo. Episto formula la Sua disdetta e La invia con prova di ricezione.",
+      "Per disdire un'assicurazione, verifichi polizza e condizioni di assicurazione per durata, termine di disdetta e fine dell'anno assicurativo. Indichi il numero di polizza e la scadenza desiderata e si faccia confermare lo scioglimento. In caso di cambio, la nuova copertura dovrebbe essere garantita in anticipo. episto formula la Sua disdetta e La invia con prova di ricezione.",
     steps: [
       {
         title: "Leggere polizza e condizioni",
@@ -361,11 +361,11 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Creare la disdetta",
-        text: "Indichi tipo di assicurazione, numero di polizza e data di fine. Episto La aiuta a formulare una disdetta chiara e formale.",
+        text: "Indichi tipo di assicurazione, numero di polizza e data di fine. episto La aiuta a formulare una disdetta chiara e formale.",
       },
       {
         title: "Notificare per tempo",
-        text: "Consideri i tempi postali e conservi la conferma di invio e di disdetta. Episto invia su richiesta come raccomandata.",
+        text: "Consideri i tempi postali e conservi la conferma di invio e di disdetta. episto invia su richiesta come raccomandata.",
       },
     ],
     checklist: [
@@ -414,10 +414,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Disdetta",
     metaTitle: "Disdire un abbonamento mobile – modello, termine e invio",
     metaDescription:
-      "Disdire un abbonamento mobile o internet: verificare durata, termine, numero e costi dispositivo. Episto redige e invia la disdetta in modo sicuro.",
+      "Disdire un abbonamento mobile o internet: verificare durata, termine, numero e costi dispositivo. episto redige e invia la disdetta in modo sicuro.",
     h1: "Disdire un abbonamento mobile: termine, numero e cambio sotto controllo",
     quickAnswer:
-      "Per disdire un abbonamento mobile, verifichi durata minima, termine di disdetta ed eventuali costi residui per dispositivi o sconti. Indichi numero cliente e di telefono e la data di fine desiderata. In caso di cambio operatore, la portabilità del numero va coordinata. Episto formula la Sua disdetta e La invia per Lei.",
+      "Per disdire un abbonamento mobile, verifichi durata minima, termine di disdetta ed eventuali costi residui per dispositivi o sconti. Indichi numero cliente e di telefono e la data di fine desiderata. In caso di cambio operatore, la portabilità del numero va coordinata. episto formula la Sua disdetta e La invia per Lei.",
     steps: [
       {
         title: "Verificare la durata contrattuale",
@@ -429,7 +429,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Formulare la disdetta",
-        text: "Indichi numero cliente, contratto e di telefono e la scadenza desiderata. Episto crea una lettera di disdetta univoca.",
+        text: "Indichi numero cliente, contratto e di telefono e la scadenza desiderata. episto crea una lettera di disdetta univoca.",
       },
       {
         title: "Controllare la conferma",
@@ -482,10 +482,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Disdetta",
     metaTitle: "Disdire un abbonamento fitness – lettera, termine e invio",
     metaDescription:
-      "Disdire un abbonamento fitness: verificare durata, rinnovo, termine e casi particolari. Episto formula e invia la Sua disdetta in modo sicuro per posta.",
+      "Disdire un abbonamento fitness: verificare durata, rinnovo, termine e casi particolari. episto formula e invia la Sua disdetta in modo sicuro per posta.",
     h1: "Disdire un abbonamento fitness: terminare l'affiliazione entro i termini",
     quickAnswer:
-      "Per disdire un abbonamento fitness, verifichi contratto e CGC per durata minima, rinnovo automatico, termine di disdetta e forma richiesta. Indichi il numero di socio e la data di fine desiderata. Malattia o trasloco non comportano automaticamente lo scioglimento del contratto; spesso valgono condizioni particolari. Episto formula la Sua disdetta e La invia con prova di ricezione.",
+      "Per disdire un abbonamento fitness, verifichi contratto e CGC per durata minima, rinnovo automatico, termine di disdetta e forma richiesta. Indichi il numero di socio e la data di fine desiderata. Malattia o trasloco non comportano automaticamente lo scioglimento del contratto; spesso valgono condizioni particolari. episto formula la Sua disdetta e La invia con prova di ricezione.",
     steps: [
       {
         title: "Verificare durata e termine",
@@ -497,7 +497,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Creare la lettera di disdetta",
-        text: "Indichi numero di socio, sede e data di fine desiderata. Episto formula la lettera in modo chiaro e cortese.",
+        text: "Indichi numero di socio, sede e data di fine desiderata. episto formula la lettera in modo chiaro e cortese.",
       },
       {
         title: "Assicurarsi la conferma",
@@ -550,10 +550,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Reclamo",
     metaTitle: "Scrivere un reclamo – modello per la Svizzera",
     metaDescription:
-      "Scrivere un reclamo obiettivo, indicare la richiesta e allegare le prove. Episto formula e invia la Sua lettera di reclamo – anche come raccomandata.",
+      "Scrivere un reclamo obiettivo, indicare la richiesta e allegare le prove. episto formula e invia la Sua lettera di reclamo – anche come raccomandata.",
     h1: "Scrivere un reclamo: obiettivo, chiaro e convincente",
     quickAnswer:
-      "Per scrivere un reclamo, descriva l'accaduto in ordine cronologico, menzioni contratto, ordinazione o fattura e formuli una soluzione concreta. Documenti la Sua esposizione con i documenti pertinenti e fissi se necessario un termine di risposta adeguato. Episto La aiuta a trasformare tutto in una lettera di reclamo professionale e La invia per Lei.",
+      "Per scrivere un reclamo, descriva l'accaduto in ordine cronologico, menzioni contratto, ordinazione o fattura e formuli una soluzione concreta. Documenti la Sua esposizione con i documenti pertinenti e fissi se necessario un termine di risposta adeguato. episto La aiuta a trasformare tutto in una lettera di reclamo professionale e La invia per Lei.",
     steps: [
       {
         title: "Ordinare i fatti",
@@ -565,7 +565,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Redigere il reclamo",
-        text: "Rimanga cortese ma determinato, menzioni le prove e fissi se necessario un termine di risposta realistico. Episto struttura la lettera.",
+        text: "Rimanga cortese ma determinato, menzioni le prove e fissi se necessario un termine di risposta realistico. episto struttura la lettera.",
       },
       {
         title: "Documentare l'invio",
@@ -618,10 +618,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Recupero crediti",
     metaTitle: "Scrivere un sollecito – esigere il pagamento efficacemente",
     metaDescription:
-      "Scrivere un sollecito chiaro con riferimento alla fattura, importo e nuovo termine. Episto formula e invia la Sua lettera – anche come raccomandata.",
+      "Scrivere un sollecito chiaro con riferimento alla fattura, importo e nuovo termine. episto formula e invia la Sua lettera – anche come raccomandata.",
     h1: "Scrivere un sollecito: esigere il pagamento insoluto in modo professionale",
     quickAnswer:
-      "Per scrivere un sollecito, indichi fattura, importo insoluto, scadenza originaria e un nuovo termine di pagamento adeguato. Formuli in modo obiettivo, indichi le coordinate di pagamento e annunci ulteriori passi solo se intende verificarli e attuarli. Episto crea il Suo sollecito e Lo invia con prova di ricezione.",
+      "Per scrivere un sollecito, indichi fattura, importo insoluto, scadenza originaria e un nuovo termine di pagamento adeguato. Formuli in modo obiettivo, indichi le coordinate di pagamento e annunci ulteriori passi solo se intende verificarli e attuarli. episto crea il Suo sollecito e Lo invia con prova di ricezione.",
     steps: [
       {
         title: "Verificare il credito",
@@ -633,7 +633,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Redigere il sollecito",
-        text: "Indichi chiaramente importo, numero di fattura, scadenza e dati di pagamento. Episto formula la lettera in modo professionale e determinato.",
+        text: "Indichi chiaramente importo, numero di fattura, scadenza e dati di pagamento. episto formula la lettera in modo professionale e determinato.",
       },
       {
         title: "Registrare invio e reazione",
@@ -686,10 +686,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Lettera soggetta a termine",
     metaTitle: "Fare opposizione – termine e lettera per la Svizzera",
     metaDescription:
-      "Fare opposizione contro una fattura, una decisione o un provvedimento: verificare termine, autorità competente, motivazione e prove. Episto redige la lettera.",
+      "Fare opposizione contro una fattura, una decisione o un provvedimento: verificare termine, autorità competente, motivazione e prove. episto redige la lettera.",
     h1: "Fare opposizione: reagire entro i termini e in modo comprensibile",
     quickAnswer:
-      "Per fare opposizione, verifichi innanzitutto quale rimedio giuridico è ammesso, quale autorità è competente e quando scade il termine. Designi con precisione la decisione impugnata, formuli una richiesta chiara e la motivi con le prove. Per le fatture, spesso è sufficiente un'obiezione scritta. Episto formula e invia la Sua lettera.",
+      "Per fare opposizione, verifichi innanzitutto quale rimedio giuridico è ammesso, quale autorità è competente e quando scade il termine. Designi con precisione la decisione impugnata, formuli una richiesta chiara e la motivi con le prove. Per le fatture, spesso è sufficiente un'obiezione scritta. episto formula e invia la Sua lettera.",
     steps: [
       {
         title: "Verificare rimedio giuridico e termine",
@@ -701,7 +701,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Redigere la lettera",
-        text: "Designi il documento con data e numero di riferimento e formuli richiesta e motivazione in modo chiaro. Episto struttura la lettera.",
+        text: "Designi il documento con data e numero di riferimento e formuli richiesta e motivazione in modo chiaro. episto struttura la lettera.",
       },
       {
         title: "Presentare entro i termini",
@@ -754,10 +754,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Diritto di locazione",
     metaTitle: "Ridurre la pigione – scrivere una domanda di riduzione",
     metaDescription:
-      "Chiedere la riduzione della pigione per ribasso del tasso di riferimento: verificare base, scadenza e termini. Episto redige la domanda e La invia per posta.",
+      "Chiedere la riduzione della pigione per ribasso del tasso di riferimento: verificare base, scadenza e termini. episto redige la domanda e La invia per posta.",
     h1: "Ridurre la pigione: presentare correttamente la domanda di riduzione",
     quickAnswer:
-      "Chi desidera ridurre la pigione confronta il tasso d'interesse di riferimento su cui si basa la pigione attuale con il tasso determinante odierno. Se sussiste in linea di principio un diritto, presenti al locatore una domanda scritta di riduzione sul prossimo termine di disdetta. Ulteriori fattori di costo possono influenzare la riduzione. Episto formula e invia la Sua domanda.",
+      "Chi desidera ridurre la pigione confronta il tasso d'interesse di riferimento su cui si basa la pigione attuale con il tasso determinante odierno. Se sussiste in linea di principio un diritto, presenti al locatore una domanda scritta di riduzione sul prossimo termine di disdetta. Ulteriori fattori di costo possono influenzare la riduzione. episto formula e invia la Sua domanda.",
     steps: [
       {
         title: "Determinare la situazione di partenza",
@@ -769,7 +769,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Redigere la domanda di riduzione",
-        text: "Chieda l'adeguamento della pigione netta sul prossimo termine utile e richieda un calcolo comprensibile. Episto crea la lettera.",
+        text: "Chieda l'adeguamento della pigione netta sul prossimo termine utile e richieda un calcolo comprensibile. episto crea la lettera.",
       },
       {
         title: "Monitorare risposta e termini",
@@ -827,10 +827,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Corrispondenza con le autorità",
     metaTitle: "Scrivere una lettera alle autorità e inviarla online",
     metaDescription:
-      "Scrivere una lettera chiara a ufficio, comune o amministrazione: indicare riferimento, richiesta, termine e prove. Episto La aiuta con l'invio sicuro.",
+      "Scrivere una lettera chiara a ufficio, comune o amministrazione: indicare riferimento, richiesta, termine e prove. episto La aiuta con l'invio sicuro.",
     h1: "Scrivere una lettera alle autorità: chiara, completa ed entro i termini",
     quickAnswer:
-      "Per scrivere una lettera a un'autorità, indichi l'ufficio competente, i Suoi dati personali e un eventuale numero di riferimento. Formuli la Sua richiesta in modo univoco, la motivi brevemente e alleghi le prove richieste. Rispetti i termini e i requisiti di forma. Episto crea e invia la Sua lettera alle autorità.",
+      "Per scrivere una lettera a un'autorità, indichi l'ufficio competente, i Suoi dati personali e un eventuale numero di riferimento. Formuli la Sua richiesta in modo univoco, la motivi brevemente e alleghi le prove richieste. Rispetti i termini e i requisiti di forma. episto crea e invia la Sua lettera alle autorità.",
     steps: [
       {
         title: "Chiarire la competenza",
@@ -842,7 +842,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Formulare la richiesta",
-        text: "Scriva chiaramente cosa richiede o desidera sapere e ordini i motivi principali. Episto conferisce alla Sua richiesta una forma professionale.",
+        text: "Scriva chiaramente cosa richiede o desidera sapere e ordini i motivi principali. episto conferisce alla Sua richiesta una forma professionale.",
       },
       {
         title: "Presentare entro i termini",
@@ -895,14 +895,14 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Invio",
     metaTitle: "Spedire una lettera online – stampa e Posta Svizzera",
     metaDescription:
-      "Scrivere una lettera online e spedirla tramite Posta Svizzera – senza stampante né ufficio postale. Episto si occupa di formulazione, stampa e invio.",
+      "Scrivere una lettera online e spedirla tramite Posta Svizzera – senza stampante né ufficio postale. episto si occupa di formulazione, stampa e invio.",
     h1: "Spedire una lettera online – senza stampante né ufficio postale",
     quickAnswer:
-      "Chi desidera spedire una lettera online inserisce contenuto e destinatario in formato digitale, verifica la lettera finale e incarica stampa, imbustamento e consegna alla Posta. A seconda della richiesta, si sceglie posta standard o raccomandata. Così si risparmiano stampante e viaggio all'ufficio postale. Con Episto si fa tutto online in pochi minuti.",
+      "Chi desidera spedire una lettera online inserisce contenuto e destinatario in formato digitale, verifica la lettera finale e incarica stampa, imbustamento e consegna alla Posta. A seconda della richiesta, si sceglie posta standard o raccomandata. Così si risparmiano stampante e viaggio all'ufficio postale. Con episto si fa tutto online in pochi minuti.",
     steps: [
       {
         title: "Inserire la richiesta",
-        text: "Descriva a chi scrive e cosa desidera ottenere. Episto La aiuta a formulare una lettera adatta e professionale.",
+        text: "Descriva a chi scrive e cosa desidera ottenere. episto La aiuta a formulare una lettera adatta e professionale.",
       },
       {
         title: "Verificare la lettera",
@@ -914,7 +914,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Affidare stampa e invio",
-        text: "Episto stampa e imbusta la Sua lettera e la consegna alla Posta Svizzera. Lei non deve né stampare né recarsi all'ufficio postale.",
+        text: "episto stampa e imbusta la Sua lettera e la consegna alla Posta Svizzera. Lei non deve né stampare né recarsi all'ufficio postale.",
       },
     ],
     checklist: [
@@ -931,19 +931,19 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Verificare l'indirizzo prima del via libera",
-        body: "Episto spedisce a indirizzi di destinatari in Svizzera. Controlli con cura nome, via, numero civico, NPA e località prima di confermare l'incarico.",
+        body: "episto spedisce a indirizzi di destinatari in Svizzera. Controlli con cura nome, via, numero civico, NPA e località prima di confermare l'incarico.",
       },
     ],
     faqs: [
       {
         question: "Come posso spedire una lettera online?",
         answer:
-          "Inserisce contenuto e indirizzo in digitale, verifica la lettera finale e sceglie la modalità di invio. Episto si occupa di stampa, imbustamento e consegna alla Posta Svizzera.",
+          "Inserisce contenuto e indirizzo in digitale, verifica la lettera finale e sceglie la modalità di invio. episto si occupa di stampa, imbustamento e consegna alla Posta Svizzera.",
       },
       {
         question: "Ho bisogno di una stampante o di francobolli?",
         answer:
-          "No. Lei crea e paga la lettera online; Episto si occupa di carta, stampa, busta, affrancatura e consegna alla Posta.",
+          "No. Lei crea e paga la lettera online; episto si occupa di carta, stampa, busta, affrancatura e consegna alla Posta.",
       },
       {
         question: "Posso inviare la lettera come raccomandata?",
@@ -963,10 +963,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Diritto di locazione",
     metaTitle: "Conguaglio spese accessorie – verifica e contestazione",
     metaDescription:
-      "Verificare il conguaglio delle spese accessorie, chiedere i giustificativi e contestare voci poco chiare. Episto formula e invia la Sua obiezione.",
+      "Verificare il conguaglio delle spese accessorie, chiedere i giustificativi e contestare voci poco chiare. episto formula e invia la Sua obiezione.",
     h1: "Verificare il conguaglio spese accessorie e contestare le divergenze",
     quickAnswer:
-      "Per verificare un conguaglio spese accessorie, confronti periodo di conteggio, tipi di costi pattuiti contrattualmente, acconti e chiave di ripartizione. In caso di dubbi, chieda un prospetto dettagliato e la consultazione dei giustificativi. Contesti singole voci per iscritto invece di respingere l'intero conteggio in blocco. Episto formula e invia la Sua obiezione.",
+      "Per verificare un conguaglio spese accessorie, confronti periodo di conteggio, tipi di costi pattuiti contrattualmente, acconti e chiave di ripartizione. In caso di dubbi, chieda un prospetto dettagliato e la consultazione dei giustificativi. Contesti singole voci per iscritto invece di respingere l'intero conteggio in blocco. episto formula e invia la Sua obiezione.",
     steps: [
       {
         title: "Confrontare con il contratto di locazione",
@@ -982,7 +982,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Inviare l'obiezione in modo concreto",
-        text: "Indichi con precisione le voci contestate e le Sue domande. Episto La aiuta a formulare una lettera obiettiva al locatore o all'amministrazione.",
+        text: "Indichi con precisione le voci contestate e le Sue domande. episto La aiuta a formulare una lettera obiettiva al locatore o all'amministrazione.",
       },
     ],
     checklist: [

@@ -18,10 +18,10 @@ export const SPECIMEN_COPY: Record<Locale, { subjectLabel: string; signatory: st
   };
 
 const HERO_CAPTION: Record<Locale, string> = {
-  "de-CH": "Aus dem Episto-PDF · Beispieldaten",
-  "fr-CH": "Extrait du PDF Episto · données fictives",
-  "it-CH": "Dal PDF di Episto · dati di esempio",
-  "en-CH": "From the Episto PDF · sample data",
+  "de-CH": "Aus dem episto-PDF · Beispieldaten",
+  "fr-CH": "Extrait du PDF episto · données fictives",
+  "it-CH": "Dal PDF di episto · dati di esempio",
+  "en-CH": "From the episto PDF · sample data",
 };
 
 export function LetterSpecimen({ locale }: { locale: Locale }) {

@@ -56,7 +56,7 @@ export async function generateMetadata({
   return buildMarketingMetadata({
     locale,
     pathname: `/vorlagen/${slug}`,
-    title: `${page.metaTitle} | Episto`,
+    title: `${page.metaTitle} | episto`,
     description: page.metaDescription,
     hreflangLocales: [...LANDING_LOCALES],
   });

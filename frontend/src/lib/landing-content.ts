@@ -84,14 +84,14 @@ export const LANDING_UI: Record<LandingLocale, LandingUi> = {
       "Dieser Text bietet allgemeine Informationen zu einem Anliegen in der Schweiz und ist keine Rechtsberatung. Massgebend sind Ihr Vertrag und die geltenden gesetzlichen Bestimmungen.",
     ctaBandTitle: "Bereit, Ihren Brief zu verfassen?",
     ctaBandBody:
-      "Beschreiben Sie Ihr Anliegen – Episto schreibt den Brief und versendet ihn, auf Wunsch als Einschreiben.",
+      "Beschreiben Sie Ihr Anliegen – episto schreibt den Brief und versendet ihn, auf Wunsch als Einschreiben.",
     hubEyebrow: "Vorlagen & Anleitungen",
     hubTitle: "Offizielle Briefe schreiben – mit Schweizer Fristen",
     hubIntro:
-      "Anleitungen für die häufigsten Anliegen – von der Kündigung bis zur Einsprache. Beschreiben Sie Ihre Situation, und Episto schreibt den Brief und versendet ihn, auf Wunsch als Einschreiben.",
-    hubMetaTitle: "Vorlagen & Anleitungen für offizielle Briefe | Episto",
+      "Anleitungen für die häufigsten Anliegen – von der Kündigung bis zur Einsprache. Beschreiben Sie Ihre Situation, und episto schreibt den Brief und versendet ihn, auf Wunsch als Einschreiben.",
+    hubMetaTitle: "Vorlagen & Anleitungen für offizielle Briefe | episto",
     hubMetaDescription:
-      "Anleitungen für Kündigungen, Beschwerden, Einsprachen und mehr – mit Schweizer Fristen und Formvorschriften. Brief schreiben lassen und versenden mit Episto.",
+      "Anleitungen für Kündigungen, Beschwerden, Einsprachen und mehr – mit Schweizer Fristen und Formvorschriften. Brief schreiben lassen und versenden mit episto.",
     popularEyebrow: "Beliebt",
     popularTitle: "Beliebte Vorlagen",
   },
@@ -113,14 +113,14 @@ export const LANDING_UI: Record<LandingLocale, LandingUi> = {
       "Ce texte fournit des informations générales sur une démarche en Suisse et ne constitue pas un conseil juridique. Votre contrat et les dispositions légales en vigueur font foi.",
     ctaBandTitle: "Prêt à rédiger votre lettre ?",
     ctaBandBody:
-      "Décrivez votre demande – Episto rédige la lettre et l'envoie, en recommandé si vous le souhaitez.",
+      "Décrivez votre demande – episto rédige la lettre et l'envoie, en recommandé si vous le souhaitez.",
     hubEyebrow: "Modèles & guides",
     hubTitle: "Rédiger des lettres officielles – avec les délais suisses",
     hubIntro:
-      "Des guides pour les démarches les plus courantes – de la résiliation à l'opposition. Décrivez votre situation et Episto rédige la lettre et l'envoie, en recommandé si vous le souhaitez.",
-    hubMetaTitle: "Modèles & guides pour lettres officielles | Episto",
+      "Des guides pour les démarches les plus courantes – de la résiliation à l'opposition. Décrivez votre situation et episto rédige la lettre et l'envoie, en recommandé si vous le souhaitez.",
+    hubMetaTitle: "Modèles & guides pour lettres officielles | episto",
     hubMetaDescription:
-      "Guides pour résiliations, réclamations, oppositions et plus – avec les délais et formes suisses. Faites rédiger et envoyer votre lettre avec Episto.",
+      "Guides pour résiliations, réclamations, oppositions et plus – avec les délais et formes suisses. Faites rédiger et envoyer votre lettre avec episto.",
     popularEyebrow: "Populaire",
     popularTitle: "Modèles populaires",
   },
@@ -142,14 +142,14 @@ export const LANDING_UI: Record<LandingLocale, LandingUi> = {
       "Questo testo offre informazioni generali su una pratica in Svizzera e non costituisce una consulenza legale. Fanno fede il Suo contratto e le disposizioni di legge vigenti.",
     ctaBandTitle: "Pronto a scrivere la Sua lettera?",
     ctaBandBody:
-      "Descriva la Sua richiesta – Episto scrive la lettera e la invia, se desidera come raccomandata.",
+      "Descriva la Sua richiesta – episto scrive la lettera e la invia, se desidera come raccomandata.",
     hubEyebrow: "Modelli e guide",
     hubTitle: "Scrivere lettere ufficiali – con i termini svizzeri",
     hubIntro:
-      "Guide per le pratiche più frequenti – dalla disdetta all'opposizione. Descriva la Sua situazione ed Episto scrive la lettera e la invia, se desidera come raccomandata.",
-    hubMetaTitle: "Modelli e guide per lettere ufficiali | Episto",
+      "Guide per le pratiche più frequenti – dalla disdetta all'opposizione. Descriva la Sua situazione ed episto scrive la lettera e la invia, se desidera come raccomandata.",
+    hubMetaTitle: "Modelli e guide per lettere ufficiali | episto",
     hubMetaDescription:
-      "Guide per disdette, reclami, opposizioni e altro – con termini e forme svizzere. Faccia scrivere e inviare la Sua lettera con Episto.",
+      "Guide per disdette, reclami, opposizioni e altro – con termini e forme svizzere. Faccia scrivere e inviare la Sua lettera con episto.",
     popularEyebrow: "Popolari",
     popularTitle: "Modelli popolari",
   },

@@ -6,7 +6,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Résiliation",
     metaTitle: "Résilier son appartement en Suisse – lettre & envoi",
     metaDescription:
-      "Résiliez votre bail en Suisse dans les règles : vérifiez délai, terme et forme. Episto rédige votre résiliation et l’envoie – en recommandé sur demande.",
+      "Résiliez votre bail en Suisse dans les règles : vérifiez délai, terme et forme. episto rédige votre résiliation et l’envoie – en recommandé sur demande.",
     h1: "Résilier son appartement : mettre fin au bail correctement et dans les délais",
     quickAnswer:
       "Pour résilier votre appartement en Suisse, adressez au bailleur une résiliation écrite qui parvient au plus tard le dernier jour avant le début du délai. Pour les baux de durée indéterminée, un délai de trois mois pour le terme usuel s’applique en règle générale. Un envoi recommandé fait office de preuve.",
@@ -21,11 +21,11 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Rédiger la résiliation",
-        text: "Formulez un courrier clair avec l’objet, la date de résiliation et la signature. Episto en fait une lettre soignée en quelques minutes.",
+        text: "Formulez un courrier clair avec l’objet, la date de résiliation et la signature. episto en fait une lettre soignée en quelques minutes.",
       },
       {
         title: "Envoyer de manière traçable",
-        text: "Expédiez la résiliation en recommandé afin de pouvoir prouver sa réception dans les délais. Episto imprime et envoie la lettre pour vous.",
+        text: "Expédiez la résiliation en recommandé afin de pouvoir prouver sa réception dans les délais. episto imprime et envoie la lettre pour vous.",
       },
     ],
     checklist: [
@@ -62,7 +62,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
           "Oui. Vous pouvez résilier hors terme si vous proposez un locataire de remplacement solvable et disposé à reprendre le bail aux conditions existantes.",
       },
       {
-        question: "Combien coûte l’envoi avec Episto ?",
+        question: "Combien coûte l’envoi avec episto ?",
         answer:
           "Vous voyez le prix exact avant de payer. Il se compose de l’affranchissement et d’un forfait de service transparent ; un envoi recommandé coûte un peu plus qu’une lettre standard.",
       },
@@ -74,14 +74,14 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Envoi",
     metaTitle: "Envoyer un recommandé en ligne – sans guichet",
     metaDescription:
-      "Rédiger et envoyer un recommandé en ligne, sans passer par le guichet postal. Episto imprime votre lettre et la remet à La Poste Suisse – avec preuve de dépôt.",
+      "Rédiger et envoyer un recommandé en ligne, sans passer par le guichet postal. episto imprime votre lettre et la remet à La Poste Suisse – avec preuve de dépôt.",
     h1: "Envoyer un recommandé en ligne – sans passer par le bureau de poste",
     quickAnswer:
-      "Envoyer un recommandé en ligne signifie que vous rédigez la lettre de manière numérique et qu’un service l’imprime et la remet à La Poste comme envoi recommandé. Vous obtenez ainsi une preuve de distribution sans vous rendre au guichet. Avec Episto, c’est fait en quelques minutes.",
+      "Envoyer un recommandé en ligne signifie que vous rédigez la lettre de manière numérique et qu’un service l’imprime et la remet à La Poste comme envoi recommandé. Vous obtenez ainsi une preuve de distribution sans vous rendre au guichet. Avec episto, c’est fait en quelques minutes.",
     steps: [
       {
         title: "Créer la lettre en ligne",
-        text: "Décrivez votre demande. Episto en fait un courrier formel et soigné que vous pouvez vérifier et adapter.",
+        text: "Décrivez votre demande. episto en fait un courrier formel et soigné que vous pouvez vérifier et adapter.",
       },
       {
         title: "Choisir l’envoi recommandé",
@@ -89,7 +89,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Impression et remise",
-        text: "Episto imprime la lettre, la met sous enveloppe et la remet à La Poste Suisse comme envoi recommandé.",
+        text: "episto imprime la lettre, la met sous enveloppe et la remet à La Poste Suisse comme envoi recommandé.",
       },
       {
         title: "Suivre la distribution",
@@ -110,14 +110,14 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Adresses en Suisse uniquement",
-        body: "Episto envoie des lettres à des adresses de destinataires en Suisse. Vous vérifiez l’adresse avant l’envoi.",
+        body: "episto envoie des lettres à des adresses de destinataires en Suisse. Vous vérifiez l’adresse avant l’envoi.",
       },
     ],
     faqs: [
       {
         question: "Puis-je envoyer un recommandé sans aller à la poste ?",
         answer:
-          "Oui. Vous rédigez la lettre en ligne et Episto l’imprime et la remet à La Poste Suisse comme envoi recommandé. Aucun passage au guichet n’est nécessaire.",
+          "Oui. Vous rédigez la lettre en ligne et episto l’imprime et la remet à La Poste Suisse comme envoi recommandé. Aucun passage au guichet n’est nécessaire.",
       },
       {
         question: "Est-ce que je reçois une preuve de distribution ?",
@@ -142,7 +142,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Résiliation",
     metaTitle: "Résilier sa caisse-maladie & changer – lettre & délai",
     metaDescription:
-      "Résilier l’assurance de base avant le 30 novembre et changer de caisse. Episto rédige et envoie votre résiliation – en recommandé si vous le souhaitez.",
+      "Résilier l’assurance de base avant le 30 novembre et changer de caisse. episto rédige et envoie votre résiliation – en recommandé si vous le souhaitez.",
     h1: "Résilier et changer de caisse-maladie – dans les délais pour la fin d’année",
     quickAnswer:
       "Pour résilier votre assurance de base, adressez à votre caisse-maladie une résiliation écrite qui lui parvient au plus tard le 30 novembre ; l’assurance prend alors fin le 31 décembre. Inscrivez-vous simultanément auprès d’une nouvelle assurance de base – celle-ci est tenue de vous accepter. Un envoi recommandé assure la preuve.",
@@ -153,7 +153,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Rédiger la résiliation",
-        text: "Écrivez une résiliation avec le numéro d’assuré, le nom et la date de fin souhaitée (31 décembre). Episto rédige la lettre en quelques minutes.",
+        text: "Écrivez une résiliation avec le numéro d’assuré, le nom et la date de fin souhaitée (31 décembre). episto rédige la lettre en quelques minutes.",
       },
       {
         title: "Envoyer dans les délais",
@@ -198,9 +198,9 @@ export const FR_LANDING_PAGES: LandingPage[] = [
           "En règle générale, un changement d’assurance de base n’est possible que pour la fin d’année. Dans certaines conditions, par exemple en cas de hausse de prime, des possibilités de résiliation supplémentaires existent.",
       },
       {
-        question: "Episto rédige-t-il la résiliation pour moi ?",
+        question: "episto rédige-t-il la résiliation pour moi ?",
         answer:
-          "Oui. Vous saisissez vos données, Episto formule la résiliation et l’envoie – en recommandé avec preuve de distribution si vous le souhaitez.",
+          "Oui. Vous saisissez vos données, episto formule la résiliation et l’envoie – en recommandé avec preuve de distribution si vous le souhaitez.",
       },
     ],
     related: ["versicherung-kuendigen", "abo-kuendigen", "einschreiben-online"],
@@ -210,10 +210,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Résiliation",
     metaTitle: "Résilier un abonnement en Suisse – modèle & envoi",
     metaDescription:
-      "Résilier un abonnement de streaming, à un magazine ou à une association : vérifiez délai, durée et preuve. Episto rédige et envoie votre résiliation.",
+      "Résilier un abonnement de streaming, à un magazine ou à une association : vérifiez délai, durée et preuve. episto rédige et envoie votre résiliation.",
     h1: "Résilier un abonnement : mettre fin au contrat à temps et de manière traçable",
     quickAnswer:
-      "Pour résilier un abonnement, vérifiez d’abord la durée, le délai de résiliation et la forme exigée dans le contrat ou les CG. Indiquez votre numéro de client et la date de fin souhaitée et demandez une confirmation. En Suisse, il n’existe pas de droit général de rétractation pour les contrats conclus en ligne. Episto formule votre résiliation et l’envoie pour vous.",
+      "Pour résilier un abonnement, vérifiez d’abord la durée, le délai de résiliation et la forme exigée dans le contrat ou les CG. Indiquez votre numéro de client et la date de fin souhaitée et demandez une confirmation. En Suisse, il n’existe pas de droit général de rétractation pour les contrats conclus en ligne. episto formule votre résiliation et l’envoie pour vous.",
     steps: [
       {
         title: "Vérifier le contrat et les CG",
@@ -225,11 +225,11 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Formuler clairement la résiliation",
-        text: "Résiliez pour le prochain terme possible et demandez une confirmation écrite. Episto en fait une lettre soignée.",
+        text: "Résiliez pour le prochain terme possible et demandez une confirmation écrite. episto en fait une lettre soignée.",
       },
       {
         title: "Envoyer dans les délais",
-        text: "Expédiez la résiliation à temps et, pour les abonnements importants ou coûteux, de manière traçable. Episto prend en charge l’impression et l’envoi postal.",
+        text: "Expédiez la résiliation à temps et, pour les abonnements importants ou coûteux, de manière traçable. episto prend en charge l’impression et l’envoi postal.",
       },
     ],
     checklist: [
@@ -278,10 +278,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Résiliation",
     metaTitle: "Résilier son contrat de travail – lettre, délai & envoi",
     metaDescription:
-      "Résilier correctement son contrat de travail en Suisse : délai, date de fin et notification. Episto formule et envoie votre résiliation – en recommandé sur demande.",
+      "Résilier correctement son contrat de travail en Suisse : délai, date de fin et notification. episto formule et envoie votre résiliation – en recommandé sur demande.",
     h1: "Résilier son contrat de travail : procéder correctement et professionnellement",
     quickAnswer:
-      "Pour résilier votre contrat de travail, vérifiez le contrat et l’éventuelle convention collective de travail quant au délai et au terme de résiliation. La résiliation doit parvenir à l’employeur dans les délais ; la forme écrite est généralement conseillée pour des raisons de preuve. Indiquez la date de fin et demandez une confirmation ainsi qu’un certificat de travail. Episto formule et envoie votre résiliation.",
+      "Pour résilier votre contrat de travail, vérifiez le contrat et l’éventuelle convention collective de travail quant au délai et au terme de résiliation. La résiliation doit parvenir à l’employeur dans les délais ; la forme écrite est généralement conseillée pour des raisons de preuve. Indiquez la date de fin et demandez une confirmation ainsi qu’un certificat de travail. episto formule et envoie votre résiliation.",
     steps: [
       {
         title: "Vérifier les règles de résiliation",
@@ -297,7 +297,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Documenter la réception",
-        text: "Remettez la lettre contre accusé de réception ou envoyez-la de manière traçable. Sur demande, Episto prend en charge l’envoi en recommandé.",
+        text: "Remettez la lettre contre accusé de réception ou envoyez-la de manière traçable. Sur demande, episto prend en charge l’envoi en recommandé.",
       },
     ],
     checklist: [
@@ -334,9 +334,9 @@ export const FR_LANDING_PAGES: LandingPage[] = [
           "En cas de résiliation ordinaire, les travailleurs n’ont normalement pas à indiquer de motif. Un bref remerciement peut préserver un ton professionnel, mais reste facultatif.",
       },
       {
-        question: "Episto peut-il aussi demander un certificat de travail ?",
+        question: "episto peut-il aussi demander un certificat de travail ?",
         answer:
-          "Oui. Episto peut intégrer directement dans la résiliation la demande d’un certificat de travail qualifié et d’une confirmation écrite de la date de sortie.",
+          "Oui. episto peut intégrer directement dans la résiliation la demande d’un certificat de travail qualifié et d’une confirmation écrite de la date de sortie.",
       },
     ],
     related: ["abo-kuendigen", "einschreiben-online", "brief-an-behoerde"],
@@ -346,10 +346,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Résiliation",
     metaTitle: "Résilier une assurance – lettre, délai & envoi",
     metaDescription:
-      "Résilier correctement une assurance complémentaire, ménage ou RC : police, délai et année d’assurance. Episto rédige et envoie la lettre en toute sécurité.",
+      "Résilier correctement une assurance complémentaire, ménage ou RC : police, délai et année d’assurance. episto rédige et envoie la lettre en toute sécurité.",
     h1: "Résilier une assurance : mettre fin à la police dans les délais",
     quickAnswer:
-      "Pour résilier une assurance, vérifiez la police et les conditions d’assurance quant à la durée, au délai de résiliation et à la fin de l’année d’assurance. Indiquez le numéro de police et le terme souhaité et faites-vous confirmer la résiliation. En cas de changement, la nouvelle couverture doit être assurée au préalable. Episto formule votre résiliation et l’envoie de manière traçable.",
+      "Pour résilier une assurance, vérifiez la police et les conditions d’assurance quant à la durée, au délai de résiliation et à la fin de l’année d’assurance. Indiquez le numéro de police et le terme souhaité et faites-vous confirmer la résiliation. En cas de changement, la nouvelle couverture doit être assurée au préalable. episto formule votre résiliation et l’envoie de manière traçable.",
     steps: [
       {
         title: "Lire la police et les conditions",
@@ -361,11 +361,11 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Établir la résiliation",
-        text: "Indiquez le type d’assurance, le numéro de police et le terme de fin. Episto en fait une résiliation claire et formelle.",
+        text: "Indiquez le type d’assurance, le numéro de police et le terme de fin. episto en fait une résiliation claire et formelle.",
       },
       {
         title: "Notifier dans les délais",
-        text: "Tenez compte du délai postal et conservez la confirmation d’envoi et de résiliation. Sur demande, Episto envoie en recommandé.",
+        text: "Tenez compte du délai postal et conservez la confirmation d’envoi et de résiliation. Sur demande, episto envoie en recommandé.",
       },
     ],
     checklist: [
@@ -414,10 +414,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Résiliation",
     metaTitle: "Résilier son abonnement mobile – modèle, délai & envoi",
     metaDescription:
-      "Résilier correctement un abonnement mobile ou internet : durée, délai, numéro et frais d’appareil. Episto rédige et envoie la résiliation en toute sécurité.",
+      "Résilier correctement un abonnement mobile ou internet : durée, délai, numéro et frais d’appareil. episto rédige et envoie la résiliation en toute sécurité.",
     h1: "Résilier son abonnement mobile : maîtriser le délai, le numéro et le changement",
     quickAnswer:
-      "Pour résilier un abonnement mobile, vérifiez la durée minimale du contrat, le délai de résiliation et les éventuels frais résiduels pour l’appareil ou les rabais. Indiquez le numéro de client, le numéro d’appel et le terme de fin souhaité. En cas de changement d’opérateur, le portage du numéro doit être coordonné. Episto formule votre résiliation et l’envoie pour vous.",
+      "Pour résilier un abonnement mobile, vérifiez la durée minimale du contrat, le délai de résiliation et les éventuels frais résiduels pour l’appareil ou les rabais. Indiquez le numéro de client, le numéro d’appel et le terme de fin souhaité. En cas de changement d’opérateur, le portage du numéro doit être coordonné. episto formule votre résiliation et l’envoie pour vous.",
     steps: [
       {
         title: "Vérifier la durée du contrat",
@@ -429,7 +429,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Formuler la résiliation",
-        text: "Indiquez le numéro de client, de contrat et d’appel ainsi que le terme souhaité. Episto rédige une lettre de résiliation sans équivoque.",
+        text: "Indiquez le numéro de client, de contrat et d’appel ainsi que le terme souhaité. episto rédige une lettre de résiliation sans équivoque.",
       },
       {
         title: "Contrôler la confirmation",
@@ -482,10 +482,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Résiliation",
     metaTitle: "Résilier son abonnement fitness – lettre & envoi",
     metaDescription:
-      "Résilier son abonnement fitness : durée, reconduction, délai et cas particuliers. Episto formule et envoie votre résiliation en toute sécurité par courrier.",
+      "Résilier son abonnement fitness : durée, reconduction, délai et cas particuliers. episto formule et envoie votre résiliation en toute sécurité par courrier.",
     h1: "Résilier son abonnement fitness : mettre fin à l’adhésion dans les délais",
     quickAnswer:
-      "Pour résilier un abonnement fitness, vérifiez le contrat et les CG quant à la durée minimale, la reconduction automatique, le délai de résiliation et la forme exigée. Indiquez le numéro de membre et le terme de fin souhaité. Une maladie ou un déménagement n’entraîne pas automatiquement la résiliation du contrat ; des conditions particulières s’appliquent souvent. Episto formule votre résiliation et l’envoie de manière traçable.",
+      "Pour résilier un abonnement fitness, vérifiez le contrat et les CG quant à la durée minimale, la reconduction automatique, le délai de résiliation et la forme exigée. Indiquez le numéro de membre et le terme de fin souhaité. Une maladie ou un déménagement n’entraîne pas automatiquement la résiliation du contrat ; des conditions particulières s’appliquent souvent. episto formule votre résiliation et l’envoie de manière traçable.",
     steps: [
       {
         title: "Vérifier la durée et le délai",
@@ -497,7 +497,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Rédiger la lettre de résiliation",
-        text: "Indiquez le numéro de membre, le site et le terme de fin souhaité. Episto formule le courrier de manière claire et courtoise.",
+        text: "Indiquez le numéro de membre, le site et le terme de fin souhaité. episto formule le courrier de manière claire et courtoise.",
       },
       {
         title: "Sécuriser la confirmation",
@@ -550,10 +550,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Réclamation",
     metaTitle: "Rédiger une réclamation – modèle pour la Suisse",
     metaDescription:
-      "Rédiger une réclamation objective, formuler clairement sa demande et joindre les preuves. Episto formule et envoie votre lettre de réclamation – en recommandé.",
+      "Rédiger une réclamation objective, formuler clairement sa demande et joindre les preuves. episto formule et envoie votre lettre de réclamation – en recommandé.",
     h1: "Rédiger une réclamation : objectif, clair et convaincant",
     quickAnswer:
-      "Pour rédiger une réclamation, décrivez les faits de manière chronologique, mentionnez le contrat, la commande ou la facture et formulez une solution concrète. Appuyez votre exposé sur des documents pertinents et fixez, si nécessaire, un délai de réponse raisonnable. Episto en fait une lettre de réclamation professionnelle et l’envoie pour vous.",
+      "Pour rédiger une réclamation, décrivez les faits de manière chronologique, mentionnez le contrat, la commande ou la facture et formulez une solution concrète. Appuyez votre exposé sur des documents pertinents et fixez, si nécessaire, un délai de réponse raisonnable. episto en fait une lettre de réclamation professionnelle et l’envoie pour vous.",
     steps: [
       {
         title: "Ordonner les faits",
@@ -565,7 +565,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Rédiger la réclamation",
-        text: "Restez courtois et déterminé, mentionnez les preuves et fixez, si nécessaire, un délai de réponse réaliste. Episto structure la lettre.",
+        text: "Restez courtois et déterminé, mentionnez les preuves et fixez, si nécessaire, un délai de réponse réaliste. episto structure la lettre.",
       },
       {
         title: "Documenter l’envoi",
@@ -618,10 +618,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Créance",
     metaTitle: "Rappel de paiement – exiger le règlement efficacement",
     metaDescription:
-      "Rédiger un rappel clair avec référence de facture, montant dû et nouveau délai de paiement. Episto formule et envoie votre courrier – également en recommandé.",
+      "Rédiger un rappel clair avec référence de facture, montant dû et nouveau délai de paiement. episto formule et envoie votre courrier – également en recommandé.",
     h1: "Rédiger un rappel de paiement : exiger un paiement ouvert de manière professionnelle",
     quickAnswer:
-      "Pour rédiger un rappel de paiement, mentionnez la facture, le montant dû, l’échéance initiale et un nouveau délai de paiement raisonnable. Formulez de manière objective, indiquez les coordonnées de paiement et n’annoncez d’autres démarches que si vous avez l’intention de les vérifier et de les mettre en œuvre. Episto rédige votre rappel et l’envoie de manière traçable.",
+      "Pour rédiger un rappel de paiement, mentionnez la facture, le montant dû, l’échéance initiale et un nouveau délai de paiement raisonnable. Formulez de manière objective, indiquez les coordonnées de paiement et n’annoncez d’autres démarches que si vous avez l’intention de les vérifier et de les mettre en œuvre. episto rédige votre rappel et l’envoie de manière traçable.",
     steps: [
       {
         title: "Vérifier la créance",
@@ -633,7 +633,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Rédiger le rappel",
-        text: "Indiquez clairement le montant, le numéro de facture, l’échéance et les informations de paiement. Episto formule le courrier de manière professionnelle et ferme.",
+        text: "Indiquez clairement le montant, le numéro de facture, l’échéance et les informations de paiement. episto formule le courrier de manière professionnelle et ferme.",
       },
       {
         title: "Consigner l’envoi et la réaction",
@@ -686,10 +686,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Courrier soumis à un délai",
     metaTitle: "Faire opposition – délai & lettre pour la Suisse",
     metaDescription:
-      "Faire opposition à une facture ou une décision administrative : vérifiez délai, autorité compétente, motifs et preuves. Episto rédige et envoie la lettre.",
+      "Faire opposition à une facture ou une décision administrative : vérifiez délai, autorité compétente, motifs et preuves. episto rédige et envoie la lettre.",
     h1: "Faire opposition : réagir dans les délais et de manière compréhensible",
     quickAnswer:
-      "Pour faire opposition, vérifiez d’abord quel moyen de droit est admissible, quelle autorité est compétente et quand le délai expire. Désignez précisément la décision attaquée, formulez une demande claire et motivez-la avec des preuves. Pour les factures, une contestation écrite suffit souvent. Episto formule et envoie votre courrier.",
+      "Pour faire opposition, vérifiez d’abord quel moyen de droit est admissible, quelle autorité est compétente et quand le délai expire. Désignez précisément la décision attaquée, formulez une demande claire et motivez-la avec des preuves. Pour les factures, une contestation écrite suffit souvent. episto formule et envoie votre courrier.",
     steps: [
       {
         title: "Vérifier le moyen de droit et le délai",
@@ -701,7 +701,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Rédiger le courrier",
-        text: "Désignez le document avec sa date et son numéro de référence et formulez clairement la demande et les motifs. Episto structure la lettre.",
+        text: "Désignez le document avec sa date et son numéro de référence et formulez clairement la demande et les motifs. episto structure la lettre.",
       },
       {
         title: "Déposer dans les délais",
@@ -754,10 +754,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Droit du bail",
     metaTitle: "Baisser son loyer – rédiger une demande de baisse",
     metaDescription:
-      "Demander une baisse de loyer après la baisse du taux d’intérêt de référence : base, terme et délais. Episto rédige et envoie votre demande par courrier.",
+      "Demander une baisse de loyer après la baisse du taux d’intérêt de référence : base, terme et délais. episto rédige et envoie votre demande par courrier.",
     h1: "Baisser son loyer : déposer correctement une demande de baisse",
     quickAnswer:
-      "Pour baisser son loyer, comparez le taux d’intérêt de référence sur lequel repose le loyer actuel avec le taux en vigueur aujourd’hui. S’il existe en principe un droit, adressez au bailleur une demande de baisse écrite pour le prochain terme de résiliation possible. D’autres facteurs de coûts peuvent influencer la réduction. Episto formule et envoie votre demande.",
+      "Pour baisser son loyer, comparez le taux d’intérêt de référence sur lequel repose le loyer actuel avec le taux en vigueur aujourd’hui. S’il existe en principe un droit, adressez au bailleur une demande de baisse écrite pour le prochain terme de résiliation possible. D’autres facteurs de coûts peuvent influencer la réduction. episto formule et envoie votre demande.",
     steps: [
       {
         title: "Déterminer la situation de départ",
@@ -769,7 +769,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Rédiger la demande de baisse",
-        text: "Exigez l’adaptation du loyer net pour le prochain terme possible et demandez un calcul compréhensible. Episto rédige la lettre.",
+        text: "Exigez l’adaptation du loyer net pour le prochain terme possible et demandez un calcul compréhensible. episto rédige la lettre.",
       },
       {
         title: "Surveiller la réponse et les délais",
@@ -827,10 +827,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Courrier aux autorités",
     metaTitle: "Rédiger un courrier aux autorités & l’envoyer en ligne",
     metaDescription:
-      "Rédiger un courrier clair à l’office, à la commune ou à l’administration : référence, demande, délai et preuves. Episto vous aide à l’envoyer en toute sécurité.",
+      "Rédiger un courrier clair à l’office, à la commune ou à l’administration : référence, demande, délai et preuves. episto vous aide à l’envoyer en toute sécurité.",
     h1: "Rédiger un courrier aux autorités : clair, complet et dans les délais",
     quickAnswer:
-      "Pour rédiger un courrier à une autorité, mentionnez le service compétent, vos données personnelles et une éventuelle référence de dossier. Formulez votre demande de manière claire, motivez-la brièvement et joignez les preuves exigées. Respectez les délais et les exigences de forme. Episto rédige et envoie votre courrier aux autorités.",
+      "Pour rédiger un courrier à une autorité, mentionnez le service compétent, vos données personnelles et une éventuelle référence de dossier. Formulez votre demande de manière claire, motivez-la brièvement et joignez les preuves exigées. Respectez les délais et les exigences de forme. episto rédige et envoie votre courrier aux autorités.",
     steps: [
       {
         title: "Clarifier la compétence",
@@ -842,7 +842,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Formuler la demande",
-        text: "Écrivez clairement ce que vous demandez ou souhaitez savoir, et classez les principaux motifs. Episto met votre demande en forme professionnelle.",
+        text: "Écrivez clairement ce que vous demandez ou souhaitez savoir, et classez les principaux motifs. episto met votre demande en forme professionnelle.",
       },
       {
         title: "Déposer dans les délais",
@@ -895,14 +895,14 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Envoi",
     metaTitle: "Envoyer une lettre en ligne – impression & envoi postal",
     metaDescription:
-      "Envoyer une lettre en ligne par La Poste Suisse, sans imprimante ni passage au guichet. Episto prend en charge la rédaction, l’impression et l’envoi.",
+      "Envoyer une lettre en ligne par La Poste Suisse, sans imprimante ni passage au guichet. episto prend en charge la rédaction, l’impression et l’envoi.",
     h1: "Envoyer une lettre en ligne – sans imprimante ni passage au bureau de poste",
     quickAnswer:
-      "Pour envoyer une lettre en ligne, vous saisissez le contenu et le destinataire de manière numérique, vérifiez le courrier finalisé et mandatez l’impression, la mise sous enveloppe et le dépôt postal. Selon la demande, choisissez le courrier standard ou le recommandé. Vous économisez ainsi l’imprimante et le déplacement au guichet. Avec Episto, vous faites tout en ligne en quelques minutes.",
+      "Pour envoyer une lettre en ligne, vous saisissez le contenu et le destinataire de manière numérique, vérifiez le courrier finalisé et mandatez l’impression, la mise sous enveloppe et le dépôt postal. Selon la demande, choisissez le courrier standard ou le recommandé. Vous économisez ainsi l’imprimante et le déplacement au guichet. Avec episto, vous faites tout en ligne en quelques minutes.",
     steps: [
       {
         title: "Saisir la demande",
-        text: "Décrivez à qui vous écrivez et ce que vous souhaitez obtenir. Episto en fait une lettre adaptée et professionnelle.",
+        text: "Décrivez à qui vous écrivez et ce que vous souhaitez obtenir. episto en fait une lettre adaptée et professionnelle.",
       },
       {
         title: "Vérifier la lettre",
@@ -914,7 +914,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Confier l’impression et l’envoi",
-        text: "Episto imprime et met sous enveloppe votre courrier et le remet à La Poste Suisse. Vous n’avez ni à imprimer ni à vous rendre au guichet.",
+        text: "episto imprime et met sous enveloppe votre courrier et le remet à La Poste Suisse. Vous n’avez ni à imprimer ni à vous rendre au guichet.",
       },
     ],
     checklist: [
@@ -931,19 +931,19 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Vérifier l’adresse avant validation",
-        body: "Episto envoie aux adresses de destinataires en Suisse. Contrôlez soigneusement le nom, la rue, le numéro, le NPA et la localité avant de confirmer la commande.",
+        body: "episto envoie aux adresses de destinataires en Suisse. Contrôlez soigneusement le nom, la rue, le numéro, le NPA et la localité avant de confirmer la commande.",
       },
     ],
     faqs: [
       {
         question: "Comment puis-je envoyer une lettre en ligne ?",
         answer:
-          "Vous saisissez le contenu et l’adresse en ligne, vérifiez la lettre finalisée et choisissez le mode d’envoi. Episto prend en charge l’impression, la mise sous enveloppe et la remise à La Poste Suisse.",
+          "Vous saisissez le contenu et l’adresse en ligne, vérifiez la lettre finalisée et choisissez le mode d’envoi. episto prend en charge l’impression, la mise sous enveloppe et la remise à La Poste Suisse.",
       },
       {
         question: "Ai-je besoin d’une imprimante ou de timbres ?",
         answer:
-          "Non. Vous créez et payez la lettre en ligne ; Episto s’occupe du papier, de l’impression, de l’enveloppe, de l’affranchissement et du dépôt postal.",
+          "Non. Vous créez et payez la lettre en ligne ; episto s’occupe du papier, de l’impression, de l’enveloppe, de l’affranchissement et du dépôt postal.",
       },
       {
         question: "Puis-je envoyer la lettre en recommandé ?",
@@ -963,10 +963,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Droit du bail",
     metaTitle: "Contester un décompte de charges – lettre & envoi",
     metaDescription:
-      "Vérifier le décompte de charges, demander les justificatifs et contester les postes peu clairs. Episto rédige et envoie votre contestation par courrier.",
+      "Vérifier le décompte de charges, demander les justificatifs et contester les postes peu clairs. episto rédige et envoie votre contestation par courrier.",
     h1: "Vérifier le décompte de charges et contester les irrégularités",
     quickAnswer:
-      "Pour vérifier un décompte de charges, comparez la période de décompte, les types de frais convenus contractuellement, les acomptes versés et la clé de répartition. En cas de doute, demandez un relevé détaillé et la consultation des justificatifs. Contestez des postes concrets par écrit plutôt que de refuser globalement la facture. Episto formule et envoie votre contestation.",
+      "Pour vérifier un décompte de charges, comparez la période de décompte, les types de frais convenus contractuellement, les acomptes versés et la clé de répartition. En cas de doute, demandez un relevé détaillé et la consultation des justificatifs. Contestez des postes concrets par écrit plutôt que de refuser globalement la facture. episto formule et envoie votre contestation.",
     steps: [
       {
         title: "Comparer avec le bail",
@@ -982,7 +982,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Envoyer une contestation concrète",
-        text: "Désignez précisément les postes litigieux et vos questions. Episto en fait une lettre objective au bailleur ou à la régie.",
+        text: "Désignez précisément les postes litigieux et vos questions. episto en fait une lettre objective au bailleur ou à la régie.",
       },
     ],
     checklist: [
