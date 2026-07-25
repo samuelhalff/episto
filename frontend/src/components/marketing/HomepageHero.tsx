@@ -6,7 +6,7 @@ import { LetterSpecimen } from "./LetterSpecimen";
 import { MarketingActionLink } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
 
-export function HomepageHero() {
+export function HomepageHero({ initialPrice }: { initialPrice?: string | undefined }) {
   const t = useTranslations("marketing");
   const locale = useLocale() as Locale;
 
@@ -44,7 +44,7 @@ export function HomepageHero() {
               {t("homepage.hero.secondaryCta")}
             </MarketingActionLink>
           </div>
-          <HeroPrice />
+          <HeroPrice initialPrice={initialPrice} />
           <div className="hairline mt-9 flex items-center gap-2.5 border-t pt-5">
             <span
               aria-hidden="true"

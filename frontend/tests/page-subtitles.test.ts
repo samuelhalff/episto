@@ -121,7 +121,7 @@ function getWordCount(value: string): number {
 
 describe("main page subtitle wiring", () => {
   it("uses the dedicated short subtitle keys on the main product pages", () => {
-    expect(homePageSource).toContain("<HomepageHero />");
+    expect(homePageSource).toContain("<HomepageHero");
     expect(homepageHeroSource).toContain('{t("homepage.hero.subtitle")}');
     expect(pricingPageSource).toContain('subtitle={t("subtitle")}');
     expect(helpPageSource).toContain('{t("subtitle")}');

@@ -39,6 +39,10 @@ feature branches unless the user explicitly asks for them. Use regular, descript
 - [ ] Accessibility testing to WCAG AA standard
 - [ ] Final pre-launch checklist in [docs/07-operations/pre-launch-checklist.md](docs/07-operations/pre-launch-checklist.md)
 
+## Active UX follow-ups
+
+- [ ] Keep the landing-page pricing sentence and its layout stable while client pricing data hydrates.
+
 ## Security follow-ups
 
 - [x] `drizzle-orm` upgraded to `0.45.2` (installed + locked), closing

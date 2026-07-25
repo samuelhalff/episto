@@ -448,7 +448,7 @@ describe("marketing homepage shared visual primitives", () => {
     expect(homepageSource).toContain("import { ConfidenceBlock }");
     expect(homepageSource).toContain("import { UseCaseGrid }");
 
-    const heroIndex = homepageSource.indexOf("<HomepageHero />");
+    const heroIndex = homepageSource.indexOf("<HomepageHero");
     const trustStripIndex = homepageSource.indexOf("<TrustStrip />");
     const howItWorksIndex = homepageSource.indexOf("<HowItWorksSteps />");
     const confidenceIndex = homepageSource.indexOf("<ConfidenceBlock />");
@@ -459,6 +459,11 @@ describe("marketing homepage shared visual primitives", () => {
     expect(howItWorksIndex).toBeGreaterThan(trustStripIndex);
     expect(confidenceIndex).toBeGreaterThan(howItWorksIndex);
     expect(useCasesIndex).toBeGreaterThan(confidenceIndex);
+    expect(homepageSource).toContain("const initialStandardPrice = priceBand");
+    expect(homepageSource).toContain(
+      "<HomepageHero initialPrice={initialStandardPrice} />",
+    );
+    expect(homepageSource).toContain("initialPrice={initialStandardPrice}");
     expect(homepageSource).not.toContain("const steps = [");
     expect(homepageSource).not.toContain("const useCases = [");
     expect(homepageSource).not.toContain("const trustItems = [");

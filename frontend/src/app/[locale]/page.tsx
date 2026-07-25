@@ -45,6 +45,9 @@ export default async function HomePage({
   const t = await getTranslations({ locale, namespace: "marketing" });
   const seo = await getTranslations({ locale, namespace: "seo" });
   const priceBand = await getServicePriceBand();
+  const initialStandardPrice = priceBand
+    ? `${priceBand.currency} ${priceBand.lowPrice}`
+    : undefined;
 
   return (
     <>
@@ -61,7 +64,7 @@ export default async function HomePage({
         ]}
       />
       <MarketingLayout mainClassName="transition-colors dark:text-zinc-50">
-        <HomepageHero />
+        <HomepageHero initialPrice={initialStandardPrice} />
         <TrustStrip />
         <HowItWorksSteps />
         <DispatchJourney />
@@ -73,6 +76,7 @@ export default async function HomePage({
             title={t("ctaTitle")}
             body={
               <PricingFromText
+                initialPrice={initialStandardPrice}
                 titleClassName="text-4xl font-semibold tracking-[-0.05em] sm:text-5xl md:text-6xl"
                 noteClassName="mx-auto mt-3 max-w-lg text-sm leading-relaxed sm:mt-4 sm:text-base"
               />

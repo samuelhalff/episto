@@ -4,8 +4,8 @@ import type { Locale } from "../../i18n/routing";
  * Homepage hero visual: an actual Episto letter produced by the real PDF render
  * pipeline (registered / EINSCHREIBEN sample), shown per UI language and cropped
  * to A4 content. Rendered offline into /public/hero/letter-<locale>.png via
- * tmp/render-hero-letters-all.mjs. A small caption keeps it honest ("from the
- * Episto PDF · sample data").
+ * tmp/render-hero-letters-all.mjs. The caption identifies the letter type and
+ * makes clear that it is an example.
  *
  * SPECIMEN_COPY keeps the small per-locale labels still used by UseCaseGrid.
  */
@@ -18,10 +18,10 @@ export const SPECIMEN_COPY: Record<Locale, { subjectLabel: string; signatory: st
   };
 
 const HERO_CAPTION: Record<Locale, string> = {
-  "de-CH": "Aus dem episto-PDF · Beispieldaten",
-  "fr-CH": "Extrait du PDF episto · données fictives",
-  "it-CH": "Dal PDF di episto · dati di esempio",
-  "en-CH": "From the episto PDF · sample data",
+  "de-CH": "Einschreiben · Beispiel Kündigung",
+  "fr-CH": "Lettre recommandée · exemple de résiliation",
+  "it-CH": "Raccomandata · esempio di disdetta",
+  "en-CH": "Registered letter · cancellation example",
 };
 
 export function LetterSpecimen({ locale }: { locale: Locale }) {

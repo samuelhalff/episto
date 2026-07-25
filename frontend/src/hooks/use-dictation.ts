@@ -140,6 +140,13 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
         closeSocket(socket);
       }
 
+      // A new attempt may start while microphone teardown or the stop timeout
+      // is pending. Once that happens, this attempt must not read or mutate
+      // the newer attempt's transcript state.
+      if (attemptId !== attemptIdRef.current) {
+        return;
+      }
+
       const hasLiveTranscript = currentAttemptFinalTextRef.current.trim().length > 0;
       if (pcmAudio.byteLength > 0 && !hasLiveTranscript) {
         try {

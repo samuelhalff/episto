@@ -5,9 +5,11 @@ import { usePricing } from "../../hooks/use-pricing";
 import { MarketingBody, MarketingHeading } from "./typography";
 
 export function PricingFromText({
+  initialPrice,
   titleClassName,
   noteClassName,
 }: {
+  initialPrice?: string | undefined;
   titleClassName: string;
   noteClassName: string;
 }) {
@@ -19,7 +21,9 @@ export function PricingFromText({
 
   const title = standard
     ? t("pricingFrom", { price: standard.displayPrice })
-    : t("pricingFromFallback");
+    : initialPrice
+      ? t("pricingFrom", { price: initialPrice })
+      : t("pricingFromFallback");
 
   const note =
     standard && provider && standardReferenceExample && standard.swissMailMarkupCents > 0
