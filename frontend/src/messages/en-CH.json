@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "From draft to letterbox",
         "title": "We handle the mailing",
-        "intro": "You approve the letter — we print it, put it in an envelope, and hand it to Swiss Post.",
+        "intro": "You approve the letter — we submit it to Swiss Post, which prints and delivers it in Switzerland.",
         "steps": {
           "draft": {
             "title": "You approve",
@@ -173,10 +173,10 @@
           },
           "printed": {
             "title": "Printed in Switzerland",
-            "body": "We print and envelope it professionally."
+            "body": "Swiss Post prints and envelopes your letter."
           },
           "sent": {
-            "title": "Handed to Swiss Post",
+            "title": "Posted by Swiss Post",
             "body": "As A-Mail or registered with tracking."
           },
           "delivered": {
@@ -1001,7 +1001,7 @@
         "typedName": "Font signature",
         "typedBody": "Your name is rendered in a signature-style font. This is useful for everyday formal correspondence when a clean printed name is enough.",
         "drawnName": "Drawn signature",
-        "drawnBody": "You draw your signature on screen and we print it on the letter. This is the default choice because it carries your own visible mark on paper."
+        "drawnBody": "You draw your signature on screen and we place it on the letter. This is the default choice because it carries your own visible mark on paper."
       },
       "whenRequired": {
         "title": "When to check first",

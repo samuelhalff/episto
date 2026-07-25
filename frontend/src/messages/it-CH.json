@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "Dalla bozza alla cassetta",
         "title": "Alla spedizione pensiamo noi",
-        "intro": "Lei approva la lettera — noi la stampiamo, la imbustiamo e la consegniamo alla Posta svizzera.",
+        "intro": "Lei approva la lettera — noi la trasmettiamo alla Posta svizzera, che la stampa e la recapita in Svizzera.",
         "steps": {
           "draft": {
             "title": "Lei approva",
@@ -173,10 +173,10 @@
           },
           "printed": {
             "title": "Stampata in Svizzera",
-            "body": "Stampiamo e imbustiamo con cura."
+            "body": "La Posta svizzera stampa e imbusta la Sua lettera."
           },
           "sent": {
-            "title": "Consegnata alla Posta",
+            "title": "Spedita dalla Posta",
             "body": "Come posta A o raccomandata con tracciabilità."
           },
           "delivered": {
@@ -1001,7 +1001,7 @@
         "typedName": "Firma con font",
         "typedBody": "Il tuo nome viene reso con un font in stile firma. È adatta alla corrispondenza formale quotidiana quando basta un nome stampato in modo pulito.",
         "drawnName": "Firma disegnata",
-        "drawnBody": "Disegni la firma sullo schermo e noi la stampiamo sulla lettera. È la scelta predefinita perché sulla carta appare il tuo segno visibile."
+        "drawnBody": "Disegni la firma sullo schermo e noi la inseriamo nella lettera. È la scelta predefinita perché sulla carta appare il tuo segno visibile."
       },
       "whenRequired": {
         "title": "Quando verificare prima",

@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "Du brouillon à la boîte aux lettres",
         "title": "Nous nous occupons de l’envoi",
-        "intro": "Vous validez la lettre — nous l’imprimons, la mettons sous pli et la confions à la Poste suisse.",
+        "intro": "Vous validez la lettre — nous la transmettons à la Poste suisse, qui l’imprime et la distribue en Suisse.",
         "steps": {
           "draft": {
             "title": "Vous validez",
@@ -173,10 +173,10 @@
           },
           "printed": {
             "title": "Imprimé en Suisse",
-            "body": "Nous imprimons et mettons sous pli avec soin."
+            "body": "La Poste suisse imprime votre lettre et la met sous pli."
           },
           "sent": {
-            "title": "Remis à la Poste",
+            "title": "Expédié par la Poste",
             "body": "En courrier A ou recommandé avec suivi."
           },
           "delivered": {
@@ -1001,7 +1001,7 @@
         "typedName": "Signature en police",
         "typedBody": "Votre nom est rendu dans une police de style signature. Ce choix convient aux courriers formels courants lorsqu’un nom imprimé propre suffit.",
         "drawnName": "Signature dessinée",
-        "drawnBody": "Vous dessinez votre signature à l’écran et nous l’imprimons sur la lettre. C’est le choix par défaut, car votre propre marque visible apparaît sur le papier."
+        "drawnBody": "Vous dessinez votre signature à l’écran et nous l’apposons sur la lettre. C’est le choix par défaut, car votre propre marque visible apparaît sur le papier."
       },
       "whenRequired": {
         "title": "Quand vérifier avant l’envoi",

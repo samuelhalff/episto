@@ -25,7 +25,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Nachweisbar versenden",
-        text: "Versenden Sie die Kündigung als Einschreiben, damit Sie den fristgerechten Zugang belegen können. episto druckt und verschickt den Brief für Sie.",
+        text: "Versenden Sie die Kündigung als Einschreiben, damit Sie den fristgerechten Zugang belegen können. episto übermittelt Ihren Brief der Schweizer Post, die ihn druckt und zustellt.",
       },
     ],
     checklist: [
@@ -74,10 +74,10 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Versand",
     metaTitle: "Einschreiben online versenden – ohne Poststelle",
     metaDescription:
-      "Einschreiben online schreiben und versenden, ohne zur Poststelle zu gehen. episto druckt Ihren Brief und übergibt ihn der Schweizer Post – mit Nachweis.",
+      "Einschreiben online schreiben und versenden, ohne zur Poststelle zu gehen. episto übermittelt Ihren Brief der Schweizer Post, die ihn druckt und zustellt – mit Nachweis.",
     h1: "Einschreiben online versenden – ohne Gang zur Poststelle",
     quickAnswer:
-      "Ein Einschreiben online zu versenden bedeutet: Sie schreiben den Brief digital, und ein Dienst druckt ihn aus und übergibt ihn als eingeschriebene Sendung der Post. So erhalten Sie einen Zustellnachweis, ohne selbst zur Poststelle zu gehen. Mit episto ist das in wenigen Minuten erledigt.",
+      "Ein Einschreiben online zu versenden bedeutet: Sie schreiben den Brief digital, und er wird gedruckt und als eingeschriebene Sendung der Schweizer Post übergeben. So erhalten Sie einen Zustellnachweis, ohne selbst zur Poststelle zu gehen. Mit episto ist das in wenigen Minuten erledigt.",
     steps: [
       {
         title: "Brief digital erstellen",
@@ -89,7 +89,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Druck und Übergabe",
-        text: "episto druckt den Brief, kuvertiert ihn und übergibt ihn als eingeschriebene Sendung der Schweizer Post.",
+        text: "episto übermittelt den Brief der Schweizer Post, die ihn als eingeschriebene Sendung druckt und zustellt.",
       },
       {
         title: "Zustellung nachverfolgen",
@@ -117,7 +117,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       {
         question: "Kann ich ein Einschreiben versenden, ohne zur Post zu gehen?",
         answer:
-          "Ja. Sie schreiben den Brief online, und episto druckt ihn und übergibt ihn als Einschreiben der Schweizer Post. Ein Gang zur Poststelle ist nicht nötig.",
+          "Ja. Sie schreiben den Brief online, und episto übermittelt ihn der Schweizer Post, die ihn als Einschreiben druckt und zustellt. Ein Gang zur Poststelle ist nicht nötig.",
       },
       {
         question: "Erhalte ich einen Zustellnachweis?",
@@ -913,7 +913,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Druck und Versand übergeben",
-        text: "episto druckt und kuvertiert Ihr Schreiben und übergibt es der Schweizer Post. Sie müssen weder drucken noch zur Poststelle gehen.",
+        text: "episto übermittelt Ihr Schreiben der Schweizer Post, die es druckt, kuvertiert und zustellt. Sie müssen weder drucken noch zur Poststelle gehen.",
       },
     ],
     checklist: [

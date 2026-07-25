@@ -2,8 +2,8 @@ import { useTranslations } from "next-intl";
 import { EditorialHeader, MarketingSection } from "./primitives";
 import { MarketingBody, MarketingHeading } from "./typography";
 
-// The mailing is the moat: anyone can draft a letter, only Episto prints it in
-// Switzerland and hands it to Swiss Post. This strip shows that physical journey.
+// The mailing is the moat: anyone can draft a letter; episto submits it to Swiss
+// Post, which prints and delivers it in Switzerland. This strip shows that journey.
 const stepKeys = ["draft", "printed", "sent", "delivered"] as const;
 
 export function DispatchJourney() {
@@ -20,8 +20,11 @@ export function DispatchJourney() {
       <ol className="mt-12 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {stepKeys.map((key, index) => (
           <li key={key} className="hairline border-t-2 border-[var(--app-fg)] pt-4">
-            <span className="numeral font-mono text-sm text-[var(--app-muted)]">
-              {String(index + 1).padStart(2, "0")}
+            <span
+              aria-hidden="true"
+              className="numeral font-serif text-3xl font-normal leading-none text-[var(--app-fg)] sm:text-4xl"
+            >
+              {index + 1}
             </span>
             <MarketingHeading
               as="h3"

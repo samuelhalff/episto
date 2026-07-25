@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "Vom Entwurf bis zum Briefkasten",
         "title": "Den Versand übernehmen wir",
-        "intro": "Sie geben den Brief frei – wir drucken, kuvertieren und bringen ihn zur Schweizerischen Post.",
+        "intro": "Sie geben den Brief frei – wir übermitteln ihn der Schweizerischen Post, die ihn in der Schweiz druckt und zustellt.",
         "steps": {
           "draft": {
             "title": "Sie geben frei",
@@ -173,10 +173,10 @@
           },
           "printed": {
             "title": "Gedruckt in der Schweiz",
-            "body": "Wir drucken und kuvertieren professionell."
+            "body": "Die Schweizerische Post druckt und kuvertiert Ihren Brief."
           },
           "sent": {
-            "title": "Per Post aufgegeben",
+            "title": "Von der Post aufgegeben",
             "body": "Als A-Post oder Einschreiben mit Sendungsverfolgung."
           },
           "delivered": {
@@ -1001,7 +1001,7 @@
         "typedName": "Schrift-Unterschrift",
         "typedBody": "Ihr Name wird in einer unterschriftsähnlichen Schrift gesetzt. Das passt für alltägliche formelle Korrespondenz, wenn ein sauber gedruckter Name genügt.",
         "drawnName": "Gezeichnete Unterschrift",
-        "drawnBody": "Sie zeichnen Ihre Unterschrift auf dem Bildschirm; wir drucken sie auf den Brief. Das ist die Standardauswahl, weil Ihr eigener sichtbarer Schriftzug auf dem Papier erscheint."
+        "drawnBody": "Sie zeichnen Ihre Unterschrift auf dem Bildschirm; wir setzen sie auf den Brief. Das ist die Standardauswahl, weil Ihr eigener sichtbarer Schriftzug auf dem Papier erscheint."
       },
       "whenRequired": {
         "title": "Wann Sie vorher klären sollten",

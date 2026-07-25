@@ -25,7 +25,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Envoyer de manière traçable",
-        text: "Expédiez la résiliation en recommandé afin de pouvoir prouver sa réception dans les délais. episto imprime et envoie la lettre pour vous.",
+        text: "Expédiez la résiliation en recommandé afin de pouvoir prouver sa réception dans les délais. episto transmet la lettre à La Poste suisse, qui l’imprime et l’envoie.",
       },
     ],
     checklist: [
@@ -74,10 +74,10 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Envoi",
     metaTitle: "Envoyer un recommandé en ligne – sans guichet",
     metaDescription:
-      "Rédiger et envoyer un recommandé en ligne, sans passer par le guichet postal. episto imprime votre lettre et la remet à La Poste Suisse – avec preuve de dépôt.",
+      "Rédiger et envoyer un recommandé en ligne, sans passer par le guichet postal. episto transmet votre lettre à La Poste suisse, qui l’imprime et la distribue – avec preuve de dépôt.",
     h1: "Envoyer un recommandé en ligne – sans passer par le bureau de poste",
     quickAnswer:
-      "Envoyer un recommandé en ligne signifie que vous rédigez la lettre de manière numérique et qu’un service l’imprime et la remet à La Poste comme envoi recommandé. Vous obtenez ainsi une preuve de distribution sans vous rendre au guichet. Avec episto, c’est fait en quelques minutes.",
+      "Envoyer un recommandé en ligne signifie que vous rédigez la lettre de manière numérique et qu’elle est imprimée puis remise à La Poste comme envoi recommandé. Vous obtenez ainsi une preuve de distribution sans vous rendre au guichet. Avec episto, c’est fait en quelques minutes.",
     steps: [
       {
         title: "Créer la lettre en ligne",
@@ -89,7 +89,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Impression et remise",
-        text: "episto imprime la lettre, la met sous enveloppe et la remet à La Poste Suisse comme envoi recommandé.",
+        text: "episto transmet la lettre à La Poste suisse, qui l’imprime et la distribue comme envoi recommandé.",
       },
       {
         title: "Suivre la distribution",
@@ -117,7 +117,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       {
         question: "Puis-je envoyer un recommandé sans aller à la poste ?",
         answer:
-          "Oui. Vous rédigez la lettre en ligne et episto l’imprime et la remet à La Poste Suisse comme envoi recommandé. Aucun passage au guichet n’est nécessaire.",
+          "Oui. Vous rédigez la lettre en ligne et episto la transmet à La Poste suisse, qui l’imprime et la distribue comme envoi recommandé. Aucun passage au guichet n’est nécessaire.",
       },
       {
         question: "Est-ce que je reçois une preuve de distribution ?",
@@ -914,7 +914,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Confier l’impression et l’envoi",
-        text: "episto imprime et met sous enveloppe votre courrier et le remet à La Poste Suisse. Vous n’avez ni à imprimer ni à vous rendre au guichet.",
+        text: "episto transmet votre courrier à La Poste suisse, qui l’imprime, le met sous pli et le distribue. Vous n’avez ni à imprimer ni à vous rendre au guichet.",
       },
     ],
     checklist: [

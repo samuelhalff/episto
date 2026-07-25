@@ -25,7 +25,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Inviare con prova di ricezione",
-        text: "Invii la disdetta come raccomandata per poter comprovare il ricevimento entro i termini. episto stampa e spedisce la lettera per Lei.",
+        text: "Invii la disdetta come raccomandata per poter comprovare il ricevimento entro i termini. episto trasmette la lettera alla Posta Svizzera, che la stampa e la spedisce.",
       },
     ],
     checklist: [
@@ -74,10 +74,10 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Invio",
     metaTitle: "Spedire una raccomandata online – senza ufficio postale",
     metaDescription:
-      "Scrivere e inviare una raccomandata online, senza andare all'ufficio postale. episto stampa la Sua lettera e la consegna alla Posta Svizzera – con prova.",
+      "Scrivere e inviare una raccomandata online, senza andare all'ufficio postale. episto trasmette la Sua lettera alla Posta Svizzera, che la stampa e la recapita – con prova.",
     h1: "Spedire una raccomandata online – senza recarsi all'ufficio postale",
     quickAnswer:
-      "Spedire una raccomandata online significa: scrivere la lettera in formato digitale e un servizio la stampa e la consegna alla Posta come invio raccomandato. In questo modo si ottiene una prova di recapito senza doversi recare personalmente all'ufficio postale. Con episto è tutto fatto in pochi minuti.",
+      "Spedire una raccomandata online significa: scrivere la lettera in formato digitale, che viene poi stampata e consegnata alla Posta come invio raccomandato. In questo modo si ottiene una prova di recapito senza doversi recare personalmente all'ufficio postale. Con episto è tutto fatto in pochi minuti.",
     steps: [
       {
         title: "Creare la lettera in digitale",
@@ -89,7 +89,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Stampa e consegna",
-        text: "episto stampa la lettera, la imbusta e la consegna alla Posta Svizzera come invio raccomandato.",
+        text: "episto trasmette la lettera alla Posta Svizzera, che la stampa e la recapita come invio raccomandato.",
       },
       {
         title: "Tracciare il recapito",
@@ -117,7 +117,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       {
         question: "Posso spedire una raccomandata senza andare alla posta?",
         answer:
-          "Sì. Lei scrive la lettera online ed episto la stampa e la consegna alla Posta Svizzera come raccomandata. Non è necessario recarsi all'ufficio postale.",
+          "Sì. Lei scrive la lettera online ed episto la trasmette alla Posta Svizzera, che la stampa e la recapita come raccomandata. Non è necessario recarsi all'ufficio postale.",
       },
       {
         question: "Ricevo una prova di recapito?",
@@ -229,7 +229,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Inviare entro i termini",
-        text: "Invii la disdetta per tempo e, per abbonamenti importanti o costosi, con prova di ricezione. episto si occupa di stampa e invio postale.",
+        text: "Invii la disdetta per tempo e, per abbonamenti importanti o costosi, con prova di ricezione. episto trasmette la lettera alla Posta, che la stampa e la spedisce.",
       },
     ],
     checklist: [
@@ -895,7 +895,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     category: "Invio",
     metaTitle: "Spedire una lettera online – stampa e Posta Svizzera",
     metaDescription:
-      "Scrivere una lettera online e spedirla tramite Posta Svizzera – senza stampante né ufficio postale. episto si occupa di formulazione, stampa e invio.",
+      "Scrivere una lettera online e spedirla tramite Posta Svizzera – senza stampante né ufficio postale. episto scrive la lettera e la inoltra alla Posta Svizzera, che la stampa e la spedisce.",
     h1: "Spedire una lettera online – senza stampante né ufficio postale",
     quickAnswer:
       "Chi desidera spedire una lettera online inserisce contenuto e destinatario in formato digitale, verifica la lettera finale e incarica stampa, imbustamento e consegna alla Posta. A seconda della richiesta, si sceglie posta standard o raccomandata. Così si risparmiano stampante e viaggio all'ufficio postale. Con episto si fa tutto online in pochi minuti.",
@@ -914,7 +914,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       },
       {
         title: "Affidare stampa e invio",
-        text: "episto stampa e imbusta la Sua lettera e la consegna alla Posta Svizzera. Lei non deve né stampare né recarsi all'ufficio postale.",
+        text: "episto trasmette la Sua lettera alla Posta Svizzera, che la stampa, la imbusta e la recapita. Lei non deve né stampare né recarsi all'ufficio postale.",
       },
     ],
     checklist: [
@@ -938,12 +938,12 @@ export const IT_LANDING_PAGES: LandingPage[] = [
       {
         question: "Come posso spedire una lettera online?",
         answer:
-          "Inserisce contenuto e indirizzo in digitale, verifica la lettera finale e sceglie la modalità di invio. episto si occupa di stampa, imbustamento e consegna alla Posta Svizzera.",
+          "Inserisce contenuto e indirizzo in digitale, verifica la lettera finale e sceglie la modalità di invio. episto trasmette la lettera alla Posta Svizzera, che si occupa di stampa, imbustamento e recapito.",
       },
       {
         question: "Ho bisogno di una stampante o di francobolli?",
         answer:
-          "No. Lei crea e paga la lettera online; episto si occupa di carta, stampa, busta, affrancatura e consegna alla Posta.",
+          "No. Lei crea e paga la lettera online; episto inoltra l'ordine alla Posta Svizzera, che si occupa di carta, stampa, busta, affrancatura e consegna.",
       },
       {
         question: "Posso inviare la lettera come raccomandata?",
