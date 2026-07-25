@@ -144,7 +144,7 @@ export class EpostDispatchAdapter {
           source: "provider",
         },
         {
-          label: "Episto service",
+          label: "episto service",
           amountCents: swissMailMarkupCents,
           source: "swiss_mail",
         },

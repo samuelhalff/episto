@@ -16,7 +16,7 @@ export function LegalCallout({
       className={`rounded-2xl border border-amber-200/80 bg-amber-50/40 p-5 transition-colors dark:border-amber-500/20 dark:bg-amber-500/5 sm:p-6 ${className}`}
     >
       {title ? (
-        <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-amber-950 dark:text-amber-100">
+        <h2 className="text-sm font-semibold tracking-normal text-amber-950 dark:text-amber-100">
           {title}
         </h2>
       ) : null}

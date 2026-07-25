@@ -140,7 +140,7 @@ export function AdminTopBar({ onMenuToggle }: AdminTopBarProps) {
         {/* Title area */}
         <div className="min-w-0 flex-1">
           <p
-            className="hidden text-[11px] font-semibold uppercase tracking-[0.2em] sm:block"
+            className="hidden text-[11px] font-semibold tracking-normal sm:block"
             style={{ color: "var(--app-muted)" }}
           >
             {t("shell.role")}

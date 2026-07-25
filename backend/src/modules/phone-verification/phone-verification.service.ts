@@ -68,7 +68,7 @@ export function verifyPhoneVerificationCode(input: {
 }
 
 export function buildPhoneVerificationMessage(code: string): string {
-  return `Episto code: ${code}. Expires in 10 minutes.`;
+  return `episto code: ${code}. Expires in 10 minutes.`;
 }
 
 export function createPhoneVerificationSmsFailureError(cause: unknown): AppError {

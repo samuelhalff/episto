@@ -71,8 +71,8 @@ export async function feedbackRoutes(app: FastifyInstance): Promise<void> {
         await sendEmail({
           to: config.SUPPORT_EMAIL,
           subject: replyToEmail
-            ? `Episto feedback from ${replyToEmail}`
-            : "Episto feedback",
+            ? `episto feedback from ${replyToEmail}`
+            : "episto feedback",
           text,
           html,
           ...(replyToEmail ? { replyTo: replyToEmail } : {}),

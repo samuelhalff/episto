@@ -11,7 +11,7 @@ export function SyncDetail({ label, value }: { label: string; value: string }) {
       <MarketingMeta
         as="dt"
         tone="muted"
-        className="text-xs font-semibold uppercase tracking-[0.14em]"
+        className="text-xs font-semibold tracking-normal"
       >
         {label}
       </MarketingMeta>

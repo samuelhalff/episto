@@ -37,12 +37,16 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
 
   return (
     <section>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={headingStyle}>
+      <h2 className="mb-4 text-sm font-semibold tracking-normal" style={headingStyle}>
         Service Health
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {services.map((s) => (
-          <div key={s.label} className="flex items-center gap-3 rounded-lg border px-4 py-3" style={strongSurfaceStyle}>
+          <div
+            key={s.label}
+            className="flex items-center gap-3 rounded-lg border px-4 py-3"
+            style={strongSurfaceStyle}
+          >
             <s.icon className="h-5 w-5 shrink-0" style={mutedStyle} />
             <div className="min-w-0 flex-1">
               <p className="text-sm font-medium" style={foregroundStyle}>
@@ -66,37 +70,54 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
       <div className="mt-4 flex flex-wrap gap-6 text-xs" style={mutedStyle}>
         <span>
           Last payment:{" "}
-          {health.lastPaymentAt
-            ? new Date(health.lastPaymentAt).toLocaleString()
-            : "—"}
+          {health.lastPaymentAt ? new Date(health.lastPaymentAt).toLocaleString() : "—"}
         </span>
         <span>
           Last dispatch:{" "}
-          {health.lastDispatchAt
-            ? new Date(health.lastDispatchAt).toLocaleString()
-            : "—"}
+          {health.lastDispatchAt ? new Date(health.lastDispatchAt).toLocaleString() : "—"}
         </span>
       </div>
 
-      <div className="mt-4 rounded-lg border px-4 py-3 text-xs" style={{ ...mutedSurfaceStyle, ...mutedStyle }}>
+      <div
+        className="mt-4 rounded-lg border px-4 py-3 text-xs"
+        style={{ ...mutedSurfaceStyle, ...mutedStyle }}
+      >
         <div className="grid gap-2 sm:grid-cols-2">
           <span>
-            AI mode: <span className="font-medium" style={foregroundStyle}>{health.ai.providerMode}</span>
+            AI mode:{" "}
+            <span className="font-medium" style={foregroundStyle}>
+              {health.ai.providerMode}
+            </span>
           </span>
           <span>
-            Agent: <span className="font-medium" style={foregroundStyle}>{health.ai.agentId ?? "—"}</span>
+            Agent:{" "}
+            <span className="font-medium" style={foregroundStyle}>
+              {health.ai.agentId ?? "—"}
+            </span>
           </span>
           <span>
-            Project endpoint: <span className="font-medium" style={foregroundStyle}>{health.ai.projectEndpoint ?? "—"}</span>
+            Project endpoint:{" "}
+            <span className="font-medium" style={foregroundStyle}>
+              {health.ai.projectEndpoint ?? "—"}
+            </span>
           </span>
           <span>
-            Environment: <span className="font-medium" style={foregroundStyle}>{health.ai.environmentName ?? "—"}</span>
+            Environment:{" "}
+            <span className="font-medium" style={foregroundStyle}>
+              {health.ai.environmentName ?? "—"}
+            </span>
           </span>
           <span>
-            Location: <span className="font-medium" style={foregroundStyle}>{health.ai.location ?? "—"}</span>
+            Location:{" "}
+            <span className="font-medium" style={foregroundStyle}>
+              {health.ai.location ?? "—"}
+            </span>
           </span>
           <span>
-            Subscription: <span className="font-medium" style={foregroundStyle}>{health.ai.subscriptionId ?? "—"}</span>
+            Subscription:{" "}
+            <span className="font-medium" style={foregroundStyle}>
+              {health.ai.subscriptionId ?? "—"}
+            </span>
           </span>
         </div>
       </div>
@@ -111,7 +132,7 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
 export function OverviewPanel({ overview }: { overview: OverviewResponse }) {
   return (
     <section>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={headingStyle}>
+      <h2 className="mb-4 text-sm font-semibold tracking-normal" style={headingStyle}>
         Operational Overview
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
@@ -163,23 +184,36 @@ export function QueuesPanel({ queues }: { queues: Record<string, QueueStatus> })
 
   return (
     <section>
-      <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider" style={headingStyle}>
+      <h2 className="mb-4 text-sm font-semibold tracking-normal" style={headingStyle}>
         Queue Status
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {entries.map(([name, q]) => (
-          <div key={name} className="rounded-lg border px-4 py-3" style={strongSurfaceStyle}>
+          <div
+            key={name}
+            className="rounded-lg border px-4 py-3"
+            style={strongSurfaceStyle}
+          >
             <p className="text-sm font-medium" style={foregroundStyle}>
               {name.replace(/-/g, " ")}
             </p>
             <div className="mt-2 flex gap-4 text-xs">
               <span style={mutedStyle}>
-                Waiting: <span className="font-medium" style={foregroundStyle}>{q.waiting}</span>
+                Waiting:{" "}
+                <span className="font-medium" style={foregroundStyle}>
+                  {q.waiting}
+                </span>
               </span>
               <span style={mutedStyle}>
-                Active: <span className="font-medium" style={foregroundStyle}>{q.active}</span>
+                Active:{" "}
+                <span className="font-medium" style={foregroundStyle}>
+                  {q.active}
+                </span>
               </span>
-              <span className={q.failed > 0 ? "text-destructive" : ""} style={q.failed > 0 ? undefined : mutedStyle}>
+              <span
+                className={q.failed > 0 ? "text-destructive" : ""}
+                style={q.failed > 0 ? undefined : mutedStyle}
+              >
                 Failed: <span className="font-medium">{q.failed}</span>
               </span>
             </div>
@@ -224,20 +258,14 @@ function StatCard({
   );
 }
 
-function CountTable({
-  title,
-  data,
-}: {
-  title: string;
-  data: Record<string, number>;
-}) {
+function CountTable({ title, data }: { title: string; data: Record<string, number> }) {
   const entries = Object.entries(data);
   if (entries.length === 0) return null;
 
   return (
     <div className="rounded-lg border" style={strongSurfaceStyle}>
       <h3
-        className="border-b px-4 py-2 text-xs font-semibold uppercase tracking-wider"
+        className="border-b px-4 py-2 text-xs font-semibold tracking-normal"
         style={{ color: "var(--app-muted)", borderColor: "var(--app-border)" }}
       >
         {title}
@@ -249,7 +277,9 @@ function CountTable({
             className="flex items-center justify-between px-4 py-2"
             style={index === 0 ? undefined : { borderTop: "1px solid var(--app-border)" }}
           >
-            <span className="text-sm" style={mutedStyle}>{key.replace(/_/g, " ")}</span>
+            <span className="text-sm" style={mutedStyle}>
+              {key.replace(/_/g, " ")}
+            </span>
             <span className="font-mono text-sm font-medium" style={foregroundStyle}>
               {value}
             </span>

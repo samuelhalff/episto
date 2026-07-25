@@ -61,7 +61,10 @@ export function BarRow({
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="flex items-center gap-3">
-      <span className="w-28 shrink-0 text-right text-xs" style={{ color: "var(--app-muted)" }}>
+      <span
+        className="w-28 shrink-0 text-right text-xs"
+        style={{ color: "var(--app-muted)" }}
+      >
         {label}
       </span>
       <div
@@ -77,7 +80,10 @@ export function BarRow({
           }}
         />
       </div>
-      <span className="w-14 text-right font-mono text-xs" style={{ color: "var(--app-fg)" }}>
+      <span
+        className="w-14 text-right font-mono text-xs"
+        style={{ color: "var(--app-fg)" }}
+      >
         {formatValue ? formatValue(value) : value}
       </span>
     </div>
@@ -107,7 +113,7 @@ export function SectionPanel({
     >
       <div className="mb-4 flex items-center justify-between">
         <h3
-          className="text-xs font-semibold uppercase tracking-wider"
+          className="text-xs font-semibold tracking-normal"
           style={{ color: "var(--app-muted)" }}
         >
           {title}

@@ -84,7 +84,7 @@ export default function AdminAccountPage() {
                 {admin?.email ?? t("account.notAvailable")}
               </p>
               <p
-                className="mt-1 text-xs font-medium uppercase tracking-[0.2em]"
+                className="mt-1 text-xs font-medium tracking-normal"
                 style={{ color: "var(--app-muted)" }}
               >
                 {t("shell.role")}

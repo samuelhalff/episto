@@ -168,7 +168,7 @@ export function sectionDivider(): string {
 
 export function detailRow(label: string, value: string): string {
   return `<tr>
-  <td style="padding:10px 12px 10px 0;border-bottom:1px solid ${HAIRLINE_COLOR};font-family:${SANS_STACK};font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${MUTED_COLOR};white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
+  <td style="padding:10px 12px 10px 0;border-bottom:1px solid ${HAIRLINE_COLOR};font-family:${SANS_STACK};font-size:13px;letter-spacing:0;color:${MUTED_COLOR};white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
   <td style="padding:10px 0;border-bottom:1px solid ${HAIRLINE_COLOR};font-family:${SANS_STACK};font-size:15px;color:${INK_COLOR};text-align:right;vertical-align:top;">${escapeHtml(value)}</td>
 </tr>`;
 }
@@ -176,7 +176,7 @@ export function detailRow(label: string, value: string): string {
 /** Ledger row whose value is an identifier (order ref, tracking) → monospace. */
 export function detailRowMono(label: string, value: string): string {
   return `<tr>
-  <td style="padding:10px 12px 10px 0;border-bottom:1px solid ${HAIRLINE_COLOR};font-family:${SANS_STACK};font-size:12px;text-transform:uppercase;letter-spacing:0.04em;color:${MUTED_COLOR};white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
+  <td style="padding:10px 12px 10px 0;border-bottom:1px solid ${HAIRLINE_COLOR};font-family:${SANS_STACK};font-size:13px;letter-spacing:0;color:${MUTED_COLOR};white-space:nowrap;vertical-align:top;">${escapeHtml(label)}</td>
   <td style="padding:10px 0;border-bottom:1px solid ${HAIRLINE_COLOR};font-family:${MONO_STACK};font-size:14px;color:${INK_COLOR};text-align:right;vertical-align:top;">${escapeHtml(value)}</td>
 </tr>`;
 }

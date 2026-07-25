@@ -30,7 +30,7 @@ export function NotFoundTemplateSuggestions({ locale }: { locale: string }) {
 
   return (
     <div className="mt-8 w-full border-t border-[var(--app-border)] pt-6 text-left">
-      <p className="text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+      <p className="text-xs font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
         {ui.popularTitle}
       </p>
       <ul className="mt-3 grid gap-1.5 sm:grid-cols-2">

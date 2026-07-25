@@ -103,7 +103,7 @@ function EscalationControl({
 function SignalBadge({ label }: { label: string }) {
   return (
     <span
-      className="rounded-full px-2 py-0.5 text-[10px] font-medium uppercase"
+      className="rounded-full px-2 py-0.5 text-[10px] font-medium "
       style={{
         background: "var(--app-surface-muted)",
         color: "var(--app-muted)",

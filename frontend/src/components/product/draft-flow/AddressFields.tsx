@@ -68,7 +68,7 @@ export function AddressFields({
   return (
     <>
       <div className="space-y-1">
-        <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+        <div className="text-[11px] font-semibold tracking-normal text-zinc-400">
           {t("streetAddress")}
         </div>
         <input
@@ -84,7 +84,7 @@ export function AddressFields({
       </div>
       <div className="flex gap-4">
         <div className="w-24 space-y-1">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+          <div className="text-[11px] font-semibold tracking-normal text-zinc-400">
             {t("zipCode")}
           </div>
           <input
@@ -100,7 +100,7 @@ export function AddressFields({
           />
         </div>
         <div className="flex-1 space-y-1">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+          <div className="text-[11px] font-semibold tracking-normal text-zinc-400">
             {t("cityLabel")}
           </div>
           <input

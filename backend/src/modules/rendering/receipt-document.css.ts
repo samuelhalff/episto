@@ -26,10 +26,9 @@ export const RECEIPT_DOCUMENT_CSS = `@page {
     }
     .eyebrow {
       font-family: var(--sans);
-      font-size: 7.5pt;
+      font-size: 8pt;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.01em;
       color: var(--muted);
     }
     /* --- Masthead --- */
@@ -108,10 +107,9 @@ export const RECEIPT_DOCUMENT_CSS = `@page {
     }
     .meta-row:first-child { margin-top: 0; }
     .meta-label {
-      font-size: 8pt;
+      font-size: 8.5pt;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.01em;
       color: var(--muted);
       white-space: nowrap;
     }

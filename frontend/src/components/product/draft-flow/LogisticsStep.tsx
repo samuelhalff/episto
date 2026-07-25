@@ -209,7 +209,7 @@ export function LogisticsStep({
     >
       <div className="space-y-10 pb-4">
         <section className="space-y-5">
-          <h3 className="px-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+          <h3 className="px-2 text-[11px] font-semibold tracking-normal text-zinc-400">
             {t("deliveryMethodLabel")}
           </h3>
           <div className="grid gap-3">
@@ -343,7 +343,7 @@ export function LogisticsStep({
                 : "sticky top-0 z-10 -mx-4 flex items-center gap-4 bg-[var(--app-surface-muted)] px-5 pb-3 pt-1 lg:-mx-6 lg:px-7"
             }
           >
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+            <h3 className="text-[11px] font-semibold tracking-normal text-zinc-400">
               {t("signatureLabel")}
             </h3>
           </div>
@@ -371,7 +371,7 @@ export function LogisticsStep({
           {attachmentCount > 0 ? (
             <div className="flex items-start justify-between gap-3 px-2">
               <div className="min-w-0">
-                <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                <h3 className="text-[11px] font-semibold tracking-normal text-zinc-400">
                   {t("attachmentsLabel")}
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-zinc-500 dark:text-zinc-400">

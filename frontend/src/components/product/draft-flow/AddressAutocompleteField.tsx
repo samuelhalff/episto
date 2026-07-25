@@ -176,7 +176,7 @@ export function AddressAutocompleteField({
     <div className="space-y-3">
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex min-w-0 items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+          <div className="flex min-w-0 items-center gap-2 text-[11px] font-semibold tracking-normal text-zinc-400">
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{t("addressSearchLabel")}</span>
           </div>
@@ -238,7 +238,7 @@ export function AddressAutocompleteField({
 
       {shouldShowResults ? (
         <div className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3">
-          <div className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+          <div className="mb-2 text-[11px] font-semibold tracking-normal text-zinc-400">
             {t("searchingAddresses")}
           </div>
           <div className="space-y-2">

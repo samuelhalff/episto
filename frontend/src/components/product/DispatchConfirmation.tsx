@@ -135,7 +135,7 @@ export function DispatchConfirmation({
       {/* Provider reference */}
       {primaryReference && (
         <div className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+          <p className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
             {primaryReferenceLabel}
           </p>
           <p className="mt-2 font-mono text-base font-semibold leading-snug text-zinc-950 dark:text-zinc-50">
@@ -158,7 +158,7 @@ export function DispatchConfirmation({
           )}
           {providerMode === "mock" && (
             <div className="mt-3 rounded-2xl bg-[var(--action-choice-active-bg)] px-3 py-3 text-xs text-[var(--app-muted-strong)]">
-              <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+              <p className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
                 {t("reference.mockLabel")}
               </p>
               <p className="mt-1.5 leading-5">{t("reference.mockBody")}</p>

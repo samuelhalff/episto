@@ -338,7 +338,7 @@ export default function NewDraftPage() {
 
         <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
           <div className="w-full max-w-lg rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
-            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs font-semibold tracking-normal text-zinc-400 dark:text-zinc-500">
               {tc("appName")}
             </p>
             <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
@@ -347,7 +347,7 @@ export default function NewDraftPage() {
             <p className="mt-4 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
               {tr("unfinishedBody")}
             </p>
-            <p className="mt-3 text-xs font-medium uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            <p className="mt-3 text-xs font-medium tracking-normal text-zinc-400 dark:text-zinc-500">
               {tr("lastUpdated", { value: updatedAt })}
             </p>
 
@@ -421,7 +421,7 @@ export default function NewDraftPage() {
 
         <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
           <div className="w-full max-w-md rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
-            <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+            <p className="text-xs font-semibold tracking-normal text-zinc-400 dark:text-zinc-500">
               {tc("appName")}
             </p>
             <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">
@@ -457,7 +457,7 @@ export default function NewDraftPage() {
 
       <main className="flex min-h-[calc(100vh-73px)] items-center justify-center px-6 py-10">
         <div className="w-full max-w-lg rounded-4xl border border-zinc-200/80 bg-white/90 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900/90">
-          <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <p className="text-xs font-semibold tracking-normal text-zinc-400 dark:text-zinc-500">
             {tc("appName")}
           </p>
           <h1 className="mt-4 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50">

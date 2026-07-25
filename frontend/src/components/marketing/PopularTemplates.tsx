@@ -61,7 +61,7 @@ export function PopularTemplates({ locale }: { locale: Locale }) {
               <span className="flex items-center gap-3">
                 <MarketingMeta
                   as="span"
-                  className="hidden text-xs uppercase tracking-wider sm:inline"
+                  className="hidden text-xs tracking-normal sm:inline"
                 >
                   {page.category}
                 </MarketingMeta>

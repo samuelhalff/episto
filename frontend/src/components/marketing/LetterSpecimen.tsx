@@ -36,7 +36,7 @@ export function LetterSpecimen({ locale }: { locale: Locale }) {
         aria-hidden="true"
         className="w-full rounded-sm border border-[var(--app-border)] bg-white shadow-[0_10px_30px_rgba(22,22,22,0.10)]"
       />
-      <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--app-muted)]">
+      <p className="mt-3 font-mono text-[11px] tracking-normal text-[var(--app-muted)]">
         {caption}
       </p>
     </div>

@@ -21,7 +21,7 @@ export function RecipientSelectedCompanySummary({
     <div className="space-y-2 rounded-2xl border border-emerald-200 bg-emerald-50/70 p-3 dark:border-emerald-400/20 dark:bg-emerald-500/10">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <div className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+          <div className="text-[11px] font-semibold tracking-normal text-zinc-400">
             {t("selectedCompanyLabel")}
           </div>
           <div className="break-words text-base font-semibold text-zinc-900 dark:text-zinc-100">

@@ -19,7 +19,7 @@ export function HelpPageCta({
           <MarketingBody
             as="p"
             tone="muted"
-            className="text-[11px] font-semibold uppercase tracking-[0.24em]"
+            className="text-[11px] font-semibold tracking-normal"
           >
             {eyebrow}
           </MarketingBody>

@@ -73,7 +73,7 @@ export function DeliverySelector({
                       {opt.label}
                     </span>
                     <span
-                      className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold uppercase tracking-widest ${selected ? "bg-white/12 text-white/80 dark:bg-zinc-950/10 dark:text-zinc-900/80" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"}`}
+                      className={`rounded-lg px-2 py-0.5 text-[11px] font-semibold tracking-normal ${selected ? "bg-white/12 text-white/80 dark:bg-zinc-950/10 dark:text-zinc-900/80" : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"}`}
                     >
                       {opt.badge}
                     </span>

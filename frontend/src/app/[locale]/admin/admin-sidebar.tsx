@@ -60,7 +60,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
       <div className="flex items-center justify-between px-5 pb-6 pt-6">
         <div className="flex items-center gap-2">
           <Logo iconClassName="h-6 w-6" wordmarkClassName="text-base" />
-          <span className="text-xs font-medium uppercase tracking-wide text-[var(--app-fg)]/60">
+          <span className="text-xs font-medium tracking-normal text-[var(--app-fg)]/60">
             admin
           </span>
         </div>
@@ -80,7 +80,7 @@ export function AdminSidebar({ open, onClose }: AdminSidebarProps) {
         {NAV_SECTIONS.map((section) => (
           <div key={section.label}>
             <div
-              className="px-5 pb-1.5 pt-4 text-[10px] uppercase tracking-widest"
+              className="px-5 pb-1.5 pt-4 text-[10px] tracking-normal"
               style={{ color: "var(--app-muted)" }}
             >
               {section.label}

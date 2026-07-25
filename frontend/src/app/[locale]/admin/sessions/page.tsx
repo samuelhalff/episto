@@ -74,7 +74,7 @@ export default function SessionsPage() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr
-                    className="border-b text-[11px] uppercase tracking-wider"
+                    className="border-b text-[11px] tracking-normal"
                     style={{
                       borderColor: "var(--app-border)",
                       color: "var(--app-muted)",

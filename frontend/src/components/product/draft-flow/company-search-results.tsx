@@ -33,7 +33,7 @@ export function CompanySearchResults({
         aria-busy={isLoading || isFetching}
         className="rounded-2xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] p-3"
       >
-        <div className="mb-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+        <div className="mb-2 text-[11px] font-semibold tracking-normal text-zinc-400">
           {t("officialCompanySearch")}
         </div>
 

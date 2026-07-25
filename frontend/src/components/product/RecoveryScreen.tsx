@@ -45,13 +45,13 @@ export function RecoveryScreen({
     >
       <div className="app-panel w-full max-w-xl rounded-4xl p-8 text-center">
         <div className="mx-auto flex max-w-md flex-col items-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+          <div className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-semibold tracking-normal text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
             <span className="text-zinc-600 dark:text-zinc-300">{icon}</span>
             <span>{statusLabel ?? eyebrow}</span>
           </div>
 
           {eyebrow && statusLabel ? (
-            <p className="mt-5 text-xs font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+            <p className="mt-5 text-xs font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
               {eyebrow}
             </p>
           ) : null}

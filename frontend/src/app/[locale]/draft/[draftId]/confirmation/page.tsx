@@ -327,7 +327,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
           className="app-panel mx-auto max-w-sm rounded-3xl p-6 text-left"
           aria-live="polite"
         >
-          <h2 className="mb-4 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <h2 className="mb-4 text-[11px] font-semibold tracking-normal text-zinc-400 dark:text-zinc-500">
             {t("dispatchTitle")}
           </h2>
           <DispatchConfirmation
@@ -351,7 +351,7 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
 
         {/* What happens next — 4-step timeline */}
         <div className="app-panel mx-auto max-w-sm rounded-3xl p-6 text-left">
-          <h2 className="mb-5 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <h2 className="mb-5 text-[11px] font-semibold tracking-normal text-zinc-400 dark:text-zinc-500">
             {t("whatHappensNext")}
           </h2>
           <ol role="list" className="space-y-1">

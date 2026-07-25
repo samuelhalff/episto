@@ -290,7 +290,7 @@ export function ReviewPageReady({
         ].join(" ")}
       >
         <div className="max-w-2xl">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+          <p className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
             {t("finalCheck")}
           </p>
           <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-zinc-950 dark:text-zinc-50 md:text-4xl">
@@ -406,7 +406,7 @@ export function ReviewPageReady({
               trailingIcon={<ChevronRight className="h-4 w-4 shrink-0" />}
               trailingMeta={
                 reviewActionState.showTrailingMeta && quote.data ? (
-                  <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--action-primary-fg)] sm:inline-flex">
+                  <span className="hidden rounded-full bg-black/10 px-2.5 py-1 text-[11px] font-semibold tracking-normal text-[var(--action-primary-fg)] sm:inline-flex">
                     {formatCentsAsCHF(quote.data.totalCents)}
                   </span>
                 ) : null

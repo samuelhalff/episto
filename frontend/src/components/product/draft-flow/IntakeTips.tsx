@@ -31,7 +31,7 @@ export function IntakeTips() {
 
   return (
     <section className="px-2">
-      <div className="mb-6 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+      <div className="mb-6 flex items-center gap-2 text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
         <Lightbulb className="h-3.5 w-3.5 shrink-0" />
         {t("proTips")}
       </div>

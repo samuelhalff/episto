@@ -25,7 +25,7 @@ export function ReviewSummaryCard({
   return (
     <div className="app-panel rounded-3xl p-6">
       <div>
-        <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+        <h2 className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
           {title}
         </h2>
         <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">{description}</p>
@@ -56,7 +56,7 @@ const SummaryBlock = memo(function SummaryBlock({
 
   return (
     <div className="app-list-item-muted rounded-2xl p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-500 dark:text-zinc-400">
+      <p className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
         {label}
       </p>
       <div className="mt-2 space-y-1">

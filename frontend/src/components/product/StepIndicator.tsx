@@ -22,7 +22,7 @@ export function StepIndicator({
         <p className="min-w-0 truncate text-xs font-semibold text-zinc-900 dark:text-zinc-100">
           {t(currentStepKey)}
         </p>
-        <div className="app-panel-muted shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] tabular-nums text-zinc-500 dark:text-zinc-300">
+        <div className="app-panel-muted shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-normal tabular-nums text-zinc-500 dark:text-zinc-300">
           {clampedStep + 1}/{STEPS.length}
         </div>
       </div>

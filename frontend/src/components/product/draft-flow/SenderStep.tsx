@@ -235,7 +235,7 @@ export function SenderStep({
       <div className="space-y-8 pb-4">
         <section className="space-y-6">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+            <h3 className="text-[11px] font-semibold tracking-normal text-zinc-400">
               {t("yourIdentity")}
             </h3>
           </div>
@@ -244,7 +244,7 @@ export function SenderStep({
             <Card isCompactViewport={isCompactViewport} density="thin">
               <div className="space-y-6">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                  <div className="flex items-center gap-2 text-[11px] font-semibold tracking-normal text-zinc-400">
                     <User className="h-3.5 w-3.5 shrink-0" />
                     <span>{t("fullName")}</span>
                   </div>

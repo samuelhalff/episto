@@ -125,7 +125,7 @@ export function SubjectStep({
       <div className="space-y-8 pb-4">
         <section className="space-y-3">
           <div className="flex items-center justify-between px-1">
-            <h3 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+            <h3 className="text-[11px] font-semibold tracking-normal text-zinc-400">
               {t("subjectLineLabel")}
             </h3>
           </div>

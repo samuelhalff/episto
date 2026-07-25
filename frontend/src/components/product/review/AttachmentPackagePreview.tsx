@@ -160,7 +160,7 @@ export function AttachmentPackagePreview({ attachments }: { attachments: FileAss
           });
           return (
             <li key={file.id}>
-              <p className="mb-2 text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+              <p className="mb-2 text-xs font-medium tracking-normal text-zinc-500 dark:text-zinc-400">
                 {label}
               </p>
               {file.mimeType.startsWith("image/") ? (

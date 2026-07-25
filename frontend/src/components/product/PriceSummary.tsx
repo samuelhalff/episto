@@ -50,7 +50,7 @@ export function PriceSummary({
     <div className="app-panel rounded-3xl p-6 transition-colors">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+          <h2 className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
             {t("orderSummary")}
           </h2>
           <p className="mt-2 text-xs text-zinc-400 dark:text-zinc-500">{summaryNote}</p>

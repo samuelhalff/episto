@@ -141,7 +141,7 @@ async function resolveDispatchQuoteFromStoredMatrix(
           source: "provider",
         },
         {
-          label: "Episto service",
+          label: "episto service",
           amountCents: swissMailMarkupCents,
           source: "swiss_mail",
         },
@@ -188,7 +188,7 @@ async function resolveDispatchQuoteFromCacheOrLiveProvider(
             source: "provider",
           },
           {
-            label: "Episto service",
+            label: "episto service",
             amountCents: cached.swissMailMarkupCents,
             source: "swiss_mail",
           },

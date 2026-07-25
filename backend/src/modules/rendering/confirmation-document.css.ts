@@ -26,18 +26,16 @@ export const CONFIRMATION_DOCUMENT_CSS = `@page {
     }
     .eyebrow {
       font-family: var(--sans);
-      font-size: 7.5pt;
+      font-size: 8pt;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.01em;
       color: var(--muted);
     }
     .ref-tag {
       font-family: var(--sans);
-      font-size: 6.5pt;
+      font-size: 7pt;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0;
       color: var(--muted);
       white-space: nowrap;
     }
@@ -168,10 +166,9 @@ export const CONFIRMATION_DOCUMENT_CSS = `@page {
     }
     .ledger-label {
       flex: 0 0 42mm;
-      font-size: 8pt;
+      font-size: 8.5pt;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.01em;
       color: var(--muted);
       padding-top: 1pt;
     }

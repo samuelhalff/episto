@@ -56,10 +56,7 @@ export default async function TermsPage({
           companyName: LEGAL_OPERATOR.companyName,
         })}
         eyebrow={
-          <MarketingMeta
-            as="p"
-            className="text-[11px] font-semibold uppercase tracking-widest"
-          >
+          <MarketingMeta as="p" className="text-[11px] font-semibold tracking-normal">
             {t("termsLastUpdated")}
           </MarketingMeta>
         }

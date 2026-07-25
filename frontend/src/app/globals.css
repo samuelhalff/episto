@@ -249,10 +249,10 @@
     outline: 1px solid var(--app-border-strong);
   }
 
-  /* Section label – uppercase tracking. Uses secondary ink for legible
-     contrast on the paper background (plain zinc-500 was too faint). */
+  /* Section label – small sentence-case eyebrow. Uses secondary ink for
+     legible contrast on the paper background (plain zinc-500 was too faint). */
   .section-label {
-    @apply text-[11px] font-semibold uppercase tracking-widest text-[var(--app-muted)] dark:text-zinc-400;
+    @apply text-[13px] font-semibold tracking-normal text-[var(--app-muted)] dark:text-zinc-400;
   }
 
   /* Chat-first composer pill */

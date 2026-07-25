@@ -21,7 +21,7 @@ export function ConfirmationEmailNotice({
           <Mail className="h-5 w-5 shrink-0" />
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:text-zinc-400">
+          <p className="text-[11px] font-semibold tracking-normal text-zinc-500 dark:text-zinc-400">
             {eyebrow}
           </p>
           <p className="mt-2 text-sm font-semibold leading-5 text-[var(--app-fg)]">

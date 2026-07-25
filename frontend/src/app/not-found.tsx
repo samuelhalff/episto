@@ -60,14 +60,14 @@ export default function RootNotFound() {
     <div className="flex min-h-screen items-center justify-center bg-[var(--app-surface-muted)] px-6 py-10 dark:bg-zinc-950">
       <div className="w-full max-w-xl rounded-4xl border border-zinc-200/80 bg-white/95 p-8 text-center shadow-prominent-warm dark:border-zinc-800 dark:bg-zinc-900 dark:shadow-prominent">
         <div className="mx-auto flex max-w-md flex-col items-center">
-          <div className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-semibold uppercase tracking-widest text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
+          <div className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-3 py-1 text-[11px] font-semibold tracking-normal text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400">
             <span className="text-zinc-600 dark:text-zinc-300">
               <AlertCircle className="h-5 w-5" />
             </span>
             <span>404</span>
           </div>
 
-          <p className="mt-5 text-[11px] font-semibold uppercase tracking-widest text-zinc-400 dark:text-zinc-500">
+          <p className="mt-5 text-[11px] font-semibold tracking-normal text-zinc-400 dark:text-zinc-500">
             {BRAND_NAME}
           </p>
 
