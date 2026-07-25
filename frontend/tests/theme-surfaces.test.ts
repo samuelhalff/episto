@@ -123,7 +123,7 @@ describe("theme surface regressions", () => {
 
   it("keeps the shared section label style dark-mode safe", () => {
     expect(globalsSource).toContain(
-      "text-[11px] font-semibold uppercase tracking-widest text-[var(--app-muted)] dark:text-zinc-400",
+      "text-[13px] font-semibold tracking-normal text-[var(--app-muted)] dark:text-zinc-400",
     );
   });
 

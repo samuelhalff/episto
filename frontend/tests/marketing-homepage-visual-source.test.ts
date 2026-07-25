@@ -55,7 +55,9 @@ describe("marketing homepage visual source coverage (letter system)", () => {
   });
 
   it("presents the steps as numbered rows on a black rule (no yellow rail)", () => {
-    expect(howItWorksSource).toContain('padStart(2, "0")');
+    expect(howItWorksSource).toContain("{index + 1}");
+    expect(howItWorksSource).toContain("numeral");
+    expect(howItWorksSource).not.toContain('padStart(2, "0")');
     expect(howItWorksSource).toContain("border-t-2 border-[var(--app-fg)]");
     expect(howItWorksSource).not.toContain("route-rail");
     expect(howItWorksSource).not.toContain("MarketingFeatureSection");

@@ -53,7 +53,7 @@ describe("phone verification", () => {
   it("keeps the SMS copy short enough for one GSM segment", () => {
     const message = buildPhoneVerificationMessage("123456");
 
-    expect(message).toBe("Episto code: 123456. Expires in 10 minutes.");
+    expect(message).toBe("episto code: 123456. Expires in 10 minutes.");
     expect(message.length).toBeLessThanOrEqual(160);
   });
 

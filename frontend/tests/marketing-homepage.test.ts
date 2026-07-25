@@ -327,7 +327,9 @@ describe("marketing homepage shared visual primitives", () => {
     const heroSource = readFileSync(homepageComponentPaths.hero, "utf8");
     const howItWorksSource = readFileSync(homepageComponentPaths.howItWorks, "utf8");
 
-    expect(howItWorksSource).toContain('padStart(2, "0")');
+    expect(howItWorksSource).toContain("{index + 1}");
+    expect(howItWorksSource).toContain("numeral");
+    expect(howItWorksSource).not.toContain('padStart(2, "0")');
     expect(heroSource).not.toContain('padStart(2, "0")');
   });
 
@@ -369,7 +371,7 @@ describe("marketing homepage shared visual primitives", () => {
     const confidenceMarkup = renderWithMessages(ConfidenceBlock, messages);
     const useCasesMarkup = renderWithMessages(UseCaseGrid, messages);
 
-    expect(howItWorksMarkup).toContain(">01<");
+    expect(howItWorksMarkup).toContain(">1<");
     expect(howItWorksMarkup).not.toContain("route-rail");
     expect(confidenceMarkup).toContain("hairline");
     expect(useCasesMarkup).toContain("hairline");
@@ -388,7 +390,7 @@ describe("marketing homepage shared visual primitives", () => {
       "You stay in control",
     );
     expect(getNestedValue(messages, "marketing.homepage.useCases.title")).toBe(
-      "When Episto can help",
+      "When episto can help",
     );
   });
 
@@ -407,10 +409,10 @@ describe("marketing homepage shared visual primitives", () => {
   it("avoids vague use-case section titles in customer-facing locales", () => {
     expect(
       getNestedValue(readLocaleMessages("fr-CH"), "marketing.homepage.useCases.title"),
-    ).toBe("Quand Episto peut vous aider");
+    ).toBe("Quand episto peut vous aider");
     expect(
       getNestedValue(readLocaleMessages("it-CH"), "marketing.homepage.useCases.title"),
-    ).toBe("Quando Episto può esserLe utile");
+    ).toBe("Quando episto può esserLe utile");
   });
 
   it("uses the primary yellow cta band treatment with enforced dark body contrast", () => {
@@ -549,6 +551,7 @@ describe("marketing homepage shared visual primitives", () => {
   it("keeps the homepage hero to one supporting paragraph under the title", () => {
     const heroMessages = {
       marketing: {
+        pricingFromFallback: "Transparent per-letter pricing",
         homepage: {
           hero: {
             badge: "Built for important letters",
@@ -559,6 +562,7 @@ describe("marketing homepage shared visual primitives", () => {
             primaryCta: "Write your letter now",
             secondaryCta: "See how it works",
             proof: "No account required",
+            priceReassurance: "postage included, pay only when you send",
             steps: {
               describe: "Describe",
               review: "Review",

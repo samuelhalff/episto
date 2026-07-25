@@ -168,7 +168,7 @@ describe("marketing seo plumbing", () => {
       locale: "fr-CH",
       pathname: "/pricing",
       title: "Tarifs",
-      description: "Comparez les tarifs Episto.",
+      description: "Comparez les tarifs episto.",
     });
 
     expect(metadata.alternates?.canonical).toBe("https://example.test/fr-CH/pricing");
@@ -182,15 +182,15 @@ describe("marketing seo plumbing", () => {
     expect(metadata.metadataBase).toEqual(new URL("https://example.test"));
     expect(metadata.openGraph).toMatchObject({
       title: "Tarifs",
-      description: "Comparez les tarifs Episto.",
+      description: "Comparez les tarifs episto.",
       url: "https://example.test/fr-CH/pricing",
       locale: "fr-CH",
-      siteName: "Episto",
+      siteName: "episto",
       type: "website",
     });
     expect(metadata.twitter).toMatchObject({
       title: "Tarifs",
-      description: "Comparez les tarifs Episto.",
+      description: "Comparez les tarifs episto.",
       card: "summary_large_image",
     });
   });
