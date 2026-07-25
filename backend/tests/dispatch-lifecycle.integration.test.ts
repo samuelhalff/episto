@@ -14,6 +14,7 @@ vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
 }));
 
 import { schema } from "../src/db/index.js";
+import { loadEnv } from "../src/shared/config/index.js";
 import {
   createDispatchAttempt,
   getDispatchAttempt,
@@ -35,6 +36,10 @@ import {
 } from "./helpers/postgres-integration.js";
 
 const describeIfIntegrationDb = integrationDatabaseUrl ? describe : describe.skip;
+
+if (integrationDatabaseUrl) {
+  loadEnv();
+}
 
 describeIfIntegrationDb("dispatch lifecycle integration", () => {
   let cleanup: (() => Promise<void>) | null = null;
