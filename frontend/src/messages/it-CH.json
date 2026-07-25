@@ -31,7 +31,7 @@
     "showPreview": "Mostrare l'anteprima",
     "hidePreview": "Nascondere l'anteprima",
     "refresh": "Aggiornare",
-    "privacyNoticeBody": "Episto utilizza un solo cookie essenziale per la sessione. Nessun tracciamento e nessuna analisi di terzi.",
+    "privacyNoticeBody": "episto utilizza un solo cookie essenziale per la sessione. Nessun tracciamento e nessuna analisi di terzi.",
     "privacyPolicy": "Informativa sulla privacy",
     "dismissPrivacyNotice": "Chiudere l'avviso sulla privacy"
   },
@@ -57,7 +57,7 @@
     "useCaseLease": "Disdire una locazione",
     "useCaseComplaint": "Presentare un reclamo formale",
     "useCaseAuthority": "Scrivere a un'autorità",
-    "trustTitle": "Perché Episto",
+    "trustTitle": "Perché episto",
     "trustSwissPost": "Spedizione con La Posta",
     "trustSecure": "Sicuro e cifrato",
     "trustNoAccount": "Senza account",
@@ -123,9 +123,9 @@
         }
       },
       "confidence": {
-        "eyebrow": "Perché si sceglie Episto",
+        "eyebrow": "Perché si sceglie episto",
         "title": "Mantiene il controllo",
-        "intro": "Episto aiuta con la struttura e la formulazione. Il contenuto della lettera, il momento in cui è pronta e la decisione di spedirla restano sempre nelle Sue mani.",
+        "intro": "episto aiuta con la struttura e la formulazione. Il contenuto della lettera, il momento in cui è pronta e la decisione di spedirla restano sempre nelle Sue mani.",
         "cards": {
           "structured": {
             "title": "Una lettera vera e ben impostata",
@@ -143,7 +143,7 @@
       },
       "useCases": {
         "eyebrow": "Casi frequenti",
-        "title": "Quando Episto può esserLe utile",
+        "title": "Quando episto può esserLe utile",
         "intro": "Di solito si arriva qui quando la questione è importante e un messaggio veloce non basta più.",
         "cancellation": {
           "title": "Disdire un abbonamento",
@@ -188,7 +188,7 @@
     }
   },
   "howItWorks": {
-    "title": "Come funziona Episto",
+    "title": "Come funziona episto",
     "subtitle": "Tre passaggi chiari per preparare e spedire una lettera professionale.",
     "stepLabel": "Passo {number}",
     "step1Detail": "Indichi che tipo di lettera Le serve. La guidiamo nella struttura e prepariamo una lettera formale nel corretto formato svizzero.",
@@ -254,7 +254,7 @@
   "legal": {
     "privacyTitle": "Informativa sulla privacy",
     "privacyLastUpdated": "Ultimo aggiornamento: gennaio 2025",
-    "privacyIntro": "La presente informativa sulla privacy spiega come Episto raccoglie, utilizza e protegge i Suoi dati personali quando utilizza il nostro servizio.",
+    "privacyIntro": "La presente informativa sulla privacy spiega come episto raccoglie, utilizza e protegge i Suoi dati personali quando utilizza il nostro servizio.",
     "dataCollectionTitle": "Raccolta dei dati",
     "dataUsageTitle": "Utilizzo dei dati",
     "dataStorageTitle": "Archiviazione e sicurezza dei dati",
@@ -266,7 +266,7 @@
     "legalReviewNote": "Contenuto da finalizzare dopo revisione legale.",
     "termsTitle": "Condizioni generali di utilizzo",
     "termsLastUpdated": "Ultimo aggiornamento: gennaio 2025",
-    "termsIntro": "Le presenti condizioni generali disciplinano l'utilizzo del servizio di spedizione lettere Episto.",
+    "termsIntro": "Le presenti condizioni generali disciplinano l'utilizzo del servizio di spedizione lettere episto.",
     "serviceDescTitle": "Descrizione del servizio",
     "userObligationsTitle": "Obblighi dell'utente",
     "paymentTermsTitle": "Condizioni di pagamento",
@@ -722,7 +722,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Raccomandata",
     "providerQuoteLabel": "Preventivo del fornitore",
-    "swissMailServiceLabel": "Servizio Episto",
+    "swissMailServiceLabel": "Servizio episto",
     "secureCheckout": "Pagamento sicuro tramite Stripe",
     "paymentHelp": "Stripe gestisce i dati di pagamento. Non raccogliamo mai direttamente i dati grezzi della carta.",
     "total": "Totale",
@@ -939,32 +939,32 @@
   },
   "seo": {
     "home": {
-      "title": "Episto — Preparare e spedire online lettere importanti",
+      "title": "episto — Preparare e spedire online lettere importanti",
       "description": "Rediga una lettera formale, verifichi ogni dettaglio e organizzi la spedizione postale in Svizzera senza aprire un account."
     },
     "pricing": {
-      "title": "Prezzi — Spedire lettere per posta | Episto",
+      "title": "Prezzi — Spedire lettere per posta | episto",
       "description": "Prezzi trasparenti per lettere standard e raccomandate, con un simulatore e il totale esatto prima del pagamento."
     },
     "help": {
-      "title": "Aiuto & FAQ — Redigere e spedire lettere | Episto",
-      "description": "Risposte su redazione, pagamento, spedizione, allegati e supporto per Episto."
+      "title": "Aiuto & FAQ — Redigere e spedire lettere | episto",
+      "description": "Risposte su redazione, pagamento, spedizione, allegati e supporto per episto."
     },
     "privacy": {
-      "title": "Privacy — Episto",
-      "description": "Scopra come Episto gestisce dati di sessione, file, pagamenti e conservazione con misure attente alla privacy."
+      "title": "Privacy — episto",
+      "description": "Scopra come episto gestisce dati di sessione, file, pagamenti e conservazione con misure attente alla privacy."
     },
     "terms": {
-      "title": "Condizioni — Episto",
-      "description": "Legga le condizioni per usare Episto, pagare la spedizione e spedire lettere come ospite."
+      "title": "Condizioni — episto",
+      "description": "Legga le condizioni per usare episto, pagare la spedizione e spedire lettere come ospite."
     },
     "imprint": {
-      "title": "Colofone — Episto",
-      "description": "Dati dell'operatore e informazioni di contatto di Episto."
+      "title": "Colofone — episto",
+      "description": "Dati dell'operatore e informazioni di contatto di episto."
     },
     "signatureRequirements": {
-      "title": "Requisiti di firma — Episto",
-      "description": "Quando usare una firma con font o disegnata per le lettere svizzere inviate con Episto."
+      "title": "Requisiti di firma — episto",
+      "description": "Quando usare una firma con font o disegnata per le lettere svizzere inviate con episto."
     }
   },
   "signatureTiers": {
@@ -991,7 +991,7 @@
     "readThisFirst": "Da leggere prima",
     "callout": {
       "notLegalAdvice": "Questa pagina è informativa e non sostituisce il parere di un professionista legale.",
-      "printedSignature": "Episto aggiunge la firma scelta alla lettera che viene stampata e inviata per posta.",
+      "printedSignature": "episto aggiunge la firma scelta alla lettera che viene stampata e inviata per posta.",
       "legalForm": "Se il destinatario richiede una forma specifica, verifica il requisito prima dell’invio."
     },
     "sections": {
@@ -1005,7 +1005,7 @@
       },
       "whenRequired": {
         "title": "Quando verificare prima",
-        "intro": "Alcune pratiche possono avere requisiti di forma stabiliti dalla legge, da un contratto o dal destinatario. Episto non decide questi requisiti al posto tuo.",
+        "intro": "Alcune pratiche possono avere requisiti di forma stabiliti dalla legge, da un contratto o dal destinatario. episto non decide questi requisiti al posto tuo.",
         "disclaimer": "Per contratti, pratiche ufficiali o controversie con scadenze, conferma il formato di firma richiesto con il destinatario o un professionista legale prima dell’invio."
       },
       "contact": {

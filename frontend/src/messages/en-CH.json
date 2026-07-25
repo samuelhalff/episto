@@ -31,7 +31,7 @@
     "showPreview": "Show preview",
     "hidePreview": "Hide preview",
     "refresh": "Refresh",
-    "privacyNoticeBody": "Episto uses a single essential cookie for your session. No tracking, no third-party analytics.",
+    "privacyNoticeBody": "episto uses a single essential cookie for your session. No tracking, no third-party analytics.",
     "privacyPolicy": "Privacy policy",
     "dismissPrivacyNotice": "Dismiss privacy notice"
   },
@@ -57,7 +57,7 @@
     "useCaseLease": "End a lease agreement",
     "useCaseComplaint": "File a formal complaint",
     "useCaseAuthority": "Write to an authority",
-    "trustTitle": "Why Episto",
+    "trustTitle": "Why episto",
     "trustSwissPost": "Delivered by Swiss Post",
     "trustSecure": "Secure & encrypted",
     "trustNoAccount": "No account needed",
@@ -123,7 +123,7 @@
         }
       },
       "confidence": {
-        "eyebrow": "Why people use Episto",
+        "eyebrow": "Why people use episto",
         "title": "You stay in control",
         "intro": "We help with structure and wording. What the letter says, when it is ready, and whether you send it is always your call.",
         "cards": {
@@ -143,8 +143,8 @@
       },
       "useCases": {
         "eyebrow": "Common use cases",
-        "title": "When Episto can help",
-        "intro": "Most people use Episto when the matter is important and a quick message will not do.",
+        "title": "When episto can help",
+        "intro": "Most people use episto when the matter is important and a quick message will not do.",
         "cancellation": {
           "title": "Cancel a subscription",
           "description": "End a membership or service contract with a proper written notice."
@@ -188,7 +188,7 @@
     }
   },
   "howItWorks": {
-    "title": "How Episto works",
+    "title": "How episto works",
     "subtitle": "Three clear steps to prepare and send a professional letter.",
     "stepLabel": "Step {number}",
     "step1Detail": "Tell us what kind of letter you need. We guide the structure and prepare a formal letter in the correct Swiss format.",
@@ -722,7 +722,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Registered",
     "providerQuoteLabel": "Provider quote",
-    "swissMailServiceLabel": "Episto service",
+    "swissMailServiceLabel": "episto service",
     "secureCheckout": "Secure checkout through Stripe",
     "paymentHelp": "Stripe handles the payment details. We never collect raw card data ourselves.",
     "total": "Total",
@@ -939,32 +939,32 @@
   },
   "seo": {
     "home": {
-      "title": "Episto — Prepare and send serious letters online",
+      "title": "episto — Prepare and send serious letters online",
       "description": "Draft formal letters, review every detail, and arrange postal dispatch in Switzerland without opening an account."
     },
     "pricing": {
-      "title": "Pricing — Send letters by Swiss Post | Episto",
+      "title": "Pricing — Send letters by Swiss Post | episto",
       "description": "Transparent pricing for standard and registered letters, with a live simulator and the exact total before payment."
     },
     "help": {
-      "title": "Help & FAQ — Draft and send letters | Episto",
-      "description": "Answers about drafting, payment, dispatch, attachments, and support for Episto."
+      "title": "Help & FAQ — Draft and send letters | episto",
+      "description": "Answers about drafting, payment, dispatch, attachments, and support for episto."
     },
     "privacy": {
-      "title": "Privacy — Episto",
-      "description": "Learn how Episto handles session data, files, payments, and retention with privacy-conscious safeguards."
+      "title": "Privacy — episto",
+      "description": "Learn how episto handles session data, files, payments, and retention with privacy-conscious safeguards."
     },
     "terms": {
-      "title": "Terms — Episto",
-      "description": "Read the terms for using Episto, paying for dispatch, and sending letters as a guest."
+      "title": "Terms — episto",
+      "description": "Read the terms for using episto, paying for dispatch, and sending letters as a guest."
     },
     "imprint": {
-      "title": "Imprint — Episto",
-      "description": "Operator details and contact information for Episto."
+      "title": "Imprint — episto",
+      "description": "Operator details and contact information for episto."
     },
     "signatureRequirements": {
-      "title": "Signature requirements — Episto",
-      "description": "When to use a font or drawn signature on Swiss letters sent with Episto."
+      "title": "Signature requirements — episto",
+      "description": "When to use a font or drawn signature on Swiss letters sent with episto."
     }
   },
   "signatureTiers": {
@@ -991,7 +991,7 @@
     "readThisFirst": "Read this first",
     "callout": {
       "notLegalAdvice": "This page is informational and does not replace advice from a lawyer.",
-      "printedSignature": "Episto adds the selected signature to the letter that is printed and posted.",
+      "printedSignature": "episto adds the selected signature to the letter that is printed and posted.",
       "legalForm": "If a recipient requires a specific legal form, confirm that requirement before sending."
     },
     "sections": {
@@ -1005,7 +1005,7 @@
       },
       "whenRequired": {
         "title": "When to check first",
-        "intro": "Some matters have formal signing requirements set by law, by contract, or by the recipient. Episto does not decide those requirements for you.",
+        "intro": "Some matters have formal signing requirements set by law, by contract, or by the recipient. episto does not decide those requirements for you.",
         "disclaimer": "For contracts, official filings, or time-sensitive disputes, confirm the required signature format with the recipient or a lawyer before sending."
       },
       "contact": {

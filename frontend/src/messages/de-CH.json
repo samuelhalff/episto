@@ -31,7 +31,7 @@
     "showPreview": "Vorschau anzeigen",
     "hidePreview": "Vorschau ausblenden",
     "refresh": "Aktualisieren",
-    "privacyNoticeBody": "Episto verwendet nur ein unbedingt notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Analysen von Dritten.",
+    "privacyNoticeBody": "episto verwendet nur ein unbedingt notwendiges Cookie für Ihre Sitzung. Kein Tracking, keine Analysen von Dritten.",
     "privacyPolicy": "Datenschutz",
     "dismissPrivacyNotice": "Datenschutzhinweis ausblenden"
   },
@@ -57,7 +57,7 @@
     "useCaseLease": "Mietvertrag beenden",
     "useCaseComplaint": "Formelle Beschwerde einreichen",
     "useCaseAuthority": "An eine Behörde schreiben",
-    "trustTitle": "Warum Episto",
+    "trustTitle": "Warum episto",
     "trustSwissPost": "Versand über Die Post",
     "trustSecure": "Sicher und verschlüsselt",
     "trustNoAccount": "Kein Konto nötig",
@@ -123,9 +123,9 @@
         }
       },
       "confidence": {
-        "eyebrow": "Warum Menschen Episto nutzen",
+        "eyebrow": "Warum Menschen episto nutzen",
         "title": "Sie behalten die Kontrolle",
-        "intro": "Episto hilft bei Struktur und Formulierung. Was im Brief steht, wann er fertig ist und ob Sie ihn versenden, entscheiden Sie.",
+        "intro": "episto hilft bei Struktur und Formulierung. Was im Brief steht, wann er fertig ist und ob Sie ihn versenden, entscheiden Sie.",
         "cards": {
           "structured": {
             "title": "Ihr Brief klingt wie ein richtiger Brief",
@@ -143,8 +143,8 @@
       },
       "useCases": {
         "eyebrow": "Typische Fälle",
-        "title": "Wann Episto helfen kann",
-        "intro": "Die meisten nutzen Episto, wenn die Sache wichtig ist und eine kurze Nachricht nicht mehr genügt.",
+        "title": "Wann episto helfen kann",
+        "intro": "Die meisten nutzen episto, wenn die Sache wichtig ist und eine kurze Nachricht nicht mehr genügt.",
         "cancellation": {
           "title": "Abonnement kündigen",
           "description": "Beenden Sie eine Mitgliedschaft oder einen Vertrag mit einer sauberen schriftlichen Kündigung."
@@ -188,7 +188,7 @@
     }
   },
   "howItWorks": {
-    "title": "So funktioniert Episto",
+    "title": "So funktioniert episto",
     "subtitle": "Drei klare Schritte zu einem professionellen Brief.",
     "stepLabel": "Schritt {number}",
     "step1Detail": "Teilen Sie uns mit, welche Art von Brief Sie verfassen möchten. Wir helfen bei der Struktur und bereiten einen formellen Brief im korrekten Schweizer Format vor.",
@@ -254,7 +254,7 @@
   "legal": {
     "privacyTitle": "Datenschutzerklärung",
     "privacyLastUpdated": "Letzte Aktualisierung: Januar 2025",
-    "privacyIntro": "Diese Datenschutzerklärung erläutert, wie Episto Ihre personenbezogenen Daten erhebt, nutzt und schützt, wenn Sie unseren Dienst verwenden.",
+    "privacyIntro": "Diese Datenschutzerklärung erläutert, wie episto Ihre personenbezogenen Daten erhebt, nutzt und schützt, wenn Sie unseren Dienst verwenden.",
     "dataCollectionTitle": "Datenerhebung",
     "dataUsageTitle": "Datenverwendung",
     "dataStorageTitle": "Datenspeicherung und Sicherheit",
@@ -266,7 +266,7 @@
     "legalReviewNote": "Inhalt wird nach rechtlicher Prüfung finalisiert.",
     "termsTitle": "Allgemeine Geschäftsbedingungen",
     "termsLastUpdated": "Letzte Aktualisierung: Januar 2025",
-    "termsIntro": "Diese Allgemeinen Geschäftsbedingungen regeln die Nutzung des Briefversanddienstes von Episto.",
+    "termsIntro": "Diese Allgemeinen Geschäftsbedingungen regeln die Nutzung des Briefversanddienstes von episto.",
     "serviceDescTitle": "Leistungsbeschreibung",
     "userObligationsTitle": "Pflichten der Nutzerin / des Nutzers",
     "paymentTermsTitle": "Zahlungsbedingungen",
@@ -722,7 +722,7 @@
     "deliveryStandardLabel": "Standard",
     "deliveryRegisteredLabel": "Eingeschrieben",
     "providerQuoteLabel": "Anbieterpreis",
-    "swissMailServiceLabel": "Service von Episto",
+    "swissMailServiceLabel": "Service von episto",
     "secureCheckout": "Sichere Zahlung über Stripe",
     "paymentHelp": "Stripe verarbeitet die Zahlungsangaben. Wir erfassen selbst keine rohen Kartendaten.",
     "total": "Total",
@@ -939,32 +939,32 @@
   },
   "seo": {
     "home": {
-      "title": "Episto — Wichtige Briefe online verfassen und versenden",
+      "title": "episto — Wichtige Briefe online verfassen und versenden",
       "description": "Verfassen Sie formelle Briefe, prüfen Sie jedes Detail und bereiten Sie den Versand in der Schweiz vor – ohne Konto."
     },
     "pricing": {
-      "title": "Preise — Briefe online per Post versenden | Episto",
+      "title": "Preise — Briefe online per Post versenden | episto",
       "description": "Transparente Preise für Standard- und Einschreiben-Briefe, mit einem Preisrechner und dem genauen Total vor der Zahlung."
     },
     "help": {
-      "title": "Hilfe & FAQ — Briefe verfassen und versenden | Episto",
-      "description": "Antworten zu Verfassen, Zahlung, Versand, Beilagen und Support bei Episto."
+      "title": "Hilfe & FAQ — Briefe verfassen und versenden | episto",
+      "description": "Antworten zu Verfassen, Zahlung, Versand, Beilagen und Support bei episto."
     },
     "privacy": {
-      "title": "Datenschutz — Episto",
-      "description": "Erfahren Sie, wie Episto Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
+      "title": "Datenschutz — episto",
+      "description": "Erfahren Sie, wie episto Sitzungsdaten, Dateien, Zahlungen und Aufbewahrung datenschutzbewusst behandelt."
     },
     "terms": {
-      "title": "AGB — Episto",
-      "description": "Lesen Sie die Bedingungen für die Nutzung von Episto, die Zahlung und den Versand von Briefen als Gast."
+      "title": "AGB — episto",
+      "description": "Lesen Sie die Bedingungen für die Nutzung von episto, die Zahlung und den Versand von Briefen als Gast."
     },
     "imprint": {
-      "title": "Impressum — Episto",
-      "description": "Betreiberangaben und Kontaktinformationen von Episto."
+      "title": "Impressum — episto",
+      "description": "Betreiberangaben und Kontaktinformationen von episto."
     },
     "signatureRequirements": {
-      "title": "Unterschriftenanforderungen — Episto",
-      "description": "Wann Sie bei mit Episto versendeten Schweizer Briefen eine Schrift- oder gezeichnete Unterschrift verwenden."
+      "title": "Unterschriftenanforderungen — episto",
+      "description": "Wann Sie bei mit episto versendeten Schweizer Briefen eine Schrift- oder gezeichnete Unterschrift verwenden."
     }
   },
   "signatureTiers": {
@@ -991,7 +991,7 @@
     "readThisFirst": "Zuerst lesen",
     "callout": {
       "notLegalAdvice": "Diese Seite ist informativ und ersetzt keine Beratung durch eine Juristin oder einen Juristen.",
-      "printedSignature": "Episto setzt die ausgewählte Unterschrift auf den Brief, der gedruckt und postalisch versendet wird.",
+      "printedSignature": "episto setzt die ausgewählte Unterschrift auf den Brief, der gedruckt und postalisch versendet wird.",
       "legalForm": "Wenn ein Empfänger eine bestimmte Form verlangt, klären Sie diese Anforderung vor dem Versand."
     },
     "sections": {
@@ -1005,7 +1005,7 @@
       },
       "whenRequired": {
         "title": "Wann Sie vorher klären sollten",
-        "intro": "Bei manchen Anliegen ergeben sich Formerfordernisse aus Gesetz, Vertrag oder Vorgaben des Empfängers. Episto entscheidet diese Anforderungen nicht für Sie.",
+        "intro": "Bei manchen Anliegen ergeben sich Formerfordernisse aus Gesetz, Vertrag oder Vorgaben des Empfängers. episto entscheidet diese Anforderungen nicht für Sie.",
         "disclaimer": "Klären Sie bei Verträgen, amtlichen Eingaben oder fristkritischen Streitigkeiten vor dem Versand mit dem Empfänger oder einer Fachperson, welche Unterschriftsform verlangt wird."
       },
       "contact": {
