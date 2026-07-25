@@ -85,7 +85,7 @@ const mocks = vi.hoisted(() => {
       }
     }
 
-    close() {
+    readonly close = vi.fn(() => {
       if (this.readyState === MockWebSocket.CLOSED) {
         return;
       }
@@ -96,7 +96,7 @@ const mocks = vi.hoisted(() => {
       for (const listener of this.listeners.get("close") ?? []) {
         listener(event);
       }
-    }
+    });
   }
 
   return {
@@ -120,6 +120,14 @@ import { useDictation } from "../src/hooks/use-dictation";
 
 function latestSocket() {
   return mocks.MockWebSocket.instances[mocks.MockWebSocket.instances.length - 1];
+}
+
+function deferred<T>() {
+  let resolve!: (value: T) => void;
+  const promise = new Promise<T>((resolvePromise) => {
+    resolve = resolvePromise;
+  });
+  return { promise, resolve };
 }
 
 describe("useDictation", () => {
@@ -373,6 +381,55 @@ describe("useDictation", () => {
     expect(mocks.MockWebSocket.instances).toHaveLength(2);
     expect(latestSocket()).not.toBe(firstSocket);
     expect(result.current.isRecording).toBe(true);
+  });
+
+  it("does not let an earlier asynchronous stop close a newer dictation attempt", async () => {
+    const firstStop = deferred<Uint8Array>();
+    const stopCapture = vi
+      .fn()
+      .mockReturnValueOnce(firstStop.promise)
+      .mockResolvedValue(new Uint8Array());
+    mocks.startDictationCapture
+      .mockResolvedValueOnce({
+        stop: stopCapture,
+        abort: vi.fn().mockResolvedValue(undefined),
+      })
+      .mockResolvedValueOnce({
+        stop: vi.fn().mockResolvedValue(new Uint8Array()),
+        abort: vi.fn().mockResolvedValue(undefined),
+      });
+
+    const { result } = renderHook(() => useDictation({ fieldContext: "entry" }));
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+    const firstSocket = latestSocket();
+
+    let firstStopPromise: Promise<void> | undefined;
+    await act(async () => {
+      firstStopPromise = result.current.stopRecording();
+      await Promise.resolve();
+    });
+
+    await act(async () => {
+      await result.current.startRecording("de-CH");
+    });
+    const secondSocket = latestSocket();
+
+    await act(async () => {
+      firstStop.resolve(new Uint8Array());
+      await firstStopPromise;
+    });
+
+    expect(firstSocket?.send).toHaveBeenCalledWith(JSON.stringify({ type: "stop" }));
+    expect(secondSocket?.close).not.toHaveBeenCalled();
+    expect(result.current.isRecording).toBe(true);
+
+    await act(async () => {
+      await result.current.stopRecording();
+    });
+    expect(secondSocket?.send).toHaveBeenCalledWith(JSON.stringify({ type: "stop" }));
   });
 
   it("maps microphone permission failures to the existing dictation error state", async () => {

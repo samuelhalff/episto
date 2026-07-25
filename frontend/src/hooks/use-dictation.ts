@@ -116,11 +116,14 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
     try {
       const capture = captureRef.current;
       captureRef.current = null;
-      const pcmAudio = capture ? await capture.stop() : new Uint8Array();
       const socket = socketRef.current;
+      socketRef.current = null;
+      const pcmAudio = capture ? await capture.stop() : new Uint8Array();
 
       if (socket?.readyState === WebSocket.OPEN) {
+        let resolveStopSignal!: () => void;
         const stopSignal = new Promise<void>((resolve) => {
+          resolveStopSignal = resolve;
           stopSignalRef.current = resolve;
         });
 
@@ -129,13 +132,13 @@ export function useDictation(options: UseDictationOptions): UseDictationReturn {
         );
         await Promise.race([stopSignal, createDelay(1500)]);
         closeSocket(socket);
+        resolveStopSignal();
+        if (stopSignalRef.current === resolveStopSignal) {
+          stopSignalRef.current = null;
+        }
       } else if (socket) {
         closeSocket(socket);
       }
-
-      socketRef.current = null;
-      stopSignalRef.current?.();
-      stopSignalRef.current = null;
 
       const hasLiveTranscript = currentAttemptFinalTextRef.current.trim().length > 0;
       if (pcmAudio.byteLength > 0 && !hasLiveTranscript) {
