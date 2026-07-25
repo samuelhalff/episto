@@ -126,12 +126,23 @@ Allowed analytics fields:
 
 ### 4.4 Checkout and payment
 
-| Event                    | When                                | Required fields                              |
-| ------------------------ | ----------------------------------- | -------------------------------------------- |
-| `checkout_started`       | Checkout route shown                | `draftId`, `deliveryType`, `priceCents`      |
-| `payment_intent_created` | Backend creates PaymentIntent       | `draftId`, `paymentAttemptId`                |
-| `payment_failed`         | Payment confirmation fails          | `draftId`, `paymentAttemptId`, `errorFamily` |
-| `payment_captured`       | Canonical payment success confirmed | `draftId`, `paymentAttemptId`, `amountCents` |
+| Event                    | When                                                                                                                 | Required fields                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `checkout_started`       | Checkout route shown                                                                                                 | `draftId`, `deliveryType`, `priceCents`                                 |
+| `payment_intent_created` | Backend creates PaymentIntent                                                                                        | `draftId`, `paymentAttemptId`                                           |
+| `payment_failed`         | Payment confirmation fails                                                                                           | `draftId`, `paymentAttemptId`, `errorFamily`                            |
+| `payment_captured`       | Canonical payment success confirmed                                                                                  | `draftId`, `paymentAttemptId`, `amountCents`                            |
+| `payment_succeeded`      | **Primary marketing conversion** — client-side, fires once on the confirmation page when `payment.capturedAt` is set | `orderRef`, `valueCents`, `currency`, `locale`, optional `deliveryType` |
+
+`payment_succeeded` is forwarded to GA4 as a standard ecommerce **`purchase`** event
+(`transaction_id` = order ref, `value` = gross revenue in CHF, `currency`), so it can be marked a
+GA4 key event and imported into Google Ads as the purchase conversion. It is de-duplicated across
+reloads by order ref (and GA4/Ads dedupe on `transaction_id`). It is deliberately distinct from the
+backend-canonical `payment_captured` and from the `letter_dispatched` fulfilment signal.
+**Follow-ups for the ads plan:** (1) expose `deliveryType` on the fulfilment response so registered
+share is measurable; (2) if bidding on contribution rather than revenue, apply a Google Ads value
+rule or enrich the event with a contribution value (the frontend only has the gross total today).
+See [google-ads plan §1](../marketing/google-ads-plan.md).
 
 ### 4.5 Dispatch and post-payment
 

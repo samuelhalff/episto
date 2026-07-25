@@ -44,7 +44,17 @@ export type FrontendAnalyticsEvent =
       deliveryType: string;
       priceCents: number;
     }
-  // §4.5 Dispatch (conversion)
+  // §4.4 Purchase — PRIMARY conversion. Fires once when payment is captured.
+  // Distinct from letter_dispatched (fulfilment) and any future refund event.
+  | {
+      event: "payment_succeeded";
+      orderRef: string;
+      valueCents: number;
+      currency: "CHF";
+      deliveryType?: string;
+      locale: string;
+    }
+  // §4.5 Dispatch (fulfilment signal, not the purchase conversion)
   | { event: "letter_dispatched"; draftId: string; deliveryType?: string };
 
 // ---------------------------------------------------------------------------
@@ -64,6 +74,22 @@ function forwardToGoogleAnalytics(event: FrontendAnalyticsEvent): void {
   if (!hasAnalyticsConsent()) return;
   const gtag = window.gtag;
   if (typeof gtag !== "function") return;
+
+  // The purchase conversion is emitted to GA4 with standard ecommerce
+  // semantics so it can be marked a key event and imported into Google Ads.
+  // `transaction_id` lets GA4/Ads de-duplicate on reload. `value` is gross
+  // revenue in CHF; contribution-based bidding is an Ads-side value rule.
+  if (event.event === "payment_succeeded") {
+    gtag("event", "purchase", {
+      transaction_id: event.orderRef,
+      value: event.valueCents / 100,
+      currency: event.currency,
+      locale: event.locale,
+      ...(event.deliveryType ? { delivery_type: event.deliveryType } : {}),
+    });
+    return;
+  }
+
   const { event: name, ...params } = event;
   gtag("event", name, params);
 }

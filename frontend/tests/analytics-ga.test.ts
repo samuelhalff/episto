@@ -27,6 +27,27 @@ describe("analytics → Google Analytics forwarding (default sink)", () => {
     });
   });
 
+  it("maps payment_succeeded to a GA4 purchase with ecommerce params", () => {
+    window.localStorage.setItem("analytics_consent", "granted");
+
+    trackEvent({
+      event: "payment_succeeded",
+      orderRef: "EP-ABCDEF12",
+      valueCents: 915,
+      currency: "CHF",
+      deliveryType: "registered",
+      locale: "de-CH",
+    });
+
+    expect(gtag).toHaveBeenCalledWith("event", "purchase", {
+      transaction_id: "EP-ABCDEF12",
+      value: 9.15,
+      currency: "CHF",
+      locale: "de-CH",
+      delivery_type: "registered",
+    });
+  });
+
   it("does not forward to gtag when consent is denied", () => {
     window.localStorage.setItem("analytics_consent", "denied");
 

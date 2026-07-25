@@ -2,7 +2,7 @@
 
 import { use, useState, useCallback, Suspense, useEffect, useRef } from "react";
 import { trackEvent } from "@/lib/analytics";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { buildOrderReference } from "@episto/shared";
 import { useDraftFulfillment } from "@/hooks/use-api";
 import { useStepTracking } from "@/hooks/use-step-tracking";
@@ -135,7 +135,37 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     }
   }, [draftId, nextAction, router, settlingAfterRedirect]);
 
-  // GA4 funnel: fire the conversion once the letter reaches a dispatched state.
+  // GA4 PRIMARY conversion: fire `payment_succeeded` (→ GA4 `purchase`) once,
+  // the moment payment is captured. Deduped across reloads by order ref so a
+  // refresh cannot inflate the count (Ads/GA4 also dedupe on transaction_id).
+  const locale = useLocale();
+  const purchaseTrackedRef = useRef(false);
+  const capturedAt = payment?.capturedAt ?? null;
+  useEffect(() => {
+    if (purchaseTrackedRef.current) return;
+    if (!capturedAt || !payment) return;
+    const dedupeKey = `episto_purchase_tracked:${orderRef}`;
+    try {
+      if (window.sessionStorage.getItem(dedupeKey)) {
+        purchaseTrackedRef.current = true;
+        return;
+      }
+      window.sessionStorage.setItem(dedupeKey, "1");
+    } catch {
+      // sessionStorage unavailable (private mode) — the ref + transaction_id
+      // dedupe still guard against most double counts.
+    }
+    purchaseTrackedRef.current = true;
+    trackEvent({
+      event: "payment_succeeded",
+      orderRef,
+      valueCents: payment.priceCents,
+      currency: payment.currency,
+      locale,
+    });
+  }, [capturedAt, payment, orderRef, locale]);
+
+  // GA4 fulfilment signal: fire once the letter reaches a dispatched state.
   const dispatchTrackedRef = useRef(false);
   useEffect(() => {
     if (dispatchTrackedRef.current) return;
