@@ -3,6 +3,7 @@ export * from "./auth.js";
 export * from "./dispatch.js";
 export * from "./drafting.js";
 export * from "./files.js";
+export * from "./fixed-costs.js";
 export * from "./payments.js";
 export * from "./phone-verifications.js";
 export * from "./promos.js";

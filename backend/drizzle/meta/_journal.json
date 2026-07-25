@@ -120,6 +120,13 @@
       "when": 1780599600004,
       "tag": "0016_receipts",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1780599600005,
+      "tag": "0017_monthly_fixed_costs",
+      "breakpoints": true
     }
   ]
 }
