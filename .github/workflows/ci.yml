@@ -132,6 +132,7 @@ jobs:
       NODE_ENV: test
       # Dummy values for env validation — tests mock all external calls
       SESSION_SECRET: 0000000000000000000000000000000000000000000000000000000000000000
+      ORDER_ACCESS_TOKEN_SECRET: 0000000000000000000000000000000000000000000000000000000000000000
       S3_ENDPOINT: http://localhost:9000
       S3_BUCKET: episto-test
       S3_ACCESS_KEY: minioadmin
@@ -142,6 +143,8 @@ jobs:
       AZURE_OPENAI_ENDPOINT: https://dummy.openai.azure.com/
       AZURE_OPENAI_API_KEY: dummy
       AZURE_OPENAI_API_VERSION: 2024-10-21
+      AZURE_SPEECH_REGION: switzerlandnorth
+      AZURE_SPEECH_API_KEY: dummy-speech-key
       AI_DRAFT_MODEL: gpt-4.1
       AI_CLASSIFY_MODEL: gpt-4.1-mini
       RESEND_API_KEY: re_dummy
@@ -193,6 +196,7 @@ jobs:
       REDIS_URL: redis://localhost:6379
       NODE_ENV: test
       SESSION_SECRET: 0000000000000000000000000000000000000000000000000000000000000000
+      ORDER_ACCESS_TOKEN_SECRET: 0000000000000000000000000000000000000000000000000000000000000000
       S3_ENDPOINT: http://localhost:9000
       S3_BUCKET: episto-test
       S3_ACCESS_KEY: minioadmin
@@ -203,6 +207,8 @@ jobs:
       AZURE_OPENAI_ENDPOINT: https://dummy.openai.azure.com/
       AZURE_OPENAI_API_KEY: dummy
       AZURE_OPENAI_API_VERSION: 2024-10-21
+      AZURE_SPEECH_REGION: switzerlandnorth
+      AZURE_SPEECH_API_KEY: dummy-speech-key
       AI_DRAFT_MODEL: gpt-4.1
       AI_CLASSIFY_MODEL: gpt-4.1-mini
       RESEND_API_KEY: re_dummy
