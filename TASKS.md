@@ -49,6 +49,8 @@ feature branches unless the user explicitly asks for them. Use regular, descript
       backend test suite plus migration rollback verification against the upgraded
       version. Current risk is low because no user input flows into SQL identifiers
       (tables/columns), but the CVE should still be closed before go-live.
-- [ ] Reduce Next.js CSP `script-src 'unsafe-inline'` by adopting nonces for the
-      hydration/theme-init scripts (`frontend/next.config.ts`,
-      `frontend/src/app/layout.tsx`).
+- [x] `script-src 'unsafe-inline'` removed via per-request nonces (`frontend/src/lib/csp.ts`,
+      set by `src/proxy.ts`; theme-init + GA scripts carry the nonce). `'unsafe-inline'` remains
+      only as a fallback when the proxy is bypassed. `style-src 'unsafe-inline'` is retained
+      intentionally (React/styled-jsx inline styles; removing it needs a full CSS-Modules
+      migration for negligible gain since styles cannot execute scripts).
