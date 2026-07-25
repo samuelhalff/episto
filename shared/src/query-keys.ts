@@ -35,5 +35,7 @@ export const queryKeys = {
     money: (period: string) => ["admin", "money", period] as const,
     feedback: (period: string) => ["admin", "feedback", period] as const,
     refunds: () => ["admin", "refunds"] as const,
+    financials: (period: string) => ["admin", "financials", period] as const,
+    fixedCosts: (yearMonth: string) => ["admin", "fixed-costs", yearMonth] as const,
   },
 } as const;

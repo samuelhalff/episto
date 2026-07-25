@@ -161,3 +161,128 @@ export interface AdminRefundsResponse {
   total: number;
   generatedAt: string;
 }
+
+// ---------------------------------------------------------------------------
+// Financials (P&L) contracts
+//
+// A live-computed profit & loss waterfall built ONLY from values frozen per
+// order at checkout (receipts + payment_attempts.breakdown) plus one manual
+// input (monthly fixed opex). All amounts are CHF cents. CM1/CM2 stay labelled
+// "estimated" while Stripe fees are estimated (plan §9). VAT output is NOT
+// filing-ready until partial refunds / credit notes reconcile.
+// ---------------------------------------------------------------------------
+
+/** Financials supports the dashboard windows plus calendar-month and YTD. */
+export type AdminFinancialsPeriod = "today" | "7d" | "30d" | "month" | "ytd";
+
+/** A single line of the P&L waterfall (positive = income, negative = cost). */
+export interface AdminPnlLine {
+  key: string;
+  label: string;
+  amountCents: number;
+  /** How to render the line. */
+  kind: "revenue" | "cost" | "subtotal" | "result";
+  /** True when the amount is an estimate (e.g. Stripe fees) rather than actual. */
+  estimated?: boolean;
+  /** True when the value is unknown/unset (e.g. fixed opex not entered). */
+  unset?: boolean;
+  /** Optional inline note, e.g. "no campaigns yet". */
+  note?: string;
+}
+
+export interface AdminPnlWaterfall {
+  grossRevenueCents: number;
+  vatCents: number;
+  netRevenueCents: number;
+  refundsCents: number;
+  netAfterRefundsCents: number;
+  postageCostCents: number;
+  paymentFeesCents: number;
+  paymentFeesEstimated: boolean;
+  contributionCm1Cents: number;
+  contributionEstimated: boolean;
+  adSpendCents: number;
+  /** "stub" until real Google Ads spend is wired. */
+  adSpendSource: "stub" | "actual";
+  contributionCm2Cents: number;
+  /** Manual monthly fixed opex for the period, or null when unset. */
+  fixedOpexCents: number | null;
+  /** cm2 − fixedOpex, or null when opex is unset. */
+  operatingResultCents: number | null;
+  /** Ordered lines for a step table / waterfall render. */
+  lines: AdminPnlLine[];
+}
+
+export interface AdminFinancialsDeliveryRow {
+  deliveryType: "standard" | "registered";
+  orders: number;
+  grossCents: number;
+  contributionCents: number;
+}
+
+/** Service (what episto keeps) vs Swiss Post postage (pass-through). */
+export interface AdminFinancialsComponentSplit {
+  serviceMarkupCents: number;
+  postageCents: number;
+}
+
+export interface AdminFinancialsPricingRow {
+  segment: "full_price" | "promo" | "free";
+  orders: number;
+  grossCents: number;
+  contributionCents: number;
+}
+
+export interface AdminFinancialsVatRow {
+  /** VAT rate in basis points (810 = 8.1%). */
+  rateBp: number;
+  netCents: number;
+  vatCents: number;
+  grossCents: number;
+}
+
+export interface AdminFinancialsVatSummary {
+  rows: AdminFinancialsVatRow[];
+  /** VAT already collected, net of refunds' VAT share. */
+  collectedCents: number;
+  /** Estimated VAT reversed via refunds (VAT share of refunded amounts). */
+  refundedVatCents: number;
+  netCents: number;
+}
+
+export interface AdminFinancialsTrendPoint {
+  /** ISO date (YYYY-MM-DD) or ISO week label, Europe/Zurich. */
+  date: string;
+  netRevenueCents: number;
+  contributionCents: number;
+  /** Operating result for the bucket, or null when fixed opex is unset. */
+  operatingResultCents: number | null;
+}
+
+export interface AdminFinancialsResponse {
+  period: AdminFinancialsPeriod;
+  yearMonth: string;
+  pnl: AdminPnlWaterfall;
+  byDelivery: AdminFinancialsDeliveryRow[];
+  componentSplit: AdminFinancialsComponentSplit;
+  byPricing: AdminFinancialsPricingRow[];
+  vat: AdminFinancialsVatSummary;
+  trend: AdminFinancialsTrendPoint[];
+  /** Bucket granularity of the trend series. */
+  trendGranularity: "day" | "week";
+  generatedAt: string;
+}
+
+export interface AdminFixedCostsResponse {
+  yearMonth: string;
+  amountCents: number | null;
+  note: string | null;
+  updatedAt: string | null;
+}
+
+export interface AdminFixedCostsInput {
+  /** Target month "YYYY-MM"; defaults server-side to the current month. */
+  yearMonth?: string;
+  amountCents: number;
+  note?: string | null;
+}

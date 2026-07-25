@@ -146,6 +146,80 @@ export function OrdersRevenueChart({
   );
 }
 
+export interface PnlTrendPoint {
+  date: string;
+  /** Whole CHF (pre-converted). */
+  netRevenue: number;
+  contribution: number;
+}
+
+/**
+ * Net revenue vs contribution over time as a dual-area series. Both values are
+ * passed already converted to whole CHF for readable axes.
+ */
+export function PnlTrendChart({
+  data,
+  height = 220,
+}: {
+  data: PnlTrendPoint[];
+  height?: number;
+}) {
+  return (
+    <ResponsiveContainer width="100%" height={height}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }}>
+        <defs>
+          <linearGradient id="netFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={ACCENT} stopOpacity={0.3} />
+            <stop offset="100%" stopColor={ACCENT} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <CartesianGrid stroke={GRID_COLOR} strokeDasharray="3 3" vertical={false} />
+        <XAxis
+          dataKey="date"
+          tick={{ fill: AXIS_COLOR, fontSize: 10 }}
+          tickLine={false}
+          axisLine={{ stroke: GRID_COLOR }}
+          minTickGap={24}
+        />
+        <YAxis
+          tick={{ fill: AXIS_COLOR, fontSize: 10 }}
+          tickLine={false}
+          axisLine={false}
+          width={44}
+        />
+        <Tooltip
+          content={
+            <ChartTooltip
+              formatter={(name, value) =>
+                name === "netRevenue"
+                  ? `Net: CHF ${value.toFixed(2)}`
+                  : `Contribution: CHF ${value.toFixed(2)}`
+              }
+            />
+          }
+        />
+        <Area
+          type="monotone"
+          dataKey="netRevenue"
+          stroke={ACCENT}
+          strokeWidth={2}
+          fill="url(#netFill)"
+          name="netRevenue"
+        />
+        <Area
+          type="monotone"
+          dataKey="contribution"
+          stroke="var(--app-muted)"
+          strokeWidth={1.5}
+          strokeDasharray="4 3"
+          fill="none"
+          name="contribution"
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
 export interface MixDatum {
   label: string;
   value: number;

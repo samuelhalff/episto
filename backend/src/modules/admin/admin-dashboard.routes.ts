@@ -11,6 +11,15 @@ import {
   LETTERS_CSV_COLUMNS,
   type LettersQuery,
 } from "./admin-dashboard.service.js";
+import {
+  parseFinancialsPeriod,
+  financialsData,
+  fixedCostsData,
+  setFixedCosts,
+  currentYearMonth,
+  normalizeYearMonth,
+} from "./admin-financials.service.js";
+import { financialsCsvRows, FINANCIALS_CSV_COLUMNS } from "./admin-financials.csv.js";
 
 /**
  * Admin analytics dashboard ("Pulse") endpoints. Live-computed, DB-only, gated
@@ -70,5 +79,55 @@ export async function adminDashboardRoutes(app: FastifyInstance): Promise<void> 
   app.get("/admin/refunds", async (_request, reply) => {
     noStore(reply);
     reply.send(await refundsData());
+  });
+
+  // -------------------------------------------------------------------------
+  // Financials (P&L)
+  // -------------------------------------------------------------------------
+
+  app.get<{ Querystring: { period?: string } }>(
+    "/admin/metrics/financials",
+    async (request, reply) => {
+      noStore(reply);
+      reply.send(await financialsData(parseFinancialsPeriod(request.query.period)));
+    },
+  );
+
+  app.get<{ Querystring: { period?: string } }>(
+    "/admin/financials.csv",
+    async (request, reply) => {
+      const data = await financialsData(parseFinancialsPeriod(request.query.period));
+      noStore(reply);
+      reply.header("Content-Type", "text/csv; charset=utf-8");
+      reply.header("Content-Disposition", 'attachment; filename="episto-financials.csv"');
+      reply.send(serializeHardenedCsv(financialsCsvRows(data), FINANCIALS_CSV_COLUMNS));
+    },
+  );
+
+  app.get<{ Querystring: { month?: string } }>(
+    "/admin/financials/fixed-costs",
+    async (request, reply) => {
+      noStore(reply);
+      const yearMonth = normalizeYearMonth(request.query.month) ?? currentYearMonth();
+      reply.send(await fixedCostsData(yearMonth));
+    },
+  );
+
+  app.put<{
+    Body: { yearMonth?: string; amountCents?: unknown; note?: unknown };
+  }>("/admin/financials/fixed-costs", async (request, reply) => {
+    noStore(reply);
+    const body = request.body ?? {};
+    const yearMonth = normalizeYearMonth(body.yearMonth) ?? currentYearMonth();
+    const amount = Number(body.amountCents);
+    if (!Number.isFinite(amount) || amount < 0) {
+      reply.code(400).send({ error: "amountCents must be a non-negative integer" });
+      return;
+    }
+    const note =
+      typeof body.note === "string" && body.note.trim()
+        ? body.note.trim().slice(0, 500)
+        : null;
+    reply.send(await setFixedCosts({ yearMonth, amountCents: Math.round(amount), note }));
   });
 }

@@ -8,7 +8,6 @@
 // Ledger, not dashboard: content sits directly on paper — no white card.
 const BRAND_COLOR = "#f6c54a";
 const INK_COLOR = "#161616";
-const TEXT_COLOR = "#161616";
 const MUTED_COLOR = "#5d5a54";
 const BG_COLOR = "#f5f2ea";
 const HAIRLINE_COLOR = "#d7d2c8";

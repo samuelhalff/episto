@@ -147,7 +147,6 @@ export function ReviewPageReady({
     ],
     [
       attachments,
-      attachmentCount,
       hasAttachments,
       hasSignature,
       preview.isLoading,
