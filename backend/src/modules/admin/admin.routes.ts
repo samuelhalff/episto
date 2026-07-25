@@ -9,6 +9,7 @@ import { adminActionRoutes } from "./admin-actions.routes.js";
 import { adminHealthRoutes } from "./admin-health.routes.js";
 import { adminOverviewRoutes } from "./admin-overview.routes.js";
 import { adminMetricsRoutes } from "./admin-metrics.routes.js";
+import { adminDashboardRoutes } from "./admin-dashboard.routes.js";
 import { adminSessionsRoutes } from "./admin-sessions.routes.js";
 import { adminRetentionRoutes } from "./admin-retention.routes.js";
 import { adminCaseRoutes } from "./admin-case.routes.js";
@@ -187,6 +188,7 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
 
   // Register analytics dashboard endpoints
   await app.register(adminMetricsRoutes);
+  await app.register(adminDashboardRoutes);
   await app.register(adminSessionsRoutes);
   await app.register(adminRetentionRoutes);
 }
