@@ -19,7 +19,7 @@
 
 **Therefore paid search is run as a _measuring instrument_, not an acquisition channel** — a capped, time-boxed test that buys the three numbers we don't have (real purchase CVR, registered share, repeat rate) in weeks instead of the months SEO takes. It only ever becomes a real channel if AOV upsells and/or repeat purchase lift contribution well above CHF 2.30.
 
-**Recommendation: ~CHF 1,100/month, 8-week hard cap (~CHF 2,200 total), scoped below.** Ship the AOV levers _before_ the first impression.
+**Recommendation (revised after codex↔Fable cross-review — see §10, which supersedes the larger budget in §4):** don't run a CHF 1,100/mo four-campaign launch. Run a **single ~CHF 200, ~3-week DE test in mid/late September**, and only _after_ purchase tracking + an AOV upsell offer exist. Paid search is **not the first franc** — the template-wedge funnel and free distribution come first. Sections 2–9 remain the reference build; §10 is the operative call.
 
 ---
 
@@ -148,3 +148,61 @@ Learning floor: ~200–300 clicks/campaign to bound CVR, ~50 clicks/ad-group to 
 6. Launch C1–C4 at ~CHF 36/day, run the weekly negative sweep, hold structure to the week-4 / week-8 review gates.
 
 **Bottom line:** no campaign structure fixes 6–40× arithmetic. Run the small, disciplined validation test, ship the AOV levers first, and let the repeat-rate cohort — not CAC — decide whether Google Ads is ever more than a measuring instrument for this business.
+
+---
+
+## 10. Cross-review (codex ↔ Fable) — the operative recommendation
+
+Each strategist was given the other's full plan and asked to attack and expand it, and to pressure-test "start small, scale on data" for a low-budget side project. They converged.
+
+**Where they agree (high confidence):**
+
+1. **Even CHF 450–1,100 is too much / mis-aimed.** The channel verdict is already settled by arithmetic; no minimal Search budget "discovers profitability" at a CHF 2.90 markup. Both land near **CHF 200** total.
+2. **Reframe the test.** It should not try to prove profitability (impossible now). It answers only: _do strangers pay at all, and where does the funnel leak?_ Real CPCs are free from Keyword Planner — don't buy 300 clicks to confirm the break-even table.
+3. **Stage 0 (CHF 0), mandatory before any spend:** ship a real `purchase` conversion (txn id, **contribution value**, delivery type, locale) + Consent Mode v2, verified with a live test order. Code-confirmed issue: `frontend/src/lib/analytics.ts:47-48` currently labels **`letter_dispatched`** the "conversion" — purchase/dispatch/refund must be distinct.
+4. **Build the AOV upsell offer FIRST, then test _that_ business.** The base CHF 2.90 markup can never carry paid acquisition; only a higher-contribution offer can. Priority: registered-upsell nudge → paid human review (CHF 15–25) → credit pack ("5 letters CHF 20"). **Human review is labour, not "near-pure margin"** — cost it honestly (VAT, fees, refunds, time).
+5. **One campaign, whole DE-CH, 2–3 ad groups max.** No 4-campaign / 8-ad-group / geo-sliced fragmentation — it starves every unit of data. Keep the negative-keyword lists (the strongest part of both plans).
+6. **Real target CAC ≈ CHF 1.60–1.75** (contribution minus a safety margin), not CHF 2.30 — which makes break-even CVR at realistic CPCs ~26–52%, implausible for cold traffic.
+7. **Google Ads is not the first franc.** The first (mostly-effort) franc goes to the **template wedge + free distribution** (below).
+
+**Sharp additions from the cross-review:**
+
+- **Timing: do not test now (late July is the CH dead zone).** Start **mid/late September** — ahead of the Krankenkasse deadline (Nov) and the end-September rental Zügeltermin. July CVR reads structurally low.
+- **Claim the Google Ads new-account promo credit** (~CHF 500 spend-match in CH) — roughly halves the real test cost. Nobody should skip this.
+- **Channel conflict:** Swiss Post's own **ePost app** is both the fulfilment rail _and_ an official-branded competitor on these exact SERPs — a structural CVR headwind, not just another bidder.
+- **Don't blanket-negative `vorlage`/`muster`.** Template demand is ~an order of magnitude larger than "brief online versenden," and episto already has 15 template pages/locale. The natural motion is **free template → "now send it registered, no printer, no post office, 2 min, CHF 9.15"** — a free-tool funnel, not a search-ads funnel.
+- codex's CHF 0.25 probe week is dead-on-arrival and uninformative (cold-start Quality-Score penalty confounds "market price too high" vs "new-account penalty"); its caps↔click-target↔budget were internally inconsistent.
+- **B2B recurring senders** (property managers, fiduciaries, HR teams, small debt collectors) are a better acquisition target than one-off consumers, because they fix the repeat-rate problem that kills consumer LTV.
+
+**The smallest viable test (operative):**
+
+- **CHF 200 hard cap, CHF 10/day, ~3 weeks, started mid/late September.** One campaign, whole DE-CH, one ad group (`einschreiben online versenden` + close variants), manual CPC cap ~CHF 1.20, **attach offer live, purchase tracking verified.** Target ~150 clicks.
+- **Read:** ≥2 purchases → funnel works, measure attach rate + CVR, proceed. 0 purchases in ~150 clicks → trust/funnel/checkout problem (or the ePost-official headwind) → fix product, spend no more.
+- **Floor:** below ~100–150 clicks on one theme with verified tracking, the test tells you nothing — don't bother.
+
+**Scale-up trigger ladder:**
+
+1. Spend CHF 0 → tracking verified + Keyword Planner forecasts pulled + promo credit claimed + attach offer built → unlock Stage 1.
+2. Spend CHF 200 → ≥2 purchases **and** real CPC ≤ CHF 1.50 → Stage 2: CHF 400, add a second ad group, optimise attach.
+3. Spend CHF 400 → ≥8–10 purchases **and** blended CAC ≤ blended contribution incl. attach (needs ~CHF 5–10/customer) → Stage 3: CHF 600–900/mo, add FR + Krankenkasse seasonal from late Oct.
+4. Any stage: ~150 clicks with 0 purchases, **or** CPC floor > CHF 2.00 → stop the channel; budget returns to organic/product.
+
+Never scale on CVR alone — scale only when **contribution per customer (attach included) covers CAC**, because the CHF 2.90 base markup never will.
+
+**Do first, instead of ads (cheaper, compounding):**
+
+1. **Template wedge:** make the 15 existing template pages/locale convert — free draft → "send it registered without a printer" upsell.
+2. **Fix the purchase conversion event** (also the Stage-0 gate above).
+3. **Build the attach offer** (registered nudge / human review / credit pack).
+4. **Free distribution where the strong technical SEO is an unfair advantage:** links from tenant/consumer-org resource pages and Swiss startup directories, honest Reddit (r/askswitzerland "how do I send a registered letter without going to the post office") answers, and AI answer engines (llms.txt is live). **Microsoft Ads** later — import the same campaign, CPCs typically 2–4× cheaper.
+5. **Probe one B2B recurring-sender segment** via founder-led outreach before scaling any consumer paid channel.
+
+---
+
+## 11. Orchestration tooling (free stack; no paid SaaS at this budget)
+
+- **Measurement available now:** `gseo` CLI (GSC + GA4, read-only). Ahrefs MCP is unusable on the current plan ("Insufficient plan" on all calls). **No Google Ads API is wired yet.**
+- **To orchestrate the account programmatically:** enable a **Google Ads API developer token** (basic access) + OAuth/service-account creds → build a `gads` CLI (mirror of `gseo`) for performance pulls, campaign/keyword/negative/bid/budget management, and free **Keyword Planner** CPC/volume forecasts (the Stage-0 validation).
+- **In-account automation (free):** **Google Ads Scripts** for the decision rules here — auto-pause at _X clicks / 0 conversions_, weekly negative-keyword & search-term alerts, budget pacing, scheduled late-October enable of the Krankenkasse campaign, anomaly alerts.
+- **Bulk build:** Google Ads Editor (free desktop).
+- **Skip** Optmyzr / Opteo / Adalysis / Skai / Adzooma — CHF 20–300+/mo, more than the whole test budget. Revisit only past ~CHF 2–3k/mo spend.
