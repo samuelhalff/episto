@@ -12,7 +12,10 @@
 
 - episto's markup is **CHF 2.90 per letter** on both tiers (standard CHF 4.55, registered CHF 9.15 — the rest is Swiss Post postage). After Stripe fees, **net contribution ≈ CHF 2.20 (standard) / CHF 2.35 (registered)** per first order, before support/refund reserve.
 - **Max profitable first-order CAC ≈ CHF 2.30.**
-- Realistic Swiss CPCs for our terms are CHF 0.6–8. Even the _best_ case (cheapest product-match term at CHF 1.20, an ambitious 8% cold purchase rate) gives **CAC ≈ CHF 15 — ~6.5× over the ceiling.** The Krankenkasse cluster is ~40× over. To break even on one CHF 2.20 order at 5% CVR you'd need a CHF 0.11 CPC, which does not exist in Switzerland.
+- Realistic Swiss CPCs for our terms are CHF 0.6–8. Even the _best_ case (cheapest product-match term at CHF 1.20, an ambitious 8% cold purchase rate) gives **CAC ≈ CHF 15 — ~6.5× over the ceiling.** The Krankenkasse cluster is ~40× over.
+- **Break-even CPC by conversion rate** (at the CHF 2.30 ceiling): 3% CVR → CHF 0.07 · 5% → CHF 0.12 · 8% → CHF 0.18 · 10% → CHF 0.23 · 15% → CHF 0.35 · 20% → CHF 0.46. No commercial Swiss keyword clears these floors. (Swiss category CPC benchmarks, Mar 2026: retail ~CHF 1.96, finance/insurance ~CHF 2.68, legal ~CHF 3.40, consumer services ~CHF 8.36 — [studio351.ch](https://studio351.ch/insights/google-ads-preise-schweiz).)
+- **Registered-only does not fix the economics:** its CHF 2.35 contribution is ~identical to standard's CHF 2.20. Registered improves _intent quality and CVR_, not the allowable CAC.
+- **The LTV bet is steep:** at CHF 10 CAC episto needs **~4.3 orders per acquired customer** to break even; at CHF 15 CAC, **~6.5 orders** — implausible for one-off cancellation users until cohort data proves otherwise.
 
 **Therefore paid search is run as a _measuring instrument_, not an acquisition channel** — a capped, time-boxed test that buys the three numbers we don't have (real purchase CVR, registered share, repeat rate) in weeks instead of the months SEO takes. It only ever becomes a real channel if AOV upsells and/or repeat purchase lift contribution well above CHF 2.30.
 
@@ -26,8 +29,8 @@
    - Fire a `purchase` conversion on the post-payment confirmation (server-side preferred; gtag at minimum), **value = contribution (2.20 / 2.35 + upsell margin), not gross revenue**, so later tROAS math doesn't lie.
    - Enable Enhanced Conversions (email is captured at checkout). Link GA4, but bid on the Ads-native tag (fresher, less modeled). Consent Mode v2 on.
 2. **AOV levers live before spending** (the channel cannot work at CHF 2.20; lift it):
-   - **Default cancellation intents to registered** — a dated delivery proof is the actual job-to-be-done for lease/insurance cancellations, and it lifts contribution to CHF 2.35 + higher trust.
-   - **Paid human-review add-on** (~CHF 14.90, near-pure margin) → contribution jumps to ~CHF 15+ on attach.
+   - **Default cancellation intents to registered** — a dated delivery proof is the actual job-to-be-done for lease/insurance cancellations. Note this mainly lifts _intent-match and CVR/trust_, **not** the CAC ceiling (CHF 2.35 ≈ CHF 2.20). The real margin levers are the two below.
+   - **Paid human-review add-on** (~CHF 14.90, near-pure margin) → contribution jumps to ~CHF 15+ on attach. Codex's worked example: CHF 2.30 base + 30% attach × ~CHF 25 review contribution ≈ **CHF 9.80 expected contribution per acquired customer** — the difference between a donation and a defensible CAC.
    - **3-letter credit bundle** (~CHF 12) for Mahnung/dispute personas who send sequences.
    - If a 25% attach on a ~CHF 12-margin upsell holds, blended contribution ≈ CHF 5.30 and a CHF 6–8 CAC becomes a defensible LTV bet.
 3. **Repeat-rate cohort instrumentation** in the DB (orders per paid-cohort buyer at 30/60/90 days). This single number decides whether Google Ads is ever more than a measuring instrument.
@@ -54,6 +57,10 @@ All **Search**, exact + phrase only. **No Performance Max, no Display, no broad 
 - **FR:** gratuit, modèle, exemple, word, pdf, suivi, "tarif poste", horaires
 - **EN:** free, template, sample, tracking, "post office hours"
 - **Navigational/competitor:** comparis, klara, pingen, "swiss post login"
+- **Info-only / education:** definition, bedeutung, wiki, forum, gesetzestext, "frist tabelle", prüfung, hausaufgabe, unterricht
+- **Wrong channel:** "email vorlage", "fax vorlage", sms
+
+**Campaign naming & geo granularity:** use a `CH-{DE|FR|IT|EN}-Search-{Core|KVG-Seasonal}` convention. **Do not create separate city campaigns** — target at canton level and read the location report; only consider splitting a city out once it has ≥100 clicks or ≥15 purchases. Over-segmenting starves every campaign of the data it needs to learn.
 
 ---
 
