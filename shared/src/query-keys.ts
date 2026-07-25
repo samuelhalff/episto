@@ -29,5 +29,11 @@ export const queryKeys = {
     retention: () => ["admin", "retention"] as const,
     search: (q: string) => ["admin", "search", q] as const,
     suspicious: () => ["admin", "suspicious"] as const,
+    dashboard: (period: string) => ["admin", "dashboard", period] as const,
+    letters: (period: string, filters: string, page: number) =>
+      ["admin", "letters", period, filters, page] as const,
+    money: (period: string) => ["admin", "money", period] as const,
+    feedback: (period: string) => ["admin", "feedback", period] as const,
+    refunds: () => ["admin", "refunds"] as const,
   },
 } as const;

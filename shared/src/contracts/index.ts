@@ -703,3 +703,5 @@ export interface AdminRetentionInfo {
   };
   generatedAt: string;
 }
+
+export * from "./admin-dashboard.ts";
