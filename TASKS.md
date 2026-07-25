@@ -41,7 +41,7 @@ feature branches unless the user explicitly asks for them. Use regular, descript
 
 ## Active UX follow-ups
 
-- [ ] Keep the landing-page pricing sentence and its layout stable while client pricing data hydrates.
+- [x] Keep the landing-page pricing sentence and its layout stable while client pricing data hydrates (initial price is now SSR-provided to the client hero and CTA).
 
 ## Security follow-ups
 
