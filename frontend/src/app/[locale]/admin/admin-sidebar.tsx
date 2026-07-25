@@ -12,6 +12,7 @@ import {
   Flag,
   Trash2,
   Activity,
+  Gauge,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/branding/Logo";
@@ -22,6 +23,7 @@ const NAV_SECTIONS = [
   {
     label: "Dashboard",
     items: [
+      { href: "dashboard", label: "Dashboard", icon: Gauge },
       { href: "overview", label: "Overview", icon: BarChart3 },
       { href: "funnel", label: "Funnel Analysis", icon: Filter },
     ],
