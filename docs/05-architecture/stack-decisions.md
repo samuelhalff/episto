@@ -16,7 +16,7 @@ Every row marked **Locked** is a hard constraint for implementation. Do not open
 | Frontend framework      | **Locked** | Next.js + TypeScript                                                                      |
 | Styling                 | **Locked** | Tailwind CSS                                                                              |
 | UI primitives           | **Locked** | shadcn/ui — primitives only (`components/ui/`)                                            |
-| Product UI layer        | **Locked** | Custom Episto components (`components/product/`, `components/marketing/`)                 |
+| Product UI layer        | **Locked** | Custom episto components (`components/product/`, `components/marketing/`)                 |
 | Server state (frontend) | **Locked** | React Query (TanStack Query v5)                                                           |
 | Form state (frontend)   | **Locked** | React Hook Form + Zod resolvers                                                           |
 | UI state (frontend)     | **Locked** | React `useState` / `useReducer` — no global store for MVP                                 |

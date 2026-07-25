@@ -1,6 +1,6 @@
 # Mobile UX Patterns
 
-> **Episto** — canonical mobile override reference.
+> **episto** — canonical mobile override reference.
 > Phone is the primary device. All other layouts are progressive enhancements.
 > This document governs responsive and touch behavior only. Route behavior, state transitions, and
 > business logic still come from `user-flows.md`, `page-specifications.md`, and the architecture docs.

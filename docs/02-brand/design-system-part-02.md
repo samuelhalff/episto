@@ -1,4 +1,4 @@
-# Episto Design System — Part 2
+# episto Design System — Part 2
 
 > Split from [design-system.md](design-system.md) to keep repository markdown files within the documented size limits.
 
@@ -69,7 +69,7 @@ All custom icons live in `components/icons/`.
 
 ### Philosophy
 
-Animation in Episto is **functional, not expressive**. Motion confirms an action happened or guides attention — it never performs. The UI is used in stressful moments (sending an important legal letter). Bouncy or playful motion is wrong here.
+Animation in episto is **functional, not expressive**. Motion confirms an action happened or guides attention — it never performs. The UI is used in stressful moments (sending an important legal letter). Bouncy or playful motion is wrong here.
 
 ### Duration Scale
 

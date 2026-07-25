@@ -1,4 +1,4 @@
-# Episto — Page Specifications — Part 3
+# episto — Page Specifications — Part 3
 
 > Split from [page-specifications.md](page-specifications.md) to keep repository markdown files within the documented size limits.
 
@@ -208,7 +208,7 @@ The product should feel like it already knows you. Every default should feel lik
   official registry-backed lookup before the user falls back to manual address entry.
 - Current staging implementation uses the official company registry to find the organization and
   legal seat only; the user must still confirm the mailing address manually before continuing.
-- Official company lookup must run through Episto server-side infrastructure (adapter + internal
+- Official company lookup must run through episto server-side infrastructure (adapter + internal
   proxy where needed). Do not expose registry credentials or make the browser call the registry
   directly.
 - For private-person recipients, do not query consumer directories or general web search. Capture
@@ -378,7 +378,7 @@ When the AI collects an address via conversation, it should confirm what it unde
 This confirmation gives the user a chance to catch typos before they reach the review page. The AI should NOT silently swallow addresses.
 
 **Recipient address outside Switzerland:**
-Episto dispatches physical letters within Switzerland. If the AI detects a non-Swiss address (country ≠ Switzerland, PLZ > 4 digits, or explicit country mention), it should inform the user: "Currently, Episto can only send letters to Swiss addresses. For international delivery, download the final PDF and use your own international mailing channel." This is a hard block — the system cannot proceed with a non-Swiss recipient.
+episto dispatches physical letters within Switzerland. If the AI detects a non-Swiss address (country ≠ Switzerland, PLZ > 4 digits, or explicit country mention), it should inform the user: "Currently, episto can only send letters to Swiss addresses. For international delivery, download the final PDF and use your own international mailing channel." This is a hard block — the system cannot proceed with a non-Swiss recipient.
 
 **Address formatting in preview:**
 Swiss letter formatting follows specific conventions. The preview must render addresses as:
@@ -413,7 +413,7 @@ Guest sessions expire (duration configurable, see `open-decisions.md`). The `<Se
 
 **What the resume email contains:**
 
-- Subject: "Your Episto letter draft — resume link"
+- Subject: "Your episto letter draft — resume link"
 - Body: brief explanation + prominent "Resume your letter" CTA button linking to `/resume/{token}`
 - Expiry note: "This link expires when your session expires ({expiryDate})."
 - NOT a full copy of the draft — just a link. Draft data stays server-side.

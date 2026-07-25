@@ -1,4 +1,4 @@
-# Episto Marketing Pages Specification
+# episto Marketing Pages Specification
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** Homepage, use-case landing pages, How It Works page, Pricing page.  

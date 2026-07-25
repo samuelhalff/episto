@@ -1,6 +1,6 @@
 # Competitive Landscape — Swiss Online Letter Sending
 
-**Product:** Episto  
+**Product:** episto  
 **Last updated:** 2026-03-15  
 **Status:** Living document — update when competitor features change or new entrants appear
 
@@ -72,7 +72,7 @@ Institutional hybrid mail (Swiss Post subsidiary). SmartSend for business corres
 
 ## 3. Feature Comparison Matrix
 
-| Feature                         |             Episto              |   SuperPost   |  Pingen  |  DocuPost   |     ePost     |
+| Feature                         |             episto              |   SuperPost   |  Pingen  |  DocuPost   |     ePost     |
 | ------------------------------- | :-----------------------------: | :-----------: | :------: | :---------: | :-----------: |
 | **AI letter drafting**          |               ✅                |      ❌       |    ❌    |     ❌      |      ❌       |
 | **Voice/dictation input**       |               ✅                |      ❌       |    ❌    |     ❌      |      ❌       |
@@ -125,17 +125,17 @@ SuperPost has use-case landing pages (cancellations, notices) but no actual guid
 
 ### How we think about this product
 
-**Episto is not a mail service. It is a premium formal-letter preparation tool with integrated dispatch.**
+**episto is not a mail service. It is a premium formal-letter preparation tool with integrated dispatch.**
 
-SuperPost is a dispatch service. You bring your document — they mail it. Episto enters the
+SuperPost is a dispatch service. You bring your document — they mail it. episto enters the
 journey _before_ the document exists. It helps users produce a properly structured, correctly toned,
 professionally formatted letter, then submits the final PDF and metadata through the postal-provider
 path. These are different products solving different problems.
 
-### Where Episto wins
+### Where episto wins
 
 **Primary position: The only product that helps you write a professional letter.**  
-Episto enters the user journey before any competitor does — when the user knows they need to write something formal but hasn't started. This is not a marginal improvement; it is a completely different product category.
+episto enters the user journey before any competitor does — when the user knows they need to write something formal but hasn't started. This is not a marginal improvement; it is a completely different product category.
 
 **What the product actually delivers (in priority order):**
 
@@ -169,11 +169,11 @@ Someone who needs to send a formal Swiss letter where the stakes matter — a ca
 These are situations where people _want_ the letter to be right. They will pay for the confidence that it is.
 
 **Pricing positioning — quality premium, not price competition:**  
-Competing dispatch tools set a lower reference point for send-only workflows. We do not compete on price alone. Episto justifies a premium only if it delivers a _finished professional letter_, not just a send button. The public amount must stay below the "I'll just do it myself" threshold, but the justification is the quality of the result and the ease of producing it, not being cheaper than anyone else. See [Pricing Structure](../04-product/pricing-structure.md) for the canonical checkout truth.
+Competing dispatch tools set a lower reference point for send-only workflows. We do not compete on price alone. episto justifies a premium only if it delivers a _finished professional letter_, not just a send button. The public amount must stay below the "I'll just do it myself" threshold, but the justification is the quality of the result and the ease of producing it, not being cheaper than anyone else. See [Pricing Structure](../04-product/pricing-structure.md) for the canonical checkout truth.
 
 **The business question is not "can we mail cheaper?" It is: "will enough users pay for a clearly more professional and reassuring result?"** Our conviction is yes — especially for the high-stakes use cases above.
 
-### Where Episto does not compete (MVP)
+### Where episto does not compete (MVP)
 
 - Generic "send any letter online" → SuperPost is fine for this
 - Bulk/mail merge senders → Pingen is the better tool

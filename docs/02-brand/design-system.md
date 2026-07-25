@@ -1,4 +1,4 @@
-# Episto Design System
+# episto Design System
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** Light and dark mode, MVP. Dark mode uses `class` strategy (Tailwind `darkMode: "class"`), toggled via ThemeProvider.  

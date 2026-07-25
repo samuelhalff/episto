@@ -1,6 +1,6 @@
 # Roadmap & Open Decisions
 
-**Product:** Episto  
+**Product:** episto  
 **Last updated:** 2026-03-18  
 **Status:** Implementation can proceed, but launch still depends on commercial, provider, and locale-readiness gates  
 **See also:** [Overview](overview.md) · [Open Decisions](../08-guardrails/open-decisions.md) · [Provider Certainties](../08-guardrails/provider-certainties.md)
@@ -34,7 +34,7 @@ The documentation and design phases are complete. A TypeScript monorepo foundati
 | ------------------------ | ------------------------------------------------------------------------------------------------- |
 | Dispatch provider path   | ✅ Locked — ePost / KLARA oneAPI (`api.epost.ch`)                                                 |
 | Hosting topology         | ✅ Locked — VPS with Docker Compose                                                               |
-| Exact pricing            | ✅ Locked — provider quote + configurable Episto markup                                           |
+| Exact pricing            | ✅ Locked — provider quote + configurable episto markup                                           |
 | Payment capture strategy | ✅ Locked — authorize first, capture after provider acceptance                                    |
 | Retention durations      | ✅ Locked — recommended defaults with configurable env vars                                       |
 | Signature scope          | ✅ Locked — typed name plus optional uploaded image                                               |

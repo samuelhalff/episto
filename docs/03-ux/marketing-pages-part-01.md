@@ -1,4 +1,4 @@
-# Episto Marketing Pages Specification — Part 1
+# episto Marketing Pages Specification — Part 1
 
 > Split from [marketing-pages.md](marketing-pages.md) to keep repository markdown files within the documented size limits.
 
@@ -9,7 +9,7 @@
 
 ## 1. Design Principles
 
-These rules govern every marketing page. They are not suggestions — violating them produces a product that looks like every other SaaS rather than the trusted Swiss brand Episto needs to be.
+These rules govern every marketing page. They are not suggestions — violating them produces a product that looks like every other SaaS rather than the trusted Swiss brand episto needs to be.
 
 ### 1.1 Visual Language
 
@@ -75,11 +75,11 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 ### 2.1 Hero Section
 
-**Purpose:** First impression — communicate what Episto is and get users to start drafting.
+**Purpose:** First impression — communicate what episto is and get users to start drafting.
 
 ```
 ┌─────────────────────────────────────────────────┐
-│  Episto          [DE | FR | IT | EN]     │  ← Nav: transparent, sticky on scroll
+│  episto          [DE | FR | IT | EN]     │  ← Nav: transparent, sticky on scroll
 │─────────────────────────────────────────────────│
 │                                                  │
 │  Formelle Briefe per    ┌──────────────────┐    │
@@ -193,7 +193,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 ### 2.4 AI Differentiator
 
-**Purpose:** Show what makes Episto meaningfully different from "just mail a PDF yourself". Three alternating feature blocks.
+**Purpose:** Show what makes episto meaningfully different from "just mail a PDF yourself". Three alternating feature blocks.
 
 **Layout pattern:** Alternating `text-left / image-right` then `image-left / text-right`. On mobile: image above text, full-width.
 
@@ -207,7 +207,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Visual   | Screenshot of conversation/guided-drafting UI inside a browser frame                                                                                                                                                                        |
 | Headline | "Professionally structured, not just typed"                                                                                                                                                                                                 |
-| Body     | "Tell Episto what the letter is about — a cancellation, a complaint, a landlord dispute. It asks the right questions, picks the correct structure, sets the right tone, and produces a letter that looks like it came from a professional." |
+| Body     | "Tell episto what the letter is about — a cancellation, a complaint, a landlord dispute. It asks the right questions, picks the correct structure, sets the right tone, and produces a letter that looks like it came from a professional." |
 | Layout   | Text left, image right (desktop)                                                                                                                                                                                                            |
 
 ---
@@ -218,7 +218,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Visual   | Phone mockup with microphone recording indicator visible                                                                                                                                 |
 | Headline | "Dictate from anywhere"                                                                                                                                                                  |
-| Body     | "On the train, in your car, between meetings. Speak your situation in plain language — Episto turns it into a properly formatted, correctly toned formal letter. In any Swiss language." |
+| Body     | "On the train, in your car, between meetings. Speak your situation in plain language — episto turns it into a properly formatted, correctly toned formal letter. In any Swiss language." |
 | Layout   | Image left, text right (desktop)                                                                                                                                                         |
 
 ---
@@ -236,7 +236,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 ### 2.5 Use Cases Grid
 
-**Purpose:** Signal the breadth of situations Episto handles. Drive to targeted landing pages.
+**Purpose:** Signal the breadth of situations episto handles. Drive to targeted landing pages.
 
 **Specs:**
 
@@ -364,16 +364,16 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 | #   | Question                           | Answer guidance                                                                                                                                                                                                |
 | --- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | How does Episto work?              | Describe the 3-step flow: describe → review → send                                                                                                                                                             |
+| 1   | How does episto work?              | Describe the 3-step flow: describe → review → send                                                                                                                                                             |
 | 2   | Do I need to create an account?    | No. Guest-first. No account is required, but email is required at checkout for confirmation and support.                                                                                                       |
 | 3   | How much does it cost?             | From {formattedBasePrice}. Pay-per-letter. No subscription.                                                                                                                                                    |
 | 4   | How long does delivery take?       | Standard delivery follows normal postal timelines. Registered service may provide delivery confirmation where supported. [Do not specify exact days — subject to provider capabilities.]                       |
 | 5   | What languages can I write in?     | German, French, Italian, English. You can dictate in your language.                                                                                                                                            |
-| 6   | Is my data private?                | Stored drafts and files are encrypted, and Episto must describe its storage and processing regions transparently in the privacy policy. Do not imply Swiss-only processing unless that is explicitly approved. |
+| 6   | Is my data private?                | Stored drafts and files are encrypted, and episto must describe its storage and processing regions transparently in the privacy policy. Do not imply Swiss-only processing unless that is explicitly approved. |
 | 7   | Can I attach documents?            | Yes — PDFs and images can be attached for an additional per-file fee.                                                                                                                                          |
 | 8   | Can I track my letter?             | Tracking availability depends on delivery method. Registered mail provides delivery confirmation reference. [Do not promise real-time GPS tracking.]                                                           |
 | 9   | What if I need a refund?           | Letters already dispatched cannot be recalled. Contact support if there is an issue before dispatch.                                                                                                           |
-| 10  | Can I write in any font or layout? | Episto uses a professional Swiss-compliant A4 template. Custom layout is not available in MVP.                                                                                                                 |
+| 10  | Can I write in any font or layout? | episto uses a professional Swiss-compliant A4 template. Custom layout is not available in MVP.                                                                                                                 |
 
 ---
 
@@ -410,7 +410,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 
 | Column               | Links                                                                                              |
 | -------------------- | -------------------------------------------------------------------------------------------------- |
-| **Episto** (col 1)   | Logo, 1-line brand description, "Built for Switzerland 🇨🇭"                                         |
+| **episto** (col 1)   | Logo, 1-line brand description, "Built for Switzerland 🇨🇭"                                         |
 | **Product** (col 2)  | How it works, Pricing, Use cases, FAQ                                                              |
 | **Legal** (col 3)    | Terms of service, Privacy policy, Imprint (Impressum), Cookie settings                             |
 | **Language** (col 4) | Deutsch, Français, Italiano, English — each sets locale via `Accept-Language` cookie or URL prefix |
@@ -418,7 +418,7 @@ The homepage is a single long-scroll page. Each section has one purpose: build t
 **Footer bottom bar:**
 
 ```
-© 2026 Episto. All rights reserved.    Built for Switzerland 🇨🇭
+© 2026 episto. All rights reserved.    Built for Switzerland 🇨🇭
 ```
 
 ---

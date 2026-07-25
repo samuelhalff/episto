@@ -7,7 +7,7 @@
 
 ## Objective
 
-Define what checkout must be truthful about with provider-quoted pricing plus Episto markup.
+Define what checkout must be truthful about with provider-quoted pricing plus episto markup.
 
 ---
 
@@ -28,7 +28,7 @@ Define what checkout must be truthful about with provider-quoted pricing plus Ep
 The exact charged amount is:
 
 1. provider quote for the actual draft via ePost preview
-2. plus a configurable Episto markup
+2. plus a configurable episto markup
 
 Config keys:
 
@@ -53,7 +53,7 @@ Display-pricing source rules:
 The canonical structure is:
 
 1. Provider quote
-2. Episto markup
+2. episto markup
 3. Any future approved provider-dependent surcharges
 
 The UI may show only the components that are actually enabled. Do not surface optional pricing rows with `CHF 0.00` unless product explicitly wants them shown as "included."
@@ -63,7 +63,7 @@ The UI may show only the components that are actually enabled. Do not surface op
 For MVP, the enabled rows are:
 
 1. `Provider quote`
-2. `Episto service`
+2. `episto service`
 
 Locked MVP exclusions:
 
@@ -74,7 +74,7 @@ Locked MVP exclusions:
 
 ## What the launch price covers
 
-The charged amount is for the full Episto flow, not only "mailing a PDF."
+The charged amount is for the full episto flow, not only "mailing a PDF."
 
 It may cover:
 
@@ -180,7 +180,7 @@ Allowed:
 
 | Decision                                                          | Status                                                    |
 | ----------------------------------------------------------------- | --------------------------------------------------------- |
-| Exact launch amounts                                              | Locked as config-backed provider quote plus Episto markup |
+| Exact launch amounts                                              | Locked as config-backed provider quote plus episto markup |
 | Whether page-based surcharges are enabled at launch               | Locked — no                                               |
 | Whether attachment-related surcharges are enabled at launch       | Locked — no                                               |
 | Whether promotions/coupons exist at launch                        | Locked — no                                               |

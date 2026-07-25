@@ -1,11 +1,11 @@
-# Episto Documentation
+# episto Documentation
 
 > Formal letters from your phone — in minutes.
 
-This is the complete specification for Episto, a mobile-first SaaS for AI-assisted formal-letter
+This is the complete specification for episto, a mobile-first SaaS for AI-assisted formal-letter
 drafting, final PDF generation, and postal-provider submission for Switzerland.
 
-The implementation and launch-preparation name is **Episto**. See [Naming & Identity](02-brand/naming-and-identity.md) for the current brand source of truth.
+The implementation and launch-preparation name is **episto**. See [Naming & Identity](02-brand/naming-and-identity.md) for the current brand source of truth.
 
 ---
 
@@ -27,7 +27,7 @@ Pick the path that matches your role. Each leads through the docs in an order th
 ### 🛠️ Frontend Developer
 
 1. [Product Scope](01-vision/product-scope.md) — what we're building
-2. [Provider Submission Model](04-product/provider-submission-model.md) — what Episto owns vs what the provider owns
+2. [Provider Submission Model](04-product/provider-submission-model.md) — what episto owns vs what the provider owns
 3. [Design System](02-brand/design-system.md) — tokens to implement
 4. [Component Library](03-ux/component-library.md) — component specs
 5. [Page Specifications](03-ux/page-specifications.md) — routes and layouts
@@ -102,7 +102,7 @@ _Why this product exists and where it's going._
 
 ### 02 — Brand
 
-_How Episto looks, sounds, and presents itself._
+_How episto looks, sounds, and presents itself._
 
 | Document                                                  | Description                                           |
 | --------------------------------------------------------- | ----------------------------------------------------- |
@@ -210,7 +210,7 @@ _What we must never do. Read before writing any code._
 
 ## Document Conventions
 
-- **`Episto`** — locked implementation and launch-preparation product name
+- **`episto`** — locked implementation and launch-preparation product name
 - **Status: Decided** — locked; do not change without explicit review
 - **Status: Living document** — expected to evolve as implementation proceeds
 - **Status: Provisional** — decided for now; may change with new information

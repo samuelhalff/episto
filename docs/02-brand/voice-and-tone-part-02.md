@@ -76,7 +76,7 @@ Reframe without accusation:
 ❌ "Send before midnight!"
 ```
 
-Episto does not manufacture urgency. If there is a real time constraint (e.g. same-day posting cutoff), state it factually: "Same-day posting requires submission before 16:00."
+episto does not manufacture urgency. If there is a real time constraint (e.g. same-day posting cutoff), state it factually: "Same-day posting requires submission before 16:00."
 
 ### Sycophantic affirmations
 

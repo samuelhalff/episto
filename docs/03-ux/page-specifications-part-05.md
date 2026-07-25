@@ -1,4 +1,4 @@
-# Episto — Page Specifications — Part 5
+# episto — Page Specifications — Part 5
 
 > Split from [page-specifications.md](page-specifications.md) to keep repository markdown files within the documented size limits.
 
@@ -18,7 +18,7 @@
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Payment received — Episto`
+- **Title:** `Payment received — episto`
 
 ### Layout
 
@@ -116,7 +116,7 @@ Pending steps: muted, `text-tertiary`.
 
 Download bundle rules:
 
-- Page 1 is the branded Episto confirmation record with the app logo, dispatch status, submission mode, provider reference, tracking number when available, and the operational fields needed for support and email follow-up.
+- Page 1 is the branded episto confirmation record with the app logo, dispatch status, submission mode, provider reference, tracking number when available, and the operational fields needed for support and email follow-up.
 - Remaining pages are the exact rendered letter PDF prepared for dispatch. The download artifact must not diverge from the mailed letter asset.
 - If submission mode is `mock`, the UI copy and the PDF must state that no fee-bearing ePost submission occurred.
 
@@ -127,7 +127,7 @@ Download bundle rules:
 - QR code encoding `/status/{orderToken}` URL (the paid-order status route, not the draft resume route)
 - Caption: `text-xs text-secondary` "Scan to view your order status on another device"
 - Not required for MVP if token-based access is not in first release
-- **Important:** The QR code is a **secondary** convenience mechanism. The primary access path is the signed order-status link carried in Episto dispatch emails after payment succeeds, with legacy hashed links accepted during the transition (see §9.7). Do not build the QR code as the sole or primary way to access order status.
+- **Important:** The QR code is a **secondary** convenience mechanism. The primary access path is the signed order-status link carried in episto dispatch emails after payment succeeds, with legacy hashed links accepted during the transition (see §9.7). Do not build the QR code as the sole or primary way to access order status.
 
 #### 9.7 Email Notice — Multiple Emails
 
@@ -137,10 +137,10 @@ Download bundle rules:
 - `text-xs text-secondary` "You'll also receive a dispatch email if the status changes."
 
 **Multiple email timeline (defined in `docs/04-product/email-flows.md`):**
-The customer-facing sequence is Stripe receipt first, then Episto dispatch emails only when dispatch state changes:
+The customer-facing sequence is Stripe receipt first, then episto dispatch emails only when dispatch state changes:
 
 1. **Payment receipt** — sent by Stripe when `PaymentState` → `captured`.
-2. **Dispatch submitted / accepted** — sent by Episto when the dispatch pipeline enters a real new state worth reporting.
+2. **Dispatch submitted / accepted** — sent by episto when the dispatch pipeline enters a real new state worth reporting.
 3. **Dispatch rejected** (error case) — sent when `DispatchState` → `rejected`. Contains: explanation, next steps, support contact.
 
 The confirmation notice must say "payment receipt", not generic "confirmation email". The word "confirmation" implies dispatch success, which we cannot guarantee at this point.
@@ -187,7 +187,7 @@ This CTA is an intentional fresh-start exception. It must bypass the recovery ca
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Resume your letter — Episto`
+- **Title:** `Resume your letter — episto`
 
 ### Layout
 
@@ -278,7 +278,7 @@ The page must stay honest about ambiguity:
 
 ### SEO
 
-- **Title:** `Letter templates for Switzerland — Episto`
+- **Title:** `Letter templates for Switzerland — episto`
 - **Meta description:** `Browse formal Swiss letter templates by category, filter by topic, and start from the right structure in minutes.`
 - **Structured data:** `ItemList` for visible template cards, `BreadcrumbList`
 - **Canonical:** `https://episto.ch/templates`

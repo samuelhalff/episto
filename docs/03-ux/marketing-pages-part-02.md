@@ -1,4 +1,4 @@
-# Episto Marketing Pages Specification — Part 2
+# episto Marketing Pages Specification — Part 2
 
 > Split from [marketing-pages.md](marketing-pages.md) to keep repository markdown files within the documented size limits.
 
@@ -43,7 +43,7 @@ One page per use case. URL pattern: `/use-cases/{slug}` (e.g., `/use-cases/lease
 | Headline template | "[Use case verb] letter — done properly."                                                                                                         |
 | Example (DE)      | "Mietvertrag kündigen — richtig und rechtzeitig."                                                                                                 |
 | Example (EN)      | "Cancel your lease — done properly."                                                                                                              |
-| Subheadline       | "Episto generates a compliant {useCaseLabel} letter prepared for postal delivery in Switzerland. No templates, no printer, no post office queue." |
+| Subheadline       | "episto generates a compliant {useCaseLabel} letter prepared for postal delivery in Switzerland. No templates, no printer, no post office queue." |
 | CTA               | "Draft my {useCaseLabel} letter" — links to `/draft/new?useCase={slug}`                                                                           |
 | Trust micro-copy  | Same as homepage hero                                                                                                                             |
 
@@ -69,7 +69,7 @@ Why getting this right matters
 
 ---
 
-### 3.4 How Episto Solves It
+### 3.4 How episto Solves It
 
 Three cards, same layout as homepage "How It Works" but with use-case-specific step descriptions.
 
@@ -139,8 +139,8 @@ From {formattedBasePrice}
 
 | Question                                    | Answer guidance                                                                                                  |
 | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| What notice period do I need?               | Refer to the contract and local regulations. Episto helps with the letter; the user determines the correct date. |
-| Does it need to be sent by registered mail? | Many Swiss leases require registered mail. Episto offers this option.                                            |
+| What notice period do I need?               | Refer to the contract and local regulations. episto helps with the letter; the user determines the correct date. |
+| Does it need to be sent by registered mail? | Many Swiss leases require registered mail. episto offers this option.                                            |
 | What if I miss the deadline?                | The letter can still be drafted; we cannot advise on legal remedies for missed deadlines.                        |
 | Can I cancel mid-lease?                     | Special termination clauses vary. We draft the letter; we don't advise on contract law.                          |
 
@@ -168,7 +168,7 @@ An expanded, screenshot-heavy version of the homepage "How It Works" section. He
 
 | Section              | Content                                                                  |
 | -------------------- | ------------------------------------------------------------------------ |
-| **Hero**             | Simplified — title "How Episto works", no app mockup needed              |
+| **Hero**             | Simplified — title "How episto works", no app mockup needed              |
 | **Step 1: Describe** | Screenshot of the guided conversation UI; caption each screen element    |
 | **Step 2: Review**   | Screenshot of the letter preview; explain edit capabilities              |
 | **Step 3: Send**     | Screenshot of checkout / delivery selection                              |
@@ -184,10 +184,10 @@ This section is critical for trust. Be honest about the flow.
 ```
 What happens after you pay
 
-1. Episto renders your final letter as a print-ready PDF.
-2. Episto submits the final PDF and required metadata to the configured postal-provider path.
+1. episto renders your final letter as a print-ready PDF.
+2. episto submits the final PDF and required metadata to the configured postal-provider path.
 3. The provider handles any downstream production and postal processing.
-4. Episto reflects the provider response honestly in your status.
+4. episto reflects the provider response honestly in your status.
 
 You will receive a dispatch confirmation once your letter has been
 submitted to the postal system. Delivery confirmation is available
@@ -239,8 +239,8 @@ It should show:
 1. a sync-status banner
 2. one primary totals card with standard total, registered add-on, and registered total
 3. one composition card with:
-   - Episto service fee (standard)
-   - Episto service fee (registered)
+   - episto service fee (standard)
+   - episto service fee (registered)
    - provider standard reference total
    - provider registered reference total
 4. one matrix-backed assumptions/examples area with:
@@ -398,10 +398,10 @@ All interactive elements on mobile:
 
 | Page         | `<title>` template                              | Meta description                                                                                                  |
 | ------------ | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| Homepage     | `Episto — Formal Swiss letters from your phone` | "Draft and send formal letters in Switzerland in minutes. AI-assisted, Swiss postal delivery. No account needed." |
-| Use case     | `[Use case title] letter — Episto`              | Use-case-specific, ~140 chars                                                                                     |
-| How It Works | `How Episto works — Formal Swiss letters`       | Describe the 3-step flow                                                                                          |
-| Pricing      | `Pricing — Episto`                              | "Simple per-letter pricing. No subscription. From {formattedBasePrice}."                                          |
+| Homepage     | `episto — Formal Swiss letters from your phone` | "Draft and send formal letters in Switzerland in minutes. AI-assisted, Swiss postal delivery. No account needed." |
+| Use case     | `[Use case title] letter — episto`              | Use-case-specific, ~140 chars                                                                                     |
+| How It Works | `How episto works — Formal Swiss letters`       | Describe the 3-step flow                                                                                          |
+| Pricing      | `Pricing — episto`                              | "Simple per-letter pricing. No subscription. From {formattedBasePrice}."                                          |
 
 ### 8.2 Structured Data
 

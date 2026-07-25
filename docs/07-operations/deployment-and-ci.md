@@ -2,7 +2,7 @@
 
 **Resolves:** GAP-13, IMPROV-6, IMPROV-7, IMPROV-8
 
-This document specifies the containerization strategy, CI/CD pipeline, environment configuration, secret management, observability, and operational procedures for Episto.
+This document specifies the containerization strategy, CI/CD pipeline, environment configuration, secret management, observability, and operational procedures for episto.
 
 ---
 

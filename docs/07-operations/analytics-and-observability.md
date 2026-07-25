@@ -12,7 +12,7 @@ measurement rules.
 
 ## Core rule
 
-Episto must measure product usage and operational health **without** becoming a letter-content
+episto must measure product usage and operational health **without** becoming a letter-content
 surveillance system.
 
 That means:
@@ -27,7 +27,7 @@ That means:
 
 ## 1. Telemetry layers
 
-Episto needs four distinct telemetry layers.
+episto needs four distinct telemetry layers.
 
 | Layer             | Purpose                                          | Examples                                                |
 | ----------------- | ------------------------------------------------ | ------------------------------------------------------- |

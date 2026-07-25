@@ -196,7 +196,7 @@ using an official Swiss business registry source. Person lookup is manual-only.
 Operational direction:
 
 - use official company search for business recipients
-- keep registry credentials server-side only; browser access goes through Episto backend-owned
+- keep registry credentials server-side only; browser access goes through episto backend-owned
   infrastructure instead of direct third-party calls
 - do **not** use consumer people directories or broad web-search agents to guess private-person
   addresses
@@ -212,7 +212,7 @@ B2B recipients.
 
 ### AI context persistence — LOCKED: app-owned canonical state, provider thread as cache
 
-**Locked choice:** Episto owns canonical AI context in application data (draft fields +
+**Locked choice:** episto owns canonical AI context in application data (draft fields +
 conversation history). Provider-side thread or conversation IDs may be stored for resume efficiency,
 but they are **not** the source of truth.
 
@@ -424,7 +424,7 @@ and backend-owned adapter boundaries.
 ### Dispatch provider path — LOCKED: ePost / KLARA oneAPI (`api.epost.ch`)
 
 **Locked choice:** MVP dispatch implementation targets the current ePost / KLARA oneAPI surface at
-`api.epost.ch`, exercised behind a Episto-owned adapter boundary. Do not build the MVP around
+`api.epost.ch`, exercised behind a episto-owned adapter boundary. Do not build the MVP around
 SmartSend or partner-provider fallbacks unless a newer decision record explicitly supersedes this
 one.
 
@@ -483,15 +483,15 @@ when session email is collected, cancelled if payment completes first.
 
 ---
 
-### MVP launch pricing — LOCKED: provider quote + Episto markup
+### MVP launch pricing — LOCKED: provider quote + episto markup
 
-**Locked choice:** Charge the live provider quote for the actual draft plus a configurable Episto
+**Locked choice:** Charge the live provider quote for the actual draft plus a configurable episto
 markup.
 
 **Rationale:**
 
 - Keeps checkout truthful to real provider economics instead of faking static launch totals
-- Preserves a configurable Episto margin without inventing unsupported provider surcharges
+- Preserves a configurable episto margin without inventing unsupported provider surcharges
 - Keeps payment capture, receipts, and support handling aligned with the actual charged amount
 
 **Locked exclusions at launch:**

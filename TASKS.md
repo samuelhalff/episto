@@ -22,6 +22,11 @@ feature branches unless the user explicitly asks for them. Use regular, descript
 
 ## Remaining external or blocked work
 
+> **Status note (2026-07-25):** production now runs `EPOST_SUBMISSION_MODE=live` and a real
+> end-to-end order has been accepted by Swiss Post via ePost (deliveryId + tracking stored and shown
+> on the justificatif). Stripe and Resend are also live in production. The items below track remaining
+> hardening/validation, not basic feasibility.
+
 - [ ] Swiss Post sandbox onboarding and validated dispatch contract details
 - [ ] Tracking provider confirmation; current tracking capabilities remain explicitly unconfirmed in docs
 - [ ] Stripe live-mode verification and bank account setup
@@ -30,7 +35,7 @@ feature branches unless the user explicitly asks for them. Use regular, descript
 
 ## Remaining launch checks
 
-- [ ] Dispatch cutover review before changing `EPOST_SUBMISSION_MODE` away from `mock`
+- [x] Dispatch cutover review before changing `EPOST_SUBMISSION_MODE` away from `mock` — done; prod runs `live` with a proven accepted dispatch (2026-07-25)
 - [ ] Accessibility testing to WCAG AA standard
 - [ ] Final pre-launch checklist in [docs/07-operations/pre-launch-checklist.md](docs/07-operations/pre-launch-checklist.md)
 

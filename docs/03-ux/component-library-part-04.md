@@ -250,7 +250,7 @@ When the user clicks the logo in the app header while a draft is in progress (`/
 - `<header>` element with `role="banner"`
 - `<nav>` inside header: `aria-label="Main navigation"` (marketing) or `aria-label="Draft navigation"` (app)
 - Skip-to-content link: first focusable element in the header, visually hidden until focused: `<a href="#main-content" class="sr-only focus:not-sr-only focus:absolute ...">Skip to content</a>`
-- Logo: `<a>` with `aria-label="Episto — go to homepage"`
+- Logo: `<a>` with `aria-label="episto — go to homepage"`
 - Mobile hamburger: `<button aria-label="Open menu" aria-expanded="false">`. When open: `aria-expanded="true"`. Overlay traps focus; `Escape` closes it.
 - MobileNav overlay: `role="dialog"`, `aria-label="Navigation menu"`. Focus returns to hamburger button on close.
 - Language switcher: `aria-label="Select language"`, `aria-haspopup="listbox"`. See LanguageSwitcher below.
@@ -280,7 +280,7 @@ Multi-column footer for marketing pages.
 2. Legal: Terms, Privacy policy, Imprint
 3. Language: DE, FR, IT, EN
 
-**Bottom:** `© 2026 Episto · Built for Switzerland 🇨🇭`
+**Bottom:** `© 2026 episto · Built for Switzerland 🇨🇭`
 
 **Visual:** `bg-slate-900 text-slate-300`, generous padding, `text-sm`
 

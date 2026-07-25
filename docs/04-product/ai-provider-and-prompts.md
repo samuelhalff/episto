@@ -108,7 +108,7 @@ Rules:
 
 ## Provider conversation persistence
 
-When the Azure execution path uses provider-side threads or conversations, Episto still owns the
+When the Azure execution path uses provider-side threads or conversations, episto still owns the
 canonical drafting state.
 
 Rules:

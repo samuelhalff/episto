@@ -8,7 +8,7 @@
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### ZoneEditor
 
@@ -77,7 +77,7 @@ Inline editing interface for individual letter zones (sender, recipient, date, s
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### ConversationPanel
 
@@ -172,7 +172,7 @@ The conversation panel maintains an auto-scroll-to-bottom behavior that must fee
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### DictationButton
 
@@ -224,7 +224,7 @@ Error:      [ 🎤 ✗ ]    ← brief red flash, then back to default
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### DraftWorkspace
 
@@ -288,7 +288,7 @@ The main application screen. Brings together ConversationPanel, LetterPreview, a
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### FieldExtractionCard
 
@@ -341,7 +341,7 @@ Displays fields the AI has extracted from the conversation so far. Gives the use
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### QuickReplyChips
 
@@ -390,7 +390,7 @@ Row of contextual suggested replies that appear below AI messages. Provides stru
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### ErrorBanner
 
@@ -444,7 +444,7 @@ Inline, dismissable error/warning notification that appears within a page sectio
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### StatusStrip
 

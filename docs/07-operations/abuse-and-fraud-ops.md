@@ -12,7 +12,7 @@ fraud-like patterns.
 
 ## Core rule
 
-Episto must detect harmful operational patterns **without** turning moderation or support into a
+episto must detect harmful operational patterns **without** turning moderation or support into a
 permanent content archive.
 
 Detection is metadata-first:
@@ -73,7 +73,7 @@ Attachment contents and full letter bodies are **not** a default abuse signal so
 
 Exact abuse thresholds remain operationally tunable and must stay configurable.
 
-Episto may launch with starter heuristics such as:
+episto may launch with starter heuristics such as:
 
 - repeated failed payment attempts in a short window
 - multiple deterministic refunds tied to the same email or session over a short period

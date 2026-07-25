@@ -1,4 +1,4 @@
-# Episto — Page Specifications — Part 1
+# episto — Page Specifications — Part 1
 
 > Split from [page-specifications.md](page-specifications.md) to keep repository markdown files within the documented size limits.
 
@@ -60,7 +60,7 @@ Each page documents the **emotional intent** — the feeling the user should hav
 
 ### SEO
 
-- **Title:** `Episto — Send formal Swiss letters from your phone`
+- **Title:** `episto — Send formal Swiss letters from your phone`
 - **Meta description:** `Draft, review, and send formal letters in Switzerland — in minutes. AI-assisted drafting, postal delivery, and careful data handling.`
 - **OG image:** Hero mockup, navy background, product screenshot
 - **Structured data:** `Organization`, `WebSite` with `SearchAction`, `FAQPage` (for FAQ section)
@@ -80,7 +80,7 @@ Each page documents the **emotional intent** — the feeling the user should hav
 
 #### 1.1 `<SiteHeader>`
 
-- Logo (`<LetterIcon>` + `Episto` wordmark) — left
+- Logo (`<LetterIcon>` + `episto` wordmark) — left
 - Nav links: "How it works", "Pricing", "Use cases" — desktop only, hidden mobile
 - Right: Language selector (`de`, `fr`, `it`, `en`) + "Start writing" Button (primary, small)
 - Mobile: Logo left, hamburger right; nav slides in as Sheet
@@ -99,7 +99,7 @@ Full-viewport section (`min-h-screen`).
 - Headline: `text-4xl md:text-6xl font-bold text-inverse` — "Send formal letters  
   from your phone — in minutes."
   - Line break after "letters" on desktop. Single block on mobile.
-- Subheadline: `text-lg text-inverse/80` — "Describe what you need. Episto drafts it, formats it to Swiss standards, and prepares it for postal dispatch."
+- Subheadline: `text-lg text-inverse/80` — "Describe what you need. episto drafts it, formats it to Swiss standards, and prepares it for postal dispatch."
 - CTA row:
   - Primary: `<Button size="lg">` "Draft your letter" → `/draft/new` — full width on mobile
   - Secondary: `<Button variant="outline" size="lg">` "See how it works" → `/how-it-works` — full width on mobile, ghost treatment on dark bg
@@ -142,7 +142,7 @@ Subheading: `text-secondary` "Three steps. No paperwork knowledge required."
 
 | Step | Icon                     | Title                  | Body                                                                   |
 | ---- | ------------------------ | ---------------------- | ---------------------------------------------------------------------- |
-| 1    | `MessageCircle` (Lucide) | "Describe your letter" | "Type or dictate what you need. Episto asks only what's missing."      |
+| 1    | `MessageCircle` (Lucide) | "Describe your letter" | "Type or dictate what you need. episto asks only what's missing."      |
 | 2    | `FileText`               | "Review and customise" | "See your letter take shape in real time. Edit any section directly."  |
 | 3    | `Send`                   | "Pay and send"         | "Choose standard or registered post. Pay by card. We handle the rest." |
 
@@ -217,7 +217,7 @@ Section heading: "Common questions"
 
 6–8 questions. Suggested starters (final copy via i18n layer — see `../05-architecture/i18n-rules.md`):
 
-1. "Is Episto legally valid?" — Answer: clarifies formal letter vs. legal service. Non-legal-service disclaimer (see `../01-vision/product-scope.md`).
+1. "Is episto legally valid?" — Answer: clarifies formal letter vs. legal service. Non-legal-service disclaimer (see `../01-vision/product-scope.md`).
 2. "What happens after I pay?"
 3. "Can I send registered mail?"
 4. "Are my documents stored permanently?"
@@ -284,8 +284,8 @@ Background: `surface-subtle`, `border-strong` top border.
 
 ### SEO
 
-- **Title:** `How Episto works — AI-assisted formal letters`
-- **Meta description:** `See exactly how Episto drafts, formats, and sends your Swiss formal letters — step by step.`
+- **Title:** `How episto works — AI-assisted formal letters`
+- **Meta description:** `See exactly how episto drafts, formats, and sends your Swiss formal letters — step by step.`
 - **Structured data:** `HowTo` schema
 
 ### Layout
@@ -307,7 +307,7 @@ Background: `surface-subtle`, `border-strong` top border.
 Narrower hero, no full-viewport. `py-20`.
 
 - Breadcrumb: `Home > How it works`
-- Heading `<h1>`: "How Episto works"
+- Heading `<h1>`: "How episto works"
 - Subheading: "From first word to letterbox — here's what happens at every step."
 
 #### 2.3 Detailed Steps
@@ -317,7 +317,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 **Step 1 — Start your letter**
 
 - User types or dictates their intent ("I need to cancel my gym membership")
-- Episto recognises the letter type and surfaces the right template logic
+- episto recognises the letter type and surfaces the right template logic
 - System asks only for what's missing (recipient details, dates, contract reference)
 - Illustration: chat-like interface mockup
 
@@ -343,7 +343,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 
 **Step 5 — We handle the rest**
 
-- Episto renders the final PDF
+- episto renders the final PDF
 - Submits to postal dispatch
 - User receives reference number
 - Status updates as available (honest: "We will show tracking information when the provider makes it available")
@@ -383,7 +383,7 @@ Alternating two-column rows (icon/illustration left + text right, then flip):
 
 ### SEO
 
-- **Title:** `Pricing — Episto`
+- **Title:** `Pricing — episto`
 - **Meta description:** `Transparent public pricing for standard and registered letters, with a live simulator and exact total confirmation before payment.`
 - **Structured data:** Could include `Offer` / pricing schema when prices are locked
 

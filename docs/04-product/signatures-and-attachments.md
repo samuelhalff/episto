@@ -67,7 +67,7 @@ Locked constraints:
 **Locked timing:** attachments are available only after the first draft exists and remain editable
 through the review step. Checkout does not introduce new attachment upload behavior.
 
-**Launch gate:** If the provider-confirmed launch path cannot support attachments safely, Episto
+**Launch gate:** If the provider-confirmed launch path cannot support attachments safely, episto
 must disable attachment submission at launch rather than inventing a packaging flow.
 
 ## Account scope — LOCKED: Option B
@@ -96,5 +96,5 @@ Future (not MVP):
 ## Guest vs account rules
 
 - Guest can draft, pay, and send without any account
-- Guest still gets a transactional reference and can receive Stripe receipts plus Episto dispatch-status emails
+- Guest still gets a transactional reference and can receive Stripe receipts plus episto dispatch-status emails
 - Account features must be additive — they must not degrade the guest experience when absent

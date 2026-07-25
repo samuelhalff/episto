@@ -1,6 +1,6 @@
-# Episto — Project Overview
+# episto — Project Overview
 
-**Product:** Episto  
+**Product:** episto  
 **Last updated:** 2026-03-15  
 **Status:** Foundation phase — TypeScript boundaries prepared; feature implementation not yet started
 
@@ -8,10 +8,10 @@
 
 ## 1. What This Is
 
-Episto is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction.
+episto is a premium formal-letter product with integrated Swiss postal dispatch. It helps people prepare and send serious letters properly, with minimal friction.
 
-Operationally, Episto owns drafting, review, canonical PDF generation, dispatch metadata
-preparation, provider submission, and status normalization. Episto does not run its own print
+Operationally, episto owns drafting, review, canonical PDF generation, dispatch metadata
+preparation, provider submission, and status normalization. episto does not run its own print
 facility or physical mail workflow. See [Provider Submission Model](../04-product/provider-submission-model.md).
 
 The user journey is:

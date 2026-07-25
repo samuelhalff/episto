@@ -13,7 +13,7 @@ The letter locale is limited to the existing application locales:
 - `it-CH`
 - `en-CH`
 
-Unsupported language requests must not silently change the draft. The assistant must tell the user that Episto can currently prepare Swiss letters only in German, French, Italian, or English, and ask them to choose one of those locales.
+Unsupported language requests must not silently change the draft. The assistant must tell the user that episto can currently prepare Swiss letters only in German, French, Italian, or English, and ask them to choose one of those locales.
 
 ## Architecture
 

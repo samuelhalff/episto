@@ -1,4 +1,4 @@
-# Episto Micro-Interactions & Animation Specification
+# episto Micro-Interactions & Animation Specification
 
 > **Status:** Canonical — implement from this document.  
 > **Scope:** MVP. Light mode. Mobile-first.  

@@ -1,4 +1,4 @@
-# Episto Micro-Interactions & Animation Specification — Part 1
+# episto Micro-Interactions & Animation Specification — Part 1
 
 > Split from [micro-interactions.md](micro-interactions.md) to keep repository markdown files within the documented size limits.
 
@@ -11,7 +11,7 @@
 
 ## 1. Animation Principles
 
-Animation in Episto is **an instrument of clarity, not decoration**. The product is used in high-stakes moments — a tenant sending a formal notice, a professional dispatching a contract. Motion must reinforce confidence, not add noise.
+Animation in episto is **an instrument of clarity, not decoration**. The product is used in high-stakes moments — a tenant sending a formal notice, a professional dispatching a contract. Motion must reinforce confidence, not add noise.
 
 ### Five Governing Principles
 

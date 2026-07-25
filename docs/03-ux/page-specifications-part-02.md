@@ -1,4 +1,4 @@
-# Episto — Page Specifications — Part 2
+# episto — Page Specifications — Part 2
 
 > Split from [page-specifications.md](page-specifications.md) to keep repository markdown files within the documented size limits.
 
@@ -17,8 +17,8 @@ Valid slugs: `lease-cancellation`, `insurance-cancellation`, `contract-terminati
 
 ### SEO (template — populated per slug)
 
-- **Title:** `{useCaseTitle} — Episto`
-- **Meta description:** `Draft and send {useCaseDescription} in minutes with Episto. AI-assisted and ready for postal dispatch.`
+- **Title:** `{useCaseTitle} — episto`
+- **Meta description:** `Draft and send {useCaseDescription} in minutes with episto. AI-assisted and ready for postal dispatch.`
 - **Structured data:** `HowTo`, `FAQPage`
 - **Canonical:** `https://episto.ch/use-cases/{slug}`
 
@@ -96,7 +96,7 @@ Optional query param: `?useCase={slug}` — pre-fills context
 ### SEO
 
 - `noindex` — application page, not for search indexing
-- **Title:** `Draft a new letter — Episto`
+- **Title:** `Draft a new letter — episto`
 
 ### Layout
 
@@ -197,7 +197,7 @@ The textarea starts empty and focused. Placeholder text provides guidance. No sk
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Drafting your letter — Episto`
+- **Title:** `Drafting your letter — episto`
 
 ## 6. Draft Workspace (`/draft/:id`)
 
@@ -306,7 +306,7 @@ This is the emotional climax of the drafting flow. When the AI has gathered enou
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│ <AppHeader>   Episto   Step 1 ●──○──○──○   {formattedEstimatedTotal}│
+│ <AppHeader>   episto   Step 1 ●──○──○──○   {formattedEstimatedTotal}│
 ├────────────────────────┬───────────────────────────────────┤
 │                        │                                    │
 │  <ConversationPanel>   │     <LetterPreview>                │

@@ -1,4 +1,4 @@
-# Episto — UX Redesign & Terms and Conditions — Part 1
+# episto — UX Redesign & Terms and Conditions — Part 1
 
 > Split from [ux-redesign-and-terms.md](ux-redesign-and-terms.md) to keep repository markdown files within the documented size limits.
 
@@ -30,7 +30,7 @@ The current desktop implementation (`DraftShell.tsx`) creates a **two-column lay
 
 The core legal challenge is threefold:
 
-1. **Platform positioning.** Episto must be clearly positioned as a software/service platform that purchases downstream postal services from Swiss Post/ePost on its own account. The user contracts with West Bay SA. West Bay SA contracts with Swiss Post. The user does not become a direct counterparty of Swiss Post. This distinction is critical for avoiding characterization as an independent postal operator under Swiss postal law (Postgesetz, PG).
+1. **Platform positioning.** episto must be clearly positioned as a software/service platform that purchases downstream postal services from Swiss Post/ePost on its own account. The user contracts with West Bay SA. West Bay SA contracts with Swiss Post. The user does not become a direct counterparty of Swiss Post. This distinction is critical for avoiding characterization as an independent postal operator under Swiss postal law (Postgesetz, PG).
 
 2. **Service boundary clarity.** The Terms must draw a clean line between what West Bay SA delivers (drafting assistance, PDF generation, submission orchestration, confirmation records) and what Swiss Post/ePost delivers (printing, enveloping, transport, delivery). Users must understand this distinction without being confused by it.
 
@@ -53,24 +53,24 @@ The core legal challenge is threefold:
 
 ### Findings from Leading Products
 
-**1. Split-pane is justified only when both panes show the same content type (code diff, synchronised editing) or when one pane is genuinely static/short (Stripe checkout order summary).** When both panes have independent scroll contexts and unrelated content types (form fields vs. progress tracker), the pattern degrades the experience. GitHub, Canva, and Linear all abandon split-pane on mobile. Episto's current desktop sidebar does not contain enough value to justify its layout cost.
+**1. Split-pane is justified only when both panes show the same content type (code diff, synchronised editing) or when one pane is genuinely static/short (Stripe checkout order summary).** When both panes have independent scroll contexts and unrelated content types (form fields vs. progress tracker), the pattern degrades the experience. GitHub, Canva, and Linear all abandon split-pane on mobile. episto's current desktop sidebar does not contain enough value to justify its layout cost.
 
-**2. The strongest checkout flows narrow the layout as commitment increases.** Apple, Aesop, Stripe Checkout, and NET-A-PORTER all transition from multi-column product pages to focused single-column checkout flows. The pattern is consistent: visual complexity decreases as stakes increase. Episto currently does the opposite — the checkout page introduces a different grid layout than review.
+**2. The strongest checkout flows narrow the layout as commitment increases.** Apple, Aesop, Stripe Checkout, and NET-A-PORTER all transition from multi-column product pages to focused single-column checkout flows. The pattern is consistent: visual complexity decreases as stakes increase. episto currently does the opposite — the checkout page introduces a different grid layout than review.
 
-**3. One-thing-per-screen outperforms on desktop too.** GOV.UK's extensive research demonstrates that single-column, one-question-per-step forms outperform multi-field layouts even on wide viewports. Typeform, TurboTax, and Apple Checkout all follow this principle. Episto's step-based approach is correct; the bolt-on sidebar undermines it.
+**3. One-thing-per-screen outperforms on desktop too.** GOV.UK's extensive research demonstrates that single-column, one-question-per-step forms outperform multi-field layouts even on wide viewports. Typeform, TurboTax, and Apple Checkout all follow this principle. episto's step-based approach is correct; the bolt-on sidebar undermines it.
 
-**4. Review before commitment is the gold standard.** GOV.UK's "Check your answers" pattern — showing all collected information in a summary list with edit links before final submission — is the most effective trust-building mechanism. Episto's review page partially implements this but uses a split layout when it should use a focused, full-width summary.
+**4. Review before commitment is the gold standard.** GOV.UK's "Check your answers" pattern — showing all collected information in a summary list with edit links before final submission — is the most effective trust-building mechanism. episto's review page partially implements this but uses a split layout when it should use a focused, full-width summary.
 
 **5. Confirmation pages hero the reference number and next steps.** Swiss Air, Wise, Revolut, and DocuSign all follow the same structure: success icon → reference number (largest element) → summary → next steps → secondary actions. Motion is subtle. The reference/confirmation number is the emotional anchor.
 
-**6. Document download should be primary CTA when the document is the goal; secondary when it is a byproduct.** For Episto's signed summary PDF, the download is the goal of the confirmation page — it should be the primary CTA, not buried below timeline steps.
+**6. Document download should be primary CTA when the document is the goal; secondary when it is a byproduct.** For episto's signed summary PDF, the download is the goal of the confirmation page — it should be the primary CTA, not buried below timeline steps.
 
 ### Patterns to Adopt
 
 | Pattern                                                | Source                                 | Application                                                                        |
 | ------------------------------------------------------ | -------------------------------------- | ---------------------------------------------------------------------------------- |
 | **Consistent single-column with max-width constraint** | Apple, GOV.UK, Typeform                | All draft steps, review, checkout, and confirmation                                |
-| **Sticky bottom dock for primary action**              | Episto mobile (already implemented)    | Extend to desktop with a full-width bottom bar                                     |
+| **Sticky bottom dock for primary action**              | episto mobile (already implemented)    | Extend to desktop with a full-width bottom bar                                     |
 | **Full-width immersive preview**                       | Canva presentation mode, Figma Present | Letter preview as a full-screen overlay or dedicated view, not a sidebar           |
 | **Summary-before-commit review**                       | GOV.UK "Check your answers"            | Review page as a single-column summary with edit links                             |
 | **Narrowing visual complexity**                        | Apple, Stripe, Aesop                   | Transition from `<AppLayout>` to `<MinimalLayout>` should be seamless, not jarring |
@@ -157,7 +157,7 @@ Marketing → Draft Entry → Draft Workspace → Review → Checkout → Confir
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Episto logo]  ● ● ○ ○ ○ ○ ○   Saved ✓   [≡]  │  ← FlowHeader (sticky, h-14)
+│  [episto logo]  ● ● ○ ○ ○ ○ ○   Saved ✓   [≡]  │  ← FlowHeader (sticky, h-14)
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -186,7 +186,7 @@ Marketing → Draft Entry → Draft Workspace → Review → Checkout → Confir
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Episto logo]  ● ● ● ● ● ● ● ●   [← Back]     │  ← FlowHeader
+│  [episto logo]  ● ● ● ● ● ● ● ●   [← Back]     │  ← FlowHeader
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -227,7 +227,7 @@ Marketing → Draft Entry → Draft Workspace → Review → Checkout → Confir
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Episto logo]          Step 2 of 3   [← Review]  │  ← MinimalLayout header
+│  [episto logo]          Step 2 of 3   [← Review]  │  ← MinimalLayout header
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -270,7 +270,7 @@ This is the critical new design.
 
 ```
 ┌───────────────────────────────────────────────────────┐
-│  [Episto logo]                          [≡ Menu]   │  ← MinimalLayout header
+│  [episto logo]                          [≡ Menu]   │  ← MinimalLayout header
 ├───────────────────────────────────────────────────────┤
 │                                                       │
 │          ┌─────────────────────────┐                  │
@@ -381,7 +381,7 @@ The PDF issued by West Bay SA contains:
 │  letter was submitted to Swiss Post /    │
 │  ePost infrastructure for physical       │
 │  dispatch on behalf of the sender via    │
-│  the Episto platform operated by     │
+│  the episto platform operated by     │
 │  West Bay SA. This confirmation does     │
 │  not constitute proof of delivery.       │
 │                                          │
@@ -402,9 +402,9 @@ Following the confirmation record page(s):
 
 **Template: Transaction Confirmation (new, replaces or supplements existing payment receipt)**
 
-- **Subject:** "Your Episto confirmation — EP-4FD8704A"
+- **Subject:** "Your episto confirmation — EP-4FD8704A"
 - **Body:**
-  - Episto logo / header
+  - episto logo / header
   - "Your letter has been submitted for dispatch."
   - Reference: EP-4FD8704A
   - Date and time
@@ -465,7 +465,7 @@ Mobile uses the exact same layout framework — the only difference is that the 
 **Confirmation page:**
 
 1. Build the signed PDF download hero card as a new component (`<SignedConfirmationCard>`).
-2. Implement the backend download so `GET /v1/drafts/:id/pdf` and `GET /v1/orders/:orderToken/pdf` generate and serve the signed confirmation bundle. Page 1 must be the branded Episto confirmation record with logo, submission mode, provider reference, tracking number when present, and the other operational metadata required for support/email follow-up. The remaining pages must be the exact rendered letter PDF prepared for dispatch.
+2. Implement the backend download so `GET /v1/drafts/:id/pdf` and `GET /v1/orders/:orderToken/pdf` generate and serve the signed confirmation bundle. Page 1 must be the branded episto confirmation record with logo, submission mode, provider reference, tracking number when present, and the other operational metadata required for support/email follow-up. The remaining pages must be the exact rendered letter PDF prepared for dispatch.
 3. Track 10-day expiry and show appropriate states (available, expiring soon, expired).
 4. If submission mode is `mock`, the card and the PDF must explicitly state that no fee-bearing ePost submission occurred. Mock mode must still surface the same provider-shaped fields expected from live ePost responses.
 5. The current download trigger is `GET /v1/drafts/:id/pdf` with session authentication. The public order-status route uses `GET /v1/orders/:orderToken/pdf`.
@@ -488,7 +488,7 @@ The letter preview modal should be accessible from any step where a draft body e
 
 1. **Contractual counterparty is West Bay SA.** The user contracts solely with West Bay SA. Swiss Post/ePost is a downstream service provider used by West Bay SA. This is the foundational structural choice.
 
-2. **"Platform service" not "postal service."** The Terms describe Episto as a platform providing document preparation and dispatch submission services. Physical postal execution is explicitly delegated to Swiss Post/ePost. This reduces the risk of Episto being characterized as a postal operator under Art. 2 PG.
+2. **"Platform service" not "postal service."** The Terms describe episto as a platform providing document preparation and dispatch submission services. Physical postal execution is explicitly delegated to Swiss Post/ePost. This reduces the risk of episto being characterized as a postal operator under Art. 2 PG.
 
 3. **No sublicensing language.** The Terms do not suggest that West Bay SA is sublicensing or extending Swiss Post rights to users. West Bay SA purchases services from Swiss Post on its own account and passes the benefit to users as part of its integrated service.
 
@@ -516,7 +516,7 @@ The letter preview modal should be accessible from any step where a draft body e
 
 ---
 
-# Terms and Conditions — Episto
+# Terms and Conditions — episto
 
 **Effective date:** [insert date]  
 **Last updated:** [insert date]  

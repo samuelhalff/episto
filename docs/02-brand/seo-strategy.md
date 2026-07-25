@@ -1,4 +1,4 @@
-# SEO Strategy — Episto
+# SEO Strategy — episto
 
 **Status:** MVP planning  
 **Scope:** Swiss market, multilingual (de-CH, fr-CH, it-CH, en-CH)  
@@ -47,7 +47,7 @@ Template per page type:
 
 | Page type    | Title pattern                               | Description length |
 | ------------ | ------------------------------------------- | ------------------ |
-| Homepage     | `Episto — Briefe online versenden, Schweiz` | 140–155 chars      |
+| Homepage     | `episto — Briefe online versenden, Schweiz` | 140–155 chars      |
 | Use-case LP  | `{UseCase} per Post — {ProductName}`        | 140–155 chars      |
 | How it works | `Wie es funktioniert — {ProductName}`       | 140–155 chars      |
 | Pricing      | `Preise — {ProductName}`                    | 140–155 chars      |
@@ -292,7 +292,7 @@ One page per use case per language. Priority use cases for MVP:
 **Each use-case page must include:**
 
 - What the use case is and when it applies in Switzerland
-- How Episto handles it (step-by-step)
+- How episto handles it (step-by-step)
 - Dispatch options (standard vs registered)
 - Transparent pricing
 - CTA to start a draft
@@ -497,5 +497,5 @@ For positioning context only — not an authoritative analysis:
 | Pingen           | pingen.ch     | API-first postal dispatch, developer-oriented |
 | Swiss Post ePost | epost.ch      | Official postal offering                      |
 
-Episto should differentiate on: guided mobile workflow, calm consumer-first UX, and a faster
+episto should differentiate on: guided mobile workflow, calm consumer-first UX, and a faster
 path from intent to posted letter — not purely on price or dispatch speed.

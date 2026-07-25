@@ -7,24 +7,24 @@
 
 ## Objective
 
-Define the operational model of Episto clearly enough that implementers, reviewers, and AI tools
+Define the operational model of episto clearly enough that implementers, reviewers, and AI tools
 do not infer the wrong product shape.
 
 ---
 
 ## Core system model
 
-Episto is an **AI-assisted formal-letter preparation and provider-submission product**.
+episto is an **AI-assisted formal-letter preparation and provider-submission product**.
 
-Episto:
+episto:
 
 - helps the user draft and review a formal letter
 - generates the canonical final PDF artifact on the server
 - prepares the required dispatch metadata
 - submits the provider-bound package through the locked Swiss Post API path
-- normalizes provider responses into Episto's canonical states
+- normalizes provider responses into episto's canonical states
 
-Episto does **not**:
+episto does **not**:
 
 - operate its own print facility
 - run a self-managed physical mail workflow
@@ -32,13 +32,13 @@ Episto does **not**:
 - guarantee legal validity of the letter content
 
 Downstream physical production, postal handling, and any later delivery execution belong to the
-configured provider path, not to Episto infrastructure.
+configured provider path, not to episto infrastructure.
 
 ---
 
 ## Dispatch definition
 
-In Episto, **dispatch** means:
+In episto, **dispatch** means:
 
 > preparation of the final provider-bound artifact and metadata, submission to the configured
 > postal-provider path, and truthful handling of the provider response.
@@ -48,7 +48,7 @@ Dispatch does **not** mean:
 - delivery to the recipient
 - confirmed physical handoff unless the provider says so
 - live tracking unless the provider supports it for that submission
-- an Episto-operated print queue
+- an episto-operated print queue
 
 ---
 
@@ -69,7 +69,7 @@ submission. It must always come from backend-owned canonical records.
 
 ## Responsibility split
 
-| Layer               | Episto owns                                                                  | Provider owns                                                    |
+| Layer               | episto owns                                                                  | Provider owns                                                    |
 | ------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------------- |
 | Drafting            | intent capture, AI drafting, structured editing, review flow                 | none                                                             |
 | Artifact creation   | canonical server-side PDF generation from reviewed data                      | none                                                             |
@@ -84,10 +84,10 @@ submission. It must always come from backend-owned canonical records.
 - The **provider-bound letter PDF** is a server-generated artifact derived from the immutable
   reviewed snapshot.
 - The **downloadable confirmation document** is a separate, download-only bundle: page 1 is the
-  Episto confirmation record, and the remaining pages are the exact provider-bound letter PDF.
+  episto confirmation record, and the remaining pages are the exact provider-bound letter PDF.
   Do not submit the confirmation cover page to the provider.
 - Client preview exists for UX confidence. It is not the source of truth for provider submission.
-- Episto does not accept an arbitrary user-uploaded final letter PDF as the MVP send path.
+- episto does not accept an arbitrary user-uploaded final letter PDF as the MVP send path.
 - A successful preview does not by itself prove provider acceptance.
 - Any provider-specific artifact validation must happen before or during adapter submission, not in
   ad hoc UI logic.
@@ -110,11 +110,11 @@ docs.
 | State        | Meaning                                                           | Must not be collapsed into                                  |
 | ------------ | ----------------------------------------------------------------- | ----------------------------------------------------------- |
 | `queued`     | Backend work is preparing or scheduling provider submission       | `submitted`                                                 |
-| `submitted`  | Episto created and sent the provider-facing submission attempt    | `accepted`, `delivered`                                     |
+| `submitted`  | episto created and sent the provider-facing submission attempt    | `accepted`, `delivered`                                     |
 | `accepted`   | The provider accepted the submission into its downstream workflow | `delivered`                                                 |
 | `rejected`   | The provider deterministically refused the submission             | `unknown`                                                   |
 | `unknown`    | The outcome is ambiguous or unconfirmed                           | `submitted`, `accepted`                                     |
-| `reconciled` | Episto resolved a previously ambiguous case                       | `accepted` unless reconciliation actually proved acceptance |
+| `reconciled` | episto resolved a previously ambiguous case                       | `accepted` unless reconciliation actually proved acceptance |
 
 Canonical language rules:
 
@@ -138,14 +138,14 @@ Current locked posture:
 
 Implementation rule:
 
-- if the provider-confirmed launch path cannot support attachments safely, Episto must disable
+- if the provider-confirmed launch path cannot support attachments safely, episto must disable
   attachment submission at launch rather than inventing a merged-PDF or multi-part workflow
 
 ---
 
 ## Pricing implications
 
-Episto pricing must reflect the full submission model, not only "mailing a PDF."
+episto pricing must reflect the full submission model, not only "mailing a PDF."
 
 The customer-facing price may cover:
 
@@ -180,7 +180,7 @@ Support must never need raw provider jargon to explain a case to the user.
 
 ## Wrong mental models to avoid
 
-Do **not** model Episto as:
+Do **not** model episto as:
 
 - a print shop
 - a self-operated mail house
@@ -188,7 +188,7 @@ Do **not** model Episto as:
 - a legal-advice product
 - a word processor with dispatch bolted on
 
-Model Episto as:
+Model episto as:
 
 - AI-assisted structured formal-letter preparation
 - server-generated final PDF creation

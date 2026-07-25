@@ -222,7 +222,7 @@ The product must account for:
 
 ## Legal-service boundary
 
-Episto is not a substitute for legal counsel.
+episto is not a substitute for legal counsel.
 
 The product must not:
 

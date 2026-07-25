@@ -25,7 +25,7 @@ The product exists because people need to send formal Swiss letters from their p
 
 **Competitive framing:**
 
-SuperPost markets "write and send from your mobile phone" but their UX is retrofitted. DocuPost and Pingen are desktop-first, business-oriented products. Episto's advantage is building mobile-first from day one, so the mobile experience is the designed experience — not a shrunk desktop.
+SuperPost markets "write and send from your mobile phone" but their UX is retrofitted. DocuPost and Pingen are desktop-first, business-oriented products. episto's advantage is building mobile-first from day one, so the mobile experience is the designed experience — not a shrunk desktop.
 
 ---
 
@@ -372,7 +372,7 @@ TWINT is a native Swiss payment method handled via Stripe's PaymentElement:
 
 - User taps TWINT button → Stripe opens TWINT deep link (launches TWINT app if installed)
 - If TWINT app not installed: Stripe shows fallback (QR code or app store link)
-- User confirms payment in TWINT app → returns to Episto checkout page
+- User confirms payment in TWINT app → returns to episto checkout page
 - Return handling: Stripe webhook confirms payment, frontend polls or receives SSE update
 - Success: navigate to confirmation page
 - Failure: show error on checkout page, user can retry or choose another method

@@ -1,4 +1,4 @@
-# Episto — UX Redesign & Terms and Conditions
+# episto — UX Redesign & Terms and Conditions
 
 **Prepared by:** Product & Legal Advisory  
 **Date:** 2026-04-05  

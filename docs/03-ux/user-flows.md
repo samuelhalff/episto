@@ -12,7 +12,7 @@
 
 ## Primary UX model
 
-Episto is a **guided drafting workspace**, not a novelty chatbot.
+episto is a **guided drafting workspace**, not a novelty chatbot.
 
 The default structure:
 
@@ -185,7 +185,7 @@ From here the user can check letter status later through `/status/:orderToken` a
 Flow:
 
 1. User closes browser mid-draft
-2. Returns to the Episto homepage (`/`) within the session TTL (configurable — see `docs/08-guardrails/open-decisions.md`)
+2. Returns to the episto homepage (`/`) within the session TTL (configurable — see `docs/08-guardrails/open-decisions.md`)
 3. Frontend checks `GET /api/sessions/current` using the HttpOnly session cookie
 4. If active draft found: a prominent recovery card appears on `/draft/new`: "You have an unfinished letter.
    [Continue draft] [Start fresh]"
@@ -225,7 +225,7 @@ Flow:
 Flow:
 
 1. Stripe sends the payment receipt immediately.
-2. Episto dispatch-status emails carry the signed "Order Status" link.
+2. episto dispatch-status emails carry the signed "Order Status" link.
 3. During transition, legacy hashed links remain readable as a fallback.
 4. User clicks the link → `/status/:orderToken` → shows current dispatch status and receipt.
 5. This link is valid for 90 days (configurable), independent of the original drafting session TTL (configurable — see `docs/08-guardrails/open-decisions.md`).

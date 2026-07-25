@@ -8,7 +8,7 @@
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### SessionExpiryBanner
 
@@ -56,7 +56,7 @@ Time-sensitive session warning shown inside the drafting workspace before expiry
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### AutoSaveIndicator
 
@@ -107,7 +107,7 @@ Minimal status indicator showing draft save state. Lives inside the workspace `<
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### StepIndicator
 
@@ -138,7 +138,7 @@ Shows progress through the letter-sending flow.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### DeliverySelector
 
@@ -171,7 +171,7 @@ Card-based selector for Standard vs Registered mail.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### PriceSummary
 
@@ -204,7 +204,7 @@ Always-visible price breakdown. Transparency builds trust.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### AttachmentUploader
 
@@ -262,7 +262,7 @@ Drag-and-drop (desktop) or tap-to-select (mobile) file upload.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### SignaturePicker
 
@@ -295,7 +295,7 @@ Two modes: typed name or uploaded image.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### AddressCard
 
@@ -327,7 +327,7 @@ Formatted Swiss address display with edit capability.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### DispatchStatusCard
 
@@ -362,7 +362,7 @@ Shows the current state of a dispatched letter with visual timeline.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### EntryCard
 
@@ -392,7 +392,7 @@ Use-case cards on homepage and draft entry page. These drive conversions.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### ConfirmationCard
 
@@ -429,7 +429,7 @@ Post-payment success state. The rewarding conclusion of the flow.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### QRReceiptCard
 
@@ -457,7 +457,7 @@ Inspired by SuperPost. Digital access to the letter via QR code.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### ErrorPage
 

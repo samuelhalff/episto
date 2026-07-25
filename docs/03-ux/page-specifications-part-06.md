@@ -1,4 +1,4 @@
-# Episto — Page Specifications — Part 6
+# episto — Page Specifications — Part 6
 
 > Split from [page-specifications.md](page-specifications.md) to keep repository markdown files within the documented size limits.
 
@@ -23,9 +23,9 @@
 
 - Indexed with unique titles per page
 - Suggested titles:
-  - `/privacy` → `Privacy policy — Episto`
-  - `/terms` → `Terms of service — Episto`
-  - `/imprint` → `Imprint — Episto`
+  - `/privacy` → `Privacy policy — episto`
+  - `/terms` → `Terms of service — episto`
+  - `/imprint` → `Imprint — episto`
 - Each page includes locale-specific canonical + `hreflang` tags for `de-CH`, `fr-CH`, `it-CH`, `en-CH`
 
 ### Layout

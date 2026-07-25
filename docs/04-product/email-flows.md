@@ -56,9 +56,9 @@ Without an email address, these cannot be delivered. "Optional email" creates su
 
 ---
 
-## Episto email templates
+## episto email templates
 
-All Episto email templates must be:
+All episto email templates must be:
 
 - Responsive (mobile-first)
 - Plain-text fallback included
@@ -82,8 +82,8 @@ At launch, the product may send:
 Launch ownership rules:
 
 - Stripe is the payment receipt sender for launch.
-- Episto sends dispatch-submitted, later accepted/rejected updates, and refund/resume emails.
-- Episto dispatch emails do not link back to Episto order-status pages at launch.
+- episto sends dispatch-submitted, later accepted/rejected updates, and refund/resume emails.
+- episto dispatch emails do not link back to episto order-status pages at launch.
 - Only registered-mail acceptance emails may include a Swiss Post tracking link when a real tracking number exists.
 
 Do not add abandoned-cart drips, marketing sequences, or "your letter is on the way" claims in
@@ -97,7 +97,7 @@ MVP transactional email.
 **Trigger:** `PaymentState` transitions to `captured`
 **Timing:** Stripe sends the receipt on successful capture using the checkout email.
 
-Episto does not send a duplicate app-level payment receipt at launch. The confirmation page must describe this as a payment receipt, while dispatch progress remains a separate Episto email flow.
+episto does not send a duplicate app-level payment receipt at launch. The confirmation page must describe this as a payment receipt, while dispatch progress remains a separate episto email flow.
 
 ---
 
@@ -147,7 +147,7 @@ Episto does not send a duplicate app-level payment receipt at launch. The confir
 activity if payment is still incomplete and the session has an email address
 **Condition:** Only sent to sessions where an email address has been collected
 
-**Subject (i18n key):** `email.resume.subject` → e.g., "Continue your Episto draft"
+**Subject (i18n key):** `email.resume.subject` → e.g., "Continue your episto draft"
 
 **Content:**
 
@@ -255,7 +255,7 @@ Requirements:
 | ------------ | ------------------- |
 | From         | `contact@episto.ch` |
 | Reply-To     | `contact@episto.ch` |
-| Display name | `Episto`            |
+| Display name | `episto`            |
 
 The `noreply` address must not bounce silently — configure it to forward or discard with logging so bounce loops don't affect deliverability scores.
 

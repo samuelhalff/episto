@@ -48,7 +48,7 @@ While **Drafting Sessions** are ephemeral (72h), **Paid Orders** require longer-
 ### Order Access Token
 
 - **Scope:** Read-only access to a specific `order_id` (status, receipt, final PDF).
-- **Delivery:** Sent in Episto dispatch emails that carry the order-status link after payment succeeds.
+- **Delivery:** Sent in episto dispatch emails that carry the order-status link after payment succeeds.
 - **TTL:** 90 days (configurable via `ORDER_ACCESS_DAYS`).
 - **Mechanism:** A signed URL token / JWT-style mechanism distinct from the session cookie, not a raw one-time token that must be emailed at payment capture.
 - **Compatibility:** During the transition, the order-status route accepts both signed tokens and legacy hashed links.

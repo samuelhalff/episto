@@ -9,7 +9,7 @@ configuration.
 
 ## Locked identity
 
-- Product name: **Episto**
+- Product name: **episto**
 - Primary public domain: **`episto.ch`**
 - API routing: same-host `/api` path (no separate API subdomain)
 - Transactional email addresses:
@@ -20,7 +20,7 @@ configuration.
 
 ## Implementation rule
 
-- Use `Episto` in all user-facing strings and documentation unless a route or system contract
+- Use `episto` in all user-facing strings and documentation unless a route or system contract
   requires a localized translation of the name, which is not currently planned.
 - Use `episto.ch` in public URL examples. The API is served from the same host under `/api`.
 - Do not keep parallel placeholder variants such as `[ProductName]` or `[domain]` in live specs.
@@ -37,7 +37,7 @@ The following are still real launch gates, but they do not reopen the implementa
 
 ## Brand posture
 
-Episto should read as:
+episto should read as:
 
 - trustworthy without sounding bureaucratic
 - precise without sounding legalistic
@@ -56,6 +56,6 @@ Episto should read as:
 
 Until final assets are delivered:
 
-- use a clean wordmark reading `Episto`
+- use a clean wordmark reading `episto`
 - pair it with a simple envelope/letter symbol only if the symbol is already production-grade
 - avoid Swiss-cross branding, clip-art envelope illustrations, or decorative effects

@@ -1,4 +1,4 @@
-# Episto — Page Specifications — Part 4
+# episto — Page Specifications — Part 4
 
 > Split from [page-specifications.md](page-specifications.md) to keep repository markdown files within the documented size limits.
 
@@ -53,7 +53,7 @@ Power users who send multiple letters should be able to work without touching th
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Review your letter — Episto`
+- **Title:** `Review your letter — episto`
 
 ### Layout
 
@@ -234,7 +234,7 @@ No empty state — user cannot reach this page without a draft in progress.
 ### SEO
 
 - `noindex, nofollow`
-- **Title:** `Checkout — Episto`
+- **Title:** `Checkout — episto`
 
 ### Layout
 
@@ -284,7 +284,7 @@ Stripe embedded payment element:
 
 Legal checkbox:
 
-- `<Checkbox>` + label: "I have read and agree to the [Terms of Service] and understand that Episto is not a legal service."
+- `<Checkbox>` + label: "I have read and agree to the [Terms of Service] and understand that episto is not a legal service."
 - Link to `/terms` opens in new tab
 - CTA disabled until checked
 
@@ -307,7 +307,7 @@ These are NOT generic trust badges — they are Swiss-specific and product-speci
 
 #### 8.3 TWINT Payment (Mobile)
 
-On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment option (Switzerland-specific). TWINT redirects the user to the TWINT app for approval, then returns them to Episto.
+On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment option (Switzerland-specific). TWINT redirects the user to the TWINT app for approval, then returns them to episto.
 
 **Flow:**
 
@@ -315,8 +315,8 @@ On mobile devices, Stripe's `<PaymentElement>` may surface TWINT as a payment op
 2. User taps "Send my letter" CTA.
 3. Stripe redirects to the TWINT app (or TWINT web flow on tablets without the app).
 4. User approves payment in TWINT.
-5. TWINT redirects back to Episto's checkout page.
-6. Episto receives Stripe webhook confirmation → navigates to `/draft/:id/confirmation`.
+5. TWINT redirects back to episto's checkout page.
+6. episto receives Stripe webhook confirmation → navigates to `/draft/:id/confirmation`.
 
 **Edge cases:**
 
@@ -339,7 +339,7 @@ Users may accidentally navigate away during payment processing:
 **Scenario: User closes tab during processing:**
 
 - Payment may complete in the background (Stripe processes server-side).
-- If payment succeeds: Stripe sends the payment receipt. User can return via the order-status link from later Episto dispatch email.
+- If payment succeeds: Stripe sends the payment receipt. User can return via the order-status link from later episto dispatch email.
 - If payment fails: no charge. Draft remains available.
 
 **Scenario: User's internet drops mid-payment:**

@@ -1,6 +1,6 @@
 # Voice and tone
 
-This guide defines how Episto speaks to users in every context. It is the single source of truth for copywriters, product designers, and developers writing UI text.
+This guide defines how episto speaks to users in every context. It is the single source of truth for copywriters, product designers, and developers writing UI text.
 
 Its authority is limited to wording and tone. It does not redefine routes, permissions, pricing,
 provider capabilities, or system states that are governed elsewhere in the docs.

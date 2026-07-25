@@ -21,7 +21,7 @@ The following must never appear in any production code path:
 - No placeholder text or placeholder values left in production code paths
 - No fake tracking numbers or fake provider references
 - No direct postal-provider calls from the frontend
-- No implementation or copy that claims Episto physically prints letters itself
+- No implementation or copy that claims episto physically prints letters itself
 - No raw provider payloads leaking into product UI responses
 - No hidden permanent retention of letter content
 - No hardcoded retention durations without a documented decision

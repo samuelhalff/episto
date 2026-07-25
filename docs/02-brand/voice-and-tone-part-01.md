@@ -13,7 +13,7 @@
 
 ## 1. Brand voice attributes
 
-Episto is a competent friend who handles your paperwork — not a bank, not a chatbot, not a government portal. The voice is consistent across all surfaces; only the tone shifts to fit context.
+episto is a competent friend who handles your paperwork — not a bank, not a chatbot, not a government portal. The voice is consistent across all surfaces; only the tone shifts to fit context.
 
 ### Clear
 
@@ -124,7 +124,7 @@ Always answer: what failed? What can the user do now?
 **Tone:** Reassuring, transparent, no surprises. Users are about to spend money — give them full clarity on what they're paying for and what happens next.
 
 > "CHF {formattedPrice} for standard delivery. Includes printing, postage, and same-day submission." _(price from config — this is a tone example, not a hardcoded amount)_
-> "Payment is processed by Stripe. Episto does not store your card details."
+> "Payment is processed by Stripe. episto does not store your card details."
 > "Once payment succeeds, your letter is submitted for dispatch. You'll receive a confirmation."
 
 No dark patterns. No upsells disguised as defaults. No vague "fees may apply."
@@ -160,7 +160,7 @@ Use sentence case everywhere in the UI — headings, buttons, labels, messages.
 > ✅ "Review your letter"  
 > ❌ "Review Your Letter"
 
-Exception: proper nouns (Swiss Post, Stripe, Episto).
+Exception: proper nouns (Swiss Post, Stripe, episto).
 
 ### Active voice
 
@@ -377,7 +377,7 @@ Alternatively, label the current step without numbered steps when the flow is sh
 
 ## 5. Multilingual considerations
 
-Episto targets four Swiss locales: `de-CH`, `fr-CH`, `it-CH`, `en-CH`.
+episto targets four Swiss locales: `de-CH`, `fr-CH`, `it-CH`, `en-CH`.
 
 ### Infrastructure rules
 
@@ -474,7 +474,7 @@ Dispatch status is unclear. We're checking with the provider. This usually resol
 
 ### provider_outage
 
-**Pattern:** `Episto's postal service is temporarily unavailable. [What the user should do.]`
+**Pattern:** `episto's postal service is temporarily unavailable. [What the user should do.]`
 
 ```
 We can't submit letters right now due to a provider issue. Your draft is saved — try again in a few minutes.

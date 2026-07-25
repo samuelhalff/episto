@@ -251,7 +251,7 @@ This is implementation evidence for exploration only. It is **not** a provider-c
   - recipient status `SUCCESS`
 - This is stronger operational evidence that request-level sender identity survives into the real
   provider sending record for at least one delivered physical letter
-- But it still does **not** prove the unresolved point that matters most for Episto: whether an
+- But it still does **not** prove the unresolved point that matters most for episto: whether an
   undeliverable physical letter will actually be returned using the supplied sender address rather
   than a tenant default or another downstream rule
 - The remaining verified evidence is:
@@ -262,7 +262,7 @@ This is implementation evidence for exploration only. It is **not** a provider-c
     `return-live-1774945593700`
   - the API still does **not** echo the full physical sender-address object back, and we do **not**
     yet have a controlled real-world return proving which address governs physical return routing
-- Until provider-issued documentation or a stronger operational proof says otherwise, Episto must
+- Until provider-issued documentation or a stronger operational proof says otherwise, episto must
   treat actual physical **return-routing** as **unproven** rather than guaranteed, even though
   sender identity now appears to carry through into the provider UI for live deliveries
 - Swiss Post's public registered-mail page confirms that return receipt exists as a postal product
@@ -270,8 +270,13 @@ This is implementation evidence for exploration only. It is **not** a provider-c
   activate it
 
 **Implication:** For at least one locally configured tenant, auth and product provisioning are good
-enough to exercise preview and monitoring. We still have **not** proved live submission success for
-`POST /epost/v2/deliveries`, and we must not equate preview success with accepted dispatch.
+enough to exercise preview and monitoring.
+
+**Update (2026-07-25):** Live submission has since been proven in production. With
+`EPOST_SUBMISSION_MODE=live`, a real end-to-end order was accepted by Swiss Post via
+`POST /epost/v2/deliveries`; the returned `deliveryId` is stored as `dispatch_attempts.providerReference`
+(with `trackingNumber`) and surfaced on the proof-of-sending justificatif. Preview success must still not
+be equated with accepted dispatch, but accepted live dispatch is no longer unproven.
 
 ## What implementation must do
 

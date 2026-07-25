@@ -1,7 +1,7 @@
-# Episto redesign — from "AI-generated" to crafted
+# episto redesign — from "AI-generated" to crafted
 
 Direction from a codex-sol design audit of the live site (2026-07-23). Goal:
-make Episto look human-designed and Swiss-editorial, not template-generated.
+make episto look human-designed and Swiss-editorial, not template-generated.
 Guiding idea: **stop representing correspondence with generic design metaphors —
 show correspondence itself.** Work in verifiable stages; screenshot before/after
 each (build into `.next-verify`, run the standalone server, `tmp/shoot.mjs`).
@@ -38,7 +38,7 @@ whitespace used to manufacture prestige; duplicate footer controls.
 6. **Page structures** — template page as an 8/4 article with a sticky
    "Brief erstellen" module; pricing page as a tariff (breakdown table, tabular
    numerals) not a SaaS widget.
-7. **Imagery** — replace the fake letter with a real photographed Episto letter +
+7. **Imagery** — replace the fake letter with a real photographed episto letter +
    window envelope + registered receipt (needs a tabletop shoot). Interim: a flat,
    straight, rendered typeset document marked `MUSTER` — no grey placeholder bars.
 

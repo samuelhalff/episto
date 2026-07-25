@@ -111,7 +111,7 @@ frontend/
       ui/            ← shadcn-derived primitives ONLY
                         (Button, Input, Card, Dialog, etc.)
                         Do not add product logic here.
-      product/       ← Episto product flows
+      product/       ← episto product flows
                         (DraftWorkspace, LetterPreview, CheckoutForm,
                          ConfirmationScreen, DeliverySelector, etc.)
       marketing/     ← Homepage and acquisition
@@ -124,7 +124,7 @@ frontend/
 **Rules:**
 
 - `components/ui/` contains only shadcn primitives. Product logic does not belong here.
-- `components/product/` contains all actual Episto UX — drafting, preview, checkout, confirmation.
+- `components/product/` contains all actual episto UX — drafting, preview, checkout, confirmation.
 - `components/marketing/` contains acquisition and trust content — no drafting logic.
 - No cross-contamination between these three layers.
 

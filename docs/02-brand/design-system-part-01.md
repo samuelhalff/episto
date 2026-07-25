@@ -1,4 +1,4 @@
-# Episto Design System — Part 1
+# episto Design System — Part 1
 
 > Split from [design-system.md](design-system.md) to keep repository markdown files within the documented size limits.
 
@@ -16,7 +16,7 @@
 
 ### Core Premise
 
-Episto exists at the intersection of **paper** and **digital**. The product is formal, deliberate, and Swiss — but never cold, bureaucratic, or intimidating. Every design decision reinforces a single emotional truth: _"This will be taken care of, professionally."_
+episto exists at the intersection of **paper** and **digital**. The product is formal, deliberate, and Swiss — but never cold, bureaucratic, or intimidating. Every design decision reinforces a single emotional truth: _"This will be taken care of, professionally."_
 
 ### Three Design Pillars
 

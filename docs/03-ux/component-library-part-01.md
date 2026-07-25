@@ -32,7 +32,7 @@ components/
 │   ├── accordion.tsx
 │   ├── progress.tsx
 │   └── breadcrumb.tsx
-├── product/             # Episto-specific components
+├── product/             # episto-specific components
 │   ├── letter-preview.tsx
 │   ├── conversation-panel.tsx
 │   ├── draft-workspace.tsx
@@ -82,7 +82,7 @@ components/
 ### Implementation guardrails
 
 - `components/ui/` is the only place for shared overlay primitives. Do not hand-roll new modal, sheet, popover, or dropdown foundations inside feature folders.
-- `components/product/` may compose primitives into Episto-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
+- `components/product/` may compose primitives into episto-specific experiences, but should not fork core sizing, border radius, spacing, or motion rules without a documented decision.
 - Repeated CTA treatments belong in shared button wrappers, not per-step utility classes.
 - Primary workflow CTAs use the shared yellow action treatment. Secondary, back, close, and dismiss actions use the shared neutral grey treatment.
 - When a component needs presence or transition choreography beyond simple CSS hover/focus feedback, use `framer-motion` on top of the shared primitive rather than bespoke animation logic.
@@ -428,7 +428,7 @@ Loading placeholder that matches the shape of content it replaces.
 
 ## Part 2 — Product Components (product/)
 
-These are the components that make Episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
+These are the components that make episto unique. They embody the core experience: **describe what you need → see your letter come to life → send it.**
 
 ### LetterPreview
 

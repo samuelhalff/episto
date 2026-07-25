@@ -6,7 +6,7 @@
 > **Scope:** Reusable UI and product component behavior. This file does not define route order,
 > pricing truth, system states, or business logic outside component boundaries.
 
-This is the complete component catalog for Episto. Every reusable element — from primitive buttons to product-specific letter previews — is specified here with variants, states, responsive behavior, and accessibility requirements.
+This is the complete component catalog for episto. Every reusable element — from primitive buttons to product-specific letter previews — is specified here with variants, states, responsive behavior, and accessibility requirements.
 
 Our components serve one mission: **make sending a formal letter feel effortless.** SuperPost competes on price. We compete on experience — the feeling that creating and sending a letter is as easy as sending a text message. Every component must reduce friction, guide the user forward, and feel polished to the pixel.
 

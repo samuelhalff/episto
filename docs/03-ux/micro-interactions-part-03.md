@@ -1,4 +1,4 @@
-# Episto Micro-Interactions & Animation Specification — Part 3
+# episto Micro-Interactions & Animation Specification — Part 3
 
 > Split from [micro-interactions.md](micro-interactions.md) to keep repository markdown files within the documented size limits.
 
