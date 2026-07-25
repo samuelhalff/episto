@@ -145,3 +145,68 @@ Icons stay Lucide.
 5. **Google Ads** — campaign table, spend/CPA/ROAS cards — gated on campaigns existing (empty-state until then).
 
 Each phase is independently shippable and leaves the admin coherent (no half-views).
+
+---
+
+## 9. codex review — required corrections (BINDING; supersede §1–§8 where they conflict)
+
+codex reviewed the plan: **NO-GO as written** until metric semantics are corrected. The visual
+direction stands; the fixes below are prerequisites before any code.
+
+**The one insistence — trustworthy money:**
+
+- **Do NOT headline "contribution" from mutable code constants** — mutable delivery-cost/fee
+  constants silently rewrite _historical_ economics. Store (or reconstruct) an **immutable
+  per-order cost basis** at time of sale (postage cost, provider cost, actual Stripe fee, VAT
+  excluded, actual refund amounts). Label it **"estimated CM1"**, not "contribution", until it
+  reconciles to Stripe + receipts via fixture tests. _False unit economics is worse than no dashboard._
+
+**Metric-correctness fixes:**
+
+- **GA4 and DB are two funnels, not one.** Do not prepend GA4 visits to the DB funnel or compute
+  `DB drafts / GA4 sessions` as a conversion. Show (a) a GA4 visit→draft event funnel, (b) a DB
+  draft→paid→dispatched funnel, and (c) an explicit **reconciliation gap** between them.
+- **CPA/ROAS:** never divide Ads spend by _all_ GA4 purchases. Use the Ads conversion action /
+  imported conversion **segmented by campaign**. ROAS stays off until real spend + attribution exist.
+- **Unique-order semantics:** payment_attempts and dispatch_attempts must **not inflate counts** —
+  count distinct orders; use the **latest/final dispatch outcome per draft**, not success across raw attempts.
+- **Absolute counts, not unstable %:** below a declared minimum sample, suppress deltas/rates and
+  show absolute numbers. No period deltas or p50/p90 on single-digit volumes.
+- **Time semantics up front:** Europe/Zurich, DST, half-open `[from,to)`, incomplete-day comparisons,
+  refund-date vs sale-cohort reporting, currency handling — specify before implementation.
+
+**Architecture / security fixes:**
+
+- **Current-state queues must ignore the global date range.** "Refunds pending", rejected/unknown
+  dispatches, feedback backlog are worklists — a date filter must never hide unresolved items. Keep
+  them separate from period analytics.
+- **`gads` is NOT the runtime integration.** Do not shell out from the API or reuse the write-capable
+  founder/service-account credentials in the app. Build a **narrow, read-only Ads API adapter** with a
+  **read-only** Ads credential. (`gads` stays a local ops CLI only.)
+- **PII/security on the letters table + exports:** default to **masked identifiers**; never surface
+  addresses, letter content, or email; **audit** every record access; `Cache-Control: no-store`;
+  keep tokens/PII out of query params and logs; **harden CSV against spreadsheet-formula injection**.
+  SSO + IP allowlist is not authorization by itself.
+- **Don't run `shadcn init` casually** — create a reviewed `components.json`, add components one at a
+  time, inspect every generated diff. Defer **Recharts** until one chart proves necessary (it commits
+  the project to a client-component chart lib).
+- **Caching:** bound/normalize cache keys (fixed report whitelist, normalized ranges), coalesce to
+  avoid stampede, expose a **"last updated" source timestamp**. Skip the 60 s DB cache until queries
+  prove slow.
+
+**Revised view set:** merge **Acquisition + Funnel → "Growth"** (traffic without conversion is
+meaningless). Eventual four = **Pulse · Growth · Revenue · Operations**. Cut for now as vanity:
+locale/geo charts, donuts, per-KPI sparklines, engaged %, repeat-buyer share, promo "attribution".
+VAT export is **not** "filing-ready" until it handles partial refunds, credit notes, missing receipts,
+and Stripe/accounting reconciliation.
+
+**Revised build order:** (1) write a **metric contract per KPI** (unit, event timestamp, population,
+source, timezone, exclusions, attribution, freshness, low-volume behaviour) + **reconciliation tests**;
+(2) extend the **existing overview** into a DB-only Pulse; (3) Operations/attention workflow; (4) Growth
+once GA4↔DB reconciliation is verified; (5) Ads only when spend exists; (6) dedicated Revenue view after
+CM1 + VAT outputs reconcile.
+
+**Smallest valuable first slice (do this first):** one DB endpoint + one panel on the **existing
+overview page** showing 28-day paid/dispatched counts, captured/refunded cash, a simple daily-orders
+series, unresolved dispatch/refund counts, and a "last updated" stamp. **No shadcn init, no new
+navigation, no charts.** Everything else follows once the metric contracts and reconciliation hold.
