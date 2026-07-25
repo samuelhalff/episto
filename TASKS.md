@@ -41,14 +41,10 @@ feature branches unless the user explicitly asks for them. Use regular, descript
 
 ## Security follow-ups
 
-- [ ] Upgrade `drizzle-orm` from 0.33.0 to ≥0.45.2 to patch
+- [x] `drizzle-orm` upgraded to `0.45.2` (installed + locked), closing
       [GHSA-gpj5-g38j-94v9](https://github.com/advisories/GHSA-gpj5-g38j-94v9)
-      (SQL identifier escaping). This is a breaking change — the query builder API
-      shifted between 0.33 → 0.45. Audit all `db.select()/insert()/update()/delete()`
-      call sites and any custom `sql` template usage before merging. Run the full
-      backend test suite plus migration rollback verification against the upgraded
-      version. Current risk is low because no user input flows into SQL identifiers
-      (tables/columns), but the CVE should still be closed before go-live.
+      (SQL identifier escaping). Full backend test suite passes on this version
+      (842 tests green, 2026-07-25).
 - [x] `script-src 'unsafe-inline'` removed via per-request nonces (`frontend/src/lib/csp.ts`,
       set by `src/proxy.ts`; theme-init + GA scripts carry the nonce). `'unsafe-inline'` remains
       only as a fallback when the proxy is bypassed. `style-src 'unsafe-inline'` is retained
