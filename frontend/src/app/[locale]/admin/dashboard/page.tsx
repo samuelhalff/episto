@@ -48,6 +48,14 @@ function ConnectLater({ title, description }: { title: string; description: stri
   );
 }
 
+const FUNNEL_LABELS = {
+  visits: "Tracked visits",
+  draftsStarted: "Draft started",
+  draftsReady: "Draft ready",
+  checkoutsStarted: "Checkout started",
+  paid: "Paid",
+} as const;
+
 export default function DashboardPage() {
   const { authenticated } = useAdminAuth();
   const [period, setPeriod] = useState<DashboardPeriod>("7d");
@@ -140,16 +148,21 @@ export default function DashboardPage() {
           ) : null}
 
           {/* KPI row */}
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+            <MetricCard
+              label="Tracked visits"
+              value={d.trackedVisits.value}
+              sub={metricSubLabel(d.trackedVisits, (v) => String(v))}
+            />
+            <MetricCard
+              label="Drafts started"
+              value={d.draftsStarted.value}
+              sub={metricSubLabel(d.draftsStarted, (v) => String(v))}
+            />
             <MetricCard
               label="Letters paid"
               value={d.lettersPaid.value}
               sub={metricSubLabel(d.lettersPaid, (v) => String(v))}
-            />
-            <MetricCard
-              label={contributionLabel}
-              value={formatChf(d.contributionCents.value)}
-              sub={metricSubLabel(d.contributionCents, formatChf)}
             />
             <MetricCard
               label="Net revenue"
@@ -164,7 +177,51 @@ export default function DashboardPage() {
               value={`${d.dispatchSuccessRate.value}%`}
               sub={metricSubLabel(d.dispatchSuccessRate, (v) => `${v}%`)}
             />
+            <MetricCard
+              label={contributionLabel}
+              value={formatChf(d.contributionCents.value)}
+              sub={metricSubLabel(d.contributionCents, formatChf)}
+            />
           </div>
+
+          <SectionPanel title="Product funnel">
+            <div className="space-y-3">
+              {d.funnel.map((step) => (
+                <div
+                  key={step.key}
+                  className="grid grid-cols-[minmax(120px,1fr)_minmax(0,3fr)_auto] items-center gap-3 text-xs"
+                >
+                  <span style={{ color: "var(--app-muted)" }}>
+                    {FUNNEL_LABELS[step.key]}
+                  </span>
+                  <div
+                    className="h-5 overflow-hidden rounded"
+                    style={{ background: "var(--app-surface-muted)" }}
+                  >
+                    <div
+                      className="h-full rounded transition-all duration-500"
+                      style={{
+                        width: `${d.funnel[0]?.count ? Math.max(2, (step.count / d.funnel[0].count) * 100) : 0}%`,
+                        background: "var(--app-fg)",
+                        opacity: 0.75,
+                      }}
+                    />
+                  </div>
+                  <span
+                    className="w-28 text-right font-mono"
+                    style={{ color: "var(--app-fg)" }}
+                  >
+                    {step.count}{" "}
+                    {step.conversionPercent == null ? "" : `· ${step.conversionPercent}%`}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-4 text-[11px]" style={{ color: "var(--app-muted)" }}>
+              Percentages show conversion from the previous step. Counts are privacy-safe
+              product events and canonical payments; GA4 sessions are reported separately.
+            </p>
+          </SectionPanel>
 
           {/* Charts */}
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
@@ -209,10 +266,18 @@ export default function DashboardPage() {
 
           {/* Deferred external sources */}
           <div className="grid gap-4 lg:grid-cols-2">
-            <ConnectLater
-              title="GA4 sessions"
-              description="Traffic and sessions from Google Analytics 4 will appear here once the read-only GA4 connection is wired."
-            />
+            <SectionPanel title="GA4 traffic">
+              <div className="space-y-2 text-xs" style={{ color: "var(--app-muted)" }}>
+                <p className="font-medium" style={{ color: "var(--app-fg)" }}>
+                  Read-only GA4 adapter not connected
+                </p>
+                <p>
+                  {d.trackedVisits.value} tracked visits are available from our own
+                  privacy-safe event store. GA4 sessions will appear here after the
+                  property connection is configured.
+                </p>
+              </div>
+            </SectionPanel>
             <ConnectLater
               title="Google Ads"
               description="Campaign spend, clicks and CPA will appear here once a read-only Google Ads adapter and real spend exist."

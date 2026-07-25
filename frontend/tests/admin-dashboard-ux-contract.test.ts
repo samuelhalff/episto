@@ -18,6 +18,10 @@ const overviewPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/admin/overview/page.tsx"),
   "utf8",
 );
+const pulseDashboardSource = readFileSync(
+  path.join(repoRoot, "frontend/src/app/[locale]/admin/dashboard/page.tsx"),
+  "utf8",
+);
 const adminPanelsSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/admin/admin-panels.tsx"),
   "utf8",
@@ -85,6 +89,16 @@ function getNestedValue(source: unknown, keyPath: string) {
 }
 
 describe("admin dashboard ux contract", () => {
+  it("shows the product funnel and distinguishes tracked events from GA4", () => {
+    expect(pulseDashboardSource).toContain('label="Tracked visits"');
+    expect(pulseDashboardSource).toContain('label="Drafts started"');
+    expect(pulseDashboardSource).toContain('title="Product funnel"');
+    expect(pulseDashboardSource).toContain("Read-only GA4 adapter not connected");
+    expect(pulseDashboardSource).not.toContain(
+      "Traffic and sessions from Google Analytics 4 will appear here once the read-only GA4 connection is wired.",
+    );
+  });
+
   it("adds a dedicated operator overview fetcher for the dashboard", () => {
     expect(adminApiSource).toContain("export async function fetchAdminOverview()");
     expect(adminApiSource).toContain(
@@ -112,8 +126,12 @@ describe("admin dashboard ux contract", () => {
     expect(overviewPageSource).toContain('sub: t("overview.priority.ambiguousInfo")');
     expect(overviewPageSource).toContain('sub: t("overview.priority.suspiciousInfo")');
     expect(overviewPageSource).toContain('sub: t("overview.signals.recentRefundsInfo")');
-    expect(overviewPageSource).toContain('sub: t("overview.retention.expiredSessionsInfo")');
-    expect(overviewPageSource).toContain('sub: t("overview.retention.expiredContentInfo")');
+    expect(overviewPageSource).toContain(
+      'sub: t("overview.retention.expiredSessionsInfo")',
+    );
+    expect(overviewPageSource).toContain(
+      'sub: t("overview.retention.expiredContentInfo")',
+    );
     expect(overviewPageSource).toContain('sub: t("overview.retention.expiredPdfsInfo")');
     expect(overviewPageSource).not.toContain("fetchAdminSummary");
     expect(overviewPageSource).not.toContain("fetchAdminLocale");
@@ -142,9 +160,10 @@ describe("admin dashboard ux contract", () => {
       const messages = readJsonFile(localeMessagePaths[locale]);
 
       for (const keyPath of requiredAdminKeys) {
-        expect(getNestedValue(messages, keyPath), `${locale} is missing ${keyPath}`).toBeTypeOf(
-          "string",
-        );
+        expect(
+          getNestedValue(messages, keyPath),
+          `${locale} is missing ${keyPath}`,
+        ).toBeTypeOf("string");
       }
     }
   });

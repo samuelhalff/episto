@@ -66,6 +66,49 @@ export function buildMetric(
   return { value, previousValue, deltaPercent, lowVolume };
 }
 
+export interface DashboardFunnelCounts {
+  visits: number;
+  draftsStarted: number;
+  draftsReady: number;
+  checkoutsStarted: number;
+  paid: number;
+}
+
+export interface DashboardFunnelStep {
+  key: keyof DashboardFunnelCounts;
+  count: number;
+  conversionPercent: number | null;
+  dropOffPercent: number | null;
+}
+
+/** Build an honest sequential funnel from absolute counts. */
+export function buildFunnelSteps(counts: DashboardFunnelCounts): DashboardFunnelStep[] {
+  const steps = (Object.keys(counts) as Array<keyof DashboardFunnelCounts>).map(
+    (key) => ({
+      key,
+      count: Math.max(0, Math.round(counts[key])),
+    }),
+  );
+
+  return steps.map((step, index) => {
+    if (index === 0) {
+      return { ...step, conversionPercent: null, dropOffPercent: null };
+    }
+
+    const previous = steps[index - 1]?.count ?? 0;
+    if (previous === 0) {
+      return { ...step, conversionPercent: null, dropOffPercent: null };
+    }
+
+    const conversionPercent = Math.round((step.count / previous) * 1000) / 10;
+    return {
+      ...step,
+      conversionPercent,
+      dropOffPercent: Math.round((100 - conversionPercent) * 10) / 10,
+    };
+  });
+}
+
 /**
  * Dispatch success rate over a set of attempts, expressed as a percentage.
  * Numerator: accepted + reconciled. Denominator: all attempts that have left

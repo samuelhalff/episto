@@ -13,6 +13,7 @@ import {
   parsePositiveInt,
   pickEnum,
   LOW_VOLUME_THRESHOLD,
+  buildFunnelSteps,
 } from "../src/modules/admin/admin-dashboard.service.js";
 import { computeOrderContributionCents } from "../src/modules/payments/order-economics.js";
 
@@ -85,6 +86,43 @@ describe("admin dashboard — dispatch success rate", () => {
         submitted: 0,
       }),
     ).toBeNull();
+  });
+});
+
+describe("admin dashboard — product funnel", () => {
+  it("calculates sequential conversion and drop-off from absolute counts", () => {
+    expect(
+      buildFunnelSteps({
+        visits: 100,
+        draftsStarted: 40,
+        draftsReady: 20,
+        checkoutsStarted: 10,
+        paid: 5,
+      }),
+    ).toEqual([
+      { key: "visits", count: 100, conversionPercent: null, dropOffPercent: null },
+      { key: "draftsStarted", count: 40, conversionPercent: 40, dropOffPercent: 60 },
+      { key: "draftsReady", count: 20, conversionPercent: 50, dropOffPercent: 50 },
+      { key: "checkoutsStarted", count: 10, conversionPercent: 50, dropOffPercent: 50 },
+      { key: "paid", count: 5, conversionPercent: 50, dropOffPercent: 50 },
+    ]);
+  });
+
+  it("does not create invalid percentages when the previous step is empty", () => {
+    expect(
+      buildFunnelSteps({
+        visits: 0,
+        draftsStarted: 2,
+        draftsReady: 0,
+        checkoutsStarted: 0,
+        paid: 0,
+      })[1],
+    ).toEqual({
+      key: "draftsStarted",
+      count: 2,
+      conversionPercent: null,
+      dropOffPercent: null,
+    });
   });
 });
 

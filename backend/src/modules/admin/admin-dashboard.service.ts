@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { getDb } from "../../db/index.js";
+import { dashboardFunnelData } from "./admin-dashboard.funnel.js";
 import type {
   AdminDashboardPeriod,
   AdminDashboardResponse,
@@ -14,6 +15,7 @@ import {
   LOW_VOLUME_THRESHOLD,
   periodDays,
   buildMetric,
+  buildFunnelSteps,
   dispatchSuccessRate,
   sumContributionCents,
   num,
@@ -27,6 +29,7 @@ export {
   parseDashboardPeriod,
   periodDays,
   buildMetric,
+  buildFunnelSteps,
   dispatchSuccessRate,
   sumContributionCents,
   hardenCsvCell,
@@ -53,6 +56,7 @@ export async function dashboardData(
   const prevEnd = curStart;
 
   const [
+    funnelReport,
     lettersPaidCur,
     lettersPaidPrev,
     capturedCur,
@@ -69,6 +73,7 @@ export async function dashboardData(
     alertDispatch,
     alertFeedback,
   ] = await Promise.all([
+    dashboardFunnelData(db, days),
     db.execute<{ count: number }>(sql`
       WITH latest AS (
         SELECT DISTINCT ON (draft_id) draft_id
@@ -190,6 +195,13 @@ export async function dashboardData(
   const lettersCur = num(lettersPaidCur.rows[0]?.count);
   const lettersPrev = num(lettersPaidPrev.rows[0]?.count);
   const lowVolume = lettersCur + lettersPrev < LOW_VOLUME_THRESHOLD;
+  const currentFunnel = {
+    visits: funnelReport.visitsCur,
+    draftsStarted: funnelReport.draftsStartedCur,
+    draftsReady: funnelReport.draftsReadyCur,
+    checkoutsStarted: funnelReport.checkoutsStartedCur,
+    paid: lettersCur,
+  };
 
   const contribCur = sumContributionCents(capturedCur.rows);
   const contribPrev = sumContributionCents(capturedPrev.rows);
@@ -243,6 +255,27 @@ export async function dashboardData(
     netRevenueCents: buildMetric(netCur, netPrev, lowVolume),
     vatCents: vatCur,
     dispatchSuccessRate: buildMetric(rateCur ?? 0, ratePrev ?? 0, lowVolume),
+    trackedVisits: buildMetric(
+      funnelReport.visitsCur,
+      funnelReport.visitsPrev,
+      lowVolume,
+    ),
+    draftsStarted: buildMetric(
+      funnelReport.draftsStartedCur,
+      funnelReport.draftsStartedPrev,
+      lowVolume,
+    ),
+    draftsReady: buildMetric(
+      funnelReport.draftsReadyCur,
+      funnelReport.draftsReadyPrev,
+      lowVolume,
+    ),
+    checkoutsStarted: buildMetric(
+      funnelReport.checkoutsStartedCur,
+      funnelReport.checkoutsStartedPrev,
+      lowVolume,
+    ),
+    funnel: buildFunnelSteps(currentFunnel),
     dailySeries,
     deliveryMix: {
       standard: num(mix?.standard),

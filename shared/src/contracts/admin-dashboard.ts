@@ -37,6 +37,13 @@ export interface AdminDashboardDeliveryMix {
   registered: number;
 }
 
+export interface AdminDashboardFunnelStep {
+  key: "visits" | "draftsStarted" | "draftsReady" | "checkoutsStarted" | "paid";
+  count: number;
+  conversionPercent: number | null;
+  dropOffPercent: number | null;
+}
+
 export interface AdminDashboardAlerts {
   /** Payments awaiting refund action (current-state, ignores period). */
   refundsPending: number;
@@ -59,6 +66,12 @@ export interface AdminDashboardResponse {
   netRevenueCents: AdminDashboardMetric;
   vatCents: number;
   dispatchSuccessRate: AdminDashboardMetric;
+  /** Product events tracked in our DB; GA4 sessions are a separate source. */
+  trackedVisits: AdminDashboardMetric;
+  draftsStarted: AdminDashboardMetric;
+  draftsReady: AdminDashboardMetric;
+  checkoutsStarted: AdminDashboardMetric;
+  funnel: AdminDashboardFunnelStep[];
   dailySeries: AdminDashboardDailyPoint[];
   deliveryMix: AdminDashboardDeliveryMix;
   alerts: AdminDashboardAlerts;
