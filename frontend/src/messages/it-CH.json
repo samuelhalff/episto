@@ -36,12 +36,12 @@
     "dismissPrivacyNotice": "Chiudere l'avviso sulla privacy"
   },
   "home": {
-    "title": "Lettere formali, pronte per la spedizione",
-    "subtitle": "Rediga, verifichi e prepari la Sua lettera per la spedizione postale in Svizzera."
+    "title": "Invii lettere formali senza andare alla posta",
+    "subtitle": "Lei scrive online — trasmettiamo la lettera alla Posta svizzera, che la stampa e la recapita. Senza stampante, senza francobolli."
   },
   "marketing": {
-    "heroTitle": "Lettere formali, pronte per la spedizione",
-    "heroSubtitle": "Rediga, verifichi e prepari la Sua lettera per la spedizione postale in Svizzera.",
+    "heroTitle": "Invii lettere formali senza andare alla posta",
+    "heroSubtitle": "Lei scrive online — trasmettiamo la lettera alla Posta svizzera, che la stampa e la recapita. Senza stampante, senza francobolli.",
     "heroPanelBadge": "Pronta in pochi minuti",
     "heroCta": "Scrivere la lettera",
     "faqCta": "FAQ",
@@ -85,8 +85,8 @@
     "homepage": {
       "hero": {
         "badge": "Pensato per lettere importanti",
-        "title": "Lettere formali, pronte per la spedizione",
-        "subtitle": "Rediga, verifichi e prepari la Sua lettera per la spedizione postale in Svizzera.",
+        "title": "Invii lettere formali senza andare alla posta",
+        "subtitle": "Lei scrive online — trasmettiamo la lettera alla Posta svizzera, che la stampa e la recapita. Senza stampante, senza francobolli.",
         "primaryCta": "Scrivere la lettera",
         "secondaryCta": "Vedere come funziona",
         "proof": "Senza account · Totale esatto prima del pagamento · I Suoi dati restano riservati",
@@ -98,7 +98,7 @@
         "priceReassurance": "spedizione inclusa, paghi solo all’invio"
       },
       "trustStrip": {
-        "postal": "Spedizione postale in Svizzera",
+        "postal": "Senza posta, stampante o francobolli",
         "privacy": "I Suoi dati restano riservati",
         "encryption": "Crittografato e conservato in sicurezza",
         "noAccount": "Iniziare senza account"
@@ -106,7 +106,7 @@
       "howItWorks": {
         "eyebrow": "Come funziona",
         "title": "Dalla Sua situazione a una lettera pronta",
-        "intro": "Descrive la situazione, verifica la bozza e spedisce solo quando tutto dice esattamente ciò che deve dire.",
+        "intro": "Descrive la situazione, verifica la bozza e la spedisce solo quando suona bene.",
         "steps": {
           "describe": {
             "title": "Descrivere la situazione",
@@ -118,14 +118,14 @@
           },
           "send": {
             "title": "Spedire quando è pronta",
-            "body": "Confermi il totale, paghi in modo sicuro e prepariamo la Sua lettera per la spedizione."
+            "body": "Confermi il totale, paghi in modo sicuro e trasmettiamo la Sua lettera alla Posta svizzera."
           }
         }
       },
       "confidence": {
         "eyebrow": "Perché si sceglie episto",
         "title": "Mantiene il controllo",
-        "intro": "episto aiuta con la struttura e la formulazione. Il contenuto della lettera, il momento in cui è pronta e la decisione di spedirla restano sempre nelle Sue mani.",
+        "intro": "episto aiuta con la struttura e la formulazione. Lei decide cosa scrivere nella lettera, quando è pronta e se spedirla.",
         "cards": {
           "structured": {
             "title": "Una lettera vera e ben impostata",
@@ -137,7 +137,7 @@
           },
           "privacy": {
             "title": "Prezzo e procedura restano chiari",
-            "body": "Vede il totale prima del pagamento e spieghiamo in modo trasparente come viene gestita la Sua lettera."
+            "body": "Vede il totale prima del pagamento e spieghiamo chiaramente cosa succede dopo l’invio."
           }
         }
       },
@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "Dalla bozza alla cassetta",
         "title": "Alla spedizione pensiamo noi",
-        "intro": "Lei approva la lettera — noi la trasmettiamo alla Posta svizzera, che la stampa e la recapita in Svizzera.",
+        "intro": "Dopo la Sua approvazione, trasmettiamo la lettera alla Posta svizzera. La stampa, la imbusta e la recapita in Svizzera.",
         "steps": {
           "draft": {
             "title": "Lei approva",

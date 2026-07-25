@@ -36,12 +36,12 @@
     "dismissPrivacyNotice": "Dismiss privacy notice"
   },
   "home": {
-    "title": "Formal letters, ready to send",
-    "subtitle": "Draft, review, and prepare your letter for postal delivery in Switzerland."
+    "title": "Send formal letters without the post office",
+    "subtitle": "Write it online — we submit it to Swiss Post, which prints and delivers it. No printer, no stamps."
   },
   "marketing": {
-    "heroTitle": "Formal letters, ready to send",
-    "heroSubtitle": "Draft, review, and prepare your letter for postal delivery in Switzerland.",
+    "heroTitle": "Send formal letters without the post office",
+    "heroSubtitle": "Write it online — we submit it to Swiss Post, which prints and delivers it. No printer, no stamps.",
     "heroPanelBadge": "Ready in minutes",
     "heroCta": "Write your letter",
     "faqCta": "FAQ",
@@ -85,8 +85,8 @@
     "homepage": {
       "hero": {
         "badge": "Built for important letters",
-        "title": "Formal letters, ready to send",
-        "subtitle": "Draft, review, and prepare your letter for postal delivery in Switzerland.",
+        "title": "Send formal letters without the post office",
+        "subtitle": "Write it online — we submit it to Swiss Post, which prints and delivers it. No printer, no stamps.",
         "primaryCta": "Write your letter",
         "secondaryCta": "See how it works",
         "proof": "No account needed · Exact total before payment · Your details stay private",
@@ -98,7 +98,7 @@
         "priceReassurance": "postage included, pay only when you send"
       },
       "trustStrip": {
-        "postal": "Sent by post in Switzerland",
+        "postal": "No post office, printer, or stamps",
         "privacy": "Your details stay private",
         "encryption": "Encrypted and stored securely",
         "noAccount": "Start without an account"
@@ -106,7 +106,7 @@
       "howItWorks": {
         "eyebrow": "How it works",
         "title": "From your situation to a finished letter",
-        "intro": "You explain the situation, review the draft, and send only when everything says exactly what it should.",
+        "intro": "You explain the situation, review the draft, and send only when it reads right.",
         "steps": {
           "describe": {
             "title": "Describe the situation",
@@ -118,14 +118,14 @@
           },
           "send": {
             "title": "Send when you’re ready",
-            "body": "Approve the total, pay securely, and we prepare your letter for dispatch."
+            "body": "Approve the total, pay securely, and we submit your letter to Swiss Post."
           }
         }
       },
       "confidence": {
         "eyebrow": "Why people use episto",
         "title": "You stay in control",
-        "intro": "We help with structure and wording. What the letter says, when it is ready, and whether you send it is always your call.",
+        "intro": "We help with structure and wording. You decide what goes in the letter, when it is ready, and whether to send it.",
         "cards": {
           "structured": {
             "title": "Reads like a proper letter",
@@ -137,7 +137,7 @@
           },
           "privacy": {
             "title": "Price and process stay clear",
-            "body": "You see the total before payment, and we explain clearly how your letter is handled."
+            "body": "You see the total before payment, and we clearly explain what happens after you send."
           }
         }
       },
@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "From draft to letterbox",
         "title": "We handle the mailing",
-        "intro": "You approve the letter — we submit it to Swiss Post, which prints and delivers it in Switzerland.",
+        "intro": "After you approve, we submit the letter to Swiss Post. Swiss Post prints, envelopes, and delivers it in Switzerland.",
         "steps": {
           "draft": {
             "title": "You approve",

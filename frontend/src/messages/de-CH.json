@@ -36,11 +36,11 @@
     "dismissPrivacyNotice": "Datenschutzhinweis ausblenden"
   },
   "home": {
-    "title": "Formelle Briefe, bereit für den Versand",
+    "title": "Formelle Briefe senden – ohne Gang zur Poststelle",
     "subtitle": "Verfassen, prüfen und Ihren Brief in der Schweiz für den Versand vorbereiten."
   },
   "marketing": {
-    "heroTitle": "Formelle Briefe, bereit für den Versand",
+    "heroTitle": "Formelle Briefe senden – ohne Gang zur Poststelle",
     "heroSubtitle": "Verfassen, prüfen und Ihren Brief in der Schweiz für den Versand vorbereiten.",
     "heroPanelBadge": "In wenigen Minuten bereit",
     "heroCta": "Brief verfassen",
@@ -85,8 +85,8 @@
     "homepage": {
       "hero": {
         "badge": "Für wichtige Briefe gemacht",
-        "title": "Formelle Briefe, bereit für den Versand",
-        "subtitle": "Beschreiben Sie Ihr Anliegen, prüfen Sie den Entwurf und geben Sie Ihren Brief erst frei, wenn alles stimmt.",
+        "title": "Formelle Briefe senden – ohne Gang zur Poststelle",
+        "subtitle": "Sie schreiben online – wir übermitteln den Brief der Schweizerischen Post, die ihn druckt und zustellt. Kein Drucker, keine Briefmarken.",
         "primaryCta": "Brief verfassen",
         "secondaryCta": "So funktioniert es",
         "proof": "Kein Konto nötig · Genauer Total vor der Zahlung · Ihre Angaben bleiben privat",
@@ -98,7 +98,7 @@
         "priceReassurance": "inkl. Versand, Zahlung erst beim Versand"
       },
       "trustStrip": {
-        "postal": "Versand in der Schweiz",
+        "postal": "Ohne Poststelle, Drucker oder Briefmarken",
         "privacy": "Ihre Angaben bleiben privat",
         "encryption": "Verschlüsselt und sicher gespeichert",
         "noAccount": "Ohne Konto starten"
@@ -106,7 +106,7 @@
       "howItWorks": {
         "eyebrow": "So funktioniert es",
         "title": "Von Ihrer Situation zum fertigen Brief",
-        "intro": "Sie schildern Ihr Anliegen, prüfen den Entwurf und geben den Brief erst frei, wenn alles genau so formuliert ist, wie es sein soll.",
+        "intro": "Sie schildern Ihr Anliegen, prüfen den Entwurf und geben den Brief erst frei, wenn er stimmig ist.",
         "steps": {
           "describe": {
             "title": "Situation beschreiben",
@@ -118,14 +118,14 @@
           },
           "send": {
             "title": "Versenden, wenn alles stimmt",
-            "body": "Bestätigen Sie den Total, bezahlen Sie sicher und wir bereiten Ihren Brief für den Versand vor."
+            "body": "Bestätigen Sie den Total, bezahlen Sie sicher und wir übermitteln Ihren Brief der Schweizerischen Post."
           }
         }
       },
       "confidence": {
         "eyebrow": "Warum Menschen episto nutzen",
         "title": "Sie behalten die Kontrolle",
-        "intro": "episto hilft bei Struktur und Formulierung. Was im Brief steht, wann er fertig ist und ob Sie ihn versenden, entscheiden Sie.",
+        "intro": "episto hilft bei Struktur und Formulierung. Sie entscheiden, was im Brief steht, wann er fertig ist und ob Sie ihn versenden.",
         "cards": {
           "structured": {
             "title": "Ihr Brief klingt wie ein richtiger Brief",
@@ -137,7 +137,7 @@
           },
           "privacy": {
             "title": "Preis und Ablauf bleiben klar",
-            "body": "Sie sehen den Total vor der Zahlung, und wir erklären verständlich, wie Ihr Brief weiterbearbeitet wird."
+            "body": "Sie sehen den Total vor der Zahlung, und wir erklären klar, was nach dem Versand passiert."
           }
         }
       },
@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "Vom Entwurf bis zum Briefkasten",
         "title": "Den Versand übernehmen wir",
-        "intro": "Sie geben den Brief frei – wir übermitteln ihn der Schweizerischen Post, die ihn in der Schweiz druckt und zustellt.",
+        "intro": "Nach Ihrer Freigabe übermitteln wir den Brief der Schweizerischen Post. Sie druckt, kuvertiert und stellt ihn in der Schweiz zu.",
         "steps": {
           "draft": {
             "title": "Sie geben frei",

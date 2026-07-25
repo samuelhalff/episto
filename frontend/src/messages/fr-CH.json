@@ -36,11 +36,11 @@
     "dismissPrivacyNotice": "Fermer l’avis de confidentialité"
   },
   "home": {
-    "title": "Des courriers formels, prêts à l’envoi",
+    "title": "Envoyez des lettres formelles sans passer à la poste",
     "subtitle": "Rédigez, relisez et préparez votre courrier pour l’envoi postal en Suisse."
   },
   "marketing": {
-    "heroTitle": "Des courriers formels, prêts à l’envoi",
+    "heroTitle": "Envoyez des lettres formelles sans passer à la poste",
     "heroSubtitle": "Rédigez, relisez et préparez votre courrier pour l’envoi postal en Suisse.",
     "heroPanelBadge": "Prêt en quelques minutes",
     "heroCta": "Rédiger votre courrier",
@@ -85,8 +85,8 @@
     "homepage": {
       "hero": {
         "badge": "Pensé pour les courriers importants",
-        "title": "Des courriers formels, prêts à l’envoi",
-        "subtitle": "Expliquez votre situation, relisez le projet, puis préparez votre courrier pour l’envoi postal en Suisse.",
+        "title": "Envoyez des lettres formelles sans passer à la poste",
+        "subtitle": "Vous écrivez en ligne — nous transmettons la lettre à la Poste suisse, qui l’imprime et la distribue. Sans imprimante, sans timbres.",
         "primaryCta": "Rédiger votre courrier",
         "secondaryCta": "Voir comment cela fonctionne",
         "proof": "Sans compte · Total exact avant paiement · Vos données restent privées",
@@ -98,7 +98,7 @@
         "priceReassurance": "envoi inclus, payez seulement à l’envoi"
       },
       "trustStrip": {
-        "postal": "Envoi postal en Suisse",
+        "postal": "Sans poste, imprimante ni timbres",
         "privacy": "Vos données restent privées",
         "encryption": "Données chiffrées et stockées en sécurité",
         "noAccount": "Commencez sans compte"
@@ -106,7 +106,7 @@
       "howItWorks": {
         "eyebrow": "Fonctionnement",
         "title": "De votre situation à un courrier prêt à l’envoi",
-        "intro": "Vous expliquez la situation, relisez le projet, puis n’envoyez le courrier que lorsqu’il dit exactement ce qu’il doit dire.",
+        "intro": "Vous expliquez la situation, relisez le projet et ne l’envoyez que lorsqu’il sonne juste.",
         "steps": {
           "describe": {
             "title": "Décrivez la situation",
@@ -118,14 +118,14 @@
           },
           "send": {
             "title": "Envoyez quand tout vous convient",
-            "body": "Validez le montant, payez en toute sécurité, puis nous préparons votre courrier pour l’envoi."
+            "body": "Validez le montant, payez en toute sécurité, puis nous transmettons votre courrier à la Poste suisse."
           }
         }
       },
       "confidence": {
         "eyebrow": "Pourquoi utiliser episto",
         "title": "Vous gardez la main",
-        "intro": "Nous vous aidons pour la structure et la formulation. Le contenu du courrier, le moment de l’envoi et la décision finale vous reviennent.",
+        "intro": "Nous vous aidons pour la structure et la formulation. Vous décidez du contenu du courrier, du moment où il est prêt et de son envoi.",
         "cards": {
           "structured": {
             "title": "Le ton d’un vrai courrier",
@@ -137,7 +137,7 @@
           },
           "privacy": {
             "title": "Le prix et le processus restent clairs",
-            "body": "Vous voyez le total avant le paiement et nous expliquons clairement comment votre courrier est pris en charge."
+            "body": "Vous voyez le total avant le paiement, et nous expliquons clairement ce qui se passe après l’envoi."
           }
         }
       },
@@ -165,7 +165,7 @@
       "journey": {
         "eyebrow": "Du brouillon à la boîte aux lettres",
         "title": "Nous nous occupons de l’envoi",
-        "intro": "Vous validez la lettre — nous la transmettons à la Poste suisse, qui l’imprime et la distribue en Suisse.",
+        "intro": "Après votre validation, nous transmettons la lettre à la Poste suisse. Elle l’imprime, la met sous pli et la distribue en Suisse.",
         "steps": {
           "draft": {
             "title": "Vous validez",
