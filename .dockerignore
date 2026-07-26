@@ -38,3 +38,6 @@ docker-compose.yml
 docker-compose.prod.yml
 README.md
 TASKS.md
+
+# Google service-account key — never in the build context
+.google-service-account.json

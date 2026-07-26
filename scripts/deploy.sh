@@ -248,12 +248,12 @@ if [[ "$SKIP_UPLOAD" != "1" ]]; then
     sudo install -d -o root -g \"\$(id -gn)\" -m 0750 '$REMOTE_ENV_DIR'
     sudo install -o root -g \"\$(id -gn)\" -m 0640 '$REMOTE_ENV_UPLOAD' '$REMOTE_ENV_PATH'
     if [[ -f '$PROD_PATH/.google-service-account.json' ]]; then
-      sudo install -o root -g root -m 0640 '$PROD_PATH/.google-service-account.json' /etc/episto/ga-sa.json
+      sudo install -o 1001 -g 1001 -m 0400 '$PROD_PATH/.google-service-account.json' /etc/episto/ga-sa.json
     else
       # Keep the compose bind-mount source a real file even when GA4 is not
       # provisioned, so the container starts cleanly (GA4/Ads stay disabled
       # until GOOGLE_SERVICE_ACCOUNT_FILE + GA4_PROPERTY_ID are configured).
-      [[ -e /etc/episto/ga-sa.json ]] || sudo install -o root -g root -m 0640 /dev/null /etc/episto/ga-sa.json
+      [[ -e /etc/episto/ga-sa.json ]] || sudo install -o 1001 -g 1001 -m 0400 /dev/null /etc/episto/ga-sa.json
     fi
     rm -f '$REMOTE_ENV_UPLOAD' '$PROD_PATH/.google-service-account.json'
   "

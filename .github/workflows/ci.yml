@@ -379,9 +379,14 @@ jobs:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
         run: |
           set -Eeuo pipefail
-          test -n "$GOOGLE_SERVICE_ACCOUNT_JSON"
-          printf '%s\n' "$GOOGLE_SERVICE_ACCOUNT_JSON" > .google-service-account.json
-          chmod 600 .google-service-account.json
+          # GA4/Ads are optional — only provision the key when the secret exists.
+          # deploy.sh skips SA provisioning gracefully when the file is absent.
+          if [ -n "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            printf '%s\n' "$GOOGLE_SERVICE_ACCOUNT_JSON" > .google-service-account.json
+            chmod 600 .google-service-account.json
+          else
+            echo "GOOGLE_SERVICE_ACCOUNT_JSON not set — deploying with GA4/Ads disabled."
+          fi
       - name: Deploy to production
         env:
           PROD_HOST: ${{ secrets.PRODUCTION_HOST }}
