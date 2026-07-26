@@ -210,3 +210,48 @@ CM1 + VAT outputs reconcile.
 overview page** showing 28-day paid/dispatched counts, captured/refunded cash, a simple daily-orders
 series, unresolved dispatch/refund counts, and a "last updated" stamp. **No shadcn init, no new
 navigation, no charts.** Everything else follows once the metric contracts and reconciliation hold.
+
+---
+
+## 12. Post-build codex review (2026-07-26) — PROD BLOCKERS (open)
+
+The built dashboard was reviewed by codex: **NO-GO as production-ready.** DB-only migration `0017`
+is safe to apply, but the financial views are wrong once refunds occur and admin authz is too broad.
+Infra bugs are fixed (commit `efca1b1`); the P0 money/auth items below remain open and block prod.
+
+**P0 — must fix before the financial dashboard is trustworthy/prod:**
+
+1. **Refund ledger + Stripe refund webhook.** No `refunded_amount_cents`/`refund_id`/`refunded_at`;
+   the refund endpoint only sets `refund_pending` and **no webhook completes it**. Dashboards sum the
+   _original charge_ as the refund amount. Add an immutable refund ledger + a Stripe refund webhook.
+2. **Refund VAT math.** `netAfterRefunds = gross − VAT − grossRefund` double-counts VAT (a full CHF
+   4.55 refund yields −0.34, should be 0). Fix across headline + Money tab + P&L.
+3. **CM1 reconciliation after refunds.** Headline subtracts refunds; delivery/pricing/trend do not →
+   category sums ≠ total once refunds exist. Make all CM1 paths refund-consistent; add refund fixtures.
+4. **Immutable capture timestamps.** Reporting infers capture/refund time from mutable `state`/`updated_at`;
+   transitions rewrite history. Add immutable `captured_at` (+ refund-event table); stop using `updated_at`.
+5. **Admin _authorization_.** SSO accepts any identity in the tenant; IP allowlist defaults off. Add an
+   explicit admin user/group/object-id allowlist + require the prod IP allowlist.
+
+**P1 — serious:**
+
+- Persist the **actual Stripe balance-transaction fee** → drop the "estimated" CM1 label.
+- **Fixed opex is period-invalid** (full month subtracted for today/7d/ytd) — prorate or restrict to month.
+- **Ad spend hardcoded to 0 in the P&L** — wire real spend into CM2 once campaigns run.
+- **Receipt issuance is fire-and-forget** (no reconciliation) — a failed receipt silently drops revenue.
+- **Analytics adapters have no timeout** — a stalled GA4/Ads call hangs the dashboard endpoint. Add
+  deadlines + a short server-side cache + request coalescing (30 s frontend polling burns GA4 quota).
+- **Ads:** send `login-customer-id` header (manager access), don't assume CHF, plan off v21 (Aug-2026 sunset).
+
+**Security/PII:** tracking numbers are exposed (pseudonymous — treat carefully in CSV); CSV neutralizes
+`= + - @` but not leading tab/CR/whitespace; audit is endpoint-level not record-level and floods on
+polling; feedback stores the full message (PII) with no retention enforcement + can duplicate on email
+failure. **Add DB constraints to `monthly_fixed_costs`** (year_month format, non-negative amount, note length).
+
+**Fixed already (infra, `efca1b1` + `df58aa9` + `114a140`):** SA key readable by app UID 1001; optional
+GA4 in `deploy.sh` + CI; `.gitignore`/`.dockerignore` the key; compose mount source guaranteed a file.
+
+**Sequence:** (1) refund ledger + webhook + immutable timestamps → (2) fix all refund/VAT/CM1 math with
+fixtures → (3) admin authorization allowlist → (4) analytics timeouts/cache + Ads header/currency → (5)
+Stripe-fee persistence + receipt reconciliation → then deploy + verify. Migration `0017` may be applied
+independently now.
