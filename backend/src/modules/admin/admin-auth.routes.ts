@@ -302,7 +302,7 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
         // back to an oid: actor rather than rejecting an authorized admin.
         const actor = identity.email
           ? identity.email.trim().toLowerCase()
-          : `oid:${identity.oid}`;
+          : `oid:${identity.oid.trim().toLowerCase()}`;
 
         const ttlSeconds = config.ADMIN_SESSION_TTL_HOURS * 3600;
         const sessionToken = createAdminSessionToken(

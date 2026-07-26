@@ -375,20 +375,21 @@ export const EnvSchema = z
   .refine(
     (data) => {
       if (data.NODE_ENV !== "production") return true;
-      // Admin SSO in production must have an explicit identity allowlist AND a
-      // non-empty IP allowlist — tenant membership alone is not authorization.
+      // Admin SSO in production must have a real OID allowlist AND a real IP
+      // allowlist. Check for at least one non-blank PARSED entry: a value like
+      // "," trims non-empty but parses to an empty set, which would silently
+      // allow everything. OIDs are required as the primary control because
+      // emails/UPNs are mutable/reusable; emails stay a runtime fallback only.
       const ssoOn = Boolean(data.ADMIN_MICROSOFT_CLIENT_ID);
       if (!ssoOn) return true;
+      const hasEntry = (s: string) => s.split(",").some((v) => v.trim().length > 0);
       return (
-        Boolean(
-          data.ADMIN_MICROSOFT_ALLOWED_OIDS.trim() ||
-          data.ADMIN_MICROSOFT_ALLOWED_EMAILS.trim(),
-        ) && Boolean(data.ADMIN_IP_ALLOWLIST.trim())
+        hasEntry(data.ADMIN_MICROSOFT_ALLOWED_OIDS) && hasEntry(data.ADMIN_IP_ALLOWLIST)
       );
     },
     {
       message:
-        "Production admin requires ADMIN_MICROSOFT_ALLOWED_OIDS/EMAILS and a non-empty ADMIN_IP_ALLOWLIST",
+        "Production admin requires a non-empty ADMIN_MICROSOFT_ALLOWED_OIDS and a non-empty ADMIN_IP_ALLOWLIST (comma-only values are rejected)",
     },
   )
   .refine(
