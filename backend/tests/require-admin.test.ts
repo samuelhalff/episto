@@ -6,10 +6,15 @@ import { createAdminSessionToken } from "../src/modules/admin/admin-auth.js";
 vi.mock("../src/shared/config/index.js", () => ({
   env: () => ({
     ADMIN_SESSION_SECRET: "admin-session-secret-at-least-32-characters",
+    ADMIN_MICROSOFT_ALLOWED_OIDS: "oid-123",
+    ADMIN_MICROSOFT_ALLOWED_EMAILS: "",
   }),
 }));
 
-function makeRequest(authHeader?: string, cookies?: Record<string, string>): FastifyRequest {
+function makeRequest(
+  authHeader?: string,
+  cookies?: Record<string, string>,
+): FastifyRequest {
   return {
     headers: {
       ...(authHeader !== undefined ? { authorization: authHeader } : {}),
@@ -65,9 +70,7 @@ describe("requireAdmin middleware", () => {
   });
 
   it("rejects wrong username in Basic auth (401)", async () => {
-    const encoded = Buffer.from("wrong-user:secret-password-123").toString(
-      "base64",
-    );
+    const encoded = Buffer.from("wrong-user:secret-password-123").toString("base64");
     const req = makeRequest(`Basic ${encoded}`);
 
     await expect(requireAdmin(req, mockReply)).rejects.toMatchObject({

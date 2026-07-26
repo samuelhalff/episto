@@ -151,6 +151,10 @@ export const EnvSchema = z
     ADMIN_MICROSOFT_TENANT_ID: z.string().min(1).default("common"),
     ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
     ADMIN_IP_ALLOWLIST: z.string().default(""),
+    // Explicit admin authorization allowlists (tenant membership alone is NOT
+    // authorization). OIDs preferred (tenant-stable); emails are a fallback.
+    ADMIN_MICROSOFT_ALLOWED_OIDS: z.string().default(""),
+    ADMIN_MICROSOFT_ALLOWED_EMAILS: z.string().default(""),
 
     // Read-only acquisition analytics. The service-account file is mounted
     // outside the repository in production; no credential JSON belongs in env.
@@ -367,6 +371,25 @@ export const EnvSchema = z
       return true;
     },
     { message: "APP_PUBLIC_URL is required in production" },
+  )
+  .refine(
+    (data) => {
+      if (data.NODE_ENV !== "production") return true;
+      // Admin SSO in production must have an explicit identity allowlist AND a
+      // non-empty IP allowlist — tenant membership alone is not authorization.
+      const ssoOn = Boolean(data.ADMIN_MICROSOFT_CLIENT_ID);
+      if (!ssoOn) return true;
+      return (
+        Boolean(
+          data.ADMIN_MICROSOFT_ALLOWED_OIDS.trim() ||
+          data.ADMIN_MICROSOFT_ALLOWED_EMAILS.trim(),
+        ) && Boolean(data.ADMIN_IP_ALLOWLIST.trim())
+      );
+    },
+    {
+      message:
+        "Production admin requires ADMIN_MICROSOFT_ALLOWED_OIDS/EMAILS and a non-empty ADMIN_IP_ALLOWLIST",
+    },
   )
   .refine(
     (data) => {

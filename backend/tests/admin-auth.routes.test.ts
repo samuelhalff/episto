@@ -22,6 +22,8 @@ vi.mock("../src/shared/config/index.js", () => ({
       "http://localhost:4000/api/v1/admin/auth/microsoft/callback",
     ADMIN_SESSION_SECRET: "admin-session-secret-at-least-32-characters",
     ADMIN_SESSION_TTL_HOURS: 12,
+    ADMIN_MICROSOFT_ALLOWED_OIDS: "oid-123",
+    ADMIN_MICROSOFT_ALLOWED_EMAILS: "",
   }),
 }));
 
@@ -283,12 +285,12 @@ describe("adminAuthRoutes", () => {
     );
   });
 
-  it("redirects back with auth_failed when the identity has no usable email", async () => {
+  it("creates a session via the oid actor fallback when an allowlisted identity has no email", async () => {
     vi.mocked(exchangeMicrosoftCodeForTokens).mockResolvedValue({
       idToken: "microsoft-id-token",
     });
     vi.mocked(validateMicrosoftIdToken).mockResolvedValue({
-      // no email field
+      // no email field, but oid-123 is on the allowlist
       name: "Sam",
       oid: "oid-123",
       tid: "westbaysa-tenant",
@@ -312,6 +314,34 @@ describe("adminAuthRoutes", () => {
     });
 
     expect(response.statusCode).toBe(302);
-    expect(response.headers.location).toBe("/en-CH/overview?authError=auth_failed");
+    expect(response.headers.location).toBe("/en-CH/overview");
+    expect(response.headers["set-cookie"]).toBeDefined();
+  });
+
+  it("denies a same-tenant identity that is not on the allowlist", async () => {
+    vi.mocked(exchangeMicrosoftCodeForTokens).mockResolvedValue({
+      idToken: "microsoft-id-token",
+    });
+    vi.mocked(validateMicrosoftIdToken).mockResolvedValue({
+      email: "stranger@example.com",
+      name: "Stranger",
+      oid: "oid-not-allowed",
+      tid: "westbaysa-tenant",
+    });
+
+    const stateToken = createAdminOauthStateToken(
+      { state: "state-123", returnTo: "/en-CH/overview" },
+      "admin-session-secret-at-least-32-characters",
+      Date.now() + 60_000,
+    );
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/admin/auth/microsoft/callback?code=code-123&state=state-123",
+      headers: { cookie: `${ADMIN_OAUTH_STATE_COOKIE_NAME}=${stateToken}` },
+    });
+
+    expect(response.statusCode).toBe(302);
+    expect(response.headers.location).toBe("/en-CH/overview?authError=access_denied");
   });
 });

@@ -6,6 +6,7 @@ import {
   type AdminSessionClaims,
   verifyAdminSessionToken,
 } from "../../modules/admin/admin-auth.js";
+import { isAllowedAdmin } from "../../modules/admin/admin-authorization.js";
 
 declare module "fastify" {
   interface FastifyRequest {
@@ -26,6 +27,33 @@ export async function requireAdmin(
       config.ADMIN_SESSION_SECRET,
       Date.now(),
     );
+
+    // Re-check the identity allowlist on every request so removing an admin
+    // takes effect immediately, not after the cookie TTL. When no allowlist is
+    // configured (dev/test), the login boundary already governs; production env
+    // validation makes the allowlist mandatory there.
+    const allowedOids = (config.ADMIN_MICROSOFT_ALLOWED_OIDS ?? "").trim();
+    const allowedEmails = (config.ADMIN_MICROSOFT_ALLOWED_EMAILS ?? "").trim();
+    if (
+      session &&
+      (allowedOids || allowedEmails) &&
+      !isAllowedAdmin(
+        { oid: session.oid, email: session.email },
+        {
+          ADMIN_MICROSOFT_ALLOWED_OIDS: allowedOids,
+          ADMIN_MICROSOFT_ALLOWED_EMAILS: allowedEmails,
+        },
+      )
+    ) {
+      throw new AppError({
+        family: "validation_error",
+        statusCode: 403,
+        code: "ADMIN_NOT_AUTHORIZED",
+        message: "Admin identity is not on the allowlist",
+        userMessage: "You are not authorized for admin access.",
+        userAction: null,
+      });
+    }
 
     if (session) {
       request.admin = {
@@ -54,7 +82,9 @@ export async function requireAdmin(
   });
 }
 
-export function getRequiredAdmin(request: FastifyRequest): Omit<AdminSessionClaims, "exp"> {
+export function getRequiredAdmin(
+  request: FastifyRequest,
+): Omit<AdminSessionClaims, "exp"> {
   if (!request.admin) {
     throw new AppError({
       family: "validation_error",

@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { env } from "../../shared/config/index.js";
 import { requireAllowlistedAdminIp } from "../../shared/middleware/require-allowlisted-admin-ip.js";
+import { isAllowedAdmin } from "./admin-authorization.js";
 import {
   ADMIN_OAUTH_STATE_COOKIE_NAME,
   ADMIN_SESSION_COOKIE_NAME,
@@ -291,13 +292,17 @@ export async function adminAuthRoutes(app: FastifyInstance): Promise<void> {
           return;
         }
 
-        const actorEmail = identity.email;
-        if (!actorEmail) {
-          reply.redirect(appendAuthError(returnTo, "auth_failed"));
+        // Tenant membership is not authorization — require an explicit allowlist.
+        if (!isAllowedAdmin(identity, config)) {
+          reply.redirect(appendAuthError(returnTo, "access_denied"));
           return;
         }
 
-        const actor = actorEmail.trim().toLowerCase();
+        // OID-allowlisted identities may lack the optional email claim; fall
+        // back to an oid: actor rather than rejecting an authorized admin.
+        const actor = identity.email
+          ? identity.email.trim().toLowerCase()
+          : `oid:${identity.oid}`;
 
         const ttlSeconds = config.ADMIN_SESSION_TTL_HOURS * 3600;
         const sessionToken = createAdminSessionToken(
