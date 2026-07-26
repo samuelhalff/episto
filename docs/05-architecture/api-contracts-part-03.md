@@ -520,6 +520,41 @@ const AdminReconcileResponse = z.object({
 
 ---
 
+#### Promo code management
+
+All under `/api/v1/admin/promos`, protected by the admin session + IP allowlist,
+and returned with `Cache-Control: no-store`. See the Admin Build Pack for the
+product rules.
+
+| Method   | Path                              | Purpose                                                              |
+| -------- | --------------------------------- | -------------------------------------------------------------------- |
+| `GET`    | `/admin/promos?filter=`           | List codes. `filter` ∈ `active` (default) `expired` `inactive` `all` |
+| `POST`   | `/admin/promos`                   | Create a code. Returns `201` + the created promo                     |
+| `PATCH`  | `/admin/promos/:id`               | Edit settings (not `active`; use toggle)                             |
+| `POST`   | `/admin/promos/:id/toggle-active` | Body `{ active: boolean }`; activate / deactivate                    |
+| `DELETE` | `/admin/promos/:id`               | Hard-delete if unused, else archive                                  |
+
+**Promo object:** `{ id, code, kind: "free"|"percent"|"fixed", value,
+maxRedemptions: number|null, redeemedCount, expiresAt: string|null, active,
+note: string|null, status: "active"|"expired"|"inactive", createdAt, updatedAt }`.
+`value` is `0` for free, `0–100` for percent, CHF cents for fixed. `status` is
+derived (expired = past `expiresAt` or fully redeemed).
+
+**Create/update body:** `{ code, kind, value, maxRedemptions, expiresAt, note }`
+(create also takes `active`). `code` is normalised to trimmed uppercase;
+`maxRedemptions` is `null` (unlimited) or `>= 1`; `expiresAt` is an ISO instant
+or `null`.
+
+**Delete response:** `{ outcome: "hard_deleted" | "archived", promoId }`.
+
+**Errors:** `PROMO_CODE_EXISTS` (409), `PROMO_NOT_FOUND` (404),
+`PROMO_CODE_IMMUTABLE` (409, rename after redemption), `PROMO_MAX_BELOW_USAGE`
+(409), `PROMO_NOT_USABLE` (409, reactivating an expired/exhausted code).
+
+**Rate limit:** 60 req/admin/min
+
+---
+
 ## 4. Error Code Catalog
 
 | Code                   | HTTP Status | Meaning                                           | Example                                     |
