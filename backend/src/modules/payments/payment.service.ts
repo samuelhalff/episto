@@ -186,18 +186,60 @@ export interface TransitionPaymentResult {
   rawOrderAccessToken: string | null;
 }
 
+export interface TransitionPaymentExtra {
+  stripePaymentIntentId?: string | undefined;
+  stripeChargeId?: string | undefined;
+  failureReason?: string | undefined;
+  refundReason?: string | undefined;
+  // Immutable capture attribution + actual Stripe fee. Written fill-if-missing:
+  // capture time is set once and never overwritten (a webhook retry only fills
+  // a gap). The fee triple is all-or-nothing to satisfy the DB pair constraint.
+  capturedAt?: Date | undefined;
+  capturedAtSource?: "webhook" | "local_capture" | "stripe_backfill" | undefined;
+  stripeBalanceTransactionId?: string | undefined;
+  stripeFeeCents?: number | undefined;
+  stripeFeeCurrency?: string | undefined;
+  stripeFeeRecordedAt?: Date | undefined;
+}
+
+/** Additive fills for immutable capture time / actual fee — never overwrite. */
+export function captureFillValues(
+  existing: {
+    capturedAt: Date | null;
+    stripeFeeCents: number | null;
+    stripeBalanceTransactionId: string | null;
+  },
+  extra: TransitionPaymentExtra | undefined,
+): Record<string, unknown> {
+  const fills: Record<string, unknown> = {};
+  if (!existing.capturedAt && extra?.capturedAt && extra.capturedAtSource) {
+    fills.capturedAt = extra.capturedAt;
+    fills.capturedAtSource = extra.capturedAtSource;
+  }
+  if (
+    existing.stripeFeeCents == null &&
+    extra?.stripeFeeCents != null &&
+    extra.stripeFeeCurrency != null &&
+    extra.stripeFeeRecordedAt != null
+  ) {
+    fills.stripeFeeCents = extra.stripeFeeCents;
+    fills.stripeFeeCurrency = extra.stripeFeeCurrency;
+    fills.stripeFeeRecordedAt = extra.stripeFeeRecordedAt;
+  }
+  if (
+    existing.stripeBalanceTransactionId == null &&
+    extra?.stripeBalanceTransactionId != null
+  ) {
+    fills.stripeBalanceTransactionId = extra.stripeBalanceTransactionId;
+  }
+  return fills;
+}
+
 export async function transitionPaymentState(
   db: Db,
   paymentId: string,
   newState: string,
-  extra?:
-    | {
-        stripePaymentIntentId?: string | undefined;
-        stripeChargeId?: string | undefined;
-        failureReason?: string | undefined;
-        refundReason?: string | undefined;
-      }
-    | undefined,
+  extra?: TransitionPaymentExtra | undefined,
 ): Promise<TransitionPaymentResult> {
   const [existing] = await db
     .select()
@@ -208,8 +250,19 @@ export async function transitionPaymentState(
   if (!existing) throw notFoundError("payment attempt");
 
   // Idempotency: if already in the target state, return as-is (webhook retries)
+  // — but still fill a missing capture time / actual fee that a retry supplies.
   if (existing.state === newState) {
-    return { payment: toPaymentRow(existing), rawOrderAccessToken: null };
+    const fills = captureFillValues(existing, extra);
+    if (Object.keys(fills).length === 0) {
+      return { payment: toPaymentRow(existing), rawOrderAccessToken: null };
+    }
+    fills.updatedAt = new Date();
+    const [filled] = await db
+      .update(schema.paymentAttempts)
+      .set(fills)
+      .where(eq(schema.paymentAttempts.id, paymentId))
+      .returning();
+    return { payment: toPaymentRow(filled ?? existing), rawOrderAccessToken: null };
   }
 
   try {
@@ -245,6 +298,7 @@ export async function transitionPaymentState(
   if (extra?.refundReason !== undefined) {
     values.refundReason = extra.refundReason;
   }
+  Object.assign(values, captureFillValues(existing, extra));
 
   // On first capture: generate a distinct long-lived order access token.
   // This separates paid-order access from the ephemeral drafting session token.

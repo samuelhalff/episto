@@ -99,10 +99,13 @@ export async function captureFreeOrder(
       phoneVerifiedAt: input.verifiedPhone.phoneVerifiedAt,
       breakdown: input.orderBreakdown,
     });
+    // Free (fully-discounted) orders capture locally with no Stripe charge, so
+    // there is no processing fee — record the capture time and source only.
     const { payment: captured } = await transitionPaymentState(
       tx,
       payment.id,
       "captured",
+      { capturedAt: new Date(), capturedAtSource: "local_capture" },
     );
     await syncDraftFulfillmentFromPaymentState(tx, input.draftId, {
       signatureFlowMode: input.signatureFlowMode,

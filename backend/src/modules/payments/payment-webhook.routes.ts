@@ -4,8 +4,15 @@ import { getDb, schema } from "../../db/index.js";
 import { validationError } from "../../shared/errors/index.js";
 import { recordEvent } from "../analytics/index.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
-import { constructWebhookEvent } from "./adapters/stripe.adapter.js";
-import { getPaymentAttemptById, transitionPaymentState } from "./payment.service.js";
+import {
+  constructWebhookEvent,
+  retrieveChargeFinancials,
+} from "./adapters/stripe.adapter.js";
+import {
+  getPaymentAttemptById,
+  transitionPaymentState,
+  type TransitionPaymentExtra,
+} from "./payment.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 import { issueReceiptForCapturedPayment } from "./receipt.service.js";
 
@@ -103,8 +110,34 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
         const chargeId =
           typeof intent.latest_charge === "string" ? intent.latest_charge : null;
 
+        // Best-effort actual fee lookup. Fees settle just after capture; a
+        // failure or non-CHF fee leaves it null (CM1 stays estimated) and must
+        // never block capture. Filled on a later webhook retry / reconciliation.
+        let feeFields: Partial<TransitionPaymentExtra> = {};
+        if (chargeId) {
+          try {
+            const fin = await retrieveChargeFinancials(chargeId);
+            if (fin && fin.feeCurrency === "CHF") {
+              feeFields = {
+                stripeBalanceTransactionId: fin.balanceTransactionId,
+                stripeFeeCents: fin.feeCents,
+                stripeFeeCurrency: fin.feeCurrency,
+                stripeFeeRecordedAt: new Date(),
+              };
+            }
+          } catch (err) {
+            request.log.warn(
+              { err, paymentAttemptId: payment.id },
+              "Actual Stripe fee lookup failed at capture; CM1 stays estimated",
+            );
+          }
+        }
+
         await transitionPaymentState(db, payment.id, "captured", {
           stripeChargeId: chargeId ?? undefined,
+          capturedAt: new Date(event.created * 1000),
+          capturedAtSource: "webhook",
+          ...feeFields,
         });
         await syncDraftFulfillmentFromPaymentState(db, draftId, {
           signatureFlowMode: signatureFlowMode ?? "visual",

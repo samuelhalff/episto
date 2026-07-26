@@ -335,6 +335,34 @@ export async function createRefund(
   }
 }
 
+/**
+ * Retrieve the actual settled processing fee for a charge from its balance
+ * transaction. Returns null when the balance transaction isn't available yet
+ * (fees settle slightly after capture) so callers keep CM1 estimated rather
+ * than substituting zero. `feeCurrency` is upper-cased.
+ */
+export async function retrieveChargeFinancials(chargeId: string): Promise<{
+  balanceTransactionId: string;
+  feeCents: number;
+  feeCurrency: string;
+} | null> {
+  try {
+    const charge = await getStripe().charges.retrieve(chargeId, {
+      expand: ["balance_transaction"],
+    });
+    const bt = charge.balance_transaction;
+    if (!bt || typeof bt === "string") return null;
+    return {
+      balanceTransactionId: bt.id,
+      feeCents: bt.fee,
+      feeCurrency: bt.currency.toUpperCase(),
+    };
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeError) throw mapStripeError(err);
+    throw providerOutageError("Stripe", err);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Construct webhook event (verify signature)
 // ---------------------------------------------------------------------------

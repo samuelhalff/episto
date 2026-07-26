@@ -46,6 +46,7 @@ vi.mock("../src/modules/payments/adapters/stripe.adapter.js", async (importOrigi
     createPaymentIntent: vi.fn(),
     constructWebhookEvent: mocks.constructWebhookEvent,
     getPaymentIntentClientSecret: vi.fn(),
+    retrieveChargeFinancials: vi.fn().mockResolvedValue(null),
   };
 });
 
@@ -170,7 +171,11 @@ describe("payment webhook routes", () => {
       mocks.db,
       "payment-1",
       "captured",
-      { stripeChargeId: "ch_1" },
+      expect.objectContaining({
+        stripeChargeId: "ch_1",
+        capturedAt: expect.any(Date),
+        capturedAtSource: "webhook",
+      }),
     );
     expect(mocks.enqueueDispatchSubmission).toHaveBeenCalledWith({
       draftId: "draft-1",
