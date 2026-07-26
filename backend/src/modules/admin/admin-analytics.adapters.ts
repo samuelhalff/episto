@@ -205,6 +205,23 @@ async function readAds(
   };
 }
 
+/**
+ * Bound each external analytics call so a stalled Google endpoint can never hang
+ * the admin dashboard request. On timeout the promise rejects and allSettled
+ * surfaces `request_failed` — the internal DB dashboard is unaffected.
+ */
+function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  return Promise.race([
+    p,
+    new Promise<T>((_resolve, reject) => {
+      const t = setTimeout(() => reject(new Error("analytics_timeout")), ms);
+      if (typeof t.unref === "function") t.unref();
+    }),
+  ]);
+}
+
+const EXTERNAL_ANALYTICS_TIMEOUT_MS = 5_000;
+
 export async function loadExternalAnalytics(
   config: Env,
   days: number,
@@ -212,9 +229,9 @@ export async function loadExternalAnalytics(
   if (!configured(config)) return buildAnalyticsSnapshot({});
   const range = dateRange(days);
   const [ga4, searchConsole, ads] = await Promise.allSettled([
-    readGa4(config, range),
-    readSearchConsole(config, range),
-    readAds(config, range),
+    withTimeout(readGa4(config, range), EXTERNAL_ANALYTICS_TIMEOUT_MS),
+    withTimeout(readSearchConsole(config, range), EXTERNAL_ANALYTICS_TIMEOUT_MS),
+    withTimeout(readAds(config, range), EXTERNAL_ANALYTICS_TIMEOUT_MS),
   ]);
   const sourceRows: AnalyticsSourceRows = {};
   if (ga4.status === "fulfilled" && ga4.value) sourceRows.ga4 = ga4.value;
