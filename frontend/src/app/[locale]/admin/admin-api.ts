@@ -235,9 +235,13 @@ export async function fetchAdminStepFriction(period = "7d") {
   );
 }
 
-export async function adminPost<T>(path: string, body?: unknown): Promise<T> {
+async function adminMutate<T>(
+  method: "POST" | "PATCH" | "DELETE",
+  path: string,
+  body?: unknown,
+): Promise<T> {
   const res = await fetch(`${getApiBase()}/v1${path}`, {
-    method: "POST",
+    method,
     credentials: "include",
     headers: {
       "X-Requested-With": "XMLHttpRequest",
@@ -247,4 +251,16 @@ export async function adminPost<T>(path: string, body?: unknown): Promise<T> {
   });
   if (!res.ok) throw new Error(await readApiError(res));
   return res.json() as Promise<T>;
+}
+
+export function adminPost<T>(path: string, body?: unknown): Promise<T> {
+  return adminMutate<T>("POST", path, body);
+}
+
+export function adminPatch<T>(path: string, body?: unknown): Promise<T> {
+  return adminMutate<T>("PATCH", path, body);
+}
+
+export function adminDelete<T>(path: string): Promise<T> {
+  return adminMutate<T>("DELETE", path);
 }

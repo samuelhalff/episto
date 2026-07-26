@@ -14,6 +14,7 @@ import {
   Activity,
   Gauge,
   Wallet,
+  Ticket,
   X,
 } from "lucide-react";
 import { Logo } from "@/components/branding/Logo";
@@ -37,6 +38,7 @@ const NAV_SECTIONS = [
       { href: "search", label: "Search", icon: Search },
       { href: "sessions", label: "Sessions", icon: Users },
       { href: "flags", label: "Flags & Queue", icon: Flag },
+      { href: "promos", label: "Promo Codes", icon: Ticket },
     ],
   },
   {
