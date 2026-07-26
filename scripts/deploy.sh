@@ -67,7 +67,12 @@ append_domain() {
 }
 
 [[ -f "$ENV_FILE" ]] || die "$ENV_FILE not found in $REPO_ROOT"
-[[ -f "$SERVICE_ACCOUNT_SOURCE" ]] || die "$SERVICE_ACCOUNT_SOURCE not found in $REPO_ROOT"
+if [[ -f "$SERVICE_ACCOUNT_SOURCE" ]]; then
+  HAS_SERVICE_ACCOUNT=1
+else
+  HAS_SERVICE_ACCOUNT=0
+  echo "▶ No $SERVICE_ACCOUNT_SOURCE in $REPO_ROOT — skipping GA4/Ads service-account provisioning (acquisition analytics stay disabled until it is provided)." >&2
+fi
 [[ -f "$COMPOSE_FILE" ]] || die "$COMPOSE_FILE not found"
 [[ -r "$SSH_KEY" ]] || die "SSH key $SSH_KEY missing or unreadable (chmod 600)"
 
@@ -219,9 +224,11 @@ if [[ "$SKIP_UPLOAD" != "1" ]]; then
     rsync -e "$RSH" -avz --progress --chmod=F600 \
       "$ENV_FILE" \
       "$REMOTE:$REMOTE_ENV_UPLOAD"
-    rsync -e "$RSH" -avz --progress --chmod=F600 \
-      "$SERVICE_ACCOUNT_SOURCE" \
-      "$REMOTE:$PROD_PATH/.google-service-account.json"
+    if [[ "$HAS_SERVICE_ACCOUNT" == 1 ]]; then
+      rsync -e "$RSH" -avz --progress --chmod=F600 \
+        "$SERVICE_ACCOUNT_SOURCE" \
+        "$REMOTE:$PROD_PATH/.google-service-account.json"
+    fi
   else
     scp "${SSH_OPTS[@]}" "$TARBALL" "$COMPOSE_FILE" \
       "$REMOTE:$PROD_PATH/"
@@ -229,8 +236,10 @@ if [[ "$SKIP_UPLOAD" != "1" ]]; then
       "$REMOTE:$PROD_PATH/nginx/"
     scp "${SSH_OPTS[@]}" "$ENV_FILE" \
       "$REMOTE:$REMOTE_ENV_UPLOAD"
-    scp "${SSH_OPTS[@]}" "$SERVICE_ACCOUNT_SOURCE" \
-      "$REMOTE:$PROD_PATH/.google-service-account.json"
+    if [[ "$HAS_SERVICE_ACCOUNT" == 1 ]]; then
+      scp "${SSH_OPTS[@]}" "$SERVICE_ACCOUNT_SOURCE" \
+        "$REMOTE:$PROD_PATH/.google-service-account.json"
+    fi
   fi
 
   say "Installing protected env file on remote…"
@@ -238,7 +247,14 @@ if [[ "$SKIP_UPLOAD" != "1" ]]; then
     chmod 600 '$REMOTE_ENV_UPLOAD'
     sudo install -d -o root -g \"\$(id -gn)\" -m 0750 '$REMOTE_ENV_DIR'
     sudo install -o root -g \"\$(id -gn)\" -m 0640 '$REMOTE_ENV_UPLOAD' '$REMOTE_ENV_PATH'
-    sudo install -o root -g root -m 0640 '$PROD_PATH/.google-service-account.json' /etc/episto/ga-sa.json
+    if [[ -f '$PROD_PATH/.google-service-account.json' ]]; then
+      sudo install -o root -g root -m 0640 '$PROD_PATH/.google-service-account.json' /etc/episto/ga-sa.json
+    else
+      # Keep the compose bind-mount source a real file even when GA4 is not
+      # provisioned, so the container starts cleanly (GA4/Ads stay disabled
+      # until GOOGLE_SERVICE_ACCOUNT_FILE + GA4_PROPERTY_ID are configured).
+      [[ -e /etc/episto/ga-sa.json ]] || sudo install -o root -g root -m 0640 /dev/null /etc/episto/ga-sa.json
+    fi
     rm -f '$REMOTE_ENV_UPLOAD' '$PROD_PATH/.google-service-account.json'
   "
 else
