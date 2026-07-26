@@ -89,6 +89,7 @@ export async function applyPromoToTotal(
 export async function recordPromoRedemption(
   db: Db,
   promoCodeId: string,
+  now: Date = new Date(),
 ): Promise<boolean> {
   const rows = await db
     .update(schema.promoCodes)
@@ -100,6 +101,9 @@ export async function recordPromoRedemption(
       and(
         eq(schema.promoCodes.id, promoCodeId),
         eq(schema.promoCodes.active, true),
+        // Re-check expiry atomically: an admin could shorten expiresAt between
+        // validation and consumption, and it must not be redeemable past expiry.
+        sql`(${schema.promoCodes.expiresAt} IS NULL OR ${schema.promoCodes.expiresAt} > ${now})`,
         sql`(${schema.promoCodes.maxRedemptions} IS NULL OR ${schema.promoCodes.redeemedCount} < ${schema.promoCodes.maxRedemptions})`,
       ),
     )

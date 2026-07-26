@@ -1,4 +1,4 @@
-import { buildOrderReference } from "@episto/shared";
+import { buildOrderReference, type PaymentBreakdown } from "@episto/shared";
 import { and, eq } from "drizzle-orm";
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { z } from "zod";
@@ -198,13 +198,17 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
           }
 
           const existing = await getPaymentForDraft(tx, draftId);
-          // A pending attempt whose amount no longer matches the (re)computed
-          // charge — e.g. a promo code was added on resume — is cancelled here so
-          // the block below creates a fresh attempt at the correct price. Only
-          // `pending` is safe to replace; an authorised/captured/settling order is
-          // already in flight with Stripe and must be reused untouched.
+          // Replace a pending attempt whose amount OR promo changed on resume;
+          // cancelling releases the old code's reservation. Reuse non-pending.
           const amountChanged = existing?.amountCents !== chargeCents;
-          if (existing && existing.state === "pending" && amountChanged) {
+          const existingPromoCode =
+            (existing?.breakdown as PaymentBreakdown | null)?.promo?.code ?? null;
+          const promoChanged = existingPromoCode !== (appliedPromo?.code ?? null);
+          if (
+            existing &&
+            existing.state === "pending" &&
+            (amountChanged || promoChanged)
+          ) {
             await transitionPaymentState(tx, existing.id, "cancelled");
           } else if (existing && NON_TERMINAL_STATES.includes(existing.state)) {
             return {

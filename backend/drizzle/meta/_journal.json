@@ -141,6 +141,13 @@
       "when": 1780599600007,
       "tag": "0019_promo_and_amount_constraints",
       "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1780599600008,
+      "tag": "0020_promo_max_redemptions_positive",
+      "breakpoints": true
     }
   ]
 }

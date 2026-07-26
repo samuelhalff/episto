@@ -322,11 +322,15 @@ export async function transitionPaymentState(
 
   if (!row) throw notFoundError("payment attempt");
 
-  // Cancelling a pending discounted attempt returns its reserved promo redemption.
-  // Only the paid+discounted path reserves at creation (free orders reserve at
-  // capture); a promo on a pending attempt therefore always holds exactly one
-  // reservation. `cancelled` is terminal, so this fires at most once per attempt.
-  if (existing.state === "pending" && newState === "cancelled") {
+  // Return a reserved promo redemption when a discounted attempt ends without a
+  // capture. The paid+discounted path reserves at creation (free orders reserve
+  // at capture instead), so a pre-capture attempt (pending/authorized) that goes
+  // to a terminal unpaid state (cancelled OR failed — e.g. a card decline) still
+  // holds exactly one reservation. Capture consumes it and must NOT release. Both
+  // target states are terminal, so this fires at most once per attempt.
+  const wasPreCapture = existing.state === "pending" || existing.state === "authorized";
+  const endedUnpaid = newState === "cancelled" || newState === "failed";
+  if (wasPreCapture && endedUnpaid) {
     const code = (existing.breakdown as PaymentBreakdown | null)?.promo?.code;
     if (code) await releasePromoRedemptionByCode(db, code);
   }

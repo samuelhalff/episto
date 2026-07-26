@@ -22,6 +22,15 @@ import { normalizePromoCode } from "../payments/promo.service.js";
 
 type PromoRow = typeof schema.promoCodes.$inferSelect;
 
+/** Postgres unique_violation (SQLSTATE 23505), as surfaced by node-postgres. */
+function isUniqueViolation(err: unknown): boolean {
+  return (
+    typeof err === "object" &&
+    err !== null &&
+    (err as { code?: unknown }).code === "23505"
+  );
+}
+
 function promoConflict(code: string, message: string, userMessage: string): AppError {
   return new AppError({
     family: "validation_error",
@@ -129,18 +138,32 @@ export async function createAdminPromo(
   // Normalize defensively so the service is correct regardless of caller.
   const code = normalizePromoCode(input.code);
   await assertCodeUnique(db, code);
-  const [row] = await db
-    .insert(schema.promoCodes)
-    .values({
-      code,
-      kind: input.kind,
-      value: input.value,
-      maxRedemptions: input.maxRedemptions,
-      expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
-      active: input.active,
-      note: input.note,
-    })
-    .returning();
+  let row: PromoRow | undefined;
+  try {
+    [row] = await db
+      .insert(schema.promoCodes)
+      .values({
+        code,
+        kind: input.kind,
+        value: input.value,
+        maxRedemptions: input.maxRedemptions,
+        expiresAt: input.expiresAt ? new Date(input.expiresAt) : null,
+        active: input.active,
+        note: input.note,
+      })
+      .returning();
+  } catch (err) {
+    // A concurrent create can win the race between the pre-check and the insert;
+    // surface the unique-code constraint as the intended 409, not a raw 500.
+    if (isUniqueViolation(err)) {
+      throw promoConflict(
+        "PROMO_CODE_EXISTS",
+        `Promo code ${code} already exists`,
+        "A code with this name already exists.",
+      );
+    }
+    throw err;
+  }
   if (!row) throw new Error("Failed to create promo code");
   return toAdminPromo(row, now);
 }
