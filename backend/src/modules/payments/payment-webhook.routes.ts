@@ -13,7 +13,10 @@ import {
   transitionPaymentState,
   type TransitionPaymentExtra,
 } from "./payment.service.js";
-import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
+import {
+  enqueueDispatchIfEligible,
+  intentMatchesAttempt,
+} from "./payment-route-helpers.js";
 import { issueReceiptForCapturedPayment } from "./receipt.service.js";
 import { syncRefundsForCharge } from "./refund-ledger.service.js";
 
@@ -79,6 +82,19 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
         );
         if (!payment) break;
 
+        if (!intentMatchesAttempt(intent, payment)) {
+          request.log.error(
+            {
+              paymentAttemptId: payment.id,
+              intentAmount: intent.amount,
+              intentCurrency: intent.currency,
+              attemptAmount: payment.amountCents,
+            },
+            "Stripe intent amount/currency does not match the attempt; refusing to authorize",
+          );
+          break;
+        }
+
         await transitionPaymentState(db, payment.id, "authorized", {
           stripePaymentIntentId: intent.id,
         });
@@ -107,6 +123,19 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
           paymentAttemptId,
         );
         if (!payment) break;
+
+        if (!intentMatchesAttempt(intent, payment)) {
+          request.log.error(
+            {
+              paymentAttemptId: payment.id,
+              intentAmount: intent.amount,
+              intentCurrency: intent.currency,
+              attemptAmount: payment.amountCents,
+            },
+            "Stripe intent amount/currency does not match the attempt; refusing to capture",
+          );
+          break;
+        }
 
         const chargeId =
           typeof intent.latest_charge === "string" ? intent.latest_charge : null;

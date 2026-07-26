@@ -96,6 +96,10 @@ describe("payment webhook routes", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    // clearAllMocks does not drain queued mockResolvedValueOnce values; reset the
+    // once-based mocks so an unconsumed queue can't bleed into the next test.
+    mocks.getPaymentAttemptById.mockReset();
+    mocks.getPaymentForDraft.mockReset();
     (mocks.db as { select?: unknown }).select = vi.fn(() => ({
       from: vi.fn(() => ({
         where: vi.fn(() => ({
@@ -118,6 +122,8 @@ describe("payment webhook routes", () => {
       data: {
         object: {
           id: "pi_1",
+          amount: 625,
+          currency: "chf",
           metadata: {
             draftId: "draft-1",
             paymentAttemptId: "payment-1",
@@ -130,6 +136,7 @@ describe("payment webhook routes", () => {
       id: "payment-latest",
       draftId: "draft-1",
       amountCents: 625,
+      currency: "CHF",
       state: "pending",
     });
     mocks.getPaymentAttemptById
@@ -137,6 +144,7 @@ describe("payment webhook routes", () => {
         id: "payment-1",
         draftId: "draft-1",
         amountCents: 625,
+        currency: "CHF",
         state: "pending",
       })
       .mockResolvedValueOnce({
@@ -227,6 +235,8 @@ describe("payment webhook routes", () => {
       data: {
         object: {
           id: "pi_1",
+          amount: 625,
+          currency: "chf",
           metadata: { draftId: "draft-1", paymentAttemptId: "payment-1" },
           latest_charge: "ch_1",
         },
@@ -238,6 +248,7 @@ describe("payment webhook routes", () => {
         id: "payment-1",
         draftId: "draft-1",
         amountCents: 625,
+        currency: "CHF",
         state: "pending",
       })
       .mockResolvedValueOnce({

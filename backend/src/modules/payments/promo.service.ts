@@ -106,3 +106,23 @@ export async function recordPromoRedemption(
     .returning({ id: schema.promoCodes.id });
   return rows.length > 0;
 }
+
+/**
+ * Release one reserved redemption (compensating action). The paid+discounted path
+ * reserves a redemption when the attempt is created; if that attempt is cancelled
+ * before capture (amount changed on resume, stale Stripe intent recreated, or the
+ * intent is cancelled), the reservation must be returned or a capped code slowly
+ * burns down without completed orders. Floored at 0 so it can never go negative,
+ * and matched by the normalised code stored on the attempt breakdown.
+ */
+export async function releasePromoRedemptionByCode(db: Db, code: string): Promise<void> {
+  const normalized = normalizePromoCode(code);
+  if (!normalized) return;
+  await db
+    .update(schema.promoCodes)
+    .set({
+      redeemedCount: sql`GREATEST(${schema.promoCodes.redeemedCount} - 1, 0)`,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.promoCodes.code, normalized));
+}

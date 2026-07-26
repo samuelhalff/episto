@@ -8,6 +8,24 @@ import { schema } from "../../db/index.js";
 import { eq } from "drizzle-orm";
 import { acquireRedisLock } from "../../shared/redis-lock.js";
 
+/**
+ * Guard before trusting a Stripe intent event to authorize/capture a local
+ * attempt. Stripe already guarantees the intent amount equals what we created it
+ * with, so a mismatch means tampering or a logic bug (e.g. a webhook routed to
+ * the wrong attempt via bad metadata). Refusing the transition is fail-safe: we
+ * never mark an order paid at an amount we didn't quote. Currency is compared
+ * case-insensitively (Stripe reports lowercase ISO codes).
+ */
+export function intentMatchesAttempt(
+  intent: { amount: number | null | undefined; currency: string | null | undefined },
+  attempt: { amountCents: number; currency: string },
+): boolean {
+  return (
+    intent.amount === attempt.amountCents &&
+    (intent.currency ?? "").toUpperCase() === attempt.currency.toUpperCase()
+  );
+}
+
 export async function enqueueDispatchIfEligible(options: {
   db: Db;
   draftId: string;

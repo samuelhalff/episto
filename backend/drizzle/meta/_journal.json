@@ -134,6 +134,13 @@
       "when": 1780599600006,
       "tag": "0018_payment_financial_integrity",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1780599600007,
+      "tag": "0019_promo_and_amount_constraints",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,7 @@ import {
   type PaymentState,
   type PaymentBreakdown,
 } from "@episto/shared";
+import { releasePromoRedemptionByCode } from "./promo.service.js";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -320,5 +321,15 @@ export async function transitionPaymentState(
     .returning();
 
   if (!row) throw notFoundError("payment attempt");
+
+  // Cancelling a pending discounted attempt returns its reserved promo redemption.
+  // Only the paid+discounted path reserves at creation (free orders reserve at
+  // capture); a promo on a pending attempt therefore always holds exactly one
+  // reservation. `cancelled` is terminal, so this fires at most once per attempt.
+  if (existing.state === "pending" && newState === "cancelled") {
+    const code = (existing.breakdown as PaymentBreakdown | null)?.promo?.code;
+    if (code) await releasePromoRedemptionByCode(db, code);
+  }
+
   return { payment: toPaymentRow(row), rawOrderAccessToken };
 }
