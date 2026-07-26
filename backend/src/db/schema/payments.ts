@@ -36,6 +36,14 @@ export const paymentAttempts = pgTable(
     phoneVerifiedAt: ts("phone_verified_at"),
     orderAccessTokenHash: text("order_access_token_hash").unique(),
     orderAccessTokenExpiresAt: ts("order_access_token_expires_at"),
+    // Immutable capture attribution + actual Stripe charge fee (migration 0018).
+    // Reports key off captured_at, never the mutable state/updated_at.
+    capturedAt: ts("captured_at"),
+    capturedAtSource: text("captured_at_source"),
+    stripeBalanceTransactionId: text("stripe_balance_transaction_id"),
+    stripeFeeCents: integer("stripe_fee_cents"),
+    stripeFeeCurrency: text("stripe_fee_currency"),
+    stripeFeeRecordedAt: ts("stripe_fee_recorded_at"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
