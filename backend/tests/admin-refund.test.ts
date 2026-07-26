@@ -8,7 +8,17 @@ import { assertDefined } from "./assert-defined";
 const mocks = vi.hoisted(() => ({
   selectResults: [] as unknown[][],
   insertResult: { id: "event-1" } as unknown,
-  createRefundResult: { refundId: "re_test_123" } as { refundId: string },
+  createRefundResult: {
+    refundId: "re_test_123",
+    chargeId: "ch_test_1",
+    amountCents: 455,
+    currency: "CHF",
+    status: "pending",
+    stripeCreatedAt: new Date(),
+    balanceTransactionId: null,
+    feeCents: null,
+    failureReason: null,
+  } as Record<string, unknown>,
   transitionResult: {
     payment: {
       id: "payment-1",
@@ -112,9 +122,9 @@ vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
   createRefund: vi.fn(() => Promise.resolve(mocks.createRefundResult)),
 }));
 
-// Mock payment service
-vi.mock("../src/modules/payments/payment.service.js", () => ({
-  transitionPaymentState: vi.fn(() => Promise.resolve(mocks.transitionResult)),
+// Mock refund ledger — the admin action projects the refund + derives state.
+vi.mock("../src/modules/payments/refund-ledger.service.js", () => ({
+  syncRefundsForCharge: vi.fn(() => Promise.resolve("refund_pending")),
 }));
 
 // Mock recordSupportEvent
@@ -142,7 +152,7 @@ vi.mock("../src/shared/middleware/require-admin.js", () => ({
 import { adminActionRoutes } from "../src/modules/admin/admin-actions.routes.js";
 import { recordSupportEvent } from "../src/modules/admin/index.js";
 import { createRefund } from "../src/modules/payments/adapters/stripe.adapter.js";
-import { transitionPaymentState } from "../src/modules/payments/payment.service.js";
+import { syncRefundsForCharge } from "../src/modules/payments/refund-ledger.service.js";
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -172,7 +182,17 @@ describe("admin refund route", () => {
     selectCallCount = 0;
     mocks.selectResults = [];
     mocks.chainRejects = null;
-    mocks.createRefundResult = { refundId: "re_test_123" };
+    mocks.createRefundResult = {
+      refundId: "re_test_123",
+      chargeId: "ch_test_1",
+      amountCents: 455,
+      currency: "CHF",
+      status: "pending",
+      stripeCreatedAt: new Date(),
+      balanceTransactionId: null,
+      feeCents: null,
+      failureReason: null,
+    };
     mocks.transitionResult = {
       payment: {
         id: "payment-1",
@@ -244,16 +264,17 @@ describe("admin refund route", () => {
       state: "refund_pending",
     });
 
-    // Verify Stripe refund was called
-    expect(createRefund).toHaveBeenCalledWith("pi_test_1", "Customer requested refund");
-
-    // Verify state transition was called
-    expect(transitionPaymentState).toHaveBeenCalledWith(
-      expect.anything(),
-      "payment-1",
-      "refund_pending",
-      { refundReason: "Customer requested refund" },
+    // Verify Stripe refund was called with a stable idempotency key
+    expect(createRefund).toHaveBeenCalledWith(
+      "pi_test_1",
+      expect.objectContaining({
+        reason: "Customer requested refund",
+        idempotencyKey: "admin-full-refund:payment-1",
+      }),
     );
+
+    // Verify the refund was projected into the ledger
+    expect(syncRefundsForCharge).toHaveBeenCalledWith(expect.anything(), "ch_test_1");
 
     // Verify support events were logged (2 calls: refund_requested + refund_initiated)
     expect(recordSupportEvent).toHaveBeenCalledTimes(2);
@@ -311,7 +332,7 @@ describe("admin refund route", () => {
     // Stripe refund should NOT be called
     expect(createRefund).not.toHaveBeenCalled();
     // State transition should NOT be called
-    expect(transitionPaymentState).not.toHaveBeenCalled();
+    expect(syncRefundsForCharge).not.toHaveBeenCalled();
   });
 
   // -----------------------------------------------------------------------

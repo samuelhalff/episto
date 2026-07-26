@@ -15,6 +15,7 @@ import {
 } from "./payment.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 import { issueReceiptForCapturedPayment } from "./receipt.service.js";
+import { syncRefundsForCharge } from "./refund-ledger.service.js";
 
 export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promise<void> {
   app.removeContentTypeParser("application/json");
@@ -202,6 +203,24 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
         if (!payment) break;
 
         await transitionPaymentState(db, payment.id, "cancelled");
+        break;
+      }
+
+      // Refund lifecycle → reconcile the whole charge into the refund ledger.
+      // charge.refunded fires for full and partial refunds; charge.refund.updated
+      // carries later status changes. Both re-list from Stripe (idempotent) so a
+      // dashboard-created or retried refund is captured exactly once.
+      case "charge.refunded":
+      case "charge.refund.updated": {
+        const obj = event.data.object;
+        const chargeId =
+          obj.object === "charge"
+            ? obj.id
+            : typeof obj.charge === "string"
+              ? obj.charge
+              : (obj.charge?.id ?? null);
+        if (!chargeId) break;
+        await syncRefundsForCharge(getDb(), chargeId);
         break;
       }
 

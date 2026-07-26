@@ -67,8 +67,8 @@ describe("Payment state machine — failure paths", () => {
 });
 
 describe("Payment state machine — invalid transitions", () => {
-  it("cannot go from captured directly to refunded (must go through refund_pending)", () => {
-    expect(canTransitionPayment("captured", "refunded")).toBe(false);
+  it("allows captured → refunded directly (a Stripe refund can succeed immediately)", () => {
+    expect(canTransitionPayment("captured", "refunded")).toBe(true);
   });
 
   it("cannot go backwards from captured to pending", () => {
@@ -93,7 +93,8 @@ describe("Payment state machine — webhook retry safety", () => {
     expect(canTransitionPayment("captured", "captured")).toBe(false);
   });
 
-  it("allows refund_pending → failed (refund processing failure)", () => {
-    expect(canTransitionPayment("refund_pending", "failed")).toBe(true);
+  it("a failed refund returns refund_pending → captured, never to 'failed'", () => {
+    expect(canTransitionPayment("refund_pending", "captured")).toBe(true);
+    expect(canTransitionPayment("refund_pending", "failed")).toBe(false);
   });
 });

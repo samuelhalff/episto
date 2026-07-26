@@ -313,24 +313,82 @@ export async function cancelPaymentIntent(paymentIntentId: string): Promise<void
 // Create Refund
 // ---------------------------------------------------------------------------
 
+export interface StripeRefundData {
+  refundId: string;
+  chargeId: string;
+  amountCents: number;
+  currency: string;
+  status: "pending" | "requires_action" | "succeeded" | "failed" | "canceled";
+  stripeCreatedAt: Date;
+  balanceTransactionId: string | null;
+  /** Refund processing fee (usually 0); null when the balance txn isn't loaded. */
+  feeCents: number | null;
+  failureReason: string | null;
+}
+
+function normalizeStripeRefund(r: Stripe.Refund): StripeRefundData {
+  const bt = r.balance_transaction;
+  const btObj = bt && typeof bt !== "string" ? bt : null;
+  const status = (r.status ?? "pending") as StripeRefundData["status"];
+  return {
+    refundId: r.id,
+    chargeId: typeof r.charge === "string" ? r.charge : (r.charge?.id ?? ""),
+    amountCents: r.amount,
+    currency: r.currency.toUpperCase(),
+    status,
+    stripeCreatedAt: new Date(r.created * 1000),
+    balanceTransactionId: btObj?.id ?? (typeof bt === "string" ? bt : null),
+    feeCents: btObj ? Math.abs(btObj.fee) : null,
+    failureReason: r.failure_reason ?? null,
+  };
+}
+
+/**
+ * Create a full refund with a STABLE idempotency key so admin retries can never
+ * create two refunds for the same payment. Returns normalized ledger data.
+ */
 export async function createRefund(
   paymentIntentId: string,
-  reason: string,
-): Promise<{ refundId: string }> {
+  opts: { reason: string; idempotencyKey: string; metadata?: Record<string, string> },
+): Promise<StripeRefundData> {
   try {
-    const refund = await getStripe().refunds.create({
-      payment_intent: paymentIntentId,
-      reason: "requested_by_customer",
-      metadata: { admin_reason: reason },
-    });
-    return { refundId: refund.id };
+    const refund = await getStripe().refunds.create(
+      {
+        payment_intent: paymentIntentId,
+        reason: "requested_by_customer",
+        metadata: { admin_reason: opts.reason, ...(opts.metadata ?? {}) },
+        expand: ["balance_transaction"],
+      },
+      { idempotencyKey: opts.idempotencyKey },
+    );
+    return normalizeStripeRefund(refund);
   } catch (err) {
-    if (err instanceof AppError) {
-      throw err;
+    if (err instanceof AppError) throw err;
+    if (err instanceof Stripe.errors.StripeError) throw mapStripeError(err);
+    throw providerOutageError("Stripe", err);
+  }
+}
+
+/**
+ * List ALL refunds for a charge (auto-paginated, fees expanded). Used by the
+ * webhook to reconcile the full refund set — including refunds created directly
+ * in the Stripe Dashboard — rather than trusting a possibly-truncated payload.
+ */
+export async function listRefundsForCharge(
+  chargeId: string,
+): Promise<StripeRefundData[]> {
+  try {
+    const out: StripeRefundData[] = [];
+    for await (const r of getStripe().refunds.list({
+      charge: chargeId,
+      limit: 100,
+      expand: ["data.balance_transaction"],
+    })) {
+      out.push(normalizeStripeRefund(r));
     }
-    if (err instanceof Stripe.errors.StripeError) {
-      throw mapStripeError(err);
-    }
+    return out;
+  } catch (err) {
+    if (err instanceof Stripe.errors.StripeError) throw mapStripeError(err);
     throw providerOutageError("Stripe", err);
   }
 }

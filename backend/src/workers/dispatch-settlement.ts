@@ -8,6 +8,7 @@ import {
   capturePaymentIntent,
   createRefund,
 } from "../modules/payments/adapters/stripe.adapter.js";
+import { syncRefundsForCharge } from "../modules/payments/refund-ledger.service.js";
 import {
   getPaymentAttemptById,
   getPaymentForDraft,
@@ -91,15 +92,20 @@ export async function settlePaymentForDispatchResolution(
       return { payment, rawOrderAccessToken: null };
     }
 
-    // Dispatch rejected after capture → initiate refund.
-    await createRefund(
-      payment.stripePaymentIntentId,
-      `Dispatch rejected for draft ${draftId}`,
-    );
-    const result = await transitionPaymentState(db, payment.id, "refund_pending", {
-      refundReason: `Dispatch rejected for draft ${draftId}`,
+    // Dispatch rejected after capture → initiate refund (stable idempotency key
+    // so a settlement retry never double-refunds), then project into the ledger.
+    const refund = await createRefund(payment.stripePaymentIntentId, {
+      reason: `Dispatch rejected for draft ${draftId}`,
+      idempotencyKey: `dispatch-reject-refund:${payment.id}`,
+      metadata: { paymentAttemptId: payment.id, draftId },
     });
-    return result;
+    try {
+      if (refund.chargeId) await syncRefundsForCharge(db, refund.chargeId);
+    } catch {
+      // charge.refunded webhook / reconciliation recovers the ledger projection.
+    }
+    const refreshed = await getPaymentAttemptById(db, payment.id);
+    return { payment: refreshed ?? payment, rawOrderAccessToken: null };
   }
 
   // Other states (pending, failed, cancelled, etc.) — no settlement action

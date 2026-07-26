@@ -58,16 +58,23 @@ const PAYMENT_TRANSITIONS: Record<PaymentStateValue, readonly PaymentStateValue[
     PaymentState.failed,
     PaymentState.cancelled,
   ],
-  [PaymentState.captured]: [PaymentState.refund_pending, PaymentState.failed],
-  [PaymentState.failed]: [],
-  [PaymentState.cancelled]: [],
-  [PaymentState.refund_pending]: [
-    PaymentState.refunded,
+  [PaymentState.captured]: [
+    PaymentState.refund_pending,
     PaymentState.partially_refunded,
+    PaymentState.refunded,
     PaymentState.failed,
   ],
+  [PaymentState.failed]: [],
+  [PaymentState.cancelled]: [],
+  // A failed refund returns to captured (never to `failed`, which means a failed
+  // charge). Refunds can complete to partial/full directly from a sync.
+  [PaymentState.refund_pending]: [
+    PaymentState.captured,
+    PaymentState.refunded,
+    PaymentState.partially_refunded,
+  ],
   [PaymentState.refunded]: [],
-  [PaymentState.partially_refunded]: [],
+  [PaymentState.partially_refunded]: [PaymentState.refund_pending, PaymentState.refunded],
 };
 
 // ---------------------------------------------------------------------------

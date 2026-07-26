@@ -40,7 +40,16 @@ vi.mock("stripe", () => {
       cancel: vi.fn().mockResolvedValue({}),
     },
     refunds: {
-      create: vi.fn().mockResolvedValue({ id: "re_test_001" }),
+      create: vi.fn().mockResolvedValue({
+        id: "re_test_001",
+        charge: "ch_test_1",
+        amount: 455,
+        currency: "chf",
+        status: "succeeded",
+        created: 1_780_000_000,
+        balance_transaction: null,
+        failure_reason: null,
+      }),
     },
     webhooks: {
       constructEvent: vi.fn().mockReturnValue({ type: "payment_intent.succeeded" }),
@@ -58,76 +67,63 @@ describe("regression: Stripe safety gate preserves test-mode functionality", () 
   });
 
   it("isLiveStripeKey returns false for sk_test_ keys", async () => {
-    const { isLiveStripeKey } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { isLiveStripeKey } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
     expect(isLiveStripeKey("sk_test_abc123")).toBe(false);
   });
 
   it("isLiveStripeKey returns true for sk_live_ keys", async () => {
-    const { isLiveStripeKey } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { isLiveStripeKey } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
     expect(isLiveStripeKey("sk_live_abc123")).toBe(true);
   });
 
   it("isLiveStripeKey returns true for rk_live_ keys", async () => {
-    const { isLiveStripeKey } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { isLiveStripeKey } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
     expect(isLiveStripeKey("rk_live_abc123")).toBe(true);
   });
 
   it("assertStripeEnvironmentSafety passes with test key in development", async () => {
-    const { assertStripeEnvironmentSafety } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { assertStripeEnvironmentSafety } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
     expect(() => assertStripeEnvironmentSafety()).not.toThrow();
   });
 
   it("assertStripeEnvironmentSafety passes with test key in test env", async () => {
     mocks.envData.NODE_ENV = "test";
-    const { assertStripeEnvironmentSafety } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { assertStripeEnvironmentSafety } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
     expect(() => assertStripeEnvironmentSafety()).not.toThrow();
   });
 
   it("assertStripeEnvironmentSafety passes with live key in production", async () => {
     mocks.envData.STRIPE_SECRET_KEY = "sk_live_real";
     mocks.envData.NODE_ENV = "production";
-    const { assertStripeEnvironmentSafety } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { assertStripeEnvironmentSafety } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
     expect(() => assertStripeEnvironmentSafety()).not.toThrow();
   });
 
   it("assertStripeEnvironmentSafety blocks live key in development", async () => {
     mocks.envData.STRIPE_SECRET_KEY = "sk_live_real";
     mocks.envData.NODE_ENV = "development";
-    const { assertStripeEnvironmentSafety } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
-    expect(() => assertStripeEnvironmentSafety()).toThrow(
-      /Live Stripe key detected/,
-    );
+    const { assertStripeEnvironmentSafety } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
+    expect(() => assertStripeEnvironmentSafety()).toThrow(/Live Stripe key detected/);
   });
 
   it("assertStripeEnvironmentSafety blocks rk_live_ key in test env", async () => {
     mocks.envData.STRIPE_SECRET_KEY = "rk_live_restricted";
     mocks.envData.NODE_ENV = "test";
-    const { assertStripeEnvironmentSafety } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
-    expect(() => assertStripeEnvironmentSafety()).toThrow(
-      /Live Stripe key detected/,
-    );
+    const { assertStripeEnvironmentSafety } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
+    expect(() => assertStripeEnvironmentSafety()).toThrow(/Live Stripe key detected/);
   });
 
   it("createPaymentIntent still works with test keys", async () => {
-    const { createPaymentIntent } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
+    const { createPaymentIntent } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
     const result = await createPaymentIntent(490, {
       draftId: "draft-1",
       sessionId: "session-1",
@@ -141,10 +137,12 @@ describe("regression: Stripe safety gate preserves test-mode functionality", () 
   });
 
   it("createRefund still works with test keys", async () => {
-    const { createRefund } = await import(
-      "../src/modules/payments/adapters/stripe.adapter.js"
-    );
-    const result = await createRefund("pi_test_123", "customer request");
+    const { createRefund } =
+      await import("../src/modules/payments/adapters/stripe.adapter.js");
+    const result = await createRefund("pi_test_123", {
+      reason: "customer request",
+      idempotencyKey: "test-key-1",
+    });
     expect(result.refundId).toBe("re_test_001");
   });
 });

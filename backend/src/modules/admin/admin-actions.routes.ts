@@ -6,7 +6,7 @@ import { AppError } from "../../shared/errors/index.js";
 import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { recordSupportEvent } from "./index.js";
 import { createRefund } from "../payments/adapters/stripe.adapter.js";
-import { transitionPaymentState } from "../payments/payment.service.js";
+import { syncRefundsForCharge } from "../payments/refund-ledger.service.js";
 import type { AdminSearchResponse, AdminSearchResultItem } from "@episto/shared";
 
 const RefundBody = z.object({
@@ -273,24 +273,44 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      const { refundId } = await createRefund(payment.stripePaymentIntentId, body.reason);
+      // Stable idempotency key: two admin retries can never create two refunds.
+      const refund = await createRefund(payment.stripePaymentIntentId, {
+        reason: body.reason,
+        idempotencyKey: `admin-full-refund:${payment.id}`,
+        metadata: { paymentAttemptId: payment.id, draftId: id },
+      });
 
-      await transitionPaymentState(db, payment.id, "refund_pending", {
-        refundReason: body.reason,
-      }); // rawOrderAccessToken is null for refund transitions — not needed
+      // Project into the ledger and derive state. If this fails after Stripe
+      // succeeded, the charge.refunded webhook reconciles it — never re-call
+      // Stripe with a new key.
+      let state = "refund_pending";
+      try {
+        if (refund.chargeId) {
+          state = (await syncRefundsForCharge(db, refund.chargeId)) ?? state;
+        }
+      } catch (err) {
+        request.log.error(
+          { err, refundId: refund.refundId, paymentId: payment.id },
+          "Refund ledger projection failed after Stripe refund; webhook will reconcile",
+        );
+      }
 
       await recordSupportEvent(db, {
         draftId: id,
         sessionId: draft.sessionId,
         eventType: "refund_initiated",
         actor: getRequiredAdmin(request).actor,
-        details: { refundId, paymentId: payment.id, reason: body.reason },
+        details: {
+          refundId: refund.refundId,
+          paymentId: payment.id,
+          reason: body.reason,
+        },
       });
 
       reply.send({
-        refundId,
+        refundId: refund.refundId,
         paymentAttemptId: payment.id,
-        state: "refund_pending",
+        state,
       });
     },
   );
