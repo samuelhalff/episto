@@ -16,7 +16,6 @@ import {
   buildPnl,
   currentYearMonth,
   trendGranularity,
-  vatShareCents,
 } from "./admin-financials.compute.js";
 
 export {
@@ -135,8 +134,8 @@ export async function financialsData(
   const gran = trendGranularity(period);
   const bucketExpr =
     gran === "week"
-      ? sql`to_char(date_trunc('week', (p.updated_at AT TIME ZONE ${FINANCIALS_TIMEZONE})), 'YYYY-MM-DD')`
-      : sql`to_char((p.updated_at AT TIME ZONE ${FINANCIALS_TIMEZONE})::date, 'YYYY-MM-DD')`;
+      ? sql`to_char(date_trunc('week', (p.captured_at AT TIME ZONE ${FINANCIALS_TIMEZONE})), 'YYYY-MM-DD')`
+      : sql`to_char((p.captured_at AT TIME ZONE ${FINANCIALS_TIMEZONE})::date, 'YYYY-MM-DD')`;
 
   const [totals, refundsAgg, orders, fixedRow] = await Promise.all([
     // Frozen receipt totals for the window (gross/vat by rate). This is the
@@ -150,11 +149,17 @@ export async function financialsData(
       GROUP BY vat_rate_bp
       ORDER BY vat_rate_bp
     `),
-    // Actual refunded amounts, reported by refund date (plan §9).
-    db.execute<{ refunds: number }>(sql`
-      SELECT COALESCE(SUM(amount_cents), 0)::int AS refunds FROM payment_attempts
-      WHERE state IN ('refunded', 'partially_refunded')
-        AND updated_at >= ${start} AND updated_at < ${end}
+    // Actual refunded amounts from the immutable ledger, reported by the
+    // succeeded-refund date (plan §9). Each row already carries its exact
+    // gross/VAT/net split (VAT allocated cumulatively across partials), so the
+    // P&L never re-derives VAT from a gross figure.
+    db.execute<{ gross: number; vat: number; net: number }>(sql`
+      SELECT COALESCE(SUM(amount_cents), 0)::int AS gross,
+             COALESCE(SUM(refund_vat_cents), 0)::int AS vat,
+             COALESCE(SUM(refund_net_cents), 0)::int AS net
+      FROM payment_refunds
+      WHERE status = 'succeeded'
+        AND refunded_at >= ${start} AND refunded_at < ${end}
     `),
     // One row per captured order with its frozen breakdown + receipt segment.
     db.execute<CapturedOrderRow>(sql`
@@ -170,10 +175,14 @@ export async function financialsData(
       FROM payment_attempts p
       LEFT JOIN receipts r ON r.payment_attempt_id = p.id
       WHERE p.id IN (
+        -- Captured is a dated accounting event: a later refund must NOT drop the
+        -- order from the revenue basis (refunds are subtracted separately, by
+        -- refund date). Select on captured_at, never mutable state/updated_at.
         SELECT DISTINCT ON (draft_id) id
         FROM payment_attempts
-        WHERE state = 'captured' AND updated_at >= ${start} AND updated_at < ${end}
-        ORDER BY draft_id, updated_at DESC, id DESC
+        WHERE captured_at IS NOT NULL
+          AND captured_at >= ${start} AND captured_at < ${end}
+        ORDER BY draft_id, captured_at DESC, id DESC
       )
     `),
     db.execute<{ amount_cents: number }>(sql`
@@ -189,7 +198,9 @@ export async function financialsData(
   }));
   const grossRevenueCents = vatByRate.reduce((a, r) => a + r.grossCents, 0);
   const vatCents = vatByRate.reduce((a, r) => a + r.vatCents, 0);
-  const refundsCents = num(refundsAgg.rows[0]?.refunds);
+  const refundsGrossCents = num(refundsAgg.rows[0]?.gross);
+  const refundsVatCents = num(refundsAgg.rows[0]?.vat);
+  const refundsNetCents = num(refundsAgg.rows[0]?.net);
 
   // Single pass over captured orders → exact per-order CM1 aggregation.
   let postageCostCents = 0;
@@ -240,7 +251,8 @@ export async function financialsData(
   const pnl = buildPnl({
     grossRevenueCents,
     vatCents,
-    refundsCents,
+    refundsGrossCents,
+    refundsNetCents,
     postageCostCents,
     paymentFeesCents,
     paymentFeesEstimated: orders.rows.length === 0 ? true : paymentFeesEstimated,
@@ -284,7 +296,7 @@ export async function financialsData(
       operatingResultCents: null,
     }));
 
-  const refundedVatCents = vatShareCents(refundsCents);
+  const refundedVatCents = refundsVatCents;
 
   return {
     period,

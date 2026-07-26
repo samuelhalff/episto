@@ -61,7 +61,18 @@ export function vatShareCents(totalCents: number): number {
 export interface PnlInputs {
   grossRevenueCents: number;
   vatCents: number;
-  refundsCents: number;
+  /**
+   * Total gross (VAT-inclusive) refunds for the window — what customers actually
+   * got back. Shown on the "Refunds" line for cash context.
+   */
+  refundsGrossCents: number;
+  /**
+   * Net (ex-VAT) portion of those refunds. This is what reduces contribution:
+   * net-after-refunds = net revenue − refundsNet. Subtracting the *gross* refund
+   * from ex-VAT net revenue would double-count the refunded VAT. The refunded VAT
+   * is reclaimed and nets against remitted VAT in the VAT section instead.
+   */
+  refundsNetCents: number;
   postageCostCents: number;
   /**
    * Payment fees for the period — the SUM of per-order Stripe fees, so the
@@ -86,8 +97,10 @@ export function buildPnl(inputs: PnlInputs): AdminPnlWaterfall {
   const grossRevenueCents = Math.round(inputs.grossRevenueCents);
   const vatCents = Math.round(inputs.vatCents);
   const netRevenueCents = grossRevenueCents - vatCents;
-  const refundsCents = Math.round(inputs.refundsCents);
-  const netAfterRefundsCents = netRevenueCents - refundsCents;
+  const refundsGrossCents = Math.round(inputs.refundsGrossCents);
+  const refundsNetCents = Math.round(inputs.refundsNetCents);
+  // Contribution is an ex-VAT quantity: subtract the ex-VAT refund only.
+  const netAfterRefundsCents = netRevenueCents - refundsNetCents;
   const postageCostCents = Math.round(inputs.postageCostCents);
 
   const feeEstimated = inputs.paymentFeesEstimated;
@@ -120,7 +133,15 @@ export function buildPnl(inputs: PnlInputs): AdminPnlWaterfall {
       note: "collected, not income",
     },
     { key: "net", label: "Net revenue", amountCents: netRevenueCents, kind: "subtotal" },
-    { key: "refunds", label: "Refunds", amountCents: -refundsCents, kind: "cost" },
+    {
+      key: "refunds",
+      label: "Refunds",
+      amountCents: -refundsNetCents,
+      kind: "cost",
+      ...(refundsGrossCents > refundsNetCents
+        ? { note: `CHF ${(refundsGrossCents / 100).toFixed(2)} gross incl. VAT` }
+        : {}),
+    },
     {
       key: "netAfterRefunds",
       label: "Net after refunds",
@@ -184,7 +205,7 @@ export function buildPnl(inputs: PnlInputs): AdminPnlWaterfall {
     grossRevenueCents,
     vatCents,
     netRevenueCents,
-    refundsCents,
+    refundsCents: refundsNetCents,
     netAfterRefundsCents,
     postageCostCents,
     paymentFeesCents,

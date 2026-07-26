@@ -66,7 +66,8 @@ describe("admin financials — P&L identity", () => {
     return buildPnl({
       grossRevenueCents: gross,
       vatCents: vat,
-      refundsCents: 0,
+      refundsGrossCents: 0,
+      refundsNetCents: 0,
       postageCostCents: postage,
       paymentFeesCents: fees,
       paymentFeesEstimated: true,
@@ -95,9 +96,46 @@ describe("admin financials — P&L identity", () => {
     expect(pnl.contributionCm2Cents).toBe(pnl.contributionCm1Cents);
   });
 
-  it("subtracts refunds before contribution", () => {
-    const pnl = base({ refundsCents: 455 });
-    expect(pnl.netAfterRefundsCents).toBe(pnl.netRevenueCents - 455);
+  it("subtracts the ex-VAT (net) refund before contribution, never the gross", () => {
+    // A full CHF 4.55 refund: gross 455, VAT 34, net 421. Net-after-refunds must
+    // drop by 421, not 455 — subtracting gross would double-count the 34 of VAT.
+    const pnl = base({ refundsGrossCents: 455, refundsNetCents: 421 });
+    expect(pnl.netAfterRefundsCents).toBe(pnl.netRevenueCents - 421);
+    expect(pnl.refundsCents).toBe(421);
+  });
+
+  it("matches codex fixtures: CHF 4.55 full refund → net 421, CM1 −208", () => {
+    // Single standard order, fully refunded.
+    const pnl = buildPnl({
+      grossRevenueCents: 455,
+      vatCents: 34,
+      refundsGrossCents: 455,
+      refundsNetCents: 421,
+      postageCostCents: 165,
+      paymentFeesCents: estimateStripeFeeCents(455),
+      paymentFeesEstimated: true,
+      fixedOpexCents: null,
+    });
+    expect(pnl.netRevenueCents).toBe(421);
+    expect(pnl.netAfterRefundsCents).toBe(0);
+    expect(pnl.contributionCm1Cents).toBe(-208);
+  });
+
+  it("matches codex fixtures: CHF 9.15 sale, CHF 4.55 partial refund → CM1 −257", () => {
+    // Registered order, one partial refund of CHF 4.55 (net 421, VAT 34).
+    const pnl = buildPnl({
+      grossRevenueCents: 915,
+      vatCents: 69,
+      refundsGrossCents: 455,
+      refundsNetCents: 421,
+      postageCostCents: 625,
+      paymentFeesCents: estimateStripeFeeCents(915),
+      paymentFeesEstimated: true,
+      fixedOpexCents: null,
+    });
+    expect(pnl.netRevenueCents).toBe(846);
+    expect(pnl.netAfterRefundsCents).toBe(425);
+    expect(pnl.contributionCm1Cents).toBe(-257);
   });
 
   it("leaves operating result null until fixed opex is entered", () => {
@@ -132,7 +170,8 @@ describe("admin financials — CSV export", () => {
       pnl: buildPnl({
         grossRevenueCents: 1000,
         vatCents: 75,
-        refundsCents: 0,
+        refundsGrossCents: 0,
+        refundsNetCents: 0,
         postageCostCents: 300,
         paymentFeesCents: 59,
         paymentFeesEstimated: true,

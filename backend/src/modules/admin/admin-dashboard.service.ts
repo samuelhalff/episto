@@ -125,13 +125,15 @@ export async function dashboardData(
       FROM receipts WHERE created_at > ${prevStart} AND created_at <= ${prevEnd}
     `),
     db.execute<{ refunds: number }>(sql`
-      SELECT COALESCE(SUM(amount_cents), 0)::int AS refunds FROM payment_attempts
-      WHERE state IN ('refunded', 'partially_refunded') AND updated_at > ${curStart}
+      SELECT COALESCE(SUM(amount_cents), 0)::int AS refunds
+      FROM payment_refunds
+      WHERE status = 'succeeded' AND refunded_at > ${curStart}
     `),
     db.execute<{ refunds: number }>(sql`
-      SELECT COALESCE(SUM(amount_cents), 0)::int AS refunds FROM payment_attempts
-      WHERE state IN ('refunded', 'partially_refunded')
-        AND updated_at > ${prevStart} AND updated_at <= ${prevEnd}
+      SELECT COALESCE(SUM(amount_cents), 0)::int AS refunds
+      FROM payment_refunds
+      WHERE status = 'succeeded'
+        AND refunded_at > ${prevStart} AND refunded_at <= ${prevEnd}
     `),
     db.execute<Record<AdminDispatchState, number>>(sql`
       SELECT
@@ -314,9 +316,11 @@ export async function moneyData(
         COALESCE(SUM(discount_cents), 0)::int AS discount
       FROM receipts WHERE created_at > ${curStart}
     `),
-    db.execute<{ refunds: number }>(sql`
-      SELECT COALESCE(SUM(amount_cents), 0)::int AS refunds FROM payment_attempts
-      WHERE state IN ('refunded', 'partially_refunded') AND updated_at > ${curStart}
+    db.execute<{ refunds: number; net: number }>(sql`
+      SELECT COALESCE(SUM(amount_cents), 0)::int AS refunds,
+             COALESCE(SUM(refund_net_cents), 0)::int AS net
+      FROM payment_refunds
+      WHERE status = 'succeeded' AND refunded_at > ${curStart}
     `),
     db.execute<{ code: string; redemptions: number; discount: number; paid: number }>(sql`
       SELECT
@@ -339,24 +343,29 @@ export async function moneyData(
       SELECT
         COALESCE(r.order_ref, 'draft-' || LEFT(p.draft_id::text, 8)) AS ref,
         p.draft_id::text AS draft_id,
-        p.amount_cents AS amount,
-        p.updated_at::text AS date,
-        p.refund_reason AS reason
-      FROM payment_attempts p
+        pr.amount_cents AS amount,
+        pr.refunded_at::text AS date,
+        COALESCE(pr.reason, p.refund_reason) AS reason
+      FROM payment_refunds pr
+      JOIN payment_attempts p ON p.id = pr.payment_attempt_id
       LEFT JOIN receipts r ON r.payment_attempt_id = p.id
-      WHERE p.state IN ('refunded', 'partially_refunded') AND p.updated_at > ${curStart}
-      ORDER BY p.updated_at DESC
+      WHERE pr.status = 'succeeded' AND pr.refunded_at > ${curStart}
+      ORDER BY pr.refunded_at DESC
       LIMIT 200
     `),
   ]);
 
   const t = totals.rows[0];
+  // Gross refunds (what customers got back) for the headline; net (ex-VAT) is
+  // what actually reduces net revenue — subtracting gross would double-count the
+  // refunded VAT, which is reclaimed against remitted VAT.
   const refundsCents = num(refundsAgg.rows[0]?.refunds);
+  const refundsNetCents = num(refundsAgg.rows[0]?.net);
 
   return {
     period,
     grossCents: num(t?.gross),
-    netCents: num(t?.net) - refundsCents,
+    netCents: num(t?.net) - refundsNetCents,
     vatCents: num(t?.vat),
     discountCents: num(t?.discount),
     refundsCents,
