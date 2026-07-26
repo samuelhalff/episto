@@ -37,5 +37,7 @@ export const queryKeys = {
     refunds: () => ["admin", "refunds"] as const,
     financials: (period: string) => ["admin", "financials", period] as const,
     fixedCosts: (yearMonth: string) => ["admin", "fixed-costs", yearMonth] as const,
+    promos: (filter: string) => ["admin", "promos", filter] as const,
+    promo: (id: string) => ["admin", "promos", id] as const,
   },
 } as const;

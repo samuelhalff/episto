@@ -705,3 +705,4 @@ export interface AdminRetentionInfo {
 }
 
 export * from "./admin-dashboard.ts";
+export * from "./admin-promos.ts";

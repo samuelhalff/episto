@@ -15,6 +15,7 @@ import { adminRetentionRoutes } from "./admin-retention.routes.js";
 import { adminCaseRoutes } from "./admin-case.routes.js";
 import { adminFlagsRoutes } from "./admin-flags.routes.js";
 import { adminDispatchRoutes } from "./admin-dispatch.routes.js";
+import { adminPromosRoutes } from "./admin-promos.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin read-only routes (timeline, session details, content access)
@@ -191,4 +192,5 @@ export async function adminRoutes(app: FastifyInstance): Promise<void> {
   await app.register(adminDashboardRoutes);
   await app.register(adminSessionsRoutes);
   await app.register(adminRetentionRoutes);
+  await app.register(adminPromosRoutes);
 }
