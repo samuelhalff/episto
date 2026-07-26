@@ -377,6 +377,14 @@ jobs:
           test -n "$PRODUCTION_ENV_FILE"
           printf '%s\n' "$PRODUCTION_ENV_FILE" > .env.production
           chmod 600 .env.production
+      - name: Write analytics service-account file
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set -Eeuo pipefail
+          test -n "$GOOGLE_SERVICE_ACCOUNT_JSON"
+          printf '%s\n' "$GOOGLE_SERVICE_ACCOUNT_JSON" > .google-service-account.json
+          chmod 600 .google-service-account.json
       - name: Deploy to production
         env:
           PROD_HOST: ${{ secrets.PRODUCTION_HOST }}

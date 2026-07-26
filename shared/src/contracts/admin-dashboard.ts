@@ -44,6 +44,45 @@ export interface AdminDashboardFunnelStep {
   dropOffPercent: number | null;
 }
 
+export interface AdminAnalyticsConnectedGa4 {
+  status: "connected";
+  sessions: number;
+  activeUsers: number;
+  pageViews: number;
+  conversations: number;
+  draftStarts: number;
+  checkoutsStarted: number;
+  purchases: number;
+}
+
+export interface AdminAnalyticsConnectedSearchConsole {
+  status: "connected";
+  clicks: number;
+  impressions: number;
+  ctr: number;
+  position: number;
+}
+
+export interface AdminAnalyticsConnectedAds {
+  status: "connected";
+  spendCents: number;
+  clicks: number;
+  impressions: number;
+  conversions: number;
+  campaignCount: number;
+}
+
+export type AdminAnalyticsUnavailable = {
+  status: "unavailable";
+  reason: "not_configured" | "request_failed";
+};
+
+export interface AdminAnalyticsSnapshot {
+  ga4: AdminAnalyticsConnectedGa4 | AdminAnalyticsUnavailable;
+  searchConsole: AdminAnalyticsConnectedSearchConsole | AdminAnalyticsUnavailable;
+  ads: AdminAnalyticsConnectedAds | AdminAnalyticsUnavailable;
+}
+
 export interface AdminDashboardAlerts {
   /** Payments awaiting refund action (current-state, ignores period). */
   refundsPending: number;
@@ -72,6 +111,7 @@ export interface AdminDashboardResponse {
   draftsReady: AdminDashboardMetric;
   checkoutsStarted: AdminDashboardMetric;
   funnel: AdminDashboardFunnelStep[];
+  analytics: AdminAnalyticsSnapshot;
   dailySeries: AdminDashboardDailyPoint[];
   deliveryMix: AdminDashboardDeliveryMix;
   alerts: AdminDashboardAlerts;

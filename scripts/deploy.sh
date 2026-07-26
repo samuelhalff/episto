@@ -27,6 +27,7 @@ SSH_KEY="${SSH_KEY:-$HOME/.ssh/id_deploy_to_prod}"
 SSH_USER="${SSH_USER:-ubuntu}"
 PROD_PATH="${PROD_PATH:-/home/ubuntu/episto}"
 ENV_FILE="${ENV_FILE:-.env.production}"
+SERVICE_ACCOUNT_SOURCE="${SERVICE_ACCOUNT_SOURCE:-.google-service-account.json}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.prod.yml}"
 PROJECT_NAME="${PROJECT_NAME:-}"
 REMOTE_ENV_PATH="${REMOTE_ENV_PATH:-/etc/episto/production.env}"
@@ -66,6 +67,7 @@ append_domain() {
 }
 
 [[ -f "$ENV_FILE" ]] || die "$ENV_FILE not found in $REPO_ROOT"
+[[ -f "$SERVICE_ACCOUNT_SOURCE" ]] || die "$SERVICE_ACCOUNT_SOURCE not found in $REPO_ROOT"
 [[ -f "$COMPOSE_FILE" ]] || die "$COMPOSE_FILE not found"
 [[ -r "$SSH_KEY" ]] || die "SSH key $SSH_KEY missing or unreadable (chmod 600)"
 
@@ -217,6 +219,9 @@ if [[ "$SKIP_UPLOAD" != "1" ]]; then
     rsync -e "$RSH" -avz --progress --chmod=F600 \
       "$ENV_FILE" \
       "$REMOTE:$REMOTE_ENV_UPLOAD"
+    rsync -e "$RSH" -avz --progress --chmod=F600 \
+      "$SERVICE_ACCOUNT_SOURCE" \
+      "$REMOTE:$PROD_PATH/.google-service-account.json"
   else
     scp "${SSH_OPTS[@]}" "$TARBALL" "$COMPOSE_FILE" \
       "$REMOTE:$PROD_PATH/"
@@ -224,6 +229,8 @@ if [[ "$SKIP_UPLOAD" != "1" ]]; then
       "$REMOTE:$PROD_PATH/nginx/"
     scp "${SSH_OPTS[@]}" "$ENV_FILE" \
       "$REMOTE:$REMOTE_ENV_UPLOAD"
+    scp "${SSH_OPTS[@]}" "$SERVICE_ACCOUNT_SOURCE" \
+      "$REMOTE:$PROD_PATH/.google-service-account.json"
   fi
 
   say "Installing protected env file on remote…"
@@ -231,7 +238,8 @@ if [[ "$SKIP_UPLOAD" != "1" ]]; then
     chmod 600 '$REMOTE_ENV_UPLOAD'
     sudo install -d -o root -g \"\$(id -gn)\" -m 0750 '$REMOTE_ENV_DIR'
     sudo install -o root -g \"\$(id -gn)\" -m 0640 '$REMOTE_ENV_UPLOAD' '$REMOTE_ENV_PATH'
-    rm -f '$REMOTE_ENV_UPLOAD'
+    sudo install -o root -g root -m 0640 '$PROD_PATH/.google-service-account.json' /etc/episto/ga-sa.json
+    rm -f '$REMOTE_ENV_UPLOAD' '$PROD_PATH/.google-service-account.json'
   "
 else
   say "SKIP_UPLOAD=1 — leaving remote payload untouched"

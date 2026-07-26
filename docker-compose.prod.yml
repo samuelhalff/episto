@@ -120,6 +120,8 @@ services:
       TRUST_PROXY: "true"
       PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "true"
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+    volumes:
+      - /etc/episto/ga-sa.json:/run/secrets/episto-ga-sa.json:ro
     depends_on:
       postgres:
         condition: service_healthy

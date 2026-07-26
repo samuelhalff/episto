@@ -93,7 +93,9 @@ describe("admin dashboard ux contract", () => {
     expect(pulseDashboardSource).toContain('label="Tracked visits"');
     expect(pulseDashboardSource).toContain('label="Drafts started"');
     expect(pulseDashboardSource).toContain('title="Product funnel"');
-    expect(pulseDashboardSource).toContain("Read-only GA4 adapter not connected");
+    expect(pulseDashboardSource).toContain('title="GA4 traffic"');
+    expect(pulseDashboardSource).toContain('title="Search Console"');
+    expect(pulseDashboardSource).toContain('title="Google Ads"');
     expect(pulseDashboardSource).not.toContain(
       "Traffic and sessions from Google Analytics 4 will appear here once the read-only GA4 connection is wired.",
     );

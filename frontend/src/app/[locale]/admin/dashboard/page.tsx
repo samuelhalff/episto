@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@episto/shared";
-import { AlertTriangle, LineChart, Megaphone } from "lucide-react";
+import { AlertTriangle, Megaphone } from "lucide-react";
 
 import { ADMIN_PAGE_STACK_CLASS_NAME } from "@/components/layout/page-spacing";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -29,22 +29,27 @@ const ALERT_COLOR = {
   background: "var(--app-surface-strong)",
 };
 
-function ConnectLater({ title, description }: { title: string; description: string }) {
+function SourceMetric({ label, value }: { label: string; value: string | number }) {
   return (
-    <SectionPanel title={title}>
-      <div
-        className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed py-8 text-center"
-        style={{ borderColor: "var(--app-border)" }}
-      >
-        <LineChart className="h-5 w-5" style={{ color: "var(--app-muted)" }} />
-        <p className="text-xs font-medium" style={{ color: "var(--app-fg)" }}>
-          Connect later
-        </p>
-        <p className="max-w-xs text-[11px]" style={{ color: "var(--app-muted)" }}>
-          {description}
-        </p>
-      </div>
-    </SectionPanel>
+    <div
+      className="rounded-lg border px-3 py-2"
+      style={{ borderColor: "var(--app-border)" }}
+    >
+      <p className="text-[11px]" style={{ color: "var(--app-muted)" }}>
+        {label}
+      </p>
+      <p className="mt-0.5 font-mono text-sm" style={{ color: "var(--app-fg)" }}>
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function SourceUnavailable() {
+  return (
+    <p className="py-5 text-xs" style={{ color: "var(--app-muted)" }}>
+      No read-only data returned for this period.
+    </p>
   );
 }
 
@@ -264,24 +269,69 @@ export default function DashboardPage() {
             </SectionPanel>
           </div>
 
-          {/* Deferred external sources */}
-          <div className="grid gap-4 lg:grid-cols-2">
+          {/* External sources — deliberately separate from the internal funnel. */}
+          <div className="grid gap-4 lg:grid-cols-3">
             <SectionPanel title="GA4 traffic">
-              <div className="space-y-2 text-xs" style={{ color: "var(--app-muted)" }}>
-                <p className="font-medium" style={{ color: "var(--app-fg)" }}>
-                  Read-only GA4 adapter not connected
-                </p>
-                <p>
-                  {d.trackedVisits.value} tracked visits are available from our own
-                  privacy-safe event store. GA4 sessions will appear here after the
-                  property connection is configured.
-                </p>
-              </div>
+              {d.analytics.ga4.status === "connected" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <SourceMetric label="Sessions" value={d.analytics.ga4.sessions} />
+                  <SourceMetric label="Users" value={d.analytics.ga4.activeUsers} />
+                  <SourceMetric label="Page views" value={d.analytics.ga4.pageViews} />
+                  <SourceMetric
+                    label="Conversations"
+                    value={d.analytics.ga4.conversations}
+                  />
+                  <SourceMetric
+                    label="Draft starts"
+                    value={d.analytics.ga4.draftStarts}
+                  />
+                  <SourceMetric
+                    label="Checkouts"
+                    value={d.analytics.ga4.checkoutsStarted}
+                  />
+                  <SourceMetric label="Purchases" value={d.analytics.ga4.purchases} />
+                </div>
+              ) : (
+                <SourceUnavailable />
+              )}
             </SectionPanel>
-            <ConnectLater
-              title="Google Ads"
-              description="Campaign spend, clicks and CPA will appear here once a read-only Google Ads adapter and real spend exist."
-            />
+            <SectionPanel title="Search Console">
+              {d.analytics.searchConsole.status === "connected" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <SourceMetric label="Clicks" value={d.analytics.searchConsole.clicks} />
+                  <SourceMetric
+                    label="Impressions"
+                    value={d.analytics.searchConsole.impressions}
+                  />
+                  <SourceMetric
+                    label="CTR"
+                    value={`${(d.analytics.searchConsole.ctr * 100).toFixed(1)}%`}
+                  />
+                  <SourceMetric
+                    label="Avg. position"
+                    value={d.analytics.searchConsole.position.toFixed(1)}
+                  />
+                </div>
+              ) : (
+                <SourceUnavailable />
+              )}
+            </SectionPanel>
+            <SectionPanel title="Google Ads">
+              {d.analytics.ads.status === "connected" ? (
+                <div className="grid grid-cols-2 gap-2">
+                  <SourceMetric
+                    label="Spend"
+                    value={formatChf(d.analytics.ads.spendCents)}
+                  />
+                  <SourceMetric label="Clicks" value={d.analytics.ads.clicks} />
+                  <SourceMetric label="Impressions" value={d.analytics.ads.impressions} />
+                  <SourceMetric label="Conversions" value={d.analytics.ads.conversions} />
+                  <SourceMetric label="Campaigns" value={d.analytics.ads.campaignCount} />
+                </div>
+              ) : (
+                <SourceUnavailable />
+              )}
+            </SectionPanel>
           </div>
 
           {/* Tabbed detail */}

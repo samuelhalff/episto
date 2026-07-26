@@ -1,6 +1,8 @@
 import { sql } from "drizzle-orm";
 import { getDb } from "../../db/index.js";
+import { env } from "../../shared/config/index.js";
 import { dashboardFunnelData } from "./admin-dashboard.funnel.js";
+import { loadExternalAnalytics } from "./admin-analytics.adapters.js";
 import type {
   AdminDashboardPeriod,
   AdminDashboardResponse,
@@ -49,6 +51,7 @@ export async function dashboardData(
 ): Promise<AdminDashboardResponse> {
   const db = getDb();
   const days = periodDays(period);
+  const analyticsPromise = loadExternalAnalytics(env(), days);
 
   // Current window: (now - days, now]. Previous window: (now - 2*days, now - days].
   const curStart = sql`NOW() - make_interval(days => ${days})`;
@@ -276,6 +279,7 @@ export async function dashboardData(
       lowVolume,
     ),
     funnel: buildFunnelSteps(currentFunnel),
+    analytics: await analyticsPromise,
     dailySeries,
     deliveryMix: {
       standard: num(mix?.standard),

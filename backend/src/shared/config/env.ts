@@ -152,6 +152,21 @@ export const EnvSchema = z
     ADMIN_MICROSOFT_REDIRECT_URI: z.string().url().optional(),
     ADMIN_IP_ALLOWLIST: z.string().default(""),
 
+    // Read-only acquisition analytics. The service-account file is mounted
+    // outside the repository in production; no credential JSON belongs in env.
+    GOOGLE_SERVICE_ACCOUNT_FILE: z.string().min(1).optional(),
+    GA4_PROPERTY_ID: z.string().regex(/^\d+$/).optional(),
+    GSC_SITE_URL: z.string().min(1).optional(),
+    GOOGLE_ADS_CUSTOMER_ID: z
+      .string()
+      .regex(/^\d{10}$/)
+      .optional(),
+    GOOGLE_ADS_LOGIN_CUSTOMER_ID: z
+      .string()
+      .regex(/^\d{10}$/)
+      .optional(),
+    GOOGLE_ADS_DEVELOPER_TOKEN: z.string().min(1).optional(),
+
     // Pricing (integer cents, CHF only). Markups are capped at CHF 6.00 as a
     // sanity guard so an accidental/outrageous premium (e.g. the old CHF 10.90)
     // can never silently ship. Raise MAX_MARKUP_CENTS deliberately if a higher
