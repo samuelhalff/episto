@@ -30,7 +30,7 @@ export interface PromoFormSubmit {
   active: boolean;
 }
 
-type Usage = "one_time" | "unlimited" | "limited";
+type Usage = "unlimited" | "one_time";
 
 /** ISO instant → value for <input type="datetime-local"> in the browser's local zone. */
 function isoToLocalInput(iso: string | null): string {
@@ -48,10 +48,9 @@ function localInputToIso(local: string): string | null {
 }
 
 function initialUsage(promo: AdminPromo | null): Usage {
-  if (!promo) return "one_time";
-  if (promo.maxRedemptions === null) return "unlimited";
-  if (promo.maxRedemptions === 1) return "one_time";
-  return "limited";
+  // Unlimited unless the code is single-use. (A legacy multi-use cap is preserved
+  // on save unless the owner changes this control — see maxRedemptions below.)
+  return promo && promo.maxRedemptions === 1 ? "one_time" : "unlimited";
 }
 
 function initialValueInput(promo: AdminPromo | null): string {
@@ -87,12 +86,12 @@ function PromoFormBody({
   const [code, setCode] = useState(promo?.code ?? "");
   const [kind, setKind] = useState<AdminPromoKind>(promo?.kind ?? "percent");
   const [valueInput, setValueInput] = useState(initialValueInput(promo));
-  const [usage, setUsage] = useState<Usage>(initialUsage(promo));
-  const [limitInput, setLimitInput] = useState(
-    promo && promo.maxRedemptions && promo.maxRedemptions > 1
-      ? promo.maxRedemptions.toString()
-      : "",
-  );
+  const [usage, setUsageRaw] = useState<Usage>(initialUsage(promo));
+  const [usageTouched, setUsageTouched] = useState(false);
+  const setUsage = (next: Usage) => {
+    setUsageRaw(next);
+    setUsageTouched(true);
+  };
   const [expiryMode, setExpiryMode] = useState<"none" | "at">(
     promo?.expiresAt ? "at" : "none",
   );
@@ -116,12 +115,17 @@ function PromoFormBody({
       : kind === "fixed"
         ? Math.round(Number(valueInput) * 100)
         : Math.round(Number(valueInput));
-  const maxRedemptions =
-    usage === "unlimited"
+  // Binary: unlimited (null) or once (1). An untouched edit preserves whatever
+  // cap the code already had, so a legacy multi-use code isn't silently reset.
+  const maxRedemptions = usageTouched
+    ? usage === "unlimited"
       ? null
-      : usage === "one_time"
-        ? 1
-        : Math.round(Number(limitInput));
+      : 1
+    : promo
+      ? promo.maxRedemptions
+      : usage === "unlimited"
+        ? null
+        : 1;
   const expiresIso = expiryMode === "at" ? localInputToIso(expiresInput) : null;
 
   // Validation (mirrors the server; the UI just guides).
@@ -132,16 +136,12 @@ function PromoFormBody({
     (kind === "percent"
       ? Number.isInteger(value) && value >= 1 && value <= 99
       : Number.isFinite(value) && value >= 1);
-  const limitValid =
-    usage !== "limited" ||
-    (Number.isInteger(maxRedemptions) && (maxRedemptions ?? 0) >= 2);
   const expiryValid =
     expiryMode === "none" ||
     (expiresIso !== null && new Date(expiresIso).getTime() > openedAtMs);
   const belowUsage =
     isEdit && maxRedemptions !== null && maxRedemptions < promo.redeemedCount;
-  const canSubmit =
-    codeValid && valueValid && limitValid && expiryValid && !belowUsage && !pending;
+  const canSubmit = codeValid && valueValid && expiryValid && !belowUsage && !pending;
 
   function handleSubmit() {
     if (!canSubmit) return;
@@ -225,29 +225,11 @@ function PromoFormBody({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="one_time">One-time (single use)</SelectItem>
               <SelectItem value="unlimited">Unlimited</SelectItem>
-              <SelectItem value="limited">Limited to…</SelectItem>
+              <SelectItem value="one_time">Once (single use)</SelectItem>
             </SelectContent>
           </Select>
         </label>
-
-        {usage === "limited" ? (
-          <label className={fieldClass}>
-            Redemption limit
-            <Input
-              type="number"
-              min={2}
-              step="1"
-              value={limitInput}
-              onChange={(e) => setLimitInput(e.target.value)}
-              placeholder="e.g. 100"
-            />
-            <span className={helpClass}>
-              Maximum successful redemptions. Use “One-time” for a single use.
-            </span>
-          </label>
-        ) : null}
 
         {/* Until when */}
         <label className={fieldClass}>
