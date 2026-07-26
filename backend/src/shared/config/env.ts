@@ -383,13 +383,18 @@ export const EnvSchema = z
       const ssoOn = Boolean(data.ADMIN_MICROSOFT_CLIENT_ID);
       if (!ssoOn) return true;
       const hasEntry = (s: string) => s.split(",").some((v) => v.trim().length > 0);
+      // Require a real identity allowlist (OIDs preferred; emails accepted for a
+      // single-tenant owner) AND a real IP allowlist. Parsed non-blank entries
+      // only — a value like "," must not silently allow everything.
       return (
-        hasEntry(data.ADMIN_MICROSOFT_ALLOWED_OIDS) && hasEntry(data.ADMIN_IP_ALLOWLIST)
+        (hasEntry(data.ADMIN_MICROSOFT_ALLOWED_OIDS) ||
+          hasEntry(data.ADMIN_MICROSOFT_ALLOWED_EMAILS)) &&
+        hasEntry(data.ADMIN_IP_ALLOWLIST)
       );
     },
     {
       message:
-        "Production admin requires a non-empty ADMIN_MICROSOFT_ALLOWED_OIDS and a non-empty ADMIN_IP_ALLOWLIST (comma-only values are rejected)",
+        "Production admin requires ADMIN_MICROSOFT_ALLOWED_OIDS or _EMAILS and a non-empty ADMIN_IP_ALLOWLIST (comma-only values are rejected)",
     },
   )
   .refine(
