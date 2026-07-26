@@ -29,3 +29,6 @@ playwright-report/
 .last-run.json
 tmp-*
 *.tmp.html
+
+# Google service-account key (provided at deploy, never committed)
+.google-service-account.json
