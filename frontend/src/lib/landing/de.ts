@@ -1129,7 +1129,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     ],
     notes: [
       {
-        title: "Recht auf Mängelbeseitigung (Art. 259 OR)",
+        title: "Recht auf Mängelbeseitigung (Art. 259a/259b OR)",
         body: "Für Mängel, die nicht Sie zu vertreten haben, können Sie von der Vermieterschaft die Behebung verlangen. Melden Sie Mängel rasch; bei verspäteter Meldung können Nachteile entstehen.",
       },
       {

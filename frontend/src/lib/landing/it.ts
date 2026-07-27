@@ -1130,7 +1130,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     ],
     notes: [
       {
-        title: "Diritto alla riparazione del difetto (art. 259 CO)",
+        title: "Diritto alla riparazione del difetto (art. 259a/259b CO)",
         body: "Per i difetti di cui non deve rispondere Lei, può esigere la riparazione dal locatore. Segnali i difetti rapidamente; una segnalazione tardiva può comportare svantaggi.",
       },
       {

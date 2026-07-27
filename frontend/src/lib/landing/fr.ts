@@ -1130,7 +1130,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     ],
     notes: [
       {
-        title: "Droit à la réparation du défaut (art. 259 CO)",
+        title: "Droit à la réparation du défaut (art. 259a/259b CO)",
         body: "Pour les défauts dont vous n’avez pas à répondre, vous pouvez exiger la réparation du bailleur. Signalez les défauts rapidement; un signalement tardif peut entraîner des inconvénients.",
       },
       {
