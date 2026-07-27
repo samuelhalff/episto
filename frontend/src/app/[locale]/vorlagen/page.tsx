@@ -17,6 +17,7 @@ import {
   LANDING_LOCALES,
   LANDING_UI,
 } from "@/lib/landing-content";
+import { isServiceGuideSlug } from "@/lib/landing-routes";
 
 // The hub only exists for landing locales; other locales get a genuine 404 from
 // the middleware guard in proxy.ts (see the [slug] route note). Defense-in-depth.
@@ -55,7 +56,11 @@ export default async function VorlagenHubPage({
   const ui = LANDING_UI[locale];
   const pages = getLandingPages(locale);
   const site = getSiteUrl();
-  const categories = [...new Set(pages.map((page) => page.category))];
+  // Drafting templates and service/how-it-works guides are different things —
+  // keep the hub's card grid to real templates; guides get their own section.
+  const templatePages = pages.filter((page) => !isServiceGuideSlug(page.slug));
+  const serviceGuides = pages.filter((page) => isServiceGuideSlug(page.slug));
+  const categories = [...new Set(templatePages.map((page) => page.category))];
 
   return (
     <>
@@ -88,7 +93,7 @@ export default async function VorlagenHubPage({
         <MarketingSection contentClassName="max-w-6xl" spacing="compact">
           <div className="space-y-14 sm:space-y-16 lg:space-y-20">
             {categories.map((category) => {
-              const items = pages.filter((page) => page.category === category);
+              const items = templatePages.filter((page) => page.category === category);
               // Sparse categories (≤2 entries) render as a ruled list instead of a
               // card grid, so single items don't leave two empty columns behind.
               const useGrid = items.length >= 3;
@@ -153,6 +158,35 @@ export default async function VorlagenHubPage({
                 </div>
               );
             })}
+
+            {serviceGuides.length > 0 ? (
+              <div>
+                <p className="section-label">{ui.hubGuidesTitle}</p>
+                <ul className="mt-6">
+                  {serviceGuides.map((page) => (
+                    <li key={page.slug}>
+                      <Link
+                        href={`/vorlagen/${page.slug}`}
+                        className="hairline group -mx-4 block border-t px-4 py-5 transition-colors first:border-t-0 first:pt-0 hover:bg-[var(--app-surface-muted)]"
+                      >
+                        <MarketingHeading
+                          as="h3"
+                          className="text-base font-semibold tracking-[-0.01em] group-hover:underline"
+                        >
+                          {page.h1}
+                        </MarketingHeading>
+                        <MarketingBody
+                          tone="muted"
+                          className="mt-1.5 max-w-2xl text-sm leading-6"
+                        >
+                          {page.metaDescription}
+                        </MarketingBody>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : null}
           </div>
         </MarketingSection>
 

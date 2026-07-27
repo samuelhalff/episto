@@ -29,14 +29,37 @@ export const LANDING_SLUGS = [
 ] as const;
 
 /**
- * Highest-intent slugs surfaced as internal links (homepage band + 404 page).
- * Must be a subset of LANDING_SLUGS — enforced by landing-routes.test.ts.
+ * Service/how-it-works pages that describe episto's registered-mail service
+ * rather than a letter the user drafts. They stay as SEO/GEO pages but must NOT
+ * appear as drafting templates (hub grid, popular list) or seed a draft.
+ */
+export const SERVICE_GUIDE_SLUGS = [
+  "einschreiben-online",
+  "brief-online-versenden",
+] as const;
+
+export type LandingPageType = "draft_template" | "service_guide";
+
+export function getLandingPageType(slug: string): LandingPageType {
+  return (SERVICE_GUIDE_SLUGS as readonly string[]).includes(slug)
+    ? "service_guide"
+    : "draft_template";
+}
+
+export function isServiceGuideSlug(slug: string): boolean {
+  return getLandingPageType(slug) === "service_guide";
+}
+
+/**
+ * Highest-intent DRAFTING templates surfaced as internal links (homepage band +
+ * 404 page). Must be a subset of LANDING_SLUGS and contain no service guides —
+ * enforced by landing-routes.test.ts.
  */
 export const POPULAR_LANDING_SLUGS = [
   "wohnung-kuendigen",
   "krankenkasse-kuendigen",
   "abo-kuendigen",
   "versicherung-kuendigen",
-  "einschreiben-online",
   "beschwerde-schreiben",
+  "mahnung-schreiben",
 ] as const;

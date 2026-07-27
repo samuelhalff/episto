@@ -3,6 +3,8 @@ import {
   LANDING_LOCALES,
   LANDING_SLUGS,
   POPULAR_LANDING_SLUGS,
+  SERVICE_GUIDE_SLUGS,
+  getLandingPageType,
 } from "../src/lib/landing-routes";
 import { getLandingPages } from "../src/lib/landing-content";
 
@@ -37,5 +39,19 @@ describe("landing-routes registry stays in sync with landing content", () => {
       expect(all.has(slug)).toBe(true);
     }
     expect(new Set(POPULAR_LANDING_SLUGS).size).toBe(POPULAR_LANDING_SLUGS.length);
+  });
+
+  it("service guides are real slugs and are never surfaced as drafting templates", () => {
+    const all = new Set<string>(LANDING_SLUGS);
+    for (const slug of SERVICE_GUIDE_SLUGS) {
+      expect(all.has(slug)).toBe(true);
+      expect(getLandingPageType(slug)).toBe("service_guide");
+    }
+    // The popular (drafting) list must not contain any service guide.
+    const guides = new Set<string>(SERVICE_GUIDE_SLUGS);
+    for (const slug of POPULAR_LANDING_SLUGS) {
+      expect(guides.has(slug)).toBe(false);
+      expect(getLandingPageType(slug)).toBe("draft_template");
+    }
   });
 });
