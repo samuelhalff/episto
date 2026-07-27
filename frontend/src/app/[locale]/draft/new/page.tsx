@@ -28,6 +28,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { ApiError, apiFetch } from "@/lib/api";
 import { findRecoverableDraft, shouldForceFreshEntry } from "@/lib/new-draft-entry";
+import { getLandingPage } from "@/lib/landing-content";
+import { isServiceGuideSlug } from "@/lib/landing-routes";
 
 type BootstrapState =
   | { kind: "loading" }
@@ -147,6 +149,20 @@ export default function NewDraftPage() {
 
     return selectedPrompt?.prompt ?? td("intakeQuickActionOtherPrompt");
   }, [searchParams, td]);
+
+  // A ?template=<slug> from a landing template seeds the intake with that
+  // template's topic (drafting templates only; service guides never seed).
+  const templatePrompt = useMemo(() => {
+    const slug = searchParams.get("template");
+    if (!slug || isServiceGuideSlug(slug)) return null;
+    const page = getLandingPage(sessionLocale, slug);
+    if (!page) return null;
+    const colon = page.h1.indexOf(":");
+    const topic = (colon > 0 ? page.h1.slice(0, colon) : page.h1).trim();
+    return topic.length > 0 ? topic : null;
+  }, [searchParams, sessionLocale]);
+
+  const seedPrompt = templatePrompt ?? suggestedPrompt;
 
   const startDraft = useCallback(
     async (options?: {
@@ -317,14 +333,14 @@ export default function NewDraftPage() {
     }
 
     freshEntryStartedRef.current = true;
-    const startOptions = suggestedPrompt ? { initialIntakeInput: suggestedPrompt } : {};
+    const startOptions = seedPrompt ? { initialIntakeInput: seedPrompt } : {};
 
     void startDraft({
       forceNewSession: forceFreshEntry || !state.hasActiveSession,
       pendingAction: "fresh",
       ...startOptions,
     });
-  }, [forceFreshEntry, startDraft, state, suggestedPrompt]);
+  }, [forceFreshEntry, startDraft, state, seedPrompt]);
 
   if (state.kind === "resume") {
     const updatedAt = new Intl.DateTimeFormat(locale, {
@@ -390,9 +406,7 @@ export default function NewDraftPage() {
               cancelLabel={tc("cancel")}
               confirmLoading={pendingStartAction === "fresh"}
               onConfirm={() => {
-                const startOptions = suggestedPrompt
-                  ? { initialIntakeInput: suggestedPrompt }
-                  : {};
+                const startOptions = seedPrompt ? { initialIntakeInput: seedPrompt } : {};
 
                 void startDraft({
                   forceNewSession: true,

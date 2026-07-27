@@ -29,6 +29,7 @@ import {
   type LandingPage,
   type LandingUi,
 } from "@/lib/landing-content";
+import { isServiceGuideSlug } from "@/lib/landing-routes";
 
 // Only the pre-generated locale/slug pairs are valid pages. Unknown slugs get a
 // genuine 404 from the middleware guard in proxy.ts (which rewrites them before
@@ -76,6 +77,11 @@ export default async function LandingPageRoute({
   const ui = LANDING_UI[locale];
   const site = getSiteUrl();
   const pageUrl = `${site}/${locale}/vorlagen/${slug}`;
+  // Drafting templates carry their slug into the draft so it starts seeded with
+  // the topic; service guides just open a blank draft (nothing to seed).
+  const draftHref = isServiceGuideSlug(slug)
+    ? "/draft/new"
+    : `/draft/new?template=${slug}`;
   const priceBand = await getServicePriceBand();
 
   return (
@@ -117,7 +123,7 @@ export default async function LandingPageRoute({
           <FinalCTABand
             title={ui.ctaBandTitle}
             body={ui.ctaBandBody}
-            primaryAction={{ href: "/draft/new", label: ui.ctaLabel }}
+            primaryAction={{ href: draftHref, label: ui.ctaLabel }}
           />
         </MarketingSection>
       </MarketingLayout>
@@ -126,6 +132,9 @@ export default async function LandingPageRoute({
 }
 
 function LandingHero({ page, ui }: { page: LandingPage; ui: LandingUi }) {
+  const draftHref = isServiceGuideSlug(page.slug)
+    ? "/draft/new"
+    : `/draft/new?template=${page.slug}`;
   return (
     <MarketingSection spacing="compact">
       <nav aria-label="Breadcrumb">
@@ -165,7 +174,7 @@ function LandingHero({ page, ui }: { page: LandingPage; ui: LandingUi }) {
         </div>
 
         <div className="mt-7">
-          <Link href="/draft/new" className="btn-primary">
+          <Link href={draftHref} className="btn-primary">
             {ui.ctaLabel}
           </Link>
         </div>
