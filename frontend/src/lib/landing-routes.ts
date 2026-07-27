@@ -40,7 +40,9 @@ export const SERVICE_GUIDE_SLUGS = [
 
 export type LandingPageType = "draft_template" | "service_guide";
 
-export function getLandingPageType(slug: string): LandingPageType {
+/** Type of a landing slug, or undefined when the slug is not a landing page. */
+export function getLandingPageType(slug: string): LandingPageType | undefined {
+  if (!(LANDING_SLUGS as readonly string[]).includes(slug)) return undefined;
   return (SERVICE_GUIDE_SLUGS as readonly string[]).includes(slug)
     ? "service_guide"
     : "draft_template";
@@ -48,6 +50,10 @@ export function getLandingPageType(slug: string): LandingPageType {
 
 export function isServiceGuideSlug(slug: string): boolean {
   return getLandingPageType(slug) === "service_guide";
+}
+
+export function isDraftTemplateSlug(slug: string): boolean {
+  return getLandingPageType(slug) === "draft_template";
 }
 
 /**

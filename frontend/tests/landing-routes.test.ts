@@ -5,8 +5,10 @@ import {
   POPULAR_LANDING_SLUGS,
   SERVICE_GUIDE_SLUGS,
   getLandingPageType,
+  isDraftTemplateSlug,
 } from "../src/lib/landing-routes";
 import { getLandingPages } from "../src/lib/landing-content";
+import { DRAFT_STARTERS } from "../src/lib/landing-starters";
 
 // The lightweight landing-routes registry is imported by the edge middleware
 // (which must not pull in the full landing dataset). These tests guarantee it
@@ -52,6 +54,26 @@ describe("landing-routes registry stays in sync with landing content", () => {
     for (const slug of POPULAR_LANDING_SLUGS) {
       expect(guides.has(slug)).toBe(false);
       expect(getLandingPageType(slug)).toBe("draft_template");
+    }
+  });
+
+  it("getLandingPageType returns undefined for an unregistered slug", () => {
+    expect(getLandingPageType("not-a-real-slug")).toBeUndefined();
+    expect(isDraftTemplateSlug("not-a-real-slug")).toBe(false);
+  });
+
+  it("every drafting template has a starter in all locales, and no extras", () => {
+    const draftSlugs = LANDING_SLUGS.filter((slug) => isDraftTemplateSlug(slug));
+    for (const slug of draftSlugs) {
+      const starter = DRAFT_STARTERS[slug];
+      expect(starter, `missing starter for ${slug}`).toBeDefined();
+      for (const locale of LANDING_LOCALES) {
+        expect(starter?.[locale]?.length ?? 0).toBeGreaterThan(0);
+      }
+    }
+    // No starters for service guides or unknown slugs.
+    for (const slug of Object.keys(DRAFT_STARTERS)) {
+      expect(isDraftTemplateSlug(slug)).toBe(true);
     }
   });
 });

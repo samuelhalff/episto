@@ -28,8 +28,8 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { ApiError, apiFetch } from "@/lib/api";
 import { findRecoverableDraft, shouldForceFreshEntry } from "@/lib/new-draft-entry";
-import { getLandingPage } from "@/lib/landing-content";
-import { isServiceGuideSlug } from "@/lib/landing-routes";
+import { isDraftTemplateSlug } from "@/lib/landing-routes";
+import { getDraftStarter } from "@/lib/landing-starters";
 
 type BootstrapState =
   | { kind: "loading" }
@@ -154,12 +154,8 @@ export default function NewDraftPage() {
   // template's topic (drafting templates only; service guides never seed).
   const templatePrompt = useMemo(() => {
     const slug = searchParams.get("template");
-    if (!slug || isServiceGuideSlug(slug)) return null;
-    const page = getLandingPage(sessionLocale, slug);
-    if (!page) return null;
-    const colon = page.h1.indexOf(":");
-    const topic = (colon > 0 ? page.h1.slice(0, colon) : page.h1).trim();
-    return topic.length > 0 ? topic : null;
+    if (!slug || !isDraftTemplateSlug(slug)) return null;
+    return getDraftStarter(slug, sessionLocale);
   }, [searchParams, sessionLocale]);
 
   const seedPrompt = templatePrompt ?? suggestedPrompt;
