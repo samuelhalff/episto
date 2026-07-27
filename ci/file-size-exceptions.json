@@ -3,7 +3,7 @@
   "backend/src/modules/admin/admin-metrics.routes.ts": 908,
   "backend/src/modules/drafting/draft.routes.ts": 614,
   "backend/src/modules/rendering/confirmation-document.ts": 554,
-  "backend/tests/ai-handler.test.ts": 785,
+  "backend/tests/ai-handler.test.ts": 845,
   "backend/tests/dispatch-quote.integration.test.ts": 857,
   "backend/tests/payment-checkout.routes.test.ts": 940,
   "docs/05-architecture/database-schema.md": 614,

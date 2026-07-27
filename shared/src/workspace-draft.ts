@@ -21,12 +21,27 @@ export const RecipientDraftFormSchema = z.object({
   city: z.string().default(""),
 });
 
+/**
+ * Curated guidance copied from a landing template when a draft is seeded via
+ * ?template=<slug>. Used by the assistant only as FRAMING (what to ask / whether
+ * the letter is complete) — never as facts about the user. Treated as untrusted
+ * input by the backend regardless (it re-sanitizes + caps before use).
+ */
+export const TemplateContextSchema = z.object({
+  slug: z.string().max(80),
+  checklist: z.array(z.string()).default([]),
+  considerations: z.array(z.string()).default([]),
+});
+
+export type TemplateContext = z.infer<typeof TemplateContextSchema>;
+
 export const DraftWorkspaceStateSchema = z.object({
   intakeInput: z.string().optional(),
   senderForm: SenderDraftFormSchema.optional(),
   recipientForm: RecipientDraftFormSchema.optional(),
   bodyRefineInput: z.string().optional(),
   furthestUnlockedStepIndex: z.number().int().min(1).max(6).optional(),
+  templateContext: TemplateContextSchema.optional(),
 });
 
 export type SenderDraftFormState = z.infer<typeof SenderDraftFormSchema>;
@@ -113,9 +128,16 @@ export function getDraftWorkspaceState(metadata: unknown): DraftWorkspaceState {
     nextState.bodyRefineInput = workspaceDraft.bodyRefineInput;
   }
 
-  const furthestUnlockedStepIndex = parseUnlockIndex(workspaceDraft.furthestUnlockedStepIndex);
+  const furthestUnlockedStepIndex = parseUnlockIndex(
+    workspaceDraft.furthestUnlockedStepIndex,
+  );
   if (furthestUnlockedStepIndex !== undefined) {
     nextState.furthestUnlockedStepIndex = furthestUnlockedStepIndex;
+  }
+
+  const templateContext = TemplateContextSchema.safeParse(workspaceDraft.templateContext);
+  if (templateContext.success) {
+    nextState.templateContext = templateContext.data;
   }
 
   return nextState;
@@ -123,7 +145,12 @@ export function getDraftWorkspaceState(metadata: unknown): DraftWorkspaceState {
 
 export function mergeDraftWorkspaceState(
   metadata: unknown,
-  patch: Partial<Record<keyof DraftWorkspaceState, DraftWorkspaceState[keyof DraftWorkspaceState] | null>>,
+  patch: Partial<
+    Record<
+      keyof DraftWorkspaceState,
+      DraftWorkspaceState[keyof DraftWorkspaceState] | null
+    >
+  >,
 ): Record<string, unknown> {
   const nextMetadata = isRecord(metadata) ? { ...metadata } : {};
   const currentState = getDraftWorkspaceState(metadata);

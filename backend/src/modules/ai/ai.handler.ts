@@ -18,6 +18,7 @@ import { analyzeIntake } from "./ai.service.js";
 import { streamDraftGeneration, streamRevision } from "./ai.streaming.js";
 import { createMessage } from "../messages/message.service.js";
 import { buildAttachmentContextBlock } from "../files/attachment-ingestion.service.js";
+import { buildTemplateGuidanceFromMetadata } from "./template-guidance.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
 import { acquireRedisLock } from "../../shared/redis-lock.js";
 import {
@@ -211,10 +212,11 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
     }
 
     const conversationHistory = await loadConversationHistory(draftId);
-    // Fold any readable attachment content into the text the assistant sees, so
-    // it can use the documents the user provided. "" when there are none.
+    // Fold any readable attachment content + template guidance into the text the
+    // assistant sees. "" when there are none. Template guidance is framing only.
     const attachmentBlock = await buildAttachmentContextBlock(getDb(), draftId);
-    const augmentedContent = userContent + attachmentBlock;
+    const templateBlock = buildTemplateGuidanceFromMetadata(draft.metadata);
+    const augmentedContent = userContent + attachmentBlock + templateBlock;
 
     if (draft.body?.trim() && conversationHistory.length > 2) {
       const localeRequest = detectPromptLocaleRequest(userContent);
@@ -323,9 +325,12 @@ export async function handleComposeFromContext(
       return;
     }
 
-    // Fold readable attachment content into the instructions the assistant sees.
+    // Fold readable attachment content + template guidance into the instructions.
+    const templateBlock = buildTemplateGuidanceFromMetadata(draft.metadata);
     const augmentedInstructions =
-      userInstructions + (await buildAttachmentContextBlock(getDb(), draftId));
+      userInstructions +
+      (await buildAttachmentContextBlock(getDb(), draftId)) +
+      templateBlock;
 
     const existingFields = buildExistingFieldsContext(draft);
     const existingIntent =
@@ -335,6 +340,9 @@ export async function handleComposeFromContext(
 
     if (
       existingIntent &&
+      // With template guidance, always run intake analysis so it can surface a
+      // template-driven question instead of composing from generic fields.
+      templateBlock.length === 0 &&
       hasEnoughIntakeContext(existingIntent, existingFields, augmentedInstructions)
     ) {
       await streamDraftGeneration(

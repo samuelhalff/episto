@@ -177,6 +177,49 @@ describe("handleAiMessage", () => {
     ]);
   });
 
+  it("injects template guidance (framing only) into intake analysis for a seeded draft", async () => {
+    const metadata = {
+      workspaceDraft: {
+        templateContext: {
+          slug: "wohnung-kuendigen",
+          checklist: ["gewünschtes Kündigungsdatum"],
+          considerations: ["Kündigungsfrist: meist 3 Monate auf einen Termin"],
+        },
+      },
+    };
+    primeDraftReads({ draft: { ...DRAFT, metadata }, metadata });
+    vi.mocked(analyzeIntake).mockResolvedValue({
+      intent: "lease_cancellation",
+      risk: "low",
+      summary: "Cancel lease",
+      fields: {},
+      ready: false,
+      question: "What termination date does your lease specify?",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-tpl",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "What termination date does your lease specify?",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
+
+    await handleAiMessage({
+      draftId: "draft-1",
+      sessionId: "session-1",
+      userMessageId: "user-msg-tpl",
+      userContent: "Ich möchte meine Wohnung kündigen.",
+    });
+
+    // The guidance reaches the model as framing, wrapped in DATA markers.
+    expect(analyzeIntake).toHaveBeenCalledWith(
+      expect.objectContaining({
+        userMessage: expect.stringContaining("TEMPLATE GUIDANCE"),
+      }),
+    );
+  });
+
   it("preserves existing sender workspace data when intake analysis only adds recipient fields", async () => {
     const metadata = {
       workspaceDraft: {

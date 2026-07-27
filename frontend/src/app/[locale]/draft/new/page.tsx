@@ -14,6 +14,7 @@ import {
   queryKeys,
   type DraftLetter,
   type Session,
+  type TemplateContext,
 } from "@episto/shared";
 import { useLocale, useTranslations } from "next-intl";
 import { trackEvent } from "@/lib/analytics";
@@ -28,6 +29,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { routing } from "@/i18n/routing";
 import { ApiError, apiFetch } from "@/lib/api";
 import { findRecoverableDraft, shouldForceFreshEntry } from "@/lib/new-draft-entry";
+import { getLandingPage } from "@/lib/landing-content";
 import { isDraftTemplateSlug } from "@/lib/landing-routes";
 import { getDraftStarter } from "@/lib/landing-starters";
 
@@ -152,19 +154,30 @@ export default function NewDraftPage() {
 
   // A ?template=<slug> from a landing template seeds the intake with that
   // template's topic (drafting templates only; service guides never seed).
-  const templatePrompt = useMemo(() => {
+  const templateSeed = useMemo(() => {
     const slug = searchParams.get("template");
     if (!slug || !isDraftTemplateSlug(slug)) return null;
-    return getDraftStarter(slug, sessionLocale);
+    const starter = getDraftStarter(slug, sessionLocale);
+    const page = getLandingPage(sessionLocale, slug);
+    const context: TemplateContext | null = page
+      ? {
+          slug,
+          checklist: page.checklist,
+          considerations: page.notes.map((note) => `${note.title}: ${note.body}`),
+        }
+      : null;
+    return { starter, context };
   }, [searchParams, sessionLocale]);
 
-  const seedPrompt = templatePrompt ?? suggestedPrompt;
+  const seedPrompt = templateSeed?.starter ?? suggestedPrompt;
+  const templateContext = templateSeed?.context ?? null;
 
   const startDraft = useCallback(
     async (options?: {
       forceNewSession?: boolean;
       pendingAction?: Exclude<PendingStartAction, null>;
       initialIntakeInput?: string;
+      templateContext?: TemplateContext | null;
     }) => {
       if (isStartingDraft) {
         return;
@@ -173,6 +186,7 @@ export default function NewDraftPage() {
       const forceNewSession = options?.forceNewSession ?? false;
       const nextPendingAction = options?.pendingAction ?? "fresh";
       const initialIntakeInput = options?.initialIntakeInput?.trim() ?? "";
+      const seedTemplateContext = options?.templateContext ?? null;
 
       setSubmissionError(null);
       setPendingStartAction(nextPendingAction);
@@ -200,15 +214,20 @@ export default function NewDraftPage() {
 
         let seededDraft = normalizeDraft(draft);
 
+        const workspacePatch: Parameters<typeof mergeDraftWorkspaceState>[1] = {};
         if (initialIntakeInput) {
+          workspacePatch.intakeInput = initialIntakeInput;
+        }
+        if (seedTemplateContext) {
+          workspacePatch.templateContext = seedTemplateContext;
+        }
+        if (Object.keys(workspacePatch).length > 0) {
           const { draft: updatedDraft } = await apiFetch<{ draft: DraftLetter }>(
             `/v1/drafts/${draft.id}`,
             {
               method: "PATCH",
               body: JSON.stringify({
-                metadata: mergeDraftWorkspaceState(seededDraft.metadata, {
-                  intakeInput: initialIntakeInput,
-                }),
+                metadata: mergeDraftWorkspaceState(seededDraft.metadata, workspacePatch),
               }),
             },
           );
@@ -329,14 +348,17 @@ export default function NewDraftPage() {
     }
 
     freshEntryStartedRef.current = true;
-    const startOptions = seedPrompt ? { initialIntakeInput: seedPrompt } : {};
+    const startOptions = {
+      ...(seedPrompt ? { initialIntakeInput: seedPrompt } : {}),
+      ...(templateContext ? { templateContext } : {}),
+    };
 
     void startDraft({
       forceNewSession: forceFreshEntry || !state.hasActiveSession,
       pendingAction: "fresh",
       ...startOptions,
     });
-  }, [forceFreshEntry, startDraft, state, seedPrompt]);
+  }, [forceFreshEntry, startDraft, state, seedPrompt, templateContext]);
 
   if (state.kind === "resume") {
     const updatedAt = new Intl.DateTimeFormat(locale, {
@@ -402,7 +424,10 @@ export default function NewDraftPage() {
               cancelLabel={tc("cancel")}
               confirmLoading={pendingStartAction === "fresh"}
               onConfirm={() => {
-                const startOptions = seedPrompt ? { initialIntakeInput: seedPrompt } : {};
+                const startOptions = {
+                  ...(seedPrompt ? { initialIntakeInput: seedPrompt } : {}),
+                  ...(templateContext ? { templateContext } : {}),
+                };
 
                 void startDraft({
                   forceNewSession: true,
