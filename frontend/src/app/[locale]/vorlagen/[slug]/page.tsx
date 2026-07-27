@@ -198,7 +198,7 @@ function LandingSteps({ page, ui }: { page: LandingPage; ui: LandingUi }) {
               className="hairline grid grid-cols-[auto_1fr] gap-x-5 border-t py-7 first:border-t-0 first:pt-0 sm:gap-x-7"
             >
               <span className="numeral text-3xl font-semibold text-[var(--action-choice-active-fg)] sm:text-4xl dark:text-amber-200/90">
-                {String(index + 1).padStart(2, "0")}
+                {index + 1}
               </span>
               <div className="pt-1">
                 <MarketingHeading
@@ -348,27 +348,25 @@ function LandingRelated({
       >
         {ui.relatedTitle}
       </MarketingHeading>
-      <ul className="mt-6">
-        {related.map((entry, index) => (
-          <li key={entry.slug}>
-            <Link
-              href={`/vorlagen/${entry.slug}`}
-              className="hairline group -mx-4 grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t px-4 py-4 transition-colors first:border-t-0 hover:bg-[var(--app-surface)]"
-            >
-              <span className="numeral font-mono text-sm text-[var(--app-muted)]">
-                {String(index + 1).padStart(2, "0")}
+      <ul className="mt-8 grid gap-x-12 sm:grid-cols-2">
+        {related.map((entry) => (
+          <li key={entry.slug} className="hairline border-t">
+            <Link href={`/vorlagen/${entry.slug}`} className="group block py-5">
+              <MarketingMeta as="span" className="block text-xs tracking-normal">
+                {entry.category}
+              </MarketingMeta>
+              <span className="mt-2 flex items-baseline justify-between gap-4">
+                <MarketingHeading
+                  as="span"
+                  className="text-base font-semibold tracking-[-0.01em] group-hover:underline"
+                >
+                  {entry.h1}
+                </MarketingHeading>
+                <ArrowRight
+                  aria-hidden="true"
+                  className="h-4 w-4 shrink-0 translate-y-0.5 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5"
+                />
               </span>
-              <MarketingBody
-                as="span"
-                tone="emphasis"
-                className="text-base font-medium tracking-[-0.01em] group-hover:underline"
-              >
-                {entry.h1}
-              </MarketingBody>
-              <ArrowRight
-                aria-hidden="true"
-                className="h-4 w-4 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5"
-              />
             </Link>
           </li>
         ))}

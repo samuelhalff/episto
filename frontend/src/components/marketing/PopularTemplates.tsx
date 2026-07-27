@@ -41,35 +41,31 @@ export function PopularTemplates({ locale }: { locale: Locale }) {
         </MarketingHeading>
       </div>
 
-      <ul className="mt-8">
-        {pages.map((page, index) => (
-          <li key={page.slug}>
-            <Link
-              href={`/vorlagen/${page.slug}`}
-              className="hairline group -mx-4 grid grid-cols-[auto_1fr_auto] items-center gap-4 border-t px-4 py-5 transition-colors first:border-t-0 hover:bg-[var(--app-surface-muted)]"
-            >
-              <span className="numeral font-mono text-sm text-[var(--app-muted)]">
-                {String(index + 1).padStart(2, "0")}
+      <ul className="mt-10 grid gap-x-12 sm:grid-cols-2">
+        {pages.map((page) => (
+          <li key={page.slug} className="hairline border-t">
+            <Link href={`/vorlagen/${page.slug}`} className="group block py-6">
+              <MarketingMeta as="span" className="block text-xs tracking-normal">
+                {page.category}
+              </MarketingMeta>
+              <span className="mt-2 flex items-baseline justify-between gap-4">
+                <MarketingHeading
+                  as="span"
+                  className="text-lg font-semibold tracking-[-0.02em] group-hover:underline"
+                >
+                  {page.h1}
+                </MarketingHeading>
+                <ArrowRight
+                  aria-hidden="true"
+                  className="h-4 w-4 shrink-0 translate-y-1 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5"
+                />
               </span>
               <MarketingBody
                 as="span"
-                tone="emphasis"
-                className="text-base font-medium tracking-[-0.01em] group-hover:underline"
+                className="mt-2 block max-w-md text-sm leading-6 line-clamp-2"
               >
-                {page.h1}
+                {page.metaDescription}
               </MarketingBody>
-              <span className="flex items-center gap-3">
-                <MarketingMeta
-                  as="span"
-                  className="hidden text-xs tracking-normal sm:inline"
-                >
-                  {page.category}
-                </MarketingMeta>
-                <ArrowRight
-                  aria-hidden="true"
-                  className="h-4 w-4 text-[var(--app-muted)] transition-transform group-hover:translate-x-0.5"
-                />
-              </span>
             </Link>
           </li>
         ))}
