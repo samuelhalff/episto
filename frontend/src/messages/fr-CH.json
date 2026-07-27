@@ -870,6 +870,11 @@
       "fileTooLarge": "Le fichier dépasse la limite de {mb} Mo.",
       "duplicateSkipped": "{count} fichier(s) en double ont été ignoré(s).",
       "uploadFailed": "Nous n’avons pas pu téléverser l’un des fichiers sélectionnés."
+    },
+    "extraction": {
+      "reading": "Lecture…",
+      "read": "Lu par l’assistant",
+      "notRead": "Non lu"
     }
   },
   "zoneEditor": {

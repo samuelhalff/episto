@@ -394,6 +394,34 @@ export function AttachmentUploader({
                   >
                     {formatBytes(file.sizeBytes ?? 0)}
                   </span>
+                  {file.extractionStatus === "pending" ? (
+                    <span
+                      className="inline-flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400"
+                      title={t("extraction.reading")}
+                    >
+                      <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
+                      <span className="sr-only sm:not-sr-only">
+                        {t("extraction.reading")}
+                      </span>
+                    </span>
+                  ) : file.extractionStatus === "extracted" ? (
+                    <span
+                      className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400"
+                      title={t("extraction.read")}
+                    >
+                      <CheckCircle className="h-3 w-3" aria-hidden="true" />
+                      <span className="sr-only sm:not-sr-only">
+                        {t("extraction.read")}
+                      </span>
+                    </span>
+                  ) : file.extractionStatus ? (
+                    <span
+                      className="text-[11px] text-zinc-400 dark:text-zinc-500"
+                      title={t("extraction.notRead")}
+                    >
+                      {t("extraction.notRead")}
+                    </span>
+                  ) : null}
                   <button
                     type="button"
                     aria-label={t("remove.ariaLabel", { name: filename })}

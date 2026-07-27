@@ -123,6 +123,11 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
         await apiFetch<DraftFilesResponse>(`/v1/drafts/${draftId}/files`),
       ),
     staleTime: 30_000,
+    // Poll while any attachment is still being read so its status settles live.
+    refetchInterval: (query) =>
+      query.state.data?.files.some((f) => f.extractionStatus === "pending")
+        ? 2_500
+        : false,
   });
 
   const files = filesQuery.data?.files ?? EMPTY_FILES;

@@ -870,6 +870,11 @@
       "fileTooLarge": "Il file supera il limite di {mb} MB.",
       "duplicateSkipped": "{count} file duplicato/i ignorato/i.",
       "uploadFailed": "Non è stato possibile caricare uno dei file selezionati."
+    },
+    "extraction": {
+      "reading": "Lettura…",
+      "read": "Letto dall’assistente",
+      "notRead": "Non letto"
     }
   },
   "zoneEditor": {

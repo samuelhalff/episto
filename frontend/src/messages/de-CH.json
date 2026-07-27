@@ -870,6 +870,11 @@
       "fileTooLarge": "Datei überschreitet das {mb}-MB-Limit.",
       "duplicateSkipped": "{count} doppelte Datei(en) wurden übersprungen.",
       "uploadFailed": "Eine der ausgewählten Dateien konnte nicht hochgeladen werden."
+    },
+    "extraction": {
+      "reading": "Wird gelesen…",
+      "read": "Vom Assistenten gelesen",
+      "notRead": "Nicht gelesen"
     }
   },
   "zoneEditor": {

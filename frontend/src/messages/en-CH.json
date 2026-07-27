@@ -870,6 +870,11 @@
       "fileTooLarge": "File exceeds {mb} MB limit.",
       "duplicateSkipped": "Skipped {count} duplicate file(s).",
       "uploadFailed": "We couldn't upload one of the selected files."
+    },
+    "extraction": {
+      "reading": "Reading…",
+      "read": "Read by assistant",
+      "notRead": "Not read"
     }
   },
   "zoneEditor": {
