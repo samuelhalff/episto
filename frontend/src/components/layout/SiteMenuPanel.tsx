@@ -4,14 +4,16 @@ import {
   ChevronRight,
   CircleHelp,
   CreditCard,
+  FileText,
   Home,
   Languages,
   MessageSquare,
   Palette,
   PenSquare,
 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
+import { isLandingLocale, LANDING_UI } from "../../lib/landing-content";
 import { openFeedback } from "../feedback/AppFeedbackLauncher";
 import { LanguageSwitcher } from "../marketing/LanguageSwitcher";
 import { ThemeToggle } from "../marketing/ThemeToggle";
@@ -28,9 +30,20 @@ export function SiteMenuPanel({
 }: SiteMenuPanelProps) {
   const t = useTranslations("marketing");
   const tc = useTranslations("common");
+  const locale = useLocale();
 
   const navItems = [
     { href: "/", label: tc("appName"), icon: Home },
+    // Landing pages exist in de/fr/it-CH only; link only where they exist.
+    ...(isLandingLocale(locale)
+      ? [
+          {
+            href: "/vorlagen",
+            label: LANDING_UI[locale].breadcrumbHub,
+            icon: FileText,
+          },
+        ]
+      : []),
     { href: "/pricing", label: t("nav.pricing"), icon: CreditCard },
     { href: "/help", label: t("nav.help"), icon: CircleHelp },
   ];

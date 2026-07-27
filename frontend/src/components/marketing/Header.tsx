@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "../../i18n/navigation";
+import { isLandingLocale, LANDING_UI } from "../../lib/landing-content";
 import { Logo } from "../branding/Logo";
 import { MenuTriggerButton } from "../layout/MenuTriggerButton";
 import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";
@@ -21,6 +22,7 @@ import { MarketingBody, MarketingHeading } from "./typography";
 export function Header() {
   const t = useTranslations("marketing");
   const tc = useTranslations("common");
+  const locale = useLocale();
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -42,6 +44,15 @@ export function Header() {
           aria-label="Main navigation"
           className="hidden items-center gap-7 text-sm md:flex"
         >
+          {/* Landing pages exist in de/fr/it-CH only; link only where they exist. */}
+          {isLandingLocale(locale) ? (
+            <Link
+              href="/vorlagen"
+              className="text-[var(--app-muted)] transition-colors hover:text-[var(--app-fg)]"
+            >
+              {LANDING_UI[locale].breadcrumbHub}
+            </Link>
+          ) : null}
           <Link
             href="/pricing"
             className="text-[var(--app-muted)] transition-colors hover:text-[var(--app-fg)]"

@@ -8,6 +8,10 @@ const marketingHeaderSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/marketing/Header.tsx"),
   "utf8",
 );
+const siteMenuPanelSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/layout/SiteMenuPanel.tsx"),
+  "utf8",
+);
 const flowHeaderSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/FlowHeader.tsx"),
   "utf8",
@@ -39,7 +43,9 @@ describe("customer header contract", () => {
       'import { HeaderLanguageMenu } from "../layout/HeaderLanguageMenu";',
     );
     expect(marketingHeaderSource).toContain("<HeaderLanguageMenu");
-    expect(marketingHeaderSource).not.toContain('import { LanguageSwitcher } from "./LanguageSwitcher";');
+    expect(marketingHeaderSource).not.toContain(
+      'import { LanguageSwitcher } from "./LanguageSwitcher";',
+    );
     expect(flowHeaderSource).toContain("<CustomerSiteMenu");
     expect(flowHeaderSource).toContain("<HeaderLanguageMenu");
     expect(flowHeaderSource).not.toContain("CompactLanguageSwitcher");
@@ -69,5 +75,16 @@ describe("customer header contract", () => {
     expect(workspaceMenuSource).toContain("PopoverContent");
     expect(workspaceMenuSource).toContain("SheetContent");
     expect(workspaceMenuSource).toContain("SheetClose asChild");
+  });
+
+  it("exposes the template hub in both the desktop nav and the mobile menu", () => {
+    // /vorlagen used to be reachable only from a homepage section and the
+    // footer, so on mobile there was no navigation path to templates at all.
+    for (const source of [marketingHeaderSource, siteMenuPanelSource]) {
+      expect(source).toMatch(/href[=:]\s*"\/vorlagen"/);
+      // Landing pages are de/fr/it-CH only — en-CH must not link to a 404.
+      expect(source).toContain("isLandingLocale(locale)");
+      expect(source).toContain("LANDING_UI[locale].breadcrumbHub");
+    }
   });
 });
