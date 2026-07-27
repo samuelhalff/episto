@@ -73,6 +73,11 @@ export const DRAFT_STARTERS: Record<string, Record<LandingLocale, string>> = {
     "fr-CH": "Je souhaite contester mon décompte de charges.",
     "it-CH": "Desidero contestare il mio conteggio delle spese accessorie.",
   },
+  "rechtsvorschlag-erheben": {
+    "de-CH": "Ich möchte gegen einen Zahlungsbefehl Rechtsvorschlag erheben.",
+    "fr-CH": "Je souhaite former opposition à un commandement de payer.",
+    "it-CH": "Desidero interporre opposizione a un precetto esecutivo.",
+  },
 };
 
 export function getDraftStarter(slug: string, locale: string): string | null {

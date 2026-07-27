@@ -26,6 +26,7 @@ export const LANDING_SLUGS = [
   "brief-an-behoerde",
   "brief-online-versenden",
   "nebenkostenabrechnung-pruefen",
+  "rechtsvorschlag-erheben",
 ] as const;
 
 /**

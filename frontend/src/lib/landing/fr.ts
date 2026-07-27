@@ -1026,4 +1026,72 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["mietzins-senken", "beschwerde-schreiben", "einschreiben-online"],
   },
+  {
+    slug: "rechtsvorschlag-erheben",
+    category: "Poursuite",
+    metaTitle: "Former opposition – délai et lettre",
+    metaDescription:
+      "Former opposition à un commandement de payer : délai de 10 jours, forme et effet à vérifier. episto rédige votre opposition et l’envoie par la poste.",
+    h1: "Former opposition à un commandement de payer",
+    quickAnswer:
+      "Qui reçoit un commandement de payer de l’office des poursuites et ne reconnaît pas la créance peut former opposition dans les 10 jours dès la notification. L’opposition n’a pas à être motivée et suspend la poursuite. Le créancier doit alors passer par la mainlevée ou une action en justice. episto rédige votre opposition.",
+    steps: [
+      {
+        title: "Vérifier le commandement et le délai",
+        text: "Notez la date de notification du commandement de payer. Le délai pour former opposition est de 10 jours dès la notification – ne le manquez pas.",
+      },
+      {
+        title: "Choisir la forme",
+        text: "L’opposition peut être déclarée oralement ou par écrit à l’office des poursuites. L’écrit avec preuve est le plus sûr; une opposition partielle doit être chiffrée.",
+      },
+      {
+        title: "Rédiger l’opposition",
+        text: "Indiquez le numéro de poursuite, l’office et les parties, et déclarez clairement que vous formez opposition. episto rédige la lettre.",
+      },
+      {
+        title: "Déposer dans le délai",
+        text: "Envoyez l’opposition de sorte qu’elle parvienne à l’office dans le délai – de préférence en recommandé. Conservez la preuve d’envoi.",
+      },
+    ],
+    checklist: [
+      "Adresse complète et coordonnées de la personne poursuivie",
+      "Office des poursuites compétent et numéro de poursuite",
+      "Date de notification du commandement de payer",
+      "Déclaration que vous formez opposition (totale ou partielle)",
+      "Date et signature",
+    ],
+    notes: [
+      {
+        title: "Délai de 10 jours (art. 74 LP)",
+        body: "L’opposition doit être formée dans les 10 jours dès la notification du commandement de payer. Passé ce délai, la poursuite peut se poursuivre; une opposition tardive n’est admise qu’à titre exceptionnel.",
+      },
+      {
+        title: "Effet et suite",
+        body: "L’opposition n’a pas à être motivée et suspend la poursuite. Le créancier peut ensuite demander la mainlevée ou ouvrir action. Former opposition ne signifie pas qu’aucune créance n’existe.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Comment former opposition ?",
+        answer:
+          "Déclarez à l’office des poursuites, dans les 10 jours dès la notification du commandement de payer, oralement ou par écrit, que vous formez opposition. Aucune motivation n’est nécessaire.",
+      },
+      {
+        question: "De combien de temps est-ce que je dispose ?",
+        answer:
+          "Le délai est de 10 jours dès la notification du commandement de payer. C’est la réception par l’office qui compte, non la date de votre lettre.",
+      },
+      {
+        question: "Dois-je motiver l’opposition ?",
+        answer:
+          "Non. L’opposition n’a pas à être motivée. Vous pouvez la former en totalité ou – en indiquant le montant reconnu – partiellement.",
+      },
+      {
+        question: "Que se passe-t-il après l’opposition ?",
+        answer:
+          "La poursuite est suspendue. Le créancier doit la continuer par la mainlevée ou une action s’il maintient sa créance.",
+      },
+    ],
+    related: ["einsprache-erheben", "mahnung-schreiben", "brief-an-behoerde"],
+  },
 ];

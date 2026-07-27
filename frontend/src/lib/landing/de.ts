@@ -1025,4 +1025,72 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["mietzins-senken", "beschwerde-schreiben", "einschreiben-online"],
   },
+  {
+    slug: "rechtsvorschlag-erheben",
+    category: "Betreibung",
+    metaTitle: "Rechtsvorschlag erheben – Frist und Brief",
+    metaDescription:
+      "Gegen einen Zahlungsbefehl Rechtsvorschlag erheben: Frist von 10 Tagen, Form und Wirkung prüfen. episto formuliert Ihren Rechtsvorschlag und versendet ihn.",
+    h1: "Rechtsvorschlag erheben: Zahlungsbefehl bestreiten",
+    quickAnswer:
+      "Wer einen Zahlungsbefehl des Betreibungsamts erhält und die Forderung nicht anerkennt, kann innert 10 Tagen seit Zustellung Rechtsvorschlag erheben. Der Rechtsvorschlag muss nicht begründet werden und stoppt die Betreibung vorläufig. Die Gläubigerin muss dann den Weg über Rechtsöffnung oder Klage gehen. episto formuliert Ihren Rechtsvorschlag.",
+    steps: [
+      {
+        title: "Zahlungsbefehl und Frist prüfen",
+        text: "Notieren Sie das Zustelldatum des Zahlungsbefehls. Die Frist für den Rechtsvorschlag beträgt 10 Tage ab Zustellung – verpassen Sie sie nicht.",
+      },
+      {
+        title: "Form wählen",
+        text: "Der Rechtsvorschlag kann mündlich oder schriftlich beim Betreibungsamt erklärt werden. Schriftlich mit Nachweis ist am sichersten; einen teilweisen Rechtsvorschlag müssen Sie beziffern.",
+      },
+      {
+        title: "Rechtsvorschlag verfassen",
+        text: "Geben Sie Betreibungsnummer, Betreibungsamt und die Parteien an und erklären Sie klar, dass Sie Rechtsvorschlag erheben. episto erstellt den Brief.",
+      },
+      {
+        title: "Fristgerecht einreichen",
+        text: "Versenden Sie den Rechtsvorschlag so, dass er das Betreibungsamt innert Frist erreicht – am besten als Einschreiben. Bewahren Sie den Versandbeleg auf.",
+      },
+    ],
+    checklist: [
+      "Vollständige Adresse und Angaben der betriebenen Person",
+      "Zuständiges Betreibungsamt und Betreibungsnummer",
+      "Zustelldatum des Zahlungsbefehls",
+      "Erklärung, dass Rechtsvorschlag erhoben wird (ganz oder teilweise)",
+      "Datum und Unterschrift",
+    ],
+    notes: [
+      {
+        title: "Frist von 10 Tagen (Art. 74 SchKG)",
+        body: "Der Rechtsvorschlag ist innert 10 Tagen seit Zustellung des Zahlungsbefehls zu erklären. Wird die Frist verpasst, kann die Betreibung fortgesetzt werden; eine spätere Erklärung ist nur ausnahmsweise möglich.",
+      },
+      {
+        title: "Wirkung und weiteres Vorgehen",
+        body: "Der Rechtsvorschlag muss nicht begründet werden und hält die Betreibung an. Die Gläubigerin kann anschliessend Rechtsöffnung verlangen oder Klage einreichen. Ein Rechtsvorschlag bedeutet nicht, dass keine Forderung besteht.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Wie erhebe ich Rechtsvorschlag?",
+        answer:
+          "Erklären Sie innert 10 Tagen seit Zustellung des Zahlungsbefehls gegenüber dem Betreibungsamt – mündlich oder schriftlich – dass Sie Rechtsvorschlag erheben. Eine Begründung ist nicht nötig.",
+      },
+      {
+        question: "Wie lange habe ich Zeit?",
+        answer:
+          "Die Frist beträgt 10 Tage ab Zustellung des Zahlungsbefehls. Massgebend ist der Eingang beim Betreibungsamt, nicht das Datum Ihres Briefs.",
+      },
+      {
+        question: "Muss ich den Rechtsvorschlag begründen?",
+        answer:
+          "Nein. Der Rechtsvorschlag muss nicht begründet werden. Sie können ihn ganz oder – unter Angabe des anerkannten Betrags – teilweise erheben.",
+      },
+      {
+        question: "Was passiert nach dem Rechtsvorschlag?",
+        answer:
+          "Die Betreibung wird vorläufig gestoppt. Die Gläubigerin muss die Betreibung mit Rechtsöffnung oder Klage fortsetzen, wenn sie an der Forderung festhält.",
+      },
+    ],
+    related: ["einsprache-erheben", "mahnung-schreiben", "brief-an-behoerde"],
+  },
 ];

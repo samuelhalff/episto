@@ -1026,4 +1026,72 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["mietzins-senken", "beschwerde-schreiben", "einschreiben-online"],
   },
+  {
+    slug: "rechtsvorschlag-erheben",
+    category: "Esecuzione",
+    metaTitle: "Interporre opposizione – termine e lettera",
+    metaDescription:
+      "Interporre opposizione a un precetto esecutivo: termine di 10 giorni, forma ed effetto da verificare. episto redige la Sua opposizione e la invia per posta.",
+    h1: "Interporre opposizione a un precetto esecutivo",
+    quickAnswer:
+      "Chi riceve un precetto esecutivo dell’ufficio d’esecuzione e non riconosce il credito può interporre opposizione entro 10 giorni dalla notificazione. L’opposizione non deve essere motivata e sospende l’esecuzione. Il creditore deve poi procedere con il rigetto o con un’azione. episto redige la Sua opposizione.",
+    steps: [
+      {
+        title: "Verificare precetto e termine",
+        text: "Annoti la data di notificazione del precetto esecutivo. Il termine per l’opposizione è di 10 giorni dalla notificazione – non lo lasci scadere.",
+      },
+      {
+        title: "Scegliere la forma",
+        text: "L’opposizione può essere dichiarata oralmente o per iscritto all’ufficio d’esecuzione. La forma scritta con prova è la più sicura; un’opposizione parziale va quantificata.",
+      },
+      {
+        title: "Redigere l’opposizione",
+        text: "Indichi il numero d’esecuzione, l’ufficio e le parti e dichiari chiaramente di interporre opposizione. episto redige la lettera.",
+      },
+      {
+        title: "Inoltrare nel termine",
+        text: "Invii l’opposizione in modo che pervenga all’ufficio entro il termine – preferibilmente come raccomandata. Conservi la prova d’invio.",
+      },
+    ],
+    checklist: [
+      "Indirizzo completo e dati della persona escussa",
+      "Ufficio d’esecuzione competente e numero d’esecuzione",
+      "Data di notificazione del precetto esecutivo",
+      "Dichiarazione di interporre opposizione (totale o parziale)",
+      "Data e firma",
+    ],
+    notes: [
+      {
+        title: "Termine di 10 giorni (art. 74 LEF)",
+        body: "L’opposizione va interposta entro 10 giorni dalla notificazione del precetto esecutivo. Scaduto il termine, l’esecuzione può proseguire; un’opposizione tardiva è ammessa solo eccezionalmente.",
+      },
+      {
+        title: "Effetto e seguito",
+        body: "L’opposizione non deve essere motivata e sospende l’esecuzione. Il creditore può poi chiedere il rigetto o promuovere un’azione. Interporre opposizione non significa che il credito non esista.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Come si interpone opposizione?",
+        answer:
+          "Dichiari all’ufficio d’esecuzione, entro 10 giorni dalla notificazione del precetto, oralmente o per iscritto, di interporre opposizione. Non è necessaria alcuna motivazione.",
+      },
+      {
+        question: "Quanto tempo ho a disposizione?",
+        answer:
+          "Il termine è di 10 giorni dalla notificazione del precetto esecutivo. Conta la ricezione da parte dell’ufficio, non la data della Sua lettera.",
+      },
+      {
+        question: "Devo motivare l’opposizione?",
+        answer:
+          "No. L’opposizione non deve essere motivata. Può interporla totalmente o – indicando l’importo riconosciuto – parzialmente.",
+      },
+      {
+        question: "Cosa succede dopo l’opposizione?",
+        answer:
+          "L’esecuzione è sospesa. Il creditore deve proseguirla con il rigetto o con un’azione se mantiene il credito.",
+      },
+    ],
+    related: ["einsprache-erheben", "mahnung-schreiben", "brief-an-behoerde"],
+  },
 ];
