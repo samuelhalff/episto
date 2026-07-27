@@ -16,7 +16,7 @@ import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.
 import { cancelPendingDraftPayment } from "../payments/payment-cancellation.service.js";
 import { AppError, notFoundError, validationError } from "../../shared/errors/index.js";
 import {
-  UpdateDraftInput,
+  PatchDraftInput,
   CreateSenderProfileInput,
   CreateRecipientProfileInput,
   DraftStatusSchema,
@@ -153,7 +153,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { draftId } = request.params;
 
-      const body = UpdateDraftInput.parse(request.body);
+      const body = PatchDraftInput.parse(request.body);
       const draft = await updateDraft(db, draftId, session.id, body);
 
       reply.send({ draft });

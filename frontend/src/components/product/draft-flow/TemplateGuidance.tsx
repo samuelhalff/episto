@@ -87,14 +87,20 @@ export function TemplateGuidanceChip({ slug, guidance }: TemplateGuidanceProps) 
   const t = useTranslations("draft");
   const copy = useTemplateCopy(slug);
 
-  if (!copy) return null;
+  // Keyed on the slug, not on the copy: en-CH has no landing content, and
+  // hiding the chip there would leave guidance reaching the model with nothing
+  // on screen naming it and no way to stop it. Without a title it says only
+  // that a template is active, which is true in every locale.
+  if (!slug) return null;
 
   return (
     <div className="px-2">
       <div className="inline-flex max-w-full items-center gap-2 rounded-full border border-[var(--app-border)] bg-[var(--app-surface-muted)] py-1 pl-3 pr-1 text-xs text-[var(--app-muted-strong)]">
         <FileText className="h-3.5 w-3.5 shrink-0 text-[var(--app-muted)]" />
         <span className="min-w-0 truncate">
-          {t("templateChipLabel", { title: copy.title })}
+          {copy
+            ? t("templateChipLabel", { title: copy.title })
+            : t("templateChipLabelGeneric")}
         </span>
         <button
           type="button"
@@ -153,11 +159,31 @@ function TurnOffButton({
 /**
  * The empty-composer slot: the preparation panel while a template is active,
  * a one-line confirmation right after it is turned off, and the generic tips
- * otherwise — including when the active locale has no copy for the slug.
+ * otherwise.
+ *
+ * An active template is checked *before* the turn-off confirmation. Reporting
+ * "guidance is off" while the slug is still in metadata would be a lie about
+ * what reaches the model, and the whole point of this surface is that the user
+ * can trust it about exactly that.
  */
 export function IntakeGuidanceSlot({ slug, guidance }: TemplateGuidanceProps) {
   const t = useTranslations("draft");
   const copy = useTemplateCopy(slug);
+
+  if (slug) {
+    if (copy) {
+      return <TemplatePreparationPanel slug={slug} guidance={guidance} />;
+    }
+
+    // No authored copy in this locale: the tips stand in for the panel, but the
+    // chip still names the steering and carries the off switch.
+    return (
+      <div className="space-y-6">
+        <TemplateGuidanceChip slug={slug} guidance={guidance} />
+        <IntakeTips />
+      </div>
+    );
+  }
 
   if (guidance.outcome) {
     return (
@@ -175,7 +201,5 @@ export function IntakeGuidanceSlot({ slug, guidance }: TemplateGuidanceProps) {
     );
   }
 
-  if (!copy) return <IntakeTips />;
-
-  return <TemplatePreparationPanel slug={slug} guidance={guidance} />;
+  return <IntakeTips />;
 }

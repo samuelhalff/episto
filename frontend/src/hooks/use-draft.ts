@@ -9,7 +9,7 @@ import {
 } from "@tanstack/react-query";
 import { apiFetch } from "../lib/api";
 import { queryKeys, type DraftLetter } from "@episto/shared";
-import type { UpdateDraftInputType } from "@episto/shared";
+import type { PatchDraftInputType } from "@episto/shared";
 import { useDraftStream } from "./use-draft-stream";
 import type { FieldUpdateEvent } from "./use-draft-stream";
 
@@ -48,25 +48,28 @@ function mergeFieldUpdate(
 function mergeMutationResult(
   currentDraft: DraftLetter | undefined,
   data: DraftLetter,
-  variables: UpdateDraftInputType,
+  variables: PatchDraftInputType,
 ): DraftLetter {
   if (!currentDraft) {
     return data;
   }
 
+  // A response older than what the cache already holds is a reordered reply to
+  // an earlier request. Taking its fields — while keeping the newer timestamp,
+  // as this used to — installs stale values that nothing will correct.
+  if (data.updatedAt.getTime() < currentDraft.updatedAt.getTime()) {
+    return currentDraft;
+  }
+
   const nextDraft: DraftLetter = { ...currentDraft };
-  for (const key of Object.keys(variables) as (keyof UpdateDraftInputType)[]) {
-    const draftKey = key as keyof DraftLetter;
+  for (const key of Object.keys(variables)) {
+    // `workspacePatch` is a delta, not a column; the server returns the applied
+    // result in `metadata`.
+    const draftKey = (key === "workspacePatch" ? "metadata" : key) as keyof DraftLetter;
     (nextDraft as Record<string, unknown>)[draftKey] = data[draftKey];
   }
 
-  return {
-    ...nextDraft,
-    updatedAt:
-      data.updatedAt.getTime() >= currentDraft.updatedAt.getTime()
-        ? data.updatedAt
-        : currentDraft.updatedAt,
-  };
+  return { ...nextDraft, updatedAt: data.updatedAt };
 }
 
 export function draftOptions(draftId: string) {
@@ -158,7 +161,7 @@ export function useCreateDraft() {
 export function useUpdateDraft(draftId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: UpdateDraftInputType) =>
+    mutationFn: (input: PatchDraftInputType) =>
       apiFetch<{ draft: DraftLetter }>(`/v1/drafts/${draftId}`, {
         method: "PATCH",
         body: JSON.stringify(input),

@@ -6,7 +6,6 @@ import { useDraft, useUpdateDraft } from "@/hooks/use-api";
 import { normalizeLetterSubject } from "@/lib/letter-content";
 import { DraftShell, Card, PrimaryButton } from "./ui";
 import { showStepErrorToast } from "./step-feedback";
-import { mergeDraftWorkspaceState } from "./workspace-state";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 
 interface StepProps extends DraftWorkspaceStepShellProps {
@@ -81,9 +80,9 @@ export function SubjectStep({
     try {
       await updateDraft.mutateAsync({
         subject: normalizedSubject,
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           furthestUnlockedStepIndex: 6,
-        }),
+        },
       });
       lastSavedSubjectRef.current = normalizedSubject;
       setSubject(normalizedSubject);

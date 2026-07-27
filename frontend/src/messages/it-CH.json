@@ -656,7 +656,8 @@
     "templateTurnOffPending": "Disattivazione …",
     "templateTurnOffError": "Non è stato possibile disattivare l’aiuto del modello. Riprovi per favore.",
     "templateTurnedOffStarterCleared": "Aiuto del modello disattivato: la frase iniziale preparata è stata rimossa.",
-    "templateTurnedOffTextKept": "Aiuto del modello disattivato: il suo testo resta invariato."
+    "templateTurnedOffTextKept": "Aiuto del modello disattivato: il suo testo resta invariato.",
+    "templateChipLabelGeneric": "Modello attivo"
   },
   "review": {
     "title": "Verificare la lettera",
@@ -850,7 +851,9 @@
     "startFreshLink": "oppure scrivere una nuova lettera",
     "startFreshConfirmTitle": "Iniziare una nuova lettera?",
     "startFreshConfirmBody": "La bozza attuale non verrà eliminata, ma non verrà più proposta al Suo ritorno.",
-    "templateAppliedToResumed": "Il modello scelto verrà applicato a questa bozza."
+    "templateAppliedToResumed": "Il modello scelto verrà applicato a questa bozza.",
+    "templateNotAppliedToResumed": "Non è stato possibile applicare il modello scelto. Può continuare senza.",
+    "continueWithoutTemplate": "Continua senza il modello"
   },
   "status": {
     "title": "Stato della lettera",

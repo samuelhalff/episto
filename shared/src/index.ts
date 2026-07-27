@@ -12,3 +12,4 @@ export * from "./intake-progress.ts";
 export * from "./letter-framing.ts";
 export * from "./letter-layout.ts";
 export * from "./workspace-draft.ts";
+export * from "./draft-patch.ts";

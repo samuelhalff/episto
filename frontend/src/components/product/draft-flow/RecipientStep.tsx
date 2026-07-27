@@ -27,11 +27,7 @@ import { getRecipientStepValidation } from "./step-validation";
 import { RecipientForm } from "./RecipientForm";
 import { getInitialRecipientFormState } from "./recipient-form-state";
 import { DraftShell, PrimaryButton } from "./ui";
-import {
-  getDraftWorkspaceState,
-  mergeDraftWorkspaceState,
-  type RecipientDraftFormState,
-} from "./workspace-state";
+import { getDraftWorkspaceState, type RecipientDraftFormState } from "./workspace-state";
 
 interface StepProps extends DraftWorkspaceStepShellProps {
   onNext: () => void;
@@ -110,9 +106,9 @@ export function RecipientStep({
       }
 
       await updateDraft.mutateAsync({
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           recipientForm: nextForm,
-        }),
+        },
       });
     },
   });
@@ -325,10 +321,10 @@ export function RecipientStep({
         city: city.trim(),
       });
       await updateDraft.mutateAsync({
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           recipientForm,
           furthestUnlockedStepIndex: 3,
-        }),
+        },
       });
       recipientAutosave.markPersisted(recipientForm);
       onNext();

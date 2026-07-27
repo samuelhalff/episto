@@ -27,11 +27,7 @@ import {
 import { AddressFields } from "./AddressFields";
 import { showStepErrorToast } from "./step-feedback";
 import { getSenderStepValidation } from "./step-validation";
-import {
-  getDraftWorkspaceState,
-  mergeDraftWorkspaceState,
-  type SenderDraftFormState,
-} from "./workspace-state";
+import { getDraftWorkspaceState, type SenderDraftFormState } from "./workspace-state";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 
 function getSenderPreviewName(sender: { firstName: string; lastName: string }): string {
@@ -88,9 +84,9 @@ export function SenderStep({
     component: "SenderStep",
     save: async (nextForm) => {
       await updateDraft.mutateAsync({
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           senderForm: nextForm,
-        }),
+        },
       });
     },
   });
@@ -186,10 +182,10 @@ export function SenderStep({
         city: city.trim(),
       });
       await updateDraft.mutateAsync({
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           senderForm,
           furthestUnlockedStepIndex: 2,
-        }),
+        },
       });
       senderAutosave.markPersisted(senderForm);
       onNext();

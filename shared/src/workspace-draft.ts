@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { RecipientCompanySearchResult } from "./contracts/index.ts";
+import { DRAFT_CONTENT_LIMITS } from "./limits.ts";
 
 const WORKSPACE_DRAFT_KEY = "workspaceDraft";
 
@@ -74,6 +75,27 @@ export const DraftWorkspaceStateSchema = z.object({
   furthestUnlockedStepIndex: z.number().int().min(1).max(6).optional(),
   templateContext: TemplateContextSchema.optional(),
 });
+
+/**
+ * A *delta* on the workspace state: only the keys the client changed, with
+ * `null` meaning "remove this key". The whole-metadata form is deliberately not
+ * offered on the wire. A client that merges a patch into its own render-time
+ * snapshot and sends the result erases everything written since that render —
+ * by a finishing AI turn, another tab, or its own in-flight autosave. Sending
+ * the delta lets the server apply it to the row it holds a lock on.
+ */
+export const DraftWorkspacePatchSchema = z
+  .object({
+    intakeInput: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable().optional(),
+    senderForm: SenderDraftFormSchema.nullable().optional(),
+    recipientForm: RecipientDraftFormSchema.nullable().optional(),
+    bodyRefineInput: z.string().max(DRAFT_CONTENT_LIMITS.bodyChars).nullable().optional(),
+    furthestUnlockedStepIndex: z.number().int().min(1).max(6).nullable().optional(),
+    templateContext: TemplateContextSchema.nullable().optional(),
+  })
+  .strict();
+
+export type DraftWorkspacePatch = z.infer<typeof DraftWorkspacePatchSchema>;
 
 export type SenderDraftFormState = z.infer<typeof SenderDraftFormSchema>;
 export type RecipientDraftFormState = z.infer<typeof RecipientDraftFormSchema>;
@@ -190,6 +212,13 @@ export function mergeDraftWorkspaceState(
   for (const [key, value] of Object.entries(patch) as Array<
     [keyof DraftWorkspaceState, DraftWorkspaceState[keyof DraftWorkspaceState] | null]
   >) {
+    // An explicit `undefined` means "not part of this patch" — zod's `.optional()`
+    // materializes absent keys as undefined, and writing it through would blank
+    // a key the caller never mentioned.
+    if (value === undefined) {
+      continue;
+    }
+
     if (value === null) {
       delete nextState[key];
       continue;

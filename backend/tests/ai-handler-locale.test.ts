@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createDraftDbMock, resetDraftDbMock } from "./helpers/draft-db-mock.js";
+
 vi.mock("../src/db/index.js", () => ({
   getDb: vi.fn(() => mockDb),
   schema: {
@@ -54,15 +56,7 @@ import { createMessage } from "../src/modules/messages/message.service.js";
 const unsupportedLocaleMessage =
   "I can currently prepare Swiss letters only in German, French, Italian, or English. Please choose one of those languages.";
 
-const mockDb = {
-  select: vi.fn(),
-  from: vi.fn(),
-  where: vi.fn(),
-  limit: vi.fn(),
-  orderBy: vi.fn(),
-  update: vi.fn(),
-  set: vi.fn(),
-};
+const mockDb = createDraftDbMock();
 
 const DRAFT = {
   id: "draft-1",
@@ -88,13 +82,7 @@ const DRAFT = {
 };
 
 function resetDbChain() {
-  mockDb.select.mockReset().mockReturnValue(mockDb);
-  mockDb.from.mockReset().mockReturnValue(mockDb);
-  mockDb.where.mockReset().mockReturnValue(mockDb);
-  mockDb.orderBy.mockReset().mockReturnValue(mockDb);
-  mockDb.limit.mockReset().mockResolvedValue([{ metadata: null }]);
-  mockDb.update.mockReset().mockReturnValue(mockDb);
-  mockDb.set.mockReset().mockReturnValue(mockDb);
+  resetDraftDbMock(mockDb);
 }
 
 function primeDraftReads(options?: {

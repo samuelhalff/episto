@@ -21,7 +21,7 @@ import {
 } from "./prompt-shortcut-behavior";
 import { showStepErrorToast } from "./step-feedback";
 import { bodyStepReducer, initialBodyStepState, type EditMode } from "./bodyStepReducer";
-import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import { getDraftWorkspaceState } from "./workspace-state";
 
 const BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY =
   "episto.body-step-first-draft-ready-dismissed.v1";
@@ -76,9 +76,9 @@ export function useBodyStepController({
     component: "BodyStep",
     save: async (nextValue) => {
       await updateDraft.mutateAsync({
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           bodyRefineInput: nextValue || null,
-        }),
+        },
       });
     },
   });
@@ -313,9 +313,9 @@ export function useBodyStepController({
     try {
       await updateDraft.mutateAsync({
         body: state.bodyText.trim(),
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           furthestUnlockedStepIndex: 4,
-        }),
+        },
       });
       lastSavedBodyRef.current = state.bodyText.trim();
       onNext();

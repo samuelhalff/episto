@@ -3,7 +3,7 @@ import type { TemplateIntake } from "./types";
 /** French intake copy. See ./types for the authoring rules. */
 export const FR_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
   "wohnung-kuendigen": {
-    title: "Résilier son appartement",
+    title: "Résilier son bail",
     prepare: [
       "Le contrat de bail",
       "L’adresse complète du bailleur",
@@ -93,7 +93,7 @@ export const FR_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
       "La décision contestée avec l’indication des voies de droit",
       "Le numéro de dossier et l’autorité de recours compétente",
       "La date de notification de la décision",
-      "La modification demandée de la décision",
+      "Le montant ou la prestation sur lequel porte la décision",
       "Les justificatifs à l’appui des motifs invoqués",
     ],
   },
@@ -132,7 +132,7 @@ export const FR_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
       "Le commandement de payer",
       "Le numéro de poursuite et l’office des poursuites compétent",
       "La date de notification du commandement de payer",
-      "Le montant contesté – en cas d’opposition partielle, aussi le montant reconnu",
+      "Le montant que vous contestez – chiffré exactement en cas d’opposition partielle",
     ],
   },
   "mietmangel-melden": {
@@ -151,7 +151,7 @@ export const FR_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
       "Le certificat de travail actuel",
       "Le contrat de travail ou le descriptif de poste",
       "Les listes de tâches, évaluations ou autres preuves des prestations",
-      "Les passages contestés et la formulation souhaitée",
+      "Les passages que vous contestez",
       "L’adresse complète de l’employeur",
     ],
   },

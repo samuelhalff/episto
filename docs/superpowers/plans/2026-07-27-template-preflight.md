@@ -138,6 +138,14 @@ _Accept:_ entering with `?template=` and choosing "Continue draft" either applie
 template to the resumed draft or tells me it was not applied — it must not vanish
 without a trace.
 
+**US-10 — nothing I do in the workspace silently undoes something else.**
+While the model is generating, I keep filling in the sender form, another tab is
+open, and my typing autosaves on a debounce. None of those may overwrite each
+other.
+_Accept:_ clients send only the keys they changed; the server applies them to the
+locked row; a reply that arrives out of order never installs values older than
+what is already on screen. (Added in P7 — see below.)
+
 ## Security posture (corrected)
 
 The earlier draft claimed the card was "injection-proof". Too broad. Correctly:
@@ -197,7 +205,48 @@ review of all 48 sets.
   cleared only when byte-identical **in any locale** (a draft can be seeded
   before a language switch); error + pending states.
 - **P6** ✅ resume branch: `resumeDraft` applies the template and says so (US-9).
-- **P7** review (codex) + full frontend suite + prod verify.
+- **P7** ✅ codex review + full suite. The review found eleven items; five of them
+  (findings 1, 2, 3, 4, 7) were one bug, addressed architecturally rather than
+  one by one — see below. Findings 9–11 were content corrections. Prod verify is
+  the remaining open item.
+
+### P7: the lost-update bug class, and why the wire contract changed
+
+The review named several independent-looking races. They were the same defect in
+nine places: **every client merged its patch into the `draft.metadata` it had
+rendered from and PUT the whole object, and the backend replaced `metadata`
+wholesale.** That erases every write made between that render and the request —
+a finishing AI turn, another tab, the component's own debounced autosave.
+
+Fixed at the contract instead of at each call site:
+
+- `metadata` was removed from `UpdateDraftInput`. The bad shape is no longer
+  representable on the wire.
+- Clients send `workspacePatch`, a **delta** (`shared/src/draft-patch.ts`), where
+  `null` means "remove this key" and an absent key means "not part of this patch".
+- The server applies the delta inside a transaction against a row it holds with
+  `SELECT … FOR UPDATE` (`draft.service.ts`, `ai/draft-context.ts`). The status
+  check moved inside that lock too.
+- The AI writer no longer echoes back the metadata snapshot it loaded when the
+  turn started; it sends its document as a delta and returns what was written.
+- `mergeMutationResult` drops a response older than what the cache holds, instead
+  of taking its fields while keeping the newer timestamp.
+
+Guarded by `frontend/tests/template-guidance.test.ts` ("sends deltas, never a
+whole merged metadata object"), which scans every draft-flow source, so the
+pattern cannot come back through a new file.
+
+The turn-off flow was also re-tested for real: `template-guidance-runtime.test.tsx`
+mounts the components rather than grepping their source. It covers the case the
+old code got wrong — text typed **while the turn-off request is in flight** was
+deleted, because the handler captured `intakeText` at click time and then called
+`setIntakeText("")` unconditionally.
+
+**US-8 amended.** The panel still requires authored copy, but the _chip_ is keyed
+on the slug alone. Hiding the whole surface in en-CH (which has no landing
+content) would have left guidance reaching the model with nothing on screen
+naming it and no way to switch it off — the opposite of US-7. Without a title the
+chip says only that a template is active, which is true in every locale.
 
 ### Deviation from the plan
 

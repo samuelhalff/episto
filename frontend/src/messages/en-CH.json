@@ -656,7 +656,8 @@
     "templateTurnOffPending": "Turning off …",
     "templateTurnOffError": "Template guidance could not be turned off. Please try again.",
     "templateTurnedOffStarterCleared": "Template guidance off – the prepared opening sentence was removed.",
-    "templateTurnedOffTextKept": "Template guidance off – your text is unchanged."
+    "templateTurnedOffTextKept": "Template guidance off – your text is unchanged.",
+    "templateChipLabelGeneric": "Template active"
   },
   "review": {
     "title": "Review your letter",
@@ -850,7 +851,9 @@
     "startFreshLink": "or start a new letter",
     "startFreshConfirmTitle": "Start a fresh letter?",
     "startFreshConfirmBody": "Your current draft won't be deleted, but it will no longer be offered when you return.",
-    "templateAppliedToResumed": "The template you chose will be applied to this draft."
+    "templateAppliedToResumed": "The template you chose will be applied to this draft.",
+    "templateNotAppliedToResumed": "The template you chose could not be applied. You can continue without it.",
+    "continueWithoutTemplate": "Continue without the template"
   },
   "status": {
     "title": "Letter status",

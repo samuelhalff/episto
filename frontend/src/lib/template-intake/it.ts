@@ -3,7 +3,7 @@ import type { TemplateIntake } from "./types";
 /** Italian intake copy. See ./types for the authoring rules. */
 export const IT_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
   "wohnung-kuendigen": {
-    title: "Disdire un appartamento",
+    title: "Disdire il contratto di locazione",
     prepare: [
       "Il contratto di locazione",
       "L’indirizzo completo del locatore",
@@ -60,7 +60,7 @@ export const IT_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
   "fitnessabo-kuendigen": {
     title: "Disdire un abbonamento fitness",
     prepare: [
-      "Il contratto di affiliazione e le condizioni generali",
+      "Il contratto di abbonamento e le condizioni generali",
       "Il numero di socio o di contratto",
       "L’indirizzo completo del centro fitness",
       "La data di fine desiderata",
@@ -93,7 +93,7 @@ export const IT_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
       "La decisione contestata con l’indicazione dei rimedi giuridici",
       "Il numero d’incarto e l’autorità di ricorso competente",
       "La data di notificazione della decisione",
-      "La modifica richiesta della decisione",
+      "L’importo o la prestazione oggetto della decisione",
       "I giustificativi a sostegno dei motivi invocati",
     ],
   },
@@ -132,7 +132,7 @@ export const IT_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
       "Il precetto esecutivo",
       "Il numero d’esecuzione e l’ufficio d’esecuzione competente",
       "La data di notificazione del precetto esecutivo",
-      "L’importo contestato – in caso di opposizione parziale, anche l’importo riconosciuto",
+      "L’importo che contesta – indicato con esattezza in caso di opposizione parziale",
     ],
   },
   "mietmangel-melden": {
@@ -151,7 +151,7 @@ export const IT_TEMPLATE_INTAKE: Record<string, TemplateIntake> = {
       "Il certificato di lavoro attuale",
       "Il contratto di lavoro o la descrizione della funzione",
       "Gli elenchi dei compiti, le valutazioni o altre prove delle prestazioni",
-      "I passaggi contestati e la formulazione desiderata",
+      "I passaggi che contesta",
       "L’indirizzo completo del datore di lavoro",
     ],
   },

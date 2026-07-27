@@ -24,7 +24,7 @@ export type FieldUpdater = (
   draftId: string,
   sessionId: string,
   fields: Record<string, unknown>,
-) => Promise<void>;
+) => Promise<{ metadata: unknown } | null>;
 
 export async function streamDraftGeneration(
   draftId: string,
@@ -97,22 +97,22 @@ export async function streamDraftGeneration(
     content: applied.body,
   });
 
-  const nextMetadata = mergeAiDocumentMetadata(
-    draft.metadata,
-    applied.metadata,
-    assistantMsg.id,
-  );
   const nextSubject =
     typeof fields.subject === "string" && fields.subject.trim().length > 0
       ? fields.subject.trim()
       : applied.subject || (draft.subject?.trim() ?? "") || null;
 
-  await updateFields(draftId, sessionId, {
+  // The document goes over as a delta. `draft.metadata` is the snapshot loaded
+  // when the turn started and is stale by now — the user may have changed the
+  // workspace while the model was generating.
+  const written = await updateFields(draftId, sessionId, {
     ...(effectiveLocale !== draft.locale ? { locale: effectiveLocale } : {}),
     body: applied.body,
     subject: nextSubject,
-    metadata: nextMetadata,
+    aiDocument: applied.metadata,
+    firstDraftMessageId: assistantMsg.id,
   });
+  const nextMetadata = written?.metadata ?? draft.metadata;
 
   emitDraftEvent(draftId, "ai_message_complete", {
     messageId: assistantMsg.id,
@@ -168,15 +168,15 @@ export async function streamRevision(
     content: applied.body,
   });
 
-  const nextMetadata = mergeAiDocumentMetadata(draft.metadata, applied.metadata);
   const nextSubject = applied.subject || draft.subject?.trim() || null;
 
-  await updateFields(draftId, sessionId, {
+  const written = await updateFields(draftId, sessionId, {
     ...(targetLocale !== draft.locale ? { locale: targetLocale } : {}),
     body: applied.body,
     subject: nextSubject,
-    metadata: nextMetadata,
+    aiDocument: applied.metadata,
   });
+  const nextMetadata = written?.metadata ?? draft.metadata;
 
   emitDraftEvent(draftId, "ai_message_complete", {
     messageId: assistantMsg.id,
@@ -184,25 +184,6 @@ export async function streamRevision(
     documentModel: applied.document,
     extractedFields: { body: applied.body, metadata: nextMetadata },
   });
-}
-
-function mergeAiDocumentMetadata(
-  existingMetadata: unknown,
-  aiDocument: Record<string, unknown>,
-  firstDraftMessageId?: string,
-): Record<string, unknown> {
-  const base =
-    existingMetadata && typeof existingMetadata === "object"
-      ? (existingMetadata as Record<string, unknown>)
-      : {};
-  return {
-    ...base,
-    aiDocument,
-    firstDraftMessageId:
-      typeof base.firstDraftMessageId === "string"
-        ? base.firstDraftMessageId
-        : firstDraftMessageId,
-  };
 }
 
 function fallbackDocument(body: string | null): DocumentModel {

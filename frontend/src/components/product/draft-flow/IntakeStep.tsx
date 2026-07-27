@@ -31,7 +31,7 @@ import { getScrollableAncestor } from "./scrollable-ancestor";
 import { IntakeGuidanceSlot, TemplateGuidanceChip } from "./TemplateGuidance";
 import { useTemplateGuidance } from "./use-template-guidance";
 import { LetterPreviewModal } from "../LetterPreviewModal";
-import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
+import { getDraftWorkspaceState } from "./workspace-state";
 import type {
   DraftWorkspacePreviewToggleProps,
   DraftWorkspaceStepShellProps,
@@ -76,9 +76,9 @@ export function IntakeStep({
     component: "IntakeStep",
     save: async (nextValue) => {
       await updateDraft.mutateAsync({
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           intakeInput: nextValue || null,
-        }),
+        },
       });
     },
   });

@@ -656,7 +656,8 @@
     "templateTurnOffPending": "Désactivation …",
     "templateTurnOffError": "L’aide du modèle n’a pas pu être désactivée. Veuillez réessayer.",
     "templateTurnedOffStarterCleared": "Aide du modèle désactivée – la phrase de départ préparée a été supprimée.",
-    "templateTurnedOffTextKept": "Aide du modèle désactivée – votre texte reste inchangé."
+    "templateTurnedOffTextKept": "Aide du modèle désactivée – votre texte reste inchangé.",
+    "templateChipLabelGeneric": "Modèle actif"
   },
   "review": {
     "title": "Relire votre courrier",
@@ -850,7 +851,9 @@
     "startFreshLink": "ou rédiger un nouveau courrier",
     "startFreshConfirmTitle": "Rédiger un nouveau courrier ?",
     "startFreshConfirmBody": "Votre brouillon actuel ne sera pas supprimé, mais il ne vous sera plus proposé à votre retour.",
-    "templateAppliedToResumed": "Le modèle choisi sera appliqué à ce brouillon."
+    "templateAppliedToResumed": "Le modèle choisi sera appliqué à ce brouillon.",
+    "templateNotAppliedToResumed": "Le modèle choisi n'a pas pu être appliqué. Vous pouvez continuer sans lui.",
+    "continueWithoutTemplate": "Continuer sans le modèle"
   },
   "status": {
     "title": "Statut du courrier",

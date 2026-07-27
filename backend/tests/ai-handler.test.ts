@@ -1,5 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import { createDraftDbMock, resetDraftDbMock } from "./helpers/draft-db-mock.js";
+
 import type { DraftEventHandler } from "../src/modules/drafting/draft-events.js";
 import {
   subscribeDraft,
@@ -62,24 +64,10 @@ import {
 } from "../src/modules/ai/ai.service.js";
 import { createMessage } from "../src/modules/messages/message.service.js";
 
-const mockDb = {
-  select: vi.fn(),
-  from: vi.fn(),
-  where: vi.fn(),
-  limit: vi.fn(),
-  orderBy: vi.fn(),
-  update: vi.fn(),
-  set: vi.fn(),
-};
+const mockDb = createDraftDbMock();
 
 function resetDbChain() {
-  mockDb.select.mockReset().mockReturnValue(mockDb);
-  mockDb.from.mockReset().mockReturnValue(mockDb);
-  mockDb.where.mockReset().mockReturnValue(mockDb);
-  mockDb.orderBy.mockReset().mockReturnValue(mockDb);
-  mockDb.limit.mockReset().mockResolvedValue([{ metadata: null }]);
-  mockDb.update.mockReset().mockReturnValue(mockDb);
-  mockDb.set.mockReset().mockReturnValue(mockDb);
+  resetDraftDbMock(mockDb);
 }
 
 const DRAFT = {

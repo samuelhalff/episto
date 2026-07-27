@@ -165,7 +165,7 @@ describe("draft workspace navigation", () => {
   });
 
   it("seeds shared intake prefills in draft metadata before routing into the workspace", () => {
-    expect(newDraftPageSource).toContain("mergeDraftWorkspaceState");
+    expect(newDraftPageSource).toContain("workspacePatch");
     expect(newDraftPageSource).toContain(
       "workspacePatch.intakeInput = initialIntakeInput",
     );

@@ -145,17 +145,24 @@ describe("PaymentState transitions", () => {
       true,
     );
     expect(canTransitionPayment(PaymentState.captured, PaymentState.failed)).toBe(true);
+    // A failed refund goes back to `captured` — `failed` means a failed charge,
+    // and the money is still with us.
     expect(getAllowedPaymentTransitions(PaymentState.refund_pending)).toEqual([
+      PaymentState.captured,
       PaymentState.refunded,
       PaymentState.partially_refunded,
-      PaymentState.failed,
     ]);
   });
 
-  it("keeps failed and partially_refunded terminal", () => {
+  it("keeps failed terminal, but lets a partial refund be topped up", () => {
     expect(canTransitionPayment(PaymentState.failed, PaymentState.pending)).toBe(false);
     expect(getAllowedPaymentTransitions(PaymentState.failed)).toEqual([]);
-    expect(getAllowedPaymentTransitions(PaymentState.partially_refunded)).toEqual([]);
+    // Partials accumulate: a second refund on the same charge takes it to
+    // refund_pending again, and the ledger can settle it as fully refunded.
+    expect(getAllowedPaymentTransitions(PaymentState.partially_refunded)).toEqual([
+      PaymentState.refund_pending,
+      PaymentState.refunded,
+    ]);
   });
 
   it("keeps cancelled and refunded terminal", () => {

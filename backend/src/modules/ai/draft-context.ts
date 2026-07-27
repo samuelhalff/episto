@@ -22,7 +22,6 @@ const DRAFT_FIELD_COLUMNS = new Set([
   "enclosureNote",
   "deliveryType",
   "signatureMode",
-  "metadata",
 ]);
 
 export interface ConversationHistoryEntry {
@@ -275,55 +274,119 @@ export async function emitAssistantCompletion(
   });
 }
 
+/**
+ * Puts the generated document into metadata without touching anything else in
+ * it. `firstDraftMessageId` is written once and never overwritten.
+ */
+function mergeAiDocumentMetadata(
+  existingMetadata: unknown,
+  aiDocument: Record<string, unknown> | undefined,
+  firstDraftMessageId: string | undefined,
+): Record<string, unknown> {
+  const base =
+    existingMetadata && typeof existingMetadata === "object"
+      ? (existingMetadata as Record<string, unknown>)
+      : {};
+  return {
+    ...base,
+    ...(aiDocument !== undefined ? { aiDocument } : {}),
+    firstDraftMessageId:
+      typeof base.firstDraftMessageId === "string"
+        ? base.firstDraftMessageId
+        : firstDraftMessageId,
+  };
+}
+
+/**
+ * Applies AI-extracted fields to a draft. The metadata read-modify-write runs
+ * inside a transaction against the locked row, because a generation started
+ * before the user changed something in the workspace would otherwise finish
+ * later and write back the metadata it loaded at the start of the turn —
+ * silently restoring what the user just removed.
+ *
+ * Returns the metadata that was written, or null when nothing was.
+ */
 export async function updateDraftFields(
   draftId: string,
   sessionId: string,
   fields: Record<string, unknown>,
-): Promise<void> {
+): Promise<{ metadata: unknown } | null> {
   const db = getDb();
-  const updates: Record<string, unknown> = { updatedAt: new Date() };
-  const emitFields: Array<{ field: string; value: unknown }> = [];
 
-  const [currentDraft] = await db
-    .select({ metadata: schema.draftLetters.metadata })
-    .from(schema.draftLetters)
-    .where(
-      and(
-        eq(schema.draftLetters.id, draftId),
-        eq(schema.draftLetters.sessionId, sessionId),
-      ),
-    )
-    .limit(1);
+  const result = await db.transaction(async (tx) => {
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    const emitFields: Array<{ field: string; value: unknown }> = [];
 
-  const currentWorkspaceState = getDraftWorkspaceState(currentDraft?.metadata);
-  const workspacePatch = buildWorkspaceDraftPatch(fields, currentWorkspaceState);
+    const [currentDraft] = await tx
+      .select({ metadata: schema.draftLetters.metadata })
+      .from(schema.draftLetters)
+      .where(
+        and(
+          eq(schema.draftLetters.id, draftId),
+          eq(schema.draftLetters.sessionId, sessionId),
+        ),
+      )
+      .for("update")
+      .limit(1);
 
-  if (Object.keys(workspacePatch).length > 0) {
-    updates.metadata = mergeDraftWorkspaceState(currentDraft?.metadata, workspacePatch);
-    emitFields.push({ field: "metadata", value: updates.metadata });
-  }
+    const currentWorkspaceState = getDraftWorkspaceState(currentDraft?.metadata);
+    const workspacePatch = buildWorkspaceDraftPatch(fields, currentWorkspaceState);
 
-  for (const [key, value] of Object.entries(fields)) {
-    if (DRAFT_FIELD_COLUMNS.has(key) && value !== undefined && value !== null) {
-      updates[key] = value;
-      emitFields.push({ field: key, value });
+    let nextMetadata: unknown = currentDraft?.metadata ?? null;
+    let metadataChanged = false;
+
+    if (Object.keys(workspacePatch).length > 0) {
+      nextMetadata = mergeDraftWorkspaceState(nextMetadata, workspacePatch);
+      metadataChanged = true;
     }
-  }
 
-  if (Object.keys(updates).length <= 1) return;
+    const aiDocument = fields.aiDocument as Record<string, unknown> | undefined;
+    const firstDraftMessageId = fields.firstDraftMessageId as string | undefined;
+    if (aiDocument !== undefined || firstDraftMessageId !== undefined) {
+      nextMetadata = mergeAiDocumentMetadata(
+        nextMetadata,
+        aiDocument,
+        firstDraftMessageId,
+      );
+      metadataChanged = true;
+    }
 
-  await db
-    .update(schema.draftLetters)
-    .set(updates)
-    .where(
-      and(
-        eq(schema.draftLetters.id, draftId),
-        eq(schema.draftLetters.sessionId, sessionId),
-      ),
-    );
+    if (metadataChanged) {
+      updates.metadata = nextMetadata;
+      emitFields.push({ field: "metadata", value: nextMetadata });
+    }
+
+    for (const [key, value] of Object.entries(fields)) {
+      if (DRAFT_FIELD_COLUMNS.has(key) && value !== undefined && value !== null) {
+        updates[key] = value;
+        emitFields.push({ field: key, value });
+      }
+    }
+
+    if (Object.keys(updates).length <= 1) return null;
+
+    await tx
+      .update(schema.draftLetters)
+      .set(updates)
+      .where(
+        and(
+          eq(schema.draftLetters.id, draftId),
+          eq(schema.draftLetters.sessionId, sessionId),
+        ),
+      );
+
+    return {
+      metadata: metadataChanged ? nextMetadata : currentDraft?.metadata,
+      emitFields,
+    };
+  });
+
+  if (!result) return null;
 
   const now = new Date().toISOString();
-  for (const { field, value } of emitFields) {
+  for (const { field, value } of result.emitFields) {
     emitDraftEvent(draftId, "field_update", { field, value, updatedAt: now });
   }
+
+  return { metadata: result.metadata };
 }

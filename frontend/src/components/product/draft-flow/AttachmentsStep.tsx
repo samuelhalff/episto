@@ -1,11 +1,10 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { useDraft, useDraftFiles, useUpdateDraft } from "@/hooks/use-api";
+import { useDraftFiles, useUpdateDraft } from "@/hooks/use-api";
 import { AttachmentUploader } from "../AttachmentUploader";
 import { DraftShell, PrimaryButton } from "./ui";
 import { showStepErrorToast, showStepWarningToast } from "./step-feedback";
-import { mergeDraftWorkspaceState } from "./workspace-state";
 import type { DraftWorkspaceStepShellProps } from "./step-props";
 
 interface StepProps extends DraftWorkspaceStepShellProps {
@@ -23,7 +22,6 @@ export function AttachmentsStep({
   previousStepLabel,
 }: StepProps) {
   const t = useTranslations("draft");
-  const draft = useDraft(draftId);
   const files = useDraftFiles(draftId);
   const updateDraft = useUpdateDraft(draftId);
   const isUploading = files.isUploading;
@@ -33,9 +31,9 @@ export function AttachmentsStep({
 
     try {
       await updateDraft.mutateAsync({
-        metadata: mergeDraftWorkspaceState(draft.data?.metadata, {
+        workspacePatch: {
           furthestUnlockedStepIndex: 5,
-        }),
+        },
       });
       onNext();
     } catch {

@@ -2,7 +2,12 @@ import { eq, and, sql } from "drizzle-orm";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
-import { assertTransitionDraft, type DraftStatusValue } from "@episto/shared";
+import {
+  assertTransitionDraft,
+  mergeDraftWorkspaceState,
+  type DraftStatusValue,
+  type DraftWorkspacePatch,
+} from "@episto/shared";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -150,16 +155,9 @@ export async function updateDraft(
     senderProfileId?: string | null | undefined;
     recipientProfileId?: string | null | undefined;
     signatureAssetId?: string | null | undefined;
-    metadata?: unknown;
+    workspacePatch?: DraftWorkspacePatch | undefined;
   },
 ): Promise<DraftRow> {
-  const existing = await getDraftById(db, draftId, sessionId);
-  if (!existing) throw notFoundError("draft");
-
-  if (!EDITABLE_STATUSES.has(existing.status)) {
-    throw validationError(`Draft cannot be edited in status '${existing.status}'`);
-  }
-
   const values: Record<string, unknown> = { updatedAt: new Date() };
 
   if (updates.locale !== undefined) values.locale = updates.locale;
@@ -179,21 +177,53 @@ export async function updateDraft(
     values.recipientProfileId = updates.recipientProfileId;
   if (updates.signatureAssetId !== undefined)
     values.signatureAssetId = updates.signatureAssetId;
-  if (updates.metadata !== undefined) values.metadata = updates.metadata;
+  // Read-modify-write of `metadata` happens under a row lock, and only ever from
+  // a delta. Merging on the client and sending the whole object loses every
+  // write made between that client's render and its request — a finishing AI
+  // turn, another tab, or its own debounced autosave.
+  return await db.transaction(async (tx) => {
+    const [existing] = await tx
+      .select({
+        status: schema.draftLetters.status,
+        metadata: schema.draftLetters.metadata,
+      })
+      .from(schema.draftLetters)
+      .where(
+        and(
+          eq(schema.draftLetters.id, draftId),
+          eq(schema.draftLetters.sessionId, sessionId),
+        ),
+      )
+      .for("update")
+      .limit(1);
 
-  const [row] = await db
-    .update(schema.draftLetters)
-    .set(values)
-    .where(
-      and(
-        eq(schema.draftLetters.id, draftId),
-        eq(schema.draftLetters.sessionId, sessionId),
-      ),
-    )
-    .returning();
+    if (!existing) throw notFoundError("draft");
 
-  if (!row) throw notFoundError("draft");
-  return toDraftRow(row);
+    if (!EDITABLE_STATUSES.has(existing.status)) {
+      throw validationError(`Draft cannot be edited in status '${existing.status}'`);
+    }
+
+    if (updates.workspacePatch) {
+      values.metadata = mergeDraftWorkspaceState(
+        existing.metadata,
+        updates.workspacePatch,
+      );
+    }
+
+    const [row] = await tx
+      .update(schema.draftLetters)
+      .set(values)
+      .where(
+        and(
+          eq(schema.draftLetters.id, draftId),
+          eq(schema.draftLetters.sessionId, sessionId),
+        ),
+      )
+      .returning();
+
+    if (!row) throw notFoundError("draft");
+    return toDraftRow(row);
+  });
 }
 
 // ---------------------------------------------------------------------------

@@ -36,7 +36,6 @@ export const UpdateDraftInput = z.object({
   senderProfileId: z.string().uuid().nullable().optional(),
   recipientProfileId: z.string().uuid().nullable().optional(),
   signatureAssetId: z.string().uuid().nullable().optional(),
-  metadata: z.record(z.unknown()).optional(),
 });
 
 export const CreateSenderProfileInput = z.object({

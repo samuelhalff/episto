@@ -5,6 +5,10 @@ import { defineConfig } from "vitest/config";
 const repoRoot = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
+  // Next builds the app with the automatic JSX runtime, so `.tsx` sources never
+  // import React. esbuild's classic default makes any test that actually
+  // renders one throw "React is not defined".
+  esbuild: { jsx: "automatic" },
   resolve: {
     alias: {
       "@": path.resolve(repoRoot, "frontend/src"),

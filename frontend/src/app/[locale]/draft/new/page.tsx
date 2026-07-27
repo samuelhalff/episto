@@ -10,9 +10,9 @@ import {
 } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  mergeDraftWorkspaceState,
   queryKeys,
   type DraftLetter,
+  type DraftWorkspacePatch,
   type Session,
   type TemplateContext,
 } from "@episto/shared";
@@ -109,6 +109,7 @@ export default function NewDraftPage() {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [pendingStartAction, setPendingStartAction] = useState<PendingStartAction>(null);
   const [showConfirmFresh, setShowConfirmFresh] = useState(false);
+  const [templateApplyFailed, setTemplateApplyFailed] = useState(false);
   const runIdRef = useRef(0);
   const freshEntryStartedRef = useRef(false);
   const forceFreshEntry = shouldForceFreshEntry(searchParams);
@@ -179,21 +180,27 @@ export default function NewDraftPage() {
    * Continuing an unfinished draft used to drop ?template= silently. The
    * template is applied to the resumed draft instead — the starter is not,
    * because the draft already carries the user's own text.
+   *
+   * Only the delta goes over the wire, so the list snapshot this screen was
+   * rendered from cannot overwrite anything written since — an AI turn that
+   * finished, or another tab.
+   *
+   * A failure stops here instead of navigating on. Saying "the template will be
+   * applied" and then arriving without it, silently, is the failure this whole
+   * change exists to remove; `templateApplyFailed` offers to continue without.
    */
   const resumeDraft = useCallback(
-    async (existingDraft: DraftLetter) => {
+    async (existingDraft: DraftLetter, options?: { skipTemplate?: boolean }) => {
       setPendingStartAction("resume");
 
-      if (templateContext) {
+      if (templateContext && !options?.skipTemplate) {
         try {
           const { draft: updatedDraft } = await apiFetch<{ draft: DraftLetter }>(
             `/v1/drafts/${existingDraft.id}`,
             {
               method: "PATCH",
               body: JSON.stringify({
-                metadata: mergeDraftWorkspaceState(existingDraft.metadata, {
-                  templateContext,
-                }),
+                workspacePatch: { templateContext },
               }),
             },
           );
@@ -207,8 +214,9 @@ export default function NewDraftPage() {
             locale: sessionLocale,
           });
         } catch {
-          // Resuming matters more than the template; the workspace shows
-          // whether guidance is active either way.
+          setTemplateApplyFailed(true);
+          setPendingStartAction(null);
+          return;
         }
       }
 
@@ -261,7 +269,7 @@ export default function NewDraftPage() {
 
         let seededDraft = normalizeDraft(draft);
 
-        const workspacePatch: Parameters<typeof mergeDraftWorkspaceState>[1] = {};
+        const workspacePatch: DraftWorkspacePatch = {};
         if (initialIntakeInput) {
           workspacePatch.intakeInput = initialIntakeInput;
         }
@@ -273,9 +281,7 @@ export default function NewDraftPage() {
             `/v1/drafts/${draft.id}`,
             {
               method: "PATCH",
-              body: JSON.stringify({
-                metadata: mergeDraftWorkspaceState(seededDraft.metadata, workspacePatch),
-              }),
+              body: JSON.stringify({ workspacePatch }),
             },
           );
 
@@ -446,9 +452,17 @@ export default function NewDraftPage() {
             <p className="mt-3 text-xs font-medium tracking-normal text-zinc-400 dark:text-zinc-500">
               {tr("lastUpdated", { value: updatedAt })}
             </p>
-            {templateContext ? (
+            {templateContext && !templateApplyFailed ? (
               <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
                 {tr("templateAppliedToResumed")}
+              </p>
+            ) : null}
+            {templateApplyFailed ? (
+              <p
+                role="alert"
+                className="mt-3 text-sm leading-6 text-amber-700 dark:text-amber-400"
+              >
+                {tr("templateNotAppliedToResumed")}
               </p>
             ) : null}
 
@@ -458,10 +472,12 @@ export default function NewDraftPage() {
                 loading={pendingStartAction === "resume"}
                 disabled={isStartingDraft}
                 onClick={() => {
-                  void resumeDraft(state.draft);
+                  void resumeDraft(state.draft, { skipTemplate: templateApplyFailed });
                 }}
               >
-                {tr("continueDraft")}
+                {templateApplyFailed
+                  ? tr("continueWithoutTemplate")
+                  : tr("continueDraft")}
               </ActionButton>
             </div>
 
