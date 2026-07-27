@@ -4,7 +4,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "wohnung-kuendigen",
     category: "Disdetta",
-    metaTitle: "Disdire un appartamento in Svizzera – lettera e invio",
+    metaTitle: "Disdire un appartamento – lettera e invio",
     metaDescription:
       "Disdire correttamente il contratto di locazione in Svizzera: termine, scadenza e forma. episto redige la disdetta e La invia – anche come raccomandata.",
     h1: "Disdire un appartamento: terminare il contratto di locazione correttamente e nei termini",
@@ -72,9 +72,9 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "einschreiben-online",
     category: "Invio",
-    metaTitle: "Spedire una raccomandata online – senza ufficio postale",
+    metaTitle: "Spedire una raccomandata online – senza posta",
     metaDescription:
-      "Scrivere e inviare una raccomandata online, senza andare all'ufficio postale. episto trasmette la Sua lettera alla Posta Svizzera, che la stampa e la recapita – con prova.",
+      "Scrivere e inviare una raccomandata online, senza ufficio postale. episto trasmette la Sua lettera alla Posta Svizzera, che la stampa e la recapita – con prova.",
     h1: "Spedire una raccomandata online – senza recarsi all'ufficio postale",
     quickAnswer:
       "Spedire una raccomandata online significa: scrivere la lettera in formato digitale, che viene poi stampata e consegnata alla Posta come invio raccomandato. In questo modo si ottiene una prova di recapito senza doversi recare personalmente all'ufficio postale. Con episto è tutto fatto in pochi minuti.",
@@ -208,7 +208,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "abo-kuendigen",
     category: "Disdetta",
-    metaTitle: "Disdire un abbonamento in Svizzera – modello e invio",
+    metaTitle: "Disdire un abbonamento – modello e invio",
     metaDescription:
       "Disdire un abbonamento streaming, a una rivista o associazione: verificare termine, durata e prova. episto redige e invia la disdetta in modo sicuro.",
     h1: "Disdire un abbonamento: terminare il contratto per tempo e con prova",
@@ -276,7 +276,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "arbeitsvertrag-kuendigen",
     category: "Disdetta",
-    metaTitle: "Disdire un contratto di lavoro – lettera, termine e invio",
+    metaTitle: "Disdire un contratto di lavoro – lettera e invio",
     metaDescription:
       "Disdire correttamente il contratto di lavoro in Svizzera: termine, data di fine e notifica. episto formula e invia la Sua disdetta – anche come raccomandata.",
     h1: "Disdire il contratto di lavoro: procedere in modo corretto e professionale",
@@ -412,7 +412,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "handyabo-kuendigen",
     category: "Disdetta",
-    metaTitle: "Disdire un abbonamento mobile – modello, termine e invio",
+    metaTitle: "Disdire un abbonamento mobile – modello e invio",
     metaDescription:
       "Disdire un abbonamento mobile o internet: verificare durata, termine, numero e costi dispositivo. episto redige e invia la disdetta in modo sicuro.",
     h1: "Disdire un abbonamento mobile: termine, numero e cambio sotto controllo",
@@ -480,7 +480,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "fitnessabo-kuendigen",
     category: "Disdetta",
-    metaTitle: "Disdire un abbonamento fitness – lettera, termine e invio",
+    metaTitle: "Disdire un abbonamento fitness – lettera e invio",
     metaDescription:
       "Disdire un abbonamento fitness: verificare durata, rinnovo, termine e casi particolari. episto formula e invia la Sua disdetta in modo sicuro per posta.",
     h1: "Disdire un abbonamento fitness: terminare l'affiliazione entro i termini",
@@ -616,7 +616,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "mahnung-schreiben",
     category: "Recupero crediti",
-    metaTitle: "Scrivere un sollecito – esigere il pagamento efficacemente",
+    metaTitle: "Scrivere un sollecito – esigere il pagamento",
     metaDescription:
       "Scrivere un sollecito chiaro con riferimento alla fattura, importo e nuovo termine. episto formula e invia la Sua lettera – anche come raccomandata.",
     h1: "Scrivere un sollecito: esigere il pagamento insoluto in modo professionale",
@@ -684,7 +684,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "einsprache-erheben",
     category: "Lettera soggetta a termine",
-    metaTitle: "Fare opposizione – termine e lettera per la Svizzera",
+    metaTitle: "Fare opposizione – termine e lettera",
     metaDescription:
       "Fare opposizione contro una fattura, una decisione o un provvedimento: verificare termine, autorità competente, motivazione e prove. episto redige la lettera.",
     h1: "Fare opposizione: reagire entro i termini e in modo comprensibile",
@@ -752,7 +752,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "mietzins-senken",
     category: "Diritto di locazione",
-    metaTitle: "Ridurre la pigione – scrivere una domanda di riduzione",
+    metaTitle: "Ridurre la pigione – domanda di riduzione",
     metaDescription:
       "Chiedere la riduzione della pigione per ribasso del tasso di riferimento: verificare base, scadenza e termini. episto redige la domanda e La invia per posta.",
     h1: "Ridurre la pigione: presentare correttamente la domanda di riduzione",
@@ -825,7 +825,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "brief-an-behoerde",
     category: "Corrispondenza con le autorità",
-    metaTitle: "Scrivere una lettera alle autorità e inviarla online",
+    metaTitle: "Scrivere una lettera alle autorità online",
     metaDescription:
       "Scrivere una lettera chiara a ufficio, comune o amministrazione: indicare riferimento, richiesta, termine e prove. episto La aiuta con l'invio sicuro.",
     h1: "Scrivere una lettera alle autorità: chiara, completa ed entro i termini",
@@ -893,9 +893,9 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "brief-online-versenden",
     category: "Invio",
-    metaTitle: "Spedire una lettera online – stampa e Posta Svizzera",
+    metaTitle: "Spedire una lettera online – stampa e invio",
     metaDescription:
-      "Scrivere una lettera online e spedirla tramite Posta Svizzera – senza stampante né ufficio postale. episto scrive la lettera e la inoltra alla Posta Svizzera, che la stampa e la spedisce.",
+      "Scrivere una lettera online e spedirla tramite Posta Svizzera, senza stampante né ufficio postale. episto la scrive, la stampa e la spedisce.",
     h1: "Spedire una lettera online – senza stampante né ufficio postale",
     quickAnswer:
       "Chi desidera spedire una lettera online inserisce contenuto e destinatario in formato digitale, verifica la lettera finale e incarica stampa, imbustamento e consegna alla Posta. A seconda della richiesta, si sceglie posta standard o raccomandata. Così si risparmiano stampante e viaggio all'ufficio postale. Con episto si fa tutto online in pochi minuti.",
@@ -961,7 +961,7 @@ export const IT_LANDING_PAGES: LandingPage[] = [
   {
     slug: "nebenkostenabrechnung-pruefen",
     category: "Diritto di locazione",
-    metaTitle: "Conguaglio spese accessorie – verifica e contestazione",
+    metaTitle: "Spese accessorie – verifica e contestazione",
     metaDescription:
       "Verificare il conguaglio delle spese accessorie, chiedere i giustificativi e contestare voci poco chiare. episto formula e invia la Sua obiezione.",
     h1: "Verificare il conguaglio spese accessorie e contestare le divergenze",

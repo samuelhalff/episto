@@ -74,7 +74,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     category: "Envoi",
     metaTitle: "Envoyer un recommandé en ligne – sans guichet",
     metaDescription:
-      "Rédiger et envoyer un recommandé en ligne, sans passer par le guichet postal. episto transmet votre lettre à La Poste suisse, qui l’imprime et la distribue – avec preuve de dépôt.",
+      "Rédiger et envoyer un recommandé en ligne, sans guichet postal. episto transmet votre lettre à La Poste suisse, qui l’imprime et la distribue – avec preuve.",
     h1: "Envoyer un recommandé en ligne – sans passer par le bureau de poste",
     quickAnswer:
       "Envoyer un recommandé en ligne signifie que vous rédigez la lettre de manière numérique et qu’elle est imprimée puis remise à La Poste comme envoi recommandé. Vous obtenez ainsi une preuve de distribution sans vous rendre au guichet. Avec episto, c’est fait en quelques minutes.",
@@ -140,7 +140,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
   {
     slug: "krankenkasse-kuendigen",
     category: "Résiliation",
-    metaTitle: "Résilier sa caisse-maladie & changer – lettre & délai",
+    metaTitle: "Résilier sa caisse-maladie – lettre et délai",
     metaDescription:
       "Résilier l’assurance de base avant le 30 novembre et changer de caisse. episto rédige et envoie votre résiliation – en recommandé si vous le souhaitez.",
     h1: "Résilier et changer de caisse-maladie – dans les délais pour la fin d’année",
@@ -276,9 +276,9 @@ export const FR_LANDING_PAGES: LandingPage[] = [
   {
     slug: "arbeitsvertrag-kuendigen",
     category: "Résiliation",
-    metaTitle: "Résilier son contrat de travail – lettre, délai & envoi",
+    metaTitle: "Résilier son contrat de travail – lettre & délai",
     metaDescription:
-      "Résilier correctement son contrat de travail en Suisse : délai, date de fin et notification. episto formule et envoie votre résiliation – en recommandé sur demande.",
+      "Résilier son contrat de travail en Suisse : délai, date de fin et notification. episto formule et envoie votre résiliation – en recommandé sur demande.",
     h1: "Résilier son contrat de travail : procéder correctement et professionnellement",
     quickAnswer:
       "Pour résilier votre contrat de travail, vérifiez le contrat et l’éventuelle convention collective de travail quant au délai et au terme de résiliation. La résiliation doit parvenir à l’employeur dans les délais ; la forme écrite est généralement conseillée pour des raisons de preuve. Indiquez la date de fin et demandez une confirmation ainsi qu’un certificat de travail. episto formule et envoie votre résiliation.",
@@ -412,7 +412,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
   {
     slug: "handyabo-kuendigen",
     category: "Résiliation",
-    metaTitle: "Résilier son abonnement mobile – modèle, délai & envoi",
+    metaTitle: "Résilier son abonnement mobile – modèle & délai",
     metaDescription:
       "Résilier correctement un abonnement mobile ou internet : durée, délai, numéro et frais d’appareil. episto rédige et envoie la résiliation en toute sécurité.",
     h1: "Résilier son abonnement mobile : maîtriser le délai, le numéro et le changement",
@@ -616,7 +616,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
   {
     slug: "mahnung-schreiben",
     category: "Créance",
-    metaTitle: "Rappel de paiement – exiger le règlement efficacement",
+    metaTitle: "Rappel de paiement – exiger le règlement dû",
     metaDescription:
       "Rédiger un rappel clair avec référence de facture, montant dû et nouveau délai de paiement. episto formule et envoie votre courrier – également en recommandé.",
     h1: "Rédiger un rappel de paiement : exiger un paiement ouvert de manière professionnelle",
@@ -825,7 +825,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
   {
     slug: "brief-an-behoerde",
     category: "Courrier aux autorités",
-    metaTitle: "Rédiger un courrier aux autorités & l’envoyer en ligne",
+    metaTitle: "Courrier aux autorités – rédiger et envoyer",
     metaDescription:
       "Rédiger un courrier clair à l’office, à la commune ou à l’administration : référence, demande, délai et preuves. episto vous aide à l’envoyer en toute sécurité.",
     h1: "Rédiger un courrier aux autorités : clair, complet et dans les délais",
@@ -893,7 +893,7 @@ export const FR_LANDING_PAGES: LandingPage[] = [
   {
     slug: "brief-online-versenden",
     category: "Envoi",
-    metaTitle: "Envoyer une lettre en ligne – impression & envoi postal",
+    metaTitle: "Envoyer une lettre en ligne – impression & envoi",
     metaDescription:
       "Envoyer une lettre en ligne par La Poste Suisse, sans imprimante ni passage au guichet. episto prend en charge la rédaction, l’impression et l’envoi.",
     h1: "Envoyer une lettre en ligne – sans imprimante ni passage au bureau de poste",

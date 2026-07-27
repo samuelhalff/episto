@@ -74,7 +74,7 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     category: "Versand",
     metaTitle: "Einschreiben online versenden – ohne Poststelle",
     metaDescription:
-      "Einschreiben online schreiben und versenden, ohne zur Poststelle zu gehen. episto übermittelt Ihren Brief der Schweizer Post, die ihn druckt und zustellt – mit Nachweis.",
+      "Einschreiben online versenden, ohne Gang zur Poststelle. episto übermittelt Ihren Brief der Schweizer Post, die ihn druckt und zustellt – mit Nachweis.",
     h1: "Einschreiben online versenden – ohne Gang zur Poststelle",
     quickAnswer:
       "Ein Einschreiben online zu versenden bedeutet: Sie schreiben den Brief digital, und er wird gedruckt und als eingeschriebene Sendung der Schweizer Post übergeben. So erhalten Sie einen Zustellnachweis, ohne selbst zur Poststelle zu gehen. Mit episto ist das in wenigen Minuten erledigt.",

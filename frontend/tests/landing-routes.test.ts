@@ -77,3 +77,25 @@ describe("landing-routes registry stays in sync with landing content", () => {
     }
   });
 });
+
+describe("landing meta stays within SEO length budgets", () => {
+  // The rendered <title> is `${metaTitle} | episto` (vorlagen/[slug]/page.tsx);
+  // Google truncates around 60 chars for the title and ~160 for the description.
+  const TITLE_SUFFIX = " | episto";
+
+  it("keeps every title (with brand suffix) ≤ 60 and every description ≤ 160", () => {
+    for (const locale of LANDING_LOCALES) {
+      for (const page of getLandingPages(locale)) {
+        const fullTitle = `${page.metaTitle}${TITLE_SUFFIX}`;
+        expect(
+          fullTitle.length,
+          `${locale}/${page.slug} title too long (${fullTitle.length}): ${fullTitle}`,
+        ).toBeLessThanOrEqual(60);
+        expect(
+          page.metaDescription.length,
+          `${locale}/${page.slug} description too long (${page.metaDescription.length})`,
+        ).toBeLessThanOrEqual(160);
+      }
+    }
+  });
+});
