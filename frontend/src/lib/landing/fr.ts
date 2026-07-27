@@ -1162,4 +1162,72 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["mietzins-senken", "nebenkostenabrechnung-pruefen", "wohnung-kuendigen"],
   },
+  {
+    slug: "arbeitszeugnis-korrigieren",
+    category: "Droit du travail",
+    metaTitle: "Corriger un certificat de travail – lettre",
+    metaDescription:
+      "Faire corriger un certificat de travail inexact : désigner les points, exiger la correction, fixer un délai. episto rédige votre courrier et l’envoie.",
+    h1: "Corriger un certificat de travail : exiger la rectification",
+    quickAnswer:
+      "Qui reçoit un certificat de travail inexact, incomplet ou formulé de façon ambiguë peut en exiger la correction de l’employeur. Un certificat doit être vrai et bienveillant et ne contenir aucune dévalorisation cachée. Désignez concrètement les points litigieux et proposez une formulation. episto rédige votre courrier de correction.",
+    steps: [
+      {
+        title: "Vérifier le certificat",
+        text: "Lisez le certificat attentivement et repérez les passages inexacts, incomplets ou ambigus ainsi que les tâches manquantes.",
+      },
+      {
+        title: "Désigner la correction",
+        text: "Notez ce qui est faux et comment cela devrait être formulé. Des preuves comme un cahier des charges ou d’anciennes évaluations aident.",
+      },
+      {
+        title: "Rédiger la demande de correction",
+        text: "Exigez l’adaptation des points cités dans un délai raisonnable et proposez des formulations. episto rédige la lettre.",
+      },
+      {
+        title: "Suivre le délai et la réponse",
+        text: "Envoyez de préférence en recommandé. Si l’employeur ne réagit pas ou refuse, examinez les étapes suivantes.",
+      },
+    ],
+    checklist: [
+      "Coordonnées complètes de l’employé et de l’employeur",
+      "Fonction et durée des rapports de travail",
+      "Passages litigieux du certificat désignés concrètement",
+      "Correction souhaitée ou proposition de formulation",
+      "Délai raisonnable, date et signature",
+    ],
+    notes: [
+      {
+        title: "Droit à un certificat vrai et bienveillant (art. 330a CO)",
+        body: "Vous avez droit à un certificat portant sur la nature et la durée des rapports de travail et, à votre demande, sur la qualité du travail et le comportement. Il doit être vrai et bienveillant; les codes dévalorisants ne sont pas admis.",
+      },
+      {
+        title: "Ne pas trop attendre",
+        body: "Demandez la correction rapidement. Les prétentions découlant des rapports de travail peuvent se prescrire, et une réclamation tardive est plus difficile à faire valoir.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Puis-je faire corriger mon certificat de travail ?",
+        answer:
+          "Oui. Si le certificat est inexact, incomplet ou ambigu, vous pouvez en exiger la correction. Désignez les points concrètement et proposez une formulation correcte.",
+      },
+      {
+        question: "À quoi ai-je droit ?",
+        answer:
+          "À un certificat vrai et bienveillant sur la nature et la durée de l’emploi et – sur demande – sur la qualité du travail et le comportement. Les dévalorisations cachées ne sont pas admises.",
+      },
+      {
+        question: "Dans quel délai puis-je demander une correction ?",
+        answer:
+          "Demandez la correction au plus vite. Les prétentions peuvent se prescrire avec le temps, et une réclamation tardive est plus difficile à prouver.",
+      },
+      {
+        question: "Que faire si l’employeur refuse la correction ?",
+        answer:
+          "Examinez la motivation. Si l’employeur reste inactif ou refuse, vous pouvez au besoin faire valoir votre droit en justice.",
+      },
+    ],
+    related: ["arbeitsvertrag-kuendigen", "beschwerde-schreiben", "brief-an-behoerde"],
+  },
 ];

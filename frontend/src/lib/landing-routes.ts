@@ -28,6 +28,7 @@ export const LANDING_SLUGS = [
   "nebenkostenabrechnung-pruefen",
   "rechtsvorschlag-erheben",
   "mietmangel-melden",
+  "arbeitszeugnis-korrigieren",
 ] as const;
 
 /**

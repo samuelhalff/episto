@@ -1161,4 +1161,72 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["mietzins-senken", "nebenkostenabrechnung-pruefen", "wohnung-kuendigen"],
   },
+  {
+    slug: "arbeitszeugnis-korrigieren",
+    category: "Arbeitsrecht",
+    metaTitle: "Arbeitszeugnis korrigieren – Korrektur verlangen",
+    metaDescription:
+      "Ein unrichtiges Arbeitszeugnis korrigieren lassen: Punkte benennen, Korrektur verlangen, Frist setzen. episto formuliert Ihr Schreiben und versendet es.",
+    h1: "Arbeitszeugnis korrigieren: Korrektur richtig verlangen",
+    quickAnswer:
+      "Wer ein unrichtiges, unvollständiges oder mehrdeutig formuliertes Arbeitszeugnis erhält, kann von der Arbeitgeberschaft eine Korrektur verlangen. Ein Zeugnis muss wahr und wohlwollend sein und darf keine versteckten Abwertungen enthalten. Benennen Sie die strittigen Punkte konkret und schlagen Sie eine Formulierung vor. episto formuliert Ihr Korrekturschreiben.",
+    steps: [
+      {
+        title: "Zeugnis prüfen",
+        text: "Lesen Sie das Zeugnis genau und markieren Sie unrichtige, unvollständige oder missverständliche Stellen sowie fehlende Aufgaben.",
+      },
+      {
+        title: "Korrektur konkret benennen",
+        text: "Halten Sie fest, was falsch ist und wie es richtig lauten soll. Belege wie Aufgabenlisten oder frühere Beurteilungen helfen.",
+      },
+      {
+        title: "Korrekturschreiben verfassen",
+        text: "Verlangen Sie die Anpassung der genannten Punkte innert angemessener Frist und schlagen Sie Formulierungen vor. episto erstellt den Brief.",
+      },
+      {
+        title: "Frist und Antwort überwachen",
+        text: "Versenden Sie möglichst als Einschreiben. Reagiert die Arbeitgeberschaft nicht oder ablehnend, prüfen Sie weitere Schritte.",
+      },
+    ],
+    checklist: [
+      "Vollständige Angaben zu Arbeitnehmer- und Arbeitgeberschaft",
+      "Funktion und Dauer des Arbeitsverhältnisses",
+      "Konkret bezeichnete strittige Stellen im Zeugnis",
+      "Gewünschte Korrektur oder Formulierungsvorschlag",
+      "Angemessene Frist, Datum und Unterschrift",
+    ],
+    notes: [
+      {
+        title: "Anspruch auf ein wahres, wohlwollendes Zeugnis (Art. 330a OR)",
+        body: "Sie haben Anspruch auf ein Zeugnis über Art und Dauer des Arbeitsverhältnisses und auf Wunsch über Leistung und Verhalten. Es muss wahr und wohlwollend sein; unklare oder abwertende Codes sind unzulässig.",
+      },
+      {
+        title: "Nicht zu lange warten",
+        body: "Verlangen Sie die Korrektur zeitnah. Ansprüche aus dem Arbeitsverhältnis können verjähren; zudem wird eine späte Beanstandung schwieriger durchzusetzen.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Kann ich mein Arbeitszeugnis korrigieren lassen?",
+        answer:
+          "Ja. Ist das Zeugnis unrichtig, unvollständig oder mehrdeutig, können Sie eine Korrektur verlangen. Benennen Sie die Punkte konkret und schlagen Sie eine richtige Formulierung vor.",
+      },
+      {
+        question: "Worauf habe ich Anspruch?",
+        answer:
+          "Auf ein wahres und wohlwollendes Zeugnis über Art und Dauer der Anstellung sowie – auf Wunsch – über Leistung und Verhalten. Versteckte Abwertungen sind nicht zulässig.",
+      },
+      {
+        question: "Bis wann kann ich eine Korrektur verlangen?",
+        answer:
+          "Verlangen Sie die Korrektur möglichst rasch. Ansprüche können mit der Zeit verjähren, und eine späte Beanstandung ist schwieriger zu belegen.",
+      },
+      {
+        question: "Was, wenn die Arbeitgeberschaft die Korrektur ablehnt?",
+        answer:
+          "Prüfen Sie die Begründung. Bleibt die Arbeitgeberschaft untätig oder ablehnend, können Sie den Anspruch nötigenfalls gerichtlich geltend machen.",
+      },
+    ],
+    related: ["arbeitsvertrag-kuendigen", "beschwerde-schreiben", "brief-an-behoerde"],
+  },
 ];

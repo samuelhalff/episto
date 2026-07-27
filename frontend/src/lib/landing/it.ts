@@ -1162,4 +1162,72 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["mietzins-senken", "nebenkostenabrechnung-pruefen", "wohnung-kuendigen"],
   },
+  {
+    slug: "arbeitszeugnis-korrigieren",
+    category: "Diritto del lavoro",
+    metaTitle: "Correggere il certificato di lavoro – lettera",
+    metaDescription:
+      "Far correggere un certificato di lavoro inesatto: indicare i punti, esigere la correzione, fissare un termine. episto redige la Sua lettera e la invia.",
+    h1: "Correggere il certificato di lavoro: esigere la rettifica",
+    quickAnswer:
+      "Chi riceve un certificato di lavoro inesatto, incompleto o formulato in modo ambiguo può esigerne la correzione dal datore di lavoro. Un certificato deve essere veritiero e benevolo e non contenere svalutazioni nascoste. Indichi concretamente i punti controversi e proponga una formulazione. episto redige la Sua lettera di correzione.",
+    steps: [
+      {
+        title: "Verificare il certificato",
+        text: "Legga il certificato con attenzione e individui i passaggi inesatti, incompleti o ambigui e i compiti mancanti.",
+      },
+      {
+        title: "Indicare la correzione",
+        text: "Annoti cosa è errato e come dovrebbe essere formulato. Prove come il mansionario o valutazioni precedenti aiutano.",
+      },
+      {
+        title: "Redigere la richiesta di correzione",
+        text: "Esiga l’adeguamento dei punti indicati entro un termine adeguato e proponga formulazioni. episto redige la lettera.",
+      },
+      {
+        title: "Seguire termine e risposta",
+        text: "Invii preferibilmente come raccomandata. Se il datore di lavoro non reagisce o rifiuta, valuti i passi successivi.",
+      },
+    ],
+    checklist: [
+      "Dati completi di lavoratore e datore di lavoro",
+      "Funzione e durata del rapporto di lavoro",
+      "Passaggi controversi del certificato indicati concretamente",
+      "Correzione desiderata o proposta di formulazione",
+      "Termine adeguato, data e firma",
+    ],
+    notes: [
+      {
+        title: "Diritto a un certificato veritiero e benevolo (art. 330a CO)",
+        body: "Ha diritto a un certificato sulla natura e la durata del rapporto di lavoro e, su richiesta, sulla qualità del lavoro e sul comportamento. Deve essere veritiero e benevolo; codici svalutativi non sono ammessi.",
+      },
+      {
+        title: "Non attendere troppo",
+        body: "Chieda la correzione tempestivamente. Le pretese derivanti dal rapporto di lavoro possono prescriversi e una contestazione tardiva è più difficile da far valere.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Posso far correggere il mio certificato di lavoro?",
+        answer:
+          "Sì. Se il certificato è inesatto, incompleto o ambiguo, può esigerne la correzione. Indichi i punti concretamente e proponga una formulazione corretta.",
+      },
+      {
+        question: "A cosa ho diritto?",
+        answer:
+          "A un certificato veritiero e benevolo sulla natura e la durata dell’impiego e – su richiesta – sulla qualità del lavoro e sul comportamento. Le svalutazioni nascoste non sono ammesse.",
+      },
+      {
+        question: "Entro quando posso chiedere una correzione?",
+        answer:
+          "Chieda la correzione il prima possibile. Le pretese possono prescriversi con il tempo e una contestazione tardiva è più difficile da provare.",
+      },
+      {
+        question: "Cosa fare se il datore di lavoro rifiuta la correzione?",
+        answer:
+          "Verifichi la motivazione. Se il datore di lavoro resta inattivo o rifiuta, può se necessario far valere il diritto in giudizio.",
+      },
+    ],
+    related: ["arbeitsvertrag-kuendigen", "beschwerde-schreiben", "brief-an-behoerde"],
+  },
 ];

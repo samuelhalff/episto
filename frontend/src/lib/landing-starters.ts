@@ -83,6 +83,11 @@ export const DRAFT_STARTERS: Record<string, Record<LandingLocale, string>> = {
     "fr-CH": "Je souhaite signaler un défaut de mon logement au bailleur.",
     "it-CH": "Desidero segnalare al locatore un difetto dell’abitazione.",
   },
+  "arbeitszeugnis-korrigieren": {
+    "de-CH": "Ich möchte die Korrektur meines Arbeitszeugnisses verlangen.",
+    "fr-CH": "Je souhaite demander la correction de mon certificat de travail.",
+    "it-CH": "Desidero chiedere la correzione del mio certificato di lavoro.",
+  },
 };
 
 export function getDraftStarter(slug: string, locale: string): string | null {
