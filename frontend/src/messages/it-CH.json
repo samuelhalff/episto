@@ -646,7 +646,17 @@
     "cityPlaceholder": "Lugano",
     "bodyEmptyHint": "Nessun contenuto finora. Usi il prompt qui sotto per generarlo.",
     "signatureImageAlt": "Firma disegnata",
-    "signatureFallbackName": "Il Suo nome"
+    "signatureFallbackName": "Il Suo nome",
+    "templateEyebrow": "Modello attivo",
+    "templateChipLabel": "Modello: {title}",
+    "templatePrepareTitle": "Idealmente tenga a portata di mano",
+    "templateOptional": "Può iniziare anche senza questi elementi: episto le chiederà ciò che manca.",
+    "templateAttachHint": "Può allegare i documenti qui sotto invece di trascrivere tutto.",
+    "templateTurnOff": "Disattivare l’aiuto del modello",
+    "templateTurnOffPending": "Disattivazione …",
+    "templateTurnOffError": "Non è stato possibile disattivare l’aiuto del modello. Riprovi per favore.",
+    "templateTurnedOffStarterCleared": "Aiuto del modello disattivato: la frase iniziale preparata è stata rimossa.",
+    "templateTurnedOffTextKept": "Aiuto del modello disattivato: il suo testo resta invariato."
   },
   "review": {
     "title": "Verificare la lettera",
@@ -839,7 +849,8 @@
     "startFresh": "Iniziare da capo",
     "startFreshLink": "oppure scrivere una nuova lettera",
     "startFreshConfirmTitle": "Iniziare una nuova lettera?",
-    "startFreshConfirmBody": "La bozza attuale non verrà eliminata, ma non verrà più proposta al Suo ritorno."
+    "startFreshConfirmBody": "La bozza attuale non verrà eliminata, ma non verrà più proposta al Suo ritorno.",
+    "templateAppliedToResumed": "Il modello scelto verrà applicato a questa bozza."
   },
   "status": {
     "title": "Stato della lettera",

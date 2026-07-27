@@ -61,6 +61,10 @@ const intakeTipsSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/IntakeTips.tsx"),
   "utf8",
 );
+const templateGuidanceSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/draft-flow/TemplateGuidance.tsx"),
+  "utf8",
+);
 const senderStepSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/draft-flow/SenderStep.tsx"),
   "utf8",
@@ -217,7 +221,10 @@ describe("draft workspace navigation", () => {
   });
 
   it("keeps the first-step tips and dictation inside the workspace intake surface", () => {
-    expect(intakeStepSource).toContain("<IntakeTips />");
+    // The tips render through the guidance slot, which swaps in the template
+    // preparation panel when the draft was seeded from a template.
+    expect(intakeStepSource).toContain("<IntakeGuidanceSlot");
+    expect(templateGuidanceSource).toContain("<IntakeTips />");
     expect(intakeTipsSource).toContain('t("proTips")');
     expect(intakeStepSource).toContain(
       'icon={dictation.isRecording ? "stop" : "dictate"}',

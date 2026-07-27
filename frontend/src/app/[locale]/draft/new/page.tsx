@@ -175,6 +175,50 @@ export default function NewDraftPage() {
   // attribute the draft — and its downstream checkout — back to the template.
   const templateSlug = templateSeed?.context?.slug ?? null;
 
+  /**
+   * Continuing an unfinished draft used to drop ?template= silently. The
+   * template is applied to the resumed draft instead — the starter is not,
+   * because the draft already carries the user's own text.
+   */
+  const resumeDraft = useCallback(
+    async (existingDraft: DraftLetter) => {
+      setPendingStartAction("resume");
+
+      if (templateContext) {
+        try {
+          const { draft: updatedDraft } = await apiFetch<{ draft: DraftLetter }>(
+            `/v1/drafts/${existingDraft.id}`,
+            {
+              method: "PATCH",
+              body: JSON.stringify({
+                metadata: mergeDraftWorkspaceState(existingDraft.metadata, {
+                  templateContext,
+                }),
+              }),
+            },
+          );
+          queryClient.setQueryData(
+            queryKeys.draft(existingDraft.id),
+            normalizeDraft(updatedDraft),
+          );
+          trackEvent({
+            event: "template_selected",
+            templateSlug: templateContext.slug,
+            locale: sessionLocale,
+          });
+        } catch {
+          // Resuming matters more than the template; the workspace shows
+          // whether guidance is active either way.
+        }
+      }
+
+      startTransition(() => {
+        router.replace(`/draft/${existingDraft.id}`);
+      });
+    },
+    [queryClient, router, sessionLocale, templateContext],
+  );
+
   const startDraft = useCallback(
     async (options?: {
       forceNewSession?: boolean;
@@ -402,6 +446,11 @@ export default function NewDraftPage() {
             <p className="mt-3 text-xs font-medium tracking-normal text-zinc-400 dark:text-zinc-500">
               {tr("lastUpdated", { value: updatedAt })}
             </p>
+            {templateContext ? (
+              <p className="mt-3 text-sm leading-6 text-zinc-600 dark:text-zinc-400">
+                {tr("templateAppliedToResumed")}
+              </p>
+            ) : null}
 
             <div className="mt-8 flex flex-col gap-3">
               <ActionButton
@@ -409,10 +458,7 @@ export default function NewDraftPage() {
                 loading={pendingStartAction === "resume"}
                 disabled={isStartingDraft}
                 onClick={() => {
-                  setPendingStartAction("resume");
-                  startTransition(() => {
-                    router.replace(`/draft/${state.draft.id}`);
-                  });
+                  void resumeDraft(state.draft);
                 }}
               >
                 {tr("continueDraft")}

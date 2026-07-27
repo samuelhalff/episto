@@ -646,7 +646,17 @@
     "cityPlaceholder": "Lausanne",
     "bodyEmptyHint": "Aucun contenu pour le moment. Utilisez l’invite de l’assistant ci-dessous pour le générer.",
     "signatureImageAlt": "Signature dessinée",
-    "signatureFallbackName": "Votre nom"
+    "signatureFallbackName": "Votre nom",
+    "templateEyebrow": "Modèle actif",
+    "templateChipLabel": "Modèle : {title}",
+    "templatePrepareTitle": "Idéalement, ayez ceci sous la main",
+    "templateOptional": "Vous pouvez commencer sans ces éléments – episto vous demandera ce qui manque.",
+    "templateAttachHint": "Vous pouvez joindre vos documents ci-dessous plutôt que de tout retaper.",
+    "templateTurnOff": "Désactiver l’aide du modèle",
+    "templateTurnOffPending": "Désactivation …",
+    "templateTurnOffError": "L’aide du modèle n’a pas pu être désactivée. Veuillez réessayer.",
+    "templateTurnedOffStarterCleared": "Aide du modèle désactivée – la phrase de départ préparée a été supprimée.",
+    "templateTurnedOffTextKept": "Aide du modèle désactivée – votre texte reste inchangé."
   },
   "review": {
     "title": "Relire votre courrier",
@@ -839,7 +849,8 @@
     "startFresh": "Repartir de zéro",
     "startFreshLink": "ou rédiger un nouveau courrier",
     "startFreshConfirmTitle": "Rédiger un nouveau courrier ?",
-    "startFreshConfirmBody": "Votre brouillon actuel ne sera pas supprimé, mais il ne vous sera plus proposé à votre retour."
+    "startFreshConfirmBody": "Votre brouillon actuel ne sera pas supprimé, mais il ne vous sera plus proposé à votre retour.",
+    "templateAppliedToResumed": "Le modèle choisi sera appliqué à ce brouillon."
   },
   "status": {
     "title": "Statut du courrier",

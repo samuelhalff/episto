@@ -27,7 +27,9 @@ import {
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
 import { DictationErrorPanel } from "./DictationPanel";
-import { IntakeTips } from "./IntakeTips";
+import { getScrollableAncestor } from "./scrollable-ancestor";
+import { IntakeGuidanceSlot, TemplateGuidanceChip } from "./TemplateGuidance";
+import { useTemplateGuidance } from "./use-template-guidance";
 import { LetterPreviewModal } from "../LetterPreviewModal";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
 import type {
@@ -81,25 +83,6 @@ export function IntakeStep({
     },
   });
 
-  function getScrollableAncestor(node: HTMLElement | null) {
-    let current = node?.parentElement ?? null;
-
-    while (current) {
-      const style = window.getComputedStyle(current);
-      const isScrollable =
-        /(auto|scroll)/.test(style.overflowY) &&
-        current.scrollHeight > current.clientHeight;
-
-      if (isScrollable) {
-        return current;
-      }
-
-      current = current.parentElement;
-    }
-
-    return null;
-  }
-
   useEffect(() => {
     if (hasHydratedRef.current) return;
 
@@ -149,6 +132,21 @@ export function IntakeStep({
     setIntakeText("");
     intakeAutosave.persistInBackground("");
   }
+
+  // Template guidance reaches the model on every turn, so it stays visible —
+  // and stoppable — for as long as it is present, not just before the first
+  // message. Only the slug is read; all copy comes from the static registry.
+  const templateSlug =
+    getDraftWorkspaceState(draft.data?.metadata).templateContext?.slug ?? null;
+  const templateGuidance = useTemplateGuidance({
+    draftId,
+    locale,
+    updateDraft,
+    intakeText,
+    setIntakeText,
+    flushIntake: intakeAutosave.persistNow,
+    markIntakePersisted: intakeAutosave.markPersisted,
+  });
 
   const helperText = files.validationError ?? undefined;
   const hasConversationActivity =
@@ -380,6 +378,9 @@ export function IntakeStep({
     >
       <div className="flex flex-1 h-full min-h-full flex-col justify-end gap-8 pb-2">
         {hasConversationActivity ? (
+          <TemplateGuidanceChip slug={templateSlug} guidance={templateGuidance} />
+        ) : null}
+        {hasConversationActivity ? (
           <section
             ref={threadContainerRef}
             className="mt-auto space-y-3 px-2"
@@ -477,7 +478,7 @@ export function IntakeStep({
             <div ref={threadEndRef} />
           </section>
         ) : (
-          <IntakeTips />
+          <IntakeGuidanceSlot slug={templateSlug} guidance={templateGuidance} />
         )}
       </div>
       {showPreview ? (

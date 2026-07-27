@@ -646,7 +646,17 @@
     "cityPlaceholder": "Zurich",
     "bodyEmptyHint": "No content yet. Use the AI prompt below to generate it.",
     "signatureImageAlt": "Drawn signature",
-    "signatureFallbackName": "Your Name"
+    "signatureFallbackName": "Your Name",
+    "templateEyebrow": "Template active",
+    "templateChipLabel": "Template: {title}",
+    "templatePrepareTitle": "Ideally have this to hand",
+    "templateOptional": "You can start without these – episto will ask for whatever is missing.",
+    "templateAttachHint": "You can attach documents below instead of typing everything out.",
+    "templateTurnOff": "Turn off template guidance",
+    "templateTurnOffPending": "Turning off …",
+    "templateTurnOffError": "Template guidance could not be turned off. Please try again.",
+    "templateTurnedOffStarterCleared": "Template guidance off – the prepared opening sentence was removed.",
+    "templateTurnedOffTextKept": "Template guidance off – your text is unchanged."
   },
   "review": {
     "title": "Review your letter",
@@ -839,7 +849,8 @@
     "startFresh": "Start fresh",
     "startFreshLink": "or start a new letter",
     "startFreshConfirmTitle": "Start a fresh letter?",
-    "startFreshConfirmBody": "Your current draft won't be deleted, but it will no longer be offered when you return."
+    "startFreshConfirmBody": "Your current draft won't be deleted, but it will no longer be offered when you return.",
+    "templateAppliedToResumed": "The template you chose will be applied to this draft."
   },
   "status": {
     "title": "Letter status",

@@ -646,7 +646,17 @@
     "cityPlaceholder": "Zürich",
     "bodyEmptyHint": "Noch kein Inhalt. Nutzen Sie unten die Eingabe, um einen Entwurf zu erstellen.",
     "signatureImageAlt": "Gezeichnete Unterschrift",
-    "signatureFallbackName": "Ihr Name"
+    "signatureFallbackName": "Ihr Name",
+    "templateEyebrow": "Vorlage aktiv",
+    "templateChipLabel": "Vorlage: {title}",
+    "templatePrepareTitle": "Das haben Sie idealerweise zur Hand",
+    "templateOptional": "Sie können auch ohne diese Angaben starten – episto fragt nach, was noch fehlt.",
+    "templateAttachHint": "Dokumente können Sie unten direkt anhängen, statt alles abzutippen.",
+    "templateTurnOff": "Vorlagenhilfe ausschalten",
+    "templateTurnOffPending": "Wird ausgeschaltet …",
+    "templateTurnOffError": "Die Vorlagenhilfe konnte nicht ausgeschaltet werden. Bitte versuchen Sie es erneut.",
+    "templateTurnedOffStarterCleared": "Vorlagenhilfe ausgeschaltet – der vorbereitete Einstiegssatz wurde entfernt.",
+    "templateTurnedOffTextKept": "Vorlagenhilfe ausgeschaltet – Ihr Text bleibt unverändert."
   },
   "review": {
     "title": "Brief prüfen",
@@ -839,7 +849,8 @@
     "startFresh": "Neu beginnen",
     "startFreshLink": "oder einen neuen Brief verfassen",
     "startFreshConfirmTitle": "Neuen Brief verfassen?",
-    "startFreshConfirmBody": "Ihr aktueller Entwurf wird nicht gelöscht, aber bei Ihrem nächsten Besuch nicht mehr angeboten."
+    "startFreshConfirmBody": "Ihr aktueller Entwurf wird nicht gelöscht, aber bei Ihrem nächsten Besuch nicht mehr angeboten.",
+    "templateAppliedToResumed": "Die gewählte Vorlage wird auf diesen Entwurf angewendet."
   },
   "status": {
     "title": "Status Ihres Briefs",

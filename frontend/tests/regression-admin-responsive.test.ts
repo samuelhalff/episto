@@ -129,9 +129,12 @@ describe("regression: admin responsive dashboard", () => {
     expect(topBarSource).toContain("retention.title");
   });
 
-  it("top bar is sticky with backdrop blur", () => {
+  // Opaque on purpose: a translucent sticky bar let page content show through
+  // and read as a rendering fault.
+  it("top bar is sticky and opaque", () => {
     expect(topBarSource).toContain("sticky top-0");
-    expect(topBarSource).toContain("backdrop-blur");
+    expect(topBarSource).toContain("var(--app-bg)");
+    expect(topBarSource).not.toContain("backdrop-blur");
   });
 
   // ── Shell ──
