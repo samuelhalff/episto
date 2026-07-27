@@ -10,8 +10,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppButton } from "@/components/ui/app-button";
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
+  DialogPanel,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useAdminAuth } from "../admin-auth-context";
@@ -181,8 +181,8 @@ export default function PromosPage() {
           if (!open) setDeleting(null);
         }}
       >
-        <DialogContent className="flex items-center justify-center bg-transparent p-4 sm:p-6">
-          <div className="app-panel w-full max-w-sm rounded-3xl p-6 text-left shadow-prominent-warm dark:shadow-prominent">
+        <DialogPanel size="sm">
+          <div>
             <DialogTitle className="text-lg font-semibold tracking-tight text-[var(--app-fg)]">
               Delete {deleting?.code}?
             </DialogTitle>
@@ -205,7 +205,7 @@ export default function PromosPage() {
               </AppButton>
             </div>
           </div>
-        </DialogContent>
+        </DialogPanel>
       </Dialog>
     </div>
   );

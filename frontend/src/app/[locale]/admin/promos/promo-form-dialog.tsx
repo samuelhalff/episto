@@ -5,8 +5,8 @@ import type { AdminPromo, AdminPromoKind } from "@episto/shared";
 
 import {
   Dialog,
-  DialogContent,
   DialogDescription,
+  DialogPanel,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -63,7 +63,7 @@ const helpClass = "text-[11px] text-[var(--app-muted)]";
 
 /**
  * The stateful form body. Rendered only while the dialog is open (Radix unmounts
- * DialogContent on close), so useState initializers re-seed on every open — no
+ * the panel on close), so useState initializers re-seed on every open — no
  * effect-driven state syncing. Fields map to three owner decisions — what
  * discount, how often, until when — rather than the raw DB columns.
  */
@@ -157,7 +157,7 @@ function PromoFormBody({
   }
 
   return (
-    <div className="app-panel max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl p-6 text-left shadow-prominent-warm dark:shadow-prominent">
+    <>
       <DialogTitle className="text-lg font-semibold tracking-tight text-[var(--app-fg)]">
         {isEdit ? "Edit promo code" : "New promo code"}
       </DialogTitle>
@@ -306,7 +306,7 @@ function PromoFormBody({
           {isEdit ? "Save changes" : "Create code"}
         </AppButton>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -328,7 +328,7 @@ export function PromoFormDialog({
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex items-center justify-center bg-transparent p-4 sm:p-6">
+      <DialogPanel size="md">
         <PromoFormBody
           key={promo?.id ?? "new"}
           promo={promo}
@@ -337,7 +337,7 @@ export function PromoFormDialog({
           pending={pending}
           errorMessage={errorMessage}
         />
-      </DialogContent>
+      </DialogPanel>
     </Dialog>
   );
 }

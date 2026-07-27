@@ -2,12 +2,7 @@
 
 import { type ComponentProps } from "react";
 import { AlertTriangle, LifeBuoy, RefreshCw, Sparkles } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-} from "../../ui/dialog";
+import { Dialog, DialogDescription, DialogPanel, DialogTitle } from "../../ui/dialog";
 import { PrimaryButton, SecondaryButton } from "./ui";
 
 interface BodyGenerationDialogProps {
@@ -41,14 +36,14 @@ export function BodyGenerationDialog({
 }: BodyGenerationDialogProps) {
   const isLoading = status === "loading";
   const handleEscapeKeyDown: NonNullable<
-    ComponentProps<typeof DialogContent>["onEscapeKeyDown"]
+    ComponentProps<typeof DialogPanel>["onEscapeKeyDown"]
   > = (event) => {
     if (isLoading) {
       event.preventDefault();
     }
   };
   const handlePointerDownOutside: NonNullable<
-    ComponentProps<typeof DialogContent>["onPointerDownOutside"]
+    ComponentProps<typeof DialogPanel>["onPointerDownOutside"]
   > = (event) => {
     if (isLoading) {
       event.preventDefault();
@@ -64,62 +59,69 @@ export function BodyGenerationDialog({
         }
       }}
     >
-      <DialogContent
+      <DialogPanel
+        size="lg"
         onEscapeKeyDown={handleEscapeKeyDown}
         onPointerDownOutside={handlePointerDownOutside}
-        className="flex items-end justify-center bg-transparent p-4 sm:items-center sm:p-6"
       >
-        <div className="app-panel w-full max-w-lg rounded-4xl p-6 sm:p-7">
-          <div className="flex flex-col items-center text-center">
-            <div
-              className={`inline-flex h-14 w-14 items-center justify-center rounded-3xl ${
-                isLoading
-                  ? "bg-amber-100 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-300/20 dark:text-amber-50 dark:ring-amber-200/30"
-                  : "bg-red-50 text-red-600 ring-1 ring-red-100 dark:bg-red-500/14 dark:text-red-200 dark:ring-red-400/18"
-              }`}
-            >
-              {isLoading ? (
-                <Sparkles className="h-6 w-6" />
-              ) : (
-                <AlertTriangle className="h-6 w-6" />
-              )}
-            </div>
-
-            <DialogTitle className="mt-5 text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-              {isLoading ? loadingTitle : errorTitle}
-            </DialogTitle>
-
-            <DialogDescription className="mt-3 max-w-md text-sm leading-6 text-zinc-600 dark:text-zinc-300">
-              {isLoading ? loadingDescription : errorDescription}
-            </DialogDescription>
-
+        <div className="flex flex-col items-center text-center">
+          <div
+            className={`inline-flex h-14 w-14 items-center justify-center rounded-3xl ${
+              isLoading
+                ? "bg-amber-100 text-amber-800 ring-1 ring-amber-200 dark:bg-amber-300/20 dark:text-amber-50 dark:ring-amber-200/30"
+                : "bg-red-50 text-red-600 ring-1 ring-red-100 dark:bg-red-500/14 dark:text-red-200 dark:ring-red-400/18"
+            }`}
+          >
             {isLoading ? (
-              <div role="status" className="mt-7 w-full rounded-3xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4">
-                <div className="flex items-center justify-center gap-3">
-                  <span className="text-sm font-medium text-amber-800 dark:text-amber-50">{loadingLabel}</span>
-                  <div className="flex items-center gap-1.5" aria-hidden="true">
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 [animation-delay:-0.2s] dark:bg-amber-200/90" />
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 [animation-delay:-0.1s] dark:bg-amber-200/90" />
-                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 dark:bg-amber-200/90" />
-                  </div>
-                </div>
-              </div>
+              <Sparkles className="h-6 w-6" />
             ) : (
-              <div className="mt-8 flex w-full flex-col gap-3">
-                <PrimaryButton onClick={onRefresh} icon={<RefreshCw className="h-4 w-4" />}>
-                  {refreshLabel}
-                </PrimaryButton>
-                <SecondaryButton onClick={onClose} leadingVisual="hide">
-                  {closeLabel}
-                </SecondaryButton>
-                <SecondaryButton disabled icon={<LifeBuoy className="h-4 w-4" />} hideIcon={false}>
-                  {supportLabel}
-                </SecondaryButton>
-              </div>
+              <AlertTriangle className="h-6 w-6" />
             )}
           </div>
+
+          <DialogTitle className="mt-5 text-2xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
+            {isLoading ? loadingTitle : errorTitle}
+          </DialogTitle>
+
+          <DialogDescription className="mt-3 max-w-md text-sm leading-6 text-zinc-600 dark:text-zinc-300">
+            {isLoading ? loadingDescription : errorDescription}
+          </DialogDescription>
+
+          {isLoading ? (
+            <div
+              role="status"
+              className="mt-7 w-full rounded-3xl border border-[var(--app-border)] bg-[var(--app-surface-soft)] px-4 py-4"
+            >
+              <div className="flex items-center justify-center gap-3">
+                <span className="text-sm font-medium text-amber-800 dark:text-amber-50">
+                  {loadingLabel}
+                </span>
+                <div className="flex items-center gap-1.5" aria-hidden="true">
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 [animation-delay:-0.2s] dark:bg-amber-200/90" />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 [animation-delay:-0.1s] dark:bg-amber-200/90" />
+                  <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-amber-500 dark:bg-amber-200/90" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-8 flex w-full flex-col gap-3">
+              <PrimaryButton onClick={onRefresh} icon={<RefreshCw className="h-4 w-4" />}>
+                {refreshLabel}
+              </PrimaryButton>
+              <SecondaryButton onClick={onClose} leadingVisual="hide">
+                {closeLabel}
+              </SecondaryButton>
+              <SecondaryButton
+                disabled
+                icon={<LifeBuoy className="h-4 w-4" />}
+                hideIcon={false}
+              >
+                {supportLabel}
+              </SecondaryButton>
+            </div>
+          )}
         </div>
-      </DialogContent>
+      </DialogPanel>
     </Dialog>
   );
 }

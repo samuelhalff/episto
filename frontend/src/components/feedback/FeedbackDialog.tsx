@@ -5,7 +5,7 @@ import { CheckCircle2 } from "lucide-react";
 import { useLocale } from "next-intl";
 import { apiFetch } from "../../lib/api";
 import { AppButton } from "../ui/app-button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogDescription, DialogPanel, DialogTitle } from "../ui/dialog";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
@@ -147,11 +147,8 @@ export function FeedbackDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        aria-modal="true"
-        className="flex items-center justify-center bg-transparent p-4 sm:p-6"
-      >
-        <div className="app-panel w-full max-w-md rounded-3xl p-6 shadow-prominent-warm dark:shadow-prominent">
+      <DialogPanel size="md" aria-modal="true">
+        <div>
           {status === "success" ? (
             <div className="text-center">
               <div className="mb-4 flex justify-center">
@@ -271,7 +268,7 @@ export function FeedbackDialog({
             </form>
           )}
         </div>
-      </DialogContent>
+      </DialogPanel>
     </Dialog>
   );
 }

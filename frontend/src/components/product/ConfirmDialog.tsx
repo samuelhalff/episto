@@ -2,7 +2,7 @@
 
 import { type ComponentProps, type ReactNode, useEffect, useRef } from "react";
 import { AppButton } from "../ui/app-button";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogDescription, DialogPanel, DialogTitle } from "../ui/dialog";
 
 interface ConfirmDialogProps {
   open: boolean;
@@ -36,14 +36,14 @@ export function ConfirmDialog({
   const previousFocusRef = useRef<HTMLElement | null>(null);
   const dismissalBlocked = cancelDisabled || confirmLoading;
   const handleEscapeKeyDown: NonNullable<
-    ComponentProps<typeof DialogContent>["onEscapeKeyDown"]
+    ComponentProps<typeof DialogPanel>["onEscapeKeyDown"]
   > = (event) => {
     if (dismissalBlocked) {
       event.preventDefault();
     }
   };
   const handlePointerDownOutside: NonNullable<
-    ComponentProps<typeof DialogContent>["onPointerDownOutside"]
+    ComponentProps<typeof DialogPanel>["onPointerDownOutside"]
   > = (event) => {
     if (dismissalBlocked) {
       event.preventDefault();
@@ -72,13 +72,14 @@ export function ConfirmDialog({
         }
       }}
     >
-      <DialogContent
+      <DialogPanel
+        size="sm"
         aria-modal="true"
         onEscapeKeyDown={handleEscapeKeyDown}
         onPointerDownOutside={handlePointerDownOutside}
-        className="flex items-center justify-center bg-transparent p-6"
+        className="text-center"
       >
-        <div className="app-panel w-full max-w-sm rounded-3xl p-6 text-center shadow-prominent-warm dark:shadow-prominent">
+        <div>
           {icon ? <div className="mb-4 flex justify-center">{icon}</div> : null}
           <DialogTitle className="text-lg font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
             {title}
@@ -111,7 +112,7 @@ export function ConfirmDialog({
             </AppButton>
           </div>
         </div>
-      </DialogContent>
+      </DialogPanel>
     </Dialog>
   );
 }

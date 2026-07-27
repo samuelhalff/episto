@@ -60,6 +60,11 @@ const confirmDialogSource = readFileSync(
   "utf8",
 );
 
+const dialogPrimitiveSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/ui/dialog.tsx"),
+  "utf8",
+);
+
 const newDraftPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/new/page.tsx"),
   "utf8",
@@ -144,7 +149,10 @@ describe("theme surface regressions", () => {
   });
 
   it("keeps confirmation dialogs on shared panel surfaces", () => {
-    expect(confirmDialogSource).toContain("app-panel");
+    // The shared modal standard (DialogPanel) owns the panel surface now, so
+    // individual dialogs render through it instead of hand-rolling a surface.
+    expect(dialogPrimitiveSource).toContain("app-panel");
+    expect(confirmDialogSource).toContain("DialogPanel");
     expect(confirmDialogSource).not.toContain("border-zinc-200/80 bg-white");
   });
 });

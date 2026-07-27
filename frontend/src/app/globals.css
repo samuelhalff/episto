@@ -641,6 +641,26 @@
     animation: sheet-bottom-out 200ms ease-in both;
   }
 
+  /* Shared modal panel (DialogPanel). Slide up on mobile where the panel docks
+     to the bottom (transform is free); fade on desktop so the animation never
+     clobbers the -translate-x/y centering transform. */
+  @media (max-width: 639.98px) {
+    .dialog-panel[data-state="open"] {
+      animation: sheet-bottom-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .dialog-panel[data-state="closed"] {
+      animation: sheet-bottom-out 200ms ease-in both;
+    }
+  }
+  @media (min-width: 640px) {
+    .dialog-panel[data-state="open"] {
+      animation: overlay-in 180ms ease-out both;
+    }
+    .dialog-panel[data-state="closed"] {
+      animation: overlay-out 150ms ease-in both;
+    }
+  }
+
   .sheet-panel-right[data-state="open"] {
     animation: sheet-right-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
   }
@@ -879,6 +899,7 @@
   .animate-preview-sheet-in,
   .overlay-surface,
   .sheet-panel-bottom,
+  .dialog-panel,
   .sheet-panel-right,
   .menu-popover,
   .cta-sheen::after {
