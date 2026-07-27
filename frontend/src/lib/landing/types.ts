@@ -28,13 +28,11 @@ export interface LandingPage {
   quickAnswer: string;
   steps: LandingStep[];
   /** "What belongs in the letter" checklist. NOT an input list — these are things
-   *  episto writes into the letter, not things the user brings. See `prepare`. */
+   *  episto writes into the letter, not things the user brings. The user-input
+   *  counterpart lives in `lib/template-intake.ts`, deliberately outside this
+   *  module so the draft workspace can import it without pulling in the landing
+   *  datasets. */
   checklist: string[];
-  /** Inputs the USER should have to hand, shown in the workspace intake when the
-   *  draft was seeded from this template. Deliberately distinct from `checklist`:
-   *  "the lease address" belongs here, "a request for written confirmation" does
-   *  not. 3-5 short noun phrases. Draft templates only; service guides never seed. */
-  prepare?: string[];
   /** Swiss specifics: notice periods, deadlines, form requirements. */
   notes: LandingNote[];
   faqs: LandingFaq[];

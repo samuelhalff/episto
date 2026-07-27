@@ -9,6 +9,7 @@ import {
 } from "../src/lib/landing-routes";
 import { getLandingPages } from "../src/lib/landing-content";
 import { DRAFT_STARTERS } from "../src/lib/landing-starters";
+import { DRAFT_TEMPLATE_SLUGS } from "@episto/shared";
 
 // The lightweight landing-routes registry is imported by the edge middleware
 // (which must not pull in the full landing dataset). These tests guarantee it
@@ -97,5 +98,12 @@ describe("landing meta stays within SEO length budgets", () => {
         ).toBeLessThanOrEqual(160);
       }
     }
+  });
+
+  it("keeps the shared draft-template slug list in sync with the landing routes", () => {
+    // TemplateContextSchema constrains templateContext.slug to the shared list, so
+    // drift here would silently drop a real template's guidance at the boundary.
+    const fromRoutes = LANDING_SLUGS.filter((slug) => isDraftTemplateSlug(slug));
+    expect([...DRAFT_TEMPLATE_SLUGS].sort()).toEqual([...fromRoutes].sort());
   });
 });

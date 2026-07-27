@@ -22,13 +22,44 @@ export const RecipientDraftFormSchema = z.object({
 });
 
 /**
+ * Slugs of the landing templates that may seed a draft. Service guides are absent
+ * on purpose — they never seed. This is the canonical list; the frontend landing
+ * routes are asserted against it so the two cannot drift.
+ */
+export const DRAFT_TEMPLATE_SLUGS = [
+  "wohnung-kuendigen",
+  "krankenkasse-kuendigen",
+  "abo-kuendigen",
+  "arbeitsvertrag-kuendigen",
+  "versicherung-kuendigen",
+  "handyabo-kuendigen",
+  "fitnessabo-kuendigen",
+  "beschwerde-schreiben",
+  "mahnung-schreiben",
+  "einsprache-erheben",
+  "mietzins-senken",
+  "brief-an-behoerde",
+  "nebenkostenabrechnung-pruefen",
+  "rechtsvorschlag-erheben",
+  "mietmangel-melden",
+  "arbeitszeugnis-korrigieren",
+] as const;
+
+export type DraftTemplateSlug = (typeof DRAFT_TEMPLATE_SLUGS)[number];
+
+/**
  * Curated guidance copied from a landing template when a draft is seeded via
  * ?template=<slug>. Used by the assistant only as FRAMING (what to ask / whether
  * the letter is complete) — never as facts about the user. Treated as untrusted
  * input by the backend regardless (it re-sanitizes + caps before use).
+ *
+ * `slug` is constrained to the known templates so an arbitrary slug is not even
+ * representable. This is fail-safe rather than fail-hard: getDraftWorkspaceState
+ * safeParses templateContext on its own, so an unrecognized slug drops just the
+ * template context and leaves the rest of the workspace state untouched.
  */
 export const TemplateContextSchema = z.object({
-  slug: z.string().max(80),
+  slug: z.enum(DRAFT_TEMPLATE_SLUGS),
   checklist: z.array(z.string()).default([]),
   considerations: z.array(z.string()).default([]),
 });

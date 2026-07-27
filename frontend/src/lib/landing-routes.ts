@@ -7,6 +7,8 @@
  * `landing-routes.test.ts` asserts these lists stay in sync with the actual
  * landing pages, so a page added/removed without updating this file fails CI.
  */
+import type { DraftTemplateSlug } from "@episto/shared";
+
 export const LANDING_LOCALES = ["de-CH", "fr-CH", "it-CH"] as const;
 export type LandingLocale = (typeof LANDING_LOCALES)[number];
 
@@ -55,7 +57,12 @@ export function isServiceGuideSlug(slug: string): boolean {
   return getLandingPageType(slug) === "service_guide";
 }
 
-export function isDraftTemplateSlug(slug: string): boolean {
+/**
+ * Narrows to the shared `DraftTemplateSlug` union. Sound because
+ * `landing-routes.test.ts` asserts the draft-template slugs here and
+ * `DRAFT_TEMPLATE_SLUGS` in @episto/shared are the same set.
+ */
+export function isDraftTemplateSlug(slug: string): slug is DraftTemplateSlug {
   return getLandingPageType(slug) === "draft_template";
 }
 
