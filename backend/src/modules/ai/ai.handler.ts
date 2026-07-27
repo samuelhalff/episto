@@ -147,6 +147,11 @@ async function applyIntakeAnalysis(input: {
   sessionId: string;
   draft: NonNullable<Awaited<ReturnType<typeof loadDraft>>>;
   userMessage: string;
+  // Raw user-authored context used for the readiness heuristic. Excludes
+  // attachment content and template guidance so their bulk cannot inflate the
+  // word-count bar and silently skip a warranted follow-up question (codex
+  // P1.3). Defaults to userMessage when the caller has no separate raw text.
+  readinessContextText?: string;
   conversationHistory: Array<{ role: string; content: string }>;
 }): Promise<{
   intent: string;
@@ -189,7 +194,7 @@ async function applyIntakeAnalysis(input: {
     hasEnoughContext: hasEnoughIntakeContext(
       analysis.intent,
       mergedFields,
-      input.userMessage,
+      input.readinessContextText ?? input.userMessage,
     ),
   };
 }
@@ -241,6 +246,7 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
       sessionId,
       draft,
       userMessage: augmentedContent,
+      readinessContextText: userContent,
       conversationHistory,
     });
 
@@ -343,7 +349,9 @@ export async function handleComposeFromContext(
       // With template guidance, always run intake analysis so it can surface a
       // template-driven question instead of composing from generic fields.
       templateBlock.length === 0 &&
-      hasEnoughIntakeContext(existingIntent, existingFields, augmentedInstructions)
+      // Readiness uses the raw user instructions, not the attachment-augmented
+      // text, so attachment bulk cannot fake the narrative bar (codex P1.3).
+      hasEnoughIntakeContext(existingIntent, existingFields, userInstructions)
     ) {
       await streamDraftGeneration(
         draftId,
@@ -363,6 +371,7 @@ export async function handleComposeFromContext(
       sessionId,
       draft,
       userMessage: augmentedInstructions,
+      readinessContextText: userInstructions,
       conversationHistory,
     });
 
@@ -371,7 +380,14 @@ export async function handleComposeFromContext(
       return;
     }
 
-    if (analysis.question?.trim() && !analysis.hasEnoughContext) {
+    // Honor a guidance-driven follow-up: with template guidance present, surface
+    // the model's question rather than composing over it (codex P1.3). Now that
+    // readiness ignores the guidance bulk, hasEnoughContext reflects only the
+    // user's own words, so a thin template starter correctly still asks.
+    if (
+      analysis.question?.trim() &&
+      (!analysis.hasEnoughContext || templateBlock.length > 0)
+    ) {
       await emitAssistantCompletion(
         draftId,
         conversationHistory,

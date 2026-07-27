@@ -707,6 +707,73 @@ describe("handleAiMessage", () => {
     ]);
   });
 
+  it("honors a template-guidance question on compose even when raw context already meets the bar", async () => {
+    // Rich raw context (intent + recipient + >12 narrative words) would satisfy
+    // hasEnoughContext on its own. With template guidance present, the compose
+    // path must still surface the model's question rather than composing over it
+    // (codex P1.3: guidance drives one deliberate question).
+    const metadata = {
+      workspaceDraft: {
+        recipientForm: {
+          isCompany: true,
+          showManual: false,
+          fullName: "",
+          companyName: "Swisscom AG",
+          selectedCompany: null,
+          addressLine1: "Alte Tiefenaustrasse 6",
+          postalCode: "3050",
+          city: "Ittigen",
+        },
+        templateContext: {
+          slug: "wohnung-kuendigen",
+          checklist: ["gewünschtes Kündigungsdatum"],
+          considerations: ["Kündigungsfrist: meist 3 Monate auf einen Termin"],
+        },
+      },
+    };
+
+    primeDraftReads({
+      draft: { ...DRAFT, metadata, intent: "cancellation" },
+      conversation: [
+        {
+          id: "user-msg-1",
+          role: "user",
+          content:
+            "I want to cancel my apartment lease with the landlord as soon as legally possible this year.",
+        },
+      ],
+      metadata,
+    });
+    vi.mocked(analyzeIntake).mockResolvedValue({
+      intent: "cancellation",
+      risk: "low",
+      summary: "Cancel lease",
+      fields: {},
+      ready: true,
+      question: "On which date should the tenancy end?",
+    });
+    vi.mocked(createMessage).mockResolvedValue({
+      id: "assistant-msg-tpl-q",
+      draftId: "draft-1",
+      role: "assistant",
+      content: "On which date should the tenancy end?",
+      toolCalls: null,
+      createdAt: new Date(),
+    });
+
+    await handleComposeFromContext({
+      draftId: "draft-1",
+      sessionId: "session-1",
+    });
+
+    expect(analyzeIntake).toHaveBeenCalledOnce();
+    expect(draftLetter).not.toHaveBeenCalled();
+    expect(events).toContainEqual([
+      "ai_message_complete",
+      expect.objectContaining({ fullContent: "On which date should the tenancy end?" }),
+    ]);
+  });
+
   it("skips duplicate context composition when another worker already holds the distributed lock", async () => {
     acquireRedisLock.mockResolvedValueOnce(null);
 

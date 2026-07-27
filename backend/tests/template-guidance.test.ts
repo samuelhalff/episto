@@ -40,6 +40,17 @@ describe("buildTemplateGuidanceBlock", () => {
     expect(block.length).toBeLessThanOrEqual(5_000);
   });
 
+  it("keeps the closing marker even when items fill the block cap", () => {
+    const block = buildTemplateGuidanceBlock({
+      slug: "x",
+      // Max item counts at max length: forces the payload to the 5,000 cap.
+      checklist: Array.from({ length: 8 }, (_, i) => `c${i} ` + "a".repeat(240)),
+      considerations: Array.from({ length: 6 }, (_, i) => `s${i} ` + "b".repeat(600)),
+    });
+    expect(block.length).toBeLessThanOrEqual(5_000);
+    expect(block.endsWith("=== END TEMPLATE GUIDANCE ===")).toBe(true);
+  });
+
   it("reads from (untrusted) draft metadata via the workspace shape", () => {
     const metadata = {
       workspaceDraft: {

@@ -64,8 +64,13 @@ export function buildTemplateGuidanceBlock(context: TemplateContext | undefined)
         considerations.map((c) => `- ${c}`).join("\n"),
     );
   }
-  parts.push("=== END TEMPLATE GUIDANCE ===");
-  return parts.join("\n").slice(0, CAPS.block);
+  // Cap the payload BEFORE appending the closing marker so the marker is never
+  // truncated away (codex P1.3): a dropped "=== END ===" would let following
+  // conversation text bleed into the framed-as-data region.
+  const footer = "=== END TEMPLATE GUIDANCE ===";
+  const body = parts.join("\n");
+  const maxBodyLen = CAPS.block - footer.length - 1; // -1 for the "\n" separator
+  return `${body.slice(0, maxBodyLen)}\n${footer}`;
 }
 
 /** Read + format the template guidance from a draft's (untrusted) metadata. */

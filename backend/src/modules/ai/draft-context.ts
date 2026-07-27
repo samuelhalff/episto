@@ -81,7 +81,10 @@ export function buildExistingFieldsContext(draft: {
     recipientAddressLine1: workspaceState.recipientForm?.addressLine1 || undefined,
     recipientPostalCode: workspaceState.recipientForm?.postalCode || undefined,
     recipientCity: workspaceState.recipientForm?.city || undefined,
-    metadata: draft.metadata,
+    // Intentionally NOT exposing raw draft.metadata here (codex P1.3): it is
+    // client-writable and is JSON-serialized verbatim into the intake system
+    // prompt ("Current fields"). Template guidance reaches the model only via
+    // the sanitized + capped buildTemplateGuidanceFromMetadata() block.
   };
 }
 
