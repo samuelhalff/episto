@@ -171,6 +171,9 @@ export default function NewDraftPage() {
 
   const seedPrompt = templateSeed?.starter ?? suggestedPrompt;
   const templateContext = templateSeed?.context ?? null;
+  // Slug of the landing template this entry came from (?template=<slug>), used to
+  // attribute the draft — and its downstream checkout — back to the template.
+  const templateSlug = templateSeed?.context?.slug ?? null;
 
   const startDraft = useCallback(
     async (options?: {
@@ -242,6 +245,13 @@ export default function NewDraftPage() {
           locale: sessionLocale,
           source: "draft_new",
         });
+        if (templateSlug) {
+          trackEvent({
+            event: "template_selected",
+            templateSlug,
+            locale: sessionLocale,
+          });
+        }
         startTransition(() => {
           router.replace(`/draft/${seededDraft.id}`);
         });
@@ -269,7 +279,15 @@ export default function NewDraftPage() {
         setPendingStartAction(null);
       }
     },
-    [forceFreshEntry, isStartingDraft, queryClient, router, sessionLocale, state],
+    [
+      forceFreshEntry,
+      isStartingDraft,
+      queryClient,
+      router,
+      sessionLocale,
+      state,
+      templateSlug,
+    ],
   );
 
   useEffect(() => {

@@ -174,6 +174,16 @@ describe("draft workspace navigation", () => {
     expect(useConversationSource).toContain("readPendingDraftTurn");
   });
 
+  it("attributes a template-seeded entry via the template_selected event", () => {
+    // The slug from ?template=<slug> is captured and emitted so the funnel can
+    // trace template → draft → checkout (the event was defined but never fired).
+    expect(newDraftPageSource).toContain(
+      "const templateSlug = templateSeed?.context?.slug ?? null;",
+    );
+    expect(newDraftPageSource).toContain('event: "template_selected"');
+    expect(newDraftPageSource).toContain("templateSlug,");
+  });
+
   it("keeps the seeded workspace renderable while draft and session queries refresh", () => {
     expect(draftWorkspaceClientSource).toContain("!draft.data && draft.isLoading");
     expect(draftWorkspaceClientSource).toContain("!draft.data && session.isLoading");
