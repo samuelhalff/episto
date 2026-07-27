@@ -6,12 +6,16 @@
  * description sit below it in the card), and purely decorative for a11y.
  */
 export function LetterMotif({ className }: { className?: string }) {
-  const bar = "rounded-full bg-[var(--app-border-strong)]/45";
+  // The sheet is deliberately light paper in BOTH themes, so the ink must be
+  // pinned to fixed values too: the theme tokens invert in dark mode (e.g.
+  // --app-border-strong becomes near-white), which rendered the motif as a
+  // blank white rectangle on dark cards.
+  const bar = "rounded-full bg-[#b8b1a2]/70";
 
   return (
     <div
       aria-hidden="true"
-      className={`relative overflow-hidden rounded-lg border border-[var(--app-border)] bg-white shadow-[0_6px_18px_rgba(22,22,22,0.06)] dark:bg-zinc-100 ${className ?? ""}`}
+      className={`relative overflow-hidden rounded-lg border border-black/10 bg-white shadow-[0_6px_18px_rgba(22,22,22,0.06)] dark:bg-zinc-100 ${className ?? ""}`}
     >
       <div className="flex h-full flex-col gap-2 p-4">
         {/* Sender/date row */}
@@ -24,7 +28,7 @@ export function LetterMotif({ className }: { className?: string }) {
         </div>
 
         {/* Subject line — accent tinted so the sheet reads as a formal letter */}
-        <span className="mt-1 block h-1.5 w-24 rounded-full bg-[var(--action-primary-bg)]/70" />
+        <span className="mt-1 block h-1.5 w-24 rounded-full bg-[#e0a92b]/85" />
 
         {/* Body lines */}
         <div className="mt-1 space-y-1.5">

@@ -11,6 +11,11 @@ const globalsSource = readFileSync(
   "utf8",
 );
 
+const letterMotifSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/marketing/LetterMotif.tsx"),
+  "utf8",
+);
+
 const sheetSource = readFileSync(
   path.join(repoRoot, "frontend/src/components/ui/sheet.tsx"),
   "utf8",
@@ -154,5 +159,13 @@ describe("theme surface regressions", () => {
     expect(dialogPrimitiveSource).toContain("app-panel");
     expect(confirmDialogSource).toContain("DialogPanel");
     expect(confirmDialogSource).not.toContain("border-zinc-200/80 bg-white");
+  });
+
+  it("pins the letter motif's ink to its light paper instead of theme tokens", () => {
+    // The sheet stays light paper in both themes, so any token-based ink would
+    // invert to near-white in dark mode and render the motif as a blank box.
+    expect(letterMotifSource).toContain("bg-white");
+    expect(letterMotifSource).not.toContain("var(--app-border-strong)");
+    expect(letterMotifSource).not.toContain("var(--action-primary-bg)");
   });
 });
