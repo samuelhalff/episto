@@ -873,8 +873,16 @@
     },
     "extraction": {
       "reading": "Reading…",
+      "readingImage": "Reading image…",
       "read": "Read by assistant",
-      "notRead": "Not read"
+      "couldNotRead": "Could not read",
+      "msg": {
+        "ocrRunning": "This looks like a scan or photo. I’m reading the text now — it may take a moment.",
+        "failed": "I couldn’t read this document clearly. You can still send it with your letter, or type the important details here. A clearer, well-lit photo may help.",
+        "tooLong": "This scanned document is too long to read safely. Please upload the most important pages separately. You can still send the full document with your letter.",
+        "budget": "I can’t read another scanned document right now. You can still send it with your letter, or type the important details here.",
+        "noOcr": "I couldn’t read this document. You can still send it with your letter, or type the important details here."
+      }
     }
   },
   "zoneEditor": {

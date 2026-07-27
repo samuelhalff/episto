@@ -248,7 +248,17 @@ export const FileAssetSchema = z.object({
   sortOrder: z.number().int().nullable(),
   status: FileStatusSchema,
   extractionStatus: z
-    .enum(["pending", "extracted", "empty", "unsupported", "failed"])
+    .enum([
+      "pending",
+      "ocr_running",
+      "extracted",
+      "empty",
+      "unsupported",
+      "no_ocr",
+      "too_long",
+      "budget",
+      "failed",
+    ])
     .nullable()
     .optional(),
   deletedAt: z.coerce.date().nullable(),

@@ -873,8 +873,16 @@
     },
     "extraction": {
       "reading": "Wird gelesen…",
+      "readingImage": "Bild wird gelesen…",
       "read": "Vom Assistenten gelesen",
-      "notRead": "Nicht gelesen"
+      "couldNotRead": "Nicht lesbar",
+      "msg": {
+        "ocrRunning": "Das sieht nach einem Scan oder Foto aus. Ich lese den Text jetzt – das kann einen Moment dauern.",
+        "failed": "Ich konnte dieses Dokument nicht klar lesen. Sie können es trotzdem mit Ihrem Brief senden oder die wichtigsten Angaben hier eintippen. Ein schärferes, gut beleuchtetes Foto kann helfen.",
+        "tooLong": "Dieses gescannte Dokument ist zu lang, um es sicher zu lesen. Bitte laden Sie die wichtigsten Seiten einzeln hoch. Sie können das vollständige Dokument weiterhin mit Ihrem Brief senden.",
+        "budget": "Ich kann gerade kein weiteres gescanntes Dokument lesen. Sie können es mit Ihrem Brief senden oder die wichtigsten Angaben hier eintippen.",
+        "noOcr": "Ich konnte dieses Dokument nicht lesen. Sie können es mit Ihrem Brief senden oder die wichtigsten Angaben hier eintippen."
+      }
     }
   },
   "zoneEditor": {

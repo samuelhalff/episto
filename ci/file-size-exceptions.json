@@ -9,7 +9,7 @@
   "docs/05-architecture/database-schema.md": 614,
   "frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx": 652,
   "frontend/src/app/[locale]/draft/new/page.tsx": 697,
-  "frontend/src/components/product/AttachmentUploader.tsx": 555,
+  "frontend/src/components/product/AttachmentUploader.tsx": 610,
   "frontend/src/components/product/LetterPreview.tsx": 553,
   "frontend/src/hooks/use-dictation.ts": 501,
   "frontend/src/lib/landing/de.ts": 1200,

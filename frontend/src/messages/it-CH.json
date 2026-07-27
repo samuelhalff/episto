@@ -873,8 +873,16 @@
     },
     "extraction": {
       "reading": "Lettura…",
+      "readingImage": "Lettura dell’immagine…",
       "read": "Letto dall’assistente",
-      "notRead": "Non letto"
+      "couldNotRead": "Illeggibile",
+      "msg": {
+        "ocrRunning": "Sembra una scansione o una foto. Sto leggendo il testo — potrebbe volerci un momento.",
+        "failed": "Non sono riuscito a leggere chiaramente questo documento. Puoi comunque inviarlo con la tua lettera oppure digitare qui i dettagli importanti. Una foto più nitida e ben illuminata può aiutare.",
+        "tooLong": "Questo documento scansionato è troppo lungo per essere letto in modo affidabile. Carica separatamente le pagine più importanti. Puoi comunque inviare il documento completo con la tua lettera.",
+        "budget": "Al momento non posso leggere un altro documento scansionato. Puoi inviarlo con la tua lettera oppure digitare qui i dettagli importanti.",
+        "noOcr": "Non sono riuscito a leggere questo documento. Puoi inviarlo con la tua lettera oppure digitare qui i dettagli importanti."
+      }
     }
   },
   "zoneEditor": {

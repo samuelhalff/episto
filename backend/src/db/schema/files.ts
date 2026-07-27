@@ -42,6 +42,7 @@ export const fileAssets = pgTable(
     status: fileStatusEnum("status").default("active").notNull(),
     // Assistant-readable text extracted from an attachment (ingestion 0021).
     extractionStatus: text("extraction_status"),
+    extractionEngine: text("extraction_engine"),
     extractedText: text("extracted_text"),
     extractionPageCount: integer("extraction_page_count"),
     extractedAt: ts("extracted_at"),

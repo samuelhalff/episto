@@ -123,9 +123,12 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
         await apiFetch<DraftFilesResponse>(`/v1/drafts/${draftId}/files`),
       ),
     staleTime: 30_000,
-    // Poll while any attachment is still being read so its status settles live.
+    // Poll while any attachment is still being read (incl. OCR) so its status
+    // settles live.
     refetchInterval: (query) =>
-      query.state.data?.files.some((f) => f.extractionStatus === "pending")
+      query.state.data?.files.some(
+        (f) => f.extractionStatus === "pending" || f.extractionStatus === "ocr_running",
+      )
         ? 2_500
         : false,
   });

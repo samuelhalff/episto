@@ -87,6 +87,44 @@ async function hashFile(file: File): Promise<string> {
     .join("");
 }
 
+type ExtractionChip = "reading" | "readingImage" | "read" | "couldNotRead" | null;
+
+function extractionChip(status: FileAsset["extractionStatus"]): ExtractionChip {
+  switch (status) {
+    case "pending":
+      return "reading";
+    case "ocr_running":
+      return "readingImage";
+    case "extracted":
+      return "read";
+    case null:
+    case undefined:
+      return null;
+    default:
+      return "couldNotRead"; // empty | unsupported | no_ocr | too_long | budget | failed
+  }
+}
+
+/** The inline explanation shown under a document, keyed into the `files` namespace. */
+function extractionMessageKey(status: FileAsset["extractionStatus"]): string | null {
+  switch (status) {
+    case "ocr_running":
+      return "extraction.msg.ocrRunning";
+    case "too_long":
+      return "extraction.msg.tooLong";
+    case "budget":
+      return "extraction.msg.budget";
+    case "failed":
+      return "extraction.msg.failed";
+    case "no_ocr":
+    case "empty":
+    case "unsupported":
+      return "extraction.msg.noOcr";
+    default:
+      return null; // pending | extracted | none
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -343,11 +381,14 @@ export function AttachmentUploader({
             const filename = getFilenameLabel(file);
             const { stem, extension } = splitFilename(filename);
             const isExpanded = expandedFileId === file.id;
+            const chip = extractionChip(file.extractionStatus);
+            const messageKey = extractionMessageKey(file.extractionStatus);
             return (
               <li
                 key={file.id}
                 className={[
                   listItemClass,
+                  "flex-wrap",
                   isExpanded ? "items-start" : "items-center",
                 ].join(" ")}
               >
@@ -394,17 +435,25 @@ export function AttachmentUploader({
                   >
                     {formatBytes(file.sizeBytes ?? 0)}
                   </span>
-                  {file.extractionStatus === "pending" ? (
+                  {chip === "reading" || chip === "readingImage" ? (
                     <span
                       className="inline-flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400"
-                      title={t("extraction.reading")}
+                      title={t(
+                        chip === "reading"
+                          ? "extraction.reading"
+                          : "extraction.readingImage",
+                      )}
                     >
                       <Loader2 className="h-3 w-3 animate-spin" aria-hidden="true" />
                       <span className="sr-only sm:not-sr-only">
-                        {t("extraction.reading")}
+                        {t(
+                          chip === "reading"
+                            ? "extraction.reading"
+                            : "extraction.readingImage",
+                        )}
                       </span>
                     </span>
-                  ) : file.extractionStatus === "extracted" ? (
+                  ) : chip === "read" ? (
                     <span
                       className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400"
                       title={t("extraction.read")}
@@ -414,12 +463,12 @@ export function AttachmentUploader({
                         {t("extraction.read")}
                       </span>
                     </span>
-                  ) : file.extractionStatus ? (
+                  ) : chip === "couldNotRead" ? (
                     <span
-                      className="text-[11px] text-zinc-400 dark:text-zinc-500"
-                      title={t("extraction.notRead")}
+                      className="text-[11px] text-amber-600 dark:text-amber-500"
+                      title={t("extraction.couldNotRead")}
                     >
-                      {t("extraction.notRead")}
+                      {t("extraction.couldNotRead")}
                     </span>
                   ) : null}
                   <button
@@ -445,6 +494,17 @@ export function AttachmentUploader({
                     )}
                   </button>
                 </div>
+                {messageKey ? (
+                  <p
+                    className={
+                      chip === "readingImage"
+                        ? "basis-full text-[12px] leading-5 text-zinc-500 dark:text-zinc-400"
+                        : "basis-full text-[12px] leading-5 text-amber-700 dark:text-amber-500"
+                    }
+                  >
+                    {t(messageKey)}
+                  </p>
+                ) : null}
               </li>
             );
           })}

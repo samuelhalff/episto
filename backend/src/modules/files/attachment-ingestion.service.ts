@@ -1,10 +1,11 @@
-import { and, eq } from "drizzle-orm";
+import { and, count, eq, gte } from "drizzle-orm";
 import { extractText, getDocumentProxy } from "unpdf";
 import { ATTACHMENT_INGESTION, type AttachmentExtractionStatus } from "@episto/shared";
 
 import { getDb, schema, type Db } from "../../db/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import { downloadObjectBuffer } from "./adapters/s3.adapter.js";
+import { isOcrConfigured, ocrExtractText } from "./ocr-adapter.js";
 
 const logger = createLogger("attachment-ingestion");
 
@@ -46,14 +47,35 @@ export async function extractPdfText(bytes: Uint8Array): Promise<ExtractionResul
   };
 }
 
-function isReadable(mimeType: string): boolean {
-  return (ATTACHMENT_INGESTION.readableMimeTypes as readonly string[]).includes(mimeType);
+/** Successful OCR extractions for this session in the last rolling 24h. */
+async function recentOcrCount(db: Db, sessionId: string): Promise<number> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
+  const rows = await db
+    .select({ c: count() })
+    .from(schema.fileAssets)
+    .where(
+      and(
+        eq(schema.fileAssets.sessionId, sessionId),
+        eq(schema.fileAssets.extractionEngine, "ocr"),
+        gte(schema.fileAssets.extractedAt, since),
+      ),
+    );
+  return Number(rows[0]?.c ?? 0);
+}
+
+interface FinalizeInput {
+  status: AttachmentExtractionStatus;
+  text?: string | null;
+  pageCount?: number | null;
+  engine?: "text" | "ocr" | null;
 }
 
 /**
- * Read an uploaded attachment once and cache its extracted text on the row.
- * Best-effort: any failure is recorded as `failed` and never throws to the
- * caller (upload must not depend on extraction). Fire-and-forget after upload.
+ * Read an uploaded attachment once and cache the result on the row. Decision
+ * tree: (1) free unpdf text for text-layer PDFs; (2) OCR (Document Intelligence)
+ * for scanned PDFs + photos when configured and within the page + per-session
+ * budget; (3) otherwise a precise non-readable status the UI can explain.
+ * Best-effort: never throws to the caller. Fire-and-forget after upload.
  */
 export async function ingestAttachment(
   db: Db,
@@ -67,31 +89,83 @@ export async function ingestAttachment(
 
   if (!asset || asset.kind !== "attachment") return "unsupported";
 
-  let result: ExtractionResult;
-  try {
-    if (!isReadable(asset.mimeType)) {
-      // Images (and anything else) are enclosure-only until vision ships.
-      result = { status: "unsupported", text: null, pageCount: null };
-    } else {
-      const { buffer } = await downloadObjectBuffer(asset.storageKey);
-      result = await extractPdfText(new Uint8Array(buffer));
+  const finalize = async (r: FinalizeInput): Promise<AttachmentExtractionStatus> => {
+    await db
+      .update(schema.fileAssets)
+      .set({
+        extractionStatus: r.status,
+        extractedText: r.text ?? null,
+        extractionPageCount: r.pageCount ?? null,
+        extractionEngine: r.engine ?? null,
+        extractedAt: new Date(),
+      })
+      .where(eq(schema.fileAssets.id, fileAssetId));
+    return r.status;
+  };
+
+  // OCR a scan/photo after the page + budget guards; marks "ocr_running" so the
+  // UI can say "Reading image…" while Document Intelligence works.
+  const runOcr = async (
+    buffer: Buffer,
+    pageCount: number | null,
+  ): Promise<AttachmentExtractionStatus> => {
+    if (pageCount !== null && pageCount > ATTACHMENT_INGESTION.maxOcrPages) {
+      return finalize({ status: "too_long", pageCount });
     }
+    if (!isOcrConfigured()) return finalize({ status: "no_ocr", pageCount });
+    if (
+      (await recentOcrCount(db, asset.sessionId)) >=
+      ATTACHMENT_INGESTION.maxOcrDocsPerSessionPerDay
+    ) {
+      return finalize({ status: "budget", pageCount });
+    }
+    await db
+      .update(schema.fileAssets)
+      .set({ extractionStatus: "ocr_running" })
+      .where(eq(schema.fileAssets.id, fileAssetId));
+
+    const pages = Math.min(
+      pageCount ?? ATTACHMENT_INGESTION.maxOcrPages,
+      ATTACHMENT_INGESTION.maxOcrPages,
+    );
+    const text = tidy(await ocrExtractText(buffer, pages));
+    if (text.length === 0) {
+      return finalize({ status: "failed", pageCount, engine: "ocr" });
+    }
+    return finalize({
+      status: "extracted",
+      text: text.slice(0, ATTACHMENT_INGESTION.maxExtractedChars),
+      pageCount,
+      engine: "ocr",
+    });
+  };
+
+  try {
+    if (asset.mimeType === "application/pdf") {
+      const { buffer } = await downloadObjectBuffer(asset.storageKey);
+      const textResult = await extractPdfText(new Uint8Array(buffer));
+      if (textResult.status === "extracted") {
+        return finalize({
+          status: "extracted",
+          text: textResult.text,
+          pageCount: textResult.pageCount,
+          engine: "text",
+        });
+      }
+      // No text layer → scanned PDF → OCR.
+      return runOcr(buffer, textResult.pageCount);
+    }
+
+    if (asset.mimeType === "image/png" || asset.mimeType === "image/jpeg") {
+      const { buffer } = await downloadObjectBuffer(asset.storageKey);
+      return runOcr(buffer, 1);
+    }
+
+    return finalize({ status: "unsupported" });
   } catch (err) {
     logger.error({ err, fileAssetId }, "Attachment extraction failed");
-    result = { status: "failed", text: null, pageCount: null };
+    return finalize({ status: "failed" });
   }
-
-  await db
-    .update(schema.fileAssets)
-    .set({
-      extractionStatus: result.status,
-      extractedText: result.text,
-      extractionPageCount: result.pageCount,
-      extractedAt: new Date(),
-    })
-    .where(eq(schema.fileAssets.id, fileAssetId));
-
-  return result.status;
 }
 
 /** Fire-and-forget wrapper: marks pending, then ingests without blocking upload. */

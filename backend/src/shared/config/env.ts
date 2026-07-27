@@ -78,6 +78,10 @@ export const EnvSchema = z
     AZURE_EXISTING_AGENT_ID: z.string().min(1).optional(),
     AZURE_AI_AGENT_NAME: z.string().min(1).optional(),
     AZURE_AI_AGENT_VERSION: z.string().min(1).optional(),
+    // Azure AI Document Intelligence (Read/OCR) for scanned PDFs + photos.
+    // Optional: when unset, scans/images resolve to "no_ocr" (clear UI message).
+    AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT: z.string().url().optional(),
+    AZURE_DOCUMENT_INTELLIGENCE_KEY: z.string().min(1).optional(),
     AZURE_TENANT_ID: z.string().min(1).optional(),
     AZURE_CLIENT_ID: z.string().min(1).optional(),
     AZURE_CLIENT_SECRET: z.string().min(1).optional(),
