@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
+import { ArrowRight } from "lucide-react";
 import type { Locale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
 import { JsonLd } from "@/components/marketing/JsonLd";
+import { LetterMotif } from "@/components/marketing/LetterMotif";
 import { MarketingLayout } from "@/components/marketing/MarketingLayout";
 import { FinalCTABand } from "@/components/marketing/FinalCTABand";
 import { MarketingSection } from "@/components/marketing/primitives";
@@ -94,9 +96,6 @@ export default async function VorlagenHubPage({
           <div className="space-y-14 sm:space-y-16 lg:space-y-20">
             {categories.map((category) => {
               const items = templatePages.filter((page) => page.category === category);
-              // Sparse categories (≤2 entries) render as a ruled list instead of a
-              // card grid, so single items don't leave two empty columns behind.
-              const useGrid = items.length >= 3;
 
               return (
                 <div key={category}>
@@ -106,55 +105,38 @@ export default async function VorlagenHubPage({
                   >
                     {category}
                   </MarketingHeading>
-                  {useGrid ? (
-                    <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {items.map((page) => (
-                        <li key={page.slug}>
-                          <Link
-                            href={`/vorlagen/${page.slug}`}
-                            className="app-panel flex h-full flex-col rounded-2xl p-5 transition-colors hover:border-[var(--app-border-strong)]"
+                  {/* One consistent card style for every template, each led by a
+                      letter motif so the hub reads as a wall of sample letters. */}
+                  <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {items.map((page) => (
+                      <li key={page.slug}>
+                        <Link
+                          href={`/vorlagen/${page.slug}`}
+                          className="app-panel group flex h-full flex-col rounded-2xl p-5 transition-colors hover:border-[var(--app-border-strong)]"
+                        >
+                          <LetterMotif className="h-28 w-full" />
+                          <MarketingHeading
+                            as="h3"
+                            className="mt-4 text-base font-semibold tracking-[-0.01em]"
                           >
-                            <MarketingHeading
-                              as="h3"
-                              className="text-base font-semibold tracking-[-0.01em]"
-                            >
-                              {page.h1}
-                            </MarketingHeading>
-                            <MarketingBody
-                              tone="muted"
-                              className="mt-1.5 text-sm leading-6"
-                            >
-                              {page.metaDescription}
-                            </MarketingBody>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <ul className="mt-6">
-                      {items.map((page) => (
-                        <li key={page.slug}>
-                          <Link
-                            href={`/vorlagen/${page.slug}`}
-                            className="hairline group -mx-4 block border-t px-4 py-5 transition-colors first:border-t-0 first:pt-0 hover:bg-[var(--app-surface-muted)]"
+                            {page.h1}
+                          </MarketingHeading>
+                          <MarketingBody
+                            tone="muted"
+                            className="mt-1.5 text-sm leading-6"
                           >
-                            <MarketingHeading
-                              as="h3"
-                              className="text-base font-semibold tracking-[-0.01em] group-hover:underline"
-                            >
-                              {page.h1}
-                            </MarketingHeading>
-                            <MarketingBody
-                              tone="muted"
-                              className="mt-1.5 max-w-2xl text-sm leading-6"
-                            >
-                              {page.metaDescription}
-                            </MarketingBody>
-                          </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+                            {page.metaDescription}
+                          </MarketingBody>
+                          <span
+                            aria-hidden="true"
+                            className="mt-auto inline-flex items-center gap-1 self-end pt-4 text-[var(--action-primary-bg)]"
+                          >
+                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               );
             })}
