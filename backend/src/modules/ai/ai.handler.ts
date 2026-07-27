@@ -17,6 +17,7 @@ import { AppError } from "../../shared/errors/index.js";
 import { analyzeIntake } from "./ai.service.js";
 import { streamDraftGeneration, streamRevision } from "./ai.streaming.js";
 import { createMessage } from "../messages/message.service.js";
+import { buildAttachmentContextBlock } from "../files/attachment-ingestion.service.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
 import { acquireRedisLock } from "../../shared/redis-lock.js";
 import {
@@ -210,6 +211,10 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
     }
 
     const conversationHistory = await loadConversationHistory(draftId);
+    // Fold any readable attachment content into the text the assistant sees, so
+    // it can use the documents the user provided. "" when there are none.
+    const attachmentBlock = await buildAttachmentContextBlock(getDb(), draftId);
+    const augmentedContent = userContent + attachmentBlock;
 
     if (draft.body?.trim() && conversationHistory.length > 2) {
       const localeRequest = detectPromptLocaleRequest(userContent);
@@ -222,7 +227,7 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
         draftId,
         sessionId,
         draft,
-        userContent,
+        augmentedContent,
         updateDraftFields,
         localeRequest.locale,
       );
@@ -233,7 +238,7 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
       draftId,
       sessionId,
       draft,
-      userMessage: userContent,
+      userMessage: augmentedContent,
       conversationHistory,
     });
 
@@ -318,6 +323,10 @@ export async function handleComposeFromContext(
       return;
     }
 
+    // Fold readable attachment content into the instructions the assistant sees.
+    const augmentedInstructions =
+      userInstructions + (await buildAttachmentContextBlock(getDb(), draftId));
+
     const existingFields = buildExistingFieldsContext(draft);
     const existingIntent =
       typeof existingFields.intent === "string" && existingFields.intent.trim().length > 0
@@ -326,7 +335,7 @@ export async function handleComposeFromContext(
 
     if (
       existingIntent &&
-      hasEnoughIntakeContext(existingIntent, existingFields, userInstructions)
+      hasEnoughIntakeContext(existingIntent, existingFields, augmentedInstructions)
     ) {
       await streamDraftGeneration(
         draftId,
@@ -335,7 +344,7 @@ export async function handleComposeFromContext(
         { ...existingFields, intent: existingIntent },
         existingIntent,
         conversationHistory,
-        userInstructions,
+        augmentedInstructions,
         updateDraftFields,
       );
       return;
@@ -345,7 +354,7 @@ export async function handleComposeFromContext(
       draftId,
       sessionId,
       draft,
-      userMessage: userInstructions,
+      userMessage: augmentedInstructions,
       conversationHistory,
     });
 
@@ -379,7 +388,7 @@ export async function handleComposeFromContext(
       analysis.mergedFields,
       analysis.intent,
       conversationHistory,
-      userInstructions,
+      augmentedInstructions,
       updateDraftFields,
     );
   } catch (err) {

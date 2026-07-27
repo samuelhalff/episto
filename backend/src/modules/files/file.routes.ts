@@ -29,6 +29,7 @@ import {
   getPresignedDownloadUrl,
   deleteObject,
 } from "./adapters/s3.adapter.js";
+import { ingestAttachmentInBackground } from "./attachment-ingestion.service.js";
 import { parseUploadMultipartParts } from "./multipart-upload.js";
 import {
   buildBlueSignatureSvgResponse,
@@ -222,6 +223,8 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
             mimeType,
             sizeBytes,
             status: "active",
+            // Attachments are read by the assistant asynchronously after upload.
+            extractionStatus: kind === "attachment" ? "pending" : null,
           })
           .returning();
 
@@ -271,6 +274,12 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         }
       }
 
+      // Read the attachment's text in the background so the assistant can use
+      // it; upload response returns immediately with status "pending".
+      if (row.kind === "attachment") {
+        ingestAttachmentInBackground(row.id);
+      }
+
       reply.status(201).send({
         file: {
           id: row.id,
@@ -279,6 +288,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
           fileName: row.originalFilename,
           mimeType: row.mimeType,
           sizeBytes: row.sizeBytes,
+          extractionStatus: row.extractionStatus,
           createdAt: row.createdAt.toISOString(),
         },
       });

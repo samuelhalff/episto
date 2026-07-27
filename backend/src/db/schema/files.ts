@@ -40,6 +40,11 @@ export const fileAssets = pgTable(
     sizeBytes: integer("size_bytes").notNull(),
     sortOrder: integer("sort_order"),
     status: fileStatusEnum("status").default("active").notNull(),
+    // Assistant-readable text extracted from an attachment (ingestion 0021).
+    extractionStatus: text("extraction_status"),
+    extractedText: text("extracted_text"),
+    extractionPageCount: integer("extraction_page_count"),
+    extractedAt: ts("extracted_at"),
     deletedAt: ts("deleted_at"),
     createdAt: createdAt(),
   },

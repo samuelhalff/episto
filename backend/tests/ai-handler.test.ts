@@ -1,7 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { DraftEventHandler } from "../src/modules/drafting/draft-events.js";
-import { subscribeDraft, unsubscribeDraft } from "../src/modules/drafting/draft-events.js";
+import {
+  subscribeDraft,
+  unsubscribeDraft,
+} from "../src/modules/drafting/draft-events.js";
 import { AppError } from "../src/shared/errors/index.js";
 
 const acquireRedisLock = vi.hoisted(() => vi.fn());
@@ -42,7 +45,15 @@ vi.mock("../src/shared/redis-lock.js", () => ({
   acquireRedisLock,
 }));
 
-import { handleAiMessage, handleComposeFromContext } from "../src/modules/ai/ai.handler.js";
+// No attachments in these unit tests; keep the injected doc block empty.
+vi.mock("../src/modules/files/attachment-ingestion.service.js", () => ({
+  buildAttachmentContextBlock: vi.fn(async () => ""),
+}));
+
+import {
+  handleAiMessage,
+  handleComposeFromContext,
+} from "../src/modules/ai/ai.handler.js";
 import {
   analyzeIntake,
   draftLetter,
@@ -258,13 +269,15 @@ describe("handleAiMessage", () => {
       summary: "Cancel insurance",
       fields: { recipientCompany: "Swisscom AG" },
       ready: true,
-      message: "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
+      message:
+        "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
     });
     vi.mocked(createMessage).mockResolvedValue({
       id: "assistant-msg-2",
       draftId: "draft-1",
       role: "assistant",
-      content: "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
+      content:
+        "I have enough to start structuring this. You can keep adding details here, or move on when you're ready.",
       toolCalls: null,
       createdAt: new Date(),
     });
@@ -362,7 +375,8 @@ describe("handleAiMessage", () => {
       id: "assistant-msg-compose",
       draftId: "draft-1",
       role: "assistant",
-      content: "Sehr geehrte Damen und Herren\n\nBitte korrigieren Sie die doppelte Belastung auf meiner letzten Rechnung.",
+      content:
+        "Sehr geehrte Damen und Herren\n\nBitte korrigieren Sie die doppelte Belastung auf meiner letzten Rechnung.",
       toolCalls: null,
       createdAt: new Date(),
     });
@@ -405,12 +419,14 @@ describe("handleAiMessage", () => {
         {
           id: "assistant-msg-1",
           role: "assistant",
-          content: "What should the company do, and when should the cancellation take effect?",
+          content:
+            "What should the company do, and when should the cancellation take effect?",
         },
         {
           id: "user-msg-2",
           role: "user",
-          content: "Cancel it at the next possible date. The recipient is Swisscom AG in Ittigen.",
+          content:
+            "Cancel it at the next possible date. The recipient is Swisscom AG in Ittigen.",
         },
       ],
       metadata,
@@ -470,7 +486,8 @@ describe("handleAiMessage", () => {
       id: "assistant-msg-compose",
       draftId: "draft-1",
       role: "assistant",
-      content: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+      content:
+        "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
       toolCalls: null,
       createdAt: new Date(),
     });
@@ -559,7 +576,8 @@ describe("handleAiMessage", () => {
       id: "assistant-msg-compose-ready",
       draftId: "draft-1",
       role: "assistant",
-      content: "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
+      content:
+        "Sehr geehrte Damen und Herren\n\nHiermit kuendige ich meinen Internetvertrag ordentlich.",
       toolCalls: null,
       createdAt: new Date(),
     });
@@ -654,7 +672,10 @@ describe("handleAiMessage", () => {
       sessionId: "session-1",
     });
 
-    expect(acquireRedisLock).toHaveBeenCalledWith("ai-compose:draft-1", expect.any(Number));
+    expect(acquireRedisLock).toHaveBeenCalledWith(
+      "ai-compose:draft-1",
+      expect.any(Number),
+    );
     expect(analyzeIntake).not.toHaveBeenCalled();
     expect(draftLetter).not.toHaveBeenCalled();
     expect(createMessage).not.toHaveBeenCalled();

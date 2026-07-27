@@ -247,6 +247,10 @@ export const FileAssetSchema = z.object({
   sizeBytes: z.number().int(),
   sortOrder: z.number().int().nullable(),
   status: FileStatusSchema,
+  extractionStatus: z
+    .enum(["pending", "extracted", "empty", "unsupported", "failed"])
+    .nullable()
+    .optional(),
   deletedAt: z.coerce.date().nullable(),
   createdAt: z.coerce.date(),
 });

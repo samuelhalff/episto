@@ -12,6 +12,30 @@ export const FILE_LIMITS = {
   maxSignaturesPerDraft: 1,
 } as const;
 
+// ---------------------------------------------------------------------------
+// Attachment ingestion — how much of an attached document the assistant reads.
+// The per-document + total character caps bound the tokens injected into the
+// drafting prompt on every turn, so a large file can never run up AI fees.
+// ---------------------------------------------------------------------------
+
+export const ATTACHMENT_INGESTION = {
+  /** Read by the assistant today. Images stay enclosure-only until vision ships. */
+  readableMimeTypes: ["application/pdf"] as const,
+  /** PDFs beyond this many pages are not read (still mailable as an enclosure). */
+  maxReadablePages: 15,
+  /** Hard cap on characters kept/injected per document (~3k tokens). */
+  maxExtractedChars: 12_000,
+  /** Cap on total characters injected across all of a draft's documents. */
+  maxTotalInjectedChars: 24_000,
+} as const;
+
+export type AttachmentExtractionStatus =
+  | "pending"
+  | "extracted"
+  | "empty"
+  | "unsupported"
+  | "failed";
+
 export const DRAFT_CONTENT_LIMITS = {
   subjectChars: 200,
   bodyChars: 10_000,

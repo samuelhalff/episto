@@ -38,6 +38,10 @@ vi.mock("../src/shared/redis-lock.js", () => ({
   acquireRedisLock,
 }));
 
+vi.mock("../src/modules/files/attachment-ingestion.service.js", () => ({
+  buildAttachmentContextBlock: vi.fn(async () => ""),
+}));
+
 import { handleAiMessage } from "../src/modules/ai/ai.handler.js";
 import {
   analyzeIntake,
