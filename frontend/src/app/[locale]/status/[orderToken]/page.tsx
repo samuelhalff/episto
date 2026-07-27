@@ -75,7 +75,7 @@ export default function StatusPage({
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#fffaf4_0%,#ffffff_28%)] dark:bg-zinc-950">
-      <header className="border-b border-zinc-200/80 bg-white/95 px-4 py-4 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95 sm:px-6">
+      <header className="border-b border-zinc-200/80 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950 sm:px-6">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-4">
           <Link href="/" className="inline-flex items-center">
             <Logo iconClassName="h-10 w-10" wordmarkClassName="text-2xl" />

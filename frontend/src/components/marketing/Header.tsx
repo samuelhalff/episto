@@ -27,7 +27,7 @@ export function Header() {
     <header
       role="banner"
       data-theme-chrome="marketing"
-      className="sticky top-0 z-50 border-b border-[var(--app-border)] bg-[var(--app-bg)]/95 backdrop-blur transition-colors"
+      className="sticky top-0 z-50 border-b border-[var(--app-border)] bg-[var(--app-bg)] transition-colors"
     >
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
         <Link

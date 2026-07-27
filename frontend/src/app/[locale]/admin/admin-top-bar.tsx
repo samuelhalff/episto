@@ -119,10 +119,10 @@ export function AdminTopBar({ onMenuToggle }: AdminTopBarProps) {
 
   return (
     <header
-      className="sticky top-0 z-20 border-b backdrop-blur"
+      className="sticky top-0 z-20 border-b"
       style={{
         borderColor: "var(--app-border)",
-        background: "color-mix(in srgb, var(--app-bg) 92%, transparent)",
+        background: "var(--app-bg)",
       }}
     >
       <div className="flex items-center gap-3 px-4 py-3 sm:px-6 lg:gap-4 lg:py-4">
