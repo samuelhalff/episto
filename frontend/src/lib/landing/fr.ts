@@ -1094,4 +1094,72 @@ export const FR_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["einsprache-erheben", "mahnung-schreiben", "brief-an-behoerde"],
   },
+  {
+    slug: "mietmangel-melden",
+    category: "Droit du bail",
+    metaTitle: "Signaler un défaut du logement au bailleur",
+    metaDescription:
+      "Signaler un défaut du logement et exiger sa réparation : décrire le défaut, fixer un délai, vérifier ses droits. episto rédige votre avis de défaut et l’envoie.",
+    h1: "Signaler un défaut du logement et exiger la réparation",
+    quickAnswer:
+      "Qui constate dans le logement loué un défaut dont le bailleur doit répondre le signale par écrit au plus vite et exige sa réparation dans un délai raisonnable. Selon la gravité, d’autres droits comme la réduction de loyer entrent en ligne de compte. episto rédige votre avis de défaut et l’envoie.",
+    steps: [
+      {
+        title: "Documenter le défaut",
+        text: "Notez la nature du défaut, son emplacement et depuis quand il existe. Des photos datées servent de preuve.",
+      },
+      {
+        title: "Exiger la réparation et fixer un délai",
+        text: "Demandez par écrit au bailleur de réparer le défaut dans un délai raisonnable et décrivez-le concrètement.",
+      },
+      {
+        title: "Rédiger l’avis de défaut",
+        text: "Décrivez le défaut, exigez la réparation et réservez vos autres droits. episto rédige la lettre.",
+      },
+      {
+        title: "Suivre la réaction",
+        text: "Envoyez de préférence en recommandé et notez la date. Si le bailleur ne réagit pas, examinez les étapes suivantes.",
+      },
+    ],
+    checklist: [
+      "Adresse complète du locataire et du bailleur",
+      "Adresse du logement loué",
+      "Description précise du défaut et depuis quand il existe",
+      "Réparation exigée et délai raisonnable",
+      "Réserve des autres droits, date et signature",
+    ],
+    notes: [
+      {
+        title: "Droit à la réparation du défaut (art. 259 CO)",
+        body: "Pour les défauts dont vous n’avez pas à répondre, vous pouvez exiger la réparation du bailleur. Signalez les défauts rapidement; un signalement tardif peut entraîner des inconvénients.",
+      },
+      {
+        title: "Autres droits en cas de défaut",
+        body: "Selon la gravité, la réduction de loyer, des dommages-intérêts ou – à des conditions particulières – la consignation du loyer entrent en ligne de compte. La consignation est soumise à des règles de forme strictes; vérifiez-les au préalable.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Comment signaler un défaut du logement ?",
+        answer:
+          "Décrivez le défaut par écrit, exigez sa réparation dans un délai raisonnable et réservez vos autres droits. Envoyez l’avis de préférence avec preuve.",
+      },
+      {
+        question: "Dans quel délai dois-je signaler un défaut ?",
+        answer:
+          "Signalez les défauts dès que possible après leur découverte. Un signalement tardif peut réduire vos prétentions, surtout si un dommage plus important en résulte.",
+      },
+      {
+        question: "Puis-je réduire le loyer à cause d’un défaut ?",
+        answer:
+          "En cas de défaut important, une réduction de loyer peut entrer en ligne de compte. Exigez d’abord la réparation; la réduction et d’autres démarches s’examinent selon le cas.",
+      },
+      {
+        question: "Puis-je simplement retenir le loyer ?",
+        answer:
+          "Pas sans autre. Retenir le loyer de son propre chef est risqué. La consignation du loyer n’est admise qu’à des conditions et des formes strictes.",
+      },
+    ],
+    related: ["mietzins-senken", "nebenkostenabrechnung-pruefen", "wohnung-kuendigen"],
+  },
 ];

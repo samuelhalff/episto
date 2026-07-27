@@ -1093,4 +1093,72 @@ export const DE_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["einsprache-erheben", "mahnung-schreiben", "brief-an-behoerde"],
   },
+  {
+    slug: "mietmangel-melden",
+    category: "Mietrecht",
+    metaTitle: "Mietmangel melden – Mängelrüge schreiben",
+    metaDescription:
+      "Einen Mangel in der Mietwohnung rügen und Behebung verlangen: beschreiben, Frist setzen, Rechte prüfen. episto schreibt Ihre Mängelrüge und versendet sie.",
+    h1: "Mietmangel melden: Mängel rügen und Frist setzen",
+    quickAnswer:
+      "Wer in der Mietwohnung einen Mangel feststellt, den die Vermieterschaft zu vertreten hat, meldet ihn möglichst rasch schriftlich und verlangt die Behebung innert angemessener Frist. Je nach Schwere kommen weitere Rechte wie eine Mietzinsherabsetzung in Betracht. episto formuliert Ihre Mängelrüge und versendet sie.",
+    steps: [
+      {
+        title: "Mangel dokumentieren",
+        text: "Halten Sie Art und Ort des Mangels fest sowie seit wann er besteht. Fotos mit Datum helfen als Nachweis.",
+      },
+      {
+        title: "Behebung verlangen und Frist setzen",
+        text: "Fordern Sie die Vermieterschaft schriftlich auf, den Mangel innert angemessener Frist zu beheben, und beschreiben Sie ihn konkret.",
+      },
+      {
+        title: "Mängelrüge verfassen",
+        text: "Beschreiben Sie den Mangel, verlangen Sie die Behebung und behalten Sie sich weitere Rechte vor. episto erstellt den Brief.",
+      },
+      {
+        title: "Reaktion überwachen",
+        text: "Versenden Sie möglichst als Einschreiben und notieren Sie das Datum. Reagiert die Vermieterschaft nicht, prüfen Sie weitere Schritte.",
+      },
+    ],
+    checklist: [
+      "Vollständige Adresse der Miet- und Vermieterparteien",
+      "Adresse des Mietobjekts",
+      "Genaue Beschreibung des Mangels und seit wann er besteht",
+      "Verlangte Behebung und angemessene Frist",
+      "Vorbehalt weiterer Mängelrechte, Datum und Unterschrift",
+    ],
+    notes: [
+      {
+        title: "Recht auf Mängelbeseitigung (Art. 259 OR)",
+        body: "Für Mängel, die nicht Sie zu vertreten haben, können Sie von der Vermieterschaft die Behebung verlangen. Melden Sie Mängel rasch; bei verspäteter Meldung können Nachteile entstehen.",
+      },
+      {
+        title: "Weitere Rechte bei Mängeln",
+        body: "Je nach Schwere kommen Mietzinsherabsetzung, Schadenersatz oder – unter besonderen Voraussetzungen – die Hinterlegung des Mietzinses in Betracht. Die Hinterlegung ist an strenge Formvorschriften gebunden; prüfen Sie diese vorher.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Wie melde ich einen Mangel in der Mietwohnung?",
+        answer:
+          "Beschreiben Sie den Mangel schriftlich, verlangen Sie die Behebung innert angemessener Frist und behalten Sie sich weitere Rechte vor. Versenden Sie die Rüge möglichst mit Nachweis.",
+      },
+      {
+        question: "Bis wann muss ich einen Mangel melden?",
+        answer:
+          "Melden Sie Mängel möglichst rasch nach Entdeckung. Eine verspätete Meldung kann Ihre Ansprüche schmälern, besonders wenn dadurch ein grösserer Schaden entsteht.",
+      },
+      {
+        question: "Kann ich den Mietzins wegen eines Mangels kürzen?",
+        answer:
+          "Bei erheblichen Mängeln kann eine Mietzinsherabsetzung in Betracht kommen. Verlangen Sie zuerst die Behebung; Herabsetzung und weitere Schritte prüfen Sie je nach Fall.",
+      },
+      {
+        question: "Darf ich den Mietzins einfach zurückbehalten?",
+        answer:
+          "Nicht ohne Weiteres. Ein eigenmächtiges Zurückbehalten ist riskant. Die Hinterlegung des Mietzinses ist nur unter strengen Voraussetzungen und Formvorschriften zulässig.",
+      },
+    ],
+    related: ["mietzins-senken", "nebenkostenabrechnung-pruefen", "wohnung-kuendigen"],
+  },
 ];

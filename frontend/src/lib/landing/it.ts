@@ -1094,4 +1094,72 @@ export const IT_LANDING_PAGES: LandingPage[] = [
     ],
     related: ["einsprache-erheben", "mahnung-schreiben", "brief-an-behoerde"],
   },
+  {
+    slug: "mietmangel-melden",
+    category: "Diritto di locazione",
+    metaTitle: "Segnalare un difetto dell’abitazione",
+    metaDescription:
+      "Segnalare un difetto dell’abitazione ed esigere la riparazione: descrivere, fissare un termine, verificare i diritti. episto redige la notifica e la invia.",
+    h1: "Segnalare un difetto dell’abitazione ed esigere la riparazione",
+    quickAnswer:
+      "Chi constata nell’abitazione locata un difetto di cui deve rispondere il locatore lo segnala per iscritto al più presto ed esige la riparazione entro un termine adeguato. A seconda della gravità entrano in gioco altri diritti come la riduzione della pigione. episto redige la Sua notifica di difetti e la invia.",
+    steps: [
+      {
+        title: "Documentare il difetto",
+        text: "Annoti tipo e luogo del difetto e da quando esiste. Foto con data servono da prova.",
+      },
+      {
+        title: "Esigere la riparazione e fissare un termine",
+        text: "Chieda per iscritto al locatore di riparare il difetto entro un termine adeguato e lo descriva in modo concreto.",
+      },
+      {
+        title: "Redigere la notifica di difetti",
+        text: "Descriva il difetto, esiga la riparazione e si riservi gli altri diritti. episto redige la lettera.",
+      },
+      {
+        title: "Seguire la reazione",
+        text: "Invii preferibilmente come raccomandata e annoti la data. Se il locatore non reagisce, valuti i passi successivi.",
+      },
+    ],
+    checklist: [
+      "Indirizzo completo di conduttore e locatore",
+      "Indirizzo dell’oggetto locato",
+      "Descrizione precisa del difetto e da quando esiste",
+      "Riparazione richiesta e termine adeguato",
+      "Riserva degli altri diritti, data e firma",
+    ],
+    notes: [
+      {
+        title: "Diritto alla riparazione del difetto (art. 259 CO)",
+        body: "Per i difetti di cui non deve rispondere Lei, può esigere la riparazione dal locatore. Segnali i difetti rapidamente; una segnalazione tardiva può comportare svantaggi.",
+      },
+      {
+        title: "Altri diritti in caso di difetto",
+        body: "A seconda della gravità entrano in gioco la riduzione della pigione, il risarcimento o – a condizioni particolari – il deposito della pigione. Il deposito è soggetto a rigorose regole di forma; le verifichi prima.",
+      },
+    ],
+    faqs: [
+      {
+        question: "Come si segnala un difetto dell’abitazione?",
+        answer:
+          "Descriva il difetto per iscritto, esiga la riparazione entro un termine adeguato e si riservi gli altri diritti. Invii la notifica preferibilmente con prova.",
+      },
+      {
+        question: "Entro quando devo segnalare un difetto?",
+        answer:
+          "Segnali i difetti il prima possibile dopo averli scoperti. Una segnalazione tardiva può ridurre le Sue pretese, soprattutto se ne deriva un danno maggiore.",
+      },
+      {
+        question: "Posso ridurre la pigione a causa di un difetto?",
+        answer:
+          "In caso di difetto rilevante può entrare in gioco una riduzione della pigione. Esiga prima la riparazione; la riduzione e altri passi si valutano secondo il caso.",
+      },
+      {
+        question: "Posso semplicemente trattenere la pigione?",
+        answer:
+          "Non senz’altro. Trattenere la pigione di propria iniziativa è rischioso. Il deposito della pigione è ammesso solo a condizioni e forme rigorose.",
+      },
+    ],
+    related: ["mietzins-senken", "nebenkostenabrechnung-pruefen", "wohnung-kuendigen"],
+  },
 ];

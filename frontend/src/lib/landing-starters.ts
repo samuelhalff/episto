@@ -78,6 +78,11 @@ export const DRAFT_STARTERS: Record<string, Record<LandingLocale, string>> = {
     "fr-CH": "Je souhaite former opposition à un commandement de payer.",
     "it-CH": "Desidero interporre opposizione a un precetto esecutivo.",
   },
+  "mietmangel-melden": {
+    "de-CH": "Ich möchte meiner Vermieterschaft einen Mangel in der Wohnung melden.",
+    "fr-CH": "Je souhaite signaler un défaut de mon logement au bailleur.",
+    "it-CH": "Desidero segnalare al locatore un difetto dell’abitazione.",
+  },
 };
 
 export function getDraftStarter(slug: string, locale: string): string | null {
