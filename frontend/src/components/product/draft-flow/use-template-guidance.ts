@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import type { DraftLetter } from "@episto/shared";
 import { draftOptions } from "@/hooks/use-draft";
 import type { useUpdateDraft } from "@/hooks/use-draft";
-import { getDraftStarter } from "../../../lib/landing-starters";
+import { isUntouchedDraftStarter } from "../../../lib/landing-starters";
 import { getDraftWorkspaceState, mergeDraftWorkspaceState } from "./workspace-state";
 
 /** What happened to the composer text when guidance was turned off (US-5a). */
@@ -13,7 +13,6 @@ export type TurnOffOutcome = "starter_cleared" | "text_kept";
 
 interface UseTemplateGuidanceOptions {
   draftId: string;
-  locale: string;
   updateDraft: ReturnType<typeof useUpdateDraft>;
   /** Current composer text, so a byte-identical starter can be cleared with it. */
   intakeText: string;
@@ -48,7 +47,6 @@ interface UseTemplateGuidanceResult {
  */
 export function useTemplateGuidance({
   draftId,
-  locale,
   updateDraft,
   intakeText,
   setIntakeText,
@@ -79,9 +77,9 @@ export function useTemplateGuidance({
 
         // The starter is system-authored, so keeping it would mean guidance is
         // "off" while a template-specific instruction still reaches the model.
-        // Anything the user has touched is preserved verbatim.
-        const starter = getDraftStarter(slug, locale);
-        const clearsStarter = starter !== null && intakeText === starter;
+        // Anything the user has touched is preserved verbatim. Matched across
+        // locales: the draft may have been seeded before a language switch.
+        const clearsStarter = isUntouchedDraftStarter(slug, intakeText);
         const nextIntake = clearsStarter ? "" : intakeText;
 
         await updateDraft.mutateAsync({
@@ -106,7 +104,6 @@ export function useTemplateGuidance({
     draftId,
     flushIntake,
     intakeText,
-    locale,
     markIntakePersisted,
     queryClient,
     setIntakeText,

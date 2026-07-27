@@ -140,7 +140,6 @@ export function IntakeStep({
     getDraftWorkspaceState(draft.data?.metadata).templateContext?.slug ?? null;
   const templateGuidance = useTemplateGuidance({
     draftId,
-    locale,
     updateDraft,
     intakeText,
     setIntakeText,

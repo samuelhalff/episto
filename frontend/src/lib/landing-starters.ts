@@ -93,3 +93,15 @@ export const DRAFT_STARTERS: Record<string, Record<LandingLocale, string>> = {
 export function getDraftStarter(slug: string, locale: string): string | null {
   return DRAFT_STARTERS[slug]?.[locale as LandingLocale] ?? null;
 }
+
+/**
+ * Whether `text` is still exactly a starter this template seeded — in any
+ * locale, because the draft may have been seeded before the user switched
+ * language, and a system-authored sentence is system-authored regardless of
+ * which language it is in.
+ */
+export function isUntouchedDraftStarter(slug: string, text: string): boolean {
+  const byLocale = DRAFT_STARTERS[slug];
+  if (!byLocale) return false;
+  return Object.values(byLocale).some((starter) => starter === text);
+}

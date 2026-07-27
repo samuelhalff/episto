@@ -1,6 +1,7 @@
 # Making a template worth clicking
 
-**Status:** planned (rev 2, after adversarial review) · **Date:** 2026-07-27
+**Status:** implemented (rev 2 plan; P1–P6 shipped in `59a0745` + `b1623ec`) ·
+**Date:** 2026-07-27
 
 ## The complaint
 
@@ -184,17 +185,25 @@ review of all 48 sets.
 
 ## Phases
 
-- **P1** content: `prepare` on the type; author 16 × 3; coverage test (every draft
-  template has 3–5 items in every landing locale) + the duplication tripwire.
-- **P2** registry: generate/maintain the small client-safe intake registry; test that
-  `IntakeStep` does not import landing content.
-- **P3** schema: constrain `TemplateContext.slug` to known draft templates.
-- **P4** UI: preparation panel + persistent chip; i18n scaffolding in all four
-  message files.
-- **P5** turn-off: atomic clear that survives autosave races; starter handling per
-  US-5a; error + pending states.
-- **P6** resume branch: fix F5 (US-9).
+- **P1** ✅ content: author `prepare` 16 × 3; coverage test (3–5 items per template
+  per landing locale), duplication tripwire, deadline-word guard.
+- **P2** ✅ registry: `lib/template-intake/` (`{ title, prepare }` per slug per
+  locale); test asserts `IntakeStep` does not import landing content.
+- **P3** ✅ schema: `TemplateContext.slug` constrained to `DRAFT_TEMPLATE_SLUGS`;
+  drift guard ties it to the landing routes; `isDraftTemplateSlug` narrows to it.
+- **P4** ✅ UI: `TemplateGuidance.tsx` (preparation panel + persistent chip);
+  i18n in all four message files.
+- **P5** ✅ turn-off: flush-then-clear against post-flush cache metadata; starter
+  cleared only when byte-identical **in any locale** (a draft can be seeded
+  before a language switch); error + pending states.
+- **P6** ✅ resume branch: `resumeDraft` applies the template and says so (US-9).
 - **P7** review (codex) + full frontend suite + prod verify.
+
+### Deviation from the plan
+
+The panel does not take a `fallback` prop as first sketched; `IntakeGuidanceSlot`
+owns the whole empty-composer slot instead (panel / turn-off confirmation /
+generic tips), which keeps `IntakeStep` under the 500-line file-size guard.
 
 ## Non-goals
 

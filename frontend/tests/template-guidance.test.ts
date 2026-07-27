@@ -66,7 +66,7 @@ describe("turning template guidance off", () => {
 
   // US-5a: the starter is system-authored; anything the user touched is theirs.
   it("clears the composer only when it is byte-identical to the starter", () => {
-    expect(hookSource).toContain("intakeText === starter");
+    expect(hookSource).toContain("isUntouchedDraftStarter(slug, intakeText)");
     expect(hookSource).toContain("clearsStarter ? { intakeInput: null } : {}");
   });
 
