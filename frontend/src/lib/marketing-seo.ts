@@ -201,6 +201,39 @@ export function buildServiceJsonLd({
   };
 }
 
+/**
+ * Article schema for informational drafting-template pages (how to write letter
+ * X). These are editorial content, NOT a distinct priced product — advertising a
+ * Service with an offer on them would be misleading. Author/publisher point at
+ * the Organization node for E-E-A-T. The actual paid sending service uses
+ * buildServiceJsonLd, reserved for the service-guide pages.
+ */
+export function buildArticleJsonLd({
+  locale,
+  headline,
+  description,
+  pathname = "",
+}: {
+  locale: Locale;
+  headline: string;
+  description: string;
+  pathname?: string | undefined;
+}) {
+  const url = buildLocaleUrl(locale, pathname);
+  const orgId = `${getSiteUrl()}/#organization`;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline,
+    description,
+    inLanguage: locale,
+    url,
+    mainEntityOfPage: { "@type": "WebPage", "@id": url },
+    author: { "@type": "Organization", "@id": orgId, name: BRAND_NAME },
+    publisher: { "@type": "Organization", "@id": orgId, name: BRAND_NAME },
+  };
+}
+
 export function buildFaqJsonLd(items: FaqItem[]) {
   return {
     "@context": "https://schema.org",

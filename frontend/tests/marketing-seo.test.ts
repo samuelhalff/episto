@@ -361,6 +361,31 @@ describe("marketing seo plumbing", () => {
     expect(getJsonLdNode(imprintPage)).toBeUndefined();
   });
 
+  it("emits Service schema only on service guides, Article on drafting templates", async () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://example.test";
+    const { default: LandingPageRoute } =
+      await import("../src/app/[locale]/vorlagen/[slug]/page");
+
+    // Drafting template — editorial content, must NOT advertise a priced Service.
+    const templatePage = await LandingPageRoute({
+      params: Promise.resolve({ locale: "de-CH", slug: "wohnung-kuendigen" }),
+    });
+    const templateData = getJsonLdNode(templatePage)?.props.data as Array<{
+      "@type": string;
+    }>;
+    expect(templateData[0]).toMatchObject({ "@type": "Article" });
+    expect(templateData.some((node) => node["@type"] === "Service")).toBe(false);
+
+    // Service guide — the actual paid sending service keeps Service schema.
+    const guidePage = await LandingPageRoute({
+      params: Promise.resolve({ locale: "de-CH", slug: "einschreiben-online" }),
+    });
+    const guideData = getJsonLdNode(guidePage)?.props.data as Array<{
+      "@type": string;
+    }>;
+    expect(guideData[0]).toMatchObject({ "@type": "Service" });
+  });
+
   it("renders the privacy page with geo.admin source disclosure", async () => {
     const { default: PrivacyPage } = await marketingRouteModules.privacy();
     const privacyPage = await PrivacyPage({

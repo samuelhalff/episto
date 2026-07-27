@@ -12,6 +12,7 @@ import {
   MarketingMeta,
 } from "@/components/marketing/typography";
 import {
+  buildArticleJsonLd,
   buildBreadcrumbJsonLd,
   buildFaqJsonLd,
   buildHowToJsonLd,
@@ -79,22 +80,33 @@ export default async function LandingPageRoute({
   const pageUrl = `${site}/${locale}/vorlagen/${slug}`;
   // Drafting templates carry their slug into the draft so it starts seeded with
   // the topic; service guides just open a blank draft (nothing to seed).
-  const draftHref = isServiceGuideSlug(slug)
-    ? "/draft/new"
-    : `/draft/new?template=${slug}`;
-  const priceBand = await getServicePriceBand();
+  const isServiceGuide = isServiceGuideSlug(slug);
+  const draftHref = isServiceGuide ? "/draft/new" : `/draft/new?template=${slug}`;
+  // Service schema (with the postage-inclusive price band) belongs only on the
+  // service guides, which describe the actual paid sending service. Drafting
+  // templates are editorial content and get Article schema instead, so we never
+  // advertise a priced product on a how-to page.
+  const priceBand = isServiceGuide ? await getServicePriceBand() : null;
+  const primarySchema = isServiceGuide
+    ? buildServiceJsonLd({
+        locale,
+        title: page.metaTitle,
+        description: page.metaDescription,
+        pathname: `/vorlagen/${slug}`,
+        priceBand,
+      })
+    : buildArticleJsonLd({
+        locale,
+        headline: page.h1,
+        description: page.metaDescription,
+        pathname: `/vorlagen/${slug}`,
+      });
 
   return (
     <>
       <JsonLd
         data={[
-          buildServiceJsonLd({
-            locale,
-            title: page.metaTitle,
-            description: page.metaDescription,
-            pathname: `/vorlagen/${slug}`,
-            priceBand,
-          }),
+          primarySchema,
           buildHowToJsonLd({
             name: page.h1,
             description: page.quickAnswer,
