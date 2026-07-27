@@ -89,7 +89,11 @@
         "subtitle": "Write it online — we submit it to Swiss Post, which prints and delivers it. No printer, no stamps.",
         "primaryCta": "Write your letter",
         "secondaryCta": "See how it works",
-        "proof": "No account needed · Exact total before payment · Your details stay private",
+        "proof": {
+          "noAccount": "No account needed",
+          "exactTotal": "Exact total before payment",
+          "privacy": "Your details stay private"
+        },
         "steps": {
           "describe": "Describe the situation",
           "review": "Review the draft",

@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import type { Locale } from "../../i18n/routing";
 import { HeroPrice } from "./HeroPrice";
@@ -45,13 +45,20 @@ export function HomepageHero({ initialPrice }: { initialPrice?: string | undefin
             </MarketingActionLink>
           </div>
           <HeroPrice initialPrice={initialPrice} />
-          <div className="hairline mt-9 flex items-center gap-2.5 border-t pt-5">
-            <span
-              aria-hidden="true"
-              className="h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--action-primary-bg)]"
-            />
-            <MarketingBody className="text-sm">{t("homepage.hero.proof")}</MarketingBody>
-          </div>
+          <ul className="hairline mt-9 flex flex-col gap-2.5 border-t pt-5 sm:flex-row sm:flex-wrap sm:gap-x-5">
+            {(["noAccount", "exactTotal", "privacy"] as const).map((key) => (
+              <li key={key} className="flex items-center gap-2">
+                <Check
+                  aria-hidden="true"
+                  className="h-4 w-4 shrink-0 text-[var(--action-primary-bg)]"
+                  strokeWidth={2.5}
+                />
+                <MarketingBody className="text-sm">
+                  {t(`homepage.hero.proof.${key}`)}
+                </MarketingBody>
+              </li>
+            ))}
+          </ul>
         </div>
 
         <div className="relative">

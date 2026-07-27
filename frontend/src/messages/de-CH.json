@@ -89,7 +89,11 @@
         "subtitle": "Sie schreiben online – wir übermitteln den Brief der Schweizerischen Post, die ihn druckt und zustellt. Kein Drucker, keine Briefmarken.",
         "primaryCta": "Brief verfassen",
         "secondaryCta": "So funktioniert es",
-        "proof": "Kein Konto nötig · Genauer Total vor der Zahlung · Ihre Angaben bleiben privat",
+        "proof": {
+          "noAccount": "Kein Konto nötig",
+          "exactTotal": "Genauer Total vor der Zahlung",
+          "privacy": "Ihre Angaben bleiben privat"
+        },
         "steps": {
           "describe": "Situation beschreiben",
           "review": "Entwurf prüfen",

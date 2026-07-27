@@ -87,8 +87,9 @@ describe("marketing homepage locale copy", () => {
         "marketing.homepage.hero.title": "Send formal letters without the post office",
         "marketing.homepage.hero.subtitle":
           "Write it online — we submit it to Swiss Post, which prints and delivers it. No printer, no stamps.",
-        "marketing.homepage.hero.proof":
-          "No account needed · Exact total before payment · Your details stay private",
+        "marketing.homepage.hero.proof.noAccount": "No account needed",
+        "marketing.homepage.hero.proof.exactTotal": "Exact total before payment",
+        "marketing.homepage.hero.proof.privacy": "Your details stay private",
         "marketing.homepage.howItWorks.steps.send.body":
           "Approve the total, pay securely, and we submit your letter to Swiss Post.",
         "marketing.homepage.confidence.cards.review.body":
@@ -102,8 +103,9 @@ describe("marketing homepage locale copy", () => {
           "Formelle Briefe senden – ohne Gang zur Poststelle",
         "marketing.homepage.hero.subtitle":
           "Sie schreiben online – wir übermitteln den Brief der Schweizerischen Post, die ihn druckt und zustellt. Kein Drucker, keine Briefmarken.",
-        "marketing.homepage.hero.proof":
-          "Kein Konto nötig · Genauer Total vor der Zahlung · Ihre Angaben bleiben privat",
+        "marketing.homepage.hero.proof.noAccount": "Kein Konto nötig",
+        "marketing.homepage.hero.proof.exactTotal": "Genauer Total vor der Zahlung",
+        "marketing.homepage.hero.proof.privacy": "Ihre Angaben bleiben privat",
         "marketing.homepage.howItWorks.steps.send.body":
           "Bestätigen Sie den Total, bezahlen Sie sicher und wir übermitteln Ihren Brief der Schweizerischen Post.",
         "marketing.homepage.confidence.cards.review.body":
@@ -115,8 +117,9 @@ describe("marketing homepage locale copy", () => {
           "Envoyez des lettres formelles sans passer à la poste",
         "marketing.homepage.hero.subtitle":
           "Vous écrivez en ligne — nous transmettons la lettre à la Poste suisse, qui l’imprime et la distribue. Sans imprimante, sans timbres.",
-        "marketing.homepage.hero.proof":
-          "Sans compte · Total exact avant paiement · Vos données restent privées",
+        "marketing.homepage.hero.proof.noAccount": "Sans compte",
+        "marketing.homepage.hero.proof.exactTotal": "Total exact avant paiement",
+        "marketing.homepage.hero.proof.privacy": "Vos données restent privées",
         "marketing.homepage.howItWorks.steps.send.body":
           "Validez le montant, payez en toute sécurité, puis nous transmettons votre courrier à la Poste suisse.",
         "marketing.homepage.confidence.cards.review.body":
@@ -130,8 +133,9 @@ describe("marketing homepage locale copy", () => {
         "marketing.homepage.hero.title": "Invii lettere formali senza andare alla posta",
         "marketing.homepage.hero.subtitle":
           "Lei scrive online — trasmettiamo la lettera alla Posta svizzera, che la stampa e la recapita. Senza stampante, senza francobolli.",
-        "marketing.homepage.hero.proof":
-          "Senza account · Totale esatto prima del pagamento · I Suoi dati restano riservati",
+        "marketing.homepage.hero.proof.noAccount": "Senza account",
+        "marketing.homepage.hero.proof.exactTotal": "Totale esatto prima del pagamento",
+        "marketing.homepage.hero.proof.privacy": "I Suoi dati restano riservati",
         "marketing.homepage.howItWorks.steps.send.body":
           "Confermi il totale, paghi in modo sicuro e trasmettiamo la Sua lettera alla Posta svizzera.",
         "marketing.homepage.confidence.cards.review.body":
@@ -152,9 +156,9 @@ describe("marketing homepage locale copy", () => {
         getNestedValue(messagesEn, "marketing.homepage.confidence.cards.privacy.title"),
       ),
     ).not.toBe("Costs and handling stay clear");
-    expect(String(getNestedValue(messagesEn, "marketing.homepage.hero.proof"))).not.toBe(
-      "No account required · Clear total before payment · Privacy-conscious infrastructure",
-    );
+    expect(
+      String(getNestedValue(messagesEn, "marketing.homepage.hero.proof.noAccount")),
+    ).not.toBe("No account required");
 
     const messagesFr = readLocaleMessages("fr-CH");
     expect(

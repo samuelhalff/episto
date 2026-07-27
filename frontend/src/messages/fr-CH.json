@@ -89,7 +89,11 @@
         "subtitle": "Vous écrivez en ligne — nous transmettons la lettre à la Poste suisse, qui l’imprime et la distribue. Sans imprimante, sans timbres.",
         "primaryCta": "Rédiger votre courrier",
         "secondaryCta": "Voir comment cela fonctionne",
-        "proof": "Sans compte · Total exact avant paiement · Vos données restent privées",
+        "proof": {
+          "noAccount": "Sans compte",
+          "exactTotal": "Total exact avant paiement",
+          "privacy": "Vos données restent privées"
+        },
         "steps": {
           "describe": "Décrivez la situation",
           "review": "Relisez le projet",

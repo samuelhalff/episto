@@ -89,7 +89,11 @@
         "subtitle": "Lei scrive online — trasmettiamo la lettera alla Posta svizzera, che la stampa e la recapita. Senza stampante, senza francobolli.",
         "primaryCta": "Scrivere la lettera",
         "secondaryCta": "Vedere come funziona",
-        "proof": "Senza account · Totale esatto prima del pagamento · I Suoi dati restano riservati",
+        "proof": {
+          "noAccount": "Senza account",
+          "exactTotal": "Totale esatto prima del pagamento",
+          "privacy": "I Suoi dati restano riservati"
+        },
         "steps": {
           "describe": "Descrivere la situazione",
           "review": "Verificare la bozza",
