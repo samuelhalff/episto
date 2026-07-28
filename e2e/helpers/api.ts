@@ -155,9 +155,15 @@ function extractCookieValue(header: string, name: string): string {
   return "";
 }
 
-/** Build a cookie name for the environment. */
+/**
+ * The cookie name is a property of the *target*, not of the machine running the
+ * tests: the backend issues `__Host-session` over https and `session` otherwise.
+ * Deriving it from the runner's own NODE_ENV, as this used to, silently produced
+ * an empty cookie whenever the two disagreed — every authenticated navigation
+ * then failed as if the app were broken.
+ */
 function resolveCookieName(): string {
-  return process.env.NODE_ENV === "production" ? "__Host-session" : "session";
+  return API_BASE.startsWith("https://") ? "__Host-session" : "session";
 }
 
 /**
@@ -227,7 +233,11 @@ export async function seedDraftContent(
       // Unlock all workspace steps (incl. attachments) so UI-driven tests can
       // reach any step without walking the AI-gated flow. furthestUnlockedStepIndex
       // max is 6 (see shared/src/workspace-draft.ts).
-      metadata: { workspaceDraft: { furthestUnlockedStepIndex: 6 } },
+      //
+      // Sent as a delta: `metadata` is no longer accepted on this route, and a
+      // body that still used it would be silently dropped — leaving the steps
+      // locked and every UI-driven test failing somewhere far from the cause.
+      workspacePatch: { furthestUnlockedStepIndex: 6 },
     },
   });
   await assertStatus(patchRes, 200, "seedDraftContent: patch");
@@ -269,14 +279,16 @@ export async function attachSessionCookie(
 ): Promise<void> {
   const [name, ...valueParts] = ctx.cookieHeader.split("=");
   const value = valueParts.join("=").split(";")[0];
+  // Addressed by `url` rather than domain/path: the `__Host-` prefix a https
+  // target uses forbids a Domain attribute, so a hardcoded `domain: "localhost"`
+  // both pins the suite to local and produces a cookie the browser rejects.
   await page.context().addCookies([
     {
       name,
       value,
-      domain: "localhost",
-      path: "/",
-      httpOnly: false,
-      secure: false,
+      url: new URL("/", process.env.E2E_BASE_URL || "http://localhost:5000").toString(),
+      httpOnly: true,
+      secure: API_BASE.startsWith("https://"),
       sameSite: "Lax" as const,
     },
   ]);

@@ -41,6 +41,24 @@ npm run test:e2e:ui
 
 ## Known Constraints
 
+### Running against production
+
+The suite works against `episto.ch` (`E2E_BASE_URL=https://episto.ch
+E2E_API_URL=https://episto.ch/api`), which is the only way to verify the real
+build. Two things to know before you do:
+
+- **Draft creation is capped at 20/hour/IP.** Each test that opens a workspace
+  spends one. A single full run of `template-guidance.spec.ts` costs 7; three
+  runs within the hour start failing on the app's generic error page.
+  `template-guidance.spec.ts` detects this and fails with the reason rather than
+  a mystery timeout.
+- **Never run anything that reaches payment or dispatch against prod.** Stripe is
+  live and ePost submits real mail. `template-guidance.spec.ts` is prod-safe
+  because it never sends the composer, so no AI turn is billed either.
+
+The session cookie name and `secure` flag are derived from whether `E2E_API_URL`
+is https, not from the runner's `NODE_ENV`.
+
 ### AI Drafting (Azure OpenAI)
 
 The local development environment has **no working Azure OpenAI key**. Real AI
@@ -109,6 +127,24 @@ Error handling and validation tests:
 - Invalid Swiss postal codes are rejected with feedback.
 - Oversized files (>5MB) are rejected with a visible message.
 - Invalid file types (e.g. `.exe`) are rejected with a visible message.
+
+### `template-guidance.spec.ts`
+
+The template flow, entered the way a user does (`/draft/new?template=<slug>`):
+
+- The preparation panel names the template and what to have ready, and disables
+  nothing (US-1/2/3).
+- Turning guidance off clears an untouched starter but never text the user
+  edited, and says which happened (US-5/5a).
+- The turn-off survives a reload — the write, not the optimistic UI (US-5b).
+- A cold draft shows no template surface at all (US-7).
+- The panel and its off switch stay on-screen at 390px (US-1, mobile).
+- A draft carried into en-CH, which has no authored copy, still shows a generic
+  chip and the off switch (US-8). Note this is reached by _switching_ locale:
+  `/en-CH/draft/new?template=` builds no template context in the first place,
+  because that is derived from landing content en-CH does not have.
+
+Never sends the composer, so it triggers no AI turn and is safe against prod.
 
 ## Report Output
 

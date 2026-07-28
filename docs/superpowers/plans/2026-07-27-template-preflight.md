@@ -243,10 +243,17 @@ deleted, because the handler captured `intakeText` at click time and then called
 `setIntakeText("")` unconditionally.
 
 **US-8 amended.** The panel still requires authored copy, but the _chip_ is keyed
-on the slug alone. Hiding the whole surface in en-CH (which has no landing
-content) would have left guidance reaching the model with nothing on screen
-naming it and no way to switch it off — the opposite of US-7. Without a title the
-chip says only that a template is active, which is true in every locale.
+on the slug alone. Without a title it says only that a template is active, which
+is true in every locale.
+
+The case this actually covers is a **locale switch**, not entry in en-CH —
+established by running the e2e spec against prod, where the first version of the
+test asserted the wrong route and failed. `/en-CH/draft/new?template=` builds no
+`templateContext` at all, because it is derived from the landing page and en-CH
+has none; nothing is written, so there is correctly nothing to show. But a draft
+seeded in de-CH and then viewed in en-CH still carries the slug and still steers
+the model, and hiding the surface there would leave that steering unnamed and
+unstoppable — the opposite of US-7.
 
 ### Deviation from the plan
 
