@@ -15,6 +15,7 @@ import {
   type StripeRefundData,
 } from "./adapters/stripe.adapter.js";
 import { createLogger } from "../../shared/logging/index.js";
+import { enqueueRefundConfirmedEmailSafe } from "./refund-notifications.js";
 
 const logger = createLogger("refund-ledger");
 
@@ -83,7 +84,16 @@ export async function syncRefundsForCharge(
 ): Promise<DerivedPaymentState | null> {
   const refunds = sortRefunds(await listRefundsForCharge(chargeId));
 
-  return db.transaction(async (tx) => {
+  /**
+   * Refunds that crossed into `succeeded` during *this* sync, so the customer
+   * is told once. Collected inside the transaction and sent after it commits:
+   * an email enqueued from inside a transaction that later rolls back is a
+   * message about money that never moved.
+   */
+  const newlySucceeded: Array<{ stripeRefundId: string; amountCents: number }> = [];
+  let notifyPaymentId: string | null = null;
+
+  const derived = await db.transaction(async (tx) => {
     const [payment] = await tx
       .select({
         id: schema.paymentAttempts.id,
@@ -97,6 +107,19 @@ export async function syncRefundsForCharge(
     if (!payment) {
       logger.warn({ chargeId }, "Refund sync: no payment matches charge — left unlinked");
       return null;
+    }
+
+    notifyPaymentId = payment.id;
+
+    const priorStatus = new Map<string, string>();
+    for (const row of await tx
+      .select({
+        stripeRefundId: schema.paymentRefunds.stripeRefundId,
+        status: schema.paymentRefunds.status,
+      })
+      .from(schema.paymentRefunds)
+      .where(eq(schema.paymentRefunds.paymentAttemptId, payment.id))) {
+      priorStatus.set(row.stripeRefundId, row.status);
     }
 
     const [receipt] = await tx
@@ -127,6 +150,9 @@ export async function syncRefundsForCharge(
     for (const r of refunds) {
       const alloc = r.status === "succeeded" ? allocation.get(r.refundId) : undefined;
       const refundedAt = r.status === "succeeded" ? r.stripeCreatedAt : null;
+      if (r.status === "succeeded" && priorStatus.get(r.refundId) !== "succeeded") {
+        newlySucceeded.push({ stripeRefundId: r.refundId, amountCents: r.amountCents });
+      }
       const failedAt = r.status === "failed" ? r.stripeCreatedAt : null;
       await tx
         .insert(schema.paymentRefunds)
@@ -179,4 +205,15 @@ export async function syncRefundsForCharge(
       );
     return derived;
   });
+
+  if (notifyPaymentId) {
+    for (const refund of newlySucceeded) {
+      enqueueRefundConfirmedEmailSafe(db, {
+        paymentAttemptId: notifyPaymentId,
+        ...refund,
+      });
+    }
+  }
+
+  return derived;
 }

@@ -266,6 +266,69 @@ export const REFUND_CONFIRMED_STRINGS: Record<SupportedLocale, RefundConfirmedSt
 };
 
 // ---------------------------------------------------------------------------
+// dispatch-failed
+//
+// Only ever sent on a settled rejection — the path where we know nothing was
+// handed to Swiss Post and the payment has been refunded. The provider's own
+// failure text is deliberately not in here: it is written for us, not for the
+// customer, and it is the wrong place to leak an internal reason string.
+// ---------------------------------------------------------------------------
+
+export interface DispatchFailedStrings {
+  subject: string;
+  heading: string;
+  body: string;
+  refundNote: string;
+  orderLabel: string;
+  recipientLabel: string;
+  supportLine: string;
+}
+
+export const DISPATCH_FAILED_STRINGS: Record<SupportedLocale, DispatchFailedStrings> = {
+  "en-CH": {
+    subject: `${BRAND_NAME} – Your letter could not be sent`,
+    heading: "Your letter was not sent",
+    body: "We were unable to hand your letter to Swiss Post, so it has not been posted.",
+    refundNote:
+      "You have not been charged: the payment is being refunded and will appear in your account within a few business days.",
+    orderLabel: "Order",
+    recipientLabel: "Recipient",
+    supportLine: "We can help you send it again — contact us at",
+  },
+  "de-CH": {
+    subject: `${BRAND_NAME} – Ihr Brief konnte nicht versendet werden`,
+    heading: "Ihr Brief wurde nicht versendet",
+    body: "Wir konnten Ihren Brief nicht an die Schweizerische Post übergeben. Er wurde nicht aufgegeben.",
+    refundNote:
+      "Ihnen wird nichts belastet: Die Zahlung wird zurückerstattet und erscheint innerhalb weniger Werktage auf Ihrem Konto.",
+    orderLabel: "Bestellung",
+    recipientLabel: "Empfänger",
+    supportLine:
+      "Wir helfen Ihnen gerne beim erneuten Versand – kontaktieren Sie uns unter",
+  },
+  "fr-CH": {
+    subject: `${BRAND_NAME} – Votre lettre n'a pas pu être envoyée`,
+    heading: "Votre lettre n'a pas été envoyée",
+    body: "Nous n'avons pas pu remettre votre lettre à La Poste Suisse. Elle n'a pas été postée.",
+    refundNote:
+      "Rien ne vous est facturé : le paiement est remboursé et apparaîtra sur votre compte dans quelques jours ouvrables.",
+    orderLabel: "Commande",
+    recipientLabel: "Destinataire",
+    supportLine: "Nous pouvons vous aider à la renvoyer — contactez-nous à",
+  },
+  "it-CH": {
+    subject: `${BRAND_NAME} – Non è stato possibile inviare la sua lettera`,
+    heading: "La sua lettera non è stata inviata",
+    body: "Non siamo riusciti a consegnare la sua lettera alla Posta Svizzera. Non è stata impostata.",
+    refundNote:
+      "Non le viene addebitato nulla: il pagamento viene rimborsato e apparirà sul suo conto entro alcuni giorni lavorativi.",
+    orderLabel: "Ordine",
+    recipientLabel: "Destinatario",
+    supportLine: "Possiamo aiutarla a inviarla di nuovo — ci contatti all'indirizzo",
+  },
+};
+
+// ---------------------------------------------------------------------------
 // payment-receipt
 // ---------------------------------------------------------------------------
 

@@ -6,8 +6,6 @@
  * Templates are pure functions — all data arrives via the `data` parameter.
  */
 
-import { BRAND_NAME } from "../shared/brand.js";
-
 import {
   wrapEmailHtml,
   escapeHtml,
@@ -22,93 +20,29 @@ import {
   mutedText,
   formatCHF,
   swissPostTrackingUrl,
-  type EmailLayoutConfig,
 } from "./email-layout.js";
 
 import {
   resolveLocale,
   DISPATCH_SUBMITTED_STRINGS,
   DISPATCH_ACCEPTED_STRINGS,
+  DISPATCH_FAILED_STRINGS,
   RESUME_LINK_STRINGS,
   REFUND_CONFIRMED_STRINGS,
   PAYMENT_RECEIPT_STRINGS,
 } from "./email-strings.js";
 
-// ---------------------------------------------------------------------------
-// Shared helpers
-// ---------------------------------------------------------------------------
+import {
+  layoutConfig,
+  readDeliveryType,
+  readInteger,
+  readString,
+  replaceRetentionDays,
+  formatDeliveryTypeLabel,
+  type RenderedEmail,
+} from "./email-template-helpers.js";
 
-export interface RenderedEmail {
-  subject: string;
-  html: string;
-  text: string;
-}
-
-type DeliveryType = "standard" | "registered";
-
-function readString(data: Record<string, unknown>, key: string, fallback = ""): string {
-  const value = data[key];
-  return typeof value === "string" ? value : fallback;
-}
-
-function readInteger(
-  data: Record<string, unknown>,
-  key: string,
-  fallback: number,
-): number {
-  const value = data[key];
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return Math.trunc(value);
-  }
-  if (typeof value === "string") {
-    const parsed = Number(value);
-    if (Number.isFinite(parsed)) return Math.trunc(parsed);
-  }
-  return fallback;
-}
-
-function layoutConfig(locale: string, data: Record<string, unknown>): EmailLayoutConfig {
-  return {
-    brandName: readString(data, "brandName", BRAND_NAME),
-    locale: resolveLocale(locale),
-    appPublicUrl: readString(data, "appPublicUrl"),
-    legalEntityName: readString(data, "legalEntityName"),
-    legalEntityAddress: readString(data, "legalEntityAddress"),
-    legalEntityCountry: readString(data, "legalEntityCountry"),
-    legalEntityUidVat: readString(data, "legalEntityUidVat"),
-    supportEmail: readString(data, "supportEmail"),
-  };
-}
-
-function replaceRetentionDays(template: string, days: number): string {
-  return template.replace("{days}", String(days));
-}
-
-function readDeliveryType(data: Record<string, unknown>): DeliveryType | null {
-  const value = data.deliveryType;
-  return value === "standard" || value === "registered" ? value : null;
-}
-
-function formatDeliveryTypeLabel(
-  locale: string,
-  deliveryType: DeliveryType | null,
-): string {
-  if (!deliveryType) {
-    return "";
-  }
-
-  switch (resolveLocale(locale)) {
-    case "de-CH":
-      return deliveryType === "registered" ? "Einschreiben" : "A-Post";
-    case "fr-CH":
-      return deliveryType === "registered" ? "Courrier recommandé" : "Courrier standard";
-    case "it-CH":
-      return deliveryType === "registered" ? "Raccomandata" : "Posta standard";
-    case "en-CH":
-    default:
-      return deliveryType === "registered" ? "Registered mail" : "Standard mail";
-  }
-}
+export type { RenderedEmail };
 
 // ---------------------------------------------------------------------------
 // Template: dispatch-submitted
@@ -433,6 +367,67 @@ function renderPaymentReceipt(
 }
 
 // ---------------------------------------------------------------------------
+// Template: dispatch-failed
+//
+// This one was enqueued and never existed: the renderer lookup threw
+// `Unknown email template`, so the single moment a customer most needs to hear
+// from us — their letter did not go out — was the one moment we said nothing.
+// ---------------------------------------------------------------------------
+
+function renderDispatchFailed(
+  locale: string,
+  data: Record<string, unknown>,
+): RenderedEmail {
+  const s = DISPATCH_FAILED_STRINGS[resolveLocale(locale)];
+  const config = layoutConfig(locale, data);
+  const orderRef = readString(data, "orderRef");
+  const recipientName = readString(data, "recipientName");
+  const supportEmail = readString(data, "supportEmail");
+
+  const rows = [
+    detailRowMono(s.orderLabel, orderRef),
+    recipientName ? detailRow(s.recipientLabel, recipientName) : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  const bodyParts = [
+    heading(s.heading),
+    paragraph(escapeHtml(s.body)),
+    paragraph(escapeHtml(s.refundNote)),
+    detailTable(rows),
+  ];
+
+  if (supportEmail) {
+    bodyParts.push(sectionDivider());
+    bodyParts.push(
+      mutedText(
+        `${escapeHtml(s.supportLine)} <a href="mailto:${escapeHtml(supportEmail)}" style="color:#161616;text-decoration:underline;">${escapeHtml(supportEmail)}</a>`,
+      ),
+    );
+  }
+
+  const textLines = [
+    s.heading.toUpperCase(),
+    "",
+    s.body,
+    "",
+    s.refundNote,
+    "",
+    `${s.orderLabel}: ${orderRef}`,
+    recipientName ? `${s.recipientLabel}: ${recipientName}` : null,
+    "",
+    supportEmail ? `${s.supportLine} ${supportEmail}` : null,
+  ].filter((line): line is string => line !== null);
+
+  return {
+    subject: s.subject,
+    text: textLines.join("\n"),
+    html: wrapEmailHtml(config, bodyParts.filter(Boolean).join("\n")),
+  };
+}
+
+// ---------------------------------------------------------------------------
 // Template registry
 // ---------------------------------------------------------------------------
 
@@ -442,6 +437,7 @@ const TEMPLATE_RENDERERS: Record<
 > = {
   "dispatch-submitted": renderDispatchSubmitted,
   "dispatch-accepted": renderDispatchAccepted,
+  "dispatch-failed": renderDispatchFailed,
   "resume-link": renderResumeLink,
   "refund-confirmed": renderRefundConfirmed,
   "payment-receipt": renderPaymentReceipt,

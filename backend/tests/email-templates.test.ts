@@ -1,3 +1,6 @@
+import { readFileSync, readdirSync } from "node:fs";
+import path from "node:path";
+
 import { describe, it, expect } from "vitest";
 import { renderTemplate } from "../src/workers/email-templates.js";
 
@@ -222,16 +225,39 @@ describe("Email template rendering", () => {
     expect(result.html).toContain("https://example.com/api/v1/orders/tok/pdf");
   });
 
-  it("covers all 5 expected templates", () => {
-    const expectedTemplates = [
-      "dispatch-submitted",
-      "dispatch-accepted",
-      "resume-link",
-      "refund-confirmed",
-      "payment-receipt",
-    ];
+  /**
+   * The list used to be written out by hand here, which is how
+   * `dispatch-failed` stayed broken: it was enqueued by two live code paths
+   * and had no renderer, so `renderTemplate` threw at the exact moment a
+   * customer's letter had failed to go out — and the hand-written list, not
+   * knowing about it, stayed green. The names now come from the enqueue sites
+   * themselves, so adding a template key without a renderer fails here.
+   */
+  it("renders every template the backend actually enqueues", () => {
+    const backendSrc = path.resolve(import.meta.dirname, "../src");
+    const enqueued = new Set<string>();
 
-    for (const name of expectedTemplates) {
+    const walk = (dir: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(full);
+          continue;
+        }
+        if (!entry.name.endsWith(".ts")) continue;
+        const source = readFileSync(full, "utf8");
+        for (const match of source.matchAll(/\btemplate:\s*"([a-z0-9-]+)"/g)) {
+          enqueued.add(match[1]);
+        }
+      }
+    };
+    walk(backendSrc);
+
+    // A scan that silently matched nothing would pass for the wrong reason.
+    expect(enqueued.size).toBeGreaterThanOrEqual(4);
+    expect(enqueued).toContain("dispatch-failed");
+
+    for (const name of enqueued) {
       const result = renderTemplate(name, "en-CH", {
         orderRef: "ORD-TEST",
         amount: "4.90",

@@ -79,6 +79,28 @@ At launch, the product may send:
 - refund confirmed
 - resume link
 
+**What is actually wired, as of 2026-07-28** — this list is the permission set, not the
+shipped set, and the two drifted far enough apart once to leave a template enqueued with no
+renderer. Renderers live in `backend/src/workers/email-templates.ts`; a template only sends if
+something enqueues it.
+
+| Template                           | Renderer        | Enqueued from                                                                                |
+| ---------------------------------- | --------------- | -------------------------------------------------------------------------------------------- |
+| `payment-receipt`                  | yes             | `payments/receipt-notifications.ts` on capture                                               |
+| `dispatch-submitted`               | yes             | `dispatch/dispatch-notifications.ts`                                                         |
+| `dispatch-accepted`                | yes             | `dispatch/dispatch-notifications.ts`                                                         |
+| `dispatch-failed`                  | yes             | `dispatch/dispatch-notifications.ts`, on a settled rejection only                            |
+| `refund-confirmed`                 | yes             | `payments/refund-ledger.service.ts`, once per Stripe refund as it transitions to `succeeded` |
+| `resume-link`                      | yes             | **nothing — not shipped.** Template 4 below describes a trigger that does not exist          |
+| dispatch under review (Template 5) | **no renderer** | not shipped                                                                                  |
+
+The two unshipped ones are deliberate, not forgotten. A resume-link email needs an address
+collected _before_ checkout. The session can carry one (`PATCH /api/v1/sessions/me` accepts
+`email`), but no step in the draft flow asks for it before the checkout form — so in practice the
+address arrives at the moment there is nothing left to resume. An under-review email needs a `unknown`-state dwell policy
+we have not set; sending it early would tell customers their letter is in doubt more often than it
+actually is.
+
 Launch ownership rules:
 
 - Stripe is the payment receipt sender for launch.
