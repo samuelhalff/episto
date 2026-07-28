@@ -162,6 +162,41 @@
       "when": 1780599600010,
       "tag": "0022_file_asset_ocr",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1780599600011,
+      "tag": "0023_file_asset_deletion_retry",
+      "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1780686000011,
+      "tag": "0024_draft_erasure_tombstone",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1780772400011,
+      "tag": "0025_dispatch_attempt_claim",
+      "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "7",
+      "when": 1780772400012,
+      "tag": "0026_dispatch_submission_started",
+      "breakpoints": true
+    },
+    {
+      "idx": 27,
+      "version": "7",
+      "when": 1780858800011,
+      "tag": "0027_erasure_audit",
+      "breakpoints": true
     }
   ]
 }

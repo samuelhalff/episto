@@ -73,9 +73,16 @@ describeIfIntegrationDb("admin financials integration", () => {
       RETURNING id
     `);
     const draftId = returnedId(draft.rows[0], "draft");
+    // `captured_at`, not just `state`: the P&L is dated accounting and selects
+    // rows by the date the money moved, so a fixture that leaves it null seeds
+    // an order the report is correct to ignore. Gross comes from `receipts` and
+    // was reported regardless, which is how this looked like a missing-postage
+    // bug rather than a half-seeded row.
     const inserted = await db.execute<{ id: string }>(sql`
-      INSERT INTO payment_attempts (draft_id, session_id, amount_cents, state, breakdown, updated_at)
-      VALUES (${draftId}, ${sessionId}, ${opts.totalCents}, 'captured', ${breakdown}::jsonb, NOW())
+      INSERT INTO payment_attempts (draft_id, session_id, amount_cents, state, breakdown,
+                                    captured_at, captured_at_source, updated_at)
+      VALUES (${draftId}, ${sessionId}, ${opts.totalCents}, 'captured', ${breakdown}::jsonb,
+              NOW(), 'webhook', NOW())
       RETURNING id
     `);
     const paymentId = returnedId(inserted.rows[0], "payment");

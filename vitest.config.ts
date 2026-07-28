@@ -21,11 +21,23 @@ export default defineConfig({
     globals: true,
     environment: "node",
     include: ["**/*.test.{ts,tsx}"],
+    // The default 5s is a unit-test number. `*.integration.test.ts` files share
+    // one Postgres, and several of them deliberately contend for the same rows
+    // — a `FOR UPDATE` erasure against a concurrent writer is the behaviour
+    // under test. In isolation each takes about a second; run in parallel with
+    // 270 other files they cross 5s and fail as timeouts, on a different file
+    // each run. That is a flaky suite reporting scheduling noise as a bug.
+    testTimeout: 30_000,
+    hookTimeout: 30_000,
     env: {
       NEXT_PUBLIC_SITE_URL: "https://example.test",
       NEXT_PUBLIC_API_URL: "/api",
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: "pk_test_example",
       NEXT_PUBLIC_APP_ENV: "test",
+      // Integration tests talk to a real database without booting the app, so
+      // the validated config is never loaded. The erasure audit still needs a
+      // key to digest its subject with.
+      ORDER_ACCESS_TOKEN_SECRET: "test-order-access-token-secret-000000",
     },
     coverage: {
       all: false,

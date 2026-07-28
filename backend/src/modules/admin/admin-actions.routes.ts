@@ -5,7 +5,7 @@ import { getDb, schema } from "../../db/index.js";
 import { AppError } from "../../shared/errors/index.js";
 import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
 import { recordSupportEvent } from "./index.js";
-import { createRefund } from "../payments/adapters/stripe.adapter.js";
+import { refundPaymentOnce } from "../payments/refund-once.service.js";
 import { syncRefundsForCharge } from "../payments/refund-ledger.service.js";
 import type { AdminSearchResponse, AdminSearchResultItem } from "@episto/shared";
 
@@ -273,24 +273,36 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      // Stable idempotency key: two admin retries can never create two refunds.
-      const refund = await createRefund(payment.stripePaymentIntentId, {
+      // One door for every full refund. This used to carry its own
+      // idempotency key, which meant a support agent retrying a refund the
+      // dispatch worker had already made created a second one — the user is
+      // made whole once and we pay twice.
+      const { refund, alreadyRefunded } = await refundPaymentOnce(db, {
+        paymentAttemptId: payment.id,
+        stripePaymentIntentId: payment.stripePaymentIntentId,
+        stripeChargeId: payment.stripeChargeId,
         reason: body.reason,
-        idempotencyKey: `admin-full-refund:${payment.id}`,
         metadata: { paymentAttemptId: payment.id, draftId: id },
       });
+
+      if (alreadyRefunded) {
+        request.log.warn(
+          { paymentId: payment.id },
+          "Admin refund requested for a payment Stripe had already refunded",
+        );
+      }
 
       // Project into the ledger and derive state. If this fails after Stripe
       // succeeded, the charge.refunded webhook reconciles it — never re-call
       // Stripe with a new key.
       let state = "refund_pending";
       try {
-        if (refund.chargeId) {
+        if (refund?.chargeId) {
           state = (await syncRefundsForCharge(db, refund.chargeId)) ?? state;
         }
       } catch (err) {
         request.log.error(
-          { err, refundId: refund.refundId, paymentId: payment.id },
+          { err, refundId: refund?.refundId, paymentId: payment.id },
           "Refund ledger projection failed after Stripe refund; webhook will reconcile",
         );
       }
@@ -301,14 +313,15 @@ export async function adminActionRoutes(app: FastifyInstance): Promise<void> {
         eventType: "refund_initiated",
         actor: getRequiredAdmin(request).actor,
         details: {
-          refundId: refund.refundId,
+          refundId: refund?.refundId ?? null,
           paymentId: payment.id,
           reason: body.reason,
+          alreadyRefunded,
         },
       });
 
       reply.send({
-        refundId: refund.refundId,
+        refundId: refund?.refundId ?? null,
         paymentAttemptId: payment.id,
         state,
       });

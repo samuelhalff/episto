@@ -131,6 +131,12 @@ export const draftLetters = pgTable(
     estimatedPages: integer("estimated_pages"),
     reviewedAt: ts("reviewed_at"),
     metadata: jsonb("metadata"),
+    /**
+     * Set once, by admin erasure. Database triggers refuse any write to this
+     * draft or its children once it is set, so a request or AI job that loaded
+     * the draft before erasure cannot write its content back afterwards.
+     */
+    erasureRequestedAt: ts("erasure_requested_at"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
