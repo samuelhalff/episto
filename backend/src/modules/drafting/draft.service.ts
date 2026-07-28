@@ -136,7 +136,17 @@ export async function listDraftsBySession(
 // Update draft fields (only while editable)
 // ---------------------------------------------------------------------------
 
-const EDITABLE_STATUSES = new Set(["collecting", "fields_complete"]);
+/**
+ * The two statuses in which the letter is still the user's to change.
+ *
+ * Exported because a draft is more than its columns: its attachments and
+ * signature are part of what gets printed, and the file routes have to answer
+ * the same question this set answers. At `reviewed` the draft is snapshotted
+ * and the PDF is rendered from that snapshot, so a file added or removed after
+ * that point cannot reach the letter — it can only make what the customer sees
+ * in the app disagree with what Swiss Post delivers.
+ */
+export const EDITABLE_STATUSES = new Set(["collecting", "fields_complete"]);
 
 export async function updateDraft(
   db: Db,

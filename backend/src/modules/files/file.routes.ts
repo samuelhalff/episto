@@ -15,6 +15,7 @@ import {
   withOrphanCleanup,
 } from "./file.service.js";
 import { createAttachmentLimitError } from "../dispatch/adapters/provider-capabilities.js";
+import { assertDraftAcceptsFileChanges } from "./draft-file-lock.js";
 import { assertUploadAcceptable } from "./upload-validation.js";
 import { formatByteLimitMb } from "./file-limits.js";
 import {
@@ -86,7 +87,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { id: draftId } = request.params;
       const [draft] = await db
-        .select({ id: schema.draftLetters.id })
+        .select({ id: schema.draftLetters.id, status: schema.draftLetters.status })
         .from(schema.draftLetters)
         .where(
           and(
@@ -97,6 +98,7 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
         .limit(1);
 
       if (!draft) throw notFoundError("draft");
+      assertDraftAcceptsFileChanges(draft.status);
 
       const data = await parseUploadMultipartParts(request.parts());
       if (!data.buffer) {
@@ -301,6 +303,20 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
 
       // Verify the file belongs to the specified draft
       if (asset.draftId !== draftId) throw notFoundError("file");
+
+      const [draft] = await db
+        .select({ status: schema.draftLetters.status })
+        .from(schema.draftLetters)
+        .where(
+          and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, session.id),
+          ),
+        )
+        .limit(1);
+
+      if (!draft) throw notFoundError("draft");
+      assertDraftAcceptsFileChanges(draft.status);
 
       // Retire the row and clear its extracted text first, so the document is
       // out of reach even if storage is unavailable.
