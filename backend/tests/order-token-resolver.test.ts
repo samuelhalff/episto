@@ -105,6 +105,39 @@ describe("resolveOrderAccessPayment", () => {
     expect(db.select).not.toHaveBeenCalled();
   });
 
+  /**
+   * The signed token is stateless — nothing about it is stored — so the only
+   * thing standing between a still-valid JWT and a revoked order is this
+   * column. Session erasure clears `orderAccessTokenExpiresAt` precisely so
+   * that a link mailed out earlier stops opening an order belonging to someone
+   * who asked to be forgotten. If this check ever moves, that guarantee goes
+   * with it.
+   */
+  it("refuses a signed token whose order access has been revoked", async () => {
+    const db = {
+      select: vi.fn().mockReturnValueOnce(
+        makeSelectChain([
+          {
+            id: "payment-erased",
+            orderAccessTokenExpiresAt: null,
+          },
+        ]),
+      ),
+    };
+
+    verifyOrderAccessToken.mockResolvedValue({
+      paymentAttemptId: "payment-erased",
+      expiresAt: futureDate.toISOString(),
+    });
+
+    const { resolveOrderAccessPayment } =
+      await import("../src/modules/orders/order-token-resolver.js");
+
+    await expect(
+      resolveOrderAccessPayment(db as never, "signed-token"),
+    ).resolves.toBeNull();
+  });
+
   it("surfaces signed-token lookup failures instead of swallowing them", async () => {
     const db = {
       select: vi.fn().mockReturnValueOnce({
