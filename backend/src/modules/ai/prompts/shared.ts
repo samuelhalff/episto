@@ -5,7 +5,7 @@ export type PromptConversationMessage = {
   content: string;
 };
 
-export const PROMPT_VERSION = "2.0.0";
+export const PROMPT_VERSION = "2.1.0";
 
 export const USER_CONTENT_DELIMITER_START = "<<<USER_SITUATION>>>";
 export const USER_CONTENT_DELIMITER_END = "<<<END_USER_SITUATION>>>";

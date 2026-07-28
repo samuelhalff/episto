@@ -181,13 +181,26 @@ export function ingestAttachmentInBackground(fileAssetId: string): void {
  * anti-prompt-injection instruction, and hard-capped in total length so it can
  * never blow up per-turn token cost. Returns "" when there is nothing to inject.
  */
+/**
+ * Neutralize marker-like runs in document text.
+ *
+ * The block tells the model that everything between `=== ATTACHED DOCUMENTS ===`
+ * and `=== END ATTACHED DOCUMENTS ===` is data. A document that contains its own
+ * `===` run can close that region early and have the rest of its text read as
+ * conversation. Template guidance already de-fangs this the same way; attachments
+ * are the higher-risk source, since anyone can email the user a PDF.
+ */
+function defangMarkers(text: string | null): string | null {
+  return text === null ? null : text.replace(/={2,}/g, "—");
+}
+
 export function buildAttachmentContextBlockFromDocs(
   docs: Array<{ name: string | null; text: string | null }>,
 ): string {
   let budget = ATTACHMENT_INGESTION.maxTotalInjectedChars;
   const parts: string[] = [];
   for (const [i, doc] of docs.entries()) {
-    const text = doc.text?.trim();
+    const text = defangMarkers(doc.text)?.trim();
     if (!text || budget <= 0) continue;
     const slice = text.slice(0, budget);
     budget -= slice.length;
