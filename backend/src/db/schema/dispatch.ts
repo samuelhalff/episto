@@ -64,6 +64,12 @@ export const dispatchAttempts = pgTable(
      */
     submissionStartedAt: ts("submission_started_at"),
     lastCheckedAt: ts("last_checked_at"),
+    /**
+     * When the customer was told this attempt is under review. Set once, by the
+     * dwell sweep, and never cleared on a later resolution — it records that we
+     * spoke, not the current state.
+     */
+    underReviewNotifiedAt: ts("under_review_notified_at"),
     failureReason: text("failure_reason"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),

@@ -279,6 +279,69 @@ describe("Email template rendering", () => {
     expect(result.html).toContain("&lt;script&gt;");
   });
 
+  // ---- dispatch-under-review ----
+
+  /**
+   * The four things this email must never imply — rejection, refund, delivery,
+   * provider acceptance — are the whole reason it exists as a separate
+   * template. A well-meaning edit that reassures the reader with "we will
+   * refund you" turns an honest status note into a promise we cannot keep.
+   */
+  it("renders dispatch-under-review without claiming rejection, refund, delivery or acceptance", () => {
+    const result = renderTemplate("dispatch-under-review", "en-CH", {
+      orderRef: "EP-98765",
+      supportEmail: "support@test.com",
+      appPublicUrl: "https://episto.ch",
+      brandName: "episto",
+      legalEntityName: "West Bay SA",
+      legalEntityAddress: "Test Address",
+      legalEntityCountry: "Switzerland",
+      legalEntityUidVat: "CHE-107.892.984",
+    });
+
+    expect(result.text).toContain("EP-98765");
+    expect(result.text).toContain("No action is needed");
+    expect(result.html).toContain("EP-98765");
+    expect(result.html).toContain("West Bay SA");
+    expect(result.html).toContain("support@test.com");
+
+    for (const forbidden of [
+      "refund",
+      "refunded",
+      "rejected",
+      "could not be sent",
+      "delivered",
+      "accepted",
+      "on its way",
+    ]) {
+      expect(result.text.toLowerCase()).not.toContain(forbidden);
+      expect(result.html.toLowerCase()).not.toContain(forbidden);
+    }
+  });
+
+  it("renders dispatch-under-review in every supported locale", () => {
+    for (const locale of ["de-CH", "fr-CH", "it-CH", "en-CH"]) {
+      const result = renderTemplate("dispatch-under-review", locale, {
+        orderRef: "EP-LOCALE",
+        supportEmail: "support@test.com",
+      });
+      expect(result.subject).toBeTruthy();
+      expect(result.text).toContain("EP-LOCALE");
+      expect(result.html).toContain("EP-LOCALE");
+    }
+
+    // Not the English fallback: an unlocalised template is a silent regression.
+    expect(renderTemplate("dispatch-under-review", "de-CH", {}).subject).toContain(
+      "prüfen",
+    );
+    expect(renderTemplate("dispatch-under-review", "fr-CH", {}).subject).toContain(
+      "vérifions",
+    );
+    expect(renderTemplate("dispatch-under-review", "it-CH", {}).subject).toContain(
+      "verificando",
+    );
+  });
+
   it("encodes tracking number in Swiss Post URL", () => {
     const result = renderTemplate("dispatch-accepted", "en-CH", {
       orderRef: "ORD-ENC",

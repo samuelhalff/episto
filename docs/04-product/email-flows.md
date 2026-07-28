@@ -84,22 +84,40 @@ shipped set, and the two drifted far enough apart once to leave a template enque
 renderer. Renderers live in `backend/src/workers/email-templates.ts`; a template only sends if
 something enqueues it.
 
-| Template                           | Renderer        | Enqueued from                                                                                |
-| ---------------------------------- | --------------- | -------------------------------------------------------------------------------------------- |
-| `payment-receipt`                  | yes             | `payments/receipt-notifications.ts` on capture                                               |
-| `dispatch-submitted`               | yes             | `dispatch/dispatch-notifications.ts`                                                         |
-| `dispatch-accepted`                | yes             | `dispatch/dispatch-notifications.ts`                                                         |
-| `dispatch-failed`                  | yes             | `dispatch/dispatch-notifications.ts`, on a settled rejection only                            |
-| `refund-confirmed`                 | yes             | `payments/refund-ledger.service.ts`, once per Stripe refund as it transitions to `succeeded` |
-| `resume-link`                      | yes             | **nothing — not shipped.** Template 4 below describes a trigger that does not exist          |
-| dispatch under review (Template 5) | **no renderer** | not shipped                                                                                  |
+| Template                | Renderer | Enqueued from                                                                                |
+| ----------------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `payment-receipt`       | yes      | `payments/receipt-notifications.ts` on capture                                               |
+| `dispatch-submitted`    | yes      | `dispatch/dispatch-notifications.ts`                                                         |
+| `dispatch-accepted`     | yes      | `dispatch/dispatch-notifications.ts`                                                         |
+| `dispatch-failed`       | yes      | `dispatch/dispatch-notifications.ts`, on a settled rejection only                            |
+| `refund-confirmed`      | yes      | `payments/refund-ledger.service.ts`, once per Stripe refund as it transitions to `succeeded` |
+| `resume-link`           | yes      | **nothing — not shipped.** Template 4 below describes a trigger that does not exist          |
+| `dispatch-under-review` | yes      | `dispatch/dispatch-review-notifications.ts`, from the `dispatch-liveness` sweep              |
 
-The two unshipped ones are deliberate, not forgotten. A resume-link email needs an address
+The one still-unshipped template is deliberate, not forgotten. A resume-link email needs an address
 collected _before_ checkout. The session can carry one (`PATCH /api/v1/sessions/me` accepts
 `email`), but no step in the draft flow asks for it before the checkout form — so in practice the
-address arrives at the moment there is nothing left to resume. An under-review email needs a `unknown`-state dwell policy
-we have not set; sending it early would tell customers their letter is in doubt more often than it
-actually is.
+address arrives at the moment there is nothing left to resume.
+
+**Under-review dwell policy (implemented).** The under-review email is sent once, when a dispatch
+attempt has been in `unknown` for at least 24 hours (`UNDER_REVIEW_DWELL_HOURS` in
+`backend/src/modules/dispatch/dispatch-review-notifications.ts`) and still has no definitive
+outcome. Sending the moment the state goes `unknown` would tell customers their letter is in doubt
+far more often than it actually is, because most `unknown` states resolve on the next reconcile
+poll. 24 hours is the point at which silence is worse than an honest "we don't know yet".
+
+Mechanics worth knowing before changing it:
+
+- The dwell is measured from the `dispatch_status_events` row that put the attempt into `unknown`,
+  not from `dispatch_attempts.updated_at` — reconciliation writes `last_checked_at` on every poll,
+  which would restart the clock forever.
+- Once-only is enforced by `dispatch_attempts.under_review_notified_at` (migration 0028), claimed
+  with a conditional `UPDATE ... WHERE state = 'unknown' AND under_review_notified_at IS NULL`. That
+  same condition is what keeps an attempt that resolved between scan and send silent. The BullMQ job
+  id (`dispatch-under-review-<attemptId>`) is the second belt.
+- The sweep runs inside the existing `dispatch-liveness` worker, which already walks `unknown`
+  attempts on a schedule. There is no separate cron for it, and there should not be one.
+- A session with no email (erased under a deletion request) is a quiet skip, not an error.
 
 Launch ownership rules:
 
@@ -190,10 +208,10 @@ activity if payment is still incomplete and the session has an email address
 
 ### Template 5: Dispatch under review
 
-**Trigger:** `DispatchState` transitions to `unknown`, or support/manual reconciliation places the
-case under review
-**Timing:** Sent once the backend determines that the provider outcome cannot be stated
-deterministically yet
+**Trigger:** a dispatch attempt has been in `DispatchState` `unknown` for at least 24 hours and
+still has no definitive outcome (see the dwell policy above)
+**Timing:** once per dispatch attempt, from the `dispatch-liveness` sweep — never on entry into
+`unknown`, which usually resolves on the next reconcile poll
 
 **Subject (i18n key):** `email.dispatch_under_review.subject` → e.g., "We're reviewing your letter's dispatch status"
 

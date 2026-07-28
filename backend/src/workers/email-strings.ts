@@ -400,3 +400,67 @@ export const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStri
     supportLine: "Domande? Ci contatti all'indirizzo",
   },
 };
+
+// ---------------------------------------------------------------------------
+// dispatch-under-review
+//
+// The hardest email to word: everything true about this state is a negative.
+// The letter was handed over, the provider has not answered, and we do not know
+// which way it will go. Every line here is therefore checked against four
+// things it must NOT imply — rejection, refund, delivery, or provider
+// acceptance. "No action is needed" is the point of the message; the status is
+// context for it.
+// ---------------------------------------------------------------------------
+
+export interface DispatchUnderReviewStrings {
+  subject: string;
+  heading: string;
+  body: string;
+  noActionNote: string;
+  followUp: string;
+  orderLabel: string;
+  supportLine: string;
+}
+
+export const DISPATCH_UNDER_REVIEW_STRINGS: Record<
+  SupportedLocale,
+  DispatchUnderReviewStrings
+> = {
+  "en-CH": {
+    subject: `${BRAND_NAME} – We are checking your letter's status`,
+    heading: "We are checking your letter's status",
+    body: "We submitted your letter, but Swiss Post has not confirmed the outcome yet.",
+    noActionNote: "No action is needed from you right now.",
+    followUp: "We will email you again as soon as the status is confirmed.",
+    orderLabel: "Order",
+    supportLine: "Questions? Contact us at",
+  },
+  "de-CH": {
+    subject: `${BRAND_NAME} – Wir prüfen den Status Ihres Briefs`,
+    heading: "Wir prüfen den Status Ihres Briefs",
+    body: "Wir haben Ihren Brief eingereicht, die Schweizerische Post hat das Ergebnis jedoch noch nicht bestätigt.",
+    noActionNote: "Von Ihnen ist derzeit nichts zu tun.",
+    followUp:
+      "Sobald der Status bestätigt ist, erhalten Sie von uns eine weitere E-Mail.",
+    orderLabel: "Bestellung",
+    supportLine: "Fragen? Kontaktieren Sie uns unter",
+  },
+  "fr-CH": {
+    subject: `${BRAND_NAME} – Nous vérifions le statut de votre lettre`,
+    heading: "Nous vérifions le statut de votre lettre",
+    body: "Nous avons soumis votre lettre, mais La Poste Suisse n'a pas encore confirmé le résultat.",
+    noActionNote: "Aucune action n'est requise de votre part pour le moment.",
+    followUp: "Nous vous écrirons dès que le statut sera confirmé.",
+    orderLabel: "Commande",
+    supportLine: "Des questions ? Contactez-nous à",
+  },
+  "it-CH": {
+    subject: `${BRAND_NAME} – Stiamo verificando lo stato della sua lettera`,
+    heading: "Stiamo verificando lo stato della sua lettera",
+    body: "Abbiamo inoltrato la sua lettera, ma la Posta Svizzera non ha ancora confermato l'esito.",
+    noActionNote: "Al momento non è richiesta alcuna azione da parte sua.",
+    followUp: "Le scriveremo non appena lo stato sarà confermato.",
+    orderLabel: "Ordine",
+    supportLine: "Domande? Ci contatti all'indirizzo",
+  },
+};

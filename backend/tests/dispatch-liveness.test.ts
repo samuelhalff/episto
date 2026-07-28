@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   transitionDispatchState: vi.fn(),
   requeueDispatchSubmission: vi.fn(),
   enqueueDispatchReconciliation: vi.fn(),
+  sweepDispatchAttemptsUnderReview: vi.fn(),
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
 
@@ -39,6 +40,13 @@ vi.mock("../src/modules/dispatch/dispatch.jobs.js", () => ({
   enqueueDispatchReconciliation: mocks.enqueueDispatchReconciliation,
 }));
 
+// The under-review dwell sweep has its own integration test against a real
+// database (dispatch-under-review.integration.test.ts); here it only has to be
+// wired into the same pass.
+vi.mock("../src/modules/dispatch/dispatch-review-notifications.js", () => ({
+  sweepDispatchAttemptsUnderReview: mocks.sweepDispatchAttemptsUnderReview,
+}));
+
 const db = {} as never;
 
 /**
@@ -53,6 +61,7 @@ describe("dispatch liveness sweep", () => {
     mocks.transitionDispatchState.mockReset();
     mocks.requeueDispatchSubmission.mockReset();
     mocks.enqueueDispatchReconciliation.mockReset();
+    mocks.sweepDispatchAttemptsUnderReview.mockReset().mockResolvedValue(0);
     mocks.logger.warn.mockReset();
     mocks.logger.error.mockReset();
   });
@@ -75,6 +84,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 1,
       flaggedUnknown: 0,
       reconciliationRedriven: 0,
+      underReviewNotified: 0,
     });
     expect(mocks.requeueDispatchSubmission).toHaveBeenCalledWith({
       draftId: "draft-1",
@@ -102,6 +112,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 0,
       flaggedUnknown: 1,
       reconciliationRedriven: 0,
+      underReviewNotified: 0,
     });
     // The draft has to follow the attempt, or the user sees a paid letter
     // still sitting in `ready`.
@@ -150,6 +161,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 1,
       flaggedUnknown: 0,
       reconciliationRedriven: 0,
+      underReviewNotified: 0,
     });
     expect(mocks.logger.error).toHaveBeenCalled();
   });
@@ -172,6 +184,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 0,
       flaggedUnknown: 0,
       reconciliationRedriven: 0,
+      underReviewNotified: 0,
     });
     expect(mocks.requeueDispatchSubmission).not.toHaveBeenCalled();
     expect(mocks.logger.error).toHaveBeenCalled();
@@ -217,6 +230,34 @@ describe("dispatch liveness sweep", () => {
     const result = await sweepStuckDispatches(db);
 
     expect(result.reconciliationRedriven).toBe(1);
+    expect(mocks.logger.error).toHaveBeenCalled();
+  });
+
+  it("runs the under-review dwell sweep in the same pass", async () => {
+    mocks.findStuckDispatchAttempts.mockResolvedValue([]);
+    mocks.sweepDispatchAttemptsUnderReview.mockResolvedValue(2);
+
+    const { sweepStuckDispatches } =
+      await import("../src/workers/dispatch-liveness.worker.js");
+    const result = await sweepStuckDispatches(db);
+
+    expect(mocks.sweepDispatchAttemptsUnderReview).toHaveBeenCalledWith(db);
+    expect(result.underReviewNotified).toBe(2);
+  });
+
+  it("still reports the recovery work when the under-review sweep fails", async () => {
+    mocks.findStuckDispatchAttempts.mockResolvedValue([]);
+    mocks.findUnwatchedUnknownDispatches.mockResolvedValue([
+      { id: "dispatch-c", draftId: "draft-c" },
+    ]);
+    mocks.sweepDispatchAttemptsUnderReview.mockRejectedValue(new Error("db down"));
+
+    const { sweepStuckDispatches } =
+      await import("../src/workers/dispatch-liveness.worker.js");
+    const result = await sweepStuckDispatches(db);
+
+    expect(result.reconciliationRedriven).toBe(1);
+    expect(result.underReviewNotified).toBe(0);
     expect(mocks.logger.error).toHaveBeenCalled();
   });
 });

@@ -11,6 +11,7 @@ import {
   enqueueDispatchReconciliation,
   requeueDispatchSubmission,
 } from "../modules/dispatch/dispatch.jobs.js";
+import { sweepDispatchAttemptsUnderReview } from "../modules/dispatch/dispatch-review-notifications.js";
 import { updateDraftStatusForDispatchSubmission } from "./dispatch-settlement.js";
 
 const logger = createLogger("dispatch-liveness-worker");
@@ -22,6 +23,7 @@ export interface LivenessSweepResult {
   requeued: number;
   flaggedUnknown: number;
   reconciliationRedriven: number;
+  underReviewNotified: number;
 }
 
 /**
@@ -134,7 +136,21 @@ export async function sweepStuckDispatches(db: Db): Promise<LivenessSweepResult>
     }
   }
 
-  return { requeued, flaggedUnknown, reconciliationRedriven };
+  // This sweep is already the thing that walks `unknown` attempts on a
+  // schedule, so it is also where the customer-facing side of a long silence
+  // belongs: an attempt that has sat in `unknown` past the dwell window gets
+  // one honest under-review email. No second cron for the same rows.
+  let underReviewNotified = 0;
+  try {
+    underReviewNotified = await sweepDispatchAttemptsUnderReview(db);
+  } catch (err) {
+    logger.error(
+      { err: err instanceof Error ? err.message : "Unknown error" },
+      "Under-review notification sweep failed",
+    );
+  }
+
+  return { requeued, flaggedUnknown, reconciliationRedriven, underReviewNotified };
 }
 
 export async function processDispatchLivenessJob(
@@ -146,11 +162,12 @@ export async function processDispatchLivenessJob(
   if (
     result.requeued > 0 ||
     result.flaggedUnknown > 0 ||
-    result.reconciliationRedriven > 0
+    result.reconciliationRedriven > 0 ||
+    result.underReviewNotified > 0
   ) {
     logger.warn(result, "Dispatch liveness sweep recovered stuck attempts");
     job.log(
-      `Liveness sweep: requeued=${result.requeued} unknown=${result.flaggedUnknown} redriven=${result.reconciliationRedriven}`,
+      `Liveness sweep: requeued=${result.requeued} unknown=${result.flaggedUnknown} redriven=${result.reconciliationRedriven} underReview=${result.underReviewNotified}`,
     );
   }
 }

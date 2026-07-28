@@ -42,6 +42,8 @@ import {
   type RenderedEmail,
 } from "./email-template-helpers.js";
 
+import { renderDispatchUnderReview } from "./email-template-under-review.js";
+
 export type { RenderedEmail };
 
 // ---------------------------------------------------------------------------
@@ -438,6 +440,7 @@ const TEMPLATE_RENDERERS: Record<
   "dispatch-submitted": renderDispatchSubmitted,
   "dispatch-accepted": renderDispatchAccepted,
   "dispatch-failed": renderDispatchFailed,
+  "dispatch-under-review": renderDispatchUnderReview,
   "resume-link": renderResumeLink,
   "refund-confirmed": renderRefundConfirmed,
   "payment-receipt": renderPaymentReceipt,
