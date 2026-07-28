@@ -314,10 +314,17 @@ export function IntakeStep({
           />
         }
       />
+      {/*
+       * The file picker offers exactly what the upload enforces. This one
+       * listed `.pdf,.png,.jpg,.jpeg` by hand while the attachment uploader on
+       * the next screen read `FILE_LIMITS.attachment` — two answers to "what
+       * can I attach?" that agree only by coincidence, and only one of which
+       * moves when the limit does.
+       */}
       <input
         ref={attachmentInputRef}
         type="file"
-        accept=".pdf,.png,.jpg,.jpeg"
+        accept={files.attachmentConstraints.allowedMimeTypes.join(",")}
         multiple
         className="hidden"
         onChange={async (event) => {
