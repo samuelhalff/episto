@@ -2,6 +2,14 @@
 
 Date: `2026-04-20`
 
+> **Historical record — obsolete.** QES and the SwissSign / SwissID scaffolding this audit prepared
+> were **removed on 2026-06-10** (`docs/superpowers/plans/2026-06-10-remove-qes-swisssign-signing.md`).
+> `shared/src/enums.ts:78` now defines `SignatureFlowMode` as `{ none, visual }`, and no signature
+> session, provider, or eligibility object exists in `backend/src/db/schema/`. Nothing below
+> describes a planned or pending piece of work; it is kept only as a snapshot of the seams as they
+> stood on 2026-04-20. See [`../04-product/signatures-and-attachments.md`](../04-product/signatures-and-attachments.md)
+> for the live signature model.
+
 ## Scope
 
 Audit of the current draft, preview, payment, dispatch, resume, and signing seams before adding SwissSign / SwissID readiness.

@@ -10,42 +10,51 @@ consistent.
 
 ## File categories
 
-| Category | Purpose | Storage key pattern |
-|---|---|---|
-| `attachment` | Supporting documents sent with the letter | `attachments/{sessionId}/{fileId}` |
-| `signature_image` | User-uploaded handwritten signature image | `signatures/{sessionId}/{fileId}` |
-| `rendered_pdf` | Canonical server-generated letter PDF artifact | `renders/{draftId}/{renderVersion}.pdf` |
+| Category          | Purpose                                        | Storage key pattern                     |
+| ----------------- | ---------------------------------------------- | --------------------------------------- |
+| `attachment`      | Supporting documents sent with the letter      | `attachments/{sessionId}/{fileId}`      |
+| `signature_image` | User-uploaded handwritten signature image      | `signatures/{sessionId}/{fileId}`       |
+| `rendered_pdf`    | Canonical server-generated letter PDF artifact | `renders/{draftId}/{renderVersion}.pdf` |
 
 ## Locked limits (provisional — configurable) — GAP-9
 
-| Parameter | Locked provisional value | Config key |
-|---|---|---|
-| Max file size per attachment | **5 MB** | `MAX_ATTACHMENT_FILE_BYTES` |
-| Max attachments per draft | **5** | `MAX_ATTACHMENTS_PER_DRAFT` |
-| Max total upload per draft | **20 MB** | `MAX_TOTAL_UPLOAD_BYTES` |
-| Max signature image size | **2 MB** | `MAX_SIGNATURE_FILE_BYTES` |
-| Max body characters | **10,000** | `MAX_BODY_CHARS` |
-| Max subject characters | **200** | `MAX_SUBJECT_CHARS` |
+| Parameter                    | Shipped default          | Config key                  |
+| ---------------------------- | ------------------------ | --------------------------- |
+| Max file size per attachment | **5 MB** (5,242,880 B)   | `MAX_ATTACHMENT_FILE_BYTES` |
+| Max attachments per draft    | **5**                    | `MAX_ATTACHMENTS_PER_DRAFT` |
+| Max total upload per draft   | **27 MB** (28,311,552 B) | `MAX_TOTAL_UPLOAD_BYTES`    |
+| Max signature image size     | **2 MB** (2,097,152 B)   | `MAX_SIGNATURE_FILE_BYTES`  |
+| Max body characters          | **10,000**               | `MAX_BODY_CHARS`            |
+| Max subject characters       | **200**                  | `MAX_SUBJECT_CHARS`         |
 
-These values are locked as provisional defaults. Any change requires a documented decision with
-rationale — do not adjust silently.
+The defaults live in `shared/src/limits.ts` — the frontend reads them for client-side hints before it
+has talked to the server. The four environment variables above override them, and the backend is the
+only enforcement point: it validates against the configured values and returns them in
+`attachmentConstraints` on `GET /drafts/:id/files`, so the UI cannot advertise a ceiling the server
+does not apply.
+
+The total-upload default is 27 MB, not the 20 MB this document specified until the limits were made
+configurable. 27 MB is the value that shipped and is left unchanged; deployments that want 20 MB set
+`MAX_TOTAL_UPLOAD_BYTES=20971520`.
+
+Any change to a default requires a documented decision with rationale — do not adjust silently.
 
 ## Allowed MIME types
 
 ### Attachments
 
-| MIME type | Notes |
-|---|---|
-| `application/pdf` | Primary format |
-| `image/png` | |
-| `image/jpeg` | Includes `.jpg` and `.jpeg` extensions |
+| MIME type         | Notes                                  |
+| ----------------- | -------------------------------------- |
+| `application/pdf` | Primary format                         |
+| `image/png`       |                                        |
+| `image/jpeg`      | Includes `.jpg` and `.jpeg` extensions |
 
 ### Signature images
 
-| MIME type | Notes |
-|---|---|
-| `image/png` | Preferred |
-| `image/jpeg` | |
+| MIME type    | Notes     |
+| ------------ | --------- |
+| `image/png`  | Preferred |
+| `image/jpeg` |           |
 
 Do not add office formats (`.docx`, `.xlsx`, etc.) until the provider path and any conversion
 model are explicitly decided and documented.

@@ -1,8 +1,8 @@
 # A4 Letter Template Specification
 
 **Project**: episto  
-**Status**: Draft — open decisions listed in §10  
-**Last updated**: 2026-03-15  
+**Status**: Draft — open decisions listed in §12  
+**Last updated**: 2026-07-28  
 **Scope**: Physical layout, typography, zone map, rendering rules, and validation for the single A4 letter template used in MVP.
 
 This file mixes settled geometry with still-open typography and rendering choices. Implement only
@@ -16,6 +16,18 @@ blocked until explicitly locked elsewhere.
 > replaces it. Do not change one surface without changing the other and updating this file in the
 > same commit.
 
+> **Reversal of locked geometry — 2026-07-28.** This document previously locked a **left-hand**
+> recipient window block and a 20/20/25/20 `@page` margin, and described fold marks, continuation-page
+> headers and an address-bounds check as requirements. The shipped code implements a **right-hand**
+> address block, `@page { margin: 0 }` with absolute positioning, and none of those three features.
+> Rather than leave the divergence silent, the affected sections below have been rewritten to the
+> implemented geometry, with the superseded locked values quoted in place. The single source of truth
+> for coordinates is now [`shared/src/letter-layout.ts`](../../shared/src/letter-layout.ts), consumed
+> by both `backend/src/modules/rendering/render-template.ts` and
+> `frontend/src/components/product/LetterPreview.tsx`. Superseded sections are marked
+> **Superseded 2026-07-28**. This closes Finding 4 of
+> [`implementation-status.md`](implementation-status.md); the unresolved parts are restated in §4.1.
+
 ---
 
 ## 1. Swiss Postal Standards Reference
@@ -24,16 +36,27 @@ episto uses the Swiss standard C5/6 (DL) window envelope, the dominant format in
 
 ### Standard Envelope: C5/6 (DL)
 
-| Property           | Value                                                 |
-| ------------------ | ----------------------------------------------------- |
-| Envelope format    | C5/6 (DL), 220mm × 110mm                              |
-| Folding            | Letter folded in thirds (trifold)                     |
-| Window type        | Left window (standard Swiss business)                 |
-| Window position    | ~45mm from left edge, ~50mm from top of folded letter |
-| Window size        | ~90mm × 45mm                                          |
-| Governing standard | SN 010130                                             |
+| Property           | Value                                        |
+| ------------------ | -------------------------------------------- |
+| Envelope format    | C5/6 (DL), 220mm × 110mm                     |
+| Folding            | Letter folded in thirds (trifold)            |
+| Window type        | Right window — see the 2026-07-28 note below |
+| Window position    | Unverified — see below                       |
+| Window size        | Unverified — see below                       |
+| Governing standard | SN 010130 (cited, not held in this repo)     |
 
-> **⚠️ Verification required**: These measurements are based on publicly available Swiss postal standard SN 010130 and common Swiss business envelope specifications. Exact window position and size **must be verified against the specific envelope supplier** before production. A ±2mm tolerance difference in window position can cause address misalignment. The rendering system must include an envelope-supplier configuration record with confirmed measurements.
+> **⚠️ Unverified figures — 2026-07-28**: the window figures previously tabulated here (~45mm from
+> the left edge, ~50mm from the top of the folded letter, ~90mm × 45mm) were never sourced from a copy
+> of SN 010130 held in this repository, and no other document in `docs/` records confirmed
+> envelope-window coordinates. They are **unverified** and have been removed rather than restated as
+> if measured. Position and size **must be verified against the specific envelope supplier** before
+> production — a ±2mm difference misaligns the address — and the confirmed measurements recorded in an
+> envelope-supplier configuration record. OD-T7 (§12); still a production blocker.
+
+> **Window side — 2026-07-28**: the implemented address block sits on the **right** of the sheet
+> (§3, Zone 3) — the Swiss right-window convention, a legitimate alternative to the left-window layout
+> this document originally assumed. The left-window figures are retained only as superseded reference.
+> Which supplier envelope is actually purchased is unresolved and belongs to OD-T7.
 
 ### How the fold determines window alignment
 
@@ -42,9 +65,17 @@ A DL envelope receives a trifold letter. The letter is folded:
 - **First fold**: at 99mm from top (bottom third folds up)
 - **Second fold**: at 198mm from top (top third folds down over bottom)
 
-When folded and inserted, the **middle third of the A4 sheet** (from 99mm to 198mm from the top) faces outward through the window. The recipient address block must sit within this zone, positioned to align with the envelope window at approximately 45mm from the left edge and 50mm from the top of the folded portion.
+When folded and inserted, the **middle third of the A4 sheet** (from 99mm to 198mm from the top) faces
+outward through the window.
 
-On the unfolded A4, the recipient address block must begin at approximately **57mm from the top of the page** (= 50mm window offset from folded-letter top + 7mm of envelope-to-letter clearance) and sit left-aligned at **25mm from the left margin**.
+> **Superseded 2026-07-28.** The paragraph here previously required the recipient block to begin at
+> "approximately **57mm from the top of the page** (= 50mm window offset from folded-letter top + 7mm
+> of envelope-to-letter clearance)" and to "sit left-aligned at **25mm from the left margin**". The
+> implementation places it at 52mm from the top and 121mm from the left
+> ([`shared/src/letter-layout.ts:17-22`](../../shared/src/letter-layout.ts)) — above the 99mm first
+> fold, so it is the top third of the sheet, not the middle third, that carries the address. The fold
+> arithmetic in this section describes the superseded left-window layout and has not been re-derived
+> for the right-window one; doing so requires a physical envelope (§4.1).
 
 ---
 
@@ -61,14 +92,35 @@ On the unfolded A4, the recipient address block must begin at approximately **57
 
 ### Margins
 
-| Margin               | Value     | Rationale                                             |
-| -------------------- | --------- | ----------------------------------------------------- |
-| Top                  | 20mm      | Allows header/sender block; clear of print zone edge  |
-| Bottom               | 20mm      | Standard safe print zone                              |
-| Left                 | 25mm      | Wider for binding clearance; aligns with address zone |
-| Right                | 20mm      | Standard                                              |
-| **Printable width**  | **165mm** | 210mm − 25mm − 20mm                                   |
-| **Printable height** | **257mm** | 297mm − 20mm − 20mm                                   |
+> **Superseded 2026-07-28.** This section previously locked a single page margin of
+> 20mm top / 20mm bottom / 25mm left / 20mm right, giving a 165mm × 257mm printable area. No such
+> `@page` margin exists in the renderer. Two independent mechanisms are in play instead, and the
+> honest description is that they compose:
+
+**1 — The letter HTML has no page margin.** All white space is produced by the coordinates
+themselves: absolutely positioned blocks inside a `.letter-layout-shell`, plus padding on the body
+flow region (114mm top, 20mm right, 20mm bottom, 25mm left), which is what gives the body its 165mm
+measure and the 25mm left edge the original lock intended.
+
+**2 — Puppeteer applies its own margin box on top.** The letter render path calls
+`renderPdfBufferFromHtml(html)` with no `margins` option (`render-snapshot-pipeline.ts:87`), so the
+defaults apply. Only the confirmation cover page overrides them (`pdf-access.ts:330-333`).
+
+| Property              | Implemented value                             | Source                       |
+| --------------------- | --------------------------------------------- | ---------------------------- |
+| `@page` (letter HTML) | `size: A4; margin: 0`                         | `render-template.ts:191-194` |
+| Layout shell          | 210mm × 297mm, `position: relative`           | `render-template.ts:211-216` |
+| Fixed blocks          | `position: absolute`, mm from `letter-layout` | `render-template.ts:217-223` |
+| Body flow padding     | 114 / 20 / 20 / 25mm (top/right/bottom/left)  | `letter-layout.ts:28-33`     |
+| Puppeteer margin box  | 25mm top, 25mm right, 30mm bottom, 25mm left  | `render-pdf.ts:35-40`        |
+| Puppeteer page format | A4, `printBackground: true`                   | `render-pdf.ts:52-56`        |
+
+**The interaction is not resolved from source.** A 210mm-wide shell is being laid out inside a
+Puppeteer content box of 160mm × 242mm. Whether Chromium offsets the shell's origin by the margin
+box, clips it, or reflows it onto further pages determines whether a coordinate of "52mm from the
+top" in `letter-layout.ts` is 52mm or 77mm from the physical paper edge. There is no test in
+`backend/src/modules/rendering/` that settles this, and this document does not assert an answer. It
+is the first item in §4.1.
 
 ---
 
@@ -77,95 +129,81 @@ On the unfolded A4, the recipient address block must begin at approximately **57
 Coordinates are from the **top-left corner of the A4 page** (origin = 0, 0).  
 All values in mm.
 
+Coordinates below are the implemented ones, read from
+[`shared/src/letter-layout.ts:6-33`](../../shared/src/letter-layout.ts), and are stated as
+`left,top` of the absolutely positioned block within the 210 × 297mm shell.
+
 ```
-0mm ┌─────────────────────────────────────────┐ 210mm
-    │                                         │
-20mm├─── TOP MARGIN ──────────────────────────┤
-    │                                         │
-    │  [SENDER ZONE]          [DATE/REF ZONE] │
-    │  25,20                  130,20          │
-    │  80mm×25mm              60mm×20mm       │
-    │                                         │
-45mm├─────────────────────────────────────────┤
-    │  [RETURN ADDRESS LINE]                  │
-    │  25,48  — 6-7pt one-line sender         │
-    │                                         │
-50mm├─────────────────────────────────────────┤
-    │  ╔═══════════════════╗                  │
-    │  ║  RECIPIENT ZONE   ║  ← WINDOW AREA  │
-    │  ║  25,55            ║                  │
-    │  ║  85mm × 45mm      ║                  │
-    │  ║  (4–6 lines)      ║                  │
-    │  ╚═══════════════════╝                  │
-    │                                         │
-99mm├ · · fold mark · · · · · · · · · · · · · ┤
-    │                                         │
-    │  [REFERENCE/DATE block — right side]    │
-    │  Position: 130,105  60mm×15mm           │
-    │                                         │
-    │  [SUBJECT LINE]                         │
-    │  25,120  bold                           │
-    │                                         │
-    │  [SALUTATION]                           │
-    │  25,132                                 │
-    │                                         │
-    │  [BODY ZONE]                            │
-    │  25,145                                 │
-    │  165mm wide, variable height            │
-    │  extends to ~250mm                      │
-    │                                         │
-    │  [CLOSING + SIGNATURE ZONE]             │
-    │  25,~252                                │
-    │  ~35mm height                           │
-    │                                         │
-    │  [ENCLOSURE NOTE — optional]            │
-    │  25,~268                                │
-    │                                         │
-198mm├ · · fold mark · · · · · · · · · · · · ·┤
-    │                                         │
-277mm└─────────────────────────────────────────┘
-      bottom margin (20mm above 297mm edge)
+0mm  ┌─────────────────────────────────────────┐ 210mm
+20mm │  [SENDER BLOCK] 25,20  80mm wide        │
+40mm │                  [DISPATCH LINE] 121,40 │
+52mm │                  ╔══════════════════╗   │
+     │                  ║ RECIPIENT BLOCK  ║   │
+     │                  ║ 121,52  59×≥31mm ║   │
+83mm │                  ╚══════════════════╝   │
+87mm │                  [RIGHT META] 121,87    │
+99mm ├ · · first fold — NOT RENDERED · · · · · ┤
+114mm│  [BODY FLOW] padding 114/20/20/25mm     │
+     │  subject, salutation, body, closing,    │
+     │  signature, enclosure — normal flow     │
+198mm├ · · second fold — NOT RENDERED · · · · ·┤
+297mm└─────────────────────────────────────────┘
+      + Puppeteer margin box 25/25/30/25mm (§2)
 ```
 
 ### Zone Definitions
 
 #### Zone 1 — Sender Block
 
-| Property    | Value                                             |
-| ----------- | ------------------------------------------------- |
-| Top-left    | 25mm, 20mm                                        |
-| Size        | 80mm × 25mm                                       |
-| Alignment   | Left (or optionally right-aligned at 130mm, 20mm) |
-| Content     | Name, street + number, PLZ + city                 |
-| Lines       | 3 lines maximum                                   |
-| Font size   | 8–9pt, regular weight                             |
-| Line height | 13–14pt                                           |
+| Property  | Value                                                     |
+| --------- | --------------------------------------------------------- |
+| Left, top | 25mm, 20mm (`letter-layout.ts:7-11`)                      |
+| Width     | 80mm                                                      |
+| Alignment | Left                                                      |
+| Content   | Name, street + number, PLZ + city                         |
+| Lines     | 3 lines maximum                                           |
+| Font size | 8.75pt (`LETTER_LAYOUT_PT.sender`, `letter-layout.ts:59`) |
 
 Current product lock: the sender stays in the top-left. Do not move it to the right unless preview, backend rendering, and this specification are all updated together.
 
-#### Zone 2 — Return Address Line
+#### Zone 2 — Dispatch Line (formerly "Return Address Line")
 
-| Property  | Value                                                                    |
-| --------- | ------------------------------------------------------------------------ |
-| Top-left  | 25mm, 48mm                                                               |
-| Size      | 85mm × 6mm                                                               |
-| Content   | Single line: "Firstname Lastname, Street Nr, PLZ City"                   |
-| Font size | 6–7pt, regular                                                           |
-| Purpose   | Visible in envelope window above recipient block (standard Swiss format) |
+| Property  | Value                                                       |
+| --------- | ----------------------------------------------------------- |
+| Left, top | 121mm, 40mm (`letter-layout.ts:12-16`)                      |
+| Width     | 59mm                                                        |
+| Content   | Single line: dispatch/return line above the recipient block |
+| Font size | 8.25pt (`LETTER_LAYOUT_PT.dispatch`, `letter-layout.ts:60`) |
 
-This line appears directly above the recipient block inside the window zone. It is a Swiss business letter convention to include the sender's abbreviated address here.
+> **Superseded 2026-07-28.** Previously specified at 25mm, 48mm, 85mm × 6mm, 6–7pt, i.e. on the
+> left. It moved to the right with the address block.
 
-#### Zone 3 — Recipient Block _(CRITICAL — postal window alignment)_
+#### Zone 3 — Recipient Block _(postal window alignment — right-hand block)_
+
+> **Reversal of a locked decision — 2026-07-28.** This zone was marked **CRITICAL** and locked to a
+> **left-hand** block: "Top-left **25mm, 55mm**", "Size **85mm × 45mm**", "Alignment: Left-aligned,
+> no indentation", derived in §1 from a left-window DL envelope. That is not what is built, and has
+> not been for some time. The implemented block is **right-hand**. A right-window envelope is a
+> legitimate and common Swiss convention, so this is recorded as a deliberate design change that was
+> never written back, not as a defect — but it is a reversal of a locked value and is dated as one.
+> The previous numbers above are retained only as the superseded record.
+
+Implemented values (`shared/src/letter-layout.ts:17-22`, applied at `render-template.ts:245-249`
+and mirrored in the preview at `LetterPreview.tsx:217-221`):
 
 | Property    | Value                                                                        |
 | ----------- | ---------------------------------------------------------------------------- |
-| Top-left    | **25mm, 55mm**                                                               |
-| Size        | **85mm × 45mm**                                                              |
-| Alignment   | Left-aligned, no indentation                                                 |
+| Left, top   | **121mm, 52mm**                                                              |
+| Width       | **59mm**                                                                     |
+| Min height  | **31mm** (`minHeight`, not a maximum — the block grows with line count)      |
+| Alignment   | Left-aligned text within a right-hand block, no indentation                  |
 | Content     | 4–6 lines: name, optional c/o, street + number, PLZ + city, optional country |
-| Font size   | **10–11pt minimum** (readability requirement)                                |
-| Line height | 14–15pt                                                                      |
+| Font size   | 10.5pt (`LETTER_LAYOUT_PT.recipient`, `letter-layout.ts:61`)                 |
 | Decorations | NONE — no borders, no background, no icons                                   |
+
+At the minimum height the block occupies 52–83mm from the top of the shell. Because `minHeight` is a
+floor rather than a ceiling, a six-line address extends further down; nothing in the code caps it
+(§9).
 
 Line count guide:
 
@@ -178,37 +216,44 @@ Line 5: Country                             (optional — omit for Swiss address
 Line 6: (reserved / rarely used)
 ```
 
-> **Critical constraint**: The bottom of the recipient block must not exceed 100mm from the top of the page. If the address block were to extend below 99mm (the first fold line), the address would be hidden or cut by the fold. Validate that the rendered address block stays within bounds before generating the final PDF.
+> **Constraint, unenforced**: the bottom of the recipient block should not exceed 100mm from the top
+> of the page, since below 99mm (the first fold line) the address would be hidden or cut by the fold.
+> This was previously written as a hard "validate before generating the final PDF" requirement. **No
+> such validation exists** anywhere in the render path — see §4.1. It is restated here as a design
+> intent, not as an implemented guarantee.
 
-#### Zone 4 — Reference / Date Block
+#### Zone 4 — Place / Date Block (`rightMeta`)
 
-| Property  | Value                                                                                    |
-| --------- | ---------------------------------------------------------------------------------------- |
-| Top-left  | 130mm, 105mm                                                                             |
-| Size      | 55mm × 20mm                                                                              |
-| Alignment | Right-aligned within zone                                                                |
-| Content   | Place and date (e.g., "Zürich, 15. März 2026"); optional reference number on second line |
-| Font size | 10pt, regular                                                                            |
+| Property  | Value                                                 |
+| --------- | ----------------------------------------------------- |
+| Left, top | 121mm, 87mm (`letter-layout.ts:23-27`)                |
+| Width     | 59mm                                                  |
+| Alignment | Left-aligned within the right-hand column             |
+| Content   | Place and date (e.g., "Zürich, 15. März 2026")        |
+| Font size | 10pt (`LETTER_LAYOUT_PT.date`, `letter-layout.ts:62`) |
+
+> **Superseded 2026-07-28.** Previously specified at 130mm, 105mm, 55mm × 20mm, right-aligned.
+
+> **Zones 5–10 are not absolutely positioned — corrected 2026-07-28.** Subject, salutation, body,
+> closing, signature and enclosure all sit in **normal document flow** inside the body region, which
+> is a single padded block: 114mm top, 20mm right, 20mm bottom, 25mm left
+> (`letter-layout.ts:28-33`, `render-template.ts:263`). The absolute `25mm, 120mm` style coordinates
+> in the tables below are therefore approximate outcomes of the flow, not settings. The real controls
+> are the inter-block gaps in `letter-layout.ts:34-55` (subject 6mm, salutation 5mm, body paragraphs
+> 8mm, closing 8mm, signature 10mm, signature name 2mm, enclosure 12mm + 3mm padding) and the point
+> sizes in `LETTER_LAYOUT_PT` (`letter-layout.ts:58-71`). Where a table below disagrees with those
+> constants, the constants win.
 
 #### Zone 5 — Subject Line
 
-| Property  | Value                                  |
-| --------- | -------------------------------------- |
-| Top-left  | 25mm, 120mm                            |
-| Width     | 165mm                                  |
-| Alignment | Left                                   |
-| Content   | Single line preferred; maximum 2 lines |
-| Font size | 11–12pt, **bold**                      |
-| Max chars | 200 characters                         |
+First block of the body flow (≈120mm from the top), 165mm wide, left-aligned, bold, 11.25pt
+(`letter-layout.ts:64`), 6mm below-gap, single line preferred and maximum 200 characters.
 
 #### Zone 6 — Salutation
 
-| Property  | Value                                                       |
-| --------- | ----------------------------------------------------------- |
-| Top-left  | 25mm, 132mm (or directly below subject + 6mm gap)           |
-| Content   | "Sehr geehrte Damen und Herren," / "Madame, Monsieur," etc. |
-| Font size | 10–11pt, regular                                            |
-| After     | One blank line (~11pt) before body                          |
+"Sehr geehrte Damen und Herren," / "Madame, Monsieur," etc., directly below the subject (6mm gap,
+`letter-layout.ts:34-36`) and followed by a 5mm gap before the body (`letter-layout.ts:37-39`), set
+at the body size.
 
 #### Zone 7 — Body Text
 
@@ -224,29 +269,20 @@ Line 6: (reserved / rarely used)
 
 #### Zone 8 — Closing
 
-| Property   | Value                                                           |
-| ---------- | --------------------------------------------------------------- |
-| Content    | "Freundliche Grüsse" / "Avec nos meilleures salutations" / etc. |
-| Gap before | One blank line above                                            |
-| Font size  | 10–11pt, regular                                                |
+"Freundliche Grüsse" / "Avec nos meilleures salutations" etc., at the body size, with an 8mm gap
+above (`letter-layout.ts:43-45`).
 
 #### Zone 9 — Signature Zone
 
-| Property      | Value                                            |
-| ------------- | ------------------------------------------------ |
-| Below closing | ~15mm gap                                        |
-| Height        | 20–25mm for signature image, or typed name only  |
-| Content       | Signature image (optional) + typed name below    |
-| Font size     | 10–11pt, regular or semi-bold for name           |
-| Image sizing  | Max 60mm × 20mm, PNG/SVG, transparent background |
+Signature image (optional, max 60mm × 20mm, PNG/SVG, transparent background) or script rendering,
+plus the typed name below it. Gaps: 10mm above the signature and 2mm above the name
+(`letter-layout.ts:46-51`); sizes 26pt script and 9.5pt name (`letter-layout.ts:69-70`).
 
 #### Zone 10 — Enclosure Note _(optional)_
 
-| Property  | Value                                                        |
-| --------- | ------------------------------------------------------------ |
-| Content   | "Beilage(n): [filename list]" or "Anhang: ..."               |
-| Font size | 9pt, italic                                                  |
-| Position  | Below signature zone, ~268mm from top on single-page letters |
+"Beilage(n): [filename list]" or "Anhang: …", below the signature zone, separated by a 12mm top
+margin and 3mm of padding above a hairline rule (`letter-layout.ts:52-55`,
+`render-template.ts:355-358`), set at the sender size in `LETTER_COLORS.enclosure` `#666666`.
 
 ---
 
@@ -257,11 +293,29 @@ Line 6: (reserved / rarely used)
 | First  | **99mm**          | Bottom edge of top third; fold up      |
 | Second | **198mm**         | Bottom edge of middle third; fold down |
 
-Render fold marks as:
+**Not implemented (2026-07-28).** No fold mark is rendered. There is no fold-mark element, class or
+coordinate anywhere in `backend/src/modules/rendering/` or in
+`frontend/src/components/product/LetterPreview.tsx`. The intended design, if built, remains:
 
 - Small horizontal tick marks at the **left margin** (2mm wide, 0.2mm stroke)
 - Colour: light grey (#CCCCCC) or dashed line — subtle, not intrusive
 - These are printed on the final letter
+
+### 4.1 Open items — stated as unbuilt, not as behaviour
+
+These were previously written in the imperative, which read as if they existed. They do not.
+
+| #   | Item                                                                                                                                | State                                                                                                                                                                                                                |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Physical envelope verification.** The implemented geometry has never been checked against a physical Swiss right-window envelope. | **Outstanding.** Cannot be established from source. Blocks OD-T7. Until one printed letter is held against a real envelope, nothing in this document may be read as a guarantee that the address sits in the window. |
+| 2   | **Effective page offset.** The composition of `@page { margin: 0 }` with Puppeteer's 25/25/30/25 margin box (§2) is not measured.   | **Outstanding.** No test in `backend/src/modules/rendering/`.                                                                                                                                                        |
+| 3   | Fold marks at 99mm and 198mm                                                                                                        | **Not implemented.** Nothing renders them.                                                                                                                                                                           |
+| 4   | Continuation-page headers ("Page X of Y") and page numbering                                                                        | **Not implemented.** No page counter in `render-template.ts`; `render-pdf.ts:52-56` passes no `headerTemplate`/`footerTemplate` and does not set `displayHeaderFooter`.                                              |
+| 5   | Automated address-bounds check (recipient block must stay above the first fold)                                                     | **Not implemented.** No such check in `render-snapshot-pipeline.ts` or elsewhere in the render path.                                                                                                                 |
+
+No envelope-window coordinates are asserted anywhere in this document, because none are recorded in
+this repository. SN 010130 is cited by name only; the standard itself is not held here, and the
+figures once tabulated in §1 were not verified against it.
 
 ---
 
@@ -283,21 +337,25 @@ Alternative choices were reviewed but rejected for MVP:
 
 **Locked choice:** Source Serif 4 for letter content in both preview and final render.
 
+**Implemented 2026-07-28**, on both surfaces, and embedded rather than merely named: the PDF sets
+`font-family: "Source Serif 4", Georgia, "Times New Roman", serif` on `body`
+(`render-template.ts:206`) and injects `EMBEDDED_FONTS_CSS` — the base64 `@font-face` payload from
+`backend/src/modules/rendering/fonts.css.ts` — at `render-template.ts:189`, with the renderer
+awaiting `document.fonts.ready` before printing (`render-pdf.ts:44-49`); the preview uses
+`var(--font-serif)` (`LetterPreview.tsx:163`), bound to `Source_Serif_4` in
+`frontend/src/app/layout.tsx:20-24`. This closes the earlier gap in which the letter named
+`"Helvetica Neue", Helvetica, Arial, sans-serif` and embedded nothing, so headless Chromium — which
+has no brand fonts installed — substituted Arial. The signature script face (`"Allura Signature"`,
+`render-template.ts:56`, `:289`) is a separate, deliberate exception.
+
 ### Type Scale
 
-| Element             | Size    | Weight               | Line Height |
-| ------------------- | ------- | -------------------- | ----------- |
-| Sender block        | 8–9pt   | Regular              | 13–14pt     |
-| Return address line | 6–7pt   | Regular              | auto        |
-| Recipient address   | 10–11pt | Regular              | 14–15pt     |
-| Date / reference    | 10pt    | Regular              | 14pt        |
-| Subject line        | 11–12pt | **Bold**             | 16pt        |
-| Salutation          | 10–11pt | Regular              | 14–15pt     |
-| Body text           | 10–11pt | Regular              | 14–16pt     |
-| Closing             | 10–11pt | Regular              | 14–15pt     |
-| Signature name      | 10–11pt | Regular or Semi-Bold | 14pt        |
-| Enclosure note      | 9pt     | Italic               | 13pt        |
-| Page header (p2+)   | 8pt     | Regular              | auto        |
+Implemented sizes live in `LETTER_LAYOUT_PT` (`shared/src/letter-layout.ts:58-71`) and are the
+authority: sender 8.75pt, dispatch line 8.25pt, recipient 10.5pt, date 10pt, body 10.5pt, subject
+11.25pt, headings 15 / 12.5 / 10.5pt, tables 9.5pt, signature script 26pt, signature name 9.5pt. The
+enclosure note reuses the sender size (`render-template.ts:355`). Weights and emphasis follow the
+template CSS; the earlier ranges (8–9pt, 10–11pt and so on) are superseded by these fixed values, and
+the "Page header (p2+) 8pt" row is removed because no page header is rendered (§4.1 item 4).
 
 ---
 
@@ -309,7 +367,7 @@ Multi-page letters are supported. The letter body may overflow to additional pag
 
 | Rule                                   | Behaviour                                                                |
 | -------------------------------------- | ------------------------------------------------------------------------ |
-| Page 2+ header                         | "Page X of Y" top-right, same margins, no sender/recipient repeat        |
+| Page 2+ header                         | **Not implemented** (§4.1 item 4) — intended: "Page X of Y" top-right    |
 | Signature placement                    | Always on the last page                                                  |
 | Orphan/widow control                   | `orphans: 2; widows: 2` — minimum 2 lines on either side of a page break |
 | Closing block splitting                | Closing + signature + name kept together (`page-break-inside: avoid`)    |
@@ -336,40 +394,49 @@ launch is governed by [`pricing-structure.md`](pricing-structure.md), not by the
 
 ### Page setup
 
+As implemented (`render-template.ts:191-216`, abridged):
+
 ```css
 @page {
-  size: 210mm 297mm;
-  margin: 20mm 20mm 20mm 25mm;
+  size: A4;
+  margin: 0; /* the Puppeteer margin box does the trimming — see §2 */
 }
 
 body {
-  width: 165mm;
-  font-family: "Source Serif 4", Georgia, serif;
-  font-size: 10.5pt;
-  line-height: 15pt;
-  color: #000000;
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
+  color: #1a1a1a; /* LETTER_COLORS.text, letter-layout.ts:74 */
+}
+
+.letter-layout-shell {
+  position: relative;
+  width: 210mm;
+  min-height: 297mm;
 }
 ```
+
+> **Superseded 2026-07-28.** The block previously printed here specified
+> `@page { size: 210mm 297mm; margin: 20mm 20mm 20mm 25mm }` and `body { width: 165mm; ... }`.
+> Neither the page margin nor the fixed body width is in the code.
 
 ### Zone positioning
 
 Use **absolute positioning** for fixed zones (sender, recipient, fold marks) where pixel-perfect placement is required. Use **normal document flow** for body text to support overflow and page breaks naturally.
 
 ```css
-/* Example: recipient block — absolute positioned on page */
+/* Recipient block — right-hand, from LETTER_LAYOUT_MM.recipient (2026-07-28) */
 .recipient-block {
   position: absolute;
-  top: 55mm;
-  left: 25mm;
-  width: 85mm;
-  max-height: 45mm;
+  top: 52mm;
+  left: 121mm;
+  width: 59mm;
+  min-height: 31mm; /* floor, not a cap */
   font-size: 10.5pt;
-  line-height: 14.5pt;
 }
 
-/* Body text — normal flow for multi-page overflow */
+/* Body text — normal flow for multi-page overflow.
+   Implemented as padding on the body region: 114 / 20 / 20 / 25mm. */
 .body-text {
-  margin-top: 148mm; /* positions below salutation on page 1 */
+  padding-top: 114mm; /* clears the address column on page 1 */
   orphans: 2;
   widows: 2;
 }
@@ -380,7 +447,9 @@ Use **absolute positioning** for fixed zones (sender, recipient, fold marks) whe
 }
 ```
 
-### Fold mark rendering
+### Fold mark rendering — not implemented (§4.1 item 3)
+
+The following is the design sketch only; no equivalent rule exists in the codebase.
 
 ```css
 .fold-mark {
@@ -403,7 +472,12 @@ Use **absolute positioning** for fixed zones (sender, recipient, fold marks) whe
 - Use `mm` units throughout — not `px`, not `em`, not `rem`
 - Avoid CSS transforms that may shift zones
 - Test rendering at exact A4 dimensions; do not rely on browser zoom
-- The screen preview and the PDF render must use the **same CSS file** — no separate print stylesheet with divergent layout
+- The screen preview and the PDF render must not diverge. As implemented (2026-07-28) they are two
+  separate surfaces — React inline styles in `LetterPreview.tsx`, a CSS string in
+  `render-template.ts` — kept in agreement by both importing the same constants from
+  `shared/src/letter-layout.ts` (the preview converting mm to container-query units via
+  `mmToPageCqw`, `letter-layout.ts:85-91`). There is no shared CSS file, and no test enforces the
+  agreement; it is held by convention and review.
 
 ---
 
@@ -417,11 +491,12 @@ Use **absolute positioning** for fixed zones (sender, recipient, fold marks) whe
 | **B — WeasyPrint**                | Lightweight, Python, good CSS Paged Media support                    | Incomplete CSS (no flexbox/grid), Python in Node.js stack     |
 | **C — Paged.js + Puppeteer**      | CSS Paged Media polyfill, fine-grained page control                  | More complexity, still needs Puppeteer underneath             |
 
-### Locked choice: Option A (Puppeteer)
+### Locked choice: Option A (Puppeteer) — implemented
 
-Despite the memory footprint, Puppeteer (headless Chrome) provides the most reliable CSS rendering for complex document layouts. It correctly interprets `@page`, `mm` units, absolute positioning, and `page-break-inside` rules — all of which are critical for this template.
-
-Deployment: isolated Docker container with Chrome, dedicated memory limit. Render jobs are queued via BullMQ and processed by this container.
+Despite the memory footprint, Puppeteer (headless Chrome) gives the most reliable CSS rendering for
+document layouts: it interprets `@page`, `mm` units, absolute positioning and `page-break-inside`
+correctly. Deployment: isolated container with Chrome and a dedicated memory limit; render jobs are
+queued and processed there (`backend/src/modules/rendering/render-pdf.ts`).
 
 ---
 
@@ -444,12 +519,12 @@ Deployment: isolated Docker container with Chrome, dedicated memory limit. Rende
 
 ### Post-render validation
 
-| Check                 | Rule                                                                       |
-| --------------------- | -------------------------------------------------------------------------- |
-| PDF page count        | Must match pre-render estimate ±1 page                                     |
-| File size             | Must be within configured limit (provisional: 10MB)                        |
-| Recipient zone bounds | Rendered recipient block must not exceed 100mm from top (above first fold) |
-| Character encoding    | PDF must embed fonts; no glyph substitution fallbacks                      |
+| Check                 | Rule                                                                                                              |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| PDF page count        | Must match pre-render estimate ±1 page                                                                            |
+| File size             | Must be within configured limit (provisional: 10MB)                                                               |
+| Recipient zone bounds | Rendered recipient block must not exceed 100mm from top (above first fold) — **not implemented**, §4.1 item 5     |
+| Character encoding    | PDF must embed fonts; no glyph substitution fallbacks — **implemented for the letter body** as of 2026-07-28 (§5) |
 
 ---
 
@@ -488,19 +563,23 @@ provider-bound packaging is not yet locked.
 
 ## 12. Open Decisions
 
-| ID    | Decision                                          | Status                            | Recommendation                                                          |
-| ----- | ------------------------------------------------- | --------------------------------- | ----------------------------------------------------------------------- |
-| OD-T1 | Final body font family                            | Locked                            | Source Serif 4                                                          |
-| OD-T2 | HTML-to-PDF library                               | Locked                            | Puppeteer (Option A)                                                    |
-| OD-T3 | Maximum letter pages                              | Provisional                       | 5 letter pages                                                          |
-| OD-T4 | Maximum total pages (with attachments)            | Provisional                       | 20 pages                                                                |
-| OD-T5 | Fold mark rendering in final PDF                  | Locked                            | Yes, subtle grey marks                                                  |
-| OD-T6 | Sender block position (left vs right)             | Locked                            | Left, Swiss convention                                                  |
-| OD-T7 | Envelope supplier and confirmed window dimensions | **Blocking for production**       | Must verify SN 010130 dimensions against actual envelope before go-live |
-| OD-T8 | Separator page for attachments                    | Locked                            | No separator page in MVP                                                |
-| OD-T9 | Attachment submission packaging                   | **Blocking for provider adapter** | Must be confirmed from Swiss Post onboarding docs                       |
+| ID     | Decision                                          | Status                              | Recommendation                                                          |
+| ------ | ------------------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------- |
+| OD-T1  | Final body font family                            | Locked — **implemented 2026-07-28** | Source Serif 4, embedded (§5)                                           |
+| OD-T2  | HTML-to-PDF library                               | Locked — implemented                | Puppeteer (Option A)                                                    |
+| OD-T3  | Maximum letter pages                              | Provisional                         | 5 letter pages                                                          |
+| OD-T4  | Maximum total pages (with attachments)            | Provisional                         | 20 pages                                                                |
+| OD-T5  | Fold mark rendering in final PDF                  | Locked — **not implemented**        | Yes, subtle grey marks (§4.1 item 3)                                    |
+| OD-T6  | Sender block position (left vs right)             | Locked — implemented                | Left, Swiss convention (`letter-layout.ts:7-11`)                        |
+| OD-T6b | Recipient block position (left vs right)          | **Reversed 2026-07-28**             | Right-hand block, 121mm/52mm — was locked left at 25mm/55mm (§3 Zone 3) |
+| OD-T7  | Envelope supplier and confirmed window dimensions | **Blocking for production**         | Must verify SN 010130 dimensions against actual envelope before go-live |
+| OD-T8  | Separator page for attachments                    | Locked                              | No separator page in MVP                                                |
+| OD-T9  | Attachment submission packaging                   | **Blocking for provider adapter**   | Must be confirmed from Swiss Post onboarding docs                       |
 
-> **OD-T7 is a hard production blocker**. No letter may be sent to physical mail until the envelope supplier has confirmed exact window dimensions and a sample physical test has been performed.
+> **OD-T7 is a hard production blocker**. No letter may be sent to physical mail until the envelope
+> supplier has confirmed exact window dimensions and a sample physical test has been performed. As of
+> 2026-07-28 neither has happened, and the confirmed dimensions are not recorded anywhere in this
+> repository (§1, §4.1 item 1).
 >
 > **OD-T9 is a hard provider-integration blocker.** Do not implement merged attachment assembly or
 > claim attachment availability for the launch provider path until provider docs confirm the

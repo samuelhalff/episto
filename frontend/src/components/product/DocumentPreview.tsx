@@ -2,6 +2,7 @@
 
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 import type { DocumentBlock, DocumentModel, InlineSpan, ListItem } from "@episto/shared";
+import { documentFromPlainText } from "@episto/shared/letter-framing";
 import {
   LETTER_COLORS,
   LETTER_LAYOUT_PT,
@@ -313,15 +314,7 @@ function renderInlineText(text: string, spans: InlineSpan[]) {
   return nodes;
 }
 
-export function fallbackDocument(body: string): DocumentModel {
-  return {
-    version: "1.0",
-    blocks: [
-      {
-        type: "paragraph",
-        text: body,
-        style: "Normal",
-      },
-    ],
-  };
-}
+// Re-exported so preview call sites keep their existing import; the one
+// implementation lives in shared so the framing strip behaves identically in
+// the preview and in the PDF.
+export { documentFromPlainText as fallbackDocument };

@@ -63,6 +63,35 @@ export function getLetterFraming(locale?: string | null): LetterFraming {
   return EN_CH_LETTER_FRAMING;
 }
 
+/**
+ * Plain body text as a document model — one block per paragraph.
+ *
+ * Four copies of this lived in the renderer, the PDF-access bundle, the AI
+ * stream, and the preview, and all four put the entire body in a single
+ * paragraph. `stripLetterFramingDocument` can only remove a salutation or
+ * closing that is its own leading or trailing block, so a body that opened with
+ * "Sehr geehrte Damen und Herren" printed it twice — once from the body, once
+ * from the frame the template adds around it. One implementation, so the
+ * framing strip works everywhere a fallback is needed.
+ */
+export function documentFromPlainText(body: string | null | undefined): DocumentModel {
+  const text = body ?? "";
+  const paragraphs = text
+    .replace(/\r\n/g, "\n")
+    .split(/\n{2,}/)
+    .map((paragraph) => paragraph.trim())
+    .filter(Boolean);
+
+  return {
+    version: "1.0",
+    blocks: (paragraphs.length > 0 ? paragraphs : [text]).map((paragraph) => ({
+      type: "paragraph",
+      text: paragraph,
+      style: "Normal",
+    })),
+  };
+}
+
 export function stripLetterFramingText(text: string, locale?: string | null): string {
   const paragraphs = text
     .replace(/\r\n/g, "\n")

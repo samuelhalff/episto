@@ -40,8 +40,8 @@ weakest trust posture and highest refund exposure.
 
 See [`../04-product/signatures-and-attachments.md`](../04-product/signatures-and-attachments.md).
 
-This lock governs only the `visual` tier. QES is governed by the separate _Signature assurance
-exposure_ lock below.
+Since 2026-06-10 this is the only signature lock that governs shipped behaviour: `visual` is the
+only non-`none` flow mode (`shared/src/enums.ts:78`). See the reversal below.
 
 **Option A (typed only) rejected** — too weak for the perceived trust level.  
 **Option B (typed + uploaded image) superseded** — on-screen drawing is higher-leverage and image
@@ -49,70 +49,42 @@ upload was never wired in production.
 
 ---
 
-### Signature assurance exposure — LOCKED: typed / drawn / QES public model
+### Signature assurance exposure — REVERSED 2026-06-10: visual tier only
 
-**Locked choice:** User-facing product and docs expose three signature choices:
+**Previous lock (2026-04 to 2026-06-10):** the product was to expose three signature choices —
+typed, drawn, and QES (`qualified` assurance) — with a SwissSign / SwissID readiness scaffold and a
+_Coming soon_ QES shell pending provider onboarding.
 
-- **Typed signature** → `visual` assurance + `typed` mode
-- **Drawn signature** → `visual` assurance + `drawn` mode
-- **QES** → `qualified` assurance
+**Reversed on 2026-06-10.** QES and the SwissSign / SwissID scaffolding were removed from the
+product per
+[`../superpowers/plans/2026-06-10-remove-qes-swisssign-signing.md`](../superpowers/plans/2026-06-10-remove-qes-swisssign-signing.md).
+The current lock is: **the product exposes typed and drawn signatures and nothing else.**
 
-Internal backend abstractions may remain generic enough for future non-visual tiers, but
-`advanced` is **not** a public product option and must not appear in user-facing copy, pricing,
-or launch docs. Phase 0 ships typed/drawn visual flows plus a QES shell marked _Coming soon_
-until provider onboarding completes.
+Verified state:
 
-See [`../04-product/qualified-signatures.md`](../04-product/qualified-signatures.md) for the full
-spec including the bulletproof ident-reuse design.
+- `shared/src/enums.ts:78` — `SignatureFlowMode` is `{ none, visual }`; the `qualified`,
+  `advanced`, and `swisssign_ses` values and the `signatureAssuranceLevel` enum no longer exist.
+- `backend/src/db/schema/` — no `signature_sessions` or `signature_events` tables and no
+  `signature_provider` / `signature_eligibility_status` / `signature_session_status` enums.
+- `shared/src/state-machines.ts:189` — the fulfilment transition table has a single visual path;
+  there are no ident, session, or signing states.
+- `backend/src/modules/signing/fulfillment.service.ts:59` — the historical flow-mode argument is
+  accepted and ignored (`_signatureFlowMode`).
+- No SwissSign, SwissID, or Skribble reference remains in `backend/src`, `shared/src`, or
+  `frontend/src`.
 
-**Locked principles:**
+**Reason for the reversal:** the live tier carried the whole product need, while the QES path was
+an unshippable scaffold blocked indefinitely on provider onboarding and carrying real maintenance
+and correctness cost across the contract, state-machine, database, and frontend surfaces.
 
-- QES cryptographically binds the electronic PDF bytes, not the paper. Every QES order must
-  therefore also deliver the signed PDF electronically to the recipient. The paper we post is a
-  courtesy copy carrying a QR code pointing to the verification URL.
-- The UI must never imply that QES makes the paper copy legally binding.
-- QES orders use the existing Option B payment-capture model (authorize first, capture after the
-  signing session reaches `signed`).
+**Principle that survives the reversal:** typed and drawn signatures are evidentiary only. No UI
+copy, marketing page, or terms text may imply that they carry the Art. 14(2bis) CO equivalence to a
+handwritten signature.
 
-**Option A (visual only forever) rejected** — blocks formal use cases that require written form.  
-**Option B (public AES middle tier) rejected** — adds product complexity without matching the
-current commercial goal of exposing one legally recognized electronic signature path.
-
----
-
-### Signature provider integration direction — LOCKED: SwissSign / SwissID readiness scaffold
-
-**Locked choice:** Current implementation work targets a SwissSign / SwissID-ready architecture,
-not a live provider cutover. This supersedes the earlier Skribble-specific implementation lock for
-this concern area.
-
-**What is locked now:**
-
-- Build a provider-agnostic signature domain plus a SwissSign-specific adapter boundary.
-- Use only publicly documented SwissID / SwissSign facts in code and docs until onboarding
-  provides private API details.
-- SwissID OIDC scaffolding may rely on discovery, authorization-code login, and documented
-  `purpose=SIGNING` step-up semantics.
-- Exact SwissSign signature-session creation, PDF upload, callback, and signed-document retrieval
-  endpoints remain unknown and must stay behind typed interfaces plus mock implementations.
-- The existing standard physical-mail flow remains first-class and must not depend on signature.
-
-**Rejected for this implementation phase:**
-
-- Hardcoding a live Skribble-specific or SwissSign-specific transaction flow without confirmed API
-  docs.
-- Treating browser return from an external identity or signing flow as proof of successful signing.
-- Marking a signature-capable letter as completed before signature completion, payment capture, and
-  postal-dispatch acceptance have all occurred.
-
-**Still open — do not hardcode:**
-
-- Exact SwissSign private REST endpoints, payloads, callback schema, and signed-document retrieval
-  contract.
-- Exact SwissID claim set needed for production-grade signer readiness decisions beyond the public
-  OIDC guidance.
-- Final production launch path, credentials, commercial pricing, and operational SLAs for the live
-  signature provider.
+Reintroducing a qualified signature would be a new decision and a new implementation, not the
+lifting of a gate. The retained legal analysis is in
+[`../04-product/qualified-signatures.md`](../04-product/qualified-signatures.md), which is now
+background only.
 
 ---
 
@@ -498,7 +470,7 @@ markup.
 
 - no page-count surcharge
 - no attachment surcharge
-- no coupon/promotion system
+- ~~no coupon/promotion system~~ — **reversed 2026-07-28, see below**
 - no color-printing tier
 
 Config keys:
@@ -508,6 +480,43 @@ Config keys:
 
 Do not hardcode the markup values in business logic. Read them from config, compute the provider
 quote per draft, and persist the final charged amount on the payment record.
+
+---
+
+### Coupons and promotions — REVERSED 2026-07-28: promo codes are live
+
+**Previous lock:** no coupon or promotion system at launch (recorded above and in
+[`../04-product/pricing-structure.md`](../04-product/pricing-structure.md)).
+
+**Reversed on 2026-07-28.** A promo-code system is implemented and reachable in production.
+
+**What shipped:**
+
+- `backend/src/db/schema/promos.ts:17` — `promo_codes` table with a `promo_kind` enum of
+  `free | percent | fixed` (`:15`), plus `active`, `expiresAt`, `maxRedemptions`, and
+  `redeemedCount` controls.
+- `backend/src/modules/payments/promo.service.ts:42` — `applyPromoToTotal` resolves the code and
+  computes the discounted total; it rejects unknown or inactive codes (`:62`), expired codes
+  (`:63`), and codes at their redemption cap (`:64`).
+- `backend/src/modules/payments/promo.service.ts:89` — `recordPromoRedemption` consumes a
+  redemption under a conditional update that re-checks `active`, expiry, and the cap atomically
+  (`:103`–`:107`), so a concurrent race cannot exceed `maxRedemptions`.
+- `backend/src/modules/payments/payment-checkout.routes.ts:35` — checkout accepts an optional
+  `promoCode` string; `:120`–`:122` applies it and recomputes the charged total.
+- Administration: `backend/src/modules/admin/admin-promos.routes.ts:35` (list, create, patch) with
+  the UI at `frontend/src/app/[locale]/admin/promos/page.tsx`.
+- Customer entry point: the promo field on
+  `frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx:374`.
+
+**Locked properties of the reversal:**
+
+- **Validation and discount application are server-side only.** The client submits a code string;
+  it never submits or influences a price. The charged total is recomputed in the checkout route
+  before the payment intent is created.
+- Individual codes are data, not code. No promo code is hardcoded in the repository; codes are
+  created and deactivated through the admin panel.
+- The persisted charged amount on the payment record remains the source of truth, unchanged by
+  this reversal.
 
 ---
 

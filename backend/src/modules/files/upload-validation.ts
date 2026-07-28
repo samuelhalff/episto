@@ -1,12 +1,12 @@
 import {
   FILE_LIMITS,
-  getUploadByteLimit,
   isAllowedUploadMimeType,
   type DraftAttachmentConstraints,
 } from "@episto/shared";
 
 import { validationError } from "../../shared/errors/index.js";
 import { createAttachmentMimeTypeError } from "../dispatch/adapters/provider-capabilities.js";
+import { formatByteLimitMb, getConfiguredUploadByteLimit } from "./file-limits.js";
 import { assertUploadMimeMatchesContent } from "./file.service.js";
 
 /**
@@ -39,18 +39,14 @@ export function assertUploadAcceptable(
     ]);
   }
 
-  const maxBytes = getUploadByteLimit(kind);
+  const maxBytes = getConfiguredUploadByteLimit(kind);
   if (buffer.byteLength > maxBytes) {
+    const limit = formatByteLimitMb(maxBytes);
     throw validationError(
       kind === "attachment"
-        ? "Attachment exceeds maximum size of 5 MB"
-        : "Signature exceeds maximum size of 2 MB",
-      [
-        {
-          field: "file",
-          message: `Maximum ${kind} size is ${Math.round(maxBytes / 1024 / 1024)} MB`,
-        },
-      ],
+        ? `Attachment exceeds maximum size of ${limit}`
+        : `Signature exceeds maximum size of ${limit}`,
+      [{ field: "file", message: `Maximum ${kind} size is ${limit}` }],
     );
   }
 

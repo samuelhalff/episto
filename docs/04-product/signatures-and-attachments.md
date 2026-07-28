@@ -8,9 +8,13 @@
 
 ## Signature assurance tiers
 
-> **See [`qualified-signatures.md`](qualified-signatures.md)** for the canonical public signature
-> model: **typed**, **drawn**, and **QES**. This file governs the two `visual`-tier options
-> (typed and drawn). QES remains gated behind locked provider onboarding and is not yet live.
+> **This file is the canonical public signature model.** There is exactly one tier — `visual` —
+> with two user-facing options: **typed** and **drawn**. `shared/src/enums.ts:78` defines
+> `SignatureFlowMode` as `{ none, visual }`, and nothing else exists.
+>
+> Qualified electronic signatures (QES) were **removed on 2026-06-10** and are not gated, deferred,
+> or pending onboarding — they are gone. See
+> [`qualified-signatures.md`](qualified-signatures.md), retained only as background.
 
 ## Signature scope — LOCKED: typed and drawn visual options
 

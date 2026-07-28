@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  documentFromPlainText,
   getLetterFraming,
   stripLetterFramingDocument,
   stripLetterFramingText,
@@ -30,7 +31,10 @@ describe("getLetterFraming", () => {
 
   it("strips system-managed framing from plain text bodies", () => {
     expect(
-      stripLetterFramingText("Dear Sir or Madam,\n\nPlease cancel the contract.\n\nYours faithfully", "en-CH"),
+      stripLetterFramingText(
+        "Dear Sir or Madam,\n\nPlease cancel the contract.\n\nYours faithfully",
+        "en-CH",
+      ),
     ).toBe("Please cancel the contract.");
   });
 
@@ -49,6 +53,45 @@ describe("getLetterFraming", () => {
 
     expect(stripped.blocks).toEqual([
       { type: "paragraph", text: "Please cancel the contract.", style: "Normal" },
+    ]);
+  });
+});
+
+describe("documentFromPlainText", () => {
+  it("splits a plain body into one block per paragraph", () => {
+    const doc = documentFromPlainText("First para.\n\nSecond para.");
+
+    expect(doc.blocks).toEqual([
+      { type: "paragraph", text: "First para.", style: "Normal" },
+      { type: "paragraph", text: "Second para.", style: "Normal" },
+    ]);
+  });
+
+  /**
+   * The reason this helper exists. A single-block fallback hid the salutation
+   * and closing inside the body block, where the framing strip cannot see them
+   * — so the rendered letter greeted the recipient twice and signed off twice.
+   */
+  it("produces blocks the framing strip can actually remove", () => {
+    const stripped = stripLetterFramingDocument(
+      documentFromPlainText(
+        "Sehr geehrte Damen und Herren\n\nHiermit kündige ich den Vertrag.\n\nFreundliche Grüsse",
+      ),
+      "de-CH",
+    );
+
+    expect(stripped.blocks).toEqual([
+      { type: "paragraph", text: "Hiermit kündige ich den Vertrag.", style: "Normal" },
+    ]);
+  });
+
+  it("keeps a single-paragraph body intact", () => {
+    expect(documentFromPlainText("Just one line.").blocks).toHaveLength(1);
+  });
+
+  it("returns one empty block for an empty body rather than nothing to render", () => {
+    expect(documentFromPlainText(null).blocks).toEqual([
+      { type: "paragraph", text: "", style: "Normal" },
     ]);
   });
 });

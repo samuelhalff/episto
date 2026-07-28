@@ -16,7 +16,8 @@ import { draftLetter, reviseLetter, validateOutput } from "./ai.service.js";
 import { createMessage } from "../messages/message.service.js";
 import { emitDraftEvent } from "../drafting/draft-events.js";
 import type { schema } from "../../db/index.js";
-import { extractAiDocumentMetadata, type DocumentModel } from "@episto/shared";
+import { extractAiDocumentMetadata } from "@episto/shared";
+import { documentFromPlainText } from "@episto/shared/letter-framing";
 
 export type DraftRecord = typeof schema.draftLetters.$inferSelect;
 
@@ -132,7 +133,8 @@ export async function streamRevision(
 ): Promise<void> {
   const targetLocale = effectiveLocale ?? draft.locale;
   const currentDocument =
-    extractAiDocumentMetadata(draft.metadata)?.document ?? fallbackDocument(draft.body);
+    extractAiDocumentMetadata(draft.metadata)?.document ??
+    documentFromPlainText(draft.body);
 
   const applied = await reviseLetter(
     {
@@ -184,17 +186,4 @@ export async function streamRevision(
     documentModel: applied.document,
     extractedFields: { body: applied.body, metadata: nextMetadata },
   });
-}
-
-function fallbackDocument(body: string | null): DocumentModel {
-  return {
-    version: "1.0",
-    blocks: [
-      {
-        type: "paragraph",
-        text: body ?? "",
-        style: "Normal",
-      },
-    ],
-  };
 }

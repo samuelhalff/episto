@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 
 import { PostalPostageSchema } from "@episto/shared";
 
+import { UPLOAD_LIMIT_ENV_FIELDS } from "./upload-limits.env.js";
+
 const PLACEHOLDER_AZURE_SPEECH_KEYS = new Set(["dev-speech-key", "replace_me"]);
 
 /**
@@ -209,6 +211,7 @@ export const EnvSchema = z
     DISPATCH_RATE_MATRIX_REFRESH_CRON: z.string().min(1).default("5 6 * * *"),
     LIVE_DISPATCH_QUOTE_TTL_MINUTES: z.coerce.number().int().positive().default(30),
   })
+  .extend(UPLOAD_LIMIT_ENV_FIELDS)
   .refine(
     (data) => {
       if (data.NODE_ENV === "test") {

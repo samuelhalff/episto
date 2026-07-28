@@ -69,7 +69,8 @@ Locked MVP exclusions:
 
 - no extra page-count surcharge layered on top of the provider quote at launch
 - no independent attachment surcharge layered on top of the provider quote at launch
-- no coupon/promotion system at launch
+- ~~no coupon/promotion system at launch~~ — **reversed 2026-07-28**, see
+  [_Promotions — reversal of the no-coupon lock_](#promotions--reversal-of-the-no-coupon-lock-2026-07-28)
 - no color-printing pricing tier at launch
 
 ## What the launch price covers
@@ -178,10 +179,48 @@ Allowed:
 
 ## Locked launch pricing summary
 
-| Decision                                                          | Status                                                    |
-| ----------------------------------------------------------------- | --------------------------------------------------------- |
-| Exact launch amounts                                              | Locked as config-backed provider quote plus episto markup |
-| Whether page-based surcharges are enabled at launch               | Locked — no                                               |
-| Whether attachment-related surcharges are enabled at launch       | Locked — no                                               |
-| Whether promotions/coupons exist at launch                        | Locked — no                                               |
-| Business receipt / invoice policy beyond standard payment receipt | Post-MVP unless separately approved                       |
+| Decision                                                          | Status                                                           |
+| ----------------------------------------------------------------- | ---------------------------------------------------------------- |
+| Exact launch amounts                                              | Locked as config-backed provider quote plus episto markup        |
+| Whether page-based surcharges are enabled at launch               | Locked — no                                                      |
+| Whether attachment-related surcharges are enabled at launch       | Locked — no                                                      |
+| Whether promotions/coupons exist at launch                        | ~~Locked — no~~ · **reversed 2026-07-28 — promo codes are live** |
+| Business receipt / invoice policy beyond standard payment receipt | Post-MVP unless separately approved                              |
+
+---
+
+## Promotions — reversal of the no-coupon lock (2026-07-28)
+
+The launch decision was "no coupon/promotion system". That decision is **reversed**, explicitly and
+with a date, because a promo-code system has shipped. The original lock is left visible above rather
+than deleted.
+
+**What shipped:**
+
+- A `promo_codes` table (`backend/src/db/schema/promos.ts:17`) with a `promo_kind` enum of
+  `free | percent | fixed` (`:15`) and per-code `active`, `expiresAt`, `maxRedemptions`, and
+  `redeemedCount` fields.
+- Discount computation in `backend/src/modules/payments/promo.service.ts:42`
+  (`applyPromoToTotal`), which rejects unknown or inactive codes (`:62`), expired codes (`:63`),
+  and codes that have reached their redemption cap (`:64`).
+- Redemption accounting in the same file at `:89` (`recordPromoRedemption`), which consumes a
+  redemption under a conditional update re-checking `active`, expiry, and the cap in one statement
+  (`:103`–`:107`).
+- Checkout acceptance of an optional `promoCode` field
+  (`backend/src/modules/payments/payment-checkout.routes.ts:35`), applied at `:120`–`:122`.
+- Administration at `backend/src/modules/admin/admin-promos.routes.ts:35`, with the operator UI at
+  `frontend/src/app/[locale]/admin/promos/page.tsx` and the customer-facing field at
+  `frontend/src/app/[locale]/draft/[draftId]/checkout/page.tsx:374`.
+
+**Constraints that remain locked:**
+
+- **Validation and discount application are server-side only.** The client submits nothing but a
+  code string; the charged total is recomputed in the checkout route before the Stripe payment
+  intent is created. No discounted amount supplied by a client is ever trusted.
+- Individual promo codes are configuration data held in the database, not constants in code. This
+  is consistent with the standing rule that price amounts are configuration inputs.
+- The charged amount persisted on the payment record remains the authoritative figure for receipts,
+  refunds, and support; a promotion changes that figure at checkout time and is not reapplied to
+  historical orders.
+- The remaining launch exclusions — page-count surcharge, attachment surcharge, colour-printing
+  tier — are untouched by this reversal.

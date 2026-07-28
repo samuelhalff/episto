@@ -14,11 +14,15 @@ import {
   type ListItem,
   type SnapshotData,
 } from "@episto/shared";
-import { stripLetterFramingDocument } from "@episto/shared/letter-framing";
+import {
+  documentFromPlainText,
+  stripLetterFramingDocument,
+} from "@episto/shared/letter-framing";
 import {
   buildBlueSignatureSvgMarkup,
   type DrawnSignatureAsset,
 } from "./drawn-signature.js";
+import { EMBEDDED_FONTS_CSS } from "./fonts.css.js";
 
 export interface RenderLetterHtmlOptions {
   signatureImage?: DrawnSignatureAsset | null;
@@ -143,7 +147,7 @@ export function renderLetterHtml(
     : formattedDate;
   const document = stripLetterFramingDocument(
     extractAiDocumentMetadata(data.metadata)?.document ??
-      fallbackDocument(data.body ?? ""),
+      documentFromPlainText(data.body),
     data.locale,
   );
   const hasLetterContent = flattenDocumentModel(document).trim().length > 0;
@@ -182,6 +186,7 @@ export function renderLetterHtml(
 <head>
   <meta charset="UTF-8">
   <style>
+    ${EMBEDDED_FONTS_CSS}
     ${getSignatureFontFaceCss()}
     @page {
       size: A4;
@@ -189,7 +194,16 @@ export function renderLetterHtml(
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      /*
+       * Source Serif 4, embedded — not a system stack. The renderer is headless
+       * Chromium with no brand fonts installed, so "Helvetica Neue" here
+       * silently resolved to Arial and printed the customer's formal letter in
+       * the one typeface that reads as a word processor default.
+       * a4-template-specification.md locks the serif (OD-T1) and requires the
+       * font to be embedded rather than substituted; both halves are needed,
+       * since naming a font Chromium does not have is how this happened.
+       */
+      font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
       color: ${LETTER_COLORS.text};
       -webkit-font-smoothing: antialiased;
       background: #ffffff;
@@ -473,19 +487,6 @@ function renderParagraphStyle(
   if (spacingAfter) styles.push(`margin-bottom:${spacingAfter}pt`);
   if (indentation) styles.push(`padding-left:${indentation}pt`);
   return styles.join(";");
-}
-
-function fallbackDocument(body: string): DocumentModel {
-  return {
-    version: "1.0",
-    blocks: [
-      {
-        type: "paragraph",
-        text: body,
-        style: "Normal",
-      },
-    ],
-  };
 }
 
 function escapeHtml(str: string): string {

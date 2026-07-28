@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { eq, and } from "drizzle-orm";
-import { DraftFilesResponseSchema, FILE_LIMITS } from "@episto/shared";
+import { DraftFilesResponseSchema } from "@episto/shared";
 import { getDb, schema } from "../../db/index.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
@@ -16,6 +16,7 @@ import {
 } from "./file.service.js";
 import { createAttachmentLimitError } from "../dispatch/adapters/provider-capabilities.js";
 import { assertUploadAcceptable } from "./upload-validation.js";
+import { formatByteLimitMb } from "./file-limits.js";
 import {
   uploadObject,
   downloadObjectBuffer,
@@ -154,9 +155,10 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       // Subtract old signature bytes when replacing (it will be removed)
       const existingTotalBytes = await getDraftUploadTotalBytes(db, draftId, session.id);
       const effectiveTotal = existingTotalBytes - (existingSignature?.sizeBytes ?? 0);
-      if (effectiveTotal + sizeBytes > FILE_LIMITS.totalDraftUploadBytes) {
-        throw validationError("Total upload exceeds maximum size of 20 MB", [
-          { field: "file", message: "Total uploads per draft cannot exceed 20 MB" },
+      if (effectiveTotal + sizeBytes > attachmentConstraints.maxTotalBytes) {
+        const limit = formatByteLimitMb(attachmentConstraints.maxTotalBytes);
+        throw validationError(`Total upload exceeds maximum size of ${limit}`, [
+          { field: "file", message: `Total uploads per draft cannot exceed ${limit}` },
         ]);
       }
 

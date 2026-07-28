@@ -6,10 +6,12 @@ import {
   buildOrderReference,
   extractAiDocumentMetadata,
   flattenDocumentModel,
-  type DocumentModel,
   type SnapshotData,
 } from "@episto/shared";
-import { stripLetterFramingDocument } from "@episto/shared/letter-framing";
+import {
+  documentFromPlainText,
+  stripLetterFramingDocument,
+} from "@episto/shared/letter-framing";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
@@ -31,23 +33,10 @@ interface RenderedLetterSource {
 
 const CONFIRMATION_CONTENT_SUMMARY_MAX_LENGTH = 160;
 
-function fallbackDocument(body: string): DocumentModel {
-  return {
-    version: "1.0",
-    blocks: [
-      {
-        type: "paragraph",
-        text: body,
-        style: "Normal",
-      },
-    ],
-  };
-}
-
 function buildContentSummary(snapshotData: SnapshotData): string {
   const document = stripLetterFramingDocument(
     extractAiDocumentMetadata(snapshotData.metadata)?.document ??
-      fallbackDocument(snapshotData.body ?? ""),
+      documentFromPlainText(snapshotData.body),
     snapshotData.locale,
   );
   const flattened = flattenDocumentModel(document).replace(/\s+/g, " ").trim();

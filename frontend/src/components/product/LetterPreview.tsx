@@ -158,7 +158,9 @@ export function LetterPreview({
             }`}
             style={{
               containerType: "inline-size",
-              fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif',
+              // Must name the same faces the PDF embeds: the preview's whole
+              // job is to be what gets printed.
+              fontFamily: 'var(--font-serif), Georgia, "Times New Roman", serif',
               color: LETTER_COLORS.text,
             }}
           >

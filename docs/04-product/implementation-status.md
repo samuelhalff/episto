@@ -165,7 +165,29 @@ the customer is paying for exactly that impression. It is a quality gap, not a d
 
 ## Finding 4 — The address window geometry in the spec is not the geometry in the code
 
-**State:** Divergent, and unverified by any test.
+**State:** reconciled 2026-07-28 — documentation only; no geometry changed.
+
+[`a4-template-specification.md`](a4-template-specification.md) has been rewritten to the geometry the
+code implements, as an explicit dated reversal rather than a silent edit. What changed: the recipient
+block is now documented as the right-hand block at 121mm/52mm, 59mm wide, 31mm minimum height
+(`shared/src/letter-layout.ts:17-22`), with the superseded locked values (25mm/55mm, 85mm × 45mm,
+"CRITICAL") quoted in place and the right-window Swiss convention named as the reason; §2 replaces
+the 20/20/25/20 margin lock with the two real mechanisms — `@page { margin: 0 }` plus absolute
+positioning in a 210 × 297mm shell (`render-template.ts:191-194`, `:211-223`) and Puppeteer's
+25/25/30/25 margin box (`render-pdf.ts:35-40`, applied to the letter via
+`render-snapshot-pipeline.ts:87`); §5 records that the letter now renders in embedded Source Serif 4
+in both preview and PDF as of 2026-07-28, closing Finding 3; the dispatch line, place/date block and
+body flow region are documented at their implemented coordinates; and a new §4.1 lists the unbuilt
+items plainly.
+
+What stays open, per §4.1: **the geometry has never been checked against a physical Swiss
+right-window envelope, and that verification cannot be established from source** — it remains the
+blocker behind OD-T7; the effective offset produced by composing `@page { margin: 0 }` with the
+Puppeteer margin box is unmeasured and untested; fold marks at 99mm and 198mm are not rendered;
+continuation-page headers and page numbering do not exist; and no automated address-bounds check
+runs. The unverified envelope-window figures once tabulated in §1 have been marked unverified rather
+than restated — no envelope coordinates are recorded anywhere in this repository, and SN 010130 is
+cited by name only. The original finding follows.
 
 [`a4-template-specification.md`](a4-template-specification.md) line 162 marks the recipient block
 position as **critical**: top-left at 25mm, 55mm, sized 85mm × 45mm, left-aligned, derived at line 47
@@ -205,7 +227,12 @@ divergent from spec, and untested.
 
 ## Finding 5 — The four file-limit environment variables do not exist
 
-**State:** Not built.
+**State:** Closed. All four keys are in `backend/src/shared/config/env.ts`, defaulted to the shipped
+values from `shared/src/limits.ts`, and read through `backend/src/modules/files/file-limits.ts` — the
+multipart edge, per-file and per-draft validation, and the `attachmentConstraints` the API advertises
+all use the configured numbers (`backend/tests/file-limits.test.ts`). The shared constants remain the
+defaults and the frontend's pre-flight hints. `file-handling.md` now documents the real 27 MB total.
+The original finding follows.
 
 [`file-handling.md`](file-handling.md) lines 3–4 state the rule in bold: limits are configurable via
 environment variables and "must not be hardcoded as magic numbers in application logic". Lines 23–26
@@ -263,13 +290,18 @@ removal is thorough: `shared/src/enums.ts:78` defines `SignatureFlowMode` as `{ 
 there are no `signature_session` or `signature_provider` tables in `backend/src/db/schema/`, the
 fulfilment state machine at `shared/src/state-machines.ts:189` has a single visual path, and
 `backend/src/modules/signing/fulfillment.service.ts:59` takes the old flow-mode argument as an ignored
-`_signatureFlowMode`. Meanwhile [`qualified-signatures.md`](qualified-signatures.md) lines 2–4 still
-present QES as a readiness scaffold awaiting onboarding, and line 17 still says users "choose between
-a typed signature, a drawn signature, and QES".
-[`signatures-and-attachments.md`](signatures-and-attachments.md) lines 11–13 point at that file as the
-"canonical public signature model" and repeat that QES "remains gated behind locked provider
-onboarding and is not yet live". It is not gated. It is gone. Both passages should be rewritten or
-`qualified-signatures.md` archived with a header saying so.
+`_signatureFlowMode`. [`qualified-signatures.md`](qualified-signatures.md) presented QES as a
+readiness scaffold awaiting onboarding and told users they could choose it;
+[`signatures-and-attachments.md`](signatures-and-attachments.md) pointed at that file as the
+canonical model and described QES as gated rather than removed.
+
+_Resolved 2026-07-28 (documentation only)._ `qualified-signatures.md` now opens by stating that QES
+is not part of the product and was removed on 2026-06-10, and retains only the Swiss-law analysis as
+clearly marked background. `signatures-and-attachments.md` is now the canonical signature model —
+typed or drawn, one `visual` tier. The corresponding lock in
+[`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md) is recorded as a dated
+reversal, and [`../05-architecture/2026-04-20-swisssign-readiness-audit.md`](../05-architecture/2026-04-20-swisssign-readiness-audit.md)
+carries an obsolescence header.
 
 **Pricing spec says no promo codes; promo codes are live.**
 [`pricing-structure.md`](pricing-structure.md) line 72 states "no coupon/promotion system at launch"
@@ -278,7 +310,13 @@ and line 186 records the decision as "Locked — no". Promo codes are implemente
 body and applies it server-side at `:120`, backed by
 `backend/src/modules/payments/promo.service.ts`, with a UI field on the checkout page. The feature is
 correctly built — validation is server-side only, which is the right shape — but the locked decision
-in the doc is stale and should be reversed explicitly rather than silently.
+in the doc was stale.
+
+_Resolved 2026-07-28 (documentation only)._ Both the exclusion list and the summary table in
+[`pricing-structure.md`](pricing-structure.md) now show the original lock struck through with a
+dated reversal, and a new _Promotions_ section records what shipped, where it lives, and that
+validation and discount application are server-side only. The same reversal is recorded in
+[`../08-guardrails/open-decisions.md`](../08-guardrails/open-decisions.md).
 
 **VAT is implemented, contrary to an assumption easy to draw from the pricing doc.** Recorded here
 because the audit initially flagged it as missing and that was wrong.

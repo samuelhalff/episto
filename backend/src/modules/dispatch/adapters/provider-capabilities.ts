@@ -7,6 +7,7 @@ import {
 } from "@episto/shared";
 
 import { AppError } from "../../../shared/errors/index.js";
+import { getConfiguredFileLimits } from "../../files/file-limits.js";
 import {
   getEpostProviderName,
   type EpostSubmissionMode,
@@ -17,10 +18,14 @@ const EPOST_ATTACHMENT_POLICY = DispatchAttachmentPolicySchema.parse({
   allowedMimeTypes: ["application/pdf"],
 });
 
-const DEFAULT_ATTACHMENT_POLICY = DispatchAttachmentPolicySchema.parse({
-  maxAttachmentsPerDraft: FILE_LIMITS.maxAttachmentsPerDraft,
-  allowedMimeTypes: [...FILE_LIMITS.attachment.allowedMimeTypes],
-});
+// Built per call, not once at import: the count is an operator dial
+// (MAX_ATTACHMENTS_PER_DRAFT), unlike ePost's hard single-PDF capability.
+function getDefaultAttachmentPolicy(): DispatchAttachmentPolicy {
+  return DispatchAttachmentPolicySchema.parse({
+    maxAttachmentsPerDraft: getConfiguredFileLimits().maxAttachmentsPerDraft,
+    allowedMimeTypes: [...FILE_LIMITS.attachment.allowedMimeTypes],
+  });
+}
 
 export function getEpostDispatchCapabilities(
   submissionMode: EpostSubmissionMode = "live",
@@ -34,7 +39,7 @@ export function getEpostDispatchCapabilities(
 export function getStubDispatchCapabilities(): DispatchProviderCapabilities {
   return DispatchProviderCapabilitiesSchema.parse({
     providerName: "stub",
-    attachmentPolicy: DEFAULT_ATTACHMENT_POLICY,
+    attachmentPolicy: getDefaultAttachmentPolicy(),
   });
 }
 

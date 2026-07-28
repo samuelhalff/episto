@@ -27,6 +27,7 @@ import { paymentRoutes } from "./modules/payments/index.js";
 import { dispatchRoutes } from "./modules/dispatch/index.js";
 import { messageRoutes } from "./modules/messages/index.js";
 import { fileRoutes } from "./modules/files/index.js";
+import { getMaxSingleUploadBytes } from "./modules/files/file-limits.js";
 import { adminAuthRoutes, adminRoutes } from "./modules/admin/index.js";
 import { orderRoutes } from "./modules/orders/index.js";
 import { phoneVerificationRoutes } from "./modules/phone-verification/index.js";
@@ -91,7 +92,10 @@ export async function buildApp(logger: pino.Logger) {
 
   await app.register(fastifyMultipart, {
     limits: {
-      fileSize: 5 * 1024 * 1024, // 5 MB
+      // The HTTP edge has to admit the largest configured single file, or
+      // raising MAX_ATTACHMENT_FILE_BYTES would have no effect; the per-kind
+      // limit is then applied again in the handler.
+      fileSize: getMaxSingleUploadBytes(),
       files: 1, // One file per request
     },
   });

@@ -360,4 +360,42 @@ describe("regression: PDF letter template renders all elements", () => {
     expect(html).toContain("Jane Doe");
     expect(html).toContain("recipient-block");
   });
+  /**
+   * The letter used to name "Helvetica Neue" and embed nothing. Headless
+   * Chromium has no brand fonts, so every letter printed in Arial — the
+   * failure is invisible in HTML review and only shows up on paper, which is
+   * why it survived. Both halves are asserted: the face is named, and the
+   * bytes travel with the document.
+   */
+  it("prints the letter in the embedded serif, not a system fallback", async () => {
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render-template.js");
+    const html = renderLetterHtml(makeSnapshotData());
+
+    expect(html).toContain('font-family: "Source Serif 4"');
+    expect(html).not.toContain('font-family: "Helvetica Neue"');
+    expect(html).toContain('@font-face{font-family:"Source Serif 4"');
+    expect(html).toContain("data:font/woff2;base64,");
+  });
+  /**
+   * The template adds the salutation and closing itself. A body that already
+   * carries them must not produce a letter that greets the recipient twice —
+   * which is exactly what the old single-block fallback did for any draft
+   * rendered from plain body text rather than an AI document model.
+   */
+  it("does not print the salutation and closing twice for a plain-text body", async () => {
+    const { renderLetterHtml } =
+      await import("../src/modules/rendering/render-template.js");
+    const html = renderLetterHtml(
+      makeSnapshotData({
+        locale: "de-CH",
+        metadata: null,
+        body: "Sehr geehrte Damen und Herren\n\nHiermit kündige ich den Vertrag.\n\nFreundliche Grüsse",
+      }),
+    );
+
+    expect(html.split("Sehr geehrte Damen und Herren")).toHaveLength(2);
+    expect(html.split("Freundliche Grüsse")).toHaveLength(2);
+    expect(html).toContain("Hiermit kündige ich den Vertrag.");
+  });
 });

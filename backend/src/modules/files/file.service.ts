@@ -1,10 +1,5 @@
 import { eq, and, sql } from "drizzle-orm";
-import {
-  FILE_LIMITS,
-  getUploadByteLimit,
-  isAllowedUploadMimeType,
-  type DraftAttachmentConstraints,
-} from "@episto/shared";
+import { isAllowedUploadMimeType, type DraftAttachmentConstraints } from "@episto/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
@@ -15,6 +10,11 @@ import {
 } from "../dispatch/adapters/provider-capabilities.js";
 import { getDispatchAdapter } from "../dispatch/adapters/postal.adapter.js";
 import { deleteObjectIfUnchanged, headObject } from "./adapters/s3.adapter.js";
+import {
+  formatByteLimitMb,
+  getConfiguredFileLimits,
+  getConfiguredUploadByteLimit,
+} from "./file-limits.js";
 
 // ---------------------------------------------------------------------------
 // Orphan safety
@@ -238,11 +238,12 @@ export function signedPdfStorageKey(draftId: string, signatureSessionId: string)
 
 export function getDraftAttachmentConstraints(): DraftAttachmentConstraints {
   const attachmentPolicy = getDispatchAdapter().getCapabilities().attachmentPolicy;
+  const limits = getConfiguredFileLimits();
 
   return {
     ...attachmentPolicy,
-    maxFileBytes: getUploadByteLimit("attachment"),
-    maxTotalBytes: FILE_LIMITS.totalDraftUploadBytes,
+    maxFileBytes: limits.attachmentMaxBytes,
+    maxTotalBytes: limits.totalDraftUploadBytes,
   };
 }
 
@@ -337,11 +338,13 @@ export async function createFileAsset(
       throw validationError("Unsupported file type for signature. Allowed: PNG, JPEG");
     }
 
-    if (data.sizeBytes > getUploadByteLimit(data.kind)) {
+    const maxBytes = getConfiguredUploadByteLimit(data.kind);
+    if (data.sizeBytes > maxBytes) {
+      const limit = formatByteLimitMb(maxBytes);
       throw validationError(
         data.kind === "attachment"
-          ? "Attachment exceeds maximum size of 5 MB"
-          : "Signature exceeds maximum size of 2 MB",
+          ? `Attachment exceeds maximum size of ${limit}`
+          : `Signature exceeds maximum size of ${limit}`,
       );
     }
   }
