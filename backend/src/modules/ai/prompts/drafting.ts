@@ -6,6 +6,7 @@ import {
   localeInstruction,
   toChatHistory,
   wrapUserContent,
+  promptParameter,
   type PromptConversationMessage,
 } from "./shared.js";
 
@@ -36,13 +37,18 @@ export interface DraftLetterInput {
 }
 
 export function draftLetterPrompt(input: DraftLetterInput): ChatMessage[] {
-  const recipientName = [
-    input.recipient.firstName,
-    input.recipient.lastName,
-    input.recipient.company,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  // Every one of these is a value the intake model may have lifted out of an
+  // uploaded document, so none of them may reach a system message unshaped.
+  const recipientName = promptParameter(
+    [input.recipient.firstName, input.recipient.lastName, input.recipient.company]
+      .filter(Boolean)
+      .join(" "),
+  );
+  const senderName = promptParameter(
+    [input.sender.firstName, input.sender.lastName].filter(Boolean).join(" "),
+  );
+  const senderCompany = promptParameter(input.sender.company);
+  const enclosureNote = promptParameter(input.enclosureNote);
 
   return [
     {
@@ -52,12 +58,12 @@ export function draftLetterPrompt(input: DraftLetterInput): ChatMessage[] {
 ${localeInstruction(input.locale)}
 
 You are drafting a formal Swiss letter with these parameters:
-- Subject: ${input.subject}
-- Intent: ${input.intent}
-- Tone: ${input.tone}
-- Sender: ${input.sender.firstName} ${input.sender.lastName}${input.sender.company ? `, ${input.sender.company}` : ""}
+- Subject: ${promptParameter(input.subject)}
+- Intent: ${promptParameter(input.intent)}
+- Tone: ${promptParameter(input.tone)}
+- Sender: ${senderName}${senderCompany ? `, ${senderCompany}` : ""}
 - Recipient: ${recipientName}
-${input.enclosureNote ? `- Enclosure note: ${input.enclosureNote}` : ""}
+${enclosureNote ? `- Enclosure note: ${enclosureNote}` : ""}
 
 Generate the letter BODY ONLY (the content between the salutation and closing).
 Do NOT include the sender address block, recipient address block, date, or subject line — those are rendered separately from structured data.
@@ -107,7 +113,7 @@ Rules:
     },
     {
       role: "user",
-      content: `Intent: ${input.intent}
+      content: `Intent: ${promptParameter(input.intent)}
 
 User instructions:
 ${wrapUserContent(input.userInstructions)}
@@ -134,7 +140,7 @@ export function reviseLetterPrompt(input: ReviseLetterInput): ChatMessage[] {
 ${localeInstruction(input.locale)}
 
 You are revising a formal Swiss letter. The current letter body is provided below.
-Apply the user's revision instruction while maintaining the ${input.tone} tone.
+Apply the user's revision instruction while maintaining the ${promptParameter(input.tone)} tone.
 Return the updated subject and the COMPLETE revised letter body using the JSON contract below.
 
 CURRENT LETTER BODY:

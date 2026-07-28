@@ -11,6 +11,21 @@ let createLiveDictationSession: ReturnType<typeof vi.fn>;
 let resolveDictationContext: ReturnType<typeof vi.fn>;
 let transcribeBufferedDictation: ReturnType<typeof vi.fn>;
 
+/**
+ * The handler keeps its bounds private, so the test restates them from the same
+ * contract the handler derives them from: a test that read them from the module
+ * would pass even if the derivation itself changed.
+ */
+const CAPTURE_BYTE_BUDGET = Math.ceil(
+  DICTATION_LIMITS.sampleRateHz *
+    DICTATION_LIMITS.channelCount *
+    2 *
+    DICTATION_LIMITS.maxCaptureSeconds *
+    1.25,
+);
+const CAPTURE_DEADLINE_MS = (DICTATION_LIMITS.maxCaptureSeconds + 5) * 1000;
+const STOP_GRACE_MS = 5_000;
+
 describe("dictation routes", () => {
   let app: FastifyInstance;
 
@@ -251,6 +266,140 @@ describe("dictation routes", () => {
     });
 
     ws.terminate();
+  });
+
+  it("drops audio past the capture byte budget instead of forwarding it", async () => {
+    await app.listen({ host: "127.0.0.1", port: 0 });
+    const address = app.server.address();
+
+    if (!address || typeof address === "string") {
+      throw new Error("Expected a TCP listen address for websocket test");
+    }
+
+    const { WebSocket } = await import("ws");
+    const ws = new WebSocket(
+      `ws://127.0.0.1:${address.port}/dictation/live?locale=de-CH&fieldContext=entry`,
+    );
+
+    await new Promise<void>((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error("Timed out waiting for websocket ready event"));
+      }, 1000);
+
+      ws.once("message", (payload) => {
+        clearTimeout(timeoutId);
+        const parsed = JSON.parse(payload.toString()) as { type?: string };
+        if (parsed.type !== "ready") {
+          reject(new Error(`Expected ready event, received ${payload.toString()}`));
+          return;
+        }
+        resolve();
+      });
+      ws.once("error", (error) => {
+        clearTimeout(timeoutId);
+        reject(error);
+      });
+    });
+
+    const limitEvent = new Promise<Record<string, unknown>>((resolve, reject) => {
+      const timeoutId = setTimeout(() => {
+        reject(new Error("Timed out waiting for the capture limit event"));
+      }, 5000);
+
+      ws.once("message", (payload) => {
+        clearTimeout(timeoutId);
+        resolve(JSON.parse(payload.toString()) as Record<string, unknown>);
+      });
+      ws.once("error", (error) => {
+        clearTimeout(timeoutId);
+        reject(error);
+      });
+    });
+
+    // Exactly the budget is still within it; the next frame is the one that
+    // crosses, and it must never reach the billable provider stream.
+    ws.send(Buffer.alloc(CAPTURE_BYTE_BUDGET));
+    ws.send(Buffer.from([4, 5, 6]));
+
+    await expect(limitEvent).resolves.toEqual({
+      type: "error",
+      code: "DICTATION_CAPTURE_LIMIT",
+      userMessage: expect.any(String),
+    });
+
+    expect(liveDictationSession.writeAudio).toHaveBeenCalledTimes(1);
+    expect((liveDictationSession.writeAudio.mock.calls[0][0] as Buffer).byteLength).toBe(
+      CAPTURE_BYTE_BUDGET,
+    );
+    expect(liveDictationSession.stop).toHaveBeenCalledTimes(1);
+
+    // Frames after the limit are ignored rather than merely unbilled.
+    ws.send(Buffer.from([7, 8, 9]));
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    expect(liveDictationSession.writeAudio).toHaveBeenCalledTimes(1);
+
+    ws.terminate();
+  });
+
+  it("closes the socket when the capture deadline passes with no client audio", async () => {
+    await app.listen({ host: "127.0.0.1", port: 0 });
+    const address = app.server.address();
+
+    if (!address || typeof address === "string") {
+      throw new Error("Expected a TCP listen address for websocket test");
+    }
+
+    const { WebSocket } = await import("ws");
+    const events: Record<string, unknown>[] = [];
+
+    // Only the timers the handler arms are faked, and they are faked before the
+    // socket exists because the deadline is armed on connect. Real timers stay
+    // out of it, so the socket still gets the event-loop ticks it needs to
+    // deliver what the deadline produces.
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    let ws: InstanceType<typeof WebSocket> | null = null;
+
+    try {
+      ws = new WebSocket(
+        `ws://127.0.0.1:${address.port}/dictation/live?locale=de-CH&fieldContext=entry`,
+      );
+      ws.on("message", (payload) => {
+        events.push(JSON.parse(payload.toString()) as Record<string, unknown>);
+      });
+
+      for (let tick = 0; tick < 200 && events.length === 0; tick += 1) {
+        await new Promise((resolve) => setImmediate(resolve));
+      }
+
+      expect(events).toEqual([
+        {
+          type: "ready",
+          sampleRateHz: DICTATION_LIMITS.sampleRateHz,
+          maxCaptureSeconds: DICTATION_LIMITS.maxCaptureSeconds,
+        },
+      ]);
+
+      await vi.advanceTimersByTimeAsync(CAPTURE_DEADLINE_MS);
+      expect(liveDictationSession.stop).toHaveBeenCalledTimes(1);
+
+      // The provider resolving `stop()` is not the socket ending; the grace
+      // timer is what guarantees that.
+      await vi.advanceTimersByTimeAsync(STOP_GRACE_MS);
+
+      for (let tick = 0; tick < 200 && ws.readyState !== WebSocket.CLOSED; tick += 1) {
+        await new Promise((resolve) => setImmediate(resolve));
+      }
+    } finally {
+      vi.useRealTimers();
+    }
+
+    expect(ws.readyState).toBe(WebSocket.CLOSED);
+    expect(events).toContainEqual({
+      type: "error",
+      code: "DICTATION_CAPTURE_LIMIT",
+      userMessage: expect.any(String),
+    });
+    expect(liveDictationSession.writeAudio).not.toHaveBeenCalled();
   });
 
   it("queues early websocket frames until the live dictation session is ready", async () => {

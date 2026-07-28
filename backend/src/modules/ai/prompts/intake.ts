@@ -3,6 +3,7 @@ import {
   formatRecentConversation,
   localeInstruction,
   wrapUserContent,
+  promptParameter,
   ANTI_INJECTION_INSTRUCTION,
 } from "./shared.js";
 
@@ -186,7 +187,7 @@ export function askFollowUpPrompt(input: AskFollowUpInput): ChatMessage[] {
 
 You are a letter drafting assistant helping a user prepare a formal Swiss letter.
 
-The user's intent is: "${input.intent}"
+The user's intent is: "${promptParameter(input.intent)}"
 Current draft fields: ${JSON.stringify(input.existingFields)}
 Recent conversation:
 ${wrapUserContent(recentConversation || "(none)")}

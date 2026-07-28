@@ -1,11 +1,12 @@
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { z } from "zod";
-import { eq, and, gte, sql } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { notFoundError, AppError } from "../../shared/errors/index.js";
-import { createMessage, listMessages } from "./message.service.js";
+import { listMessages } from "./message.service.js";
+import { createMessageWithinBudget } from "./message-budget.js";
 import { handleAiMessage } from "../ai/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 
@@ -80,33 +81,13 @@ export async function messageRoutes(app: FastifyInstance): Promise<void> {
         });
       }
 
-      // Rate limit: 30 messages per session per hour
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-      const [rateResult] = await db
-        .select({ count: sql<number>`count(*)::int` })
-        .from(schema.conversationMessages)
-        .where(
-          and(
-            eq(schema.conversationMessages.draftId, draftId),
-            gte(schema.conversationMessages.createdAt, oneHourAgo),
-          ),
-        );
-
-      const recentCount = rateResult?.count ?? 0;
-      if (recentCount >= 30) {
-        throw new AppError({
-          family: "policy_refusal",
-          statusCode: 429,
-          code: "MESSAGE_RATE_LIMIT",
-          message: "Message rate limit exceeded (30/hour)",
-          userMessage: "You've sent too many messages recently. Please wait a moment.",
-          userAction: "Try again in a few minutes.",
-        });
-      }
-
-      const message = await createMessage(db, {
+      // Counting and inserting happen together, under a per-session lock:
+      // every message here is an unauthenticated, uncharged Azure OpenAI call,
+      // and a cap that is checked in a separate statement is not a cap under
+      // the concurrency it exists to stop.
+      const message = await createMessageWithinBudget(db, {
+        sessionId: session.id,
         draftId,
-        role: "user",
         content: body.content,
       });
 

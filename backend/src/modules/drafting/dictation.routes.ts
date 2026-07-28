@@ -53,6 +53,32 @@ function closeSocket(socket: { readyState: number; close: () => void }) {
   }
 }
 
+/**
+ * What the client is allowed to send before we stop listening.
+ *
+ * `maxCaptureSeconds` was only ever advertised in the `ready` event, which
+ * makes it a request, not a limit: a socket that ignores it keeps an Azure
+ * Speech stream open — and billing — for as long as it likes. Two bounds are
+ * needed, because the two ways to overspend are different. Wall clock stops the
+ * socket that stays open; the byte budget stops the one that streams a
+ * pre-recorded hour faster than real time, where the clock never notices.
+ *
+ * The byte figure is the audio the contract itself describes: 16 kHz, one
+ * channel, 16-bit PCM, for the advertised duration, plus a quarter for framing
+ * and for a client whose clock runs slightly fast.
+ */
+const CAPTURE_DEADLINE_MS = (DICTATION_LIMITS.maxCaptureSeconds + 5) * 1000;
+const CAPTURE_BYTE_BUDGET = Math.ceil(
+  DICTATION_LIMITS.sampleRateHz *
+    DICTATION_LIMITS.channelCount *
+    2 *
+    DICTATION_LIMITS.maxCaptureSeconds *
+    1.25,
+);
+
+/** A stop that does not complete must still end the socket. */
+const STOP_GRACE_MS = 5_000;
+
 function getSocketUserMessage(error: unknown) {
   if (error instanceof AppError) {
     return error.userMessage;
@@ -102,7 +128,21 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
 
     dictationApp.post(
       "/dictation/transcribe",
-      { preHandler: [requireSession] },
+      {
+        preHandler: [requireSession],
+        config: {
+          // Azure Speech is billed per second of audio and this route had no
+          // cap of its own — only the global 100/min/IP, which a five-megabyte
+          // upload per request makes an expensive allowance. Keyed on `req.ip`
+          // because @fastify/rate-limit runs in the onRequest phase, before
+          // `requireSession` populates the session (see draft.routes.ts).
+          rateLimit: {
+            max: 60,
+            timeWindow: "1 hour",
+            keyGenerator: (req: FastifyRequest) => req.ip,
+          },
+        },
+      },
       async (request, reply) => {
         const query = parseDictationQuery(request.query);
         const audioBuffer = Buffer.isBuffer(request.body) ? request.body : null;
@@ -148,9 +188,60 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
 
     dictationApp.get(
       "/dictation/live",
-      { websocket: true, preHandler: [requireSession] },
+      {
+        websocket: true,
+        preHandler: [requireSession],
+        // A live socket bills for as long as it stays open, so the cap is on
+        // how often one client may open one, not on messages within it.
+        config: {
+          rateLimit: {
+            max: 30,
+            timeWindow: "1 hour",
+            keyGenerator: (req: FastifyRequest) => req.ip,
+          },
+        },
+      },
       (socket: WebSocket, request: FastifyRequest) => {
         let socketClosed = false;
+        let audioBytesReceived = 0;
+        let captureEnded = false;
+        let captureDeadline: NodeJS.Timeout | undefined;
+        let stopGrace: NodeJS.Timeout | undefined;
+
+        function clearTimers() {
+          if (captureDeadline) clearTimeout(captureDeadline);
+          if (stopGrace) clearTimeout(stopGrace);
+          captureDeadline = undefined;
+          stopGrace = undefined;
+        }
+
+        /**
+         * End the capture from our side. `stop()` is the graceful path — it
+         * flushes the provider's last final result, which is the sentence the
+         * user is mid-way through — but it talks to the network, so the socket
+         * cannot be left waiting on it indefinitely.
+         */
+        function endCapture(liveSession: { stop: () => Promise<unknown> } | null) {
+          if (captureEnded) return;
+          captureEnded = true;
+
+          sendSocketEvent(socket, {
+            type: "error",
+            code: "DICTATION_CAPTURE_LIMIT",
+            userMessage:
+              "Voice input stopped after the maximum recording length. You can start again.",
+          });
+
+          stopGrace = setTimeout(() => closeSocket(socket), STOP_GRACE_MS);
+          stopGrace.unref?.();
+
+          if (!liveSession) {
+            closeSocket(socket);
+            return;
+          }
+
+          void liveSession.stop().catch(() => closeSocket(socket));
+        }
 
         const liveSessionPromise = (async () => {
           const query = parseDictationQuery(request.query);
@@ -214,6 +305,14 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
           return null;
         });
 
+        // Armed from the moment the socket exists, not from the first audio
+        // frame: a socket that connects and then says nothing still holds a
+        // provider session open.
+        captureDeadline = setTimeout(() => {
+          void liveSessionPromise.then((liveSession) => endCapture(liveSession));
+        }, CAPTURE_DEADLINE_MS);
+        captureDeadline.unref?.();
+
         socket.on(
           "message",
           (rawMessage: Buffer | string | ArrayBuffer | Buffer[], isBinary: boolean) => {
@@ -260,6 +359,9 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
                 }
 
                 if (parsedJson.data.type === "stop") {
+                  captureEnded = true;
+                  if (captureDeadline) clearTimeout(captureDeadline);
+                  captureDeadline = undefined;
                   void liveSession.stop().catch((error) => {
                     sendSocketEvent(socket, {
                       type: "error",
@@ -274,15 +376,31 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
               }
 
               const message = normalizeRawMessage(rawMessage);
-              if (message) {
-                liveSession.writeAudio(message);
+              if (!message) {
+                return;
               }
+
+              // Counted before the write, and the frame that crosses the line
+              // is dropped rather than forwarded: past the budget every byte
+              // handed to the provider is billable.
+              audioBytesReceived += message.byteLength;
+              if (audioBytesReceived > CAPTURE_BYTE_BUDGET) {
+                endCapture(liveSession);
+                return;
+              }
+
+              if (captureEnded) {
+                return;
+              }
+
+              liveSession.writeAudio(message);
             });
           },
         );
 
         socket.on("close", () => {
           socketClosed = true;
+          clearTimers();
           void liveSessionPromise.then(async (liveSession) => {
             await liveSession?.close();
           });
@@ -290,6 +408,7 @@ export async function dictationRoutes(app: FastifyInstance): Promise<void> {
 
         socket.on("error", () => {
           socketClosed = true;
+          clearTimers();
           void liveSessionPromise.then(async (liveSession) => {
             await liveSession?.close();
           });

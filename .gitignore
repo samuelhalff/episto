@@ -32,3 +32,7 @@ tmp-*
 
 # Google service-account key (provided at deploy, never committed)
 .google-service-account.json
+
+# Scratch space for codex prompts/outputs and local build artefacts.
+tmp/
+frontend/tmp/
