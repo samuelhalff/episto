@@ -8,10 +8,6 @@ import {
   LETTER_LAYOUT_MM,
   LETTER_LAYOUT_PT,
   LETTER_PAGE_MM,
-  type DocumentBlock,
-  type DocumentModel,
-  type InlineSpan,
-  type ListItem,
   type SnapshotData,
 } from "@episto/shared";
 import {
@@ -23,6 +19,14 @@ import {
   type DrawnSignatureAsset,
 } from "./drawn-signature.js";
 import { EMBEDDED_FONTS_CSS } from "./fonts.css.js";
+import { escapeHtml, renderDocumentHtml } from "./letter-document-html.js";
+import {
+  LETTER_CONTINUATION_MM,
+  LETTER_FOLD_MARK_COLOR,
+  LETTER_FOLD_MARK_STROKE,
+  LETTER_FOLD_MARKS_MM,
+  type ContinuationHeaderContext,
+} from "./letter-continuation.js";
 
 export interface RenderLetterHtmlOptions {
   signatureImage?: DrawnSignatureAsset | null;
@@ -131,17 +135,21 @@ function getDeliveryTypeDisplay(
   }
 }
 
+function formatLetterDate(locale: SnapshotData["locale"]): string {
+  return new Date().toLocaleDateString(locale, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
+
 export function renderLetterHtml(
   data: SnapshotData,
   options?: RenderLetterHtmlOptions,
 ): string {
   const sender = data.sender;
   const recipient = data.recipient;
-  const formattedDate = new Date().toLocaleDateString(data.locale, {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedDate = formatLetterDate(data.locale);
   const placeAndDate = sender?.city?.trim()
     ? `${sender.city.trim()}, ${formattedDate}`
     : formattedDate;
@@ -188,7 +196,16 @@ export function renderLetterHtml(
   <style>
     ${EMBEDDED_FONTS_CSS}
     ${getSignatureFontFaceCss()}
+    /*
+     * Continuation pages reserve a top band for the page header (see
+     * letter-continuation.ts). Page 1 keeps margin 0 so the envelope-window
+     * address block does not move by a single millimetre.
+     */
     @page {
+      size: A4;
+      margin: ${LETTER_CONTINUATION_MM.topMargin}mm 0 0 0;
+    }
+    @page :first {
       size: A4;
       margin: 0;
     }
@@ -213,6 +230,26 @@ export function renderLetterHtml(
       width: ${LETTER_PAGE_MM.width}mm;
       min-height: ${LETTER_PAGE_MM.height}mm;
       background: #ffffff;
+    }
+    /*
+     * Swiss C5/6 trifold guides — a4-template-specification.md §4: first fold
+     * 99mm, second fold 198mm from the top; §7 gives the mark itself as a 3mm
+     * hairline at 20mm from the left edge. That is left of the 25mm body and
+     * sender columns, so the marks cannot touch the address window or body
+     * text, and they stay on page 1 (the sheet whose fold has to line up).
+     */
+    .fold-mark {
+      position: absolute;
+      left: ${LETTER_FOLD_MARKS_MM.left}mm;
+      width: ${LETTER_FOLD_MARKS_MM.width}mm;
+      height: 0;
+      border-top: ${LETTER_FOLD_MARK_STROKE} solid ${LETTER_FOLD_MARK_COLOR};
+    }
+    .fold-mark-1 {
+      top: ${LETTER_FOLD_MARKS_MM.first}mm;
+    }
+    .fold-mark-2 {
+      top: ${LETTER_FOLD_MARKS_MM.second}mm;
     }
     .sender-block,
     .dispatch-line,
@@ -363,6 +400,8 @@ export function renderLetterHtml(
 </head>
 <body>
   <main class="letter-layout-shell">
+    <div class="fold-mark fold-mark-1"></div>
+    <div class="fold-mark fold-mark-2"></div>
     ${senderBlock ? `<div class="sender-block">${senderBlock}</div>` : ""}
     <div class="dispatch-line">${escapeHtml(deliveryLine)}</div>
     <div class="recipient-block">${recipientBlock}</div>
@@ -382,117 +421,20 @@ export function renderLetterHtml(
 </html>`;
 }
 
-function renderDocumentHtml(document: DocumentModel): string {
-  return document.blocks.map(renderBlockHtml).join("\n");
-}
+/**
+ * Identifier carried by the continuation-page header on pages 2+: who the
+ * letter is to, and when it was written. Derived here rather than in the
+ * pipeline so the header shows the same recipient line and the same date the
+ * letter itself prints.
+ */
+export function getLetterContinuationContext(
+  data: SnapshotData,
+): ContinuationHeaderContext {
+  const [recipientLine] = getAddressBlockLines(data.recipient, "recipient");
 
-function renderBlockHtml(block: DocumentBlock): string {
-  if (block.type === "paragraph") {
-    const tag = paragraphTag(block.style);
-    const className = paragraphClassName(block.style);
-    const style = renderParagraphStyle(
-      block.alignment,
-      block.spacingBefore,
-      block.spacingAfter,
-      block.indentation,
-    );
-    return `<${tag} class="${className}"${style ? ` style="${style}"` : ""}>${renderInlineText(block.text, block.spans ?? [])}</${tag}>`;
-  }
-
-  if (block.type === "list") {
-    const tag = block.listType === "numbered" ? "ol" : "ul";
-    return `<${tag} class="letter-list">${renderListItemsHtml(block.items)}</${tag}>`;
-  }
-
-  const headerHtml = block.headers
-    .map((header) => `<th>${escapeHtml(header)}</th>`)
-    .join("");
-  const rowsHtml = block.rows
-    .map(
-      (row) => `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`,
-    )
-    .join("");
-  return `<table class="letter-table"><thead><tr>${headerHtml}</tr></thead><tbody>${rowsHtml}</tbody></table>`;
-}
-
-function renderListItemsHtml(items: ListItem[]): string {
-  return items
-    .map((item) => {
-      const nested = item.children?.length
-        ? `<ul class="letter-list">${renderListItemsHtml(item.children)}</ul>`
-        : "";
-      return `<li>${renderInlineText(item.text, item.spans ?? [])}${nested}</li>`;
-    })
-    .join("");
-}
-
-function renderInlineText(text: string, spans: InlineSpan[]): string {
-  if (spans.length === 0) {
-    return escapeHtml(text);
-  }
-
-  const sorted = [...spans].sort((a, b) => a.start - b.start || a.end - b.end);
-  let cursor = 0;
-  const segments: string[] = [];
-
-  for (const span of sorted) {
-    if (span.start > cursor) {
-      segments.push(escapeHtml(text.slice(cursor, span.start)));
-    }
-
-    const content = escapeHtml(text.slice(span.start, span.end));
-    const wrappers: string[] = [];
-    if (span.bold) wrappers.push("strong");
-    if (span.italic) wrappers.push("em");
-    if (span.underline) wrappers.push("u");
-
-    let wrapped = content;
-    for (const wrapper of wrappers) {
-      wrapped = `<${wrapper}>${wrapped}</${wrapper}>`;
-    }
-    segments.push(wrapped);
-    cursor = span.end;
-  }
-
-  if (cursor < text.length) {
-    segments.push(escapeHtml(text.slice(cursor)));
-  }
-
-  return segments.join("");
-}
-
-function paragraphTag(style: string): string {
-  if (style === "Heading 1") return "h1";
-  if (style === "Heading 2") return "h2";
-  if (style === "Heading 3") return "h3";
-  return "p";
-}
-
-function paragraphClassName(style: string): string {
-  if (style === "Heading 1") return "letter-heading-1";
-  if (style === "Heading 2") return "letter-heading-2";
-  if (style === "Heading 3") return "letter-heading-3";
-  return "letter-paragraph";
-}
-
-function renderParagraphStyle(
-  alignment?: string,
-  spacingBefore?: number,
-  spacingAfter?: number,
-  indentation?: number,
-): string {
-  const styles: string[] = [];
-  if (alignment) styles.push(`text-align:${alignment}`);
-  if (spacingBefore) styles.push(`margin-top:${spacingBefore}pt`);
-  if (spacingAfter) styles.push(`margin-bottom:${spacingAfter}pt`);
-  if (indentation) styles.push(`padding-left:${indentation}pt`);
-  return styles.join(";");
-}
-
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+  return {
+    locale: data.locale,
+    recipientLine: recipientLine ?? "",
+    date: formatLetterDate(data.locale),
+  };
 }

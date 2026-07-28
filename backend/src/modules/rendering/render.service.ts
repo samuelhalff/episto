@@ -6,4 +6,4 @@ export type {
 export { closeBrowser, countPdfPages, renderPdfBufferFromHtml } from "./render-pdf.js";
 export type { RenderLetterHtmlOptions } from "./render-template.js";
 export { renderLetterHtml } from "./render-template.js";
-export { renderSnapshotToPdf } from "./render-snapshot-pipeline.js";
+export { renderLetterPdf, renderSnapshotToPdf } from "./render-snapshot-pipeline.js";

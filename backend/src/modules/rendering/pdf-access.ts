@@ -21,7 +21,11 @@ import { isMockEpostProviderName } from "../dispatch/adapters/epost-submission-m
 import { BRAND_NAME } from "../../shared/brand.js";
 import { downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
 import { renderConfirmationDocumentHtml } from "./confirmation-document.js";
-import { renderLetterHtml, renderPdfBufferFromHtml } from "./render.service.js";
+import {
+  renderLetterHtml,
+  renderLetterPdf,
+  renderPdfBufferFromHtml,
+} from "./render.service.js";
 import { loadSignatureImageAsset } from "./signature-image.js";
 import { getLatestSnapshot, type SnapshotRow } from "./snapshot.service.js";
 import { parseStoredSnapshotData } from "./snapshot-data.js";
@@ -260,7 +264,10 @@ async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buff
   const letterHtml = renderLetterHtml(renderedLetter.snapshotData, {
     signatureImage,
   });
-  const renderedLetterPdf = await renderPdfBufferFromHtml(letterHtml);
+  const renderedLetterPdf = await renderLetterPdf(
+    letterHtml,
+    renderedLetter.snapshotData,
+  );
 
   // Tamper-evidence fingerprint of the exact letter bytes we reproduce below.
   const letterSha256 = sha256Hex(renderedLetterPdf.pdfBuffer);

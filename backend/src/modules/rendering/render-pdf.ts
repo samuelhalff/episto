@@ -28,6 +28,12 @@ export async function renderPdfBufferFromHtml(
   html: string,
   options?: {
     margins?: PdfRenderMargins;
+    /**
+     * Chromium header template, drawn in the top margin band of every page.
+     * It is the only mechanism that knows the page number, which is why the
+     * letter's continuation header uses it — see letter-continuation.ts.
+     */
+    headerTemplate?: string;
   },
 ): Promise<RenderPdfBufferResult> {
   const browser = await getBrowser();
@@ -53,6 +59,14 @@ export async function renderPdfBufferFromHtml(
         format: "A4",
         printBackground: true,
         margin: margins,
+        ...(options?.headerTemplate
+          ? {
+              displayHeaderFooter: true,
+              headerTemplate: options.headerTemplate,
+              // Chromium prints its own date/URL footer unless one is supplied.
+              footerTemplate: "<span></span>",
+            }
+          : {}),
       }),
     );
 

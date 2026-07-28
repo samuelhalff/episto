@@ -13,8 +13,13 @@ import { createLogger } from "../../shared/logging/index.js";
 import { loadSignatureImageAsset } from "./signature-image.js";
 import { renderPdfBufferFromHtml } from "./render-pdf.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
-import { renderLetterHtml } from "./render-template.js";
-import type { RenderResult } from "./render.types.js";
+import { getLetterContinuationContext, renderLetterHtml } from "./render-template.js";
+import {
+  buildContinuationHeaderTemplate,
+  composeLetterWithContinuationHeader,
+  LETTER_PDF_MARGINS,
+} from "./letter-continuation.js";
+import type { RenderPdfBufferResult, RenderResult } from "./render.types.js";
 import { erasedDraftError } from "../../shared/errors/erased-draft.js";
 import { isErasedSnapshotData } from "./snapshot-data.js";
 
@@ -60,6 +65,51 @@ function parseSnapshotData(
   });
 }
 
+/**
+ * Renders the letter, adding the continuation header only when it has somewhere
+ * to go. The single entry point for turning letter HTML into letter bytes:
+ * the confirmation bundle reproduces the letter too, and a copy the customer
+ * downloads that is paginated differently from the one Swiss Post delivered is
+ * a discrepancy nobody can explain afterwards. A one-page letter is rendered exactly once and comes out byte-for-byte
+ * as before; a multi-page letter is rendered a second time with the header and
+ * keeps page 1 from the header-free pass, because Chromium's header template
+ * cannot skip the first page on its own.
+ */
+export async function renderLetterPdf(
+  html: string,
+  data: SnapshotData,
+): Promise<RenderPdfBufferResult> {
+  const plain = await renderPdfBufferFromHtml(html, { margins: LETTER_PDF_MARGINS });
+
+  if (plain.pageCount <= 1) {
+    return plain;
+  }
+
+  const withHeader = await renderPdfBufferFromHtml(html, {
+    margins: LETTER_PDF_MARGINS,
+    headerTemplate: buildContinuationHeaderTemplate(getLetterContinuationContext(data)),
+  });
+
+  // Both passes share the HTML and the page margins, so they must paginate
+  // identically. If they ever do not, the pages cannot be interleaved safely —
+  // ship the header-free letter rather than a mis-numbered one.
+  if (withHeader.pageCount !== plain.pageCount) {
+    logger.warn(
+      { plainPages: plain.pageCount, headerPages: withHeader.pageCount },
+      "Continuation-header render paginated differently; omitting page headers",
+    );
+    return plain;
+  }
+
+  return {
+    pdfBuffer: await composeLetterWithContinuationHeader(
+      plain.pdfBuffer,
+      withHeader.pdfBuffer,
+    ),
+    pageCount: plain.pageCount,
+  };
+}
+
 export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderResult> {
   const db = getDb();
 
@@ -84,7 +134,7 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
     snapshot.draftId,
   );
   const html = renderLetterHtml(snapshotData, { signatureImage });
-  const { pdfBuffer, pageCount } = await renderPdfBufferFromHtml(html);
+  const { pdfBuffer, pageCount } = await renderLetterPdf(html, snapshotData);
 
   const storageKey = renderStorageKey(snapshot.draftId, snapshot.version);
 

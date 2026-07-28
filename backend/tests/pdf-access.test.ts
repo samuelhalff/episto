@@ -52,6 +52,7 @@ const mocks = vi.hoisted(() => {
     downloadObjectBuffer: vi.fn(),
     renderConfirmationDocumentHtml: vi.fn(),
     renderLetterHtml: vi.fn(),
+    renderLetterPdf: vi.fn(),
     renderPdfBufferFromHtml: vi.fn(),
   };
 });
@@ -79,6 +80,7 @@ vi.mock("../src/modules/rendering/confirmation-document.js", () => ({
 
 vi.mock("../src/modules/rendering/render.service.js", () => ({
   renderLetterHtml: mocks.renderLetterHtml,
+  renderLetterPdf: mocks.renderLetterPdf,
   renderPdfBufferFromHtml: mocks.renderPdfBufferFromHtml,
 }));
 
@@ -162,6 +164,13 @@ describe("pdf-access", () => {
 
     mocks.renderConfirmationDocumentHtml.mockReturnValue("<html>confirmation</html>");
     mocks.renderLetterHtml.mockReturnValue("<html>letter</html>");
+    // The confirmation bundle renders the letter through the same entry point
+    // the dispatch pipeline uses, so the archived copy is paginated and headed
+    // exactly like the one Swiss Post delivered.
+    mocks.renderLetterPdf.mockResolvedValue({
+      pdfBuffer: Buffer.from("letter-pdf"),
+      pageCount: 2,
+    });
     mocks.renderPdfBufferFromHtml.mockImplementation(async (html: string) => {
       if (html === "<html>confirmation</html>") {
         return {
@@ -279,7 +288,10 @@ describe("pdf-access", () => {
         },
       },
     );
-    expect(mocks.renderPdfBufferFromHtml).toHaveBeenCalledWith("<html>letter</html>");
+    expect(mocks.renderLetterPdf).toHaveBeenCalledWith(
+      "<html>letter</html>",
+      expect.objectContaining({ locale: expect.any(String) }),
+    );
     // Attachment bytes are pulled from object storage and merged into the bundle.
     expect(mocks.downloadObjectBuffer).toHaveBeenCalledWith(
       "attachments/session/contract-scan.pdf",
