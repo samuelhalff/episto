@@ -1,10 +1,16 @@
 import type { Job, Worker } from "bullmq";
 import { createWorker, QUEUE_NAMES, type SubmitDispatchJob } from "../queue/index.js";
 import { createLogger } from "../shared/logging/index.js";
+import { sql } from "drizzle-orm";
 import { getDb } from "../db/index.js";
+import type { AppError } from "../shared/errors/index.js";
+import { isEnclosuresUnavailableError } from "../shared/errors/enclosures-unavailable.js";
 import {
+  claimDispatchAttempt,
   createDispatchAttempt,
   getDispatchAttemptByPaymentAttemptId,
+  markDispatchSubmissionStarted,
+  releaseDispatchClaim,
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs.js";
@@ -22,6 +28,11 @@ import {
   updateDraftStatusForDispatchResolution,
   updateDraftStatusForDispatchSubmission,
 } from "./dispatch-settlement.js";
+import {
+  deferUnknownDispatchOutcome,
+  failDispatchNothingSent,
+  isProvablyNotSent,
+} from "./dispatch-submission-failure.js";
 
 const logger = createLogger("submit-dispatch-worker");
 
@@ -64,50 +75,148 @@ export async function processSubmitDispatchJob(
     return;
   }
 
-  // 1. Create or reuse the queued dispatch attempt
-  const attempt =
-    existingAttempt ??
-    (await createDispatchAttempt(db, {
-      draftId,
-      snapshotId,
-      paymentAttemptId: paymentId,
-      providerName: capabilities.providerName,
-    }));
+  // 1. Create or reuse the queued dispatch attempt, and take the submission
+  //    lease. Committed on its own, before anything that can fail.
+  //
+  //    This used to share a transaction with the package assembly below, and
+  //    that was a hole: any assembly failure other than "the enclosures are
+  //    gone" rolled the whole thing back, including the insert. After BullMQ
+  //    exhausted its retries there was no `dispatch_attempts` row at all — so
+  //    the liveness sweep, which looks for exactly that row, could never find
+  //    the letter, and a captured payment sat there with nothing recording that
+  //    it owed anyone anything.
+  //
+  //    The deterministic job id keeps the queue from holding two jobs for one
+  //    payment, but a *stalled* job can still be re-delivered while this worker
+  //    is mid-submission, and the provider call happens outside any
+  //    transaction — so the lease is what turns the second worker away, or
+  //    Swiss Post posts the letter twice.
+  const claimed = await db.transaction(async (tx) => {
+    await tx.execute(sql`SELECT id FROM draft_letters WHERE id = ${draftId} FOR SHARE`);
 
-  const dispatchPackage = await buildDispatchPackage(db, draftId, snapshotId, {
-    paymentAttemptId: paymentId,
+    const attempt =
+      existingAttempt ??
+      (await createDispatchAttempt(tx, {
+        draftId,
+        snapshotId,
+        paymentAttemptId: paymentId,
+        providerName: capabilities.providerName,
+      }));
+
+    return { attempt, lease: await claimDispatchAttempt(tx, attempt.id) };
   });
+
+  const { attempt, lease } = claimed;
+
+  if (lease === null) {
+    logger.warn(
+      { draftId, snapshotId, paymentId, dispatchId: attempt.id },
+      "Skipping dispatch submission: this attempt is claimed or already reached the provider",
+    );
+    job.log(`Dispatch ${attempt.id} is already being submitted by another worker`);
+    return;
+  }
+
+  // 2. Assemble the package under a share lock on the draft.
+  //
+  //    Retention takes `FOR UPDATE` on this same row before it retires
+  //    anything (`asset-retention.ts`), so holding the lock for the length of
+  //    the assembly is what stops it retiring an enclosure half-way through.
+  let dispatchPackage;
+  try {
+    dispatchPackage = await db.transaction(async (tx) => {
+      await tx.execute(sql`SELECT id FROM draft_letters WHERE id = ${draftId} FOR SHARE`);
+      return buildDispatchPackage(tx, draftId, snapshotId, {
+        paymentAttemptId: paymentId,
+      });
+    });
+  } catch (err) {
+    if (isEnclosuresUnavailableError(err)) {
+      // Permanent: the user's own PDF cannot be reconstructed, so no retry will
+      // help. Settle it as a rejection and give the money back.
+      try {
+        await failDispatchNothingSent(
+          db,
+          { draftId, paymentId, attemptId: attempt.id },
+          err as AppError,
+        );
+      } catch (settleErr) {
+        // Nothing was sent, so the lease goes back immediately rather than
+        // making the BullMQ retry wait out the TTL.
+        await releaseDispatchClaim(db, attempt.id, lease);
+        throw settleErr;
+      }
+      return; // Resolve the job: a retry cannot bring the documents back.
+    }
+
+    // Anything else may well be transient — a database blip, storage being
+    // briefly unreachable. Nothing has been sent and `submission_started_at` is
+    // still null, so a retry is both safe and the right answer. Hand the lease
+    // back first so the retry can take it, and let the error out to BullMQ. If
+    // the retries run out, the attempt row is committed and the liveness sweep
+    // picks it up.
+    await releaseDispatchClaim(db, attempt.id, lease);
+    throw err;
+  }
+
+  // The point of no return. Written *before* the call, because afterwards we
+  // may not get the chance: from here on nobody may resubmit this attempt, only
+  // reconcile it.
+  if (!(await markDispatchSubmissionStarted(db, attempt.id, lease))) {
+    logger.warn(
+      { draftId, dispatchId: attempt.id },
+      "Lost the submission lease before calling the provider; leaving the attempt alone",
+    );
+    job.log(`Dispatch ${attempt.id} lost its submission lease before submission`);
+    return;
+  }
 
   let result;
   try {
     result = await adapter.submit(dispatchPackage);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    await transitionDispatchState(db, attempt.id, "rejected", {
-      failureReason: message,
-    });
-
-    // Notify user of dispatch failure (best-effort; do not block retry)
-    try {
-      await enqueueDispatchFailedEmail(db, {
-        dispatchAttemptId: attempt.id,
-        draftId,
-        paymentId,
-        failureReason: message,
-      });
-    } catch (emailErr) {
-      logger.error(
-        {
-          draftId,
-          dispatchId: attempt.id,
-          err: emailErr instanceof Error ? emailErr.message : "Unknown error",
-        },
-        "Failed to enqueue dispatch failure email after adapter rejection",
-      );
+    // Nothing is re-thrown from here on. We are past the point of no return, so
+    // a BullMQ retry cannot resubmit this attempt — it would take the lease,
+    // find `submission_started_at` set, and quietly return. Whatever this
+    // failure means for the user's money has to be decided here.
+    if (isProvablyNotSent(err)) {
+      // The adapter guaranteed the letter did not go out, so the user gets
+      // their money back on the same path as any other rejection.
+      try {
+        await failDispatchNothingSent(
+          db,
+          { draftId, paymentId, attemptId: attempt.id },
+          err,
+        );
+      } catch (settleErr) {
+        // The refund failed. The attempt stays `queued` with
+        // `submission_started_at` set, which is precisely what the liveness
+        // sweep treats as ambiguous: it will flag it `unknown` for review
+        // rather than let anyone resubmit it.
+        logger.error(
+          {
+            draftId,
+            dispatchId: attempt.id,
+            err: settleErr instanceof Error ? settleErr.message : "Unknown error",
+          },
+          "Provider refused the letter but settling the payment failed; left for the liveness sweep",
+        );
+      }
+      return;
     }
 
-    logger.error({ draftId, dispatchId: attempt.id, err: message }, "Dispatch rejected");
-    throw err; // Re-throw for BullMQ retry logic
+    // Ambiguous: a timeout, an outage, an error we did not anticipate. We do
+    // not know whether Swiss Post has the letter, so we neither refund it nor
+    // call it sent. It goes to reconciliation, and — when there is no provider
+    // reference to reconcile against — to a human.
+    await deferUnknownDispatchOutcome(
+      db,
+      { draftId, paymentId, attemptId: attempt.id },
+      err,
+    );
+
+    job.log(`Dispatch ${attempt.id} outcome unknown; under review`);
+    return;
   }
 
   await transitionDispatchState(db, attempt.id, "submitted", {

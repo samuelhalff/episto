@@ -1,16 +1,10 @@
 import type { FastifyInstance, FastifyRequest } from "fastify";
 import { eq, and } from "drizzle-orm";
-import {
-  DraftFilesResponseSchema,
-  FILE_LIMITS,
-  getUploadByteLimit,
-  isAllowedUploadMimeType,
-} from "@episto/shared";
+import { DraftFilesResponseSchema, FILE_LIMITS } from "@episto/shared";
 import { getDb, schema } from "../../db/index.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
 import { validationError, notFoundError } from "../../shared/errors/index.js";
 import {
-  assertUploadMimeMatchesContent,
   attachmentStorageKey,
   deleteFileAsset,
   getDraftAttachmentConstraints,
@@ -18,11 +12,10 @@ import {
   getFileAsset,
   listFileAssets,
   signatureStorageKey,
+  withOrphanCleanup,
 } from "./file.service.js";
-import {
-  createAttachmentLimitError,
-  createAttachmentMimeTypeError,
-} from "../dispatch/adapters/provider-capabilities.js";
+import { createAttachmentLimitError } from "../dispatch/adapters/provider-capabilities.js";
+import { assertUploadAcceptable } from "./upload-validation.js";
 import {
   uploadObject,
   downloadObjectBuffer,
@@ -122,42 +115,9 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const mimeType = data.mimeType;
       const attachmentConstraints = getDraftAttachmentConstraints();
 
-      if (
-        kind === "attachment" &&
-        !attachmentConstraints.allowedMimeTypes.includes(mimeType)
-      ) {
-        throw createAttachmentMimeTypeError(attachmentConstraints);
-      }
-
-      if (kind === "signature" && !isAllowedUploadMimeType(kind, mimeType)) {
-        throw validationError("Unsupported file type for signature. Allowed: PNG, JPEG", [
-          {
-            field: "file",
-            message: `Allowed types: ${FILE_LIMITS[kind].allowedMimeTypes.join(", ")}`,
-          },
-        ]);
-      }
-
-      // Read file into buffer and validate size
       const buffer = data.buffer;
       const sizeBytes = buffer.byteLength;
-      const maxBytes = getUploadByteLimit(kind);
-
-      if (sizeBytes > maxBytes) {
-        throw validationError(
-          kind === "attachment"
-            ? "Attachment exceeds maximum size of 5 MB"
-            : "Signature exceeds maximum size of 2 MB",
-          [
-            {
-              field: "file",
-              message: `Maximum ${kind} size is ${Math.round(maxBytes / 1024 / 1024)} MB`,
-            },
-          ],
-        );
-      }
-
-      assertUploadMimeMatchesContent(kind, mimeType, buffer);
+      assertUploadAcceptable(kind, mimeType, buffer, attachmentConstraints);
 
       // Check per-draft limits
       const existingFiles = await db
@@ -207,65 +167,75 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
           ? attachmentStorageKey(session.id, fileId)
           : signatureStorageKey(session.id, fileId);
 
-      // Upload new file to S3 first (safe: no DB changes yet)
-      await uploadObject(storageKey, buffer, mimeType);
+      // The upload is inside the wrapper too, not just the DB work: an upload
+      // that writes the object and then reports a failure (a timeout on the
+      // response, say) would otherwise leak it. Retention iterates file_assets
+      // rows, so an object with no row is invisible to it and kept forever.
+      const row = await withOrphanCleanup(db, storageKey, request.log, async () => {
+        await uploadObject(storageKey, buffer, mimeType);
 
-      // All DB operations in a single transaction
-      const row = await db.transaction(async (tx) => {
-        const [newRow] = await tx
-          .insert(schema.fileAssets)
-          .values({
-            sessionId: session.id,
-            draftId,
-            kind,
-            storageKey,
-            originalFilename: fileName,
-            mimeType,
-            sizeBytes,
-            status: "active",
-            // Attachments are read by the assistant asynchronously after upload.
-            extractionStatus: kind === "attachment" ? "pending" : null,
-          })
-          .returning();
-
-        if (!newRow) throw new Error("Failed to create file asset");
-
-        if (kind === "signature") {
-          // Atomically set new signature + mode, soft-delete old signature
-          await tx
-            .update(schema.draftLetters)
-            .set({
-              signatureAssetId: newRow.id,
-              signatureMode: "drawn",
-              updatedAt: new Date(),
+        return db.transaction(async (tx) => {
+          const [newRow] = await tx
+            .insert(schema.fileAssets)
+            .values({
+              sessionId: session.id,
+              draftId,
+              kind,
+              storageKey,
+              originalFilename: fileName,
+              mimeType,
+              sizeBytes,
+              status: "active",
+              // Attachments are read by the assistant asynchronously after upload.
+              extractionStatus: kind === "attachment" ? "pending" : null,
             })
-            .where(
-              and(
-                eq(schema.draftLetters.id, draftId),
-                eq(schema.draftLetters.sessionId, session.id),
-              ),
-            );
+            .returning();
 
-          if (existingSignature) {
+          if (!newRow) throw new Error("Failed to create file asset");
+
+          if (kind === "signature") {
+            // Atomically set new signature + mode, soft-delete old signature
             await tx
-              .update(schema.fileAssets)
-              .set({ status: "deleted", deletedAt: new Date() })
+              .update(schema.draftLetters)
+              .set({
+                signatureAssetId: newRow.id,
+                signatureMode: "drawn",
+                updatedAt: new Date(),
+              })
               .where(
                 and(
-                  eq(schema.fileAssets.id, existingSignature.id),
-                  eq(schema.fileAssets.sessionId, session.id),
+                  eq(schema.draftLetters.id, draftId),
+                  eq(schema.draftLetters.sessionId, session.id),
                 ),
               );
-          }
-        }
 
-        return newRow;
+            if (existingSignature) {
+              // pending_deletion, not deleted: the object below may fail to go,
+              // and only pending rows are on the cleanup worker's work list.
+              await tx
+                .update(schema.fileAssets)
+                .set({ status: "pending_deletion" })
+                .where(
+                  and(
+                    eq(schema.fileAssets.id, existingSignature.id),
+                    eq(schema.fileAssets.sessionId, session.id),
+                  ),
+                );
+            }
+          }
+
+          return newRow;
+        });
       });
 
       // Best-effort cleanup of replaced signature from S3
       if (existingSignature) {
         try {
           await deleteObject(existingSignature.storageKey);
+          await db
+            .update(schema.fileAssets)
+            .set({ status: "deleted", deletedAt: new Date() })
+            .where(eq(schema.fileAssets.id, existingSignature.id));
         } catch {
           request.log.warn(
             { fileId: existingSignature.id, storageKey: existingSignature.storageKey },
@@ -330,16 +300,23 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       // Verify the file belongs to the specified draft
       if (asset.draftId !== draftId) throw notFoundError("file");
 
-      // Soft-delete in DB
+      // Retire the row and clear its extracted text first, so the document is
+      // out of reach even if storage is unavailable.
       await deleteFileAsset(db, fileId, session.id);
 
-      // Best-effort delete from storage (don't fail the request if S3 is down)
+      // Then the object itself. Don't fail the request if S3 is down — the row
+      // stays `pending_deletion`, which is exactly the cleanup worker's queue,
+      // so the object is retried rather than stranded.
       try {
         await deleteObject(asset.storageKey);
+        await db
+          .update(schema.fileAssets)
+          .set({ status: "deleted", deletedAt: new Date() })
+          .where(eq(schema.fileAssets.id, fileId));
       } catch {
         request.log.warn(
           { fileId, storageKey: asset.storageKey },
-          "Failed to delete object from storage",
+          "Failed to delete object from storage; left pending for the cleanup worker",
         );
       }
 

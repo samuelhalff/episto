@@ -47,6 +47,9 @@ export const fileAssets = pgTable(
     extractionPageCount: integer("extraction_page_count"),
     extractedAt: ts("extracted_at"),
     deletedAt: ts("deleted_at"),
+    // Set when the cleanup worker could not remove the object, so a repeatedly
+    // failing asset rotates to the back of the queue instead of blocking it.
+    deletionFailedAt: ts("deletion_failed_at"),
     createdAt: createdAt(),
   },
   (table) => ({

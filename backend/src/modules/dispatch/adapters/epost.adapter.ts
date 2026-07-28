@@ -38,6 +38,7 @@ import {
   mapStatusLookup,
 } from "./epost-response-mappers.js";
 import type { EpostHttpClientLike } from "./epost-types.js";
+import { markLetterNotSent } from "../dispatch-outcome.js";
 
 interface EpostDispatchAdapterOptions {
   capabilities?: DispatchProviderCapabilities;
@@ -154,7 +155,13 @@ export class EpostDispatchAdapter {
 
   async submit(dispatchPackage: DispatchPackage): Promise<DispatchSubmitResult> {
     const capabilities = this.getCapabilities();
-    validatePackage(dispatchPackage, capabilities);
+    try {
+      validatePackage(dispatchPackage, capabilities);
+    } catch (error) {
+      // Pre-flight: our own rules refused the package. Nothing was transmitted,
+      // so the worker is free to refund.
+      throw markLetterNotSent(error);
+    }
 
     if (this.submissionMode === "mock") {
       // Defence in depth behind the env guard: a mock submission fakes an
@@ -185,9 +192,23 @@ export class EpostDispatchAdapter {
     };
     logger.info(requestContext, "Submitting live ePost synchronous delivery");
 
+    let form;
+    try {
+      form = await createSynchronousDeliveryForm(dispatchPackage, capabilities);
+    } catch (error) {
+      // Still assembling the request — the documents could not even be read.
+      logger.error(
+        {
+          ...requestContext,
+          error: error instanceof Error ? error.message : String(error),
+        },
+        "Live ePost submission could not be assembled",
+      );
+      throw markLetterNotSent(error);
+    }
+
     let response: Record<string, unknown>;
     try {
-      const form = await createSynchronousDeliveryForm(dispatchPackage, capabilities);
       response = (await this.httpClient.requestJson(
         "/epost/v2/synchronous-deliveries",
         {
@@ -197,6 +218,13 @@ export class EpostDispatchAdapter {
         "synchronous delivery",
       )) as Record<string, unknown>;
     } catch (error) {
+      // A `dispatch_rejection` is ePost answering 400/422: it read the request
+      // and refused it, so the letter demonstrably did not go out. Everything
+      // else here — a timeout, a 5xx, a socket that closed — is ambiguous and
+      // stays unmarked, because the letter may already be theirs.
+      if (error instanceof AppError && error.family === "dispatch_rejection") {
+        markLetterNotSent(error);
+      }
       logger.error(
         {
           ...requestContext,

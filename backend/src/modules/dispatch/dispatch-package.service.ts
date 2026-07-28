@@ -1,7 +1,6 @@
 import { and, count, eq, inArray } from "drizzle-orm";
 import {
   DispatchPackageSchema,
-  SnapshotDataSchema,
   type DispatchFileAsset,
   type DispatchPackage,
 } from "@episto/shared";
@@ -9,7 +8,9 @@ import {
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError, validationError } from "../../shared/errors/index.js";
+import { enclosuresUnavailableError } from "../../shared/errors/enclosures-unavailable.js";
 import { assertDispatchPolicyConstraints } from "./dispatch-policy.js";
+import { parseStoredSnapshotData } from "../rendering/snapshot-data.js";
 
 function toDispatchFileAsset(
   asset: typeof schema.fileAssets.$inferSelect,
@@ -84,7 +85,7 @@ export async function buildDispatchPackage(
     throw notFoundError("draft");
   }
 
-  const snapshotData = SnapshotDataSchema.parse(snapshot.snapshotData);
+  const snapshotData = parseStoredSnapshotData(snapshot.snapshotData);
   const estimatedPages = resolveEstimatedPages(
     snapshotData.estimatedPages,
     draft.estimatedPages,
@@ -116,13 +117,31 @@ export async function buildDispatchPackage(
     : undefined;
 
   if (!renderedPdfAsset && !options?.allowPendingRenderedPdf) {
+    // "Never rendered" and "rendered, then retired by retention" are different
+    // failures. The snapshot holding an asset id it can no longer load is the
+    // retention race, and answering 404 for it hides exactly the bug this
+    // guard exists to surface.
+    if (primaryPdfAssetId) {
+      throw enclosuresUnavailableError([primaryPdfAssetId]);
+    }
     throw notFoundError("rendered PDF");
+  }
+
+  // Every missing enclosure at once, not just the first. This error ends the
+  // dispatch and refunds the payment, so support reads it once and needs to
+  // see the whole story.
+  const missingAttachmentIds = snapshotData.attachmentAssetIds.filter(
+    (assetId) => !assetsById.has(assetId),
+  );
+
+  if (missingAttachmentIds.length > 0) {
+    throw enclosuresUnavailableError(missingAttachmentIds);
   }
 
   const attachments = snapshotData.attachmentAssetIds.map((assetId) => {
     const attachment = assetsById.get(assetId);
     if (!attachment) {
-      throw notFoundError(`attachment ${assetId}`);
+      throw enclosuresUnavailableError([assetId]);
     }
 
     return toDispatchFileAsset(attachment);

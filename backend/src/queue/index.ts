@@ -30,6 +30,7 @@ export const QUEUE_NAMES = {
   SEND_EMAIL: "send-transactional-email",
   CLEANUP_ASSETS: "cleanup-expired-assets",
   REFRESH_DISPATCH_RATES: "refresh-dispatch-rates",
+  DISPATCH_LIVENESS: "dispatch-liveness",
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -105,6 +106,10 @@ export interface RefreshDispatchRatesJob {
   reason: "stale_matrix";
 }
 
+export interface DispatchLivenessJob {
+  reason: "scheduled_sweep";
+}
+
 // ---------------------------------------------------------------------------
 // Scheduled jobs — repeatable BullMQ jobs for periodic tasks
 // ---------------------------------------------------------------------------
@@ -124,6 +129,17 @@ export async function registerScheduledJobs(): Promise<void> {
     {
       repeat: { pattern: "0 * * * *" }, // every hour at :00
       jobId: "scheduled-cleanup",
+    },
+  );
+
+  // Paid letters whose worker died stop being anyone's job until this runs.
+  const livenessQueue = getQueue(QUEUE_NAMES.DISPATCH_LIVENESS);
+  await livenessQueue.add(
+    "scheduled-dispatch-liveness",
+    { reason: "scheduled_sweep" } satisfies DispatchLivenessJob,
+    {
+      repeat: { pattern: "*/10 * * * *" }, // every ten minutes
+      jobId: "scheduled-dispatch-liveness",
     },
   );
 

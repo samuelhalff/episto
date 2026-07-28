@@ -14,6 +14,188 @@ import {
   createAttachmentMimeTypeError,
 } from "../dispatch/adapters/provider-capabilities.js";
 import { getDispatchAdapter } from "../dispatch/adapters/postal.adapter.js";
+import { deleteObjectIfUnchanged, headObject } from "./adapters/s3.adapter.js";
+
+// ---------------------------------------------------------------------------
+// Orphan safety
+// ---------------------------------------------------------------------------
+
+interface OrphanLogger {
+  warn: (obj: Record<string, unknown>, msg: string) => void;
+}
+
+/**
+ * Every prefix this application writes to, in one place, so that "which objects
+ * do we own?" has a single answer. A prefix that exists in a key builder but
+ * not here is an object class nothing ever reconciles.
+ */
+export const STORAGE_PREFIXES = {
+  attachments: "attachments/",
+  signatures: "signatures/",
+  renders: "renders/",
+  signedDocuments: "signed-documents/",
+  receipts: "receipts/",
+} as const;
+
+/**
+ * The prefixes the orphan sweep may delete from.
+ *
+ * `receipts/` is deliberately excluded: VAT receipts are accounting records
+ * kept under Swiss bookkeeping duty, not user content on this retention
+ * schedule. Everything else the app writes belongs here — `signed-documents/`
+ * was missing, so an orphaned signed PDF survived every sweep.
+ */
+export const SWEPT_PREFIXES = [
+  STORAGE_PREFIXES.attachments,
+  STORAGE_PREFIXES.signatures,
+  STORAGE_PREFIXES.renders,
+  STORAGE_PREFIXES.signedDocuments,
+] as const;
+
+/**
+ * The prefixes an unowned object may be deleted from at all.
+ *
+ * Same list as `SWEPT_PREFIXES`, and deliberately so: "may this object be
+ * deleted without a row telling us to?" must have one answer, whether the
+ * question comes from the hourly sweep or from a compensating delete
+ * milliseconds after a failed upload. `receipts/` is outside it because a VAT
+ * receipt is an accounting record under Swiss bookkeeping duty — an orphaned
+ * receipt object that nobody ever deletes costs us a few kilobytes; a receipt
+ * deleted by a racing cleanup costs us a record we are legally required to
+ * produce. Nothing in the identity checks below is airtight enough to bet that
+ * record on, so receipts are never deleted speculatively at all.
+ */
+const DELETABLE_PREFIXES = SWEPT_PREFIXES;
+
+function isDeletableStorageKey(storageKey: string): boolean {
+  return DELETABLE_PREFIXES.some((prefix) => storageKey.startsWith(prefix));
+}
+
+/**
+ * Why a speculative delete did or did not happen.
+ *
+ * Everything except `deleted` means the object was left in place. Only
+ * `unverifiable` is a reason to look: it means storage would not tell us which
+ * object we were about to remove.
+ */
+export type UnownedDeleteOutcome =
+  | "deleted"
+  | "owned"
+  | "protected"
+  | "changed"
+  | "missing"
+  | "unverifiable";
+
+/**
+ * Delete an object that no row owns — and only if it is still that object.
+ *
+ * The hard part is that our keys are deterministic (`renders/{draftId}/
+ * {version}.pdf`), so the key we decided was an orphan can be claimed by a new
+ * upload while we are deciding. A plain "check the DB, then delete" leaves that
+ * window open, and it ends with a live row pointing at an object we removed.
+ *
+ * So the delete is conditional on the object's ETag, read immediately before:
+ * a rewrite between our look and our delete changes the ETag and the delete
+ * fails harmlessly. Callers that know how old the object should be pass
+ * `unchangedSince`, which catches a rewrite that landed before we looked.
+ *
+ * This narrows the window rather than closing it: a rewrite with byte-identical
+ * content after our HEAD keeps the same ETag. Our PDFs are deterministic, so
+ * that is not hypothetical — which is exactly why the objects we cannot afford
+ * to lose are excluded by prefix instead of protected by this check.
+ */
+export async function deleteUnownedObject(
+  db: Db,
+  storageKey: string,
+  options?: { unchangedSince?: Date },
+): Promise<UnownedDeleteOutcome> {
+  if (!isDeletableStorageKey(storageKey)) return "protected";
+  if (await isStorageKeyOwned(db, storageKey)) return "owned";
+
+  const head = await headObject(storageKey);
+  if (head === null) return "missing";
+  if (head.eTag === null) return "unverifiable";
+
+  const unchangedSince = options?.unchangedSince;
+  if (unchangedSince !== undefined) {
+    // No timestamp, or a fresher one than the listing showed: someone has
+    // written here since we made our decision.
+    if (head.lastModified === null) return "unverifiable";
+    if (head.lastModified.getTime() >= unchangedSince.getTime()) return "changed";
+  }
+
+  return (await deleteObjectIfUnchanged(storageKey, head.eTag)) ? "deleted" : "changed";
+}
+
+/**
+ * Is any row still pointing at this object?
+ *
+ * This is the definition of "not an orphan", and both the sweep and the
+ * compensating delete below must use the same one. `receipts` is checked as
+ * well as `file_assets` because receipts live outside `file_assets` entirely,
+ * and a receipt is the single object we must never delete by accident.
+ */
+export async function isStorageKeyOwned(db: Db, storageKey: string): Promise<boolean> {
+  const [asset] = await db
+    .select({ id: schema.fileAssets.id })
+    .from(schema.fileAssets)
+    .where(eq(schema.fileAssets.storageKey, storageKey))
+    .limit(1);
+  if (asset) return true;
+
+  const [receipt] = await db
+    .select({ id: schema.receipts.id })
+    .from(schema.receipts)
+    .where(eq(schema.receipts.storageKey, storageKey))
+    .limit(1);
+  return Boolean(receipt);
+}
+
+/**
+ * Run the DB work that registers an already-uploaded object, and delete that
+ * object if the work fails.
+ *
+ * Uploads write to storage first and insert the `file_assets` row second. That
+ * ordering is deliberate — a row must never point at an object that is not
+ * there — but it means a failure in between leaves an object nothing points at.
+ * Retention iterates rows, so such an object is invisible to it and is kept
+ * forever. Four rendered letters and four signature images leaked this way
+ * before the sweep existed (docs/data-retention.md, F2).
+ *
+ * The compensating delete is only safe for an object we actually orphaned.
+ * Render and receipt keys are deterministic (`renders/{draftId}/{version}.pdf`,
+ * `receipts/{paymentAttemptId}.pdf`), so a retry writes over an object a
+ * previous, successful registration already owns — and `storage_key` is unique,
+ * so that retry's insert then fails. Deleting on that failure would destroy a
+ * live letter, or a VAT receipt we are legally required to keep. So the delete
+ * goes through `deleteUnownedObject`, which refuses protected prefixes, asks
+ * who owns the key, and makes the delete conditional on the object still being
+ * the one it looked at.
+ */
+export async function withOrphanCleanup<T>(
+  db: Db,
+  storageKey: string,
+  logger: OrphanLogger,
+  register: () => Promise<T>,
+): Promise<T> {
+  try {
+    return await register();
+  } catch (err) {
+    try {
+      const outcome = await deleteUnownedObject(db, storageKey);
+      if (outcome !== "deleted") {
+        logger.warn(
+          { storageKey, outcome },
+          "Registration failed but the object was left in place",
+        );
+      }
+    } catch {
+      // The orphan sweep is the backstop when even this fails.
+      logger.warn({ storageKey }, "Failed to remove orphaned object after failed upload");
+    }
+    throw err;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -263,8 +445,16 @@ export async function deleteFileAsset(
   await db
     .update(schema.fileAssets)
     .set({
-      status: "deleted",
-      deletedAt: new Date(),
+      // `pending_deletion`, not `deleted`: the row stays on the cleanup
+      // worker's work list until the object is physically gone. Marking it
+      // deleted up front meant a failed S3 delete was never retried by anything
+      // — the worker only looks at pending rows. It is already invisible to the
+      // user either way, since listings only return active assets.
+      status: "pending_deletion",
+      // Deleting a document must delete its contents too. This column holds up
+      // to 12,000 characters of the user's document; leaving it behind meant a
+      // "deleted" file was still readable in the database.
+      extractedText: null,
     })
     .where(
       and(eq(schema.fileAssets.id, fileId), eq(schema.fileAssets.sessionId, sessionId)),

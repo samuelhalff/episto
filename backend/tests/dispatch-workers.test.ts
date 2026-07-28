@@ -8,6 +8,9 @@ const mocks = vi.hoisted(() => ({
   getDispatchAttemptByPaymentAttemptId: vi.fn(),
   getDispatchAttempt: vi.fn(),
   transitionDispatchState: vi.fn(),
+  claimDispatchAttempt: vi.fn(),
+  releaseDispatchClaim: vi.fn(),
+  markDispatchSubmissionStarted: vi.fn(),
   adapterSubmit: vi.fn(),
   adapterCheckStatus: vi.fn(),
   recordEvent: vi.fn(),
@@ -44,7 +47,19 @@ function createDbMock(selectResults: unknown[][] = [[]]) {
     };
   });
 
-  return { select, update, updateWhere };
+  // The submit worker creates or reuses the attempt and assembles the package
+  // under one share lock on the draft, so that whole stretch is a transaction.
+  const execute = vi.fn().mockResolvedValue({ rows: [] });
+  const db = { select, update, updateWhere, execute } as {
+    select: typeof select;
+    update: typeof update;
+    updateWhere: typeof updateWhere;
+    execute: typeof execute;
+    transaction: (fn: (tx: unknown) => unknown) => unknown;
+  };
+  db.transaction = (fn) => fn(db);
+
+  return db;
 }
 
 vi.mock("../src/queue/index.js", () => ({
@@ -92,6 +107,10 @@ vi.mock("../src/modules/dispatch/dispatch.service.js", () => ({
   getDispatchAttemptByPaymentAttemptId: mocks.getDispatchAttemptByPaymentAttemptId,
   getDispatchAttempt: mocks.getDispatchAttempt,
   transitionDispatchState: mocks.transitionDispatchState,
+  claimDispatchAttempt: mocks.claimDispatchAttempt,
+  releaseDispatchClaim: mocks.releaseDispatchClaim,
+  markDispatchSubmissionStarted: mocks.markDispatchSubmissionStarted,
+  DISPATCH_CLAIM_TTL_MINUTES: 15,
 }));
 
 vi.mock("../src/modules/dispatch/adapters/postal.adapter.js", () => ({
@@ -135,6 +154,9 @@ describe("dispatch workers", () => {
     mocks.getDispatchAttemptByPaymentAttemptId.mockReset();
     mocks.getDispatchAttempt.mockReset();
     mocks.transitionDispatchState.mockReset();
+    mocks.claimDispatchAttempt.mockReset().mockResolvedValue("2026-07-28 20:00:00+00");
+    mocks.releaseDispatchClaim.mockReset().mockResolvedValue(undefined);
+    mocks.markDispatchSubmissionStarted.mockReset().mockResolvedValue(true);
     mocks.adapterSubmit.mockReset();
     mocks.adapterCheckStatus.mockReset();
     mocks.recordEvent.mockReset();

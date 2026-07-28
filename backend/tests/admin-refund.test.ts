@@ -120,6 +120,7 @@ vi.mock("../src/db/index.js", () => ({
 // Mock stripe adapter
 vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
   createRefund: vi.fn(() => Promise.resolve(mocks.createRefundResult)),
+  listRefundsForCharge: vi.fn(() => Promise.resolve([])),
 }));
 
 // Mock refund ledger — the admin action projects the refund + derives state.
@@ -269,7 +270,7 @@ describe("admin refund route", () => {
       "pi_test_1",
       expect.objectContaining({
         reason: "Customer requested refund",
-        idempotencyKey: "admin-full-refund:payment-1",
+        idempotencyKey: "full-refund:payment-1",
       }),
     );
 

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   capturePaymentIntent: vi.fn(),
   cancelPaymentIntent: vi.fn(),
   createRefund: vi.fn(),
+  listRefundsForCharge: vi.fn(),
   syncRefundsForCharge: vi.fn(),
 }));
 
@@ -22,6 +23,7 @@ vi.mock("../src/modules/payments/adapters/stripe.adapter.js", () => ({
   capturePaymentIntent: mocks.capturePaymentIntent,
   cancelPaymentIntent: mocks.cancelPaymentIntent,
   createRefund: mocks.createRefund,
+  listRefundsForCharge: mocks.listRefundsForCharge,
 }));
 
 vi.mock("../src/modules/payments/refund-ledger.service.js", () => ({
@@ -57,6 +59,7 @@ describe("dispatch settlement", () => {
     mocks.capturePaymentIntent.mockReset();
     mocks.cancelPaymentIntent.mockReset();
     mocks.createRefund.mockReset();
+    mocks.listRefundsForCharge.mockReset().mockResolvedValue([]);
     mocks.syncRefundsForCharge.mockReset();
   });
 
@@ -181,7 +184,7 @@ describe("dispatch settlement", () => {
       "pi_1",
       expect.objectContaining({
         reason: "Dispatch rejected for draft draft-1",
-        idempotencyKey: "dispatch-reject-refund:payment-1",
+        idempotencyKey: "full-refund:payment-1",
       }),
     );
     expect(mocks.syncRefundsForCharge).toHaveBeenCalledWith(db, "ch_1");
@@ -189,6 +192,30 @@ describe("dispatch settlement", () => {
       payment: expect.objectContaining({ state: "refund_pending" }),
       rawOrderAccessToken: null,
     });
+  });
+
+  /**
+   * The expensive failure: Stripe refunded, our ledger projection did not, and
+   * the payment row still reads `captured`. A settlement retry — or a support
+   * agent — must not put a second refund through.
+   */
+  it("never refunds a charge Stripe has already refunded", async () => {
+    const db = {} as never;
+    mocks.getPaymentAttemptById.mockResolvedValue(
+      makePayment({ state: "captured", stripeChargeId: "ch_1" }),
+    );
+    mocks.listRefundsForCharge.mockResolvedValue([
+      { refundId: "re_existing", chargeId: "ch_1", amountCents: 455 },
+    ]);
+    mocks.syncRefundsForCharge.mockResolvedValue("refunded");
+
+    const { settlePaymentForDispatchResolution } =
+      await import("../src/workers/dispatch-settlement.js");
+
+    await settlePaymentForDispatchResolution(db, "draft-1", "payment-1", "rejected");
+
+    expect(mocks.createRefund).not.toHaveBeenCalled();
+    expect(mocks.syncRefundsForCharge).toHaveBeenCalledWith(db, "ch_1");
   });
 
   it("returns captured payment as-is when dispatch is accepted (automatic capture)", async () => {

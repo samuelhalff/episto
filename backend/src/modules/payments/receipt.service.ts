@@ -12,6 +12,7 @@ import {
 } from "../rendering/receipt-document.js";
 import { renderPdfBufferFromHtml } from "../rendering/render.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
+import { withOrphanCleanup } from "../files/file.service.js";
 import { computeReceiptAmounts, formatReceiptNumber } from "./receipt-amounts.js";
 import { enqueuePaymentReceiptEmailSafe } from "./receipt-notifications.js";
 
@@ -143,26 +144,32 @@ export async function issueReceiptForCapturedPayment(
   });
 
   const storageKey = receiptStorageKey(paymentAttemptId);
-  await uploadObject(storageKey, pdfBuffer, "application/pdf");
 
-  const inserted = await db
-    .insert(schema.receipts)
-    .values({
-      paymentAttemptId,
-      receiptNumber,
-      netCents: amounts.netCents,
-      vatCents: amounts.vatCents,
-      totalCents: amounts.totalCents,
-      vatRateBp: amounts.vatRateBp,
-      currency: payment.currency,
-      discountCents,
-      promoCode,
-      deliveryType,
-      orderRef,
-      storageKey,
-    })
-    .onConflictDoNothing({ target: schema.receipts.paymentAttemptId })
-    .returning({ id: schema.receipts.id });
+  // Receipts are deliberately outside `file_assets`, so the orphan sweep never
+  // touches the `receipts/` prefix — which means a PDF written without its row
+  // would be kept forever with nothing pointing at it. Compensate here instead.
+  const inserted = await withOrphanCleanup(db, storageKey, logger, async () => {
+    await uploadObject(storageKey, pdfBuffer, "application/pdf");
+
+    return db
+      .insert(schema.receipts)
+      .values({
+        paymentAttemptId,
+        receiptNumber,
+        netCents: amounts.netCents,
+        vatCents: amounts.vatCents,
+        totalCents: amounts.totalCents,
+        vatRateBp: amounts.vatRateBp,
+        currency: payment.currency,
+        discountCents,
+        promoCode,
+        deliveryType,
+        orderRef,
+        storageKey,
+      })
+      .onConflictDoNothing({ target: schema.receipts.paymentAttemptId })
+      .returning({ id: schema.receipts.id });
+  });
 
   // Enqueue the receipt email only when a NEW receipt row was created — a
   // concurrent racer that lost the onConflictDoNothing gets no row back and must

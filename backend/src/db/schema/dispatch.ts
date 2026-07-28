@@ -49,6 +49,20 @@ export const dispatchAttempts = pgTable(
     providerReference: text("provider_reference"),
     trackingNumber: text("tracking_number"),
     submittedAt: ts("submitted_at"),
+    /**
+     * Lease held by the worker currently submitting this attempt. The provider
+     * call happens outside any transaction, so a row lock cannot cover it —
+     * this can. It expires, so a worker that dies mid-submission does not
+     * strand the letter.
+     */
+    claimedAt: ts("claimed_at"),
+    /**
+     * Set immediately before the provider call — the point of no return. Once
+     * it is set, no worker may claim this attempt again: we cannot know whether
+     * Swiss Post received the letter, and posting it twice is worse than
+     * stopping for human review.
+     */
+    submissionStartedAt: ts("submission_started_at"),
     lastCheckedAt: ts("last_checked_at"),
     failureReason: text("failure_reason"),
     createdAt: createdAt(),

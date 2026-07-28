@@ -5,6 +5,7 @@ import {
   HeadObjectCommand,
   HeadBucketCommand,
   GetObjectCommand,
+  ListObjectsV2Command,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { Readable } from "node:stream";
@@ -84,7 +85,8 @@ function toNodeReadable(body: unknown): Readable {
     body &&
     typeof body === "object" &&
     "transformToWebStream" in body &&
-    typeof (body as { transformToWebStream?: unknown }).transformToWebStream === "function"
+    typeof (body as { transformToWebStream?: unknown }).transformToWebStream ===
+      "function"
   ) {
     const webStream = (
       body as { transformToWebStream: () => globalThis.ReadableStream<Uint8Array> }
@@ -148,14 +150,16 @@ export async function downloadObjectBuffer(key: string): Promise<{
     ...(object.contentLength !== undefined
       ? { contentLength: object.contentLength }
       : {}),
-    ...(object.contentType !== undefined
-      ? { contentType: object.contentType }
-      : {}),
+    ...(object.contentType !== undefined ? { contentType: object.contentType } : {}),
   };
 }
 
 /**
  * Delete an object from S3-compatible storage.
+ *
+ * Unconditional: correct only when a row owns the key, because a row's key is
+ * unique and stays that row's forever. For an object nothing owns, use
+ * `deleteObjectIfUnchanged`.
  */
 export async function deleteObject(key: string): Promise<void> {
   const client = getS3Client();
@@ -165,6 +169,105 @@ export async function deleteObject(key: string): Promise<void> {
       Key: key,
     }),
   );
+}
+
+export interface ObjectHead {
+  lastModified: Date | null;
+  eTag: string | null;
+}
+
+/**
+ * What storage currently holds at this key, or null if nothing does.
+ *
+ * The `eTag` is what makes a delete conditional; the `lastModified` is how a
+ * caller re-checks an age it read from a listing, which may be minutes stale.
+ */
+export async function headObject(key: string): Promise<ObjectHead | null> {
+  const client = getS3Client();
+  try {
+    const result = await client.send(
+      new HeadObjectCommand({ Bucket: getBucket(), Key: key }),
+    );
+    return {
+      lastModified: result.LastModified ?? null,
+      eTag: result.ETag ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Delete an object only if it is still the one identified by `eTag`.
+ *
+ * Returns false when the precondition fails — someone rewrote the key after we
+ * looked at it, so the object is no longer the orphan we decided to remove.
+ * That is a normal outcome, not an error. S3 and MinIO both support `If-Match`
+ * on DeleteObject.
+ */
+export async function deleteObjectIfUnchanged(
+  key: string,
+  eTag: string,
+): Promise<boolean> {
+  const client = getS3Client();
+  try {
+    await client.send(
+      new DeleteObjectCommand({
+        Bucket: getBucket(),
+        Key: key,
+        IfMatch: eTag,
+      }),
+    );
+    return true;
+  } catch (err) {
+    if (isPreconditionFailure(err)) return false;
+    throw err;
+  }
+}
+
+function isPreconditionFailure(err: unknown): boolean {
+  if (typeof err !== "object" || err === null) return false;
+  const candidate = err as {
+    name?: string;
+    $metadata?: { httpStatusCode?: number };
+  };
+  return (
+    candidate.name === "PreconditionFailed" || candidate.$metadata?.httpStatusCode === 412
+  );
+}
+
+export interface StoredObject {
+  key: string;
+  lastModified: Date | null;
+}
+
+/**
+ * List every object under a prefix. Used by the orphan sweep to reconcile the
+ * bucket against `file_assets`: retention iterates rows, so an object with no
+ * row is invisible to it and would otherwise be kept forever.
+ */
+export async function listObjects(prefix: string): Promise<StoredObject[]> {
+  const client = getS3Client();
+  const objects: StoredObject[] = [];
+  let continuationToken: string | undefined;
+
+  do {
+    const page = await client.send(
+      new ListObjectsV2Command({
+        Bucket: getBucket(),
+        Prefix: prefix,
+        ...(continuationToken ? { ContinuationToken: continuationToken } : {}),
+      }),
+    );
+    for (const item of page.Contents ?? []) {
+      if (item.Key) {
+        objects.push({ key: item.Key, lastModified: item.LastModified ?? null });
+      }
+    }
+    continuationToken = page.IsTruncated ? page.NextContinuationToken : undefined;
+  } while (continuationToken);
+
+  return objects;
 }
 
 /**

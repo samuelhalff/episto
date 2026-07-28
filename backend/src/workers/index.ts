@@ -6,6 +6,7 @@ import { startSubmitDispatchWorker } from "./submit-dispatch.worker.js";
 import { startReconcileDispatchWorker } from "./reconcile-dispatch.worker.js";
 import { startCleanupAssetsWorker } from "./cleanup-assets.worker.js";
 import { startRefreshDispatchRatesWorker } from "./refresh-dispatch-rates.worker.js";
+import { startDispatchLivenessWorker } from "./dispatch-liveness.worker.js";
 
 const logger = createLogger();
 
@@ -24,6 +25,7 @@ export function startWorkers(): void {
   const reconcileDispatchWorker = startReconcileDispatchWorker();
   const cleanupAssetsWorker = startCleanupAssetsWorker();
   const refreshDispatchRatesWorker = startRefreshDispatchRatesWorker();
+  const dispatchLivenessWorker = startDispatchLivenessWorker();
 
   workers.push(
     emailWorker,
@@ -32,15 +34,13 @@ export function startWorkers(): void {
     reconcileDispatchWorker,
     cleanupAssetsWorker,
     refreshDispatchRatesWorker,
+    dispatchLivenessWorker,
   );
 
   // Log completion/failure events for all workers
   for (const worker of workers) {
     worker.on("completed", (job) => {
-      logger.info(
-        { queue: worker.name, jobId: job?.id },
-        "Job completed",
-      );
+      logger.info({ queue: worker.name, jobId: job?.id }, "Job completed");
     });
     worker.on("failed", (job, err) => {
       logger.error(

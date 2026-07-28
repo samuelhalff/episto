@@ -1,0 +1,11 @@
+-- A lease on a queued dispatch attempt.
+--
+-- Submit jobs carry a deterministic BullMQ job id, so the normal path cannot
+-- enqueue the same payment twice. A *stalled* job can still be re-delivered
+-- while the original is mid-submission, and that duplicate would post the
+-- user's letter to Swiss Post a second time and charge nothing for it.
+--
+-- Claiming is a conditional UPDATE rather than a row lock because the provider
+-- call happens outside any transaction: a lock cannot span it, a lease can.
+-- The lease expires so a worker that dies does not strand the attempt.
+ALTER TABLE "dispatch_attempts" ADD COLUMN "claimed_at" timestamptz;

@@ -82,7 +82,20 @@ const PAYMENT_TRANSITIONS: Record<PaymentStateValue, readonly PaymentStateValue[
 // ---------------------------------------------------------------------------
 
 const DISPATCH_TRANSITIONS: Record<DispatchStateValue, readonly DispatchStateValue[]> = {
-  [DispatchState.queued]: [DispatchState.submitted],
+  // `rejected` straight from `queued` is a *pre-submission* failure: the
+  // package could not be assembled, so the provider was never called. Without
+  // it the attempt stays queued forever while BullMQ retries something that
+  // can never succeed.
+  //
+  // `unknown` straight from `queued` is an *ambiguous* submission: a worker
+  // reached the provider call and never came back to record the outcome. The
+  // letter may or may not be at Swiss Post, so it must never be resubmitted
+  // automatically — it goes to reconciliation, and failing that to a human.
+  [DispatchState.queued]: [
+    DispatchState.submitted,
+    DispatchState.rejected,
+    DispatchState.unknown,
+  ],
   [DispatchState.submitted]: [
     DispatchState.accepted,
     DispatchState.rejected,

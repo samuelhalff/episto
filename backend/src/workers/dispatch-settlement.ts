@@ -6,8 +6,8 @@ import { canTransitionFulfillment } from "@episto/shared";
 import {
   cancelPaymentIntent,
   capturePaymentIntent,
-  createRefund,
 } from "../modules/payments/adapters/stripe.adapter.js";
+import { refundPaymentOnce } from "../modules/payments/refund-once.service.js";
 import { syncRefundsForCharge } from "../modules/payments/refund-ledger.service.js";
 import {
   getPaymentAttemptById,
@@ -92,15 +92,17 @@ export async function settlePaymentForDispatchResolution(
       return { payment, rawOrderAccessToken: null };
     }
 
-    // Dispatch rejected after capture → initiate refund (stable idempotency key
-    // so a settlement retry never double-refunds), then project into the ledger.
-    const refund = await createRefund(payment.stripePaymentIntentId, {
+    // Dispatch rejected after capture → refund, through the one door that
+    // guarantees a payment is refunded at most once no matter who asks.
+    const { refund } = await refundPaymentOnce(db, {
+      paymentAttemptId: payment.id,
+      stripePaymentIntentId: payment.stripePaymentIntentId,
+      stripeChargeId: payment.stripeChargeId,
       reason: `Dispatch rejected for draft ${draftId}`,
-      idempotencyKey: `dispatch-reject-refund:${payment.id}`,
       metadata: { paymentAttemptId: payment.id, draftId },
     });
     try {
-      if (refund.chargeId) await syncRefundsForCharge(db, refund.chargeId);
+      if (refund?.chargeId) await syncRefundsForCharge(db, refund.chargeId);
     } catch {
       // charge.refunded webhook / reconciliation recovers the ledger projection.
     }

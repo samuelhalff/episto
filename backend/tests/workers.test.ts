@@ -56,17 +56,18 @@ vi.mock("../src/shared/logging/index.js", () => ({
 }));
 
 describe("queue names", () => {
-  it("defines all 6 required queue names", () => {
+  it("defines all 7 required queue names", () => {
     expect(QUEUE_NAMES.RENDER_PDF).toBe("render-pdf");
     expect(QUEUE_NAMES.SUBMIT_DISPATCH).toBe("submit-dispatch");
     expect(QUEUE_NAMES.RECONCILE_DISPATCH).toBe("reconcile-ambiguous-dispatch");
     expect(QUEUE_NAMES.SEND_EMAIL).toBe("send-transactional-email");
     expect(QUEUE_NAMES.CLEANUP_ASSETS).toBe("cleanup-expired-assets");
     expect(QUEUE_NAMES.REFRESH_DISPATCH_RATES).toBe("refresh-dispatch-rates");
+    expect(QUEUE_NAMES.DISPATCH_LIVENESS).toBe("dispatch-liveness");
   });
 
-  it("has exactly 6 queue names", () => {
-    expect(Object.keys(QUEUE_NAMES)).toHaveLength(6);
+  it("has exactly 7 queue names", () => {
+    expect(Object.keys(QUEUE_NAMES)).toHaveLength(7);
   });
 });
 
@@ -170,11 +171,23 @@ describe("registerScheduledJobs", () => {
     );
   });
 
+  it("registers the dispatch liveness sweep so abandoned letters are found", async () => {
+    await registerScheduledJobs();
+    expect(addSpy).toHaveBeenCalledWith(
+      "scheduled-dispatch-liveness",
+      { reason: "scheduled_sweep" },
+      expect.objectContaining({
+        repeat: { pattern: "*/10 * * * *" },
+        jobId: "scheduled-dispatch-liveness",
+      }),
+    );
+  });
+
   it("is idempotent — safe to call multiple times", async () => {
     addSpy.mockClear();
     await registerScheduledJobs();
     await registerScheduledJobs();
     // Repeatable jobs are deduped by BullMQ; startup refresh intentionally runs per process.
-    expect(addSpy).toHaveBeenCalledTimes(6); // 3 jobs × 2 calls
+    expect(addSpy).toHaveBeenCalledTimes(8); // 4 jobs × 2 calls
   });
 });
