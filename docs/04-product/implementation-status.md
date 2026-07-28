@@ -258,6 +258,12 @@ to raise a limit for a customer and discovers it requires a deploy.
 
 ## Smaller gaps, stated once
 
+**Resolved 2026-07-28 (documentation, not code):** [`letter-generation.md`](letter-generation.md) now
+marks both fields as unbuilt rather than canonical, records that `intent` covers only the category of
+request, and states what an extraction step would have to solve before the fields would be worth
+adding. The `tone` row there now reads `formal / neutral / firm`, matching the prompt. The finding
+below stands as originally written.
+
 **`factualClaims` and `requestedOutcome` do not exist.** [`letter-generation.md`](letter-generation.md)
 lines 36–37 list them in the canonical field table, one conditional and one required. Grepping both
 identifiers across `backend/src`, `shared/src`, and `frontend/src` returns zero hits. The intake

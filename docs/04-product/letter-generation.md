@@ -27,18 +27,36 @@ Steps execute in order. No step may be skipped.
 
 ## Canonical structured fields
 
-| Field | Required | Notes |
-|---|---|---|
-| `sender` | Yes | Full name and address |
-| `recipient` | Yes | Full name and address |
-| `subject` | Yes | Max 200 characters |
-| `body` | Yes | Max 10,000 characters |
-| `factualClaims` | Conditional | Extracted claims the user asserts as true |
-| `requestedOutcome` | Yes | What the sender wants to happen |
-| `tone` | Yes | formal / semi-formal |
-| `deliveryType` | Yes | standard / registered |
-| `signatureMode` | Yes | typed / image |
-| `attachmentsMetadata` | Optional | File references, not embedded content |
+| Field                 | Required | Notes                                                                                     |
+| --------------------- | -------- | ----------------------------------------------------------------------------------------- |
+| `sender`              | Yes      | Full name and address                                                                     |
+| `recipient`           | Yes      | Full name and address                                                                     |
+| `subject`             | Yes      | Max 200 characters                                                                        |
+| `body`                | Yes      | Max 10,000 characters                                                                     |
+| `factualClaims`       | —        | **Not built.** See below                                                                  |
+| `requestedOutcome`    | —        | **Not built.** Partly covered by `intent`; see below                                      |
+| `tone`                | Yes      | formal / neutral / firm — matches `ai/prompts/intake.ts`, which never had a "semi-formal" |
+| `deliveryType`        | Yes      | standard / registered                                                                     |
+| `signatureMode`       | Yes      | typed / image                                                                             |
+| `attachmentsMetadata` | Optional | File references, not embedded content                                                     |
+
+**`factualClaims` and `requestedOutcome` do not exist, as of 2026-07-28** — not in
+`DraftLetterSchema` (`shared/src/schemas/index.ts`), not in the `draft_letters` table
+(`backend/src/db/schema/drafting.ts`), not under any other name.
+
+The concepts are handled, just not as columns. The drafting prompt is told to "use facts ONLY
+from the user's input" and the intake prompt chases "the specific action the recipient should
+take", but both consume that material into prose: the asserted facts and the requested outcome
+end up inside `body` and `metadata.aiDocument`, alongside the conversation history that produced
+them. `intent` stores only the category of request (complaint, cancellation, demand, …), not the
+outcome itself — "refund CHF 500 by 15 December" is a sentence in the letter, not a field.
+
+That is a real limitation and it is worth naming: because the claims are never extracted, nothing
+can show the user a list of "facts this letter asserts on your behalf" before they pay to send it,
+and nothing can diff those claims against the attached documents they came from. Adding the two
+columns alone would not buy that — it needs an extraction step, a review surface, and a decision
+about what happens when the user edits the body afterwards and the extracted claims go stale. Until
+that is designed, the honest statement is that the fields are unbuilt, not that they are optional.
 
 ## Model responsibilities
 
