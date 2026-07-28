@@ -1,7 +1,9 @@
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import {
+  LegalAddress,
   LegalDefinitionList,
+  LegalMailLink,
   LegalPageStack,
   LegalParagraph,
   LegalReferenceNotice,
@@ -69,22 +71,11 @@ export default async function ImprintPage({
               { label: t("imprint.operatorLabel"), value: LEGAL_OPERATOR.companyName },
               {
                 label: t("imprint.addressLabel"),
-                value: (
-                  <span className="whitespace-pre-line">
-                    {LEGAL_OPERATOR.addressLines.join("\n")}
-                  </span>
-                ),
+                value: <LegalAddress lines={LEGAL_OPERATOR.addressLines} />,
               },
               {
                 label: t("imprint.supportEmailLabel"),
-                value: (
-                  <a
-                    href={`mailto:${LEGAL_OPERATOR.supportEmail}`}
-                    className="font-medium text-amber-700 underline underline-offset-4 dark:text-amber-300"
-                  >
-                    {LEGAL_OPERATOR.supportEmail}
-                  </a>
-                ),
+                value: <LegalMailLink email={LEGAL_OPERATOR.supportEmail} />,
               },
               { label: t("imprint.websiteLabel"), value: LEGAL_WEBSITE_HOST },
               { label: t("imprint.uidVatLabel"), value: LEGAL_OPERATOR.uidVat },

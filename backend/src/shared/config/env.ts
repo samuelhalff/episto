@@ -51,7 +51,19 @@ export const EnvSchema = z
 
     // Retention
     CONTENT_RETENTION_DAYS: z.coerce.number().int().positive().default(15),
+    // The conversation is the user's own account of their situation — a
+    // distinct data class from the documents, so it gets its own dial rather
+    // than riding along on CONTENT_RETENTION_DAYS.
+    CONVERSATION_RETENTION_DAYS: z.coerce.number().int().positive().default(15),
     PDF_RETENTION_HOURS_POST_DISPATCH: z.coerce.number().int().positive().default(360),
+    // Attachments are the user's own documents and are only needed until the
+    // letter they are enclosed with is on its way. The short grace covers a
+    // dispatch retry; it is not a period we keep them "for".
+    ATTACHMENT_RETENTION_HOURS_POST_DISPATCH: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(24),
     METADATA_RETENTION_YEARS: z.coerce.number().int().positive().default(7),
     STATEMENT_RETENTION_DAYS: z.coerce.number().int().positive().default(15),
 

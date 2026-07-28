@@ -1,10 +1,11 @@
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
-import { Link } from "@/i18n/navigation";
 import {
+  LegalEyebrow,
   LegalCallout,
   LegalExternalLink,
+  LegalLink,
   LegalList,
   LegalMutedText,
   LegalPageStack,
@@ -20,7 +21,6 @@ import {
   SWISS_POST_LINKS,
 } from "@/lib/legal-config";
 import { buildMarketingMetadata } from "@/lib/marketing-seo";
-import { MarketingMeta } from "@/components/marketing/typography";
 import { renderRichText } from "@/lib/next-intl-rich";
 
 export async function generateMetadata({
@@ -55,11 +55,7 @@ export default async function TermsPage({
           serviceName: LEGAL_SERVICE_NAME,
           companyName: LEGAL_OPERATOR.companyName,
         })}
-        eyebrow={
-          <MarketingMeta as="p" className="text-[11px] font-semibold tracking-normal">
-            {t("termsLastUpdated")}
-          </MarketingMeta>
-        }
+        eyebrow={<LegalEyebrow>{t("termsLastUpdated")}</LegalEyebrow>}
         notice={
           <LegalReferenceNotice>
             {t("terms.referenceNotice", {
@@ -159,12 +155,7 @@ export default async function TermsPage({
           <LegalParagraph>
             {renderRichText(t, "terms.section8Body1", {
               privacyPolicyLink: (chunks: ReactNode) => (
-                <Link
-                  href="/privacy"
-                  className="font-medium text-amber-700 underline underline-offset-4 dark:text-amber-300"
-                >
-                  {chunks}
-                </Link>
+                <LegalLink href="/privacy">{chunks}</LegalLink>
               ),
             })}
           </LegalParagraph>

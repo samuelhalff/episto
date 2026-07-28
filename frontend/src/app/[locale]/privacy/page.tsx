@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import {
+  LegalEyebrow,
   LegalExternalLink,
   LegalList,
   LegalPageStack,
@@ -17,7 +18,6 @@ import {
   SWISS_POST_LINKS,
 } from "@/lib/legal-config";
 import { buildMarketingMetadata } from "@/lib/marketing-seo";
-import { MarketingMeta } from "@/components/marketing/typography";
 import { renderRichText } from "@/lib/next-intl-rich";
 
 export async function generateMetadata({
@@ -52,11 +52,7 @@ export default async function PrivacyPage({
           serviceName: LEGAL_SERVICE_NAME,
           companyName: LEGAL_OPERATOR.companyName,
         })}
-        eyebrow={
-          <MarketingMeta as="p" className="text-[11px] font-semibold tracking-normal">
-            {t("privacyLastUpdated")}
-          </MarketingMeta>
-        }
+        eyebrow={<LegalEyebrow>{t("privacyLastUpdated")}</LegalEyebrow>}
         notice={
           <LegalReferenceNotice>
             {t("privacy.referenceNotice", {

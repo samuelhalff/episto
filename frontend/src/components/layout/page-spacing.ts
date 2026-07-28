@@ -52,7 +52,10 @@ export const LEGAL_PAGE_ARTICLE_CLASS_NAME = "mx-auto max-w-3xl";
 
 export const LEGAL_PAGE_HEADER_CLASS_NAME = "space-y-5 pb-8 sm:space-y-6 sm:pb-10";
 
-export const LEGAL_PAGE_STACK_CLASS_NAME = "space-y-5 sm:space-y-6";
+// Legal sections are separated by a hairline rule rather than by a card edge,
+// so the space around the rule is what makes the break read. It needs more room
+// than the old panels did.
+export const LEGAL_PAGE_STACK_CLASS_NAME = "space-y-6 sm:space-y-8";
 
 export const ADMIN_SHELL_MAIN_CLASS_NAME =
   "flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8";

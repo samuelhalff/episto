@@ -5,6 +5,7 @@ import { Paperclip, Trash2, FileText, Image, Loader2, CheckCircle } from "lucide
 import { useTranslations } from "next-intl";
 import type { DraftAttachmentConstraints, FileAsset } from "@episto/shared";
 import { toast } from "sonner";
+import { extractionChip, extractionMessageKey } from "./attachment-extraction";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -85,44 +86,6 @@ async function hashFile(file: File): Promise<string> {
   return Array.from(new Uint8Array(hashBuffer))
     .map((byte) => byte.toString(16).padStart(2, "0"))
     .join("");
-}
-
-type ExtractionChip = "reading" | "readingImage" | "read" | "couldNotRead" | null;
-
-function extractionChip(status: FileAsset["extractionStatus"]): ExtractionChip {
-  switch (status) {
-    case "pending":
-      return "reading";
-    case "ocr_running":
-      return "readingImage";
-    case "extracted":
-      return "read";
-    case null:
-    case undefined:
-      return null;
-    default:
-      return "couldNotRead"; // empty | unsupported | no_ocr | too_long | budget | failed
-  }
-}
-
-/** The inline explanation shown under a document, keyed into the `files` namespace. */
-function extractionMessageKey(status: FileAsset["extractionStatus"]): string | null {
-  switch (status) {
-    case "ocr_running":
-      return "extraction.msg.ocrRunning";
-    case "too_long":
-      return "extraction.msg.tooLong";
-    case "budget":
-      return "extraction.msg.budget";
-    case "failed":
-      return "extraction.msg.failed";
-    case "no_ocr":
-    case "empty":
-    case "unsupported":
-      return "extraction.msg.noOcr";
-    default:
-      return null; // pending | extracted | none
-  }
 }
 
 // ---------------------------------------------------------------------------

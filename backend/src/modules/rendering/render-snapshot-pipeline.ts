@@ -2,7 +2,11 @@ import { eq } from "drizzle-orm";
 import { SnapshotDataSchema, type SnapshotData } from "@episto/shared";
 import { getDb } from "../../db/index.js";
 import { schema } from "../../db/index.js";
-import { createFileAsset, renderStorageKey } from "../files/file.service.js";
+import {
+  createFileAsset,
+  renderStorageKey,
+  withOrphanCleanup,
+} from "../files/file.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { AppError } from "../../shared/errors/index.js";
 import { createLogger } from "../../shared/logging/index.js";
@@ -11,6 +15,8 @@ import { renderPdfBufferFromHtml } from "./render-pdf.js";
 import { setSnapshotPdfAsset } from "./snapshot.service.js";
 import { renderLetterHtml } from "./render-template.js";
 import type { RenderResult } from "./render.types.js";
+import { erasedDraftError } from "../../shared/errors/erased-draft.js";
+import { isErasedSnapshotData } from "./snapshot-data.js";
 
 const logger = createLogger("render-service");
 
@@ -22,6 +28,12 @@ function parseSnapshotData(
   const parsed = SnapshotDataSchema.safeParse(snapshotData);
   if (parsed.success) {
     return parsed.data;
+  }
+
+  // Erased is not corrupt. Without this the scrubbed snapshot reads as a
+  // rendering bug: a 500, an error log, and an invitation to "try again".
+  if (isErasedSnapshotData(snapshotData)) {
+    throw erasedDraftError();
   }
 
   logger.error(
@@ -75,7 +87,6 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
   const { pdfBuffer, pageCount } = await renderPdfBufferFromHtml(html);
 
   const storageKey = renderStorageKey(snapshot.draftId, snapshot.version);
-  await uploadObject(storageKey, pdfBuffer, "application/pdf");
 
   const [draft] = await db
     .select({ sessionId: schema.draftLetters.sessionId })
@@ -87,17 +98,29 @@ export async function renderSnapshotToPdf(snapshotId: string): Promise<RenderRes
     throw new Error(`Draft not found: ${snapshot.draftId}`);
   }
 
-  const fileAsset = await createFileAsset(db, {
-    sessionId: draft.sessionId,
-    draftId: snapshot.draftId,
-    kind: "rendered_pdf",
-    storageKey,
-    originalFilename: `letter-v${snapshot.version}.pdf`,
-    mimeType: "application/pdf",
-    sizeBytes: pdfBuffer.byteLength,
-  });
+  // Everything from here registers the object above, and does so atomically: if
+  // linking the snapshot fails, the file_assets row rolls back with it, so the
+  // compensating delete cannot remove an object some surviving row still owns.
+  // Without the wrapper a failed insert would leave a rendered letter in
+  // storage that retention — which iterates rows — can never see.
+  const fileAsset = await withOrphanCleanup(db, storageKey, logger, async () => {
+    await uploadObject(storageKey, pdfBuffer, "application/pdf");
 
-  await setSnapshotPdfAsset(db, snapshotId, fileAsset.id, pageCount);
+    return db.transaction(async (tx) => {
+      const created = await createFileAsset(tx, {
+        sessionId: draft.sessionId,
+        draftId: snapshot.draftId,
+        kind: "rendered_pdf",
+        storageKey,
+        originalFilename: `letter-v${snapshot.version}.pdf`,
+        mimeType: "application/pdf",
+        sizeBytes: pdfBuffer.byteLength,
+      });
+
+      await setSnapshotPdfAsset(tx, snapshotId, created.id, pageCount);
+      return created;
+    });
+  });
 
   logger.info(
     {

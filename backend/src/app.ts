@@ -10,6 +10,10 @@ import type pino from "pino";
 import { ZodError } from "zod";
 
 import { env } from "./shared/config/index.js";
+import {
+  erasedDraftError,
+  isErasedDraftViolation,
+} from "./shared/errors/erased-draft.js";
 import { AppError } from "./shared/errors/index.js";
 import { healthRoutes } from "./routes/health.js";
 import { sessionRoutes } from "./modules/sessions/index.js";
@@ -171,6 +175,16 @@ export async function buildApp(logger: pino.Logger) {
             fields,
           },
         });
+        return;
+      }
+
+      // A write that raced an erasure and lost. The guard is a database
+      // trigger, so this can surface from any service; translating it once
+      // here is the point of enforcing it there.
+      if (isErasedDraftViolation(error)) {
+        const erased = erasedDraftError(error);
+        req.log.warn({ err: error, code: erased.code }, erased.message);
+        reply.status(erased.statusCode).send(erased.toResponse(requestId));
         return;
       }
 

@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { Locale } from "@/i18n/routing";
 import {
+  LegalEyebrow,
   LegalCallout,
   LegalList,
   LegalMutedText,
@@ -12,7 +13,6 @@ import {
 import { LegalPageHeader, LegalPageLayout } from "@/components/marketing/LegalPageLayout";
 import { LEGAL_SERVICE_NAME } from "@/lib/legal-config";
 import { buildMarketingMetadata } from "@/lib/marketing-seo";
-import { MarketingMeta } from "@/components/marketing/typography";
 
 export async function generateMetadata({
   params,
@@ -44,11 +44,7 @@ export default async function SignatureRequirementsPage({
       <LegalPageHeader
         title={t("pageTitle")}
         description={t("pageIntro", { service: LEGAL_SERVICE_NAME })}
-        eyebrow={
-          <MarketingMeta as="p" className="text-[11px] font-semibold tracking-normal">
-            {t("informationalEyebrow")}
-          </MarketingMeta>
-        }
+        eyebrow={<LegalEyebrow>{t("informationalEyebrow")}</LegalEyebrow>}
         notice={
           !isEnglishReference ? (
             <LegalReferenceNotice>{t("translationNotice")}</LegalReferenceNotice>

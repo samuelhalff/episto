@@ -27,10 +27,11 @@ import {
 } from "./prompt-shortcut-behavior";
 import { PromptShortcutBar } from "./PromptShortcutBar";
 import { DictationErrorPanel } from "./DictationPanel";
-import { getScrollableAncestor } from "./scrollable-ancestor";
+import { useThreadAutoscroll } from "./use-thread-autoscroll";
 import { IntakeGuidanceSlot, TemplateGuidanceChip } from "./TemplateGuidance";
 import { useTemplateGuidance } from "./use-template-guidance";
 import { LetterPreviewModal } from "../LetterPreviewModal";
+import { summarizeAttachmentExtraction } from "../attachment-extraction";
 import { getDraftWorkspaceState } from "./workspace-state";
 import type {
   DraftWorkspacePreviewToggleProps,
@@ -56,6 +57,7 @@ export function IntakeStep({
 }: IntakeStepProps) {
   const t = useTranslations("draft");
   const tc = useTranslations("common");
+  const tf = useTranslations("files");
   const locale = useLocale();
   const draft = useDraft(draftId);
   const updateDraft = useUpdateDraft(draftId);
@@ -63,6 +65,12 @@ export function IntakeStep({
   const files = useDraftFiles(draftId);
   const dictation = useDictation({ draftId, fieldContext: "intake" });
   const { finalText: dictatedIntakeText, resetText: resetDictationText } = dictation;
+  // A paperclip with a count cannot distinguish a document the assistant read
+  // from one it could not open, so the composer says which it is.
+  const attachmentChip = useMemo(
+    () => summarizeAttachmentExtraction(files.attachments),
+    [files.attachments],
+  );
   const attachmentInputRef = useRef<HTMLInputElement>(null);
   const threadContainerRef = useRef<HTMLElement>(null);
   const threadEndRef = useRef<HTMLDivElement>(null);
@@ -70,7 +78,6 @@ export function IntakeStep({
   const [intakeText, setIntakeText] = useState("");
   const [isComposerFocused, setIsComposerFocused] = useState(false);
   const hasHydratedRef = useRef(false);
-  const hasAutoScrolledThreadRef = useRef(false);
   const intakeAutosave = useQueuedAutosave({
     value: intakeText,
     component: "IntakeStep",
@@ -186,57 +193,11 @@ export function IntakeStep({
     };
   }, [t]);
 
-  useEffect(() => {
-    if (!hasConversationActivity) {
-      hasAutoScrolledThreadRef.current = false;
-      return;
-    }
-
-    if (!threadEndRef.current) {
-      return;
-    }
-
-    const behavior = hasAutoScrolledThreadRef.current ? "smooth" : "auto";
-    let cancelled = false;
-
-    const scrollThreadToBottom = () => {
-      if (cancelled || !threadEndRef.current) {
-        return;
-      }
-
-      threadEndRef.current.scrollIntoView({ block: "end", behavior });
-
-      const scrollContainer = getScrollableAncestor(threadEndRef.current);
-      if (scrollContainer) {
-        scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior });
-      }
-
-      hasAutoScrolledThreadRef.current = true;
-    };
-
-    const frameId = window.requestAnimationFrame(() => {
-      scrollThreadToBottom();
-
-      window.requestAnimationFrame(() => {
-        scrollThreadToBottom();
-      });
-    });
-
-    const timeoutId = window.setTimeout(() => {
-      scrollThreadToBottom();
-    }, 120);
-
-    return () => {
-      cancelled = true;
-      window.cancelAnimationFrame(frameId);
-      window.clearTimeout(timeoutId);
-    };
-  }, [
+  useThreadAutoscroll(threadEndRef, hasConversationActivity, [
     conversation.isAwaitingResponse,
     conversation.isSending,
     conversation.isStreaming,
     conversation.messages.length,
-    hasConversationActivity,
   ]);
   const intakeComposer = (
     <>
@@ -271,12 +232,22 @@ export function IntakeStep({
         topBadges={
           <PromptShortcutBar
             leadingSlot={
-              <ComposerBadge
-                onClick={() => navigateToStep?.("sender")}
-                className="min-w-0 max-w-full truncate"
-              >
-                {t("manualFlowBadge")}
-              </ComposerBadge>
+              <span className="flex min-w-0 max-w-full items-center gap-2">
+                <ComposerBadge
+                  onClick={() => navigateToStep?.("sender")}
+                  className="min-w-0 max-w-full truncate"
+                >
+                  {t("manualFlowBadge")}
+                </ComposerBadge>
+                {attachmentChip ? (
+                  <ComposerBadge
+                    onClick={() => navigateToStep?.("attachments")}
+                    className="min-w-0 max-w-full shrink-0 truncate"
+                  >
+                    {tf(`extraction.${attachmentChip}`)}
+                  </ComposerBadge>
+                ) : null}
+              </span>
             }
             primaryShortcuts={intakeShortcuts.primary}
             overflowShortcuts={intakeShortcuts.overflow}

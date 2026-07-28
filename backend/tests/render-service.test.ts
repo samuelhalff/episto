@@ -80,6 +80,13 @@ vi.mock("../src/modules/files/file.service.js", () => ({
   createFileAsset: mocks.createFileAsset,
   renderStorageKey: (draftId: string, version: number) =>
     `renders/${draftId}/${version}.pdf`,
+  // Pass-through: the wrapper's own behaviour is covered in file-service.test.ts.
+  withOrphanCleanup: <T>(
+    _db: unknown,
+    _key: string,
+    _logger: unknown,
+    register: () => Promise<T>,
+  ) => register(),
 }));
 
 vi.mock("../src/modules/files/adapters/s3.adapter.js", () => ({
@@ -103,7 +110,13 @@ function mockDbWithSelectResults(...results: unknown[][]) {
   const select = vi
     .fn()
     .mockImplementation(() => makeSelectChain(remaining.shift() ?? []));
-  mocks.getDb.mockReturnValue({ select });
+  // The pipeline registers the rendered PDF and links it to the snapshot in one
+  // transaction, so a compensating delete can never orphan a live row.
+  const db = {
+    select,
+    transaction: (fn: (tx: unknown) => unknown) => fn(db),
+  };
+  mocks.getDb.mockReturnValue(db);
   return select;
 }
 

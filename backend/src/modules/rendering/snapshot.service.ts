@@ -3,6 +3,7 @@ import { SnapshotDataSchema } from "@episto/shared";
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
+import { parseStoredSnapshotData } from "./snapshot-data.js";
 
 // ---------------------------------------------------------------------------
 // Snapshot service — creates immutable snapshots at review time
@@ -90,7 +91,7 @@ export async function setSnapshotPdfAsset(
 
   if (!snapshot) throw notFoundError("snapshot");
 
-  const snapshotData = SnapshotDataSchema.parse(snapshot.snapshotData);
+  const snapshotData = parseStoredSnapshotData(snapshot.snapshotData);
   const result = await db
     .update(schema.draftSnapshots)
     .set({

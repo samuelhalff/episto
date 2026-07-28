@@ -6,7 +6,6 @@ import {
   buildOrderReference,
   extractAiDocumentMetadata,
   flattenDocumentModel,
-  SnapshotDataSchema,
   type DocumentModel,
   type SnapshotData,
 } from "@episto/shared";
@@ -23,6 +22,7 @@ import { renderConfirmationDocumentHtml } from "./confirmation-document.js";
 import { renderLetterHtml, renderPdfBufferFromHtml } from "./render.service.js";
 import { loadSignatureImageAsset } from "./signature-image.js";
 import { getLatestSnapshot, type SnapshotRow } from "./snapshot.service.js";
+import { parseStoredSnapshotData } from "./snapshot-data.js";
 
 interface RenderedLetterSource {
   snapshot: SnapshotRow;
@@ -79,7 +79,7 @@ async function getRenderedLetterAsset(
     });
   }
 
-  const snapshotData = SnapshotDataSchema.parse(snapshot.snapshotData);
+  const snapshotData = parseStoredSnapshotData(snapshot.snapshotData);
 
   return {
     snapshot,
