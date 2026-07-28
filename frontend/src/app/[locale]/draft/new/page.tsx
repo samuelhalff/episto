@@ -159,13 +159,12 @@ export default function NewDraftPage() {
     const slug = searchParams.get("template");
     if (!slug || !isDraftTemplateSlug(slug)) return null;
     const starter = getDraftStarter(slug, sessionLocale);
-    const page = getLandingPage(sessionLocale, slug);
-    const context: TemplateContext | null = page
-      ? {
-          slug,
-          checklist: page.checklist,
-          considerations: page.notes.map((note) => `${note.title}: ${note.body}`),
-        }
+    // Only the slug is sent: the panel's copy and the assistant's guidance are
+    // both looked up from it, so they cannot be made to describe two different
+    // templates. Still gated on the locale having authored copy — entering in a
+    // locale with no landing page seeds nothing, as before.
+    const context: TemplateContext | null = getLandingPage(sessionLocale, slug)
+      ? { slug }
       : null;
     return { starter, context };
   }, [searchParams, sessionLocale]);

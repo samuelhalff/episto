@@ -1,6 +1,12 @@
-import { getDraftWorkspaceState, type TemplateContext } from "@episto/shared";
+import {
+  getDraftWorkspaceState,
+  getTemplateGuidance,
+  type TemplateGuidanceEntry,
+} from "@episto/shared";
 
 // Hard caps (codex P1.3): metadata is client-writable, so treat as untrusted.
+// The content is server-owned now, but the caps stay: they also bound how much
+// of the prompt budget a long template can take, and cost nothing.
 const CAPS = {
   checklistItems: 8,
   checklistLen: 240,
@@ -34,11 +40,11 @@ function cleanList(value: unknown, maxItems: number, maxLen: number): string[] {
  * ONLY — explicitly not facts about the user. Empty string when there is no
  * usable guidance. Wrapped in DATA markers like the attachment block.
  */
-export function buildTemplateGuidanceBlock(context: TemplateContext | undefined): string {
-  if (!context) return "";
-  const checklist = cleanList(context.checklist, CAPS.checklistItems, CAPS.checklistLen);
+export function buildTemplateGuidanceBlock(entry: TemplateGuidanceEntry | null): string {
+  if (!entry) return "";
+  const checklist = cleanList(entry.checklist, CAPS.checklistItems, CAPS.checklistLen);
   const considerations = cleanList(
-    context.considerations,
+    entry.considerations,
     CAPS.considerationItems,
     CAPS.considerationLen,
   );
@@ -73,12 +79,27 @@ export function buildTemplateGuidanceBlock(context: TemplateContext | undefined)
   return `${body.slice(0, maxBodyLen)}\n${footer}`;
 }
 
-/** Read + format the template guidance from a draft's (untrusted) metadata. */
-export function buildTemplateGuidanceFromMetadata(metadata: unknown): string {
-  return buildTemplateGuidanceBlock(getDraftWorkspaceState(metadata).templateContext);
+/**
+ * Format the guidance for whichever template seeded this draft.
+ *
+ * The only thing read out of the (untrusted) metadata is the slug, which the
+ * schema has already constrained to a known template; the content itself comes
+ * from the server's own registry. A client that rewrites its metadata can
+ * therefore change *which* template applies — which it can do through the UI
+ * anyway — but not what that template tells the model.
+ */
+export function buildTemplateGuidanceFromMetadata(
+  metadata: unknown,
+  locale: string | null | undefined,
+): string {
+  const slug = getDraftWorkspaceState(metadata).templateContext?.slug;
+  return slug ? buildTemplateGuidanceBlock(getTemplateGuidance(locale, slug)) : "";
 }
 
 /** Whether a draft carries any usable template guidance (drives compose fast-path). */
-export function hasTemplateGuidance(metadata: unknown): boolean {
-  return buildTemplateGuidanceFromMetadata(metadata).length > 0;
+export function hasTemplateGuidance(
+  metadata: unknown,
+  locale: string | null | undefined,
+): boolean {
+  return buildTemplateGuidanceFromMetadata(metadata, locale).length > 0;
 }

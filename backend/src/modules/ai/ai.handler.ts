@@ -220,7 +220,7 @@ export async function handleAiMessage(input: HandleMessageInput): Promise<void> 
     // Fold any readable attachment content + template guidance into the text the
     // assistant sees. "" when there are none. Template guidance is framing only.
     const attachmentBlock = await buildAttachmentContextBlock(getDb(), draftId);
-    const templateBlock = buildTemplateGuidanceFromMetadata(draft.metadata);
+    const templateBlock = buildTemplateGuidanceFromMetadata(draft.metadata, draft.locale);
     const augmentedContent = userContent + attachmentBlock + templateBlock;
 
     if (draft.body?.trim() && conversationHistory.length > 2) {
@@ -332,7 +332,7 @@ export async function handleComposeFromContext(
     }
 
     // Fold readable attachment content + template guidance into the instructions.
-    const templateBlock = buildTemplateGuidanceFromMetadata(draft.metadata);
+    const templateBlock = buildTemplateGuidanceFromMetadata(draft.metadata, draft.locale);
     const augmentedInstructions =
       userInstructions +
       (await buildAttachmentContextBlock(getDb(), draftId)) +

@@ -160,9 +160,9 @@ The earlier draft claimed the card was "injection-proof". Too broad. Correctly:
   a stale write, not just maliciously.
 - **Cheap hardening included here:** constrain `slug` to the known draft-template
   list at the schema boundary. Arbitrary slugs stop being representable.
-- **Deferred:** reconstructing _both_ display and AI guidance from a single validated
-  server-owned slug, which removes the mismatch class entirely. Noted as the next
-  step, not done here.
+- **Done in P8 (was deferred):** reconstructing _both_ display and AI guidance from a
+  single validated server-owned slug, which removes the mismatch class entirely.
+  See below.
 - Copy must not assert facts about the user or state legal conclusions. "Have to
   hand", never "your notice period is…". No deadlines (F3).
 
@@ -261,11 +261,45 @@ The panel does not take a `fallback` prop as first sketched; `IntakeGuidanceSlot
 owns the whole empty-composer slot instead (panel / turn-off confirmation /
 generic tips), which keeps `IntakeStep` under the 500-line file-size guard.
 
+### P8: one slug, both halves
+
+Until now the template's AI guidance travelled on the wire beside the slug, while
+the panel looked its copy up from a static registry. Two sources for one thing,
+one of them client-writable: rewriting the arrays gave **UI template B with
+guidance from template A**, and no screen would look wrong. It did not need an
+attacker either — a stale write from an old tab does the same thing.
+
+The fix is the same move that fixed the lost-update class in P7: make the bad
+state unrepresentable rather than merely discouraged.
+
+- `TemplateContextSchema` is now `{ slug }`. Nothing else fits on the wire.
+  Drafts stored under the old shape still load — `z.object` drops the extra keys.
+- Guidance lives in `shared/src/template-guidance/{de,fr,it}.ts`, **generated**
+  from the landing datasets by `node scripts/generate-template-guidance.mjs`.
+  A second copy of content is a second thing to forget, so
+  `frontend/tests/template-guidance-registry-drift.test.ts` recomputes it from
+  the landing content and fails if the committed output has drifted.
+- The backend reads only the slug out of metadata and rebuilds the block from the
+  registry, keyed by the draft's own locale. `en-CH`, which has no authored copy,
+  falls back to German rather than dropping the template: the guidance frames the
+  model, it is never shown to the user or written into the letter, and a draft
+  seeded in de-CH and switched to English is still the same letter (US-8).
+- The sanitizing and caps stay. The content is server-owned now, but they still
+  bound how much of the prompt budget a long template can take.
+
+Verified against the running backend, not just in unit tests: a `PATCH` carrying
+`checklist: ["SMUGGLED"]` next to a valid slug stores
+`{"templateContext":{"slug":"wohnung-kuendigen"}}` and nothing else.
+
+**US-11 — the template that steers the draft is the one the screen names.**
+_Accept:_ display copy and assistant guidance are both derived from one validated
+slug; no guidance content is accepted from the client; the two cannot disagree.
+
 ## Non-goals
 
 Typed slots, a fact lifecycle (`candidate|confirmed|evidenced`), attachment
-extraction, computed legal deadlines and countdowns, `workflowId` replacing the SEO
-slug as the durable key, and moving AI guidance to a server-owned registry. All are
-the right next steps; none are this change. Deadlines especially — Art. 74 SchKG's
+extraction, computed legal deadlines and countdowns, and `workflowId` replacing
+the SEO slug as the durable key. All are the right next steps; none are this
+change. Deadlines especially — Art. 74 SchKG's
 ten days run from _service of the payment order_, not from draft creation, and a
 confident countdown is a liability before inputs and applicability are confirmed.

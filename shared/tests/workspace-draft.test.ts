@@ -112,9 +112,27 @@ describe("the workspace patch schema", () => {
   it("rejects a template slug that is not a known draft template", () => {
     expect(
       DraftWorkspacePatchSchema.safeParse({
-        templateContext: { slug: "../../etc/passwd", checklist: [], considerations: [] },
+        templateContext: { slug: "../../etc/passwd" },
       }).success,
     ).toBe(false);
+  });
+
+  /**
+   * Guidance content used to ride along with the slug, which let a client point
+   * the assistant at one template while the UI named another. Drafts written
+   * under that shape must still load — the extra keys are simply dropped.
+   */
+  it("keeps only the slug from a template context", () => {
+    const parsed = DraftWorkspacePatchSchema.safeParse({
+      templateContext: {
+        slug: "wohnung-kuendigen",
+        checklist: ["smuggled"],
+        considerations: ["smuggled"],
+      },
+    });
+    expect(parsed.success && parsed.data.templateContext).toEqual({
+      slug: "wohnung-kuendigen",
+    });
   });
 
   it("accepts null as an explicit removal", () => {

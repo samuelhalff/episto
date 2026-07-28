@@ -31,6 +31,17 @@ describe("template guidance surfaces", () => {
     expect(guidanceSource).toContain("getTemplateIntake(slug, locale)");
   });
 
+  /**
+   * The other half of the same rule, on the way out. The seed used to carry the
+   * template's checklist and notes next to the slug, which let a client pair one
+   * template's display copy with another's AI guidance. Only the slug is sent
+   * now; both sides are rebuilt from it, the assistant's side server-side.
+   */
+  it("seeds a draft with the slug alone", () => {
+    expect(newDraftPageSource).not.toMatch(/considerations:/);
+    expect(newDraftPageSource).not.toMatch(/checklist:/);
+  });
+
   // US-4/US-7: guidance reaches the model on every turn, so the chip has to
   // outlive the empty-composer panel.
   it("keeps the chip visible once the conversation has started", () => {

@@ -49,10 +49,17 @@ export const DRAFT_TEMPLATE_SLUGS = [
 export type DraftTemplateSlug = (typeof DRAFT_TEMPLATE_SLUGS)[number];
 
 /**
- * Curated guidance copied from a landing template when a draft is seeded via
- * ?template=<slug>. Used by the assistant only as FRAMING (what to ask / whether
- * the letter is complete) — never as facts about the user. Treated as untrusted
- * input by the backend regardless (it re-sanitizes + caps before use).
+ * Which landing template seeded a draft (`?template=<slug>`). The slug is the
+ * *only* thing that crosses the wire: display copy is looked up from the landing
+ * content and the assistant's guidance from `template-guidance/`, both keyed by
+ * this one validated value.
+ *
+ * It used to carry `checklist` and `considerations` too. Because metadata is
+ * client-writable, that let the two halves disagree — the panel could say
+ * "Wohnung kündigen" while the model was steered by another template's guidance.
+ * Narrowing the schema makes that unrepresentable rather than merely discouraged,
+ * the same tactic as dropping `metadata` from the PATCH body. Drafts written
+ * under the old shape still parse: z.object strips the extra keys.
  *
  * `slug` is constrained to the known templates so an arbitrary slug is not even
  * representable. This is fail-safe rather than fail-hard: getDraftWorkspaceState
@@ -61,8 +68,6 @@ export type DraftTemplateSlug = (typeof DRAFT_TEMPLATE_SLUGS)[number];
  */
 export const TemplateContextSchema = z.object({
   slug: z.enum(DRAFT_TEMPLATE_SLUGS),
-  checklist: z.array(z.string()).default([]),
-  considerations: z.array(z.string()).default([]),
 });
 
 export type TemplateContext = z.infer<typeof TemplateContextSchema>;

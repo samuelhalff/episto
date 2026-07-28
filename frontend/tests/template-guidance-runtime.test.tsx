@@ -44,7 +44,7 @@ function makeUpdateDraft(mutateAsync: (input: unknown) => Promise<unknown>) {
 function withTemplate(metadata: Record<string, unknown> = {}) {
   return {
     workspaceDraft: {
-      templateContext: { slug: SLUG, checklist: [], considerations: [] },
+      templateContext: { slug: SLUG },
       ...metadata,
     },
   };

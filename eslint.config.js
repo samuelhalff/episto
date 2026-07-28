@@ -21,6 +21,14 @@ export default tseslint.config(
       "@typescript-eslint/consistent-type-imports": "error",
     },
   },
+  // Build/CI scripts run under node, not in a browser or a bundle.
+  {
+    files: ["scripts/**/*.mjs", "ci/**/*.mjs"],
+    languageOptions: {
+      globals: { console: "readonly", process: "readonly" },
+    },
+  },
+
   {
     files: ["frontend/public/sw.js"],
     languageOptions: {
