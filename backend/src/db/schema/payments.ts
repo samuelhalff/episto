@@ -44,6 +44,15 @@ export const paymentAttempts = pgTable(
     stripeFeeCents: integer("stripe_fee_cents"),
     stripeFeeCurrency: text("stripe_fee_currency"),
     stripeFeeRecordedAt: ts("stripe_fee_recorded_at"),
+    // Acquisition attribution captured in the browser and carried to checkout
+    // (migration 0031). All nullable: without analytics consent nothing is
+    // captured, and NULL is the honest record of "we do not know" rather than a
+    // guess that would silently mis-assign revenue to a channel.
+    gaClientId: text("ga_client_id"),
+    attributionGclid: text("attribution_gclid"),
+    attributionUtmSource: text("attribution_utm_source"),
+    attributionUtmMedium: text("attribution_utm_medium"),
+    attributionUtmCampaign: text("attribution_utm_campaign"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
@@ -53,6 +62,9 @@ export const paymentAttempts = pgTable(
     stateIdx: index("payment_attempts_state_idx").on(table.state),
     orderTokenIdx: index("payment_attempts_order_token_idx").on(
       table.orderAccessTokenHash,
+    ),
+    attributionSourceIdx: index("payment_attempts_attribution_source_idx").on(
+      table.attributionUtmSource,
     ),
   }),
 );

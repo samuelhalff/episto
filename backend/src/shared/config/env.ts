@@ -6,6 +6,7 @@ import dotenv from "dotenv";
 import { PostalPostageSchema } from "@episto/shared";
 
 import { UPLOAD_LIMIT_ENV_FIELDS } from "./upload-limits.env.js";
+import { ANALYTICS_ENV_FIELDS } from "./analytics.env.js";
 
 const PLACEHOLDER_AZURE_SPEECH_KEYS = new Set(["dev-speech-key", "replace_me"]);
 
@@ -174,20 +175,7 @@ export const EnvSchema = z
     ADMIN_MICROSOFT_ALLOWED_OIDS: z.string().default(""),
     ADMIN_MICROSOFT_ALLOWED_EMAILS: z.string().default(""),
 
-    // Read-only acquisition analytics. The service-account file is mounted
-    // outside the repository in production; no credential JSON belongs in env.
-    GOOGLE_SERVICE_ACCOUNT_FILE: z.string().min(1).optional(),
-    GA4_PROPERTY_ID: z.string().regex(/^\d+$/).optional(),
-    GSC_SITE_URL: z.string().min(1).optional(),
-    GOOGLE_ADS_CUSTOMER_ID: z
-      .string()
-      .regex(/^\d{10}$/)
-      .optional(),
-    GOOGLE_ADS_LOGIN_CUSTOMER_ID: z
-      .string()
-      .regex(/^\d{10}$/)
-      .optional(),
-    GOOGLE_ADS_DEVELOPER_TOKEN: z.string().min(1).optional(),
+    // Acquisition analytics lives in ANALYTICS_ENV_FIELDS (analytics.env.ts).
 
     // Pricing (integer cents, CHF only). Markups are capped at CHF 6.00 as a
     // sanity guard so an accidental/outrageous premium (e.g. the old CHF 10.90)
@@ -212,6 +200,7 @@ export const EnvSchema = z
     LIVE_DISPATCH_QUOTE_TTL_MINUTES: z.coerce.number().int().positive().default(30),
   })
   .extend(UPLOAD_LIMIT_ENV_FIELDS)
+  .extend(ANALYTICS_ENV_FIELDS)
   .refine(
     (data) => {
       if (data.NODE_ENV === "test") {

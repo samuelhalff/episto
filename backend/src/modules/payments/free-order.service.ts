@@ -10,11 +10,13 @@ import {
   getPaymentForDraft,
   transitionPaymentState,
   type PaymentAttemptRow,
+  type PaymentAttribution,
 } from "./payment.service.js";
 import { recordPromoRedemption } from "./promo.service.js";
 import { issueReceiptForCapturedPayment } from "./receipt.service.js";
 import { createLogger } from "../../shared/logging/index.js";
 import { recordEvent } from "../analytics/index.js";
+import { sendGa4Purchase } from "../analytics/ga4-measurement-protocol.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 import type { FastifyBaseLogger } from "fastify";
 
@@ -30,6 +32,7 @@ export interface FreeOrderInput {
   signatureFlowMode: string;
   verifiedPhone: { phoneE164: string; phoneVerifiedAt: Date };
   orderBreakdown: PaymentBreakdown;
+  attribution?: PaymentAttribution | null | undefined;
 }
 
 export interface FreeOrderOutcome {
@@ -103,6 +106,7 @@ export async function captureFreeOrder(
       verifiedPhoneE164: input.verifiedPhone.phoneE164,
       phoneVerifiedAt: input.verifiedPhone.phoneVerifiedAt,
       breakdown: input.orderBreakdown,
+      attribution: input.attribution ?? null,
     });
     // Free (fully-discounted) orders capture locally with no Stripe charge, so
     // there is no processing fee — record the capture time and source only.
@@ -178,6 +182,18 @@ export async function checkoutFreeOrder(
       draftId: input.draftId,
       paymentAttemptId: outcome.payment.id,
       amountCents: outcome.payment.amountCents,
+    });
+    // A free order is still a conversion, so it is sent with value 0 rather
+    // than skipped. The confirmation page fires its `purchase` for a CHF 0
+    // order too; suppressing the server copy would leave the two emitters
+    // describing different sets of orders, and de-duplication only works when
+    // both sides agree on which transactions exist. Value 0 adds nothing to
+    // revenue, which is the correct arithmetic for a fully-discounted order.
+    sendGa4Purchase({
+      draftId: input.draftId,
+      gaClientId: outcome.payment.gaClientId,
+      valueCents: outcome.payment.amountCents,
+      currency: outcome.payment.currency,
     });
   }
 

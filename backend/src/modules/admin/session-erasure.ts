@@ -242,12 +242,22 @@ export async function scrubSessionIdentifiers(
   // the Stripe references stay. The order-access token is revoked at the same
   // time, because a link that still opens the retained order would hand the
   // erased identity straight back.
+  //
+  // The acquisition identifiers go with them. `ga_client_id` and the Google
+  // click id are pseudonymous handles a third party can resolve back to the
+  // person — a gclid is one ad click, attributable by Google to one user — so
+  // they are personal data, not accounting data, and there is no basis to keep
+  // them for someone who asked to be forgotten. `utm_*` deliberately survives:
+  // "google / cpc" identifies a channel, not a human, and dropping it would
+  // silently rewrite the channel history that revenue reporting is built on.
   await tx
     .update(schema.paymentAttempts)
     .set({
       verifiedPhoneE164: null,
       orderAccessTokenHash: null,
       orderAccessTokenExpiresAt: null,
+      gaClientId: null,
+      attributionGclid: null,
       updatedAt: now,
     })
     .where(eq(schema.paymentAttempts.sessionId, sessionId));

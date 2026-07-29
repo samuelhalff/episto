@@ -33,8 +33,28 @@ export interface PaymentAttemptRow {
   phoneVerifiedAt: Date | null;
   orderAccessTokenHash: string | null;
   orderAccessTokenExpiresAt: Date | null;
+  gaClientId: string | null;
+  attributionGclid: string | null;
+  attributionUtmSource: string | null;
+  attributionUtmMedium: string | null;
+  attributionUtmCampaign: string | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+/**
+ * Acquisition parameters captured in the browser and carried to checkout.
+ *
+ * Every field is optional and the whole object may be absent: the frontend
+ * captures nothing without analytics consent, so "missing" is a legitimate,
+ * expected value and never a reason to reject a checkout.
+ */
+export interface PaymentAttribution {
+  gaClientId?: string | null | undefined;
+  gclid?: string | null | undefined;
+  utmSource?: string | null | undefined;
+  utmMedium?: string | null | undefined;
+  utmCampaign?: string | null | undefined;
 }
 
 function toPaymentRow(
@@ -56,6 +76,11 @@ function toPaymentRow(
     phoneVerifiedAt: row.phoneVerifiedAt ?? null,
     orderAccessTokenHash: row.orderAccessTokenHash ?? null,
     orderAccessTokenExpiresAt: row.orderAccessTokenExpiresAt ?? null,
+    gaClientId: row.gaClientId ?? null,
+    attributionGclid: row.attributionGclid ?? null,
+    attributionUtmSource: row.attributionUtmSource ?? null,
+    attributionUtmMedium: row.attributionUtmMedium ?? null,
+    attributionUtmCampaign: row.attributionUtmCampaign ?? null,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -74,6 +99,7 @@ export async function createPaymentAttempt(
     breakdown: PaymentBreakdown;
     verifiedPhoneE164?: string | null | undefined;
     phoneVerifiedAt?: Date | null | undefined;
+    attribution?: PaymentAttribution | null | undefined;
   },
 ): Promise<PaymentAttemptRow> {
   // 0 is allowed only for fully-discounted (free-promo) orders, which skip
@@ -93,6 +119,11 @@ export async function createPaymentAttempt(
       breakdown: data.breakdown,
       verifiedPhoneE164: data.verifiedPhoneE164 ?? null,
       phoneVerifiedAt: data.phoneVerifiedAt ?? null,
+      gaClientId: data.attribution?.gaClientId ?? null,
+      attributionGclid: data.attribution?.gclid ?? null,
+      attributionUtmSource: data.attribution?.utmSource ?? null,
+      attributionUtmMedium: data.attribution?.utmMedium ?? null,
+      attributionUtmCampaign: data.attribution?.utmCampaign ?? null,
     })
     .returning();
 

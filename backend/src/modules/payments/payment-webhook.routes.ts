@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { validationError } from "../../shared/errors/index.js";
 import { recordEvent } from "../analytics/index.js";
+import { sendGa4Purchase } from "../analytics/ga4-measurement-protocol.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
 import {
   constructWebhookEvent,
@@ -195,6 +196,18 @@ export async function registerPaymentWebhookRoutes(app: FastifyInstance): Promis
           draftId,
           paymentAttemptId: payment.id,
           amountCents: payment.amountCents,
+        });
+        // The server-side half of the GA4 conversion. This is the only signal
+        // that survives a customer who paid and closed the tab, or who blocks
+        // trackers — the webhook arrives regardless. Same `transaction_id` as
+        // the confirmation page, so GA4 keeps whichever arrives first rather
+        // than counting the revenue twice. Fire-and-forget by construction; see
+        // sendGa4Purchase.
+        sendGa4Purchase({
+          draftId,
+          gaClientId: payment.gaClientId,
+          valueCents: payment.amountCents,
+          currency: payment.currency,
         });
         break;
       }

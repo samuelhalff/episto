@@ -14,6 +14,11 @@ const mocks = vi.hoisted(() => ({
   getLatestSnapshot: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
   recordEvent: vi.fn(),
+  sendGa4Purchase: vi.fn(),
+}));
+
+vi.mock("../src/modules/analytics/ga4-measurement-protocol.js", () => ({
+  sendGa4Purchase: mocks.sendGa4Purchase,
 }));
 
 vi.mock("../src/db/index.js", () => ({
@@ -190,6 +195,77 @@ describe("payment webhook routes", () => {
       snapshotId: "snapshot-1",
       paymentId: "payment-1",
     });
+  });
+
+  function succeededCaptureFixture(gaClientId: string | null): void {
+    mocks.constructWebhookEvent.mockReturnValue({
+      type: "payment_intent.succeeded",
+      data: {
+        object: {
+          id: "pi_1",
+          amount: 625,
+          currency: "chf",
+          metadata: { draftId: "draft-1", paymentAttemptId: "payment-1" },
+          latest_charge: "ch_1",
+        },
+      },
+    });
+    mocks.getPaymentAttemptById.mockResolvedValue({
+      id: "payment-1",
+      draftId: "draft-1",
+      amountCents: 625,
+      currency: "CHF",
+      state: "pending",
+      gaClientId,
+    });
+    mocks.transitionPaymentState.mockResolvedValue({
+      payment: { id: "payment-1", state: "captured" },
+      rawOrderAccessToken: "order-token-1",
+    });
+    mocks.getLatestSnapshot.mockResolvedValue(null);
+  }
+
+  async function postWebhook(): Promise<{ statusCode: number }> {
+    return app.inject({
+      method: "POST",
+      url: "/webhooks/stripe",
+      payload: { ok: true },
+      headers: { "content-type": "application/json", "stripe-signature": "signature" },
+    });
+  }
+
+  it("reports the capture to GA4 server-side with the payment's client id", async () => {
+    succeededCaptureFixture("1234567890.1699999999");
+
+    expect((await postWebhook()).statusCode).toBe(200);
+    expect(mocks.sendGa4Purchase).toHaveBeenCalledWith({
+      draftId: "draft-1",
+      gaClientId: "1234567890.1699999999",
+      valueCents: 625,
+      currency: "CHF",
+    });
+  });
+
+  it("hands a null client id straight through so the send is skipped, not faked", async () => {
+    succeededCaptureFixture(null);
+
+    expect((await postWebhook()).statusCode).toBe(200);
+    expect(mocks.sendGa4Purchase).toHaveBeenCalledWith(
+      expect.objectContaining({ gaClientId: null }),
+    );
+  });
+
+  it("reports to GA4 only after the capture is durably recorded", async () => {
+    succeededCaptureFixture("1234567890.1699999999");
+
+    expect((await postWebhook()).statusCode).toBe(200);
+    // Ordering matters: a charged customer with no recorded capture is the
+    // worst outcome on this path, so the analytics call has to sit strictly
+    // after the state transition and never in front of it.
+    const transitionOrder = mocks.transitionPaymentState.mock
+      .invocationCallOrder[0] as number;
+    const sendOrder = mocks.sendGa4Purchase.mock.invocationCallOrder[0] as number;
+    expect(sendOrder).toBeGreaterThan(transitionOrder);
   });
 
   it("rejects webhook requests when the preserved raw body is not a Buffer", async () => {

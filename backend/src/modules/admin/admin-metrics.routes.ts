@@ -55,7 +55,31 @@ const SENT_AUDIENCE_CSV_COLUMNS = [
   "draftId",
   "firstSeenAt",
   "lastSeenAt",
+  "acquisitionSource",
+  "acquisitionCampaign",
 ] as const;
+
+/**
+ * Collapse the raw attribution into one `source / medium` label.
+ *
+ * `null` is a real and distinct answer here and is NOT folded into "direct":
+ * an order placed without analytics consent was never attributed at all, and
+ * calling that "direct" would inflate the one channel whose number is supposed
+ * to be the residual. The UI renders it as unknown so the size of the blind
+ * spot stays visible next to the channels it distorts.
+ */
+export function formatAcquisitionSource(row: {
+  gclid: string | null;
+  utm_source: string | null;
+  utm_medium: string | null;
+}): string | null {
+  // A gclid alone is a paid Google click even when the landing URL carried no
+  // UTM tags — auto-tagging sets gclid and nothing else.
+  if (!row.utm_source && !row.utm_medium) {
+    return row.gclid ? "google / cpc" : null;
+  }
+  return `${row.utm_source ?? "(not set)"} / ${row.utm_medium ?? "(not set)"}`;
+}
 
 export function formatAudienceStatusLabel(status: string): string {
   switch (status) {
@@ -161,9 +185,27 @@ async function listSentOrDispatchingAudience(
               ) AS row_number,
               MIN(s.created_at) OVER (PARTITION BY LOWER(BTRIM(s.email))) AS first_seen_at,
               MAX(COALESCE(d.updated_at, d.created_at, s.updated_at, s.created_at))
-                OVER (PARTITION BY LOWER(BTRIM(s.email))) AS last_seen_at
+                OVER (PARTITION BY LOWER(BTRIM(s.email))) AS last_seen_at,
+              pa.attribution_gclid AS gclid,
+              pa.attribution_utm_source AS utm_source,
+              pa.attribution_utm_medium AS utm_medium,
+              pa.attribution_utm_campaign AS utm_campaign
             FROM sessions s
             JOIN draft_letters d ON d.session_id = s.id
+            -- The captured payment, not the newest attempt: a customer who
+            -- retried after a card decline leaves a later failed row, and
+            -- crediting the channel from that row would attribute the sale to
+            -- whichever visit happened to fail last.
+            LEFT JOIN LATERAL (
+              SELECT p.attribution_gclid,
+                     p.attribution_utm_source,
+                     p.attribution_utm_medium,
+                     p.attribution_utm_campaign
+              FROM payment_attempts p
+              WHERE p.draft_id = d.id AND p.captured_at IS NOT NULL
+              ORDER BY p.captured_at DESC
+              LIMIT 1
+            ) pa ON TRUE
             WHERE s.email IS NOT NULL
               AND BTRIM(s.email) <> ''
               AND d.status IN ('submitted', 'dispatched', 'closed')
@@ -179,7 +221,11 @@ async function listSentOrDispatchingAudience(
               ELSE 'submitted'
             END AS furthest_status,
             first_seen_at::text AS first_seen_at,
-            last_seen_at::text AS last_seen_at
+            last_seen_at::text AS last_seen_at,
+            gclid,
+            utm_source,
+            utm_medium,
+            utm_campaign
           FROM candidate
           WHERE row_number = 1
           ORDER BY last_seen_at DESC
@@ -212,9 +258,27 @@ async function listSentOrDispatchingAudience(
               ) AS row_number,
               MIN(s.created_at) OVER (PARTITION BY LOWER(BTRIM(s.email))) AS first_seen_at,
               MAX(COALESCE(d.updated_at, d.created_at, s.updated_at, s.created_at))
-                OVER (PARTITION BY LOWER(BTRIM(s.email))) AS last_seen_at
+                OVER (PARTITION BY LOWER(BTRIM(s.email))) AS last_seen_at,
+              pa.attribution_gclid AS gclid,
+              pa.attribution_utm_source AS utm_source,
+              pa.attribution_utm_medium AS utm_medium,
+              pa.attribution_utm_campaign AS utm_campaign
             FROM sessions s
             JOIN draft_letters d ON d.session_id = s.id
+            -- The captured payment, not the newest attempt: a customer who
+            -- retried after a card decline leaves a later failed row, and
+            -- crediting the channel from that row would attribute the sale to
+            -- whichever visit happened to fail last.
+            LEFT JOIN LATERAL (
+              SELECT p.attribution_gclid,
+                     p.attribution_utm_source,
+                     p.attribution_utm_medium,
+                     p.attribution_utm_campaign
+              FROM payment_attempts p
+              WHERE p.draft_id = d.id AND p.captured_at IS NOT NULL
+              ORDER BY p.captured_at DESC
+              LIMIT 1
+            ) pa ON TRUE
             WHERE s.email IS NOT NULL
               AND BTRIM(s.email) <> ''
               AND d.status IN ('submitted', 'dispatched', 'closed')
@@ -230,7 +294,11 @@ async function listSentOrDispatchingAudience(
               ELSE 'submitted'
             END AS furthest_status,
             first_seen_at::text AS first_seen_at,
-            last_seen_at::text AS last_seen_at
+            last_seen_at::text AS last_seen_at,
+            gclid,
+            utm_source,
+            utm_medium,
+            utm_campaign
           FROM candidate
           WHERE row_number = 1
           ORDER BY last_seen_at DESC
@@ -244,6 +312,10 @@ async function listSentOrDispatchingAudience(
     furthest_status: string;
     first_seen_at: string;
     last_seen_at: string;
+    gclid: string | null;
+    utm_source: string | null;
+    utm_medium: string | null;
+    utm_campaign: string | null;
   }>(query);
 
   return rows.rows.map((row) => ({
@@ -254,6 +326,8 @@ async function listSentOrDispatchingAudience(
     draftId: row.draft_id,
     firstSeenAt: row.first_seen_at,
     lastSeenAt: row.last_seen_at,
+    acquisitionSource: formatAcquisitionSource(row),
+    acquisitionCampaign: row.utm_campaign,
   }));
 }
 

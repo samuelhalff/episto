@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { queryKeys, type DraftDispatchQuote } from "@episto/shared";
 import { apiFetch, isApiErrorWithStatus } from "../lib/api";
+import { getAttributionForCheckout } from "../lib/attribution";
 import { useDispatchQuote } from "./use-dispatch-quote";
 
 // ---------------------------------------------------------------------------
@@ -100,11 +101,20 @@ export function useCheckout(
     }: {
       email: string;
       promoCode?: string | undefined;
-    }) =>
-      apiFetch<CheckoutResponse>(`/v1/drafts/${draftId}/checkout`, {
+    }) => {
+      // Attaching acquisition data here, rather than at page load, is what
+      // makes it survive the flow: this is the first request that creates a row
+      // the attribution can live on. Null whenever analytics consent is absent.
+      const attribution = getAttributionForCheckout();
+      return apiFetch<CheckoutResponse>(`/v1/drafts/${draftId}/checkout`, {
         method: "POST",
-        body: JSON.stringify(promoCode ? { email, promoCode } : { email }),
-      }),
+        body: JSON.stringify({
+          email,
+          ...(promoCode ? { promoCode } : {}),
+          ...(attribution ? { attribution } : {}),
+        }),
+      });
+    },
     onSuccess: (data) => {
       setClientSecret(data.clientSecret);
       // Invalidate payment state so UI reflects the newly pending payment

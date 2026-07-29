@@ -528,6 +528,13 @@ export interface AdminSentAudienceRow {
   draftId: string;
   firstSeenAt: string;
   lastSeenAt: string;
+  /**
+   * `source / medium` of the captured payment, or null when the order was never
+   * attributed (no analytics consent). Null is not "direct" — see
+   * formatAcquisitionSource on the backend.
+   */
+  acquisitionSource: string | null;
+  acquisitionCampaign: string | null;
 }
 
 export interface AdminSentAudienceResponse {

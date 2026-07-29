@@ -81,6 +81,7 @@ export default function AudiencePage() {
                     <th className="py-2 pr-3 font-medium">Email</th>
                     <th className="py-2 pr-3 font-medium">Locale</th>
                     <th className="py-2 pr-3 font-medium">furthestStatus</th>
+                    <th className="py-2 pr-3 font-medium">Source / medium</th>
                     <th className="py-2 pr-3 font-medium">First seen</th>
                     <th className="py-2 font-medium">Last seen</th>
                   </tr>
@@ -101,6 +102,17 @@ export default function AudiencePage() {
                       <td className="py-2 pr-3" style={{ color: "var(--app-fg)" }}>
                         {row.furthestStatus}
                       </td>
+                      {/* "Unattributed" is deliberately not "direct": the order
+                          simply carried no consent, so no channel can be
+                          claimed for it either way. */}
+                      <td className="py-2 pr-3" style={{ color: "var(--app-fg)" }}>
+                        {row.acquisitionSource ?? "Unattributed"}
+                        {row.acquisitionCampaign ? (
+                          <span style={{ color: "var(--app-muted)" }}>
+                            {` · ${row.acquisitionCampaign}`}
+                          </span>
+                        ) : null}
+                      </td>
                       <td className="py-2 pr-3" style={{ color: "var(--app-muted)" }}>
                         {formatTimestamp(row.firstSeenAt)}
                       </td>
@@ -112,7 +124,7 @@ export default function AudiencePage() {
                   {sentAudience.data.rows.length === 0 ? (
                     <tr>
                       <td
-                        colSpan={5}
+                        colSpan={6}
                         className="py-8 text-center"
                         style={{ color: "var(--app-muted)" }}
                       >

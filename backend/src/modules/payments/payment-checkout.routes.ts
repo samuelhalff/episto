@@ -15,6 +15,7 @@ import {
   getPaymentIntentForCheckout,
   updatePaymentIntentReceiptDetails,
 } from "./adapters/stripe.adapter.js";
+import { AttributionBody } from "./checkout-attribution.schema.js";
 import { checkoutFreeOrder } from "./free-order.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 import { issueReceiptSafe } from "./receipt.service.js";
@@ -33,6 +34,7 @@ import {
 const CheckoutBody = z.object({
   email: z.string().email().max(254),
   promoCode: z.string().trim().min(1).max(64).optional(),
+  attribution: AttributionBody,
 });
 
 const CHECKOUT_READY_DRAFT_STATUSES = new Set([
@@ -154,6 +156,7 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             signatureFlowMode: draft.signatureFlowMode,
             verifiedPhone,
             orderBreakdown,
+            attribution: body.attribution ?? null,
             deliveryType: draft.deliveryType,
             log: request.log,
           }),
@@ -236,6 +239,7 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
             verifiedPhoneE164: verifiedPhone.phoneE164,
             phoneVerifiedAt: verifiedPhone.phoneVerifiedAt,
             breakdown: orderBreakdown,
+            attribution: body.attribution ?? null,
           });
 
           const stripeResult = await createPaymentIntent(chargeCents, {
