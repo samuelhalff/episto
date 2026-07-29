@@ -55,12 +55,18 @@ export class EmailProviderError extends Error {
  * as retryable on purpose. Mistaking a transient failure for a permanent one
  * loses a customer's email; mistaking a permanent one for transient only wastes
  * queue time, and the cumulative attempt cap in the outbox stops that too.
+ *
+ * The credential codes (`missing_api_key` 401, `invalid_api_Key` 403) are
+ * deliberately absent, even though the provider is certainly refusing us. They
+ * say nothing is wrong with the *email* — the key is. A rotation that lands a
+ * typo in `RESEND_API_KEY` would otherwise burn every receipt and order link in
+ * flight during the minutes it takes to notice, and those are exactly the
+ * messages a customer cannot obtain any other way. Retrying costs a few wasted
+ * attempts and delivers everything once the key is fixed.
  */
 const PERMANENT_PROVIDER_ERROR_CODES: ReadonlySet<string> = new Set([
   "invalid_idempotency_key", // 400
   "invalid_idempotent_request", // 409 — same key, different payload
-  "missing_api_key", // 401
-  "invalid_api_Key", // 403 (sic — the SDK spells it this way)
   "invalid_from_address", // 403
   "validation_error", // 403
   "not_found", // 404

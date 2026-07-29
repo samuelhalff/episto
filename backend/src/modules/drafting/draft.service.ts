@@ -286,37 +286,59 @@ export async function updateDraft(
 // Transition draft status
 // ---------------------------------------------------------------------------
 
+/**
+ * Move the draft to a new status, or refuse if the move is not legal from where
+ * the draft actually is.
+ *
+ * The legality check and the write are one transaction holding the draft row,
+ * because separately they are a check-then-act on a state anyone else can move.
+ * Two taps on "back to editing" and "send to review", a double-submit, or a
+ * retry landing next to the original all give two transactions the same
+ * starting status: both were told the move is legal, and both then wrote, so
+ * the draft ended up in whichever state committed last regardless of whether
+ * that path was reachable. The visible version is a letter that goes back to
+ * `collecting` after it has been frozen for rendering — the customer edits a
+ * letter whose PDF is already being produced from a snapshot they can no longer
+ * change, and the envelope that arrives is not the one on their screen.
+ *
+ * Lock order is the one `lockDraftRow` documents: this draft row, and nothing
+ * else. Callers already inside a draft transaction (review) pass their `tx`,
+ * which makes this a savepoint that re-takes a lock the same transaction
+ * already holds, so no new lock is acquired and no new ordering is introduced.
+ */
 export async function transitionDraftStatus(
   db: Db,
   draftId: string,
   sessionId: string,
   newStatus: DraftStatusValue,
 ): Promise<DraftRow> {
-  const existing = await getDraftById(db, draftId, sessionId);
-  if (!existing) throw notFoundError("draft");
+  return await db.transaction(async (tx) => {
+    const existing = await lockDraftRow(tx, draftId, sessionId);
+    if (!existing) throw notFoundError("draft");
 
-  assertTransitionDraft(existing.status as DraftStatusValue, newStatus);
+    assertTransitionDraft(existing.status as DraftStatusValue, newStatus);
 
-  const values: Record<string, unknown> = {
-    status: newStatus,
-    updatedAt: new Date(),
-  };
+    const values: Record<string, unknown> = {
+      status: newStatus,
+      updatedAt: new Date(),
+    };
 
-  if (newStatus === "reviewed") {
-    values.reviewedAt = new Date();
-  }
+    if (newStatus === "reviewed") {
+      values.reviewedAt = new Date();
+    }
 
-  const [row] = await db
-    .update(schema.draftLetters)
-    .set(values)
-    .where(
-      and(
-        eq(schema.draftLetters.id, draftId),
-        eq(schema.draftLetters.sessionId, sessionId),
-      ),
-    )
-    .returning();
+    const [row] = await tx
+      .update(schema.draftLetters)
+      .set(values)
+      .where(
+        and(
+          eq(schema.draftLetters.id, draftId),
+          eq(schema.draftLetters.sessionId, sessionId),
+        ),
+      )
+      .returning();
 
-  if (!row) throw notFoundError("draft");
-  return toDraftRow(row);
+    if (!row) throw notFoundError("draft");
+    return toDraftRow(row);
+  });
 }

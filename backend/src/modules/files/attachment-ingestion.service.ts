@@ -3,8 +3,10 @@ import { extractText, getDocumentProxy } from "unpdf";
 import { ATTACHMENT_INGESTION, type AttachmentExtractionStatus } from "@episto/shared";
 
 import { getDb, schema, type Db } from "../../db/index.js";
+import { AppError } from "../../shared/errors/index.js";
 import { createLogger } from "../../shared/logging/index.js";
 import { downloadObjectBuffer } from "./adapters/s3.adapter.js";
+import { lockDraftForFileChange } from "./draft-file-lock.js";
 import { isOcrConfigured, ocrExtractText } from "./ocr-adapter.js";
 
 const logger = createLogger("attachment-ingestion");
@@ -75,7 +77,13 @@ interface FinalizeInput {
  * tree: (1) free unpdf text for text-layer PDFs; (2) OCR (Document Intelligence)
  * for scanned PDFs + photos when configured and within the page + per-session
  * budget; (3) otherwise a precise non-readable status the UI can explain.
- * Best-effort: never throws to the caller. Fire-and-forget after upload.
+ *
+ * Best-effort in the sense that every *readability* outcome is a status on the
+ * row rather than an error — a document we cannot read is a normal result. It
+ * does throw when the infrastructure underneath it fails, which is why the
+ * fire-and-forget wrapper logs; swallowing those would make a storage or
+ * database outage indistinguishable from an unreadable document. Fire-and-forget
+ * after upload.
  */
 export async function ingestAttachment(
   db: Db,
@@ -100,17 +108,68 @@ export async function ingestAttachment(
     eq(schema.fileAssets.status, "active"),
   );
 
+  /**
+   * Write extraction columns back under the draft's row lock.
+   *
+   * Extraction runs in the background, so its write can arrive at any moment —
+   * including the moment review is freezing the letter. Reading the file list
+   * and writing this row are then two unsynchronised operations on the same
+   * enclosure: the snapshot Swiss Post prints from gets built from a file the
+   * background job is still rewriting, and the document text of a letter the
+   * customer has already paid for and sent keeps changing underneath them.
+   * Worse, the delete path clears `extracted_text` under this same lock to
+   * honour a removal, so an unlocked finalize can put the contents of a
+   * "deleted" document straight back into the database.
+   *
+   * Taking `lockDraftForFileChange` first makes the answer hold for the whole
+   * write: either we commit before review reads the file list, or we wait and
+   * are then refused because the letter is no longer ours to change. Refusal is
+   * not an error here — nothing downstream of `reviewed` reads this text, it
+   * only feeds the drafting assistant — so it is logged and dropped rather than
+   * surfaced. Returns false when the write was refused.
+   *
+   * The one residue: a letter frozen while the OCR vendor is still reading
+   * leaves the row on `ocr_running`, since clearing it is exactly the write we
+   * are refusing. That label is only rendered in the editing steps the letter
+   * has by then left, and it is the same state a crashed background job already
+   * leaves behind.
+   */
+  const writeUnderDraftLock = async (
+    values: Partial<typeof schema.fileAssets.$inferInsert>,
+  ): Promise<boolean> =>
+    db.transaction(async (tx) => {
+      if (asset.draftId !== null) {
+        // Lock order: `draft_letters` before `file_assets`, the order every
+        // other file mutation uses — see `lockDraftRow`.
+        try {
+          await lockDraftForFileChange(tx, asset.draftId);
+        } catch (err) {
+          // Only the frozen-letter refusal is an expected outcome. A lost
+          // connection or a serialisation failure arrives here too, and
+          // swallowing it would report a deliberate policy decision for what is
+          // really an outage — the extracted text would vanish with an "no
+          // longer editable" line in the log saying something untrue about a
+          // letter the customer is still editing.
+          if (!(err instanceof AppError) || err.family !== "validation_error") throw err;
+          logger.info(
+            { fileAssetId, draftId: asset.draftId },
+            "Skipping extraction write: the letter is no longer editable",
+          );
+          return false;
+        }
+      }
+      await tx.update(schema.fileAssets).set(values).where(activeRow);
+      return true;
+    });
+
   const finalize = async (r: FinalizeInput): Promise<AttachmentExtractionStatus> => {
-    await db
-      .update(schema.fileAssets)
-      .set({
-        extractionStatus: r.status,
-        extractedText: r.text ?? null,
-        extractionPageCount: r.pageCount ?? null,
-        extractionEngine: r.engine ?? null,
-        extractedAt: new Date(),
-      })
-      .where(activeRow);
+    await writeUnderDraftLock({
+      extractionStatus: r.status,
+      extractedText: r.text ?? null,
+      extractionPageCount: r.pageCount ?? null,
+      extractionEngine: r.engine ?? null,
+      extractedAt: new Date(),
+    });
     return r.status;
   };
 
@@ -130,10 +189,13 @@ export async function ingestAttachment(
     ) {
       return finalize({ status: "budget", pageCount });
     }
-    await db
-      .update(schema.fileAssets)
-      .set({ extractionStatus: "ocr_running" })
-      .where(activeRow);
+    // A refusal here means the letter was frozen while we were deciding. Stop
+    // before the OCR call rather than pay a vendor to read a document whose
+    // text can no longer be written anywhere.
+    if (!(await writeUnderDraftLock({ extractionStatus: "ocr_running" }))) {
+      // The row is untouched, so "pending" is what it still says.
+      return "pending";
+    }
 
     const pages = Math.min(
       pageCount ?? ATTACHMENT_INGESTION.maxOcrPages,

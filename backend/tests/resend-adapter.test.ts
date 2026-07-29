@@ -108,6 +108,14 @@ describe("resend adapter", () => {
     ["not_found", true],
     ["missing_required_field", true],
     ["invalid_idempotent_request", true],
+    // Credentials. The provider is certainly refusing us, but it is refusing the
+    // key, not the email — and a typo in `RESEND_API_KEY` during a rotation
+    // would otherwise permanently fail every receipt and order link in flight
+    // over the minutes it takes anyone to notice. Those are the two messages a
+    // customer has no other way to obtain. Retrying costs wasted attempts and
+    // delivers everything once the key is fixed.
+    ["missing_api_key", false],
+    ["invalid_api_Key", false],
     ["rate_limit_exceeded", false],
     ["internal_server_error", false],
     ["application_error", false],
