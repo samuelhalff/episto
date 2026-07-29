@@ -67,8 +67,16 @@ describe("draft review route", () => {
       .mockImplementation(() => makeSelectChain(selectResults.shift() ?? []));
     const update = vi.fn().mockImplementation(() => makeUpdateChain());
 
+    const db = {
+      select,
+      update,
+      // The review path freezes the letter inside one transaction holding the
+      // draft's row lock; the mock runs the callback against the same builders.
+      transaction: (run: (tx: unknown) => Promise<unknown>) => run(db),
+    };
+
     vi.doMock("../src/db/index.js", () => ({
-      getDb: () => ({ select, update }),
+      getDb: () => db,
       schema: new Proxy({}, { get: () => ({}) }),
     }));
 
@@ -96,27 +104,30 @@ describe("draft review route", () => {
       COOKIE_NAME: "session",
     }));
 
+    const reviewDraft = {
+      id: "draft-review",
+      sessionId: "review-session",
+      status: "fields_complete",
+      locale: "en-CH",
+      deliveryType: "standard",
+      subject: "Long letter",
+      body: "This body eventually renders to more than five pages.",
+      enclosureNote: null,
+      signatureMode: null,
+      senderProfileId: "sender-1",
+      recipientProfileId: "recipient-1",
+      estimatedPages: 1,
+      schemaVersion: 1,
+      tone: null,
+      intent: null,
+      metadata: null,
+      updatedAt: new Date("2026-01-01"),
+    };
+
     vi.doMock("../src/modules/drafting/draft.service.js", () => ({
       createDraft: vi.fn(),
-      getDraftById: vi.fn().mockResolvedValue({
-        id: "draft-review",
-        sessionId: "review-session",
-        status: "fields_complete",
-        locale: "en-CH",
-        deliveryType: "standard",
-        subject: "Long letter",
-        body: "This body eventually renders to more than five pages.",
-        enclosureNote: null,
-        signatureMode: null,
-        senderProfileId: "sender-1",
-        recipientProfileId: "recipient-1",
-        estimatedPages: 1,
-        schemaVersion: 1,
-        tone: null,
-        intent: null,
-        metadata: null,
-        updatedAt: new Date("2026-01-01"),
-      }),
+      getDraftById: vi.fn().mockResolvedValue(reviewDraft),
+      lockDraftRow: vi.fn().mockResolvedValue(reviewDraft),
       listDraftsBySession: vi.fn(),
       updateDraft: vi.fn().mockResolvedValue({
         id: "draft-review",

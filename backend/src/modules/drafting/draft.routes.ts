@@ -10,7 +10,7 @@ import {
   transitionDraftStatus,
 } from "./draft.service.js";
 import { createSenderProfile, createRecipientProfile } from "./profile.service.js";
-import { createSnapshot } from "../rendering/snapshot.service.js";
+import { captureReviewSnapshot } from "./review-snapshot.service.js";
 import { sendRenderedDraftPdf } from "../rendering/pdf-access.js";
 import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
 import { cancelPendingDraftPayment } from "../payments/payment-cancellation.service.js";
@@ -313,7 +313,10 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       const db = getDb();
       const { draftId } = request.params;
 
-      // Verify ownership
+      // Verify ownership and reject early on the field errors the client can
+      // act on. `captureReviewSnapshot` re-checks both under the draft's row
+      // lock; this pass exists so a plainly incomplete draft never reaches the
+      // pricing call below.
       const draft = await getDraftById(db, draftId, session.id);
       if (!draft) throw notFoundError("draft");
       // Signature is a soft warning at review; keep only the documented required fields blocking.
@@ -322,115 +325,19 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
         throw validationError("Required fields missing for review", missingFields);
       }
 
-      const senderProfileId = draft.senderProfileId;
-      if (!senderProfileId) {
-        throw validationError("Sender profile not found", [
-          { field: "sender", message: "Sender profile not found" },
-        ]);
-      }
-
-      // Fetch sender profile
-      const [sender] = await db
-        .select()
-        .from(schema.senderProfiles)
-        .where(eq(schema.senderProfiles.id, senderProfileId))
-        .limit(1);
-      if (!sender)
-        throw validationError("Sender profile not found", [
-          { field: "sender", message: "Sender profile not found" },
-        ]);
-
-      const recipientProfileId = draft.recipientProfileId;
-      if (!recipientProfileId) {
-        throw validationError("Recipient profile not found", [
-          { field: "recipient", message: "Recipient profile not found" },
-        ]);
-      }
-
-      // Fetch recipient profile
-      const [recipient] = await db
-        .select()
-        .from(schema.recipientProfiles)
-        .where(eq(schema.recipientProfiles.id, recipientProfileId))
-        .limit(1);
-      if (!recipient)
-        throw validationError("Recipient profile not found", [
-          { field: "recipient", message: "Recipient profile not found" },
-        ]);
-
-      // Fetch file assets (attachments + signature)
-      const files = await db
-        .select()
-        .from(schema.fileAssets)
-        .where(
-          and(
-            eq(schema.fileAssets.draftId, draftId),
-            eq(schema.fileAssets.sessionId, session.id),
-            eq(schema.fileAssets.status, "active"),
-          ),
-        );
-      const attachmentFileIds = files
-        .filter((f) => f.kind === "attachment")
-        .map((f) => f.id);
-      const signatureFile = files.find((f) => f.kind === "signature");
-
       // Fetch resolved display quote
       const resolvedDisplayQuoteForReview = await resolveDisplayDispatchQuoteForDraft(
         db,
         draftId,
       );
 
-      // Build snapshot data
-      const snapshotData = {
-        schemaVersion: draft.schemaVersion,
-        locale: draft.locale,
-        deliveryType: draft.deliveryType,
-        signatureFlowMode: draft.signatureFlowMode,
-        subject: draft.subject,
-        body: draft.body,
-        enclosureNote: draft.enclosureNote,
-        signatureMode: draft.signatureMode,
-        tone: draft.tone,
-        intent: draft.intent,
-        sender: {
-          firstName: sender.firstName,
-          lastName: sender.lastName,
-          company: sender.company ?? null,
-          addressLine1: sender.addressLine1,
-          addressLine2: sender.addressLine2 ?? null,
-          postalCode: sender.postalCode,
-          city: sender.city,
-          country: sender.country,
-        },
-        recipient: {
-          firstName: recipient.firstName ?? null,
-          lastName: recipient.lastName ?? null,
-          company: recipient.company ?? null,
-          department: recipient.department ?? null,
-          addressLine1: recipient.addressLine1,
-          addressLine2: recipient.addressLine2 ?? null,
-          postalCode: recipient.postalCode,
-          city: recipient.city,
-          country: recipient.country,
-        },
-        attachmentAssetIds: attachmentFileIds,
-        signatureAssetId: signatureFile?.id ?? null,
-        estimatedPages: draft.estimatedPages ?? null,
-        metadata: draft.metadata as Record<string, unknown> | null,
-      };
-
-      // Review is only valid from `fields_complete`; promote directly when
-      // the required fields now satisfy that state.
-      if (draft.status === "collecting") {
-        await transitionDraftStatus(db, draftId, session.id, "fields_complete");
-      }
-
-      // Create immutable snapshot
-      const snapshot = await createSnapshot(db, draftId, snapshotData);
-
-      // Transition to reviewed, then rendering while the final PDF is validated.
-      await transitionDraftStatus(db, draftId, session.id, "reviewed");
-      await transitionDraftStatus(db, draftId, session.id, "rendering");
+      // Everything that decides what gets printed — the file list, the
+      // snapshot, and the transitions out of the editable statuses — happens in
+      // one transaction holding this draft's row, so a concurrent upload or
+      // delete cannot land between the file list being read and the letter
+      // being frozen.
+      const { snapshot, snapshotData, attachmentFileIds, signatureFileId } =
+        await captureReviewSnapshot(db, draftId, session.id);
 
       const renderJob = {
         snapshotId: snapshot.id,
@@ -462,7 +369,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
       recordEvent({
         event: "review_reached",
         draftId,
-        pageCountEstimate: draft.estimatedPages ?? 1,
+        pageCountEstimate: snapshotData.estimatedPages ?? 1,
         attachmentCount: attachmentFileIds.length,
       });
 
@@ -480,7 +387,7 @@ export async function draftRoutes(app: FastifyInstance): Promise<void> {
           sender: snapshotData.sender,
           recipient: snapshotData.recipient,
           attachmentFileIds,
-          signatureFileId: signatureFile?.id ?? null,
+          signatureFileId,
           priceCents: resolvedDisplayQuoteForReview.quote.totalCents,
           createdAt: snapshot.createdAt.toISOString(),
         },

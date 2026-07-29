@@ -115,6 +115,52 @@ export async function getDraftById(
   return row ? toDraftRow(row) : null;
 }
 
+/**
+ * Read the draft row and hold its lock for the rest of the transaction.
+ *
+ * This is the serialisation point for everything that decides "may this letter
+ * still change?" — the draft's own columns, its attachments, its signature, and
+ * the review that freezes all of them into a snapshot. Each of those paths used
+ * to read the status and then act on it, which is a check-then-act with nothing
+ * holding the row in between: a delete could pass the editable check against a
+ * status that review had already moved on from, and retire an enclosure that
+ * was by then captured in the snapshot Swiss Post prints from.
+ *
+ * The lock order this establishes, and which every caller must keep:
+ * `draft_letters` first, before any `file_assets` or `draft_snapshots` row is
+ * touched, and never more than one draft row per transaction. A transaction
+ * that only ever waits on one row of one table cannot be half of a cycle, so
+ * these paths can block each other but cannot deadlock. (The erasure guard
+ * trigger takes `FOR SHARE` on this same row when a `file_assets` row is
+ * inserted; taking it exclusively first makes that a no-op instead of a lock
+ * upgrade.) Sweeps that lock several drafts at once — erasure, retention — take
+ * them `ORDER BY id` or `SKIP LOCKED`, and never in the other order.
+ *
+ * Must be called inside a transaction; outside one the lock is released by the
+ * implicit commit of this statement and guarantees nothing.
+ */
+export async function lockDraftRow(
+  tx: Db,
+  draftId: string,
+  sessionId?: string,
+): Promise<DraftRow | null> {
+  const [row] = await tx
+    .select()
+    .from(schema.draftLetters)
+    .where(
+      sessionId === undefined
+        ? eq(schema.draftLetters.id, draftId)
+        : and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, sessionId),
+          ),
+    )
+    .for("update")
+    .limit(1);
+
+  return row ? toDraftRow(row) : null;
+}
+
 // ---------------------------------------------------------------------------
 // List drafts for session
 // ---------------------------------------------------------------------------

@@ -8,16 +8,18 @@ import {
   attachmentStorageKey,
   deleteFileAsset,
   getDraftAttachmentConstraints,
-  getDraftUploadTotalBytes,
   getFileAsset,
   listFileAssets,
   signatureStorageKey,
   withOrphanCleanup,
 } from "./file.service.js";
-import { createAttachmentLimitError } from "../dispatch/adapters/provider-capabilities.js";
+import {
+  assertDraftUploadCapacity,
+  registerUploadedFileAsset,
+  type DraftUploadCapacityInput,
+} from "./file-registration.js";
 import { assertDraftAcceptsFileChanges } from "./draft-file-lock.js";
 import { assertUploadAcceptable } from "./upload-validation.js";
-import { formatByteLimitMb } from "./file-limits.js";
 import {
   uploadObject,
   downloadObjectBuffer,
@@ -122,47 +124,18 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       const sizeBytes = buffer.byteLength;
       assertUploadAcceptable(kind, mimeType, buffer, attachmentConstraints);
 
-      // Check per-draft limits
-      const existingFiles = await db
-        .select({
-          id: schema.fileAssets.id,
-          kind: schema.fileAssets.kind,
-          storageKey: schema.fileAssets.storageKey,
-          sizeBytes: schema.fileAssets.sizeBytes,
-        })
-        .from(schema.fileAssets)
-        .where(
-          and(
-            eq(schema.fileAssets.draftId, draftId),
-            eq(schema.fileAssets.sessionId, session.id),
-            eq(schema.fileAssets.status, "active"),
-          ),
-        );
+      const capacityInput: DraftUploadCapacityInput = {
+        draftId,
+        sessionId: session.id,
+        kind,
+        sizeBytes,
+        constraints: attachmentConstraints,
+      };
 
-      if (kind === "attachment") {
-        const attachmentCount = existingFiles.filter(
-          (f) => f.kind === "attachment",
-        ).length;
-        if (attachmentCount >= attachmentConstraints.maxAttachmentsPerDraft) {
-          throw createAttachmentLimitError(attachmentConstraints);
-        }
-      }
-
-      // For signatures, find existing one for atomic replacement
-      const existingSignature =
-        kind === "signature"
-          ? (existingFiles.find((f) => f.kind === "signature") ?? null)
-          : null;
-
-      // Subtract old signature bytes when replacing (it will be removed)
-      const existingTotalBytes = await getDraftUploadTotalBytes(db, draftId, session.id);
-      const effectiveTotal = existingTotalBytes - (existingSignature?.sizeBytes ?? 0);
-      if (effectiveTotal + sizeBytes > attachmentConstraints.maxTotalBytes) {
-        const limit = formatByteLimitMb(attachmentConstraints.maxTotalBytes);
-        throw validationError(`Total upload exceeds maximum size of ${limit}`, [
-          { field: "file", message: `Total uploads per draft cannot exceed ${limit}` },
-        ]);
-      }
+      // Pre-flight only, so an over-limit upload is refused before its bytes are
+      // written. The check that decides is the one `registerUploadedFileAsset`
+      // repeats under the draft's row lock.
+      await assertDraftUploadCapacity(db, capacityInput);
 
       // Generate storage key (deterministic namespacing per docs)
       const fileId = crypto.randomUUID();
@@ -175,62 +148,21 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       // that writes the object and then reports a failure (a timeout on the
       // response, say) would otherwise leak it. Retention iterates file_assets
       // rows, so an object with no row is invisible to it and kept forever.
-      const row = await withOrphanCleanup(db, storageKey, request.log, async () => {
-        await uploadObject(storageKey, buffer, mimeType);
+      const { row, existingSignature } = await withOrphanCleanup(
+        db,
+        storageKey,
+        request.log,
+        async () => {
+          await uploadObject(storageKey, buffer, mimeType);
 
-        return db.transaction(async (tx) => {
-          const [newRow] = await tx
-            .insert(schema.fileAssets)
-            .values({
-              sessionId: session.id,
-              draftId,
-              kind,
-              storageKey,
-              originalFilename: fileName,
-              mimeType,
-              sizeBytes,
-              status: "active",
-              // Attachments are read by the assistant asynchronously after upload.
-              extractionStatus: kind === "attachment" ? "pending" : null,
-            })
-            .returning();
-
-          if (!newRow) throw new Error("Failed to create file asset");
-
-          if (kind === "signature") {
-            // Atomically set new signature + mode, soft-delete old signature
-            await tx
-              .update(schema.draftLetters)
-              .set({
-                signatureAssetId: newRow.id,
-                signatureMode: "drawn",
-                updatedAt: new Date(),
-              })
-              .where(
-                and(
-                  eq(schema.draftLetters.id, draftId),
-                  eq(schema.draftLetters.sessionId, session.id),
-                ),
-              );
-
-            if (existingSignature) {
-              // pending_deletion, not deleted: the object below may fail to go,
-              // and only pending rows are on the cleanup worker's work list.
-              await tx
-                .update(schema.fileAssets)
-                .set({ status: "pending_deletion" })
-                .where(
-                  and(
-                    eq(schema.fileAssets.id, existingSignature.id),
-                    eq(schema.fileAssets.sessionId, session.id),
-                  ),
-                );
-            }
-          }
-
-          return newRow;
-        });
-      });
+          return await registerUploadedFileAsset(db, {
+            ...capacityInput,
+            storageKey,
+            originalFilename: fileName,
+            mimeType,
+          });
+        },
+      );
 
       // Best-effort cleanup of replaced signature from S3
       if (existingSignature) {
@@ -304,22 +236,11 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
       // Verify the file belongs to the specified draft
       if (asset.draftId !== draftId) throw notFoundError("file");
 
-      const [draft] = await db
-        .select({ status: schema.draftLetters.status })
-        .from(schema.draftLetters)
-        .where(
-          and(
-            eq(schema.draftLetters.id, draftId),
-            eq(schema.draftLetters.sessionId, session.id),
-          ),
-        )
-        .limit(1);
-
-      if (!draft) throw notFoundError("draft");
-      assertDraftAcceptsFileChanges(draft.status);
-
-      // Retire the row and clear its extracted text first, so the document is
-      // out of reach even if storage is unavailable.
+      // Retire the row, clear its extracted text and detach it from the draft
+      // first, so the document is out of reach even if storage is unavailable.
+      // `deleteFileAsset` does all of that under the draft's row lock and
+      // refuses once the draft has been snapshotted — the rule and the lock are
+      // its own, so this route does not carry a second copy of either.
       await deleteFileAsset(db, fileId, session.id);
 
       // Then the object itself. Don't fail the request if S3 is down — the row
@@ -336,21 +257,6 @@ export async function fileRoutes(app: FastifyInstance): Promise<void> {
           { fileId, storageKey: asset.storageKey },
           "Failed to delete object from storage; left pending for the cleanup worker",
         );
-      }
-
-      if (asset.kind === "signature") {
-        await db
-          .update(schema.draftLetters)
-          .set({
-            signatureAssetId: null,
-            updatedAt: new Date(),
-          })
-          .where(
-            and(
-              eq(schema.draftLetters.id, draftId),
-              eq(schema.draftLetters.sessionId, session.id),
-            ),
-          );
       }
 
       reply.send({

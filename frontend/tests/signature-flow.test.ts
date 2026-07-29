@@ -66,6 +66,13 @@ const fileRoutesSource = readFileSync(
   path.join(repoRoot, "backend/src/modules/files/file.routes.ts"),
   "utf8",
 );
+// The DB half of the upload moved out of the route so the whole registration —
+// editable check, limits, insert, signature swap — runs under the draft's row
+// lock; the route still owns the S3 write and the post-commit cleanup.
+const fileRegistrationSource = readFileSync(
+  path.join(repoRoot, "backend/src/modules/files/file-registration.ts"),
+  "utf8",
+);
 
 describe("signature canvas redesign", () => {
   it("old SignaturePicker is deleted", () => {
@@ -209,32 +216,40 @@ describe("signature canvas redesign", () => {
 
 describe("signature atomic replacement (v2 simplification)", () => {
   it("backend handles signature replacement atomically in a transaction", () => {
-    expect(fileRoutesSource).toContain("db.transaction(async (tx)");
-    expect(fileRoutesSource).toContain("signatureMode");
+    expect(fileRegistrationSource).toContain("db.transaction(async (tx)");
+    expect(fileRegistrationSource).toContain("signatureMode");
     expect(fileRoutesSource).toContain('status: "deleted"');
     expect(fileRoutesSource).not.toContain("SIGNATURE_LIMIT_REACHED");
   });
 
+  it("backend takes the draft row lock before writing any file row", () => {
+    const lockIdx = fileRegistrationSource.indexOf("lockDraftForFileChange(tx");
+    const insertIdx = fileRegistrationSource.indexOf("insert(schema.fileAssets)");
+    expect(lockIdx).toBeGreaterThan(-1);
+    expect(insertIdx).toBeGreaterThan(-1);
+    expect(lockIdx).toBeLessThan(insertIdx);
+  });
+
   it("backend sets signatureMode to drawn on signature upload", () => {
-    expect(fileRoutesSource).toMatch(/signatureMode:\s*"drawn"/);
+    expect(fileRegistrationSource).toMatch(/signatureMode:\s*"drawn"/);
   });
 
   it("backend uploads new file to S3 before touching DB", () => {
     const uploadIdx = fileRoutesSource.indexOf("await uploadObject(storageKey");
-    const txIdx = fileRoutesSource.indexOf("db.transaction(async (tx)");
+    const registerIdx = fileRoutesSource.indexOf("registerUploadedFileAsset(db");
     expect(uploadIdx).toBeGreaterThan(-1);
-    expect(txIdx).toBeGreaterThan(-1);
-    expect(uploadIdx).toBeLessThan(txIdx);
+    expect(registerIdx).toBeGreaterThan(-1);
+    expect(uploadIdx).toBeLessThan(registerIdx);
   });
 
   it("backend cleans up old S3 object after transaction commits", () => {
-    const txEndIdx = fileRoutesSource.indexOf("return newRow;");
+    const registerEndIdx = fileRoutesSource.indexOf("registerUploadedFileAsset(db");
     const cleanupIdx = fileRoutesSource.indexOf(
       "Failed to delete replaced signature from storage",
     );
-    expect(txEndIdx).toBeGreaterThan(-1);
+    expect(registerEndIdx).toBeGreaterThan(-1);
     expect(cleanupIdx).toBeGreaterThan(-1);
-    expect(cleanupIdx).toBeGreaterThan(txEndIdx);
+    expect(cleanupIdx).toBeGreaterThan(registerEndIdx);
   });
 
   it("frontend handleDrawnSignature is a single upload call (no remove step)", () => {

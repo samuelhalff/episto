@@ -10,6 +10,7 @@ import {
 } from "../dispatch/adapters/provider-capabilities.js";
 import { getDispatchAdapter } from "../dispatch/adapters/postal.adapter.js";
 import { deleteObjectIfUnchanged, headObject } from "./adapters/s3.adapter.js";
+import { lockDraftForFileChange } from "./draft-file-lock.js";
 import {
   formatByteLimitMb,
   getConfiguredFileLimits,
@@ -292,25 +293,6 @@ export function assertUploadMimeMatchesContent(
   ]);
 }
 
-export async function getDraftUploadTotalBytes(
-  db: Db,
-  draftId: string,
-  sessionId: string,
-): Promise<number> {
-  const [row] = await db
-    .select({ totalBytes: sql<number>`coalesce(sum(${schema.fileAssets.sizeBytes}), 0)` })
-    .from(schema.fileAssets)
-    .where(
-      and(
-        eq(schema.fileAssets.draftId, draftId),
-        eq(schema.fileAssets.sessionId, sessionId),
-        eq(schema.fileAssets.status, "active"),
-      ),
-    );
-
-  return Number(row?.totalBytes ?? 0);
-}
-
 // ---------------------------------------------------------------------------
 // Create file asset record
 // ---------------------------------------------------------------------------
@@ -442,24 +424,59 @@ export async function deleteFileAsset(
   fileId: string,
   sessionId: string,
 ): Promise<void> {
-  const asset = await getFileAsset(db, fileId, sessionId);
-  if (!asset) throw notFoundError("file");
+  await db.transaction(async (tx) => {
+    const asset = await getFileAsset(tx, fileId, sessionId);
+    if (!asset) throw notFoundError("file");
 
-  await db
-    .update(schema.fileAssets)
-    .set({
-      // `pending_deletion`, not `deleted`: the row stays on the cleanup
-      // worker's work list until the object is physically gone. Marking it
-      // deleted up front meant a failed S3 delete was never retried by anything
-      // — the worker only looks at pending rows. It is already invisible to the
-      // user either way, since listings only return active assets.
-      status: "pending_deletion",
-      // Deleting a document must delete its contents too. This column holds up
-      // to 12,000 characters of the user's document; leaving it behind meant a
-      // "deleted" file was still readable in the database.
-      extractedText: null,
-    })
-    .where(
-      and(eq(schema.fileAssets.id, fileId), eq(schema.fileAssets.sessionId, sessionId)),
-    );
+    // The guard lives here rather than in the route because the invariant
+    // belongs to the data, not to one HTTP handler: past `reviewed` the letter
+    // is rendered from a snapshot, so removing an enclosure can no longer
+    // change what Swiss Post delivers — it can only make the app disagree with
+    // the envelope. Any future caller gets the same answer without having to
+    // remember to ask.
+    //
+    // The draft row is held exclusively from here to commit, so the answer is
+    // still true when the row is retired: a review that would have snapshotted
+    // this file either committed before us — and we refuse — or waits and then
+    // builds its snapshot from a file list this delete is already missing from.
+    // Without the lock the two only had to interleave for the snapshot to
+    // capture an enclosure the app reported as deleted.
+    if (asset.draftId) {
+      await lockDraftForFileChange(tx, asset.draftId);
+    }
+
+    await tx
+      .update(schema.fileAssets)
+      .set({
+        // `pending_deletion`, not `deleted`: the row stays on the cleanup
+        // worker's work list until the object is physically gone. Marking it
+        // deleted up front meant a failed S3 delete was never retried by
+        // anything — the worker only looks at pending rows. It is already
+        // invisible to the user either way, since listings only return active
+        // assets.
+        status: "pending_deletion",
+        // Deleting a document must delete its contents too. This column holds
+        // up to 12,000 characters of the user's document; leaving it behind
+        // meant a "deleted" file was still readable in the database.
+        extractedText: null,
+      })
+      .where(
+        and(eq(schema.fileAssets.id, fileId), eq(schema.fileAssets.sessionId, sessionId)),
+      );
+
+    // Detaching the signature belongs to the same transaction as retiring it.
+    // Done afterwards on its own connection it was a second, unlocked write
+    // that could land after review had read the draft.
+    if (asset.kind === "signature" && asset.draftId) {
+      await tx
+        .update(schema.draftLetters)
+        .set({ signatureAssetId: null, updatedAt: new Date() })
+        .where(
+          and(
+            eq(schema.draftLetters.id, asset.draftId),
+            eq(schema.draftLetters.sessionId, sessionId),
+          ),
+        );
+    }
+  });
 }

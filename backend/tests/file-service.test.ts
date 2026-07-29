@@ -301,7 +301,7 @@ describe("withOrphanCleanup", () => {
 describe("deleteFileAsset", () => {
   it("clears the extracted text and leaves the row on the cleanup queue", async () => {
     const set = vi.fn().mockReturnValue({ where: vi.fn().mockResolvedValue(undefined) });
-    const db = {
+    const db: Record<string, unknown> = {
       select: vi.fn().mockReturnValue({
         from: vi.fn().mockReturnThis(),
         where: vi.fn().mockReturnThis(),
@@ -315,6 +315,8 @@ describe("deleteFileAsset", () => {
       }),
       update: vi.fn().mockReturnValue({ set }),
     };
+    // The retire now runs inside a transaction that holds the draft's row lock.
+    db.transaction = (run: (tx: unknown) => Promise<void>) => run(db);
 
     await deleteFileAsset(db as never, "file-1", "session-1");
 
