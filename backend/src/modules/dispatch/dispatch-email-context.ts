@@ -37,7 +37,12 @@ export async function buildDispatchEmailContext(
       .limit(1),
   ]);
 
-  if (!payment || !draft || !payment.orderAccessTokenExpiresAt) {
+  if (
+    !payment ||
+    !draft ||
+    !payment.orderAccessTokenExpiresAt ||
+    !payment.orderAccessTokenHash
+  ) {
     return null;
   }
 
@@ -83,6 +88,7 @@ export async function buildDispatchEmailContext(
   const token = await issueOrderAccessToken({
     paymentAttemptId: payment.id,
     expiresAt: payment.orderAccessTokenExpiresAt,
+    tokenHash: payment.orderAccessTokenHash,
   });
 
   return {

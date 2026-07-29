@@ -2,6 +2,7 @@ export * from "./analytics.js";
 export * from "./auth.js";
 export * from "./dispatch.js";
 export * from "./drafting.js";
+export * from "./email-outbox.js";
 export * from "./erasure.js";
 export * from "./files.js";
 export * from "./fixed-costs.js";

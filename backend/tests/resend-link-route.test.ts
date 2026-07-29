@@ -85,8 +85,21 @@ describe("POST /orders/resend-link", () => {
     // Identical body to the unknown-email case — no enumeration.
     expect(response.json()).toEqual({ message: genericMessage });
     expect(mocks.enqueue).toHaveBeenCalledTimes(2);
-    expect(mocks.enqueue).toHaveBeenCalledWith(expect.anything(), "pay-1");
-    expect(mocks.enqueue).toHaveBeenCalledWith(expect.anything(), "pay-2");
+    // The trigger is the point of this route, not incidental detail. The outbox
+    // dedupe key is permanent, so enqueuing these as `capture` would collide with
+    // the receipt already sent when the payment was taken — and "email me my link
+    // again" would report success while delivering nothing, which is the one
+    // recovery path a customer with a broken link has left.
+    expect(mocks.enqueue).toHaveBeenCalledWith(
+      expect.anything(),
+      "pay-1",
+      "customer_request",
+    );
+    expect(mocks.enqueue).toHaveBeenCalledWith(
+      expect.anything(),
+      "pay-2",
+      "customer_request",
+    );
   });
 
   it("returns the generic 200 for a missing/empty email without querying", async () => {

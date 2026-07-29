@@ -31,6 +31,22 @@ export const QUEUE_NAMES = {
   CLEANUP_ASSETS: "cleanup-expired-assets",
   REFRESH_DISPATCH_RATES: "refresh-dispatch-rates",
   DISPATCH_LIVENESS: "dispatch-liveness",
+  EMAIL_OUTBOX_SWEEP: "email-outbox-sweep",
+} as const;
+
+/**
+ * Email gets its own retry budget: ten attempts, doubling from 30s, which is
+ * about four and a quarter hours of trying.
+ *
+ * The shared default — three attempts from 1s — spends its entire budget in
+ * seven seconds. A Resend outage lasts minutes to hours, so every email in
+ * flight during one would have been declared dead before the provider had even
+ * noticed it was down. Hours of backoff means an outage costs delay, not mail.
+ * The outbox row is what catches the tail beyond that.
+ */
+const EMAIL_JOB_OPTIONS = {
+  attempts: 10,
+  backoff: { type: "exponential", delay: 30_000 },
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -50,6 +66,9 @@ export function getQueue(name: string): Queue {
       backoff: { type: "exponential", delay: 1000 },
       removeOnComplete: { count: 1000 },
       removeOnFail: { count: 5000 },
+      // Per-queue overrides go last: the other queues are tuned around the
+      // three-attempt default and must not inherit email's patience.
+      ...(name === QUEUE_NAMES.SEND_EMAIL ? EMAIL_JOB_OPTIONS : {}),
     },
   });
   _queues.set(name, queue);
@@ -91,6 +110,12 @@ export interface ReconcileDispatchJob {
 }
 
 export interface SendEmailJob {
+  /**
+   * The `email_outbox` row this job is an attempt at. Optional only so that
+   * jobs enqueued before the outbox existed still process on the deploy that
+   * introduces it; every new job carries one.
+   */
+  outboxId?: string;
   to: string;
   template: string;
   locale: string;
@@ -107,6 +132,10 @@ export interface RefreshDispatchRatesJob {
 }
 
 export interface DispatchLivenessJob {
+  reason: "scheduled_sweep";
+}
+
+export interface EmailOutboxSweepJob {
   reason: "scheduled_sweep";
 }
 
@@ -140,6 +169,23 @@ export async function registerScheduledJobs(): Promise<void> {
     {
       repeat: { pattern: "*/10 * * * *" }, // every ten minutes
       jobId: "scheduled-dispatch-liveness",
+    },
+  );
+
+  // An email whose job Redis dropped is owed to someone and is watched by
+  // nothing. This is the only thing that finds it again.
+  const outboxQueue = getQueue(QUEUE_NAMES.EMAIL_OUTBOX_SWEEP);
+  await outboxQueue.add(
+    "startup-email-outbox-sweep",
+    { reason: "scheduled_sweep" } satisfies EmailOutboxSweepJob,
+    {},
+  );
+  await outboxQueue.add(
+    "scheduled-email-outbox-sweep",
+    { reason: "scheduled_sweep" } satisfies EmailOutboxSweepJob,
+    {
+      repeat: { pattern: "*/15 * * * *" }, // every fifteen minutes
+      jobId: "scheduled-email-outbox-sweep",
     },
   );
 

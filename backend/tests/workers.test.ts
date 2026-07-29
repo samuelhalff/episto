@@ -56,7 +56,7 @@ vi.mock("../src/shared/logging/index.js", () => ({
 }));
 
 describe("queue names", () => {
-  it("defines all 7 required queue names", () => {
+  it("defines all 8 required queue names", () => {
     expect(QUEUE_NAMES.RENDER_PDF).toBe("render-pdf");
     expect(QUEUE_NAMES.SUBMIT_DISPATCH).toBe("submit-dispatch");
     expect(QUEUE_NAMES.RECONCILE_DISPATCH).toBe("reconcile-ambiguous-dispatch");
@@ -64,10 +64,11 @@ describe("queue names", () => {
     expect(QUEUE_NAMES.CLEANUP_ASSETS).toBe("cleanup-expired-assets");
     expect(QUEUE_NAMES.REFRESH_DISPATCH_RATES).toBe("refresh-dispatch-rates");
     expect(QUEUE_NAMES.DISPATCH_LIVENESS).toBe("dispatch-liveness");
+    expect(QUEUE_NAMES.EMAIL_OUTBOX_SWEEP).toBe("email-outbox-sweep");
   });
 
-  it("has exactly 7 queue names", () => {
-    expect(Object.keys(QUEUE_NAMES)).toHaveLength(7);
+  it("has exactly 8 queue names", () => {
+    expect(Object.keys(QUEUE_NAMES)).toHaveLength(8);
   });
 });
 
@@ -187,7 +188,8 @@ describe("registerScheduledJobs", () => {
     addSpy.mockClear();
     await registerScheduledJobs();
     await registerScheduledJobs();
-    // Repeatable jobs are deduped by BullMQ; startup refresh intentionally runs per process.
-    expect(addSpy).toHaveBeenCalledTimes(8); // 4 jobs × 2 calls
+    // Repeatable jobs are deduped by BullMQ; the startup rate refresh and the
+    // startup outbox sweep intentionally run once per process.
+    expect(addSpy).toHaveBeenCalledTimes(12); // 6 jobs × 2 calls
   });
 });

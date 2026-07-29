@@ -142,6 +142,12 @@ export type AnalyticsEvent =
       draftId?: string;
       sessionId?: string;
       locale?: string;
+    }
+  | {
+      event: "order_links_revoked";
+      draftId: string;
+      sessionId?: string;
+      locale?: string;
     };
 
 // ---------------------------------------------------------------------------

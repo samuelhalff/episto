@@ -14,6 +14,11 @@ import {
 import { recordPromoRedemption } from "./promo.service.js";
 import { issueReceiptForCapturedPayment } from "./receipt.service.js";
 import { createLogger } from "../../shared/logging/index.js";
+import { recordEvent } from "../analytics/index.js";
+import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
+import type { FastifyBaseLogger } from "fastify";
+
+type FreeOrderLogger = Pick<FastifyBaseLogger, "error" | "warn">;
 
 const logger = createLogger("free-order-service");
 
@@ -126,4 +131,61 @@ export async function captureFreeOrder(
   }
 
   return outcome;
+}
+
+/**
+ * The whole free-order checkout: capture, dispatch, analytics, response.
+ *
+ * Lives beside the capture rather than in the route because a CHF 0 order is a
+ * complete checkout that happens to touch no payment provider — it has to end
+ * in the same state as a paid one. Keeping the two halves apart is how the
+ * capture came to be recorded in the funnel only for orders Stripe had seen.
+ */
+export async function checkoutFreeOrder(
+  db: Db,
+  input: FreeOrderInput & { deliveryType: string; log: FreeOrderLogger },
+): Promise<{
+  paymentAttemptId: string;
+  clientSecret: null;
+  priceCents: number;
+  currency: "CHF";
+  quote: unknown;
+}> {
+  const outcome = await captureFreeOrder(db, input);
+
+  await enqueueDispatchIfEligible({
+    db,
+    draftId: input.draftId,
+    paymentId: outcome.payment.id,
+    log: input.log,
+    failureMessage: "Failed to enqueue dispatch after free-order capture",
+    suppressFailure: true,
+  });
+
+  if (outcome.created) {
+    recordEvent({
+      event: "checkout_started",
+      draftId: input.draftId,
+      deliveryType: input.deliveryType,
+      priceCents: 0,
+    });
+    // The capture happened here, not at a Stripe webhook that will never fire
+    // for a CHF 0 order. Without this every promo order looks like an abandoned
+    // checkout, which makes a promotion impossible to judge: the campaign that
+    // worked and the campaign nobody completed produce the same funnel.
+    recordEvent({
+      event: "payment_captured",
+      draftId: input.draftId,
+      paymentAttemptId: outcome.payment.id,
+      amountCents: outcome.payment.amountCents,
+    });
+  }
+
+  return {
+    paymentAttemptId: outcome.payment.id,
+    clientSecret: null,
+    priceCents: outcome.payment.amountCents,
+    currency: "CHF" as const,
+    quote: outcome.created ? input.orderBreakdown : outcome.payment.breakdown,
+  };
 }

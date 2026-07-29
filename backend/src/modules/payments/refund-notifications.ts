@@ -18,7 +18,8 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
 import { createLogger } from "../../shared/logging/index.js";
-import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
+import { type SendEmailJob } from "../../queue/index.js";
+import { enqueueTransactionalEmail } from "../email/email-outbox.js";
 
 const logger = createLogger("refund-notifications");
 
@@ -81,9 +82,10 @@ export async function enqueueRefundConfirmedEmail(
 
   // Keyed on the Stripe refund id: the ledger sync is idempotent and runs again
   // on every webhook for the same charge, so the second belt to the ledger's
-  // own transition check is a jobId that cannot produce a second send.
-  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("refund-confirmed", job, {
-    jobId: `refund-confirmed-${args.stripeRefundId}`,
+  // own transition check is an outbox key that cannot produce a second send.
+  await enqueueTransactionalEmail(db, {
+    dedupeKey: `refund-confirmed-${args.stripeRefundId}`,
+    job,
   });
 }
 

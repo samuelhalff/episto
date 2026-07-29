@@ -865,7 +865,15 @@
     "paymentAmount": "Importo pagato",
     "paidAt": "Data di pagamento",
     "downloadLetter": "Scaricare la conferma",
-    "downloadUnavailable": "Il documento di conferma non è più disponibile."
+    "downloadUnavailable": "Il documento di conferma non è più disponibile.",
+    "revokeLinks": "Revocare questo link e riceverne uno nuovo",
+    "revokeLinksConfirmTitle": "Revocare questo link?",
+    "revokeLinksConfirmBody": "Tutti i link esistenti a questo ordine smettono immediatamente di funzionare, compreso quello che sta utilizzando ora. Un nuovo link viene inviato all’indirizzo e-mail di questo ordine. Dovrà riaprire questa pagina da quell’e-mail.",
+    "revokeLinksConfirmCta": "Revoca e invia un nuovo link",
+    "revokeLinksDoneTitle": "Questo link è stato revocato",
+    "revokeLinksDoneBody": "Abbiamo inviato un nuovo link all’indirizzo e-mail di questo ordine. Questa pagina non funziona più — apra la sua lettera da quell’e-mail.",
+    "revokeLinksRateLimited": "Troppe richieste da questa connessione. Attenda un’ora e riprovi.",
+    "revokeLinksError": "Non è stato possibile revocare il link. Riprovi."
   },
   "files": {
     "addMore": "Aggiungi file",

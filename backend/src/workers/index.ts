@@ -7,6 +7,7 @@ import { startReconcileDispatchWorker } from "./reconcile-dispatch.worker.js";
 import { startCleanupAssetsWorker } from "./cleanup-assets.worker.js";
 import { startRefreshDispatchRatesWorker } from "./refresh-dispatch-rates.worker.js";
 import { startDispatchLivenessWorker } from "./dispatch-liveness.worker.js";
+import { startEmailOutboxWorker } from "./email-outbox.worker.js";
 
 const logger = createLogger();
 
@@ -26,6 +27,7 @@ export function startWorkers(): void {
   const cleanupAssetsWorker = startCleanupAssetsWorker();
   const refreshDispatchRatesWorker = startRefreshDispatchRatesWorker();
   const dispatchLivenessWorker = startDispatchLivenessWorker();
+  const emailOutboxWorker = startEmailOutboxWorker();
 
   workers.push(
     emailWorker,
@@ -35,6 +37,7 @@ export function startWorkers(): void {
     cleanupAssetsWorker,
     refreshDispatchRatesWorker,
     dispatchLivenessWorker,
+    emailOutboxWorker,
   );
 
   // Log completion/failure events for all workers

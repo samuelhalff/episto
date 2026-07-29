@@ -15,7 +15,7 @@ import {
   getPaymentIntentForCheckout,
   updatePaymentIntentReceiptDetails,
 } from "./adapters/stripe.adapter.js";
-import { captureFreeOrder } from "./free-order.service.js";
+import { checkoutFreeOrder } from "./free-order.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
 import { issueReceiptSafe } from "./receipt.service.js";
 import {
@@ -143,41 +143,21 @@ export async function registerPaymentCheckoutRoutes(app: FastifyInstance): Promi
       };
 
       // Free order (fully discounted): capture directly, skipping Stripe.
-      // See captureFreeOrder for the existing-attempt reuse/cancel semantics.
+      // See checkoutFreeOrder for the existing-attempt reuse/cancel semantics.
       if (chargeCents === 0 && appliedPromo) {
-        const outcome = await captureFreeOrder(db, {
-          draftId,
-          sessionId: session.id,
-          email: body.email,
-          promoCodeId: appliedPromo.promoCodeId,
-          signatureFlowMode: draft.signatureFlowMode,
-          verifiedPhone,
-          orderBreakdown,
-        });
-
-        await enqueueDispatchIfEligible({
-          db,
-          draftId,
-          paymentId: outcome.payment.id,
-          log: request.log,
-          failureMessage: "Failed to enqueue dispatch after free-order capture",
-          suppressFailure: true,
-        });
-        if (outcome.created) {
-          recordEvent({
-            event: "checkout_started",
+        return reply.send(
+          await checkoutFreeOrder(db, {
             draftId,
+            sessionId: session.id,
+            email: body.email,
+            promoCodeId: appliedPromo.promoCodeId,
+            signatureFlowMode: draft.signatureFlowMode,
+            verifiedPhone,
+            orderBreakdown,
             deliveryType: draft.deliveryType,
-            priceCents: 0,
-          });
-        }
-        return reply.send({
-          paymentAttemptId: outcome.payment.id,
-          clientSecret: null,
-          priceCents: outcome.payment.amountCents,
-          currency: "CHF" as const,
-          quote: outcome.created ? orderBreakdown : outcome.payment.breakdown,
-        });
+            log: request.log,
+          }),
+        );
       }
 
       const createOrResumeCheckout = async () =>

@@ -130,9 +130,10 @@ describeIfIntegrationDb("dispatch under-review dwell sweep", () => {
       await db.execute<{ id: string }>(sql`
         INSERT INTO payment_attempts (draft_id, session_id, amount_cents, state,
                                       breakdown, captured_at, captured_at_source,
-                                      order_access_token_expires_at)
+                                      order_access_token_expires_at,
+                                      order_access_token_hash)
         VALUES (${draftId}, ${sessionId}, 455, 'captured', '{}'::jsonb, NOW(),
-                'webhook', NOW() + interval '10 days')
+                'webhook', NOW() + interval '10 days', ${`hash-${unique}`})
         RETURNING id
       `),
     ).id;

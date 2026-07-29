@@ -40,6 +40,7 @@ vi.mock("../src/queue/index.js", () => ({
 }));
 
 vi.mock("../src/shared/config/index.js", () => ({
+  isEnvLoaded: () => false,
   env: () => ({
     CORS_ORIGIN: "https://episto.ch",
     APP_PUBLIC_URL: undefined,
@@ -86,6 +87,7 @@ describe("dispatch failure notification", () => {
               amountCents: 625,
               currency: "CHF",
               orderAccessTokenExpiresAt: new Date("2026-07-10T12:00:00.000Z"),
+              orderAccessTokenHash: "hash-1",
             },
           ]),
         )
@@ -102,6 +104,9 @@ describe("dispatch failure notification", () => {
         .mockImplementationOnce(() =>
           makeSelectChain([{ email: "person@example.com", locale: "en-CH" }]),
         ),
+      // The email choke point records the outbox row before enqueueing; a
+      // returned row is what says "not a duplicate, go ahead".
+      execute: vi.fn().mockResolvedValue({ rows: [{ id: "outbox-1" }] }),
     };
 
     const { enqueueDispatchFailedEmail } =
@@ -141,6 +146,7 @@ describe("dispatch failure notification", () => {
               amountCents: 625,
               currency: "CHF",
               orderAccessTokenExpiresAt: new Date("2026-07-10T12:00:00.000Z"),
+              orderAccessTokenHash: "hash-1",
             },
           ]),
         )
@@ -157,6 +163,9 @@ describe("dispatch failure notification", () => {
         .mockImplementationOnce(() =>
           makeSelectChain([{ email: "person@example.com", locale: "en-CH" }]),
         ),
+      // The email choke point records the outbox row before enqueueing; a
+      // returned row is what says "not a duplicate, go ahead".
+      execute: vi.fn().mockResolvedValue({ rows: [{ id: "outbox-1" }] }),
     };
 
     const { enqueueDispatchFailedEmail } =

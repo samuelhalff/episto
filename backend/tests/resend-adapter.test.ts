@@ -68,6 +68,69 @@ describe("resend adapter", () => {
           }),
         ],
       }),
+      {},
     );
+  });
+
+  const baseEmail = {
+    to: "customer@example.test",
+    subject: "Subject",
+    html: "<p>hi</p>",
+    text: "hi",
+  };
+
+  it("passes the dedupe key to Resend as an idempotency key", async () => {
+    mocks.send.mockResolvedValue({ data: { id: "email_123" }, error: null });
+
+    const { sendEmail } = await import("../src/modules/email/resend.adapter.js");
+    await sendEmail({ ...baseEmail, idempotencyKey: "dispatch-accepted-abc" });
+
+    expect(mocks.send.mock.calls[0]?.[1]).toEqual({
+      idempotencyKey: "dispatch-accepted-abc",
+    });
+  });
+
+  it("drops an over-long key rather than losing the email to it", async () => {
+    mocks.send.mockResolvedValue({ data: { id: "email_123" }, error: null });
+
+    const { sendEmail } = await import("../src/modules/email/resend.adapter.js");
+    await sendEmail({ ...baseEmail, idempotencyKey: "x".repeat(257) });
+
+    // Resend answers an over-long key with `invalid_idempotency_key`, which we
+    // classify as permanent — the email would be failed over bookkeeping.
+    expect(mocks.send.mock.calls[0]?.[1]).toEqual({});
+  });
+
+  it.each([
+    ["validation_error", true],
+    ["invalid_parameter", true],
+    ["invalid_from_address", true],
+    ["not_found", true],
+    ["missing_required_field", true],
+    ["invalid_idempotent_request", true],
+    ["rate_limit_exceeded", false],
+    ["internal_server_error", false],
+    ["application_error", false],
+    ["concurrent_idempotent_requests", false],
+    ["some_code_resend_adds_in_2027", false],
+  ])("classifies %s as permanent=%s", async (name, permanent) => {
+    mocks.send.mockResolvedValue({ data: null, error: { name, message: "nope" } });
+
+    const { sendEmail, isPermanentEmailError } =
+      await import("../src/modules/email/resend.adapter.js");
+
+    const err = await sendEmail(baseEmail).catch((caught: unknown) => caught);
+    expect(isPermanentEmailError(err)).toBe(permanent);
+    expect((err as Error).message).toContain(String(name));
+  });
+
+  it("treats a transport failure as retryable", async () => {
+    mocks.send.mockRejectedValue(new Error("ECONNRESET"));
+
+    const { sendEmail, isPermanentEmailError } =
+      await import("../src/modules/email/resend.adapter.js");
+
+    const err = await sendEmail(baseEmail).catch((caught: unknown) => caught);
+    expect(isPermanentEmailError(err)).toBe(false);
   });
 });

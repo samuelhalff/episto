@@ -19,7 +19,12 @@ const DB_EVENTS = new Set([
   "step_idle",
   "step_abandoned",
   "step_error",
+  "order_links_revoked",
   "checkout_started",
+  // Without this the funnel ends at `checkout_started`: every order looks
+  // abandoned, and a promotion that worked is indistinguishable from one nobody
+  // completed. Recording the event without listing it here writes it nowhere.
+  "payment_captured",
   "payment_failed",
   "review_blocked",
   "file_upload_failed",

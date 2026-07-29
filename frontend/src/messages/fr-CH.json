@@ -865,7 +865,15 @@
     "paymentAmount": "Montant payé",
     "paidAt": "Date de paiement",
     "downloadLetter": "Télécharger la confirmation",
-    "downloadUnavailable": "Le document de confirmation n’est plus disponible."
+    "downloadUnavailable": "Le document de confirmation n’est plus disponible.",
+    "revokeLinks": "Révoquer ce lien et en recevoir un nouveau",
+    "revokeLinksConfirmTitle": "Révoquer ce lien ?",
+    "revokeLinksConfirmBody": "Tous les liens existants vers cette commande cessent immédiatement de fonctionner, y compris celui que vous utilisez actuellement. Un nouveau lien est envoyé à l’adresse e-mail de cette commande. Vous devrez rouvrir cette page depuis cet e-mail.",
+    "revokeLinksConfirmCta": "Révoquer et envoyer un nouveau lien",
+    "revokeLinksDoneTitle": "Ce lien a été révoqué",
+    "revokeLinksDoneBody": "Nous avons envoyé un nouveau lien à l’adresse e-mail de cette commande. Cette page ne fonctionne plus — ouvrez votre lettre depuis cet e-mail.",
+    "revokeLinksRateLimited": "Trop de demandes depuis cette connexion. Veuillez patienter une heure et réessayer.",
+    "revokeLinksError": "Le lien n’a pas pu être révoqué. Veuillez réessayer."
   },
   "files": {
     "addMore": "Ajouter des fichiers",

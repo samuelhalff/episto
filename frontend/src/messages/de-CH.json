@@ -865,7 +865,15 @@
     "paymentAmount": "Bezahlter Betrag",
     "paidAt": "Zahlungsdatum",
     "downloadLetter": "Bestätigung herunterladen",
-    "downloadUnavailable": "Das Bestätigungsdokument ist nicht mehr verfügbar."
+    "downloadUnavailable": "Das Bestätigungsdokument ist nicht mehr verfügbar.",
+    "revokeLinks": "Diesen Link sperren und einen neuen zusenden",
+    "revokeLinksConfirmTitle": "Diesen Link sperren?",
+    "revokeLinksConfirmBody": "Alle bestehenden Links zu dieser Bestellung funktionieren sofort nicht mehr, auch der Link, den Sie gerade verwenden. Einen neuen Link senden wir an die E-Mail-Adresse dieser Bestellung. Sie müssen diese Seite anschliessend über diese E-Mail erneut öffnen.",
+    "revokeLinksConfirmCta": "Sperren und neuen Link senden",
+    "revokeLinksDoneTitle": "Dieser Link wurde gesperrt",
+    "revokeLinksDoneBody": "Wir haben einen neuen Link an die E-Mail-Adresse dieser Bestellung gesendet. Diese Seite funktioniert nicht mehr — öffnen Sie Ihren Brief über diese E-Mail.",
+    "revokeLinksRateLimited": "Zu viele Anfragen von dieser Verbindung. Bitte warten Sie eine Stunde und versuchen Sie es erneut.",
+    "revokeLinksError": "Der Link konnte nicht gesperrt werden. Bitte versuchen Sie es erneut."
   },
   "files": {
     "addMore": "Dateien hinzufügen",

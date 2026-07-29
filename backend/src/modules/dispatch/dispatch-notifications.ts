@@ -1,5 +1,6 @@
 import type { Db } from "../../db/index.js";
-import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
+import { type SendEmailJob } from "../../queue/index.js";
+import { enqueueTransactionalEmail } from "../email/email-outbox.js";
 import { buildDispatchEmailContext } from "./dispatch-email-context.js";
 
 export async function enqueueDispatchSubmittedEmail(
@@ -19,8 +20,9 @@ export async function enqueueDispatchSubmittedEmail(
     data: context,
   };
 
-  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("dispatch-submitted", job, {
-    jobId: `dispatch-submitted-${args.dispatchAttemptId}`,
+  await enqueueTransactionalEmail(db, {
+    dedupeKey: `dispatch-submitted-${args.dispatchAttemptId}`,
+    job,
   });
 }
 
@@ -51,8 +53,9 @@ export async function enqueueDispatchAcceptedEmail(
     },
   };
 
-  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("dispatch-accepted", job, {
-    jobId: `dispatch-accepted-${args.dispatchAttemptId}`,
+  await enqueueTransactionalEmail(db, {
+    dedupeKey: `dispatch-accepted-${args.dispatchAttemptId}`,
+    job,
   });
 }
 
@@ -81,7 +84,8 @@ export async function enqueueDispatchFailedEmail(
     },
   };
 
-  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("dispatch-failed", job, {
-    jobId: `dispatch-failed-${args.dispatchAttemptId}`,
+  await enqueueTransactionalEmail(db, {
+    dedupeKey: `dispatch-failed-${args.dispatchAttemptId}`,
+    job,
   });
 }

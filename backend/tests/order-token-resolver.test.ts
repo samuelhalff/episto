@@ -1,15 +1,25 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type * as OrderAccessTokenModule from "../src/modules/orders/order-access-token.js";
+
 const verifyOrderAccessToken = vi.fn();
 const hashResumeToken = vi.fn((token: string) => `hashed:${token}`);
 
 class OrderAccessTokenExpiredError extends Error {}
 class OrderAccessTokenVerificationError extends Error {}
 
-vi.mock("../src/modules/orders/order-access-token.js", () => ({
+// Only the verification is faked. `orderAccessGeneration` is the real one on
+// purpose: it is half of the comparison under test here, and a stubbed copy
+// would keep agreeing with itself even if the real derivation changed shape.
+vi.mock("../src/modules/orders/order-access-token.js", async () => ({
   OrderAccessTokenExpiredError,
   OrderAccessTokenVerificationError,
   verifyOrderAccessToken,
+  orderAccessGeneration: (
+    await vi.importActual<typeof OrderAccessTokenModule>(
+      "../src/modules/orders/order-access-token.js",
+    )
+  ).orderAccessGeneration,
 }));
 
 vi.mock("../src/modules/sessions/session.service.js", () => ({
@@ -26,6 +36,14 @@ function makeSelectChain(rows: unknown[]) {
   };
 }
 
+// Two successive access-token hashes for the same order: the first is what the
+// customer's original link was issued against, the second is what rotating
+// replaces it with.
+const GENERATION_ONE_HASH = "aaaaaaaaaaaaaaaabbbbbbbbbbbbbbbb";
+const GENERATION_TWO_HASH = "ccccccccccccccccdddddddddddddddd";
+const { orderAccessGeneration } =
+  await import("../src/modules/orders/order-access-token.js");
+
 // Use a date far in the future that won't become stale as the system clock advances.
 const futureDate = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
 
@@ -41,6 +59,7 @@ describe("resolveOrderAccessPayment", () => {
         makeSelectChain([
           {
             id: "payment-1",
+            orderAccessTokenHash: GENERATION_ONE_HASH,
             orderAccessTokenExpiresAt: futureDate,
           },
         ]),
@@ -50,6 +69,7 @@ describe("resolveOrderAccessPayment", () => {
     verifyOrderAccessToken.mockResolvedValue({
       paymentAttemptId: "payment-1",
       expiresAt: futureDate.toISOString(),
+      generation: orderAccessGeneration(GENERATION_ONE_HASH),
     });
 
     const { resolveOrderAccessPayment } =
@@ -119,6 +139,7 @@ describe("resolveOrderAccessPayment", () => {
         makeSelectChain([
           {
             id: "payment-erased",
+            orderAccessTokenHash: GENERATION_ONE_HASH,
             orderAccessTokenExpiresAt: null,
           },
         ]),
@@ -128,6 +149,7 @@ describe("resolveOrderAccessPayment", () => {
     verifyOrderAccessToken.mockResolvedValue({
       paymentAttemptId: "payment-erased",
       expiresAt: futureDate.toISOString(),
+      generation: orderAccessGeneration(GENERATION_ONE_HASH),
     });
 
     const { resolveOrderAccessPayment } =
@@ -135,6 +157,42 @@ describe("resolveOrderAccessPayment", () => {
 
     await expect(
       resolveOrderAccessPayment(db as never, "signed-token"),
+    ).resolves.toBeNull();
+  });
+
+  /**
+   * The whole point of the generation claim. Before it existed a signed link
+   * could not be withdrawn at all: it named a payment and an expiry and nothing
+   * the server could change. A customer who forwarded their link to the wrong
+   * address, or whose mailbox later changed hands, had no way to take it back
+   * short of waiting out the retention window. Rotating the access-token hash
+   * has to make the old link stop opening the order, and this is the assertion
+   * that says so.
+   */
+  it("refuses a signed token issued against a superseded generation", async () => {
+    const db = {
+      select: vi.fn().mockReturnValueOnce(
+        makeSelectChain([
+          {
+            id: "payment-rotated",
+            orderAccessTokenHash: GENERATION_TWO_HASH,
+            orderAccessTokenExpiresAt: futureDate,
+          },
+        ]),
+      ),
+    };
+
+    verifyOrderAccessToken.mockResolvedValue({
+      paymentAttemptId: "payment-rotated",
+      expiresAt: futureDate.toISOString(),
+      generation: orderAccessGeneration(GENERATION_ONE_HASH),
+    });
+
+    const { resolveOrderAccessPayment } =
+      await import("../src/modules/orders/order-token-resolver.js");
+
+    await expect(
+      resolveOrderAccessPayment(db as never, "stale-signed-token"),
     ).resolves.toBeNull();
   });
 
@@ -152,6 +210,7 @@ describe("resolveOrderAccessPayment", () => {
     verifyOrderAccessToken.mockResolvedValue({
       paymentAttemptId: "payment-1",
       expiresAt: futureDate.toISOString(),
+      generation: orderAccessGeneration(GENERATION_ONE_HASH),
     });
 
     const { resolveOrderAccessPayment } =

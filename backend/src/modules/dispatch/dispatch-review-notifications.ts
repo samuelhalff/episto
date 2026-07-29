@@ -20,13 +20,15 @@
  *   1. `under_review_notified_at`, claimed with a conditional UPDATE, so two
  *      concurrent sweeps cannot both win and a completed job aging out of Redis
  *      cannot un-remember the send.
- *   2. A deterministic job id keyed on the dispatch attempt.
+ *   2. The email outbox's unique `dedupe_key`, keyed on the dispatch attempt,
+ *      which also serves as the BullMQ job id.
  */
 import { sql } from "drizzle-orm";
 
 import type { Db } from "../../db/index.js";
 import { createLogger } from "../../shared/logging/index.js";
-import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
+import { type SendEmailJob } from "../../queue/index.js";
+import { enqueueTransactionalEmail } from "../email/email-outbox.js";
 import { buildDispatchEmailContext } from "./dispatch-email-context.js";
 
 const logger = createLogger("dispatch-review-notifications");
@@ -141,8 +143,9 @@ export async function enqueueDispatchUnderReviewEmail(
     data: context,
   };
 
-  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("dispatch-under-review", job, {
-    jobId: `dispatch-under-review-${args.dispatchAttemptId}`,
+  await enqueueTransactionalEmail(db, {
+    dedupeKey: `dispatch-under-review-${args.dispatchAttemptId}`,
+    job,
   });
 
   return true;

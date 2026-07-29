@@ -40,6 +40,7 @@ vi.mock("../src/queue/index.js", () => ({
 }));
 
 vi.mock("../src/shared/config/index.js", () => ({
+  isEnvLoaded: () => false,
   env: () => ({
     CORS_ORIGIN: "https://episto.ch",
     APP_PUBLIC_URL: undefined,
@@ -72,6 +73,7 @@ function makePaymentSelectChain() {
       id: "payment-1",
       sessionId: "session-1",
       orderAccessTokenExpiresAt: new Date("2026-07-10T12:00:00.000Z"),
+      orderAccessTokenHash: "hash-1",
     },
   ]);
 }
@@ -85,6 +87,15 @@ function makeDraftSelectChain() {
       recipientProfileId: null,
     },
   ]);
+}
+
+/**
+ * The outbox insert the email choke point runs before enqueueing. Returning a
+ * row is what says "this email is not a duplicate" — return nothing and the
+ * enqueue is skipped, which is the behaviour under test here.
+ */
+function makeOutboxInsert() {
+  return vi.fn().mockResolvedValue({ rows: [{ id: "outbox-1" }] });
 }
 
 function makeSessionSelectChain() {
@@ -111,6 +122,7 @@ describe("dispatch notifications", () => {
               amountCents: 625,
               currency: "CHF",
               orderAccessTokenExpiresAt: new Date("2026-07-10T12:00:00.000Z"),
+              orderAccessTokenHash: "hash-1",
             },
           ]),
         )
@@ -127,6 +139,7 @@ describe("dispatch notifications", () => {
         .mockImplementationOnce(() =>
           makeSelectChain([{ email: "person@example.com", locale: "en-CH" }]),
         ),
+      execute: makeOutboxInsert(),
     };
 
     const { enqueueDispatchSubmittedEmail } =
@@ -160,6 +173,7 @@ describe("dispatch notifications", () => {
         .mockImplementationOnce(makePaymentSelectChain)
         .mockImplementationOnce(makeDraftSelectChain)
         .mockImplementationOnce(makeSessionSelectChain),
+      execute: makeOutboxInsert(),
     };
 
     const { enqueueDispatchAcceptedEmail } =

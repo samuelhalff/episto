@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Loader2, Package, PenLine, AlertCircle } from "lucide-react";
@@ -17,16 +17,21 @@ import { CustomerSiteMenu } from "@/components/layout/CustomerSiteMenu";
 import { HeaderLanguageMenu } from "@/components/layout/HeaderLanguageMenu";
 import { DispatchConfirmation } from "@/components/product/DispatchConfirmation";
 import { ProtectedPdfDownloadButton } from "@/components/product/ProtectedPdfDownloadButton";
+import {
+  OrderLinksRevokedNotice,
+  RevokeOrderLinksButton,
+} from "@/components/product/OrderLinkRevocation";
 
-function useOrderStatus(orderToken: string) {
+function useOrderStatus(orderToken: string, enabled: boolean) {
   return useQuery({
     queryKey: queryKeys.order(orderToken),
     queryFn: async (): Promise<OrderStatusResponse> =>
       OrderStatusResponseSchema.parse(
         await apiFetch<unknown>(`/v1/orders/${orderToken}`),
       ),
+    enabled,
     staleTime: 30_000,
-    refetchInterval: 60_000,
+    refetchInterval: enabled ? 60_000 : false,
     retry: (count, error) => {
       const status =
         error != null && typeof error === "object" && "status" in error
@@ -46,7 +51,10 @@ export default function StatusPage({
   const t = useTranslations("status");
   const tc = useTranslations("common");
 
-  const query = useOrderStatus(orderToken);
+  // Once the links are revoked the token in this URL is dead, so the page must
+  // stop polling with it and stop offering actions that would now fail.
+  const [linksRevoked, setLinksRevoked] = useState(false);
+  const query = useOrderStatus(orderToken, !linksRevoked);
 
   if (query.isLoading) {
     return (
@@ -111,75 +119,86 @@ export default function StatusPage({
           </h1>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
-          <div className="rounded-4xl border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92">
-            <dl className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              <div className="flex items-center justify-between py-3 text-sm">
-                <dt className="text-zinc-500">{t("orderReference")}</dt>
-                <dd className="font-mono font-medium text-zinc-900 dark:text-zinc-100">
-                  {order.orderRef}
-                </dd>
+        {linksRevoked ? (
+          <OrderLinksRevokedNotice />
+        ) : (
+          <>
+            <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
+              <div className="rounded-4xl border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92">
+                <dl className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  <div className="flex items-center justify-between py-3 text-sm">
+                    <dt className="text-zinc-500">{t("orderReference")}</dt>
+                    <dd className="font-mono font-medium text-zinc-900 dark:text-zinc-100">
+                      {order.orderRef}
+                    </dd>
+                  </div>
+                  {order.recipientName && (
+                    <div className="flex items-center justify-between py-3 text-sm">
+                      <dt className="text-zinc-500">{t("recipient")}</dt>
+                      <dd className="font-medium text-zinc-900 dark:text-zinc-100">
+                        {order.recipientName}
+                      </dd>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between py-3 text-sm">
+                    <dt className="text-zinc-500">{t("paymentAmount")}</dt>
+                    <dd className="font-medium text-zinc-900 dark:text-zinc-100">
+                      CHF {priceCHF}
+                      <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
+                        ({payment.state})
+                      </span>
+                    </dd>
+                  </div>
+                  {payment.capturedAt && (
+                    <div className="flex items-center justify-between py-3 text-sm">
+                      <dt className="text-zinc-500">{t("paidAt")}</dt>
+                      <dd className="text-zinc-900 dark:text-zinc-100">
+                        {new Date(payment.capturedAt).toLocaleDateString()}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
               </div>
-              {order.recipientName && (
-                <div className="flex items-center justify-between py-3 text-sm">
-                  <dt className="text-zinc-500">{t("recipient")}</dt>
-                  <dd className="font-medium text-zinc-900 dark:text-zinc-100">
-                    {order.recipientName}
-                  </dd>
-                </div>
-              )}
-              <div className="flex items-center justify-between py-3 text-sm">
-                <dt className="text-zinc-500">{t("paymentAmount")}</dt>
-                <dd className="font-medium text-zinc-900 dark:text-zinc-100">
-                  CHF {priceCHF}
-                  <span className="ml-2 text-xs text-zinc-500 dark:text-zinc-400">
-                    ({payment.state})
-                  </span>
-                </dd>
-              </div>
-              {payment.capturedAt && (
-                <div className="flex items-center justify-between py-3 text-sm">
-                  <dt className="text-zinc-500">{t("paidAt")}</dt>
-                  <dd className="text-zinc-900 dark:text-zinc-100">
-                    {new Date(payment.capturedAt).toLocaleDateString()}
-                  </dd>
-                </div>
-              )}
-            </dl>
-          </div>
 
-          <div className="rounded-4xl border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92">
-            <DispatchConfirmation
-              dispatchState={
-                dispatchData.state as Parameters<
-                  typeof DispatchConfirmation
-                >[0]["dispatchState"]
-              }
-              providerReference={dispatchData.providerRef}
-              trackingNumber={dispatchData.trackingNumber}
-              providerMode={dispatchData.providerMode}
-              isTrackable={dispatchData.trackingAvailable}
-              submittedAt={dispatchData.submittedAt}
-              lastCheckedAt={dispatchData.lastCheckedAt}
+              <div className="rounded-4xl border border-zinc-200/80 bg-white/92 p-6 shadow-elevated dark:border-zinc-800 dark:bg-zinc-900/92">
+                <DispatchConfirmation
+                  dispatchState={
+                    dispatchData.state as Parameters<
+                      typeof DispatchConfirmation
+                    >[0]["dispatchState"]
+                  }
+                  providerReference={dispatchData.providerRef}
+                  trackingNumber={dispatchData.trackingNumber}
+                  providerMode={dispatchData.providerMode}
+                  isTrackable={dispatchData.trackingAvailable}
+                  submittedAt={dispatchData.submittedAt}
+                  lastCheckedAt={dispatchData.lastCheckedAt}
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+              <ProtectedPdfDownloadButton
+                apiPath={`/v1/orders/${orderToken}/pdf`}
+                namespace="status"
+              />
+              <div className="text-center sm:hidden">
+                <Link
+                  href="/draft/new"
+                  className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
+                >
+                  <PenLine className="h-4 w-4" />
+                  {t("sendAnother")}
+                </Link>
+              </div>
+            </div>
+
+            <RevokeOrderLinksButton
+              orderToken={orderToken}
+              onRevoked={() => setLinksRevoked(true)}
             />
-          </div>
-        </div>
-
-        <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-          <ProtectedPdfDownloadButton
-            apiPath={`/v1/orders/${orderToken}/pdf`}
-            namespace="status"
-          />
-          <div className="text-center sm:hidden">
-            <Link
-              href="/draft/new"
-              className="inline-flex items-center gap-2 rounded-full bg-zinc-950 px-5 py-3 text-sm font-semibold text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-zinc-800 dark:bg-amber-400 dark:text-zinc-950 dark:hover:bg-amber-300"
-            >
-              <PenLine className="h-4 w-4" />
-              {t("sendAnother")}
-            </Link>
-          </div>
-        </div>
+          </>
+        )}
       </main>
     </div>
   );

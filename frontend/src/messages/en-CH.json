@@ -865,7 +865,15 @@
     "paymentAmount": "Amount paid",
     "paidAt": "Payment date",
     "downloadLetter": "Download confirmation",
-    "downloadUnavailable": "The confirmation document is no longer available."
+    "downloadUnavailable": "The confirmation document is no longer available.",
+    "revokeLinks": "Revoke this link and email a new one",
+    "revokeLinksConfirmTitle": "Revoke this link?",
+    "revokeLinksConfirmBody": "All existing links to this order stop working immediately, including the one you are using now. A new link is sent to the email address on this order. You will need to reopen this page from that email.",
+    "revokeLinksConfirmCta": "Revoke and send a new link",
+    "revokeLinksDoneTitle": "This link has been revoked",
+    "revokeLinksDoneBody": "We have sent a new link to the email address on this order. This page no longer works — open your letter from that email.",
+    "revokeLinksRateLimited": "Too many requests from this connection. Please wait an hour and try again.",
+    "revokeLinksError": "The link could not be revoked. Please try again."
   },
   "files": {
     "addMore": "Add files",

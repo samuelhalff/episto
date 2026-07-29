@@ -5,11 +5,43 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { env } from "../../shared/config/index.js";
 import { createLogger } from "../../shared/logging/index.js";
-import { getQueue, QUEUE_NAMES, type SendEmailJob } from "../../queue/index.js";
-import { issueOrderAccessToken } from "../orders/order-access-token.js";
+import { type SendEmailJob } from "../../queue/index.js";
+import { enqueueTransactionalEmail } from "../email/email-outbox.js";
+import {
+  issueOrderAccessToken,
+  orderAccessGeneration,
+} from "../orders/order-access-token.js";
 import { downloadObjectBuffer } from "../files/adapters/s3.adapter.js";
 
 const logger = createLogger("receipt-notifications");
+
+/**
+ * Why this email is being sent — which decides how long "already sent this" lasts.
+ *
+ * `capture` is the automatic receipt: exactly one per generation, forever, so a
+ * replayed webhook cannot mail a second copy. `customer_request` is someone
+ * pressing a button because the first one did not reach them, and it must not be
+ * silenced by a key the capture receipt already claimed — that would make
+ * "resend my link" a button that reports success and does nothing, which is
+ * precisely the recovery path a customer needs when their link stopped working.
+ */
+export type ReceiptEmailTrigger = "capture" | "customer_request";
+
+/**
+ * A customer-requested resend is deduplicated only within the minute it was
+ * asked for. Long enough to absorb a double-click or a retried request, short
+ * enough that asking again later actually sends again. Volume beyond that is the
+ * route's rate limit to worry about, not this key's.
+ */
+export function receiptDedupeKey(
+  paymentAttemptId: string,
+  generation: string,
+  trigger: ReceiptEmailTrigger,
+): string {
+  const base = `payment-receipt-${paymentAttemptId}-${generation}`;
+  if (trigger === "capture") return base;
+  return `${base}-request-${new Date().toISOString().slice(0, 16)}`;
+}
 
 /**
  * Build the context + attachment and enqueue a `payment-receipt` email for a
@@ -23,7 +55,7 @@ const logger = createLogger("receipt-notifications");
  */
 export async function enqueuePaymentReceiptEmail(
   db: Db,
-  args: { paymentAttemptId: string },
+  args: { paymentAttemptId: string; trigger?: ReceiptEmailTrigger },
 ): Promise<void> {
   const [payment] = await db
     .select({
@@ -31,6 +63,7 @@ export async function enqueuePaymentReceiptEmail(
       draftId: schema.paymentAttempts.draftId,
       sessionId: schema.paymentAttempts.sessionId,
       orderAccessTokenExpiresAt: schema.paymentAttempts.orderAccessTokenExpiresAt,
+      orderAccessTokenHash: schema.paymentAttempts.orderAccessTokenHash,
     })
     .from(schema.paymentAttempts)
     .where(eq(schema.paymentAttempts.id, args.paymentAttemptId))
@@ -78,10 +111,10 @@ export async function enqueuePaymentReceiptEmail(
     return;
   }
 
-  if (!payment.orderAccessTokenExpiresAt) {
+  if (!payment.orderAccessTokenExpiresAt || !payment.orderAccessTokenHash) {
     logger.warn(
       { paymentAttemptId: args.paymentAttemptId },
-      "Receipt email: no order-access token expiry, skipping",
+      "Receipt email: no order-access token on the payment, skipping",
     );
     return;
   }
@@ -100,6 +133,7 @@ export async function enqueuePaymentReceiptEmail(
   const token = await issueOrderAccessToken({
     paymentAttemptId: payment.id,
     expiresAt: payment.orderAccessTokenExpiresAt,
+    tokenHash: payment.orderAccessTokenHash,
   });
 
   const { buffer } = await downloadObjectBuffer(receipt.storageKey);
@@ -130,8 +164,18 @@ export async function enqueuePaymentReceiptEmail(
     ],
   };
 
-  await getQueue(QUEUE_NAMES.SEND_EMAIL).add("payment-receipt", job, {
-    jobId: `payment-receipt-${args.paymentAttemptId}`,
+  // The generation is part of the dedupe key, not just the payload. A plain
+  // per-payment key would be deduplicated against the receipt already sent at
+  // capture, so a customer who revoked their links would be told a new one was
+  // on its way and never receive it — the worst possible outcome for the one
+  // action they took to protect themselves.
+  await enqueueTransactionalEmail(db, {
+    dedupeKey: receiptDedupeKey(
+      args.paymentAttemptId,
+      orderAccessGeneration(payment.orderAccessTokenHash),
+      args.trigger ?? "capture",
+    ),
+    job,
   });
 }
 
@@ -139,8 +183,14 @@ export async function enqueuePaymentReceiptEmail(
  * Fire-and-forget wrapper: enqueue a receipt email without ever throwing into
  * the caller (the receipt/payment path). Failures are logged, not propagated.
  */
-export function enqueuePaymentReceiptEmailSafe(db: Db, paymentAttemptId: string): void {
-  void enqueuePaymentReceiptEmail(db, { paymentAttemptId }).catch((err: unknown) => {
-    logger.error({ err, paymentAttemptId }, "Failed to enqueue payment receipt email");
-  });
+export function enqueuePaymentReceiptEmailSafe(
+  db: Db,
+  paymentAttemptId: string,
+  trigger: ReceiptEmailTrigger = "capture",
+): void {
+  void enqueuePaymentReceiptEmail(db, { paymentAttemptId, trigger }).catch(
+    (err: unknown) => {
+      logger.error({ err, paymentAttemptId }, "Failed to enqueue payment receipt email");
+    },
+  );
 }
