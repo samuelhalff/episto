@@ -5,6 +5,7 @@ import { env } from "../../shared/config/index.js";
 import { getQueue, QUEUE_NAMES } from "../../queue/index.js";
 import { checkBucketAccess } from "../files/adapters/s3.adapter.js";
 import { checkEmailReadiness } from "../email/email-readiness.js";
+import { countEmailOutboxNeedingAttention } from "./admin-email-outbox.routes.js";
 
 // ---------------------------------------------------------------------------
 // Admin health endpoint
@@ -41,6 +42,17 @@ interface HealthResponse {
     resourceId: string | null;
   };
   queues: Record<string, { waiting: number; active: number; failed: number }>;
+  /**
+   * Transactional email we owe a customer and have not delivered. Non-zero
+   * means somebody is waiting on a receipt — or on the order-access link that
+   * is their only way back to the letter they paid for. The list behind the
+   * number is at /admin/email-outbox.
+   *
+   * `null` when the count could not be read. Zero is the reassuring answer, so
+   * it is the one value a failed query must not produce: an operator glancing at
+   * this badge would read a broken query as proof that nobody is waiting.
+   */
+  undeliveredEmails: number | null;
   lastPaymentAt: string | null;
   lastDispatchAt: string | null;
 }
@@ -118,6 +130,21 @@ async function checkQueues(): Promise<{
   }
 }
 
+/**
+ * A broken query here must not blank the whole health page, so it degrades the
+ * same way the timestamps below do — but to `null`, not to zero. Zero is the
+ * answer that says everyone got their mail; reporting it because we failed to
+ * ask would hide exactly the situation this badge exists to reveal. The outbox
+ * page is the source of truth; this is only the badge.
+ */
+async function getUndeliveredEmailCount(): Promise<number | null> {
+  try {
+    return await countEmailOutboxNeedingAttention();
+  } catch {
+    return null;
+  }
+}
+
 async function getLastPaymentAt(): Promise<string | null> {
   try {
     const db = getDb();
@@ -157,14 +184,21 @@ export async function adminHealthRoutes(app: FastifyInstance): Promise<void> {
       },
     },
     async (_request, reply) => {
-      const [database, objectStorage, queueResult, lastPaymentAt, lastDispatchAt] =
-        await Promise.all([
-          checkDatabase(),
-          checkObjectStorage(),
-          checkQueues(),
-          getLastPaymentAt(),
-          getLastDispatchAt(),
-        ]);
+      const [
+        database,
+        objectStorage,
+        queueResult,
+        undeliveredEmails,
+        lastPaymentAt,
+        lastDispatchAt,
+      ] = await Promise.all([
+        checkDatabase(),
+        checkObjectStorage(),
+        checkQueues(),
+        getUndeliveredEmailCount(),
+        getLastPaymentAt(),
+        getLastDispatchAt(),
+      ]);
 
       const body: HealthResponse = {
         api: { ok: true },
@@ -174,6 +208,7 @@ export async function adminHealthRoutes(app: FastifyInstance): Promise<void> {
         email: checkEmailReadiness(),
         ai: checkAiConfiguration(),
         queues: queueResult.queues,
+        undeliveredEmails,
         lastPaymentAt,
         lastDispatchAt,
       };

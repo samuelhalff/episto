@@ -32,6 +32,8 @@ export interface HealthResponse {
     resourceId: string | null;
   };
   queues: Record<string, QueueStatus>;
+  /** Transactional email we owe a customer and have not managed to deliver. `null` when the count could not be read -- never zero, which would read as good news. */
+  undeliveredEmails: number | null;
   lastPaymentAt: string | null;
   lastDispatchAt: string | null;
 }
@@ -161,6 +163,33 @@ export async function fetchAdminLocale() {
 
 export async function fetchAdminAi(period = "7d") {
   return adminFetch<AdminAiResponse>(`/admin/metrics/ai?period=${period}`);
+}
+
+export interface EmailOutboxItem {
+  id: string;
+  recipient: string;
+  template: string;
+  locale: string;
+  reference: string | null;
+  status: string;
+  attempts: number;
+  lastError: string | null;
+  createdAt: string;
+  lastAttemptedAt: string | null;
+}
+
+export interface EmailOutboxResponse {
+  count: number;
+  emails: EmailOutboxItem[];
+  generatedAt: string;
+}
+
+export async function fetchAdminEmailOutbox() {
+  return adminFetch<EmailOutboxResponse>("/admin/email-outbox");
+}
+
+export async function retryAdminOutboxEmail(id: string) {
+  return adminPost<{ id: string; status: string }>(`/admin/email-outbox/${id}/retry`);
 }
 
 export async function fetchAdminOverview() {

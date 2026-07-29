@@ -39,5 +39,6 @@ export const queryKeys = {
     fixedCosts: (yearMonth: string) => ["admin", "fixed-costs", yearMonth] as const,
     promos: (filter: string) => ["admin", "promos", filter] as const,
     promo: (id: string) => ["admin", "promos", id] as const,
+    emailOutbox: () => ["admin", "email-outbox"] as const,
   },
 } as const;

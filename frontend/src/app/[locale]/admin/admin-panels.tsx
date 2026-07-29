@@ -76,6 +76,17 @@ export function HealthPanel({ health }: { health: HealthResponse }) {
           Last dispatch:{" "}
           {health.lastDispatchAt ? new Date(health.lastDispatchAt).toLocaleString() : "—"}
         </span>
+        {/*
+          Every one of these is a customer still waiting on mail we owe them.
+          `null` means the count could not be read — shown as "unavailable"
+          rather than as a zero the operator would take for good news.
+        */}
+        <span
+          style={health.undeliveredEmails !== 0 ? { color: "var(--app-fg)" } : undefined}
+        >
+          Undelivered email:{" "}
+          <span className="font-medium">{health.undeliveredEmails ?? "unavailable"}</span>
+        </span>
       </div>
 
       <div

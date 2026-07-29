@@ -12,6 +12,7 @@ import {
   Flag,
   Trash2,
   Activity,
+  MailWarning,
   Gauge,
   Wallet,
   Ticket,
@@ -39,6 +40,7 @@ const NAV_SECTIONS = [
       { href: "sessions", label: "Sessions", icon: Users },
       { href: "flags", label: "Flags & Queue", icon: Flag },
       { href: "promos", label: "Promo Codes", icon: Ticket },
+      { href: "email-outbox", label: "Undelivered Email", icon: MailWarning },
     ],
   },
   {

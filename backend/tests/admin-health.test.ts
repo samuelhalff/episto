@@ -39,8 +39,11 @@ vi.mock("../src/queue/index.js", () => ({
   },
 }));
 
+// `isEnvLoaded` is needed because health now reaches the email outbox module,
+// which builds a logger at import time.
 vi.mock("../src/shared/config/index.js", () => ({
   env: mocks.mockEnv,
+  isEnvLoaded: () => false,
 }));
 
 // Drizzle sql tag — must produce something select-able
@@ -170,6 +173,39 @@ describe("adminHealthRoutes", () => {
     expect(typeof body.queues).toBe("object");
     expect(body.queues).toHaveProperty("render-pdf");
     expect(body.queues).toHaveProperty("submit-dispatch");
+  });
+
+  /**
+   * The undelivered-email badge is the only place an operator learns that a
+   * customer never got their receipt or their order-access link. Zero on that
+   * badge means "everyone got their mail" — so a count we failed to read has to
+   * come back as `null` and render as unavailable. Reporting zero because the
+   * query threw would hide precisely the situation the badge exists to reveal,
+   * and it would do it at the moment the database is already misbehaving.
+   */
+  it("reports an unreadable undelivered-email count as null rather than zero", async () => {
+    mocks.mockExecute.mockRejectedValue(new Error("Connection refused"));
+
+    let capturedHandler: (req: MockRequest, reply: MockReply) => Promise<void>;
+    const mockApp = {
+      get: vi.fn((_url: string, _opts: unknown, handler: typeof capturedHandler) => {
+        capturedHandler = handler;
+      }),
+    };
+
+    await adminHealthRoutes(
+      mockApp as unknown as Parameters<typeof adminHealthRoutes>[0],
+    );
+
+    const req: MockRequest = {
+      log: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
+    };
+    const reply = makeMockReply();
+
+    await assertDefined(capturedHandler, "Expected admin health handler")(req, reply);
+
+    const body = reply.send.mock.calls[0][0] as Record<string, unknown>;
+    expect(body.undeliveredEmails).toBeNull();
   });
 
   it("handler returns 200 even when database check fails", async () => {
