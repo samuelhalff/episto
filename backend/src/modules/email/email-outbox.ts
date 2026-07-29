@@ -78,30 +78,32 @@ function deriveReference(args: EnqueueTransactionalEmailArgs): string | null {
   return null;
 }
 
+/** A promise recorded in the outbox and not yet handed to the queue. */
+export interface RecordedTransactionalEmail {
+  outboxId: string;
+  dedupeKey: string;
+  job: SendEmailJob;
+}
+
 /**
- * Record the email, then enqueue it.
+ * Write the promise, without dispatching it.
  *
- * Returns false when the outbox already holds this `dedupeKey` — the email was
- * promised earlier and is either in flight, sent, or failed and awaiting a
- * human. Re-promising it would be a second send.
+ * This is the half that is safe to run inside a caller's transaction, and it
+ * exists so a caller can make "the business fact happened" and "an email is
+ * owed for it" the same commit. Take that pairing seriously wherever the
+ * business fact is *also* the thing that makes the email un-repeatable: a
+ * receipt row is inserted once and every later attempt short-circuits on it, so
+ * a crash between two separate commits leaves a customer permanently owed a
+ * receipt with nothing in the system that knows it.
  *
- * A throw from the enqueue is propagated (callers such as the under-review
- * sweep release their claim on it) and deliberately leaves the row `pending`:
- * the stall sweep is what recovers it, and the caller's retry is refused by the
- * unique key rather than producing a duplicate.
+ * Returns null when the outbox already holds this `dedupeKey`. Deliberately
+ * does NOT run the conflict recovery below — that ends in a `queue.add`, which
+ * must never happen inside a transaction that may still roll back.
  */
-export async function enqueueTransactionalEmail(
+export async function recordTransactionalEmail(
   db: Db,
   args: EnqueueTransactionalEmailArgs,
-): Promise<boolean> {
-  // RESIDUAL GAP, stated plainly: this INSERT commits on its own connection,
-  // outside whatever transaction the caller used to record the business fact
-  // the email is about. So a crash between that commit and this one still
-  // leaves a state change with no email owed — the outbox narrows the window
-  // from "Redis lost it" to "the process died in these few milliseconds", it
-  // does not close it. Closing it means taking a `Db` that is the caller's
-  // transaction and enqueueing after commit; that is a wider change than this
-  // one and is deliberately not attempted here.
+): Promise<RecordedTransactionalEmail | null> {
   const inserted = await db.execute<{ id: string }>(sql`
     INSERT INTO email_outbox (dedupe_key, recipient, template, locale, reference, payload)
     VALUES (
@@ -117,14 +119,54 @@ export async function enqueueTransactionalEmail(
   `);
 
   const outboxId = inserted.rows[0]?.id;
-  if (!outboxId) return await recoverConflictingRow(db, args);
+  if (!outboxId) return null;
+  return { outboxId, dedupeKey: args.dedupeKey, job: args.job };
+}
 
+/**
+ * Hand a recorded promise to the queue. Call this only after the transaction
+ * that recorded it has committed — a job dispatched for a row that then rolls
+ * away is a worker looking up an outbox id that does not exist.
+ *
+ * A throw is the caller's to handle, and leaves the row `pending` for the stall
+ * sweep, which is the same recovery the row has always relied on.
+ */
+export async function dispatchRecordedEmail(
+  recorded: RecordedTransactionalEmail,
+): Promise<void> {
   await getQueue(QUEUE_NAMES.SEND_EMAIL).add(
-    args.job.template,
-    { ...args.job, outboxId } satisfies SendEmailJob,
-    { jobId: args.dedupeKey },
+    recorded.job.template,
+    { ...recorded.job, outboxId: recorded.outboxId } satisfies SendEmailJob,
+    { jobId: recorded.dedupeKey },
   );
+}
 
+/**
+ * Record the email, then enqueue it.
+ *
+ * Returns false when the outbox already holds this `dedupeKey` — the email was
+ * promised earlier and is either in flight, sent, or failed and awaiting a
+ * human. Re-promising it would be a second send.
+ *
+ * A throw from the enqueue is propagated (callers such as the under-review
+ * sweep release their claim on it) and deliberately leaves the row `pending`:
+ * the stall sweep is what recovers it, and the caller's retry is refused by the
+ * unique key rather than producing a duplicate.
+ *
+ * The INSERT here commits on its own connection, so for callers that pass the
+ * top-level `db` the window between the business fact and the promise is still
+ * open. That is acceptable wherever a retry of the business operation would
+ * re-attempt the email too. Where it would not — see recordTransactionalEmail —
+ * use the two halves instead.
+ */
+export async function enqueueTransactionalEmail(
+  db: Db,
+  args: EnqueueTransactionalEmailArgs,
+): Promise<boolean> {
+  const recorded = await recordTransactionalEmail(db, args);
+  if (!recorded) return await recoverConflictingRow(db, args);
+
+  await dispatchRecordedEmail(recorded);
   return true;
 }
 

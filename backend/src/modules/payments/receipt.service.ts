@@ -14,7 +14,11 @@ import { renderPdfBufferFromHtml } from "../rendering/render.service.js";
 import { uploadObject } from "../files/adapters/s3.adapter.js";
 import { withOrphanCleanup } from "../files/file.service.js";
 import { computeReceiptAmounts, formatReceiptNumber } from "./receipt-amounts.js";
-import { enqueuePaymentReceiptEmailSafe } from "./receipt-notifications.js";
+import {
+  dispatchRecordedEmail,
+  recordTransactionalEmail,
+} from "../email/email-outbox.js";
+import { buildPaymentReceiptEmail } from "./receipt-notifications.js";
 
 const logger = createLogger("receipt-service");
 
@@ -148,34 +152,76 @@ export async function issueReceiptForCapturedPayment(
   // Receipts are deliberately outside `file_assets`, so the orphan sweep never
   // touches the `receipts/` prefix — which means a PDF written without its row
   // would be kept forever with nothing pointing at it. Compensate here instead.
-  const inserted = await withOrphanCleanup(db, storageKey, logger, async () => {
+  //
+  // The receipt row and the promise to email it are ONE commit. This is not
+  // tidiness: the row is also the idempotency guard at the top of this
+  // function, so if the two committed separately and the process died between
+  // them, every retry — including Stripe's webhook redelivery — would find the
+  // receipt and return immediately. The customer would be permanently owed
+  // their VAT receipt and the order-access link that is their only route back
+  // to the letter they paid for, with nothing anywhere recording the debt.
+  // Either both exist, or neither does and the retry genuinely re-runs.
+  const recorded = await withOrphanCleanup(db, storageKey, logger, async () => {
     await uploadObject(storageKey, pdfBuffer, "application/pdf");
 
-    return db
-      .insert(schema.receipts)
-      .values({
+    return db.transaction(async (tx) => {
+      const inserted = await tx
+        .insert(schema.receipts)
+        .values({
+          paymentAttemptId,
+          receiptNumber,
+          netCents: amounts.netCents,
+          vatCents: amounts.vatCents,
+          totalCents: amounts.totalCents,
+          vatRateBp: amounts.vatRateBp,
+          currency: payment.currency,
+          discountCents,
+          promoCode,
+          deliveryType,
+          orderRef,
+          storageKey,
+        })
+        .onConflictDoNothing({ target: schema.receipts.paymentAttemptId })
+        .returning({ id: schema.receipts.id });
+
+      // A concurrent racer that lost the onConflictDoNothing gets no row back
+      // and must not promise a second email.
+      if (inserted.length === 0) return null;
+
+      // Built inside the transaction because it reads the receipt row that was
+      // only just inserted. Everything it does here is cheap and local: four
+      // indexed reads and an HMAC signature. The one part that is not — reading
+      // the PDF back out of object storage — is skipped by handing it the
+      // buffer we rendered a moment ago.
+      const email = await buildPaymentReceiptEmail(tx, {
         paymentAttemptId,
-        receiptNumber,
-        netCents: amounts.netCents,
-        vatCents: amounts.vatCents,
-        totalCents: amounts.totalCents,
-        vatRateBp: amounts.vatRateBp,
-        currency: payment.currency,
-        discountCents,
-        promoCode,
-        deliveryType,
-        orderRef,
-        storageKey,
-      })
-      .onConflictDoNothing({ target: schema.receipts.paymentAttemptId })
-      .returning({ id: schema.receipts.id });
+        pdfBuffer,
+      });
+      // Null means the email cannot be addressed at all (no session email, no
+      // order-access token). The receipt itself is still owed and still
+      // commits; buildPaymentReceiptEmail has logged why.
+      if (!email) return null;
+
+      return await recordTransactionalEmail(tx, email);
+    });
   });
 
-  // Enqueue the receipt email only when a NEW receipt row was created — a
-  // concurrent racer that lost the onConflictDoNothing gets no row back and must
-  // not re-send. Fire-and-forget: never let an email failure break the receipt
-  // or payment flow.
-  if (inserted.length > 0) {
-    enqueuePaymentReceiptEmailSafe(db, paymentAttemptId);
+  // Committed. Only now may the job exist — a worker that picked it up before
+  // the commit would look up an outbox id that is not there yet, and one that
+  // picked it up after a rollback would look up an id that never will be.
+  //
+  // A failure here is the ordinary case the outbox was built for: the row is
+  // `pending`, the stall sweep re-drives it, and the operator sees it on
+  // /admin/email-outbox in the meantime. It must not propagate into the
+  // payment flow.
+  if (recorded) {
+    try {
+      await dispatchRecordedEmail(recorded);
+    } catch (err) {
+      logger.error(
+        { err, paymentAttemptId, outboxId: recorded.outboxId },
+        "Receipt email was recorded but could not be queued; the stall sweep will re-drive it",
+      );
+    }
   }
 }

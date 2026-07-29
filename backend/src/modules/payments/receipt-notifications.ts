@@ -44,19 +44,31 @@ export function receiptDedupeKey(
 }
 
 /**
- * Build the context + attachment and enqueue a `payment-receipt` email for a
- * captured payment attempt.
+ * Everything a `payment-receipt` email needs, or null when it cannot be built.
+ *
+ * Separated from the enqueue so a caller can prepare the email *before* opening
+ * the transaction that will record it — this function reads several rows, mints
+ * a token and may fetch a PDF from object storage, none of which belongs inside
+ * an open transaction.
  *
  * Loads the payment attempt + session email + receipt row (for amounts and the
  * stored PDF key), issues an order-access token for the secure letter download
- * link, downloads the receipt PDF from S3 and attaches it. Returns without
- * enqueuing if the session has no email, if required rows are missing, or if the
- * order-access token is not available.
+ * link, and attaches the receipt PDF. Returns null — not an error — if the
+ * session has no email, if required rows are missing, or if the order-access
+ * token is not available: none of those is a fault worth failing a capture over,
+ * and all of them are logged.
+ *
+ * `pdfBuffer` lets the issuing path hand over the PDF it just rendered instead
+ * of paying for a download of the object it uploaded moments ago.
  */
-export async function enqueuePaymentReceiptEmail(
+export async function buildPaymentReceiptEmail(
   db: Db,
-  args: { paymentAttemptId: string; trigger?: ReceiptEmailTrigger },
-): Promise<void> {
+  args: {
+    paymentAttemptId: string;
+    trigger?: ReceiptEmailTrigger;
+    pdfBuffer?: Buffer | undefined;
+  },
+): Promise<{ dedupeKey: string; job: SendEmailJob } | null> {
   const [payment] = await db
     .select({
       id: schema.paymentAttempts.id,
@@ -74,7 +86,7 @@ export async function enqueuePaymentReceiptEmail(
       { paymentAttemptId: args.paymentAttemptId },
       "Receipt email: payment attempt not found",
     );
-    return;
+    return null;
   }
 
   const [receipt] = await db
@@ -94,7 +106,7 @@ export async function enqueuePaymentReceiptEmail(
       { paymentAttemptId: args.paymentAttemptId },
       "Receipt email: receipt row not found",
     );
-    return;
+    return null;
   }
 
   const [session] = await db
@@ -108,7 +120,7 @@ export async function enqueuePaymentReceiptEmail(
       { paymentAttemptId: args.paymentAttemptId },
       "Receipt email: session has no email, skipping",
     );
-    return;
+    return null;
   }
 
   if (!payment.orderAccessTokenExpiresAt || !payment.orderAccessTokenHash) {
@@ -116,7 +128,7 @@ export async function enqueuePaymentReceiptEmail(
       { paymentAttemptId: args.paymentAttemptId },
       "Receipt email: no order-access token on the payment, skipping",
     );
-    return;
+    return null;
   }
 
   const config = env();
@@ -127,7 +139,7 @@ export async function enqueuePaymentReceiptEmail(
       { paymentAttemptId: args.paymentAttemptId },
       "Receipt email: no site URL, skipping",
     );
-    return;
+    return null;
   }
 
   const token = await issueOrderAccessToken({
@@ -136,7 +148,8 @@ export async function enqueuePaymentReceiptEmail(
     tokenHash: payment.orderAccessTokenHash,
   });
 
-  const { buffer } = await downloadObjectBuffer(receipt.storageKey);
+  const buffer =
+    args.pdfBuffer ?? (await downloadObjectBuffer(receipt.storageKey)).buffer;
 
   const job: SendEmailJob = {
     to: session.email,
@@ -169,14 +182,32 @@ export async function enqueuePaymentReceiptEmail(
   // capture, so a customer who revoked their links would be told a new one was
   // on its way and never receive it — the worst possible outcome for the one
   // action they took to protect themselves.
-  await enqueueTransactionalEmail(db, {
+  return {
     dedupeKey: receiptDedupeKey(
       args.paymentAttemptId,
       orderAccessGeneration(payment.orderAccessTokenHash),
       args.trigger ?? "capture",
     ),
     job,
-  });
+  };
+}
+
+/**
+ * Build and enqueue in one step, on the caller's own connection.
+ *
+ * This is the resend path — a customer pressing "send it again" — where the
+ * business fact is the request itself and a failure simply means they press the
+ * button once more. The capture path does not use this; see
+ * issueReceiptForCapturedPayment, which records the promise in the same
+ * transaction as the receipt row.
+ */
+export async function enqueuePaymentReceiptEmail(
+  db: Db,
+  args: { paymentAttemptId: string; trigger?: ReceiptEmailTrigger },
+): Promise<void> {
+  const email = await buildPaymentReceiptEmail(db, args);
+  if (!email) return;
+  await enqueueTransactionalEmail(db, email);
 }
 
 /**
