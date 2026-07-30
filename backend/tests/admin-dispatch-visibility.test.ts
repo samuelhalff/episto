@@ -13,6 +13,8 @@ const mocks = vi.hoisted(() => ({
 function makeChain() {
   const chain: Record<string, unknown> = {};
   chain.from = vi.fn().mockReturnValue(chain);
+  chain.innerJoin = vi.fn().mockReturnValue(chain);
+  chain.leftJoin = vi.fn().mockReturnValue(chain);
   chain.where = vi.fn().mockReturnValue(chain);
   chain.orderBy = vi.fn().mockReturnValue(chain);
   chain.limit = vi.fn().mockImplementation(() => {
@@ -36,7 +38,16 @@ vi.mock("../src/db/index.js", () => ({
       providerReference: "provider_reference",
       createdAt: "created_at",
       updatedAt: "updated_at",
+      lastCheckedAt: "last_checked_at",
+      providerDiagnostics: "provider_diagnostics",
     },
+    draftLetters: {
+      id: "draft_id",
+      fulfillmentStatus: "fulfillment_status",
+      sessionId: "session_id",
+    },
+    sessions: { id: "session_id", email: "email" },
+    paymentAttempts: { id: "payment_id", state: "payment_state" },
   },
 }));
 

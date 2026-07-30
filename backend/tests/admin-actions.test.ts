@@ -34,10 +34,10 @@ describe("admin actions helpers", () => {
     });
   });
 
-  it("allows manual reconciliation only for ambiguous provider-backed dispatches", () => {
-    expect(canManuallyReconcileDispatch("submitted", "provider-1")).toBe(true);
-    expect(canManuallyReconcileDispatch("unknown", "provider-1")).toBe(true);
-    expect(canManuallyReconcileDispatch("accepted", "provider-1")).toBe(false);
-    expect(canManuallyReconcileDispatch("submitted", null)).toBe(false);
+  it("allows manual checks for provider-backed and discoverable ambiguous dispatches", () => {
+    expect(canManuallyReconcileDispatch("submitted")).toBe(true);
+    expect(canManuallyReconcileDispatch("unknown")).toBe(true);
+    expect(canManuallyReconcileDispatch("rejected")).toBe(true);
+    expect(canManuallyReconcileDispatch("accepted")).toBe(false);
   });
 });

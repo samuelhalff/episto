@@ -151,6 +151,7 @@ export const DispatchStatusLookupSchema = z.object({
   providerReference: z.string().nullable(),
   trackingNumber: z.string().nullable(),
   failureReason: z.string().nullable(),
+  providerErrorCode: z.string().nullable().optional(),
   checkedAt: z.coerce.date(),
 });
 
