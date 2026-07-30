@@ -73,7 +73,7 @@ function diagnosticsFor(
 ): DispatchProviderDiagnostics {
   return {
     status: status.state,
-    providerErrorCode: status.providerErrorCode,
+    providerErrorCode: status.providerErrorCode ?? null,
     failureReason: status.failureReason,
     providerReference,
     trackingNumber: status.trackingNumber,
