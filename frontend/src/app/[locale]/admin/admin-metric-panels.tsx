@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
+import Link from "next/link";
 
 // ---------------------------------------------------------------------------
 // Metric Card — single number with optional alert state
@@ -11,13 +12,15 @@ export function MetricCard({
   value,
   alert,
   sub,
+  href,
 }: {
   label: string;
   value: string | number;
   alert?: boolean | undefined;
   sub?: string | undefined;
+  href?: string | undefined;
 }) {
-  return (
+  const card = (
     <div
       className="rounded-xl border px-5 py-4"
       style={{
@@ -41,6 +44,7 @@ export function MetricCard({
       )}
     </div>
   );
+  return href ? <Link href={href}>{card}</Link> : card;
 }
 
 // ---------------------------------------------------------------------------
@@ -98,13 +102,16 @@ export function SectionPanel({
   title,
   children,
   action,
+  id,
 }: {
   title: string;
   children: React.ReactNode;
   action?: React.ReactNode;
+  id?: string | undefined;
 }) {
   return (
     <div
+      id={id}
       className="rounded-xl border p-5"
       style={{
         borderColor: "var(--app-border)",

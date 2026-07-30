@@ -39,6 +39,7 @@ export default function OverviewPage() {
   });
 
   const generatedAt = overview.data?.generatedAt ?? retention.data?.generatedAt ?? null;
+  const dispatchCasesHref = `${getAdminPagePath(pathname, "dashboard")}#dispatch-cases`;
 
   const quickActions = [
     {
@@ -101,12 +102,14 @@ export default function OverviewPage() {
                 value: overview.data.ambiguousDispatchQueue,
                 alert: overview.data.ambiguousDispatchQueue > 0,
                 sub: t("overview.priority.ambiguousInfo"),
+                href: dispatchCasesHref,
               },
               {
                 label: t("overview.priority.failedDispatches"),
                 value: overview.data.failedDispatches,
                 alert: overview.data.failedDispatches > 0,
                 sub: t("overview.priority.failedDispatchesInfo"),
+                href: dispatchCasesHref,
               },
               {
                 label: t("overview.priority.suspicious"),

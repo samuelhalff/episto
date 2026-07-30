@@ -53,7 +53,10 @@ export function AdminQuickActionPanel({
             <p className="mt-4 text-sm font-semibold" style={{ color: "var(--app-fg)" }}>
               {action.label}
             </p>
-            <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--app-muted)" }}>
+            <p
+              className="mt-1 text-xs leading-relaxed"
+              style={{ color: "var(--app-muted)" }}
+            >
               {action.description}
             </p>
           </Link>
@@ -73,6 +76,7 @@ export function AdminPriorityQueuesPanel({
     value: number;
     alert?: boolean | undefined;
     sub?: string | undefined;
+    href?: string | undefined;
   }>;
 }) {
   return (
@@ -85,6 +89,7 @@ export function AdminPriorityQueuesPanel({
             value={metric.value}
             alert={metric.alert}
             sub={metric.sub}
+            href={metric.href}
           />
         ))}
       </div>

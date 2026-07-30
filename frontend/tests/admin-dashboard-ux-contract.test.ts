@@ -126,6 +126,9 @@ describe("admin dashboard ux contract", () => {
     expect(overviewPageSource).toContain('getAdminPagePath(pathname, "sessions")');
     expect(overviewPageSource).toContain('getAdminPagePath(pathname, "retention")');
     expect(overviewPageSource).toContain('sub: t("overview.priority.ambiguousInfo")');
+    expect(overviewPageSource).toContain('getAdminPagePath(pathname, "dashboard")');
+    expect(overviewPageSource).toContain("href: dispatchCasesHref");
+    expect(pulseDashboardSource).toContain('id="dispatch-cases"');
     expect(overviewPageSource).toContain('sub: t("overview.priority.suspiciousInfo")');
     expect(overviewPageSource).toContain('sub: t("overview.signals.recentRefundsInfo")');
     expect(overviewPageSource).toContain(

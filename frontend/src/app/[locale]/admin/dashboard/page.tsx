@@ -163,7 +163,7 @@ export default function DashboardPage() {
           ) : null}
 
           {failedDispatches.data?.dispatches.length ? (
-            <SectionPanel title="Dispatch cases requiring attention">
+            <SectionPanel id="dispatch-cases" title="Dispatch cases requiring attention">
               <div className="space-y-2">
                 {failedDispatches.data.dispatches.map((item) => (
                   <Link
