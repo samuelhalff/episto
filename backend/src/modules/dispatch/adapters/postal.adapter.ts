@@ -26,6 +26,10 @@ export interface DispatchAdapter {
   quotePrice(dispatchPackage: DispatchPackage): Promise<DispatchQuote>;
   submit(dispatchPackage: DispatchPackage): Promise<DispatchSubmitResult>;
   checkStatus(providerReference: string): Promise<DispatchStatusLookup>;
+  findDeliveryByApplicationIdentifiers(
+    draftId: string,
+    snapshotId: string,
+  ): Promise<{ providerReference: string } | null>;
 }
 
 // ---------------------------------------------------------------------------
@@ -80,6 +84,10 @@ class StubDispatchAdapter implements DispatchAdapter {
       userMessage: "Dispatch status checking is unavailable in this environment.",
       userAction: "Use an environment with postal dispatch enabled.",
     });
+  }
+
+  async findDeliveryByApplicationIdentifiers(): Promise<null> {
+    return null;
   }
 }
 

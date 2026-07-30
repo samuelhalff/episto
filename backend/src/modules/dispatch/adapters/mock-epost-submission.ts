@@ -49,6 +49,7 @@ export function submitMockEpostDelivery(
     state: "accepted",
     providerReference,
     trackingNumber: buildMockTrackingNumber(providerReference),
+    providerErrorCode: null,
     failureReason: null,
   });
 }
@@ -58,6 +59,7 @@ export function lookupMockEpostStatus(providerReference: string): DispatchStatus
     state: "accepted",
     providerReference,
     trackingNumber: buildMockTrackingNumber(providerReference),
+    providerErrorCode: null,
     failureReason: null,
     checkedAt: new Date(),
   });

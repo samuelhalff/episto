@@ -6,10 +6,11 @@ export interface EpostPricingPreviewResult {
 }
 
 export interface EpostHttpClientLike {
-  requestJson(
-    path: string,
-    init: RequestInit,
-    operation: string,
-  ): Promise<unknown>;
+  requestJson(path: string, init: RequestInit, operation: string): Promise<unknown>;
   createPricingPreview(request: FormData): Promise<EpostPricingPreviewResult>;
+}
+
+export interface EpostMonitoringMatch {
+  providerReference: string;
+  matchedBy: "senderCaseId+senderEndToEndId";
 }

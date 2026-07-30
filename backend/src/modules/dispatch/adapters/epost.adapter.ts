@@ -36,8 +36,9 @@ import {
   findFirstTrackingNumber,
   mapDeliveryStatus,
   mapStatusLookup,
+  findExactMonitoringDelivery,
 } from "./epost-response-mappers.js";
-import type { EpostHttpClientLike } from "./epost-types.js";
+import type { EpostHttpClientLike, EpostMonitoringMatch } from "./epost-types.js";
 import { markLetterNotSent } from "../dispatch-outcome.js";
 
 interface EpostDispatchAdapterOptions {
@@ -272,12 +273,26 @@ export class EpostDispatchAdapter {
       "delivery status",
     )) as Record<string, unknown>;
 
+    const mapped = mapStatusLookup(response);
     return DispatchStatusLookupSchema.parse({
-      state: mapStatusLookup(response.status),
+      state: mapped.state,
       providerReference,
       trackingNumber: findFirstTrackingNumber(response),
-      failureReason: extractErrorMessage(response),
+      providerErrorCode: mapped.providerErrorCode,
+      failureReason: mapped.failureReason ?? extractErrorMessage(response),
       checkedAt: new Date(),
     });
+  }
+
+  async findDeliveryByApplicationIdentifiers(
+    draftId: string,
+    snapshotId: string,
+  ): Promise<EpostMonitoringMatch | null> {
+    const response = await this.httpClient.requestJson(
+      "/epost/deliveries/monitoring",
+      { method: "GET" },
+      "delivery monitoring",
+    );
+    return findExactMonitoringDelivery(response, draftId, snapshotId);
   }
 }
