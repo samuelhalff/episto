@@ -225,6 +225,13 @@
       "when": 1781204400011,
       "tag": "0031_payment_attribution",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1781290800011,
+      "tag": "0032_dispatch_provider_diagnostics",
+      "breakpoints": true
     }
   ]
 }

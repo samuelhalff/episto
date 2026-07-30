@@ -124,8 +124,8 @@ export function canFinalizeDispatchResolution(
 
   return (
     payment.state === "cancelled" ||
-    payment.state === "captured" ||
-    payment.state === "refund_pending"
+    payment.state === "refund_pending" ||
+    payment.state === "refunded"
   );
 }
 
@@ -157,7 +157,9 @@ export async function updateDraftStatusForDispatchResolution(
 
   if (
     resolvedState === "rejected" &&
-    (payment?.state === "cancelled" || payment?.state === "refund_pending")
+    (payment?.state === "cancelled" ||
+      payment?.state === "refund_pending" ||
+      payment?.state === "refunded")
   ) {
     await db
       .update(schema.draftLetters)
@@ -166,6 +168,10 @@ export async function updateDraftStatusForDispatchResolution(
         updatedAt: new Date(),
       })
       .where(eq(schema.draftLetters.id, draftId));
+    const currentFulfillmentStatus = await getDraftFulfillmentStatus(db, draftId);
+    if (canTransitionFulfillment(currentFulfillmentStatus, "failed")) {
+      await transitionDraftFulfillmentStatus(db, draftId, "failed");
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { PaymentAttemptRow } from "../src/modules/payments/payment.service.js";
+import { canFinalizeDispatchResolution } from "../src/workers/dispatch-settlement.js";
 
 const mocks = vi.hoisted(() => ({
   getPaymentAttemptById: vi.fn(),
@@ -61,6 +62,12 @@ describe("dispatch settlement", () => {
     mocks.createRefund.mockReset();
     mocks.listRefundsForCharge.mockReset().mockResolvedValue([]);
     mocks.syncRefundsForCharge.mockReset();
+  });
+
+  it("does not finalize a rejected dispatch while payment remains captured", () => {
+    expect(
+      canFinalizeDispatchResolution("rejected", makePayment({ state: "captured" })),
+    ).toBe(false);
   });
 
   it("returns the raw order token when the first capture happens in worker settlement", async () => {

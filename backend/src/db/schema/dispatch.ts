@@ -71,6 +71,7 @@ export const dispatchAttempts = pgTable(
      */
     underReviewNotifiedAt: ts("under_review_notified_at"),
     failureReason: text("failure_reason"),
+    providerDiagnostics: jsonb("provider_diagnostics"),
     createdAt: createdAt(),
     updatedAt: updatedAt(),
   },
