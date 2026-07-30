@@ -80,8 +80,11 @@ content, the administrator must use the existing reason-gated, audited
 ### Recheck behavior
 
 The case page offers `Recheck provider` for `unknown`, `submitted`, and
-`rejected` dispatches when a provider reference exists. For `rejected`, the
-action is diagnostic only and must never create a new dispatch.
+`rejected` dispatches. For `rejected`, the action is diagnostic only: it must
+never create a new dispatch, mutate payment state, or change the dispatch back
+to accepted. This protects against a late contradictory provider result after
+the customer has already been refunded. Such a contradiction remains rejected
+and is flagged for manual incident handling.
 
 The action is idempotent and protected by a per-dispatch lock. It queries the
 provider status, stores normalized diagnostics, and applies the existing
@@ -98,17 +101,22 @@ settlement rules:
 
 No recheck path may call the physical submission endpoint.
 
-If no provider reference exists, the API returns a clear `cannot recheck`
-diagnosis. A provider monitoring lookup may be implemented only as an explicit,
-documented provider capability with deterministic matching using stored case or
-snapshot identifiers. It must not guess from customer or address data.
+If no provider reference exists, the recheck first uses an explicit ePost
+monitoring lookup. It may attach a provider reference only when exactly one
+record matches both the immutable application draft/case identifier and the
+snapshot identifier stored in the provider metadata. Zero matches remain
+unresolved; multiple matches remain ambiguous. The lookup must never guess from
+customer name, address, email, or timing alone. If the provider does not expose
+this capability, the API returns a clear `cannot recheck` diagnosis.
 
 ## Backend architecture
 
-Introduce a dispatch reconciliation service that owns provider status lookup,
-normalization, settlement, fulfillment updates, state transitions, and audit
-metadata. The scheduled reconciliation worker and admin endpoint both call this
-service.
+Introduce a dispatch reconciliation service that owns provider reference
+discovery, provider status lookup, normalization, settlement, fulfillment
+updates, state transitions, and audit metadata. The scheduled reconciliation
+worker and admin endpoint both call this service. The admin endpoint calls it
+synchronously and returns the refreshed case; the background worker retains
+BullMQ retry behavior.
 
 Extend the admin dispatch API with:
 
@@ -118,10 +126,12 @@ Extend the admin dispatch API with:
 - a recheck endpoint accepting a required reason and returning the refreshed
   case state.
 
-Provider diagnostics will be stored in structured, minimal columns or a
-strictly bounded diagnostic object containing only normalized status, code,
-message, provider reference, tracking number, and timestamps. Raw request and
-response bodies remain prohibited.
+Provider diagnostics will be stored in a strictly bounded JSONB object
+containing only normalized status, provider error code/message, provider
+reference, tracking number, checked-at time, and any exact-match discovery
+metadata. Raw request and response bodies remain prohibited. The shared
+provider status contract must carry the normalized provider error code so the
+incident's `PHYSICAL_DELIVERY_FAILED` value is not lost.
 
 The incident discovered during investigation will be represented accurately:
 provider reference `8`, state `rejected`, provider error
@@ -132,14 +142,22 @@ provider reference `8`, state `rejected`, provider error
 - Authorization remains enforced by the existing admin and allowlisted-IP
   middleware.
 - Every manual recheck requires a reason and creates a support event containing
-  the actor, dispatch ID, prior state, provider reference, and outcome.
+  the actor, dispatch ID, prior state, provider reference, and requested action.
+  A completed manual recheck creates a second support event containing the
+  outcome, including provider state, provider reference, diagnostic code, and
+  whether the case was resolved or left for manual review.
 - Concurrent rechecks return the current in-progress/current-state result and
   do not duplicate provider calls.
 - A provider reference discovered by a monitoring lookup must be verified
   against immutable application identifiers before it can be attached to a
   dispatch.
 - Rejected/unknown states are never resubmitted automatically.
+- A rejected case is never re-settled during recheck. A provider response that
+  contradicts the terminal rejected state is recorded as a conflict and
+  escalated; it is not silently accepted or charged again.
 - Payment refunds remain one-time and webhook-reconciled.
+- A rejected dispatch cannot be finalized while the payment ledger still says
+  `captured`; refund settlement must complete or remain pending for retry.
 - Admin responses redact credentials, tokens, raw payloads, and letter content.
 
 ## Verification
