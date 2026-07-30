@@ -141,14 +141,18 @@ describe("Email template rendering", () => {
     expect(result.html).toContain("Expéditeur");
   });
 
-  it("renders the email header badge from the current brand name instead of a stale initial", () => {
+  it("renders the exact lowercase Episto logo and wordmark regardless of display-name config", () => {
     const result = renderTemplate("dispatch-submitted", "en-CH", {
       orderRef: "ORD-BRAND",
       brandName: "Episto",
     });
 
-    expect(result.html).toContain('line-height:32px;">E</span>');
-    expect(result.html).not.toContain('line-height:32px;">S</span>');
+    expect(result.html).toContain('viewBox="0 0 56 56"');
+    expect(result.html).toContain('class="episto-email-wordmark"');
+    expect(result.html).toContain('class="episto-email-wordmark"');
+    expect(result.html).toContain(">episto</td>");
+    expect(result.html).not.toContain(">Episto</td>");
+    expect(result.html).not.toContain('line-height:32px;">E</span>');
   });
 
   // ---- resume-link ----

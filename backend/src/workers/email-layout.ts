@@ -5,6 +5,8 @@
  * Brand: Episto (#f6c54a golden yellow accent).
  */
 
+import { BRAND_NAME, renderEmailBrandMarkSvg } from "../shared/brand.js";
+
 // Ledger, not dashboard: content sits directly on paper — no white card.
 const BRAND_COLOR = "#f6c54a";
 const INK_COLOR = "#161616";
@@ -63,17 +65,11 @@ function footerStrings(locale: string): FooterStrings {
   return FOOTER_STRINGS[locale as keyof typeof FOOTER_STRINGS] ?? DEFAULT_FOOTER_STRINGS;
 }
 
-function brandBadgeInitial(brandName: string): string {
-  const match = brandName.trim().match(/[\p{L}\p{N}]/u);
-  return match?.[0]?.toUpperCase() ?? "E";
-}
-
 export function wrapEmailHtml(config: EmailLayoutConfig, bodyHtml: string): string {
   const f = footerStrings(config.locale);
   const url = escapeHtml(config.appPublicUrl);
   const locale = escapeHtml(config.locale);
-  const brand = escapeHtml(config.brandName);
-  const brandInitial = escapeHtml(brandBadgeInitial(config.brandName));
+  const brand = escapeHtml(BRAND_NAME);
   const support = escapeHtml(config.supportEmail);
   const entity = escapeHtml(config.legalEntityName);
   const address = escapeHtml(config.legalEntityAddress);
@@ -97,10 +93,10 @@ export function wrapEmailHtml(config: EmailLayoutConfig, bodyHtml: string): stri
         <!-- Masthead -->
         <tr><td style="padding:0 40px;">
           <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-            <td style="width:32px;height:32px;background-color:${BRAND_COLOR};border-radius:8px;text-align:center;vertical-align:middle;">
-              <span style="font-family:${SANS_STACK};font-size:16px;font-weight:700;color:${INK_COLOR};line-height:32px;">${brandInitial}</span>
+            <td style="width:32px;height:32px;vertical-align:middle;">
+              ${renderEmailBrandMarkSvg(32)}
             </td>
-            <td style="padding-left:10px;font-family:${SANS_STACK};font-size:16px;font-weight:600;color:${INK_COLOR};">${brand}</td>
+            <td class="episto-email-wordmark" style="padding-left:10px;font-family:${SERIF_STACK};font-size:18px;font-weight:600;letter-spacing:-0.01em;color:${INK_COLOR};">${brand}</td>
           </tr></table>
         </td></tr>
         <!-- Anchor rule -->
