@@ -40,11 +40,8 @@ export function getAdminSearchResultTarget(input: SearchTargetInput): {
   };
 }
 
-export function canManuallyReconcileDispatch(
-  state: string,
-  providerReference: string | null,
-): boolean {
-  return ["submitted", "unknown"].includes(state) && Boolean(providerReference?.trim());
+export function canManuallyReconcileDispatch(state: string): boolean {
+  return ["submitted", "unknown", "rejected"].includes(state);
 }
 
 export async function adminActionRoutes(app: FastifyInstance): Promise<void> {

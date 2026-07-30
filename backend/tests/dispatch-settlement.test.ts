@@ -218,6 +218,36 @@ describe("dispatch settlement", () => {
     expect(mocks.syncRefundsForCharge).toHaveBeenCalledWith(db, "ch_1");
   });
 
+  it("does not finalize while the refund ledger cannot be synchronized", async () => {
+    const db = {} as never;
+    const capturedPayment = makePayment({
+      state: "captured",
+      stripeChargeId: "ch_1",
+    });
+    mocks.getPaymentAttemptById
+      .mockResolvedValueOnce(capturedPayment)
+      .mockResolvedValueOnce(capturedPayment);
+    mocks.createRefund.mockResolvedValue({
+      refundId: "re_1",
+      chargeId: "ch_1",
+      amountCents: 455,
+      currency: "CHF",
+      status: "pending",
+      stripeCreatedAt: new Date(),
+      balanceTransactionId: null,
+      feeCents: null,
+      failureReason: null,
+    });
+    mocks.syncRefundsForCharge.mockRejectedValue(new Error("Stripe ledger unavailable"));
+
+    const { settlePaymentForDispatchResolution } =
+      await import("../src/workers/dispatch-settlement.js");
+    await expect(
+      settlePaymentForDispatchResolution(db, "draft-1", "payment-1", "rejected"),
+    ).rejects.toThrow("Stripe ledger unavailable");
+    expect(mocks.getPaymentAttemptById).toHaveBeenCalledTimes(1);
+  });
+
   it("returns captured payment as-is when dispatch is accepted (automatic capture)", async () => {
     const db = {} as never;
     const capturedPayment = makePayment({

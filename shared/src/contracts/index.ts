@@ -661,6 +661,7 @@ export interface AdminDraftCaseResponse {
     submittedAt: string | null;
     lastCheckedAt: string | null;
     failureReason: string | null;
+    providerDiagnostics: Record<string, unknown> | null;
   } | null;
 }
 

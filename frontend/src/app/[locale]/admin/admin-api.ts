@@ -48,6 +48,33 @@ export interface OverviewResponse {
   generatedAt: string;
 }
 
+export interface FailedDispatchItem {
+  dispatchAttemptId: string;
+  draftId: string;
+  state: string;
+  providerName: string;
+  failureReason: string | null;
+  providerReference: string | null;
+  customerEmail: string | null;
+  sessionId: string;
+  fulfillmentStatus: string;
+  paymentState: string | null;
+  providerDiagnostics: Record<string, unknown> | null;
+  lastCheckedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FailedDispatchesResponse {
+  count: number;
+  dispatches: FailedDispatchItem[];
+  generatedAt: string;
+}
+
+export function fetchFailedDispatches(): Promise<FailedDispatchesResponse> {
+  return adminFetch<FailedDispatchesResponse>("/admin/dispatch/failed");
+}
+
 async function readApiError(res: Response): Promise<string> {
   try {
     const body = (await res.json()) as

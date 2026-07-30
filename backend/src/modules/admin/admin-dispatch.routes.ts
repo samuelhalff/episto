@@ -17,6 +17,12 @@ export interface FailedDispatchItem {
   providerName: string;
   failureReason: string | null;
   providerReference: string | null;
+  customerEmail: string | null;
+  sessionId: string;
+  fulfillmentStatus: string;
+  paymentState: string | null;
+  lastCheckedAt: string | null;
+  providerDiagnostics: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -49,8 +55,26 @@ export async function adminDispatchRoutes(app: FastifyInstance): Promise<void> {
             providerReference: schema.dispatchAttempts.providerReference,
             createdAt: schema.dispatchAttempts.createdAt,
             updatedAt: schema.dispatchAttempts.updatedAt,
+            lastCheckedAt: schema.dispatchAttempts.lastCheckedAt,
+            fulfillmentStatus: schema.draftLetters.fulfillmentStatus,
+            sessionId: schema.draftLetters.sessionId,
+            customerEmail: schema.sessions.email,
+            paymentState: schema.paymentAttempts.state,
+            providerDiagnostics: schema.dispatchAttempts.providerDiagnostics,
           })
           .from(schema.dispatchAttempts)
+          .innerJoin(
+            schema.draftLetters,
+            eq(schema.draftLetters.id, schema.dispatchAttempts.draftId),
+          )
+          .innerJoin(
+            schema.sessions,
+            eq(schema.sessions.id, schema.draftLetters.sessionId),
+          )
+          .leftJoin(
+            schema.paymentAttempts,
+            eq(schema.paymentAttempts.id, schema.dispatchAttempts.paymentAttemptId),
+          )
           .where(
             or(
               eq(schema.dispatchAttempts.state, "rejected"),
@@ -69,6 +93,12 @@ export async function adminDispatchRoutes(app: FastifyInstance): Promise<void> {
           providerReference: row.providerReference,
           createdAt: row.createdAt.toISOString(),
           updatedAt: row.updatedAt.toISOString(),
+          lastCheckedAt: row.lastCheckedAt?.toISOString() ?? null,
+          providerDiagnostics: row.providerDiagnostics as Record<string, unknown> | null,
+          customerEmail: row.customerEmail,
+          sessionId: row.sessionId,
+          fulfillmentStatus: row.fulfillmentStatus,
+          paymentState: row.paymentState,
         }));
 
         const response: FailedDispatchesResponse = {

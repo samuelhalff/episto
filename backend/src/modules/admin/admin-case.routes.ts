@@ -4,7 +4,7 @@ import type { AdminDraftCaseResponse, AdminSessionDetailResponse } from "@episto
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError, validationError, AppError } from "../../shared/errors/index.js";
 import { getRequiredAdmin } from "../../shared/middleware/require-admin.js";
-import { enqueueDispatchReconciliation } from "../dispatch/dispatch.jobs.js";
+import { reconcileDispatch } from "../dispatch/dispatch-reconciliation.service.js";
 import { recordSupportEvent } from "./index.js";
 import { canManuallyReconcileDispatch } from "./admin-actions.routes.js";
 
@@ -62,6 +62,7 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
           submittedAt: schema.dispatchAttempts.submittedAt,
           lastCheckedAt: schema.dispatchAttempts.lastCheckedAt,
           failureReason: schema.dispatchAttempts.failureReason,
+          providerDiagnostics: schema.dispatchAttempts.providerDiagnostics,
         })
         .from(schema.dispatchAttempts)
         .where(eq(schema.dispatchAttempts.draftId, id))
@@ -93,9 +94,7 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
             payment?.state === "captured" &&
             (!dispatch || !["submitted", "accepted"].includes(dispatch.state)),
           canViewContent: contentRetained,
-          canReconcile: dispatch
-            ? canManuallyReconcileDispatch(dispatch.state, dispatch.providerReference)
-            : false,
+          canReconcile: dispatch ? canManuallyReconcileDispatch(dispatch.state) : false,
         },
       },
       session: {
@@ -125,6 +124,10 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
             submittedAt: dispatch.submittedAt?.toISOString() ?? null,
             lastCheckedAt: dispatch.lastCheckedAt?.toISOString() ?? null,
             failureReason: dispatch.failureReason,
+            providerDiagnostics: dispatch.providerDiagnostics as Record<
+              string,
+              unknown
+            > | null,
           }
         : null,
     };
@@ -245,7 +248,7 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
         throw notFoundError("dispatch attempt");
       }
 
-      if (!canManuallyReconcileDispatch(dispatch.state, dispatch.providerReference)) {
+      if (!canManuallyReconcileDispatch(dispatch.state)) {
         throw new AppError({
           family: "dispatch_ambiguity",
           statusCode: 422,
@@ -276,15 +279,48 @@ export async function adminCaseRoutes(app: FastifyInstance): Promise<void> {
         },
       });
 
-      await enqueueDispatchReconciliation({
-        dispatchAttemptId: dispatch.id,
+      let result;
+      try {
+        result = await reconcileDispatch(db, dispatch.id);
+      } catch (error) {
+        await recordSupportEvent(db, {
+          draftId: dispatch.draftId,
+          sessionId: draft?.sessionId ?? null,
+          eventType: "reconciliation_completed",
+          actor: getRequiredAdmin(request).actor,
+          details: {
+            dispatchAttemptId: dispatch.id,
+            previousState: dispatch.state,
+            outcome: "failed",
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+        });
+        throw error;
+      }
+
+      await recordSupportEvent(db, {
+        draftId: dispatch.draftId,
+        sessionId: draft?.sessionId ?? null,
+        eventType: "reconciliation_completed",
+        actor: getRequiredAdmin(request).actor,
+        details: {
+          dispatchAttemptId: dispatch.id,
+          previousState: result.previousState,
+          state: result.state,
+          providerReference: result.providerReference,
+          conflict: result.conflict,
+          changed: result.changed,
+        },
       });
 
       reply.send({
-        queued: true,
+        queued: false,
         dispatchAttemptId: dispatch.id,
-        state: dispatch.state,
-        providerReference: dispatch.providerReference,
+        state: result.state,
+        providerReference: result.providerReference,
+        conflict: result.conflict,
+        changed: result.changed,
+        diagnostics: result.providerDiagnostics,
       });
     },
   );

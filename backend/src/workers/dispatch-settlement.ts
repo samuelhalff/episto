@@ -101,11 +101,7 @@ export async function settlePaymentForDispatchResolution(
       reason: `Dispatch rejected for draft ${draftId}`,
       metadata: { paymentAttemptId: payment.id, draftId },
     });
-    try {
-      if (refund?.chargeId) await syncRefundsForCharge(db, refund.chargeId);
-    } catch {
-      // charge.refunded webhook / reconciliation recovers the ledger projection.
-    }
+    if (refund?.chargeId) await syncRefundsForCharge(db, refund.chargeId);
     const refreshed = await getPaymentAttemptById(db, payment.id);
     return { payment: refreshed ?? payment, rawOrderAccessToken: null };
   }

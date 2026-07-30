@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { queryKeys } from "@episto/shared";
 import { AlertTriangle, Megaphone } from "lucide-react";
@@ -21,6 +23,7 @@ import {
   PanelError,
 } from "../admin-metric-panels";
 import { fetchAdminDashboard, type DashboardPeriod } from "./dashboard-api";
+import { fetchFailedDispatches } from "../admin-api";
 import { formatChf, metricSubLabel, toChf } from "./dashboard-format";
 import { MoneyTab, LettersTab, FeedbackTab, RefundsTab } from "./dashboard-tabs";
 
@@ -65,6 +68,7 @@ export default function DashboardPage() {
   const { authenticated } = useAdminAuth();
   const [period, setPeriod] = useState<DashboardPeriod>("7d");
   const [tab, setTab] = useState("letters");
+  const { locale } = useParams<{ locale: string }>();
 
   const q = useQuery({
     queryKey: queryKeys.admin.dashboard(period),
@@ -74,6 +78,12 @@ export default function DashboardPage() {
   });
 
   const d = q.data;
+  const failedDispatches = useQuery({
+    queryKey: ["admin", "dispatch", "failed"],
+    queryFn: fetchFailedDispatches,
+    refetchInterval: 30_000,
+    enabled: authenticated,
+  });
 
   const alertRows = d
     ? [
@@ -150,6 +160,36 @@ export default function DashboardPage() {
                 </div>
               ))}
             </div>
+          ) : null}
+
+          {failedDispatches.data?.dispatches.length ? (
+            <SectionPanel title="Dispatch cases requiring attention">
+              <div className="space-y-2">
+                {failedDispatches.data.dispatches.map((item) => (
+                  <Link
+                    key={item.dispatchAttemptId}
+                    href={`/${locale}/admin/drafts/${item.draftId}`}
+                    className="block rounded-lg border px-3 py-2 text-sm hover:bg-black/[.03]"
+                    style={{ borderColor: "var(--app-border)" }}
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <span className="font-medium" style={{ color: "var(--app-fg)" }}>
+                        {item.customerEmail ?? `Session ${item.sessionId.slice(0, 8)}`}
+                      </span>
+                      <span
+                        className="font-mono text-xs"
+                        style={{ color: "var(--app-muted)" }}
+                      >
+                        {item.state} · {item.draftId.slice(0, 8)}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs" style={{ color: "var(--app-muted)" }}>
+                      {item.failureReason ?? "Provider outcome needs review"}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </SectionPanel>
           ) : null}
 
           {/* KPI row */}

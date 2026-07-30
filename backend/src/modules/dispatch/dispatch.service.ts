@@ -22,6 +22,7 @@ export interface DispatchAttemptRow {
   submittedAt: Date | null;
   lastCheckedAt: Date | null;
   failureReason: string | null;
+  providerDiagnostics: unknown;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -50,6 +51,7 @@ function toDispatchRow(
     submittedAt: row.submittedAt,
     lastCheckedAt: row.lastCheckedAt,
     failureReason: row.failureReason,
+    providerDiagnostics: row.providerDiagnostics,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
@@ -338,6 +340,7 @@ export async function transitionDispatchState(
         providerReference?: string | undefined;
         trackingNumber?: string | undefined | null;
         failureReason?: string | undefined;
+        providerDiagnostics?: unknown;
       }
     | undefined,
 ): Promise<DispatchAttemptRow> {
@@ -383,6 +386,9 @@ export async function transitionDispatchState(
   }
   if (extra?.failureReason !== undefined) {
     values.failureReason = extra.failureReason;
+  }
+  if (extra?.providerDiagnostics !== undefined) {
+    values.providerDiagnostics = extra.providerDiagnostics;
   }
   if (newState === "submitted") {
     values.submittedAt = new Date();
