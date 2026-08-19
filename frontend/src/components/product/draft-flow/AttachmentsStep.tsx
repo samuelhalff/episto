@@ -25,9 +25,10 @@ export function AttachmentsStep({
   const files = useDraftFiles(draftId);
   const updateDraft = useUpdateDraft(draftId);
   const isUploading = files.isUploading;
+  const isReading = files.isExtracting;
 
   async function handleNext() {
-    if (isUploading || updateDraft.isPending) return;
+    if (isUploading || isReading || updateDraft.isPending) return;
 
     try {
       await updateDraft.mutateAsync({
@@ -48,7 +49,7 @@ export function AttachmentsStep({
     showStepWarningToast({
       id: "attachments-step-uploading",
       title: t("stepNeedsAttentionTitle"),
-      items: [t("attachmentsUploadingHint")],
+      items: [t(isReading ? "attachmentsReadingHint" : "attachmentsUploadingHint")],
     });
   }
 
@@ -68,7 +69,7 @@ export function AttachmentsStep({
       primaryAction={
         <PrimaryButton
           onClick={
-            isUploading
+            isUploading || isReading
               ? handleBlockedNext
               : () => {
                   void handleNext();
@@ -76,8 +77,8 @@ export function AttachmentsStep({
           }
           disabled={updateDraft.isPending}
           loading={updateDraft.isPending || Boolean(isNavigating)}
-          tone={isUploading ? "warning" : "primary"}
-          hideIcon={isUploading}
+          tone={isUploading || isReading ? "warning" : "primary"}
+          hideIcon={isUploading || isReading}
         >
           {t("continueToSubject")}
         </PrimaryButton>

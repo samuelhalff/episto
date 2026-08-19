@@ -27,6 +27,7 @@ SSH_KEY="${SSH_KEY:-$HOME/.ssh/id_deploy_to_prod}"
 SSH_USER="${SSH_USER:-ubuntu}"
 PROD_PATH="${PROD_PATH:-/home/ubuntu/episto}"
 ENV_FILE="${ENV_FILE:-.env.production}"
+OCR_SOURCE_ENV_FILE="${OCR_SOURCE_ENV_FILE:-.env}"
 SERVICE_ACCOUNT_SOURCE="${SERVICE_ACCOUNT_SOURCE:-.google-service-account.json}"
 COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.prod.yml}"
 PROJECT_NAME="${PROJECT_NAME:-}"
@@ -37,10 +38,17 @@ SKIP_BUILD="${SKIP_BUILD:-0}"
 SKIP_UPLOAD="${SKIP_UPLOAD:-0}"
 SKIP_RESTART="${SKIP_RESTART:-0}"
 PRUNE_REMOTE="${PRUNE_REMOTE:-1}"
+TEMP_ENV_FILE=""
 
 # ── Helpers ───────────────────────────────────────────────────────────────
 say() { printf '\033[1;36m▶\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31m✗\033[0m %s\n' "$*" >&2; exit 1; }
+cleanup() {
+  if [[ -n "$TEMP_ENV_FILE" && -f "$TEMP_ENV_FILE" ]]; then
+    rm -f "$TEMP_ENV_FILE"
+  fi
+}
+trap cleanup EXIT
 
 extract_env() {
   local key="$1"
@@ -67,6 +75,28 @@ append_domain() {
 }
 
 [[ -f "$ENV_FILE" ]] || die "$ENV_FILE not found in $REPO_ROOT"
+
+# Scanned PDFs and images are unreadable without both Document Intelligence
+# settings. Keep the live production file minimal, but safely fill missing OCR
+# settings from the local environment already used for development. The merged
+# file is temporary, never committed, and is removed on exit.
+for ocr_key in AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT AZURE_DOCUMENT_INTELLIGENCE_KEY; do
+  if ! grep -Eq "^${ocr_key}=.+" "$ENV_FILE"; then
+    [[ -f "$OCR_SOURCE_ENV_FILE" ]] || die "$ocr_key is missing from $ENV_FILE and $OCR_SOURCE_ENV_FILE is unavailable"
+    grep -Eq "^${ocr_key}=.+" "$OCR_SOURCE_ENV_FILE" \
+      || die "$ocr_key is missing from both $ENV_FILE and $OCR_SOURCE_ENV_FILE"
+    if [[ -z "$TEMP_ENV_FILE" ]]; then
+      TEMP_ENV_FILE="$(mktemp "${TMPDIR:-/tmp}/episto-production-env.XXXXXX")"
+      cp "$ENV_FILE" "$TEMP_ENV_FILE"
+      chmod 600 "$TEMP_ENV_FILE"
+    fi
+    grep -E "^${ocr_key}=" "$OCR_SOURCE_ENV_FILE" >> "$TEMP_ENV_FILE"
+  fi
+done
+if [[ -n "$TEMP_ENV_FILE" ]]; then
+  ENV_FILE="$TEMP_ENV_FILE"
+  say "Added missing OCR settings to the temporary deployment environment (secret values hidden)."
+fi
 if [[ -f "$SERVICE_ACCOUNT_SOURCE" ]]; then
   HAS_SERVICE_ACCOUNT=1
 else

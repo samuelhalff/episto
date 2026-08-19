@@ -68,7 +68,7 @@ describe("analyzeIntakePrompt", () => {
    * rules said "extract only values the user explicitly provided", so document
    * content read as something other than the user speaking.
    */
-  it("counts attached document content as provided by the user", () => {
+  it("treats attached document content as candidate facts provided by the user", () => {
     const system = getMessageContent(
       analyzeIntakePrompt({
         userMessage: "Je souhaite résilier mon abonnement.",
@@ -78,7 +78,8 @@ describe("analyzeIntakePrompt", () => {
       0,
     );
     expect(system).toContain("ATTACHED DOCUMENTS");
-    expect(system).toContain("COUNTS AS PROVIDED BY THE USER");
+    expect(system).toContain("candidate facts provided by the user");
+    expect(system).toContain("subject to user verification before sending");
     expect(system).toContain(
       "NEVER ask for something an attached document already states",
     );

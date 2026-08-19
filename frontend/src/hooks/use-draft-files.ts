@@ -14,6 +14,7 @@ import {
   isAllowedUploadMimeType,
 } from "@episto/shared";
 import { ApiError, apiFetch } from "../lib/api";
+import { isAttachmentExtractionInProgress } from "../components/product/attachment-extraction";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -21,6 +22,7 @@ import { ApiError, apiFetch } from "../lib/api";
 
 export interface UseDraftFilesReturn {
   attachments: FileAsset[];
+  isExtracting: boolean;
   signature: FileAsset | null;
   attachmentConstraints: DraftAttachmentConstraints;
   isUploading: boolean;
@@ -143,6 +145,10 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
   const signature = useMemo(
     () => files.find((f) => f.kind === FileAssetKind.signature) ?? null,
     [files],
+  );
+  const isExtracting = useMemo(
+    () => isAttachmentExtractionInProgress(attachments),
+    [attachments],
   );
 
   const uploadMutation = useMutation({
@@ -268,6 +274,7 @@ export function useDraftFiles(draftId: string): UseDraftFilesReturn {
 
   return {
     attachments,
+    isExtracting,
     signature,
     attachmentConstraints,
     isUploading: uploadMutation.isPending,

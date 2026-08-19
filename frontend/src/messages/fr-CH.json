@@ -603,6 +603,7 @@
     "attachmentsStepSubtitle": "Ajoutez des justificatifs",
     "attachmentsOptionalBadge": "Facultatif",
     "attachmentsUploadingHint": "Attendez la fin du téléversement en cours avant de continuer.",
+    "attachmentsReadingHint": "Attendez que nous ayons fini de lire les documents joints avant de continuer.",
     "continueToSubject": "Suivant",
     "subjectLineTitle": "Objet",
     "subjectLineSubtitle": "Ajoutez un objet",

@@ -4,6 +4,7 @@ import type { FileAsset } from "@episto/shared";
 import {
   extractionChip,
   extractionMessageKey,
+  isAttachmentExtractionInProgress,
   summarizeAttachmentExtraction,
 } from "../src/components/product/attachment-extraction";
 
@@ -137,6 +138,23 @@ describe("summarizeAttachmentExtraction", () => {
 
   it("stays silent when the only attachment has no status yet", () => {
     expect(summarizeAttachmentExtraction([attachment(null)])).toBeNull();
+  });
+});
+
+describe("isAttachmentExtractionInProgress", () => {
+  it("blocks leaving the attachment step while a file is still being read", () => {
+    expect(isAttachmentExtractionInProgress([attachment("pending")] as FileAsset[])).toBe(
+      true,
+    );
+    expect(
+      isAttachmentExtractionInProgress([attachment("ocr_running")] as FileAsset[]),
+    ).toBe(true);
+  });
+
+  it("allows terminal readable and unreadable outcomes to continue", () => {
+    expect(isAttachmentExtractionInProgress([attachment("extracted")])).toBe(false);
+    expect(isAttachmentExtractionInProgress([attachment("no_ocr")])).toBe(false);
+    expect(isAttachmentExtractionInProgress([attachment("failed")])).toBe(false);
   });
 });
 

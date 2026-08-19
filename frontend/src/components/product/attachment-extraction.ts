@@ -9,6 +9,14 @@ import type { FileAsset } from "@episto/shared";
  */
 export type ExtractionChip = "reading" | "readingImage" | "read" | "couldNotRead" | null;
 
+/** Whether the draft must wait before an attachment can inform its first draft. */
+export function isAttachmentExtractionInProgress(attachments: FileAsset[]): boolean {
+  return attachments.some(
+    (file) =>
+      file.extractionStatus === "pending" || file.extractionStatus === "ocr_running",
+  );
+}
+
 export function extractionChip(status: FileAsset["extractionStatus"]): ExtractionChip {
   switch (status) {
     case "pending":

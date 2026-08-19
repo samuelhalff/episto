@@ -603,6 +603,7 @@
     "attachmentsStepSubtitle": "Aggiungere documenti di supporto",
     "attachmentsOptionalBadge": "Facoltativo",
     "attachmentsUploadingHint": "Attenda la fine del caricamento prima di continuare.",
+    "attachmentsReadingHint": "Attenda la fine della lettura dei documenti allegati prima di continuare.",
     "continueToSubject": "Avanti",
     "subjectLineTitle": "Oggetto",
     "subjectLineSubtitle": "Aggiungere un oggetto",

@@ -603,6 +603,7 @@
     "attachmentsStepSubtitle": "Add supporting documents",
     "attachmentsOptionalBadge": "Optional",
     "attachmentsUploadingHint": "Finish the current upload before you continue.",
+    "attachmentsReadingHint": "Wait until we finish reading the attached documents before you continue.",
     "continueToSubject": "Next",
     "subjectLineTitle": "Subject",
     "subjectLineSubtitle": "Add a subject line",

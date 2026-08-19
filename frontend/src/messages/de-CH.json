@@ -603,6 +603,7 @@
     "attachmentsStepSubtitle": "Fügen Sie Unterlagen hinzu",
     "attachmentsOptionalBadge": "Optional",
     "attachmentsUploadingHint": "Schliessen Sie den laufenden Upload ab, bevor Sie fortfahren.",
+    "attachmentsReadingHint": "Warten Sie, bis die angehängten Dokumente gelesen wurden, bevor Sie fortfahren.",
     "continueToSubject": "Weiter",
     "subjectLineTitle": "Betreff",
     "subjectLineSubtitle": "Einen Betreff hinzufügen",
