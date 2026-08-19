@@ -6,5 +6,36 @@ Allow: /
 Disallow: /api/
 Disallow: /admin/
 
+# AI/answer-engine crawlers are explicitly welcome on public pages
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Machine-readable site summary for LLMs: https://episto.ch/llms.txt
+
 # Sitemap
 Sitemap: https://episto.ch/sitemap.xml

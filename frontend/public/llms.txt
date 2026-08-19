@@ -7,16 +7,46 @@
 - Fulfilment: episto prepares the letter and submits it to Swiss Post via ePost; Swiss Post prints and physically delivers it. episto does not run its own print or delivery network.
 - Common uses: cancelling a subscription, insurance, gym, phone contract or lease; filing a complaint; raising an objection (Einsprache); sending a payment reminder (Mahnung); writing to an authority; sending registered mail online.
 - Proof: registered mail returns a submission/delivery record; episto issues a dated proof-of-sending document.
+- Pricing: a single per-letter price that already includes drafting, printing and Swiss Post postage (standard or registered). The exact amount depends on page count and delivery type and is always shown before payment — current prices at https://episto.ch/en-CH/pricing
+- Payment: card, TWINT and supported wallets (Apple Pay, Google Pay); VAT (8.1%) included, receipt issued by email.
+- Operator: West Bay SA, Genthod (Geneva), Switzerland — UID/VAT CHE-107.892.984 MWST.
 
 ## Guides and templates
-- [Templates & guides (DE)](https://episto.ch/de-CH/vorlagen)
+Letter guides with legal context, deadlines and a prefilled draft. Hubs:
+- [Vorlagen & Ratgeber (DE)](https://episto.ch/de-CH/vorlagen)
 - [Modèles & guides (FR)](https://episto.ch/fr-CH/vorlagen)
 - [Modelli e guide (IT)](https://episto.ch/it-CH/vorlagen)
+
+Popular guides (German URLs; French and Italian versions exist under the same slugs at /fr-CH/ and /it-CH/):
+- [Wohnung kündigen](https://episto.ch/de-CH/vorlagen/wohnung-kuendigen)
+- [Einschreiben online senden](https://episto.ch/de-CH/vorlagen/einschreiben-online)
+- [Krankenkasse kündigen](https://episto.ch/de-CH/vorlagen/krankenkasse-kuendigen)
+- [Abo kündigen](https://episto.ch/de-CH/vorlagen/abo-kuendigen)
+- [Arbeitsvertrag kündigen](https://episto.ch/de-CH/vorlagen/arbeitsvertrag-kuendigen)
+- [Versicherung kündigen](https://episto.ch/de-CH/vorlagen/versicherung-kuendigen)
+- [Handyabo kündigen](https://episto.ch/de-CH/vorlagen/handyabo-kuendigen)
+- [Fitnessabo kündigen](https://episto.ch/de-CH/vorlagen/fitnessabo-kuendigen)
+- [Beschwerde schreiben](https://episto.ch/de-CH/vorlagen/beschwerde-schreiben)
+- [Mahnung schreiben](https://episto.ch/de-CH/vorlagen/mahnung-schreiben)
+- [Einsprache erheben](https://episto.ch/de-CH/vorlagen/einsprache-erheben)
+- [Mietzins senken](https://episto.ch/de-CH/vorlagen/mietzins-senken)
+- [Brief an eine Behörde](https://episto.ch/de-CH/vorlagen/brief-an-behoerde)
+- [Brief online versenden](https://episto.ch/de-CH/vorlagen/brief-online-versenden)
+- [Nebenkostenabrechnung prüfen](https://episto.ch/de-CH/vorlagen/nebenkostenabrechnung-pruefen)
+- [Rechtsvorschlag erheben](https://episto.ch/de-CH/vorlagen/rechtsvorschlag-erheben)
+- [Mietmangel melden](https://episto.ch/de-CH/vorlagen/mietmangel-melden)
+- [Arbeitszeugnis korrigieren lassen](https://episto.ch/de-CH/vorlagen/arbeitszeugnis-korrigieren)
 
 ## Main pages
 - [How it works (EN)](https://episto.ch/en-CH)
 - [Pricing](https://episto.ch/en-CH/pricing)
 - [Help & FAQ](https://episto.ch/en-CH/help)
+- [Signature requirements](https://episto.ch/en-CH/signature-requirements)
+
+## Legal
+- [Terms of service](https://episto.ch/en-CH/terms)
+- [Privacy policy](https://episto.ch/en-CH/privacy)
+- [Imprint](https://episto.ch/en-CH/imprint)
 
 ## Sitemap
 - [XML sitemap](https://episto.ch/sitemap.xml)
