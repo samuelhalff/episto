@@ -100,9 +100,12 @@ export function useLetterPreview(draftId: string): UseLetterPreviewReturn {
     return subscribe((event) => {
       if (event.type === "field_update") {
         setStaleSince(Date.now());
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.draftPreview(draftId),
+        });
       }
     });
-  }, [subscribe]);
+  }, [subscribe, queryClient, draftId]);
 
   const refreshPreview = useCallback(() => {
     setStaleSince(null);

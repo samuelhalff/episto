@@ -713,7 +713,7 @@
     "orderSummary": "Riepilogo dell'ordine",
     "checkoutIntro": "Verificare e pagare",
     "email": "Indirizzo e-mail",
-    "emailHelp": "Invieremo a questo indirizzo la ricevuta, gli aggiornamenti sulla spedizione e un link sicuro per consultare lo stato dell'ordine. Il documento di conferma firmato resterà disponibile tramite quel link finché sarà conservato. Non utilizziamo mai questo indirizzo per finalità di marketing.",
+    "emailHelp": "Invieremo a questo indirizzo la ricevuta e gli aggiornamenti sulla spedizione. Il documento di conferma firmato resterà disponibile tramite il link di download sicuro per un periodo limitato. Non utilizziamo mai questo indirizzo per finalità di marketing.",
     "phone": "Numero di cellulare",
     "phoneHelp": "Verifichiamo un numero mobile svizzero prima del pagamento per ridurre gli abusi e mantenere un contatto per l’ordine. Non lo usiamo per marketing.",
     "phoneCode": "Codice SMS",
@@ -760,7 +760,11 @@
     "backToReview": "Indietro",
     "paymentMethodsHelp": "TWINT appare per primo, seguito da carta, Apple Pay, Google Pay e dagli altri wallet supportati quando Stripe e il Suo dispositivo li rendono disponibili.",
     "promoCode": "Codice promozionale (facoltativo)",
-    "promoCodeHelp": "Se ha un codice promozionale o un buono."
+    "promoCodeHelp": "Se ha un codice promozionale o un buono.",
+    "checkingPromoCode": "Verifica del codice…",
+    "promoCodeValidated": "Codice {code} applicato.",
+    "subtotal": "Subtotale",
+    "discount": "Sconto"
   },
   "attachments": {
     "title": "Allegati",
@@ -824,7 +828,7 @@
     "stepProcessing": "Elaborazione del fornitore",
     "stepProcessingDetail": "Il fornitore può impiegare un po' di tempo per confermare la presa in carico.",
     "stepUpdates": "Gli aggiornamenti successivi dipendono dalla conferma del fornitore",
-    "stepUpdatesDetail": "Se lo stato cambia, aggiorneremo questa pagina e Le invieremo un'e-mail.",
+    "stepUpdatesDetail": "Se lo stato cambia, Le invieremo un'e-mail.",
     "downloadReceipt": "Scaricare la ricevuta",
     "viewLetter": "Visualizzare il documento di conferma firmato",
     "sendAnother": "Scrivere un'altra lettera",
@@ -855,6 +859,14 @@
     "templateAppliedToResumed": "Il modello scelto verrà applicato a questa bozza.",
     "templateNotAppliedToResumed": "Non è stato possibile applicare il modello scelto. Può continuare senza.",
     "continueWithoutTemplate": "Continua senza il modello"
+  },
+  "resumePrompt": {
+    "title": "Riprendere una lettera precedente?",
+    "description": "In questa sessione del browser sono salvate lettere non ancora completate.",
+    "lastUpdated": "Ultimo aggiornamento: {value}",
+    "untitled": "Lettera senza titolo",
+    "continue": "Riprendi",
+    "dismiss": "Non ora"
   },
   "status": {
     "title": "Stato della lettera",

@@ -10,6 +10,7 @@ export interface ReceiptCopy {
   colDescription: string;
   colAmount: string;
   subtotal: string;
+  subtotalBeforeDiscount: string;
   vat: string;
   total: string;
   discount: string;
@@ -32,6 +33,7 @@ const DEFAULT_COPY: ReceiptCopy = {
   colDescription: "Description",
   colAmount: "Amount CHF",
   subtotal: "Subtotal (net)",
+  subtotalBeforeDiscount: "Subtotal before discount",
   vat: "VAT 8.1%",
   total: "Total",
   discount: "Discount",
@@ -59,6 +61,7 @@ const COPY: Record<ReceiptLocale, ReceiptCopy> = {
     colDescription: "Beschreibung",
     colAmount: "Betrag CHF",
     subtotal: "Zwischentotal (netto)",
+    subtotalBeforeDiscount: "Zwischentotal vor Rabatt",
     vat: "MWST 8.1%",
     total: "Total",
     discount: "Rabatt",
@@ -83,6 +86,7 @@ const COPY: Record<ReceiptLocale, ReceiptCopy> = {
     colDescription: "Description",
     colAmount: "Montant CHF",
     subtotal: "Sous-total (net)",
+    subtotalBeforeDiscount: "Sous-total avant remise",
     vat: "TVA 8.1%",
     total: "Total",
     discount: "Remise",
@@ -107,6 +111,7 @@ const COPY: Record<ReceiptLocale, ReceiptCopy> = {
     colDescription: "Descrizione",
     colAmount: "Importo CHF",
     subtotal: "Subtotale (netto)",
+    subtotalBeforeDiscount: "Subtotale prima dello sconto",
     vat: "IVA 8.1%",
     total: "Totale",
     discount: "Sconto",

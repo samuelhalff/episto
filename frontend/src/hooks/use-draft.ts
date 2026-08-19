@@ -126,8 +126,8 @@ function draftsOptions() {
   });
 }
 
-export function useDrafts() {
-  return useQuery(draftsOptions());
+export function useDrafts(enabled = true) {
+  return useQuery({ ...draftsOptions(), enabled });
 }
 
 export interface ReviewDraftResponse {

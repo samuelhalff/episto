@@ -31,6 +31,10 @@ const priceSummarySource = readFileSync(
   path.join(repoRoot, "frontend/src/components/product/PriceSummary.tsx"),
   "utf8",
 );
+const promoCodeFieldSource = readFileSync(
+  path.join(repoRoot, "frontend/src/components/product/PromoCodeField.tsx"),
+  "utf8",
+);
 
 const REQUIRED_CHECKOUT_KEYS = [
   "title",
@@ -132,6 +136,16 @@ describe("checkout footer actions", () => {
     expect(checkoutPageSource).toContain("isPhoneVerified");
     expect(checkoutPageSource).toContain("!isPhoneVerified");
     expect(useCheckoutSource).toContain("createPaymentIntent");
+  });
+
+  it("validates promo codes before checkout and renders the discounted quote", () => {
+    expect(checkoutPageSource).toContain("usePromoQuote");
+    expect(checkoutPageSource).toContain("promoQuote");
+    expect(checkoutPageSource).toContain("<PromoCodeField");
+    expect(checkoutPageSource).toContain("promoCodeValidated");
+    expect(promoCodeFieldSource).toContain("getApiErrorUserMessage");
+    expect(promoCodeFieldSource).toContain("promoCodeValidated");
+    expect(useCheckoutSource).toContain("AbortSignal.timeout");
   });
 
   it("provides a route back to review in the checkout page bottom bar", () => {

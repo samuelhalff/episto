@@ -24,6 +24,7 @@ export { useDraftFiles } from "./use-draft-files";
 export type { UseDraftFilesReturn } from "./use-draft-files";
 export { useCheckout } from "./use-checkout";
 export type { UseCheckoutReturn } from "./use-checkout";
+export { usePromoQuote } from "./use-promo-quote";
 export { usePhoneVerification } from "./use-phone-verification";
 export { useLetterPreview } from "./use-letter-preview";
 export type { UseLetterPreviewReturn, LetterPreviewData } from "./use-letter-preview";

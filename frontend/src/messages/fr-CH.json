@@ -713,7 +713,7 @@
     "orderSummary": "Votre commande",
     "checkoutIntro": "Vérifier et payer",
     "email": "Adresse e-mail",
-    "emailHelp": "Nous enverrons votre reçu à cette adresse, ainsi que les mises à jour d’envoi et un lien sécurisé vers le statut de la commande. Le document de confirmation signé reste disponible via ce lien pendant sa durée de conservation. Nous n’utilisons jamais cette adresse à des fins marketing.",
+    "emailHelp": "Nous enverrons votre reçu et les mises à jour d’envoi à cette adresse. Votre document de confirmation signé reste disponible via le lien de téléchargement sécurisé pendant une durée limitée. Nous n’utilisons jamais cette adresse à des fins marketing.",
     "phone": "Numéro mobile",
     "phoneHelp": "Nous vérifions un numéro mobile suisse avant le paiement afin de réduire les abus et de conserver un contact pour la commande. Nous ne l’utilisons pas à des fins marketing.",
     "phoneCode": "Code SMS",
@@ -760,7 +760,11 @@
     "backToReview": "Retour",
     "paymentMethodsHelp": "TWINT apparaît d’abord, puis la carte, Apple Pay, Google Pay et les autres portefeuilles pris en charge lorsque Stripe et votre appareil les rendent disponibles.",
     "promoCode": "Code promo (facultatif)",
-    "promoCodeHelp": "Si vous avez un code promotionnel ou un bon."
+    "promoCodeHelp": "Si vous avez un code promotionnel ou un bon.",
+    "checkingPromoCode": "Vérification du code…",
+    "promoCodeValidated": "Code {code} appliqué.",
+    "subtotal": "Sous-total",
+    "discount": "Réduction"
   },
   "attachments": {
     "title": "Pièces jointes",
@@ -824,7 +828,7 @@
     "stepProcessing": "Traitement par le prestataire",
     "stepProcessingDetail": "Le prestataire peut prendre un peu de temps pour confirmer la prise en charge.",
     "stepUpdates": "Les mises à jour ultérieures dépendent de la confirmation du prestataire",
-    "stepUpdatesDetail": "Si le statut change, nous mettrons cette page à jour et nous vous en informerons par e-mail.",
+    "stepUpdatesDetail": "Si le statut change, nous vous en informerons par e-mail.",
     "downloadReceipt": "Télécharger le reçu",
     "viewLetter": "Voir le document de confirmation signé",
     "sendAnother": "Rédiger un autre courrier",
@@ -855,6 +859,14 @@
     "templateAppliedToResumed": "Le modèle choisi sera appliqué à ce brouillon.",
     "templateNotAppliedToResumed": "Le modèle choisi n'a pas pu être appliqué. Vous pouvez continuer sans lui.",
     "continueWithoutTemplate": "Continuer sans le modèle"
+  },
+  "resumePrompt": {
+    "title": "Reprendre une lettre précédente ?",
+    "description": "Des lettres inachevées sont enregistrées dans cette session de navigateur.",
+    "lastUpdated": "Dernière mise à jour : {value}",
+    "untitled": "Lettre sans titre",
+    "continue": "Reprendre",
+    "dismiss": "Pas maintenant"
   },
   "status": {
     "title": "Statut du courrier",

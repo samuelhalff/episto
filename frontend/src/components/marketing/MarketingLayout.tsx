@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { Footer } from "./Footer";
 import { Header } from "./Header";
+import { ResumeDraftPrompt } from "../product/ResumeDraftPrompt";
 
 export function MarketingLayout({
   children,
@@ -16,6 +17,7 @@ export function MarketingLayout({
         {children}
       </main>
       <Footer />
+      <ResumeDraftPrompt />
     </>
   );
 }

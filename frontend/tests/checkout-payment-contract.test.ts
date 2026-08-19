@@ -42,7 +42,9 @@ const NEW_CHECKOUT_KEYS = [
 describe("checkout-payment-contract i18n", () => {
   for (const locale of locales) {
     describe(locale.name, () => {
-      const checkout = (locale.data as Record<string, Record<string, string>>)["checkout"];
+      const checkout = (locale.data as Record<string, Record<string, string>>)[
+        "checkout"
+      ];
 
       for (const key of NEW_CHECKOUT_KEYS) {
         it(`has key "${key}"`, () => {
@@ -54,9 +56,9 @@ describe("checkout-payment-contract i18n", () => {
     });
   }
 
-  it("en-CH emailHelp mentions secure order-status link", () => {
+  it("en-CH emailHelp mentions secure download link", () => {
     const checkout = (enCH as Record<string, Record<string, string>>)["checkout"];
-    expect(checkout["emailHelp"]).toContain("secure order-status link");
+    expect(checkout["emailHelp"]).toContain("secure download link");
   });
 
   it("en-CH paymentMethodsHelp mentions TWINT", () => {
@@ -88,7 +90,9 @@ describe("checkout-payment-contract i18n", () => {
 
 describe("checkout-payment-contract page layout", () => {
   it("derives isPricingPending from pricingPendingMessage", () => {
-    expect(checkoutPageSource).toContain("isPricingPending = Boolean(pricingPendingMessage)");
+    expect(checkoutPageSource).toContain(
+      "isPricingPending = Boolean(pricingPendingMessage)",
+    );
   });
 
   it("uses dock-aware bottom padding (11rem) on the main grid", () => {
@@ -101,7 +105,9 @@ describe("checkout-payment-contract page layout", () => {
 
   it("adds w-full to the email input element", () => {
     // The input className string must contain w-full
-    const emailInputMatch = checkoutPageSource.match(/id="email"[\s\S]{0,600}className=\{/);
+    const emailInputMatch = checkoutPageSource.match(
+      /id="email"[\s\S]{0,600}className=\{/,
+    );
     expect(emailInputMatch).not.toBeNull();
     // w-full appears in the className array for the email input block
     const emailBlock = checkoutPageSource.slice(
@@ -199,7 +205,9 @@ describe("checkout-payment-contract StripePaymentForm", () => {
 
   it("hydrates the Stripe payment step with the submitted or session email", () => {
     expect(checkoutPageSource).toContain("useSession");
-    expect(checkoutPageSource).toContain('submittedCheckoutEmail ?? session.session?.email ?? ""');
+    expect(checkoutPageSource).toContain(
+      'submittedCheckoutEmail ?? session.session?.email ?? ""',
+    );
     expect(checkoutPageSource).toContain("billingEmail={billingEmail}");
   });
 });

@@ -66,7 +66,7 @@ describe("Email template rendering", () => {
   it("renders dispatch-accepted with Swiss Post tracking only for registered mail (en-CH)", () => {
     const result = renderTemplate("dispatch-accepted", "en-CH", {
       orderRef: "ORD-ABC",
-      statusUrl: "https://episto.ch/status/token-123",
+      statusUrl: "https://episto.ch/en-CH/status/token-123",
       deliveryType: "registered",
       senderName: "Alice Sender",
       recipientName: "Bob Recipient",
@@ -89,12 +89,12 @@ describe("Email template rendering", () => {
     expect(result.text).toContain("Registered mail");
     expect(result.text).toContain("Alice Sender");
     expect(result.text).toContain("Bob Recipient");
-    expect(result.text).not.toContain("https://episto.ch/status/token-123");
+    expect(result.text).not.toContain("https://episto.ch/en-CH/status/token-123");
     expect(result.text).not.toContain("View order status");
     // Swiss Post tracking URL
     expect(result.text).toContain("https://www.post.ch/swisspost-tracking");
     expect(result.text).toContain("98.40.541881.00002354");
-    expect(result.html).not.toContain("https://episto.ch/status/token-123");
+    expect(result.html).not.toContain("https://episto.ch/en-CH/status/token-123");
     expect(result.html).not.toContain("View order status");
     expect(result.html).toContain("https://www.post.ch/swisspost-tracking");
     expect(result.html).toContain("Track on Swiss Post");
@@ -148,7 +148,6 @@ describe("Email template rendering", () => {
     });
 
     expect(result.html).toContain('viewBox="0 0 56 56"');
-    expect(result.html).toContain('class="episto-email-wordmark"');
     expect(result.html).toContain('class="episto-email-wordmark"');
     expect(result.html).toContain(">episto</td>");
     expect(result.html).not.toContain(">Episto</td>");
@@ -227,6 +226,25 @@ describe("Email template rendering", () => {
     expect(result.subject).toBeTruthy();
     expect(result.text).toContain("CHF 4.90");
     expect(result.html).toContain("https://example.com/api/v1/orders/tok/pdf");
+  });
+
+  it("renders the payment receipt promo code and discount clearly", () => {
+    const result = renderTemplate("payment-receipt", "en-CH", {
+      orderRef: "ORD-PROMO",
+      totalCents: 500,
+      discountCents: 125,
+      promoCode: "SAVE20",
+      downloadUrl: "https://example.com/api/v1/orders/tok/pdf",
+      statusUrl: "https://example.com/en-CH/status/tok",
+    });
+
+    expect(result.text).toContain("Promo code: SAVE20");
+    expect(result.text).toContain("Subtotal before discount: CHF 6.25");
+    expect(result.text).toContain("Discount: CHF 1.25");
+    expect(result.text).toContain("Total: CHF 5.00");
+    expect(result.text).not.toContain("https://example.com/en-CH/status/tok");
+    expect(result.html).toContain("SAVE20");
+    expect(result.html).toContain("CHF 1.25");
   });
 
   /**

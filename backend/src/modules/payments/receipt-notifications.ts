@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { buildOrderReference } from "@episto/shared";
+import { buildOrderReference, PaymentBreakdownSchema } from "@episto/shared";
 
 import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
@@ -40,7 +40,10 @@ export function receiptDedupeKey(
 ): string {
   const base = `payment-receipt-${paymentAttemptId}-${generation}`;
   if (trigger === "capture") return base;
-  return `${base}-request-${new Date().toISOString().slice(0, 16)}`;
+  // BullMQ job IDs cannot contain `:`. Keep minute-level coalescing while
+  // using a stable, queue-safe timestamp token.
+  const requestMinute = new Date().toISOString().slice(0, 16).replace(/[-:T]/g, "");
+  return `${base}-request-${requestMinute}`;
 }
 
 /**
@@ -76,6 +79,7 @@ export async function buildPaymentReceiptEmail(
       sessionId: schema.paymentAttempts.sessionId,
       orderAccessTokenExpiresAt: schema.paymentAttempts.orderAccessTokenExpiresAt,
       orderAccessTokenHash: schema.paymentAttempts.orderAccessTokenHash,
+      breakdown: schema.paymentAttempts.breakdown,
     })
     .from(schema.paymentAttempts)
     .where(eq(schema.paymentAttempts.id, args.paymentAttemptId))
@@ -148,6 +152,9 @@ export async function buildPaymentReceiptEmail(
     tokenHash: payment.orderAccessTokenHash,
   });
 
+  const parsedBreakdown = PaymentBreakdownSchema.safeParse(payment.breakdown);
+  const breakdown = parsedBreakdown.success ? parsedBreakdown.data : null;
+
   const buffer =
     args.pdfBuffer ?? (await downloadObjectBuffer(receipt.storageKey)).buffer;
 
@@ -158,6 +165,8 @@ export async function buildPaymentReceiptEmail(
     data: {
       orderRef: receipt.orderRef || buildOrderReference(payment.draftId),
       totalCents: receipt.totalCents,
+      discountCents: breakdown?.promo?.discountCents ?? 0,
+      promoCode: breakdown?.promo?.code ?? null,
       currency: receipt.currency,
       downloadUrl: `${siteUrl}/api/v1/orders/${token}/pdf`,
       statementRetentionDays: config.STATEMENT_RETENTION_DAYS,

@@ -1,13 +1,22 @@
-import type { FastifyInstance } from "fastify";
+import type { FastifyInstance, FastifyRequest } from "fastify";
 import { and, eq } from "drizzle-orm";
 import { getDb, schema } from "../../db/index.js";
 import { notFoundError } from "../../shared/errors/index.js";
 import { requireSession, getRequiredSession } from "../sessions/session.middleware.js";
-import { resolveDisplayDispatchQuoteForDraft } from "../dispatch/dispatch-quote.service.js";
+import {
+  resolveDisplayDispatchQuoteForDraft,
+  resolvePaymentDispatchQuoteForDraft,
+} from "../dispatch/dispatch-quote.service.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
 import { getPaymentIntentForCheckout } from "./adapters/stripe.adapter.js";
 import { getPaymentForDraft, transitionPaymentState } from "./payment.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
+import { applyPromoToTotal } from "./promo.service.js";
+import { z } from "zod";
+
+const PromoQuoteBody = z.object({
+  promoCode: z.string().trim().min(1).max(64),
+});
 
 export async function registerPaymentStatusRoutes(app: FastifyInstance): Promise<void> {
   app.get<{ Params: { draftId: string } }>(
@@ -38,6 +47,58 @@ export async function registerPaymentStatusRoutes(app: FastifyInstance): Promise
       reply.send({
         quote: resolvedDisplayQuote.quote,
         meta: resolvedDisplayQuote.meta,
+      });
+    },
+  );
+
+  app.post<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/promo-quote",
+    {
+      preHandler: [requireSession],
+      config: {
+        rateLimit: {
+          max: 10,
+          timeWindow: "1 hour",
+          keyGenerator: (request: FastifyRequest) => request.session?.id ?? request.ip,
+        },
+      },
+    },
+    async (request, reply) => {
+      const session = getRequiredSession(request);
+      const db = getDb();
+      const { draftId } = request.params;
+      const { promoCode } = PromoQuoteBody.parse(request.body);
+
+      const [draft] = await db
+        .select({ id: schema.draftLetters.id })
+        .from(schema.draftLetters)
+        .where(
+          and(
+            eq(schema.draftLetters.id, draftId),
+            eq(schema.draftLetters.sessionId, session.id),
+          ),
+        )
+        .limit(1);
+
+      if (!draft) throw notFoundError("draft");
+
+      const resolvedDisplayQuote = await resolvePaymentDispatchQuoteForDraft(db, draftId);
+      const appliedPromo = await applyPromoToTotal(db, {
+        code: promoCode,
+        baseTotalCents: resolvedDisplayQuote.quote.totalCents,
+      });
+
+      reply.send({
+        quote: {
+          ...resolvedDisplayQuote.quote,
+          totalCents: appliedPromo.finalCents,
+        },
+        promo: {
+          code: appliedPromo.code,
+          kind: appliedPromo.kind,
+          discountCents: appliedPromo.discountCents,
+          finalCents: appliedPromo.finalCents,
+        },
       });
     },
   );

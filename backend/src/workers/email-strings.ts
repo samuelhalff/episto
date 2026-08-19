@@ -338,12 +338,15 @@ export interface PaymentReceiptStrings {
   body: string;
   orderLabel: string;
   totalLabel: string;
+  subtotalBeforeDiscountLabel: string;
   vatNote: string;
   downloadLabel: string;
   downloadCta: string;
   retentionNotice: string;
   attachmentNote: string;
   supportLine: string;
+  promoCodeLabel: string;
+  discountLabel: string;
 }
 
 export const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStrings> = {
@@ -353,12 +356,15 @@ export const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStri
     body: "Thank you for your order. Your payment has been received and your letter is being processed.",
     orderLabel: "Order",
     totalLabel: "Total",
+    subtotalBeforeDiscountLabel: "Subtotal before discount",
     vatNote: "incl. 8.1% VAT",
     downloadLabel: "View or download your letter",
     downloadCta: "View your letter",
     retentionNotice: "This secure link is available for {days} days.",
     attachmentNote: "Your receipt is attached to this email as a PDF.",
     supportLine: "Questions? Contact us at",
+    promoCodeLabel: "Promo code",
+    discountLabel: "Discount",
   },
   "de-CH": {
     subject: `Ihr ${BRAND_NAME}-Beleg`,
@@ -366,12 +372,15 @@ export const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStri
     body: "Vielen Dank für Ihre Bestellung. Ihre Zahlung ist eingegangen und Ihr Brief wird bearbeitet.",
     orderLabel: "Bestellung",
     totalLabel: "Total",
+    subtotalBeforeDiscountLabel: "Zwischentotal vor Rabatt",
     vatNote: "inkl. 8.1% MWST",
     downloadLabel: "Brief ansehen oder herunterladen",
     downloadCta: "Brief ansehen",
     retentionNotice: "Dieser sichere Link ist {days} Tage lang verfügbar.",
     attachmentNote: "Ihr Beleg ist dieser E-Mail als PDF beigefügt.",
     supportLine: "Fragen? Kontaktieren Sie uns unter",
+    promoCodeLabel: "Promo-Code",
+    discountLabel: "Rabatt",
   },
   "fr-CH": {
     subject: `Votre reçu ${BRAND_NAME}`,
@@ -379,12 +388,15 @@ export const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStri
     body: "Merci pour votre commande. Votre paiement a été reçu et votre lettre est en cours de traitement.",
     orderLabel: "Commande",
     totalLabel: "Total",
+    subtotalBeforeDiscountLabel: "Sous-total avant remise",
     vatNote: "TVA 8.1% incluse",
     downloadLabel: "Consulter ou télécharger votre lettre",
     downloadCta: "Consulter votre lettre",
     retentionNotice: "Ce lien sécurisé est disponible pendant {days} jours.",
     attachmentNote: "Votre reçu est joint à cet e-mail au format PDF.",
     supportLine: "Des questions ? Contactez-nous à",
+    promoCodeLabel: "Code promo",
+    discountLabel: "Remise",
   },
   "it-CH": {
     subject: `La sua ricevuta ${BRAND_NAME}`,
@@ -392,12 +404,15 @@ export const PAYMENT_RECEIPT_STRINGS: Record<SupportedLocale, PaymentReceiptStri
     body: "Grazie per il suo ordine. Il suo pagamento è stato ricevuto e la sua lettera è in lavorazione.",
     orderLabel: "Ordine",
     totalLabel: "Totale",
+    subtotalBeforeDiscountLabel: "Subtotale prima dello sconto",
     vatNote: "IVA 8.1% inclusa",
     downloadLabel: "Visualizzi o scarichi la sua lettera",
     downloadCta: "Visualizzi la lettera",
     retentionNotice: "Questo link sicuro è disponibile per {days} giorni.",
     attachmentNote: "La sua ricevuta è allegata a questa e-mail in formato PDF.",
     supportLine: "Domande? Ci contatti all'indirizzo",
+    promoCodeLabel: "Codice promozionale",
+    discountLabel: "Sconto",
   },
 };
 

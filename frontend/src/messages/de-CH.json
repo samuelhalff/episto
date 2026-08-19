@@ -713,7 +713,7 @@
     "orderSummary": "Ihre Bestellung",
     "checkoutIntro": "Prüfen und sicher bezahlen",
     "email": "E-Mail-Adresse",
-    "emailHelp": "An diese Adresse senden wir Ihren Beleg, spätere Versand-Updates und einen sicheren Link zum Bestellstatus. Über diesen Link bleibt auch das signierte Bestätigungsdokument verfügbar, solange es aufbewahrt wird. Wir verwenden diese Adresse nie für Werbung.",
+    "emailHelp": "An diese Adresse senden wir Ihren Beleg und Versand-Updates. Ihr signiertes Bestätigungsdokument bleibt über den sicheren Download-Link für eine begrenzte Zeit verfügbar. Wir verwenden diese Adresse nie für Werbung.",
     "phone": "Mobilnummer",
     "phoneHelp": "Wir verifizieren vor der Zahlung eine Schweizer Mobilnummer, um Missbrauch zu reduzieren und einen Kontakt zur Bestellung zu haben. Wir verwenden sie nicht für Werbung.",
     "phoneCode": "SMS-Code",
@@ -760,7 +760,11 @@
     "backToReview": "Zurück",
     "paymentMethodsHelp": "TWINT erscheint zuerst, danach Karte, Apple Pay, Google Pay und weitere unterstützte Wallets, sofern Stripe und Ihr Gerät diese anbieten.",
     "promoCode": "Aktionscode (optional)",
-    "promoCodeHelp": "Falls Sie einen Aktions- oder Gutscheincode haben."
+    "promoCodeHelp": "Falls Sie einen Aktions- oder Gutscheincode haben.",
+    "checkingPromoCode": "Code wird geprüft…",
+    "promoCodeValidated": "Code {code} angewendet.",
+    "subtotal": "Zwischensumme",
+    "discount": "Rabatt"
   },
   "attachments": {
     "title": "Beilagen",
@@ -824,7 +828,7 @@
     "stepProcessing": "Bearbeitung durch den Anbieter",
     "stepProcessingDetail": "Der Anbieter braucht unter Umständen etwas Zeit, um die Übergabe zu bestätigen.",
     "stepUpdates": "Weitere Aktualisierungen hängen von der Bestätigung des Anbieters ab",
-    "stepUpdatesDetail": "Wenn sich der Status ändert, aktualisieren wir diese Seite und informieren Sie per E-Mail.",
+    "stepUpdatesDetail": "Wenn sich der Status ändert, informieren wir Sie per E-Mail.",
     "downloadReceipt": "Beleg herunterladen",
     "viewLetter": "Signiertes Bestätigungsdokument ansehen",
     "sendAnother": "Weiteren Brief verfassen",
@@ -855,6 +859,14 @@
     "templateAppliedToResumed": "Die gewählte Vorlage wird auf diesen Entwurf angewendet.",
     "templateNotAppliedToResumed": "Die gewählte Vorlage konnte nicht angewendet werden. Sie können ohne sie fortfahren.",
     "continueWithoutTemplate": "Ohne Vorlage fortfahren"
+  },
+  "resumePrompt": {
+    "title": "Früheren Brief fortsetzen?",
+    "description": "In dieser Browsersitzung sind noch nicht fertige Briefe gespeichert.",
+    "lastUpdated": "Zuletzt aktualisiert: {value}",
+    "untitled": "Unbenannter Brief",
+    "continue": "Fortsetzen",
+    "dismiss": "Nicht jetzt"
   },
   "status": {
     "title": "Status Ihres Briefs",

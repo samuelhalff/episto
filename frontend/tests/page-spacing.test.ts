@@ -37,9 +37,6 @@ const confirmationPageSource = readSource(
 const reviewReadySource = readSource(
   "frontend/src/components/product/review/ReviewPageReady.tsx",
 );
-const statusPageSource = readSource(
-  "frontend/src/app/[locale]/status/[orderToken]/page.tsx",
-);
 const termsPageSource = readSource("frontend/src/app/[locale]/terms/page.tsx");
 const privacyPageSource = readSource("frontend/src/app/[locale]/privacy/page.tsx");
 const imprintPageSource = readSource("frontend/src/app/[locale]/imprint/page.tsx");
@@ -111,7 +108,6 @@ describe("page spacing contracts", () => {
     expect(adminShellSource).toContain("ADMIN_SHELL_MAIN_CLASS_NAME");
     expect(checkoutPageSource).toContain("APP_PAGE_STACK_CLASS_NAME");
     expect(reviewReadySource).toContain("APP_PAGE_STACK_CLASS_NAME");
-    expect(statusPageSource).toContain("APP_PAGE_STACK_CLASS_NAME");
     expect(confirmationPageSource).toContain("NARROW_APP_PAGE_SHELL_CLASS_NAME");
   });
 });

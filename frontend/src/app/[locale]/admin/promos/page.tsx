@@ -41,6 +41,7 @@ export default function PromosPage() {
   const [editing, setEditing] = useState<AdminPromo | null>(null);
   const [deleting, setDeleting] = useState<AdminPromo | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const q = useQuery({
     queryKey: queryKeys.admin.promos(filter),
@@ -49,7 +50,7 @@ export default function PromosPage() {
   });
 
   function invalidate() {
-    void queryClient.invalidateQueries({ queryKey: ["admin", "promos"] });
+    return queryClient.invalidateQueries({ queryKey: ["admin", "promos"] });
   }
 
   const saveMutation = useMutation({
@@ -64,8 +65,8 @@ export default function PromosPage() {
             note: values.note,
           })
         : createAdminPromo(values),
-    onSuccess: () => {
-      invalidate();
+    onSuccess: async () => {
+      await invalidate();
       setFormOpen(false);
       setEditing(null);
     },
@@ -77,13 +78,21 @@ export default function PromosPage() {
   const toggleMutation = useMutation({
     mutationFn: (promo: AdminPromo) => toggleAdminPromoActive(promo.id, !promo.active),
     onSuccess: invalidate,
+    onError: (err: unknown) => {
+      setActionError(
+        err instanceof Error ? err.message : "Could not change the code status.",
+      );
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: (promo: AdminPromo) => deleteAdminPromo(promo.id),
-    onSuccess: () => {
-      invalidate();
+    onSuccess: async () => {
+      await invalidate();
       setDeleting(null);
+    },
+    onError: (err: unknown) => {
+      setActionError(err instanceof Error ? err.message : "Could not delete the code.");
     },
   });
 
@@ -97,12 +106,14 @@ export default function PromosPage() {
   function openCreate() {
     setEditing(null);
     setFormError(null);
+    setActionError(null);
     setFormOpen(true);
   }
 
   function openEdit(promo: AdminPromo) {
     setEditing(promo);
     setFormError(null);
+    setActionError(null);
     setFormOpen(true);
   }
 
@@ -119,6 +130,11 @@ export default function PromosPage() {
             Create reusable percentage codes, fixed-amount or free codes, and one-time
             codes (redemption limit 1). Codes are enforced server-side at checkout.
           </p>
+          {actionError ? (
+            <p className="mt-2 text-xs text-destructive" role="alert">
+              {actionError}
+            </p>
+          ) : null}
         </div>
         <AppButton
           variant="primary"
@@ -153,8 +169,14 @@ export default function PromosPage() {
           <PromoTable
             promos={promos}
             onEdit={openEdit}
-            onToggle={(promo) => toggleMutation.mutate(promo)}
-            onDelete={(promo) => setDeleting(promo)}
+            onToggle={(promo) => {
+              setActionError(null);
+              toggleMutation.mutate(promo);
+            }}
+            onDelete={(promo) => {
+              setActionError(null);
+              setDeleting(promo);
+            }}
             busyId={busyId}
           />
         )}
@@ -203,6 +225,11 @@ export default function PromosPage() {
               >
                 {deleting && deleting.redeemedCount > 0 ? "Archive" : "Delete"}
               </AppButton>
+              {actionError ? (
+                <p className="mt-3 text-xs text-destructive" role="alert">
+                  {actionError}
+                </p>
+              ) : null}
             </div>
           </div>
         </DialogPanel>

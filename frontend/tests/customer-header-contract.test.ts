@@ -32,10 +32,6 @@ const entryPageSource = readFileSync(
   path.join(repoRoot, "frontend/src/app/[locale]/draft/new/page.tsx"),
   "utf8",
 );
-const statusPageSource = readFileSync(
-  path.join(repoRoot, "frontend/src/app/[locale]/status/[orderToken]/page.tsx"),
-  "utf8",
-);
 
 describe("customer header contract", () => {
   it("routes customer-facing headers through the shared desktop language menu and mobile site menu", () => {
@@ -58,8 +54,6 @@ describe("customer header contract", () => {
     expect(draftShellSource).toContain("<HeaderLanguageMenu");
     expect(entryPageSource).toContain("<HeaderLanguageMenu");
     expect(entryPageSource.match(/<CustomerSiteMenu/g)?.length).toBe(2);
-    expect(statusPageSource.match(/<CustomerSiteMenu/g)?.length).toBe(2);
-    expect(statusPageSource).toContain("<HeaderLanguageMenu");
   });
 
   it("uses anchored popovers for desktop customer menus while keeping compact sheets for mobile", () => {

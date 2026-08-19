@@ -12,6 +12,7 @@ const STATIC_ROUTES = [
   "/privacy",
   "/terms",
   "/imprint",
+  "/signature-requirements",
 ] as const;
 
 // Stable content-revision dates (not `new Date()`, which would advertise every

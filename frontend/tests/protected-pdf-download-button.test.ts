@@ -25,11 +25,6 @@ const confirmationPageSource = readFileSync(
   "utf8",
 );
 
-const statusPageSource = readFileSync(
-  path.join(repoRoot, "frontend/src/app/[locale]/status/[orderToken]/page.tsx"),
-  "utf8",
-);
-
 // ---------------------------------------------------------------------------
 // download-file.ts contract
 // ---------------------------------------------------------------------------
@@ -123,20 +118,6 @@ describe("confirmation page", () => {
 });
 
 // ---------------------------------------------------------------------------
-// Status page uses ProtectedPdfDownloadButton
-// ---------------------------------------------------------------------------
-
-describe("status page", () => {
-  it("imports ProtectedPdfDownloadButton", () => {
-    expect(statusPageSource).toMatch(/ProtectedPdfDownloadButton/);
-  });
-
-  it("uses /v1/orders/:orderToken/pdf endpoint", () => {
-    expect(statusPageSource).toMatch(/\/v1\/orders\/\$\{orderToken\}\/pdf/);
-  });
-});
-
-// ---------------------------------------------------------------------------
 // i18n: all four locales define downloadLetter and downloadUnavailable
 // ---------------------------------------------------------------------------
 
@@ -159,12 +140,6 @@ for (const { name, messages } of LOCALES) {
         expect(confirmation).toBeDefined();
         expect(confirmation[key]).toBeTruthy();
       });
-
-      it(`defines status.${key}`, () => {
-        const status = (messages as Record<string, Record<string, string>>)["status"];
-        expect(status).toBeDefined();
-        expect(status[key]).toBeTruthy();
-      });
     }
   });
 }
@@ -175,7 +150,6 @@ for (const { name, messages } of LOCALES) {
 
 describe("en-CH exact copy values", () => {
   const confirmation = (enCH as Record<string, Record<string, string>>)["confirmation"];
-  const status = (enCH as Record<string, Record<string, string>>)["status"];
 
   it("confirmation.downloadLetter matches approved copy", () => {
     expect(confirmation["downloadLetter"]).toBe("Download confirmation");
@@ -183,16 +157,6 @@ describe("en-CH exact copy values", () => {
 
   it("confirmation.downloadUnavailable matches approved copy", () => {
     expect(confirmation["downloadUnavailable"]).toBe(
-      "The confirmation document is no longer available.",
-    );
-  });
-
-  it("status.downloadLetter matches approved copy", () => {
-    expect(status["downloadLetter"]).toBe("Download confirmation");
-  });
-
-  it("status.downloadUnavailable matches approved copy", () => {
-    expect(status["downloadUnavailable"]).toBe(
       "The confirmation document is no longer available.",
     );
   });

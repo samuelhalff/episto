@@ -310,14 +310,24 @@ function renderPaymentReceipt(
   const totalCents = readInteger(data, "totalCents", 0);
   const totalFormatted = formatCHF(totalCents);
   const totalLine = `${totalFormatted} ${s.vatNote}`;
+  const discountCents = readInteger(data, "discountCents", 0);
+  const promoCode = readString(data, "promoCode");
+  const subtotalBeforeDiscountCents = totalCents + discountCents;
   const downloadUrl = readString(data, "downloadUrl");
   const statementRetentionDays = readInteger(data, "statementRetentionDays", 10);
   const supportEmail = readString(data, "supportEmail");
 
   const rows = [
     detailRowMono(s.orderLabel, orderRef),
+    discountCents > 0
+      ? detailRow(s.subtotalBeforeDiscountLabel, formatCHF(subtotalBeforeDiscountCents))
+      : "",
+    promoCode ? detailRow(s.promoCodeLabel, promoCode) : "",
+    discountCents > 0 ? detailRow(s.discountLabel, `−${formatCHF(discountCents)}`) : "",
     detailRow(s.totalLabel, totalLine),
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   const bodyParts = [
     heading(s.heading),
@@ -351,6 +361,11 @@ function renderPaymentReceipt(
     s.body,
     "",
     `${s.orderLabel}: ${orderRef}`,
+    discountCents > 0
+      ? `${s.subtotalBeforeDiscountLabel}: ${formatCHF(subtotalBeforeDiscountCents)}`
+      : null,
+    promoCode ? `${s.promoCodeLabel}: ${promoCode}` : null,
+    discountCents > 0 ? `${s.discountLabel}: ${formatCHF(discountCents)}` : null,
     `${s.totalLabel}: ${totalLine}`,
     "",
     downloadUrl ? `${s.downloadLabel}: ${downloadUrl}` : null,

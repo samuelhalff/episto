@@ -108,6 +108,7 @@ export function useCheckout(
       const attribution = getAttributionForCheckout();
       return apiFetch<CheckoutResponse>(`/v1/drafts/${draftId}/checkout`, {
         method: "POST",
+        signal: AbortSignal.timeout(30_000),
         body: JSON.stringify({
           email,
           ...(promoCode ? { promoCode } : {}),

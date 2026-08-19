@@ -137,6 +137,22 @@ function createConfig(): NextConfig {
         },
       ];
     },
+    async redirects() {
+      // The tokenized order-status page was removed; catch any stray
+      // bookmarked links rather than serving a 404.
+      return [
+        {
+          source: "/:locale(de-CH|fr-CH|it-CH|en-CH)/status/:path*",
+          destination: "/:locale",
+          permanent: false,
+        },
+        {
+          source: "/status/:path*",
+          destination: "/",
+          permanent: false,
+        },
+      ];
+    },
     async rewrites() {
       const apiUrl = process.env.API_URL || "http://localhost:4000";
       return [

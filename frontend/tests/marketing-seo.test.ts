@@ -221,7 +221,6 @@ describe("marketing seo plumbing", () => {
       "frontend/src/app/[locale]/admin/layout.tsx",
       "frontend/src/app/[locale]/draft/layout.tsx",
       "frontend/src/app/[locale]/resume/layout.tsx",
-      "frontend/src/app/[locale]/status/layout.tsx",
     ];
 
     for (const file of files) {
@@ -448,6 +447,7 @@ describe("marketing seo plumbing", () => {
     expect(urls).toContain("https://example.test/en-CH/pricing");
     expect(urls).toContain("https://example.test/it-CH/help");
     expect(urls).toContain("https://example.test/fr-CH/privacy");
+    expect(urls).toContain("https://example.test/en-CH/signature-requirements");
     expect(urls).not.toContain("https://example.test/de-CH/draft/new");
     expect(urls).not.toContain("https://example.test/de-CH/admin");
     expect(urls).not.toContain("https://example.test/de-CH/resume/token");

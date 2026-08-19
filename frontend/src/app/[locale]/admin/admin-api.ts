@@ -93,6 +93,14 @@ async function readApiError(res: Response): Promise<string> {
     ) {
       return body.error.message;
     }
+    if (
+      body?.error &&
+      typeof body.error === "object" &&
+      typeof (body.error as { userMessage?: unknown }).userMessage === "string" &&
+      (body.error as { userMessage: string }).userMessage.trim()
+    ) {
+      return (body.error as { userMessage: string }).userMessage;
+    }
   } catch {
     // Ignore JSON parse errors and fall back to the status code.
   }

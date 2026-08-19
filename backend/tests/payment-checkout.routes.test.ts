@@ -28,6 +28,8 @@ const mocks = vi.hoisted(() => ({
   getLatestSnapshot: vi.fn(),
   enqueueDispatchSubmission: vi.fn(),
   recordEvent: vi.fn(),
+  applyPromoToTotal: vi.fn(),
+  recordPromoRedemption: vi.fn(),
 }));
 
 vi.mock("../src/db/index.js", () => ({
@@ -100,6 +102,11 @@ vi.mock("../src/modules/signing/fulfillment.service.js", () => ({
   syncDraftFulfillmentFromPaymentState: mocks.syncDraftFulfillmentFromPaymentState,
 }));
 
+vi.mock("../src/modules/payments/promo.service.js", () => ({
+  applyPromoToTotal: mocks.applyPromoToTotal,
+  recordPromoRedemption: mocks.recordPromoRedemption,
+}));
+
 import { paymentRoutes } from "../src/modules/payments/payment.routes.js";
 
 describe("payment checkout routes", () => {
@@ -160,6 +167,17 @@ describe("payment checkout routes", () => {
         lineItems: [],
       },
     });
+    mocks.resolveDisplayDispatchQuoteForDraft.mockResolvedValue({
+      quote: {
+        deliveryType: "standard",
+        providerQuotedCents: 290,
+        swissMailMarkupCents: 335,
+        totalCents: 625,
+        providerQuoteReference: "quote-1",
+        attachmentHandling: "excluded",
+        lineItems: [],
+      },
+    });
     mocks.createPaymentAttempt.mockResolvedValue({
       id: "payment-1",
       state: "pending",
@@ -182,6 +200,13 @@ describe("payment checkout routes", () => {
     mocks.getLatestSnapshot.mockResolvedValue(null);
     mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
     mocks.setPaymentIntentId.mockResolvedValue(undefined);
+    mocks.applyPromoToTotal.mockResolvedValue({
+      promoCodeId: "promo-1",
+      code: "SAVE20",
+      kind: "percent",
+      discountCents: 125,
+      finalCents: 500,
+    });
     mocks.transitionPaymentState.mockResolvedValue({
       payment: {
         id: "payment-old",
@@ -846,90 +871,5 @@ describe("payment checkout routes", () => {
     });
     expect(mocks.transitionPaymentState).toHaveBeenCalledTimes(3);
     expect(mocks.createPaymentAttempt).not.toHaveBeenCalled();
-  });
-
-  it("reconciles a pending payment status request when Stripe already reports success", async () => {
-    mocks.getPaymentForDraft.mockReset();
-    mocks.getPaymentIntentForCheckout.mockReset();
-    mocks.getLatestSnapshot.mockReset();
-    mocks.transitionPaymentState.mockReset();
-    mocks.enqueueDispatchSubmission.mockReset();
-
-    mocks.getPaymentForDraft.mockResolvedValueOnce({
-      id: "payment-status-pending",
-      draftId: "draft-1",
-      sessionId: "session-1",
-      state: "pending",
-      stripePaymentIntentId: "pi_status_succeeded",
-      amountCents: 625,
-      breakdown: {
-        deliveryType: "standard",
-        providerQuotedCents: 290,
-        swissMailMarkupCents: 335,
-        totalCents: 625,
-        providerQuoteReference: "quote-old",
-        attachmentHandling: "excluded",
-        lineItems: [],
-      },
-      failureReason: null,
-    });
-    mocks.getPaymentIntentForCheckout.mockResolvedValueOnce({
-      status: "succeeded",
-      clientSecret: "cs_paid",
-      latestChargeId: "ch_paid",
-    });
-    mocks.getLatestSnapshot.mockResolvedValueOnce({
-      id: "snapshot-status",
-      renderedPdfAssetId: "asset-status",
-    });
-    mocks.transitionPaymentState.mockResolvedValueOnce({
-      payment: {
-        id: "payment-status-pending",
-        draftId: "draft-1",
-        sessionId: "session-1",
-        state: "captured",
-        amountCents: 625,
-        breakdown: {
-          deliveryType: "standard",
-          providerQuotedCents: 290,
-          swissMailMarkupCents: 335,
-          totalCents: 625,
-          providerQuoteReference: "quote-old",
-          attachmentHandling: "excluded",
-          lineItems: [],
-        },
-        failureReason: null,
-        updatedAt: new Date("2026-04-09T11:00:00.000Z"),
-      },
-      rawOrderAccessToken: "order-token",
-    });
-
-    const response = await app.inject({
-      method: "GET",
-      url: "/drafts/draft-1/payment",
-    });
-
-    expect(response.statusCode).toBe(200);
-    expect(mocks.getPaymentIntentForCheckout).toHaveBeenCalledWith("pi_status_succeeded");
-    expect(mocks.transitionPaymentState).toHaveBeenCalledWith(
-      mocks.db,
-      "payment-status-pending",
-      "captured",
-      {
-        stripePaymentIntentId: "pi_status_succeeded",
-        stripeChargeId: "ch_paid",
-      },
-    );
-    expect(mocks.enqueueDispatchSubmission).toHaveBeenCalledWith({
-      draftId: "draft-1",
-      snapshotId: "snapshot-status",
-      paymentId: "payment-status-pending",
-    });
-    expect(response.json()).toMatchObject({
-      payment: {
-        state: "captured",
-        capturedAt: "2026-04-09T11:00:00.000Z",
-      },
-    });
   });
 });

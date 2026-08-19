@@ -90,6 +90,7 @@ export function renderReceiptDocumentHtml(input: ReceiptDocumentInput): string {
           <span class="total-amount">−${escapeHtml(formatMoney(input.discountCents))}</span>
         </div>`
       : "";
+  const subtotalBeforeDiscountCents = input.totalCents + input.discountCents;
 
   const deliveryTypeHtml = deliveryTypeLabel
     ? `<div class="meta-row">
@@ -164,6 +165,10 @@ export function renderReceiptDocumentHtml(input: ReceiptDocumentInput): string {
 
     <section class="totals">
       <div class="totals-inner">
+        <div class="total-row">
+          <span class="total-label">${escapeHtml(copy.subtotalBeforeDiscount)}</span>
+          <span class="total-amount">${escapeHtml(formatMoney(subtotalBeforeDiscountCents))}</span>
+        </div>
         ${discountHtml}
         <div class="total-row">
           <span class="total-label">${escapeHtml(copy.subtotal)}</span>

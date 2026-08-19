@@ -47,6 +47,10 @@ describe("receiptDedupeKey", () => {
     );
   });
 
+  it("produces a BullMQ-safe customer request key", () => {
+    expect(receiptDedupeKey(PAYMENT, GENERATION, "customer_request")).not.toContain(":");
+  });
+
   it("absorbs a double-click within the same minute", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-07-29T10:00:01.000Z"));

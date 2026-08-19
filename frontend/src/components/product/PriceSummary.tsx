@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Lock, ReceiptText } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { DeliveryType } from "@episto/shared";
+import type { PromoQuoteState } from "../../hooks/use-promo-quote";
 import { formatCentsAsCHF } from "../../hooks/use-pricing";
 import { useDispatchQuote } from "../../hooks/use-dispatch-quote";
 import { getApiErrorUserMessage } from "../../lib/api";
@@ -18,6 +19,7 @@ export function PriceSummary({
   quoteEnabled = true,
   pendingLabel,
   loadingMessage,
+  promoQuote,
 }: {
   draftId?: string;
   deliveryType: string;
@@ -26,6 +28,7 @@ export function PriceSummary({
   quoteEnabled?: boolean;
   pendingLabel?: string | undefined;
   loadingMessage?: string | undefined;
+  promoQuote?: PromoQuoteState | null;
 }) {
   const t = useTranslations("checkout");
   const quote = useDispatchQuote(draftId ?? "", Boolean(draftId) && quoteEnabled);
@@ -42,6 +45,8 @@ export function PriceSummary({
     "—"
   ) : quote.isLoading ? (
     <span className="animate-shimmer inline-block h-4 w-20 rounded-full" />
+  ) : promoQuote ? (
+    formatCentsAsCHF(promoQuote.quote.totalCents)
   ) : quote.data ? (
     formatCentsAsCHF(quote.data.totalCents)
   ) : null;
@@ -77,26 +82,47 @@ export function PriceSummary({
             }
           />
         </div>
-        {quote.data?.lineItems?.length ? (
+        {(promoQuote?.quote.lineItems ?? quote.data?.lineItems)?.length ? (
           <div className="space-y-2">
-            {quote.data.lineItems.map((lineItem) => {
-              const label =
-                lineItem.source === "provider"
-                  ? t("providerQuoteLabel")
-                  : t("swissMailServiceLabel");
+            {(promoQuote?.quote.lineItems ?? quote.data?.lineItems ?? []).map(
+              (lineItem) => {
+                const label =
+                  lineItem.source === "provider"
+                    ? t("providerQuoteLabel")
+                    : t("swissMailServiceLabel");
 
-              return (
-                <div
-                  key={`${lineItem.source}-${lineItem.label}`}
-                  className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300"
-                >
-                  <span>{label}</span>
-                  <span className="font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
-                    {formatCentsAsCHF(lineItem.amountCents)}
-                  </span>
-                </div>
-              );
-            })}
+                return (
+                  <div
+                    key={`${lineItem.source}-${lineItem.label}`}
+                    className="flex items-center justify-between text-sm text-zinc-600 dark:text-zinc-300"
+                  >
+                    <span>{label}</span>
+                    <span className="font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
+                      {formatCentsAsCHF(lineItem.amountCents)}
+                    </span>
+                  </div>
+                );
+              },
+            )}
+          </div>
+        ) : null}
+        {promoQuote ? (
+          <div className="space-y-2 text-sm text-zinc-600 dark:text-zinc-300">
+            <div className="flex items-center justify-between">
+              <span>{t("subtotal")}</span>
+              <span className="tabular-nums">
+                {formatCentsAsCHF(
+                  promoQuote.baseQuoteAtValidation?.totalCents ??
+                    promoQuote.quote.totalCents,
+                )}
+              </span>
+            </div>
+            <div className="flex items-center justify-between text-emerald-700 dark:text-emerald-300">
+              <span>{t("discount")}</span>
+              <span className="tabular-nums">
+                −{formatCentsAsCHF(promoQuote.promo.discountCents)}
+              </span>
+            </div>
           </div>
         ) : null}
         {quote.isError ? (

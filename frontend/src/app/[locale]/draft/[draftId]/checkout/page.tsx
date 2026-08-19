@@ -8,13 +8,20 @@ import { z } from "zod";
 import { useTranslations } from "next-intl";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
-import { useDraft, useCheckout, usePhoneVerification, useSession } from "@/hooks/use-api";
+import {
+  useDraft,
+  useCheckout,
+  usePhoneVerification,
+  usePromoQuote,
+  useSession,
+} from "@/hooks/use-api";
 import { useStepTracking } from "@/hooks/use-step-tracking";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Lock, Truck, ShieldCheck, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 import { FlowHeader } from "@/components/product/FlowHeader";
 import { FlowActionDock } from "@/components/product/FlowActionDock";
 import { PriceSummary } from "@/components/product/PriceSummary";
+import { PromoCodeField } from "@/components/product/PromoCodeField";
 import {
   APP_PAGE_STACK_CLASS_NAME,
   APP_WIDE_PAGE_SHELL_CLASS_NAME,
@@ -135,6 +142,7 @@ export default function CheckoutPage({
   useStepTracking({ step: "draft_checkout", draftId, locale });
   const canRequestQuote = !["reviewed", "rendering"].includes(draft.data?.status ?? "");
   const checkout = useCheckout(draftId, { quoteEnabled: canRequestQuote });
+  const promo = usePromoQuote(draftId, promoCode, canRequestQuote);
   const phoneVerification = usePhoneVerification(draftId);
 
   const checkoutSchema = createCheckoutSchema(t("consentRequired"));
@@ -154,6 +162,9 @@ export default function CheckoutPage({
   const billingEmail = submittedCheckoutEmail ?? session.session?.email ?? "";
 
   const isSubmitting = checkout.isProcessing;
+  const promoCodeValidated = promo.isValidated;
+  const promoCodePending =
+    Boolean(promoCode.trim()) && (promo.isPendingValidation || promo.isFetching);
 
   // GA4 funnel: fire once when the priced checkout is ready.
   const checkoutTrackedRef = useRef(false);
@@ -310,6 +321,7 @@ export default function CheckoutPage({
             showTrustNote
             quoteEnabled={canRequestQuote}
             pendingLabel={pricingPendingMessage ?? undefined}
+            promoQuote={promo.result}
           />
         </aside>
 
@@ -360,25 +372,11 @@ export default function CheckoutPage({
                   </p>
                 )}
               </div>
-              <div className="app-panel rounded-3xl p-6">
-                <label
-                  htmlFor="promoCode"
-                  className="block text-sm font-semibold text-[var(--app-fg)]"
-                >
-                  {t("promoCode")}
-                </label>
-                <p className="mt-1 text-xs text-[var(--app-muted)]">
-                  {t("promoCodeHelp")}
-                </p>
-                <input
-                  id="promoCode"
-                  type="text"
-                  autoComplete="off"
-                  value={promoCode}
-                  onChange={(event) => setPromoCode(event.target.value)}
-                  className="app-form-control mt-3 w-full rounded-xl border border-[var(--app-border)] bg-[var(--app-surface-strong)] px-4 py-3 uppercase tracking-wider text-[var(--app-fg)] placeholder:text-[var(--app-muted)] transition-[border-color,box-shadow,background-color,color] focus:border-[var(--app-border-strong)] focus:outline-none focus:ring-2 focus:ring-amber-200/60 dark:focus:ring-amber-300/20"
-                />
-              </div>
+              <PromoCodeField
+                promoCode={promoCode}
+                onPromoCodeChange={setPromoCode}
+                promo={promo}
+              />
               <div className="app-panel rounded-3xl p-6">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -560,7 +558,9 @@ export default function CheckoutPage({
                       hasBlockingPricingError ||
                       hasBlockingStripeConfigurationError ||
                       !canRequestQuote ||
-                      !isPhoneVerified
+                      !isPhoneVerified ||
+                      promoCodePending ||
+                      (Boolean(promoCode.trim()) && !promoCodeValidated)
                     }
                     loading={isSubmitting || isPricingPending}
                     trailingIcon={

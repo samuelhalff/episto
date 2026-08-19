@@ -27,4 +27,15 @@ describe("draft status refresh", () => {
     );
     expect(useDraftSource).toContain("invalidateQueries");
   });
+
+  it("invalidates the preview query when a draft field update arrives", () => {
+    const previewSource = readFileSync(
+      path.join(repoRoot, "frontend/src/hooks/use-letter-preview.ts"),
+      "utf8",
+    );
+
+    expect(previewSource).toContain('event.type === "field_update"');
+    expect(previewSource).toContain("queryKeys.draftPreview(draftId)");
+    expect(previewSource).toContain("invalidateQueries");
+  });
 });

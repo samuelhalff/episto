@@ -713,7 +713,7 @@
     "orderSummary": "Your order",
     "checkoutIntro": "Review and pay securely",
     "email": "Email address",
-    "emailHelp": "We'll send your receipt here, along with dispatch updates and a secure order-status link. The signed confirmation document stays available through that link while it is retained. We never use this address for marketing.",
+    "emailHelp": "We'll send your receipt and dispatch updates here. Your signed confirmation document remains available through the secure download link for a limited time. We never use this address for marketing.",
     "phone": "Mobile number",
     "phoneHelp": "We verify a Swiss mobile number before payment to reduce misuse and keep a contact signal for the order. We do not use it for marketing.",
     "phoneCode": "SMS code",
@@ -760,7 +760,11 @@
     "backToReview": "Back",
     "paymentMethodsHelp": "TWINT appears first, followed by card, Apple Pay, Google Pay, and other supported wallets when Stripe and your device support them.",
     "promoCode": "Promo code (optional)",
-    "promoCodeHelp": "If you have a promotional or voucher code."
+    "promoCodeHelp": "If you have a promotional or voucher code.",
+    "checkingPromoCode": "Checking code…",
+    "promoCodeValidated": "Code {code} applied.",
+    "subtotal": "Subtotal",
+    "discount": "Discount"
   },
   "attachments": {
     "title": "Attachments",
@@ -824,7 +828,7 @@
     "stepProcessing": "Provider processing",
     "stepProcessingDetail": "The provider may take a little time to confirm the handoff.",
     "stepUpdates": "Further updates depend on provider confirmation",
-    "stepUpdatesDetail": "If the status changes, we will update this page and email you.",
+    "stepUpdatesDetail": "If the status changes, we will email you.",
     "downloadReceipt": "Download receipt",
     "viewLetter": "View signed confirmation document",
     "sendAnother": "Send another letter",
@@ -847,6 +851,7 @@
     "unfinishedTitle": "You have an unfinished letter",
     "unfinishedBody": "Pick up where you left off or start a fresh letter without losing the older draft.",
     "lastUpdated": "Last updated {value}",
+    "untitled": "Untitled letter",
     "continueDraft": "Continue my letter",
     "startFresh": "Start fresh",
     "startFreshLink": "or start a new letter",
@@ -855,6 +860,14 @@
     "templateAppliedToResumed": "The template you chose will be applied to this draft.",
     "templateNotAppliedToResumed": "The template you chose could not be applied. You can continue without it.",
     "continueWithoutTemplate": "Continue without the template"
+  },
+  "resumePrompt": {
+    "title": "Continue a previous letter?",
+    "description": "You have unfinished letters saved in this browser session.",
+    "lastUpdated": "Last updated {value}",
+    "untitled": "Untitled letter",
+    "continue": "Continue",
+    "dismiss": "Not now"
   },
   "status": {
     "title": "Letter status",
