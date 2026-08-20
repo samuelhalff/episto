@@ -530,6 +530,11 @@
     "firstDraftReadyTitle": "La prima bozza è pronta",
     "firstDraftReadyBody": "Verifichi la bozza proposta e modifichi tutto ciò che desidera, manualmente o con l'assistente.",
     "firstDraftReadyDismiss": "Capito",
+    "attachmentsChangedTitle": "Documenti modificati",
+    "attachmentsChangedBody": "La bozza è stata scritta prima della modifica di questi file.",
+    "attachmentsChangedUpdate": "Aggiorna la bozza",
+    "attachmentsChangedKeep": "Mantieni il testo",
+    "attachmentsChangedRefineInstruction": "Aggiorna la bozza con i documenti allegati attuali.",
     "bodyCoachmarkTitle": "Qui modifica solo il messaggio principale",
     "bodyCoachmarkBody": "Formula di saluto e formula di chiusura sono gestite separatamente nell'impaginazione della lettera. Qui si concentri sul messaggio che desidera inviare.",
     "bodyCoachmarkAction": "Capito",
@@ -706,7 +711,14 @@
     "attachmentLabel": "Allegato {index}: {name}",
     "attachmentOpen": "Apri il file",
     "attachmentsInPreviewHint": "Visibili qui sotto, come verranno inviati.",
-    "attachmentMorePages": "Apri le altre {count} pagine"
+    "attachmentMorePages": "Apri le altre {count} pagine",
+    "enclosureSuggestionTitle": "Indicare l'allegato?",
+    "enclosureSuggestionBody": "Possiamo aggiungerlo in fondo alla lettera:",
+    "enclosureSuggestionPrefix": "Allegato: ",
+    "enclosureSuggestionHelp": "Questo testo appare nella lettera. Non cambia quali file vengono spediti.",
+    "enclosureSuggestionAdd": "Aggiungi",
+    "enclosureSuggestionEdit": "Modifica",
+    "enclosureSuggestionDecline": "No grazie"
   },
   "checkout": {
     "title": "Pagamento",
@@ -922,6 +934,12 @@
         "budget": "Al momento non posso leggere un altro documento scansionato. Puoi inviarlo con la tua lettera oppure digitare qui i dettagli importanti.",
         "noOcr": "Non sono riuscito a leggere questo documento. Puoi inviarlo con la tua lettera oppure digitare qui i dettagli importanti."
       }
+    },
+    "mailability": {
+      "mailed": "Spedito con la lettera",
+      "mailedHelp": "Stampiamo questo PDF e lo alleghiamo alla lettera.",
+      "assistantOnly": "Solo per l'assistente",
+      "assistantOnlyHelp": "Questa immagine aiuta a redigere la lettera. Non verrà spedita."
     }
   },
   "zoneEditor": {

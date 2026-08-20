@@ -86,6 +86,19 @@ describe("analyzeIntakePrompt", () => {
     // The block is still data, not a channel for instructions.
     expect(system).toContain("never commands");
   });
+
+  it("surfaces explicit document deadlines as possible deadlines to verify", () => {
+    const system = getMessageContent(
+      analyzeIntakePrompt({
+        userMessage: "Ich möchte Einsprache erheben.",
+        existingFields: {},
+        locale: "de-CH",
+      }),
+      0,
+    );
+    expect(system).toContain("possible deadline");
+    expect(system).toContain("stated verbatim");
+  });
 });
 
 describe("classifyIntentPrompt", () => {

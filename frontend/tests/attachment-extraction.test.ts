@@ -4,6 +4,7 @@ import type { FileAsset } from "@episto/shared";
 import {
   extractionChip,
   extractionMessageKey,
+  mailabilityChip,
   isAttachmentExtractionInProgress,
   summarizeAttachmentExtraction,
 } from "../src/components/product/attachment-extraction";
@@ -185,4 +186,36 @@ describe("translation coverage", () => {
       }
     });
   }
+});
+
+/**
+ * Mailing is orthogonal to readability: provider-accepted files are printed
+ * and enclosed with the letter, the rest only inform the assistant. Users
+ * must see which is which on every file row, in every locale.
+ */
+describe("mailabilityChip", () => {
+  it("follows the provider policy: accepted types are mailed, the rest assist only", () => {
+    const epostPolicy = ["application/pdf"];
+    expect(mailabilityChip("application/pdf", epostPolicy)).toBe("mailed");
+    expect(mailabilityChip("image/png", epostPolicy)).toBe("assistantOnly");
+    expect(mailabilityChip("image/jpeg", epostPolicy)).toBe("assistantOnly");
+
+    const defaultPolicy = ["application/pdf", "image/png", "image/jpeg"];
+    expect(mailabilityChip("image/png", defaultPolicy)).toBe("mailed");
+  });
+
+  it("resolves chip and helper copy in all four locales", () => {
+    for (const [locale, messages] of Object.entries(LOCALES)) {
+      for (const chip of ["mailed", "assistantOnly"] as const) {
+        expect(
+          lookup(messages, `files.mailability.${chip}`),
+          `${locale}: ${chip}`,
+        ).toEqual(expect.any(String));
+        expect(
+          lookup(messages, `files.mailability.${chip}Help`),
+          `${locale}: ${chip}Help`,
+        ).toEqual(expect.any(String));
+      }
+    }
+  });
 });

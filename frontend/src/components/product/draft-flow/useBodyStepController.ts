@@ -21,6 +21,7 @@ import {
 } from "./prompt-shortcut-behavior";
 import { showStepErrorToast } from "./step-feedback";
 import { bodyStepReducer, initialBodyStepState, type EditMode } from "./bodyStepReducer";
+import { useAttachmentDraftSync } from "./use-attachment-draft-sync";
 import { getDraftWorkspaceState } from "./workspace-state";
 
 const BODY_STEP_FIRST_DRAFT_READY_STORAGE_KEY =
@@ -140,10 +141,17 @@ export function useBodyStepController({
     return () => window.clearTimeout(timeoutId);
   }, [state.bodyText, state.userEdited, updateDraft]);
 
+  const { attachmentsChangedSinceDraft, markAttachmentsSynced } = useAttachmentDraftSync({
+    draftId,
+    attachments: files.attachments,
+    filesLoading: files.isLoading,
+    bodyText: state.bodyText,
+  });
+
   const requestInitialCompose = useCallback(async () => {
     if (isComposePending) return;
-    await composeDraftFromContext();
-  }, [composeDraftFromContext, isComposePending]);
+    await composeDraftFromContext(undefined, { onSuccess: markAttachmentsSynced });
+  }, [composeDraftFromContext, isComposePending, markAttachmentsSynced]);
 
   useEffect(() => {
     if (!hasHydratedRef.current) return;
@@ -281,11 +289,16 @@ export function useBodyStepController({
       }
 
       await conversation.sendMessage(instruction);
+      // Accepted residual: sendMessage resolving means the instruction was
+      // delivered, not that the assistant's edit succeeded. If the AI reply
+      // fails downstream the banner is gone for this change batch — minor,
+      // and the failure is visible in the refinement thread itself.
+      markAttachmentsSynced();
       dispatch({ type: "set-refine-text", value: "" });
       refineAutosave.persistInBackground("");
       dispatch({ type: "set-user-edited", value: false });
     },
-    [conversation, refineAutosave],
+    [conversation, markAttachmentsSynced, refineAutosave],
   );
 
   const handleRefine = useCallback(() => {
@@ -415,6 +428,14 @@ export function useBodyStepController({
     dispatch({ type: "set-show-preview", value: true });
   }, [onTogglePreview]);
 
+  const handleUpdateDraftFromAttachments = useCallback(() => {
+    void sendRefinementInstruction(t("attachmentsChangedRefineInstruction"));
+  }, [sendRefinementInstruction, t]);
+
+  const handleKeepWordingAfterAttachmentsChange = useCallback(() => {
+    markAttachmentsSynced();
+  }, [markAttachmentsSynced]);
+
   return {
     canProceed,
     bodyText: state.bodyText,
@@ -436,6 +457,9 @@ export function useBodyStepController({
     refinementMessages,
     dictation,
     quickActions,
+    attachmentsChangedSinceDraft,
+    handleUpdateDraftFromAttachments,
+    handleKeepWordingAfterAttachmentsChange,
     handleConfirm,
     handleModeChange,
     handlePreviewAction,

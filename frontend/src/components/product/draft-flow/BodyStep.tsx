@@ -58,6 +58,9 @@ export function BodyStep({
     refinementMessages,
     dictation,
     quickActions,
+    attachmentsChangedSinceDraft,
+    handleUpdateDraftFromAttachments,
+    handleKeepWordingAfterAttachmentsChange,
     handleConfirm,
     handleModeChange,
     handlePreviewAction,
@@ -188,6 +191,33 @@ export function BodyStep({
           previewButton={previewToolbarButton}
           onModeChange={handleModeChange}
         />
+
+        {attachmentsChangedSinceDraft && !loadingState.isAiBusy ? (
+          <div className="app-panel rounded-2xl p-4">
+            <p className="text-sm font-semibold text-[var(--app-fg)]">
+              {t("attachmentsChangedTitle")}
+            </p>
+            <p className="mt-1 text-sm leading-6 text-[var(--app-muted)]">
+              {t("attachmentsChangedBody")}
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <SecondaryButton
+                onClick={handleUpdateDraftFromAttachments}
+                fullWidth={false}
+                leadingVisual="none"
+              >
+                {t("attachmentsChangedUpdate")}
+              </SecondaryButton>
+              <SecondaryButton
+                onClick={handleKeepWordingAfterAttachmentsChange}
+                fullWidth={false}
+                leadingVisual="none"
+              >
+                {t("attachmentsChangedKeep")}
+              </SecondaryButton>
+            </div>
+          </div>
+        ) : null}
 
         <BodyPreview
           editMode={editMode}

@@ -5,7 +5,11 @@ import { Paperclip, Trash2, FileText, Image, Loader2, CheckCircle } from "lucide
 import { useTranslations } from "next-intl";
 import type { DraftAttachmentConstraints, FileAsset } from "@episto/shared";
 import { toast } from "sonner";
-import { extractionChip, extractionMessageKey } from "./attachment-extraction";
+import {
+  extractionChip,
+  extractionMessageKey,
+  mailabilityChip,
+} from "./attachment-extraction";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -346,6 +350,10 @@ export function AttachmentUploader({
             const isExpanded = expandedFileId === file.id;
             const chip = extractionChip(file.extractionStatus);
             const messageKey = extractionMessageKey(file.extractionStatus);
+            const mailability = mailabilityChip(
+              file.mimeType,
+              attachmentConstraints.allowedMimeTypes,
+            );
             return (
               <li
                 key={file.id}
@@ -398,6 +406,16 @@ export function AttachmentUploader({
                   >
                     {formatBytes(file.sizeBytes ?? 0)}
                   </span>
+                  {mailability === "mailed" ? (
+                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle className="h-3 w-3" aria-hidden="true" />
+                      {t("mailability.mailed")}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-zinc-500 dark:text-zinc-400">
+                      {t("mailability.assistantOnly")}
+                    </span>
+                  )}
                   {chip === "reading" || chip === "readingImage" ? (
                     <span
                       className="inline-flex items-center gap-1 text-[11px] text-zinc-500 dark:text-zinc-400"
@@ -466,6 +484,11 @@ export function AttachmentUploader({
                     }
                   >
                     {t(messageKey)}
+                  </p>
+                ) : null}
+                {isExpanded ? (
+                  <p className="basis-full text-[12px] leading-5 text-zinc-500 dark:text-zinc-400">
+                    {t(`mailability.${mailability}Help`)}
                   </p>
                 ) : null}
               </li>

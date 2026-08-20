@@ -530,6 +530,11 @@
     "firstDraftReadyTitle": "Your first draft is ready",
     "firstDraftReadyBody": "Review the suggested draft and change anything you want, manually or with the assistant.",
     "firstDraftReadyDismiss": "Understood",
+    "attachmentsChangedTitle": "Documents changed",
+    "attachmentsChangedBody": "Your draft was written before these files changed.",
+    "attachmentsChangedUpdate": "Update draft",
+    "attachmentsChangedKeep": "Keep wording",
+    "attachmentsChangedRefineInstruction": "Please update the draft using the current attached documents.",
     "bodyCoachmarkTitle": "You’re editing the main message only",
     "bodyCoachmarkBody": "Salutation and closing are handled separately in the letter layout. Focus here on the actual message you want to send.",
     "bodyCoachmarkAction": "Got it",
@@ -706,7 +711,14 @@
     "attachmentLabel": "Attachment {index}: {name}",
     "attachmentOpen": "Open file",
     "attachmentsInPreviewHint": "Shown below, exactly as they will be sent.",
-    "attachmentMorePages": "Open the remaining {count} pages"
+    "attachmentMorePages": "Open the remaining {count} pages",
+    "enclosureSuggestionTitle": "Add enclosure note?",
+    "enclosureSuggestionBody": "We can add this at the bottom of the letter:",
+    "enclosureSuggestionPrefix": "Enclosure: ",
+    "enclosureSuggestionHelp": "This text appears on the letter. It does not change which files are mailed.",
+    "enclosureSuggestionAdd": "Add",
+    "enclosureSuggestionEdit": "Edit",
+    "enclosureSuggestionDecline": "No thanks"
   },
   "checkout": {
     "title": "Checkout",
@@ -923,6 +935,12 @@
         "budget": "I can’t read another scanned document right now. You can still send it with your letter, or type the important details here.",
         "noOcr": "I couldn’t read this document. You can still send it with your letter, or type the important details here."
       }
+    },
+    "mailability": {
+      "mailed": "Mailed with letter",
+      "mailedHelp": "We print and enclose this PDF with your letter.",
+      "assistantOnly": "Assistant only",
+      "assistantOnlyHelp": "This image helps draft the letter. It will not be mailed."
     }
   },
   "zoneEditor": {

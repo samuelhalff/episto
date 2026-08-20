@@ -530,6 +530,11 @@
     "firstDraftReadyTitle": "Ihr erster Entwurf ist bereit",
     "firstDraftReadyBody": "Prüfen Sie den vorgeschlagenen Entwurf und passen Sie ihn bei Bedarf an – manuell oder mit dem Assistenten.",
     "firstDraftReadyDismiss": "Verstanden",
+    "attachmentsChangedTitle": "Unterlagen geändert",
+    "attachmentsChangedBody": "Der Entwurf wurde geschrieben, bevor diese Dateien geändert wurden.",
+    "attachmentsChangedUpdate": "Entwurf aktualisieren",
+    "attachmentsChangedKeep": "Text behalten",
+    "attachmentsChangedRefineInstruction": "Bitte aktualisiere den Entwurf mit den aktuellen Beilagen.",
     "bodyCoachmarkTitle": "Hier bearbeiten Sie nur den Haupttext",
     "bodyCoachmarkBody": "Anrede und Schlussformel werden im Brieflayout separat gesetzt. Konzentrieren Sie sich hier auf die eigentliche Nachricht Ihres Briefs.",
     "bodyCoachmarkAction": "Verstanden",
@@ -706,7 +711,14 @@
     "attachmentLabel": "Beilage {index}: {name}",
     "attachmentOpen": "Datei öffnen",
     "attachmentsInPreviewHint": "Unten sichtbar – so, wie sie versendet werden.",
-    "attachmentMorePages": "Restliche {count} Seiten öffnen"
+    "attachmentMorePages": "Restliche {count} Seiten öffnen",
+    "enclosureSuggestionTitle": "Beilage vermerken?",
+    "enclosureSuggestionBody": "Wir können dies unten im Brief ergänzen:",
+    "enclosureSuggestionPrefix": "Beilage: ",
+    "enclosureSuggestionHelp": "Dieser Text erscheint im Brief. Er ändert nicht, welche Dateien mitgeschickt werden.",
+    "enclosureSuggestionAdd": "Übernehmen",
+    "enclosureSuggestionEdit": "Bearbeiten",
+    "enclosureSuggestionDecline": "Nein danke"
   },
   "checkout": {
     "title": "Zahlung",
@@ -922,6 +934,12 @@
         "budget": "Ich kann gerade kein weiteres gescanntes Dokument lesen. Sie können es mit Ihrem Brief senden oder die wichtigsten Angaben hier eintippen.",
         "noOcr": "Ich konnte dieses Dokument nicht lesen. Sie können es mit Ihrem Brief senden oder die wichtigsten Angaben hier eintippen."
       }
+    },
+    "mailability": {
+      "mailed": "Wird mitgeschickt",
+      "mailedHelp": "Wir drucken dieses PDF und legen es dem Brief bei.",
+      "assistantOnly": "Nur für Assistenz",
+      "assistantOnlyHelp": "Dieses Bild hilft beim Entwurf. Es wird nicht mitgeschickt."
     }
   },
   "zoneEditor": {

@@ -33,6 +33,22 @@ export function extractionChip(status: FileAsset["extractionStatus"]): Extractio
   }
 }
 
+/**
+ * Whether a file is physically mailed with the letter. Driven by the active
+ * provider's attachment policy (the same `allowedMimeTypes` the uploader
+ * validates against), so the chip matches what dispatch will actually bundle:
+ * ePost accepts only PDFs; the default policy also mails images. Rendered as
+ * its own chip so readability ("Read") never has to carry the mailing meaning.
+ */
+export type MailabilityChip = "mailed" | "assistantOnly";
+
+export function mailabilityChip(
+  mimeType: FileAsset["mimeType"],
+  mailedMimeTypes: readonly string[],
+): MailabilityChip {
+  return mimeType && mailedMimeTypes.includes(mimeType) ? "mailed" : "assistantOnly";
+}
+
 /** The inline explanation shown under a document, keyed into the `files` namespace. */
 export function extractionMessageKey(
   status: FileAsset["extractionStatus"],

@@ -530,6 +530,11 @@
     "firstDraftReadyTitle": "Votre premier brouillon est prêt",
     "firstDraftReadyBody": "Relisez le projet proposé et modifiez-le comme vous le souhaitez, manuellement ou avec l’assistant.",
     "firstDraftReadyDismiss": "Compris",
+    "attachmentsChangedTitle": "Documents modifiés",
+    "attachmentsChangedBody": "Le brouillon a été rédigé avant la modification de ces fichiers.",
+    "attachmentsChangedUpdate": "Mettre à jour le brouillon",
+    "attachmentsChangedKeep": "Garder le texte",
+    "attachmentsChangedRefineInstruction": "Merci de mettre à jour le brouillon avec les documents joints actuels.",
     "bodyCoachmarkTitle": "Vous modifiez uniquement le message principal",
     "bodyCoachmarkBody": "La formule d’appel et la formule de politesse sont gérées séparément dans la mise en page du courrier. Concentrez-vous ici sur le message que vous souhaitez envoyer.",
     "bodyCoachmarkAction": "Compris",
@@ -706,7 +711,14 @@
     "attachmentLabel": "Annexe {index} : {name}",
     "attachmentOpen": "Ouvrir le fichier",
     "attachmentsInPreviewHint": "Visibles ci-dessous, telles qu’elles seront envoyées.",
-    "attachmentMorePages": "Ouvrir les {count} pages restantes"
+    "attachmentMorePages": "Ouvrir les {count} pages restantes",
+    "enclosureSuggestionTitle": "Mentionner l'annexe?",
+    "enclosureSuggestionBody": "Nous pouvons l'ajouter au bas de la lettre:",
+    "enclosureSuggestionPrefix": "Annexe: ",
+    "enclosureSuggestionHelp": "Ce texte apparaît dans la lettre. Cela ne change pas les fichiers qui seront envoyés.",
+    "enclosureSuggestionAdd": "Ajouter",
+    "enclosureSuggestionEdit": "Modifier",
+    "enclosureSuggestionDecline": "Non merci"
   },
   "checkout": {
     "title": "Paiement",
@@ -922,6 +934,12 @@
         "budget": "Je ne peux pas lire un autre document scanné pour le moment. Vous pouvez l’envoyer avec votre lettre, ou saisir ici les informations importantes.",
         "noOcr": "Je n’ai pas pu lire ce document. Vous pouvez l’envoyer avec votre lettre, ou saisir ici les informations importantes."
       }
+    },
+    "mailability": {
+      "mailed": "Envoyé avec la lettre",
+      "mailedHelp": "Nous imprimons ce PDF et le joignons à votre lettre.",
+      "assistantOnly": "Assistant uniquement",
+      "assistantOnlyHelp": "Cette image aide à rédiger la lettre. Elle ne sera pas envoyée."
     }
   },
   "zoneEditor": {

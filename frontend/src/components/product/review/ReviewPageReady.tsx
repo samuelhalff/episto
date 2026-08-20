@@ -18,6 +18,7 @@ import { DraftStepMenu } from "../DraftStepMenu";
 import { StatusBadge } from "../../ui/status-badge";
 import { ReviewSummaryCard, type ReviewSummaryItem } from "./ReviewSummaryCard";
 import { AttachmentPackagePreview } from "./AttachmentPackagePreview";
+import { EnclosureNoteSuggestion } from "./EnclosureNoteSuggestion";
 import { useReviewPrimaryActionState } from "./review-action-state";
 import { formatCentsAsCHF } from "@/hooks/use-pricing";
 import { captureException } from "@/lib/error-tracking";
@@ -82,6 +83,10 @@ export function ReviewPageReady({
   const displayBody = previewData?.body ?? draftData?.body ?? null;
   const displayEnclosureNote =
     previewData?.enclosureNote ?? draftData?.enclosureNote ?? null;
+  const mailedPdfs = useMemo(
+    () => attachments.filter((a) => a.mimeType === "application/pdf"),
+    [attachments],
+  );
   const hasSender = senderLines.length > 0;
   const hasRecipient = recipientLines.length > 0;
   const hasBody = Boolean(displayBody?.trim());
@@ -333,6 +338,14 @@ export function ReviewPageReady({
             </section>
 
             <AttachmentPackagePreview attachments={attachments} />
+
+            {mailedPdfs.length > 0 && !displayEnclosureNote ? (
+              <EnclosureNoteSuggestion
+                draftId={draftId}
+                mailedPdfs={mailedPdfs}
+                updateDraft={updateDraft}
+              />
+            ) : null}
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-28">
