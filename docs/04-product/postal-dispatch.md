@@ -106,6 +106,11 @@ reconciliation worker persists onto `dispatch_attempts.trackingNumber`
 submit response and the status lookup (`epost-response-mappers.ts` `findFirstTrackingNumber`), so
 whichever arrives first wins — but the durable source is reconciliation.
 
+ePost's eLetterbox oneAPI returns delivery status but **no Swiss Post Track & Trace number** for
+registered letters. When the justificatif has no real tracking number, its hero identifier shows the
+order reference; it must never show the ePost internal delivery id, which is not trackable on
+`post.ch`.
+
 Consequences that must not be "fixed" into regressions:
 
 - **The tracking number is Swiss Post's responsibility to provide and to keep a status for — not

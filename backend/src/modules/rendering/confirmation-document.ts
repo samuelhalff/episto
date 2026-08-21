@@ -153,22 +153,20 @@ export function renderConfirmationDocumentHtml(input: ConfirmationDocumentInput)
   const showProviderReference = Boolean(
     input.providerMode === "live" && input.providerReference,
   );
-  // Hero identifier: tracking number when available, else the provider ref.
-  const heroValue = showTracking
-    ? (input.trackingNumber as string)
-    : showProviderReference
-      ? (input.providerReference as string)
-      : copy.notAvailable;
+  // Hero identifier: only a real Swiss Post tracking number, else the order ref.
+  const heroValue = showTracking ? (input.trackingNumber as string) : input.orderRef;
 
   // References fact column: the ePost delivery id (tagged so it can be matched
-  // against the ePost account) + our internal order ref (mono).
+  // against the ePost account) + our order ref when it is not already the hero.
   const referenceLines: string[] = [];
   if (showProviderReference) {
     referenceLines.push(
       `${escapeHtml(input.providerReference as string)} <span class="ref-tag">ePost</span>`,
     );
   }
-  referenceLines.push(escapeHtml(input.orderRef));
+  if (showTracking) {
+    referenceLines.push(escapeHtml(input.orderRef));
+  }
   const referencesValue = referenceLines.join("<br>");
 
   const subjectValue = input.subject

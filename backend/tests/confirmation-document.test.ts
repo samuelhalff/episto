@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+function heroTrackingValue(html: string): string {
+  const match = html.match(/<div class="hero-tracking">([^<]*)<\/div>/);
+
+  expect(match).not.toBeNull();
+
+  return match?.[1] ?? "";
+}
+
 describe("confirmation document template", () => {
   it("renders a minimal dispatch statement that matches the app palette, keeps tracking visible, and hides mock provider references", async () => {
     const { renderConfirmationDocumentHtml } =
@@ -176,6 +184,54 @@ describe("confirmation document template", () => {
     // Timezone in Swiss French.
     expect(html).toContain("heure suisse");
     expect(html).toContain("Transmis le");
+  });
+
+  it("uses the order reference as the hero for live registered mail when Swiss Post tracking is absent", async () => {
+    const { renderConfirmationDocumentHtml } =
+      await import("../src/modules/rendering/confirmation-document.js");
+
+    const html = renderConfirmationDocumentHtml({
+      orderRef: "EP-NOTRACK-1",
+      locale: "fr-CH",
+      submittedAt: new Date("2026-04-08T12:00:00.000Z"),
+      dispatchState: "accepted",
+      deliveryType: "registered",
+      providerMode: "live",
+      providerReference: "9",
+      trackingNumber: undefined,
+      pageCount: 1,
+      attachmentNames: [],
+      sender: {
+        firstName: "Anna",
+        lastName: "Meier",
+        company: null,
+        addressLine1: "Seestrasse 15",
+        addressLine2: null,
+        postalCode: "8002",
+        city: "Zurich",
+        country: "CH",
+      },
+      recipient: {
+        firstName: null,
+        lastName: null,
+        company: "Muller Immobilier SA",
+        department: null,
+        addressLine1: "Bahnhofstrasse 42",
+        addressLine2: null,
+        postalCode: "8001",
+        city: "Zurich",
+        country: "CH",
+      },
+      subject: "Resiliation du bail",
+      contentSummary:
+        "Cette lettre confirme la preparation du courrier pour l'acheminement.",
+      letterHtml: '<section class="letter-pages">Letter body</section>',
+    });
+
+    expect(heroTrackingValue(html)).toBe("EP-NOTRACK-1");
+    expect(heroTrackingValue(html)).not.toBe("9");
+    expect(html.match(/EP-NOTRACK-1/g)).toHaveLength(1);
+    expect(html).toContain('9 <span class="ref-tag">ePost</span>');
   });
 
   it("groups a hex fingerprint into 8-char clusters without altering the digits", async () => {
