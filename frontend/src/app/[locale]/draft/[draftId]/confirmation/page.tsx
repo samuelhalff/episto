@@ -186,6 +186,36 @@ function ConfirmationContent({ draftId }: { draftId: string }) {
     }
   }, [orderRef]);
 
+  // A persistently failing poll (no data, retries exhausted) must surface an
+  // explicit error with a retry — never the perpetual "verifying" spinner.
+  if (fulfillment.isError && !fulfillment.data) {
+    return (
+      <main
+        id="main-content"
+        className={[
+          NARROW_APP_PAGE_SHELL_CLASS_NAME,
+          APP_PAGE_STACK_CLASS_NAME,
+          "text-center",
+        ].join(" ")}
+      >
+        <AlertCircle className="mx-auto h-16 w-16 text-destructive" />
+        <h1 className="text-2xl font-semibold text-zinc-950 dark:text-zinc-50">
+          {t("verificationFailed")}
+        </h1>
+        <p className="text-sm text-zinc-500 dark:text-zinc-400">
+          {t("verificationFailedSubtitle")}
+        </p>
+        <button
+          type="button"
+          onClick={() => fulfillment.refetch()}
+          className={getAppButtonClassName({ variant: "secondary" })}
+        >
+          {t("retryVerification")}
+        </button>
+      </main>
+    );
+  }
+
   if (fulfillment.isLoading || (!fulfillment.data && !fulfillment.error)) {
     return (
       <main

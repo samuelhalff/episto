@@ -16,7 +16,6 @@ import {
 import { enqueueDispatchReconciliation } from "../modules/dispatch/dispatch.jobs.js";
 import {
   enqueueDispatchAcceptedEmail,
-  enqueueDispatchSubmittedEmail,
   enqueueDispatchFailedEmail,
 } from "../modules/dispatch/dispatch-notifications.js";
 import { getDispatchAdapter } from "../modules/dispatch/adapters/postal.adapter.js";
@@ -231,13 +230,11 @@ export async function processSubmitDispatchJob(
     deliveryType: dispatchPackage.deliveryType,
   });
 
-  if (result.state !== "rejected") {
-    await enqueueDispatchSubmittedEmail(db, {
-      dispatchAttemptId: attempt.id,
-      draftId,
-      paymentId,
-    });
-  }
+  // No customer email on bare submission. The single dispatch-confirmation
+  // email is sent at ACCEPTANCE (below for a synchronous accept, or from
+  // reconciliation later) so it always carries the Swiss Post tracking number
+  // and the attached justificatif. The customer already got the payment receipt
+  // at capture. See docs/04-product/email-flows.md.
 
   if (result.state === "accepted" || result.state === "rejected") {
     let settlement: Awaited<

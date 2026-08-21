@@ -8,6 +8,7 @@ import {
   resolvePaymentDispatchQuoteForDraft,
 } from "../dispatch/dispatch-quote.service.js";
 import { syncDraftFulfillmentFromPaymentState } from "../signing/fulfillment.service.js";
+import { buildDraftFulfillmentResponse } from "../signing/fulfillment-response.service.js";
 import { getPaymentIntentForCheckout } from "./adapters/stripe.adapter.js";
 import { getPaymentForDraft, transitionPaymentState } from "./payment.service.js";
 import { enqueueDispatchIfEligible } from "./payment-route-helpers.js";
@@ -43,7 +44,21 @@ export async function registerPaymentStatusRoutes(app: FastifyInstance): Promise
 
       if (!draft) throw notFoundError("draft");
 
+      // The pre-checkout quote was reported as slow in the field. Time the
+      // resolve so a recurrence is diagnosable (cache miss vs waiting on the
+      // letter render vs matrix lookup) instead of a guess. Cheap; PII-free.
+      const quoteStartedMs = Date.now();
       const resolvedDisplayQuote = await resolveDisplayDispatchQuoteForDraft(db, draftId);
+      const quoteElapsedMs = Date.now() - quoteStartedMs;
+      request.log.info(
+        {
+          draftId,
+          quoteElapsedMs,
+          quoteSource: resolvedDisplayQuote.meta?.source ?? null,
+        },
+        "draft.quote.resolved",
+      );
+
       reply.send({
         quote: resolvedDisplayQuote.quote,
         meta: resolvedDisplayQuote.meta,
@@ -189,6 +204,25 @@ export async function registerPaymentStatusRoutes(app: FastifyInstance): Promise
           failureReason: payment.failureReason ?? null,
         },
       });
+    },
+  );
+
+  // Combined payment + dispatch view polled by the confirmation page. This
+  // route was lost when the QES signing flow (and its routes file) was removed;
+  // the frontend hook use-draft-fulfillment.ts still polls it, so its absence
+  // left the confirmation page stuck on "Payment verification". Keep it here,
+  // guarded by the same session ownership as /payment. Do NOT delete without
+  // removing the frontend hook — see docs/05-architecture/api-contracts.md.
+  app.get<{ Params: { draftId: string } }>(
+    "/drafts/:draftId/fulfillment",
+    { preHandler: [requireSession] },
+    async (request, reply) => {
+      const session = getRequiredSession(request);
+      const db = getDb();
+      const { draftId } = request.params;
+
+      const response = await buildDraftFulfillmentResponse(db, draftId, session.id);
+      reply.send(response);
     },
   );
 }

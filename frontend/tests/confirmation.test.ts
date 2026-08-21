@@ -59,6 +59,9 @@ const REQUIRED_CONFIRMATION_KEYS = [
   "rejectedSubtitle",
   "unknownSubtitle",
   "verifying",
+  "verificationFailed",
+  "verificationFailedSubtitle",
+  "retryVerification",
   "paymentFailed",
   "paymentFailedSubtitle",
   "backToCheckout",
@@ -192,5 +195,15 @@ describe("confirmation page regressions", () => {
     expect(confirmationPageSource).not.toContain("fixed inset-x-4 bottom-4");
     expect(confirmationPageSource).toContain('href="/draft/new?fresh=1"');
     expect(confirmationPageSource).toContain('{t("sendAnother")}');
+  });
+
+  // The fulfillment route was once dropped from the backend, leaving this page
+  // polling a 404 and hanging forever on the "verifying" spinner. A persistent
+  // failure must surface an explicit error with a retry, never spin indefinitely.
+  it("renders an explicit error + retry state instead of hanging on a failed poll", () => {
+    expect(confirmationPageSource).toContain("fulfillment.isError");
+    expect(confirmationPageSource).toContain("fulfillment.refetch()");
+    expect(confirmationPageSource).toContain('{t("verificationFailed")}');
+    expect(confirmationPageSource).toContain('{t("retryVerification")}');
   });
 });

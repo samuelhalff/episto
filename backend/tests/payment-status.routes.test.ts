@@ -23,6 +23,7 @@ const mocks = vi.hoisted(() => ({
   updatePaymentIntentReceiptDetails: vi.fn(),
   assertVerifiedPhoneForCheckout: vi.fn(),
   syncDraftFulfillmentFromPaymentState: vi.fn(),
+  buildDraftFulfillmentResponse: vi.fn(),
   resolvePaymentDispatchQuoteForDraft: vi.fn(),
   resolveDisplayDispatchQuoteForDraft: vi.fn(),
   getLatestSnapshot: vi.fn(),
@@ -100,6 +101,10 @@ vi.mock("../src/modules/phone-verification/phone-verification.service.js", () =>
 
 vi.mock("../src/modules/signing/fulfillment.service.js", () => ({
   syncDraftFulfillmentFromPaymentState: mocks.syncDraftFulfillmentFromPaymentState,
+}));
+
+vi.mock("../src/modules/signing/fulfillment-response.service.js", () => ({
+  buildDraftFulfillmentResponse: mocks.buildDraftFulfillmentResponse,
 }));
 
 vi.mock("../src/modules/payments/promo.service.js", () => ({
@@ -197,6 +202,16 @@ describe("payment status and promo-quote routes", () => {
       latestChargeId: null,
     });
     mocks.syncDraftFulfillmentFromPaymentState.mockResolvedValue(undefined);
+    mocks.buildDraftFulfillmentResponse.mockResolvedValue({
+      fulfillment: {
+        draftId: "draft-1",
+        signatureFlowMode: "visual",
+        fulfillmentStatus: "payment_captured",
+        payment: null,
+        dispatch: null,
+        nextAction: "await_dispatch",
+      },
+    });
     mocks.getLatestSnapshot.mockResolvedValue(null);
     mocks.enqueueDispatchSubmission.mockResolvedValue(undefined);
     mocks.setPaymentIntentId.mockResolvedValue(undefined);
@@ -356,6 +371,27 @@ describe("payment status and promo-quote routes", () => {
         state: "captured",
         capturedAt: "2026-04-09T11:00:00.000Z",
       },
+    });
+  });
+
+  // Regression guard: the confirmation page polls GET /drafts/:id/fulfillment.
+  // This route was silently dropped once (with the QES signing routes file),
+  // which hung the confirmation page on "Payment verification". Keep it wired.
+  it("serves the draft fulfillment view the confirmation page polls", async () => {
+    const response = await app.inject({
+      method: "GET",
+      url: "/drafts/draft-1/fulfillment",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mocks.buildDraftFulfillmentResponse).toHaveBeenCalledWith(
+      mocks.db,
+      "draft-1",
+      "session-1",
+    );
+    // The frontend hook reads `response.fulfillment`, so the envelope matters.
+    expect(response.json()).toMatchObject({
+      fulfillment: { draftId: "draft-1", nextAction: "await_dispatch" },
     });
   });
 });

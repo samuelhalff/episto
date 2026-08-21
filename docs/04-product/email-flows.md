@@ -87,12 +87,36 @@ something enqueues it.
 | Template                | Renderer | Enqueued from                                                                                |
 | ----------------------- | -------- | -------------------------------------------------------------------------------------------- |
 | `payment-receipt`       | yes      | `payments/receipt-notifications.ts` on capture                                               |
-| `dispatch-submitted`    | yes      | `dispatch/dispatch-notifications.ts`                                                         |
-| `dispatch-accepted`     | yes      | `dispatch/dispatch-notifications.ts`                                                         |
+| `dispatch-submitted`    | yes      | **nothing — no longer enqueued (2026-08-21).** Renderer retained; see the note below         |
+| `dispatch-accepted`     | yes      | `dispatch/dispatch-notifications.ts` — the single customer dispatch email (see note)         |
 | `dispatch-failed`       | yes      | `dispatch/dispatch-notifications.ts`, on a settled rejection only                            |
 | `refund-confirmed`      | yes      | `payments/refund-ledger.service.ts`, once per Stripe refund as it transitions to `succeeded` |
 | `resume-link`           | yes      | **nothing — not shipped.** Template 4 below describes a trigger that does not exist          |
 | `dispatch-under-review` | yes      | `dispatch/dispatch-review-notifications.ts`, from the `dispatch-liveness` sweep              |
+
+**Single dispatch-confirmation email at acceptance (LOCKED, 2026-08-21).** There is exactly
+**one** customer email about the dispatch itself, and it is `dispatch-accepted`, sent once the
+dispatch is **accepted** (synchronously in `submit-dispatch.worker.ts`, or later from
+reconciliation). It carries:
+
+- the **Swiss Post tracking link** (`swissPostTrackingUrl` → `https://www.post.ch/swisspost-tracking?...`),
+  for registered mail with a real tracking number, and
+- the **attached justificatif d'envoi** PDF (`buildConfirmationBundlePdf`, best-effort — a render
+  failure or an oversized bundle still sends the email with the tracking link, just no attachment).
+
+The immediate `dispatch-submitted` email was **removed on purpose**: the Swiss Post tracking
+number does not exist at submission time (Swiss Post assigns it later — see
+[`postal-dispatch.md`](postal-dispatch.md#tracking-number-timing-and-customer-delivery)), so a
+submission-time email cannot carry the one thing the customer actually needs. The customer still
+gets an **immediate payment receipt** at capture, so "did my payment go through" is answered
+instantly; the dispatch email follows once there is real tracking to report.
+
+> **Regression guard:** do not re-add an immediate customer email on bare `submitted` state, and do
+> not point the tracking link at an episto URL. The customer must be able to track **independently
+> of episto, on Swiss Post**, weeks later from the durable email — episto retains little and must
+> never be the tracking channel, nor a support channel for "where is my tracking number". Guarded by
+> `backend/tests/dispatch-workers.test.ts`, `backend/tests/dispatch-notifications.test.ts`, and
+> `backend/tests/email-templates.test.ts`.
 
 The one still-unshipped template is deliberate, not forgotten. A resume-link email needs an address
 collected _before_ checkout. The session can carry one (`PATCH /api/v1/sessions/me` accepts
@@ -141,9 +165,14 @@ episto does not send a duplicate app-level payment receipt at launch. The confir
 
 ---
 
-### Template 2: Dispatch submitted
+### Template 2: Dispatch submitted — RETAINED BUT NOT SENT (2026-08-21)
 
-**Trigger:** `DispatchState` transitions to `submitted` (job handed to dispatch queue / provider)
+> **This email is no longer enqueued.** The renderer and strings are kept so the template can be
+> revived if the tracking-availability constraint ever changes, but nothing calls
+> `enqueueDispatchSubmittedEmail` anymore. See the single-dispatch-confirmation note above. The
+> description below is retained for historical context only.
+
+**Former trigger:** `DispatchState` transitions to `submitted` (job handed to dispatch queue / provider)
 **Timing:** Sent when backend receives submission acknowledgment from dispatch adapter
 
 **Subject (i18n key):** `email.dispatch_submitted.subject` → e.g., "Your letter has been submitted to Swiss Post"
@@ -160,7 +189,7 @@ episto does not send a duplicate app-level payment receipt at launch. The confir
 
 ---
 
-### Template 3: Dispatch status update
+### Template 3: Dispatch accepted — the single customer dispatch email
 
 **Trigger:** `DispatchState` transitions to `accepted` and provider supplies a handoff-to-postal signal
 **Condition:** Only sent if the dispatch adapter receives a confirmed provider-acceptance signal beyond mere submission — this is NOT sent on `submitted` alone
@@ -172,7 +201,14 @@ episto does not send a duplicate app-level payment receipt at launch. The confir
 - "Swiss Post has accepted your letter submission for further processing."
 - Order reference number
 - Tracking reference number, if the provider supplies one — clearly labeled as "reference number" not "tracking number" unless real tracking is available
-- Registered letters may include a Swiss Post tracking link only when the provider supplies a real postal tracking number
+- Registered letters include a **Swiss Post tracking link** (`https://www.post.ch/swisspost-tracking?...`)
+  when the provider supplies a real postal tracking number — this is the customer's independent,
+  durable way to check status on Swiss Post, with no episto involvement
+- The **justificatif d'envoi** (proof-of-sending bundle: statement + letter + enclosures, with the
+  tracking number filled in) is **attached** to this email, so the customer keeps a court-usable
+  copy without revisiting episto. Attachment is best-effort and capped
+  (`MAX_JUSTIFICATIF_ATTACHMENT_BYTES`); if it can't be built, the email still sends with the
+  tracking link.
 - Standard and registered letters otherwise use the same template structure; tracking is the only differentiator when it exists
 - Disclaimer: "Standard letters are not individually tracked. Registered letters include delivery confirmation."
 - Link to support

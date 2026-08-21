@@ -236,7 +236,17 @@ async function stampBundleFooter(
   });
 }
 
-async function buildConfirmationBundlePdf(db: Db, draftId: string): Promise<Buffer> {
+/**
+ * Render the full "justificatif d'envoi" bundle — [statement, letter,
+ * enclosures] — as PDF bytes. This is the same court-grade artifact the
+ * confirmation page offers for download; it is also attached to the dispatch
+ * acceptance email so the customer keeps a durable copy (with the Swiss Post
+ * tracking number filled in) without ever revisiting the app.
+ */
+export async function buildConfirmationBundlePdf(
+  db: Db,
+  draftId: string,
+): Promise<Buffer> {
   const config = env();
   const renderedLetter = await getRenderedLetterAsset(db, draftId);
   const signatureImage = await loadSignatureImageAsset(

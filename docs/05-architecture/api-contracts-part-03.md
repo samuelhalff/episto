@@ -201,7 +201,7 @@ const PaymentStatusResponse = z.object({
 | `SESSION_REQUIRED` | 401  | No valid session |
 | `NOT_FOUND`        | 404  | Draft not found  |
 
-**Rate limit:** 60 req/session/min
+**Rate limit:** 60 req/session/min. **`GET /api/v1/drafts/:id/fulfillment`** is a sibling combined payment+dispatch view the confirmation page polls every 3s until `nextAction === "view_confirmation"` (same session guard; served by `buildDraftFulfillmentResponse`; returns `{ fulfillment: { draftId, signatureFlowMode, fulfillmentStatus, payment, dispatch, nextAction } }`). ⚠️ Do not remove it without removing the hook `use-draft-fulfillment.ts` — dropped once with the QES routes (`a441b1c`) → page hung on "Payment verification"; guarded by `backend/tests/payment-status.routes.test.ts`.
 
 ---
 

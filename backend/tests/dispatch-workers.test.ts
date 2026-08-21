@@ -367,14 +367,9 @@ describe("dispatch workers", () => {
 
     await expect(processSubmitDispatchJob(job as never)).resolves.toBeUndefined();
 
-    expect(mocks.enqueueDispatchSubmittedEmail).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        dispatchAttemptId: "dispatch-2a",
-        draftId: "draft-2a",
-        paymentId: "payment-2a",
-      }),
-    );
+    // The immediate "submitted" email was removed: the single dispatch
+    // confirmation is the acceptance email (carrying tracking + justificatif).
+    expect(mocks.enqueueDispatchSubmittedEmail).not.toHaveBeenCalled();
     expect(mocks.enqueueDispatchAcceptedEmail).toHaveBeenCalledWith(
       expect.anything(),
       expect.objectContaining({

@@ -65,6 +65,20 @@ For MVP, one person may hold multiple roles, but the responsibilities still appl
 - Do not tell users a letter was mailed unless provider acceptance is confirmed
 - For ambiguous or retryable cases, follow `payment-dispatch-recovery.md`
 
+### Confirmation page stuck on "Payment verification"
+
+- The confirmation page (`/[locale]/draft/[id]/confirmation`) polls
+  `GET /api/v1/drafts/:id/fulfillment`. If it hangs on the "verifying" spinner for **every** order,
+  suspect that route: it was once dropped from the backend (with the QES signing routes) while the
+  frontend kept polling it, producing a permanent 404 → spinner. Verify the route is registered in
+  `payments/payment-status.routes.ts` and returns `{ fulfillment: … }`.
+- If it hangs for a **single** order, the payment webhook or dispatch reconciliation for that draft
+  likely didn't advance `nextAction` to `view_confirmation`; follow `payment-dispatch-recovery.md`.
+- Note: payment and dispatch are unaffected by a broken fulfillment route — it is the status **view**
+  only. Customers still receive the payment receipt (at capture) and the dispatch-accepted email
+  (with tracking + attached justificatif). The frontend now shows an explicit error + retry after
+  repeated poll failures instead of spinning forever.
+
 ### Data/privacy incident
 
 - Preserve logs and relevant records immediately

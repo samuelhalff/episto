@@ -94,6 +94,33 @@ Do not infer provider payload shape from these app-level fields. Mapping stays i
 - `accepted` means provider acceptance of the submission into its downstream workflow; it does not
   mean delivered
 
+## Tracking number: timing and customer delivery
+
+**LOCKED (2026-08-21).**
+
+The Swiss Post tracking number (Sendungsnummer) for a registered letter is **not reliably present
+at submission time**. ePost's synchronous submit response often does not include it; it is assigned
+when Swiss Post physically processes the item and surfaces on a later **status poll**, which the
+reconciliation worker persists onto `dispatch_attempts.trackingNumber`
+(`dispatch/dispatch-reconciliation.service.ts` → `persistDiagnostics`). Code reads it from both the
+submit response and the status lookup (`epost-response-mappers.ts` `findFirstTrackingNumber`), so
+whichever arrives first wins — but the durable source is reconciliation.
+
+Consequences that must not be "fixed" into regressions:
+
+- **The tracking number is Swiss Post's responsibility to provide and to keep a status for — not
+  episto's.** episto retains little and for a short time. The customer must be able to track
+  **independently, on Swiss Post**, weeks after sending.
+- Because the number arrives after submission, anything generated at payment/submission time (e.g. a
+  justificatif downloaded immediately) may legitimately show no tracking number yet. The
+  justificatif re-renders on demand and picks up the number once it exists.
+- **The canonical, durable delivery of the tracking number to the customer is the single
+  `dispatch-accepted` email** (sent once tracking is known), which carries the Swiss Post tracking
+  **link** and the **attached justificatif** with the number filled in. See
+  [`email-flows.md`](email-flows.md). Never route the customer to an episto page for tracking, and
+  never make "I don't have my tracking number" a support task — the email is the artifact.
+- The tracking link is always a `post.ch` URL (`swissPostTrackingUrl`). Never an episto URL.
+
 ## Failure handling rules
 
 | Scenario                   | Required behavior                                                   |

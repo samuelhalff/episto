@@ -2,6 +2,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
   add: vi.fn(),
+  buildConfirmationBundlePdf: vi.fn(),
+}));
+
+vi.mock("../src/modules/rendering/pdf-access.js", () => ({
+  buildConfirmationBundlePdf: mocks.buildConfirmationBundlePdf,
 }));
 
 vi.mock("../src/db/index.js", () => ({
@@ -166,7 +171,10 @@ describe("dispatch notifications", () => {
     expect(submittedJob?.data).not.toHaveProperty("statusUrl");
   });
 
-  it("uses a BullMQ-safe job id for accepted-dispatch emails", async () => {
+  it("attaches the justificatif PDF to accepted-dispatch emails", async () => {
+    mocks.buildConfirmationBundlePdf.mockResolvedValueOnce(
+      Buffer.from("%PDF-1.7 justificatif"),
+    );
     const db = {
       select: vi
         .fn()
@@ -187,11 +195,62 @@ describe("dispatch notifications", () => {
       trackingNumber: "98.40.541881.00002354",
     });
 
-    const acceptedJob = mocks.add.mock.calls[0]?.[1];
+    const acceptedJob = mocks.add.mock.calls[0]?.[1] as
+      | {
+          data?: Record<string, unknown>;
+          attachments?: Array<{ filename: string; contentBase64: string }>;
+        }
+      | undefined;
 
+    expect(mocks.buildConfirmationBundlePdf).toHaveBeenCalledWith(db, "draft-1");
     expect(mocks.add).toHaveBeenCalledWith("dispatch-accepted", expect.any(Object), {
       jobId: "dispatch-accepted-dispatch-1",
     });
     expect(acceptedJob?.data).not.toHaveProperty("statusUrl");
+    expect(acceptedJob?.attachments).toHaveLength(1);
+    expect(acceptedJob?.attachments?.[0]?.filename).toContain("justificatif-envoi");
+    expect(acceptedJob?.attachments?.[0]?.contentBase64).toBe(
+      Buffer.from("%PDF-1.7 justificatif").toString("base64"),
+    );
+  });
+
+  it("still sends the accepted email (with tracking) when the justificatif fails to render", async () => {
+    mocks.buildConfirmationBundlePdf.mockRejectedValueOnce(new Error("no assets"));
+    const db = {
+      select: vi
+        .fn()
+        .mockImplementationOnce(makePaymentSelectChain)
+        .mockImplementationOnce(makeDraftSelectChain)
+        .mockImplementationOnce(makeSessionSelectChain),
+      execute: makeOutboxInsert(),
+    };
+
+    const { enqueueDispatchAcceptedEmail } =
+      await import("../src/modules/dispatch/dispatch-notifications.js");
+
+    await enqueueDispatchAcceptedEmail(db as never, {
+      dispatchAttemptId: "dispatch-1",
+      draftId: "draft-1",
+      paymentId: "payment-1",
+      providerReference: "provider-ref-1",
+      trackingNumber: "98.40.541881.00002354",
+    });
+
+    const acceptedJob = mocks.add.mock.calls[0]?.[1] as
+      | {
+          data?: Record<string, unknown>;
+          attachments?: unknown;
+        }
+      | undefined;
+
+    // The tracking email must go out regardless — it carries the Swiss Post
+    // tracking number, which the customer cannot get anywhere else.
+    expect(mocks.add).toHaveBeenCalledWith("dispatch-accepted", expect.any(Object), {
+      jobId: "dispatch-accepted-dispatch-1",
+    });
+    expect(acceptedJob?.attachments).toBeUndefined();
+    expect(acceptedJob?.data).toMatchObject({
+      trackingNumber: "98.40.541881.00002354",
+    });
   });
 });
