@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 const add = vi.fn();
+const remove = vi.fn();
 
 // Mock at the BullMQ level so the real queue/index module runs (including
 // registerScheduledJobs) while Queue.add is intercepted by the spy.
@@ -12,6 +13,9 @@ vi.mock("bullmq", () => {
     }
     add(...args: unknown[]) {
       return add(...args);
+    }
+    remove(...args: unknown[]) {
+      return remove(...args);
     }
     close() {
       return Promise.resolve();
@@ -38,7 +42,8 @@ vi.mock("../src/shared/config/index.js", () => ({
 
 describe("dispatch job helpers", () => {
   beforeEach(() => {
-    add.mockReset();
+    add.mockReset().mockResolvedValue(undefined);
+    remove.mockReset().mockResolvedValue(undefined);
   });
 
   it("buildDispatchJobId derives a stable BullMQ id from the payment id", async () => {
@@ -88,6 +93,23 @@ describe("dispatch job helpers", () => {
       {
         jobId: "dispatch-reconcile-dispatch-1",
       },
+    );
+  });
+
+  it("requeueDispatchReconciliation removes the deterministic job before enqueueing it again", async () => {
+    const { requeueDispatchReconciliation } =
+      await import("../src/modules/dispatch/dispatch.jobs.js");
+
+    await requeueDispatchReconciliation({ dispatchAttemptId: "dispatch-1" });
+
+    expect(remove).toHaveBeenCalledWith("dispatch-reconcile-dispatch-1");
+    expect(add).toHaveBeenCalledWith(
+      "reconcile-dispatch",
+      { dispatchAttemptId: "dispatch-1" },
+      { jobId: "dispatch-reconcile-dispatch-1" },
+    );
+    expect(remove.mock.invocationCallOrder[0]).toBeLessThan(
+      add.mock.invocationCallOrder[0] ?? 0,
     );
   });
 

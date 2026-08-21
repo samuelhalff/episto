@@ -40,3 +40,13 @@ export async function enqueueDispatchReconciliation(
     jobId: buildDispatchReconcileJobId(job.dispatchAttemptId),
   });
 }
+
+export async function requeueDispatchReconciliation(
+  job: ReconcileDispatchJob,
+): Promise<void> {
+  const queue = getQueue(QUEUE_NAMES.RECONCILE_DISPATCH);
+  await queue
+    .remove(buildDispatchReconcileJobId(job.dispatchAttemptId))
+    .catch(() => undefined);
+  await enqueueDispatchReconciliation(job);
+}

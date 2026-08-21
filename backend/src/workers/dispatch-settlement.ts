@@ -20,11 +20,18 @@ import {
   getDraftFulfillmentStatus,
   transitionDraftFulfillmentStatus,
 } from "../modules/signing/fulfillment.service.js";
+import { createLogger } from "../shared/logging/index.js";
+
+const logger = createLogger("dispatch-settlement");
 
 export type ResolvedDispatchState = "accepted" | "rejected";
 export interface DispatchPaymentSettlementResult {
   payment: PaymentAttemptRow | null;
   rawOrderAccessToken: string | null;
+}
+
+function isLocalFreeCapture(p: PaymentAttemptRow): boolean {
+  return p.amountCents === 0 && !p.stripePaymentIntentId && !p.stripeChargeId;
 }
 
 export async function getExactPaymentForDispatch(
@@ -64,12 +71,14 @@ export async function settlePaymentForDispatchResolution(
     return { payment: null, rawOrderAccessToken: null };
   }
 
-  if (!payment.stripePaymentIntentId) {
-    throw new Error(`Payment ${payment.id} is missing a Stripe PaymentIntent id`);
-  }
-
   // --- Authorized state (manual-capture card flow, if ever re-enabled) ---
   if (payment.state === "authorized") {
+    if (!payment.stripePaymentIntentId) {
+      throw new Error(
+        `Authorized payment ${payment.id} is missing a Stripe PaymentIntent id`,
+      );
+    }
+
     if (resolvedState === "accepted") {
       const capture = await capturePaymentIntent(payment.stripePaymentIntentId);
       return transitionPaymentState(db, payment.id, "captured", {
@@ -89,7 +98,29 @@ export async function settlePaymentForDispatchResolution(
   // --- Captured state (automatic-capture: Twint, wallets, cards) ---
   if (payment.state === "captured") {
     if (resolvedState === "accepted") {
+      if (payment.amountCents > 0 && !payment.stripePaymentIntentId) {
+        logger.error(
+          { paymentAttemptId: payment.id, draftId },
+          "Captured paid order missing Stripe PaymentIntent at dispatch settlement — data integrity issue; finalizing anyway",
+        );
+      }
       return { payment, rawOrderAccessToken: null };
+    }
+
+    if (isLocalFreeCapture(payment)) {
+      return transitionPaymentState(db, payment.id, "refunded", {
+        refundReason: "Free order (no charge): dispatch rejected, nothing to refund",
+      });
+    }
+
+    if (!payment.stripePaymentIntentId) {
+      logger.error(
+        { paymentAttemptId: payment.id, draftId },
+        "Paid order rejected but missing Stripe PaymentIntent — cannot auto-refund; needs manual review",
+      );
+      throw new Error(
+        `Paid payment ${payment.id} rejected but missing a Stripe PaymentIntent id — cannot refund`,
+      );
     }
 
     // Dispatch rejected after capture → refund, through the one door that
@@ -125,7 +156,8 @@ export function canFinalizeDispatchResolution(
   return (
     payment.state === "cancelled" ||
     payment.state === "refund_pending" ||
-    payment.state === "refunded"
+    payment.state === "refunded" ||
+    payment.state === "partially_refunded"
   );
 }
 

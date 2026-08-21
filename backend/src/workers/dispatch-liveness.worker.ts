@@ -4,11 +4,13 @@ import { createLogger } from "../shared/logging/index.js";
 import { getDb, type Db } from "../db/index.js";
 import {
   findStuckDispatchAttempts,
+  findStuckSubmittedDispatches,
   findUnwatchedUnknownDispatches,
   transitionDispatchState,
 } from "../modules/dispatch/dispatch.service.js";
 import {
   enqueueDispatchReconciliation,
+  requeueDispatchReconciliation,
   requeueDispatchSubmission,
 } from "../modules/dispatch/dispatch.jobs.js";
 import { sweepDispatchAttemptsUnderReview } from "../modules/dispatch/dispatch-review-notifications.js";
@@ -23,6 +25,7 @@ export interface LivenessSweepResult {
   requeued: number;
   flaggedUnknown: number;
   reconciliationRedriven: number;
+  submittedRedriven: number;
   underReviewNotified: number;
 }
 
@@ -47,6 +50,7 @@ export async function sweepStuckDispatches(db: Db): Promise<LivenessSweepResult>
   const stuck = await findStuckDispatchAttempts(db, LIVENESS_BATCH_SIZE);
   let requeued = 0;
   let reconciliationRedriven = 0;
+  let submittedRedriven = 0;
   let flaggedUnknown = 0;
 
   for (const attempt of stuck) {
@@ -136,6 +140,30 @@ export async function sweepStuckDispatches(db: Db): Promise<LivenessSweepResult>
     }
   }
 
+  // A `submitted` attempt with a provider reference has been accepted by the
+  // provider, but the local finalization path did not finish. Re-drive
+  // reconciliation with a fresh BullMQ job record so completed/failed job ids
+  // cannot strand the letter.
+  for (const attempt of await findStuckSubmittedDispatches(db, LIVENESS_BATCH_SIZE)) {
+    try {
+      await requeueDispatchReconciliation({ dispatchAttemptId: attempt.id });
+      submittedRedriven++;
+      logger.warn(
+        { dispatchId: attempt.id, draftId: attempt.draftId },
+        "Submitted dispatch stuck without finalization; reconciliation re-driven",
+      );
+    } catch (err) {
+      logger.error(
+        {
+          dispatchId: attempt.id,
+          draftId: attempt.draftId,
+          err: err instanceof Error ? err.message : "Unknown error",
+        },
+        "Failed to re-drive reconciliation for a submitted dispatch",
+      );
+    }
+  }
+
   // This sweep is already the thing that walks `unknown` attempts on a
   // schedule, so it is also where the customer-facing side of a long silence
   // belongs: an attempt that has sat in `unknown` past the dwell window gets
@@ -150,7 +178,13 @@ export async function sweepStuckDispatches(db: Db): Promise<LivenessSweepResult>
     );
   }
 
-  return { requeued, flaggedUnknown, reconciliationRedriven, underReviewNotified };
+  return {
+    requeued,
+    flaggedUnknown,
+    reconciliationRedriven,
+    submittedRedriven,
+    underReviewNotified,
+  };
 }
 
 export async function processDispatchLivenessJob(
@@ -163,11 +197,12 @@ export async function processDispatchLivenessJob(
     result.requeued > 0 ||
     result.flaggedUnknown > 0 ||
     result.reconciliationRedriven > 0 ||
+    result.submittedRedriven > 0 ||
     result.underReviewNotified > 0
   ) {
     logger.warn(result, "Dispatch liveness sweep recovered stuck attempts");
     job.log(
-      `Liveness sweep: requeued=${result.requeued} unknown=${result.flaggedUnknown} redriven=${result.reconciliationRedriven} underReview=${result.underReviewNotified}`,
+      `Liveness sweep: requeued=${result.requeued} unknown=${result.flaggedUnknown} redriven=${result.reconciliationRedriven} submittedRedriven=${result.submittedRedriven} underReview=${result.underReviewNotified}`,
     );
   }
 }

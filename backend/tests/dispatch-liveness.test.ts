@@ -3,10 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
   findStuckDispatchAttempts: vi.fn(),
   findUnwatchedUnknownDispatches: vi.fn(),
+  findStuckSubmittedDispatches: vi.fn(),
   updateDraftStatusForDispatchSubmission: vi.fn(),
   transitionDispatchState: vi.fn(),
   requeueDispatchSubmission: vi.fn(),
   enqueueDispatchReconciliation: vi.fn(),
+  requeueDispatchReconciliation: vi.fn(),
   sweepDispatchAttemptsUnderReview: vi.fn(),
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn() },
 }));
@@ -28,6 +30,7 @@ vi.mock("../src/db/index.js", () => ({
 vi.mock("../src/modules/dispatch/dispatch.service.js", () => ({
   findStuckDispatchAttempts: mocks.findStuckDispatchAttempts,
   findUnwatchedUnknownDispatches: mocks.findUnwatchedUnknownDispatches,
+  findStuckSubmittedDispatches: mocks.findStuckSubmittedDispatches,
   transitionDispatchState: mocks.transitionDispatchState,
 }));
 
@@ -38,6 +41,7 @@ vi.mock("../src/workers/dispatch-settlement.js", () => ({
 vi.mock("../src/modules/dispatch/dispatch.jobs.js", () => ({
   requeueDispatchSubmission: mocks.requeueDispatchSubmission,
   enqueueDispatchReconciliation: mocks.enqueueDispatchReconciliation,
+  requeueDispatchReconciliation: mocks.requeueDispatchReconciliation,
 }));
 
 // The under-review dwell sweep has its own integration test against a real
@@ -57,10 +61,12 @@ describe("dispatch liveness sweep", () => {
   beforeEach(() => {
     mocks.findStuckDispatchAttempts.mockReset();
     mocks.findUnwatchedUnknownDispatches.mockReset().mockResolvedValue([]);
+    mocks.findStuckSubmittedDispatches.mockReset().mockResolvedValue([]);
     mocks.updateDraftStatusForDispatchSubmission.mockReset();
     mocks.transitionDispatchState.mockReset();
     mocks.requeueDispatchSubmission.mockReset();
     mocks.enqueueDispatchReconciliation.mockReset();
+    mocks.requeueDispatchReconciliation.mockReset();
     mocks.sweepDispatchAttemptsUnderReview.mockReset().mockResolvedValue(0);
     mocks.logger.warn.mockReset();
     mocks.logger.error.mockReset();
@@ -84,6 +90,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 1,
       flaggedUnknown: 0,
       reconciliationRedriven: 0,
+      submittedRedriven: 0,
       underReviewNotified: 0,
     });
     expect(mocks.requeueDispatchSubmission).toHaveBeenCalledWith({
@@ -112,6 +119,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 0,
       flaggedUnknown: 1,
       reconciliationRedriven: 0,
+      submittedRedriven: 0,
       underReviewNotified: 0,
     });
     // The draft has to follow the attempt, or the user sees a paid letter
@@ -161,6 +169,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 1,
       flaggedUnknown: 0,
       reconciliationRedriven: 0,
+      submittedRedriven: 0,
       underReviewNotified: 0,
     });
     expect(mocks.logger.error).toHaveBeenCalled();
@@ -184,6 +193,7 @@ describe("dispatch liveness sweep", () => {
       requeued: 0,
       flaggedUnknown: 0,
       reconciliationRedriven: 0,
+      submittedRedriven: 0,
       underReviewNotified: 0,
     });
     expect(mocks.requeueDispatchSubmission).not.toHaveBeenCalled();
@@ -213,6 +223,26 @@ describe("dispatch liveness sweep", () => {
     // It must not be resubmitted — that is how a letter gets posted twice.
     expect(mocks.requeueDispatchSubmission).not.toHaveBeenCalled();
     expect(mocks.transitionDispatchState).not.toHaveBeenCalled();
+  });
+
+  it("re-drives reconciliation for a submitted attempt accepted by the provider but not finalized", async () => {
+    mocks.findStuckDispatchAttempts.mockResolvedValue([]);
+    mocks.findStuckSubmittedDispatches.mockResolvedValue([
+      { id: "dispatch-submitted", draftId: "draft-submitted" },
+    ]);
+
+    const { sweepStuckDispatches } =
+      await import("../src/workers/dispatch-liveness.worker.js");
+    const result = await sweepStuckDispatches(db);
+
+    expect(mocks.requeueDispatchReconciliation).toHaveBeenCalledWith({
+      dispatchAttemptId: "dispatch-submitted",
+    });
+    expect(result.submittedRedriven).toBe(1);
+    expect(mocks.logger.warn).toHaveBeenCalledWith(
+      { dispatchId: "dispatch-submitted", draftId: "draft-submitted" },
+      "Submitted dispatch stuck without finalization; reconciliation re-driven",
+    );
   });
 
   it("keeps sweeping when one re-drive fails", async () => {

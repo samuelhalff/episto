@@ -278,6 +278,34 @@ export async function findUnwatchedUnknownDispatches(
   return rows.rows.map((row) => ({ id: row.id, draftId: row.draft_id }));
 }
 
+/**
+ * Submitted attempts that reached the provider but never finalized locally.
+ *
+ * A `submitted` attempt with a provider reference is already past the point of
+ * no return: the provider accepted the letter and reconciliation is the safe
+ * path back to a terminal outcome. If the last provider check is stale, the
+ * liveness sweep re-drives reconciliation rather than leaving the draft stuck.
+ */
+export async function findStuckSubmittedDispatches(
+  db: Db,
+  limit: number,
+): Promise<Array<{ id: string; draftId: string }>> {
+  const rows = await db.execute<{ id: string; draft_id: string }>(sql`
+    SELECT id, draft_id
+    FROM dispatch_attempts
+    WHERE state = 'submitted'
+      AND provider_reference IS NOT NULL
+      AND (
+        last_checked_at IS NULL
+        OR last_checked_at < NOW() - make_interval(mins => ${DISPATCH_CLAIM_TTL_MINUTES})
+      )
+    ORDER BY COALESCE(last_checked_at, updated_at)
+    LIMIT ${limit}
+  `);
+
+  return rows.rows.map((row) => ({ id: row.id, draftId: row.draft_id }));
+}
+
 // ---------------------------------------------------------------------------
 // Get dispatch attempt by ID
 // ---------------------------------------------------------------------------

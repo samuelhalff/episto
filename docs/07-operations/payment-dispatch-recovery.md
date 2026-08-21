@@ -206,6 +206,19 @@ Do not refund immediately only because the case is uncomfortable. Refund when:
 
 ## 5. Refund appears stuck
 
+### Free (zero-amount) orders
+
+Free orders have no Stripe PaymentIntent or charge. Dispatch settlement performs
+no Stripe action for them: accepted dispatches finalize locally, and rejected
+free orders move `captured` to `refunded` as a zero-amount void. This does not
+create a `payment_refunds` ledger row and is not a Stripe refund; admin refund
+views may show a CHF 0 refunded row, which is expected and must not be read as
+money moved.
+
+The liveness sweep also re-drives stale `submitted` dispatch attempts that have
+a provider reference through reconciliation, so a provider-accepted order that
+missed local finalization is picked up automatically.
+
 ### What to check
 
 - was a refund request sent to Stripe?
