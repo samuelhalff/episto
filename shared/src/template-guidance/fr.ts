@@ -118,6 +118,7 @@ export const templateGuidance: Record<string, TemplateGuidanceEntry> = {
     considerations: [
       "Délai : 30 novembre: La résiliation de l’assurance de base doit parvenir à la caisse-maladie au plus tard le 30 novembre. C’est la réception qui fait foi, pas le cachet postal – envoyez donc à temps, idéalement d’ici mi-novembre.",
       "S’inscrire simultanément – ne pas attendre de confirmation: Résiliez dans les délais et inscrivez-vous en même temps auprès de la nouvelle caisse. N’attendez pas de confirmation, sinon vous risquez de manquer le délai. L’ancienne assurance prend fin dès que la couverture sans interruption par la nouvelle assurance de base est notifiée.",
+      "Comparer les primes avant d’écrire: Avant de rédiger la résiliation, comparez les primes de votre canton selon votre franchise et votre modèle d’assurance. Vous savez ainsi vers quelle caisse partir, et l’inscription comme la résiliation peuvent être envoyées le même jour.",
     ],
   },
   "mahnung-schreiben": {

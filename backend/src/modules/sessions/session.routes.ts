@@ -138,7 +138,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
       if (!parsed.success) {
         throw validationError(
           "Invalid session update",
-          parsed.error.errors.map((e) => ({
+          parsed.error.issues.map((e) => ({
             field: e.path.join("."),
             message: e.message,
           })),

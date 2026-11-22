@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ─── Stage 1: deps ────────────────────────────────────────────────────────────
-FROM node:20-alpine AS deps
+FROM node:22-alpine AS deps
 
 # Install Chromium for Puppeteer PDF rendering (MVP Option B — embedded)
 # Keep this stage's apk cache small by removing temp files immediately.
@@ -36,7 +36,7 @@ RUN npm run build --workspace=shared
 RUN npm run build --workspace=backend
 
 # ─── Stage 3: production deps ────────────────────────────────────────────────
-FROM node:20-alpine AS proddeps
+FROM node:22-alpine AS proddeps
 
 WORKDIR /app
 
@@ -48,7 +48,7 @@ COPY backend/package.json ./backend/
 RUN npm ci --workspace=shared --workspace=backend --include-workspace-root --omit=dev
 
 # ─── Stage 4: runner ──────────────────────────────────────────────────────────
-FROM node:20-alpine AS runner
+FROM node:22-alpine AS runner
 
 # Install only the runtime Chromium libraries needed by Puppeteer
 RUN apk add --no-cache \

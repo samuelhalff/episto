@@ -13,6 +13,8 @@ export interface LandingFaq {
 export interface LandingNote {
   title: string;
   body: string;
+  /** Optional outbound reference shown under the note body. */
+  link?: { href: string; label: string };
 }
 
 export interface LandingPage {

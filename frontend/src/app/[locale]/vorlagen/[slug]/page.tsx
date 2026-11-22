@@ -292,6 +292,13 @@ function LandingChecklistAndNotes({ page, ui }: { page: LandingPage; ui: Landing
                 <MarketingBody className="mt-2 max-w-prose text-sm leading-7">
                   {note.body}
                 </MarketingBody>
+                {note.link ? (
+                  <p className="mt-2 text-sm">
+                    <a href={note.link.href} className="underline underline-offset-4">
+                      {note.link.label}
+                    </a>
+                  </p>
+                ) : null}
               </div>
             ))}
           </div>

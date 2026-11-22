@@ -32,8 +32,22 @@ function rewriteMigrationSql(sql: string, schemaName: string): string {
     );
 }
 
+/**
+ * Parallel test files each create their own schema against one database, and
+ * `CREATE EXTENSION IF NOT EXISTS` is not race-safe: two first-time callers can
+ * both pass the existence check and one fails on the catalog's unique index.
+ * Losing that race means the extension now exists, which is all we need.
+ */
+async function ensurePgcrypto(client: pg.Client): Promise<void> {
+  try {
+    await client.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto`);
+  } catch (error) {
+    if ((error as { code?: string }).code !== "23505") throw error;
+  }
+}
+
 async function applyMigrations(client: pg.Client, schemaName: string): Promise<void> {
-  await client.query(`CREATE EXTENSION IF NOT EXISTS pgcrypto`);
+  await ensurePgcrypto(client);
 
   const journal = JSON.parse(await readFile(journalPath, "utf8")) as {
     entries: JournalEntry[];

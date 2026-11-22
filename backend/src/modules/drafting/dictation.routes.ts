@@ -26,7 +26,7 @@ function parseDictationQuery(query: unknown) {
   if (!parsed.success) {
     throw validationError(
       "Invalid dictation request",
-      parsed.error.errors.map((error) => ({
+      parsed.error.issues.map((error) => ({
         field: error.path.join("."),
         message: error.message,
       })),

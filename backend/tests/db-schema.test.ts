@@ -183,7 +183,7 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertDraftLetterSchema accepts valid draft data", () => {
     const result = insertDraftLetterSchema.safeParse({
-      sessionId: "00000000-0000-0000-0000-000000000001",
+      sessionId: "00000000-0000-4000-8000-000000000001",
       locale: "de-CH",
     });
     expect(result.success).toBe(true);
@@ -191,7 +191,7 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertSenderProfileSchema requires firstName, lastName, address", () => {
     const result = insertSenderProfileSchema.safeParse({
-      sessionId: "00000000-0000-0000-0000-000000000001",
+      sessionId: "00000000-0000-4000-8000-000000000001",
       firstName: "Max",
       lastName: "Muster",
       addressLine1: "Musterstrasse 1",
@@ -203,7 +203,7 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertRecipientProfileSchema requires address fields", () => {
     const result = insertRecipientProfileSchema.safeParse({
-      sessionId: "00000000-0000-0000-0000-000000000001",
+      sessionId: "00000000-0000-4000-8000-000000000001",
       addressLine1: "Bahnhofstrasse 10",
       postalCode: "3011",
       city: "Bern",
@@ -213,7 +213,7 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertFileAssetSchema requires kind, storageKey, mimeType, sizeBytes", () => {
     const result = insertFileAssetSchema.safeParse({
-      sessionId: "00000000-0000-0000-0000-000000000001",
+      sessionId: "00000000-0000-4000-8000-000000000001",
       kind: "attachment",
       storageKey: "attachments/session1/file1",
       mimeType: "application/pdf",
@@ -224,7 +224,7 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertDraftSnapshotSchema requires draftId and snapshotData", () => {
     const result = insertDraftSnapshotSchema.safeParse({
-      draftId: "00000000-0000-0000-0000-000000000001",
+      draftId: "00000000-0000-4000-8000-000000000001",
       snapshotData: { schemaVersion: 1, locale: "de-CH" },
     });
     expect(result.success).toBe(true);
@@ -232,7 +232,7 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertConversationMessageSchema requires draftId, role, content", () => {
     const result = insertConversationMessageSchema.safeParse({
-      draftId: "00000000-0000-0000-0000-000000000001",
+      draftId: "00000000-0000-4000-8000-000000000001",
       role: "user",
       content: "Hello",
     });
@@ -241,8 +241,8 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertPaymentAttemptSchema requires draftId, sessionId, amountCents, breakdown", () => {
     const result = insertPaymentAttemptSchema.safeParse({
-      draftId: "00000000-0000-0000-0000-000000000001",
-      sessionId: "00000000-0000-0000-0000-000000000002",
+      draftId: "00000000-0000-4000-8000-000000000001",
+      sessionId: "00000000-0000-4000-8000-000000000002",
       amountCents: 490,
       breakdown: { base: 490, pages: 0, delivery: 0, attachments: 0 },
     });
@@ -251,8 +251,8 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertDispatchAttemptSchema requires draftId, snapshotId, providerName", () => {
     const result = insertDispatchAttemptSchema.safeParse({
-      draftId: "00000000-0000-0000-0000-000000000001",
-      snapshotId: "00000000-0000-0000-0000-000000000003",
+      draftId: "00000000-0000-4000-8000-000000000001",
+      snapshotId: "00000000-0000-4000-8000-000000000003",
       providerName: "swiss-post-direct",
     });
     expect(result.success).toBe(true);
@@ -260,7 +260,7 @@ describe("drizzle-zod insert schemas", () => {
 
   it("insertDispatchStatusEventSchema requires dispatchAttemptId, newState, source", () => {
     const result = insertDispatchStatusEventSchema.safeParse({
-      dispatchAttemptId: "00000000-0000-0000-0000-000000000001",
+      dispatchAttemptId: "00000000-0000-4000-8000-000000000001",
       newState: "submitted",
       source: "system",
     });
