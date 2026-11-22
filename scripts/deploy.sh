@@ -298,14 +298,14 @@ if [[ "$SKIP_RESTART" != "1" ]]; then
     cd '$PROD_PATH'
     echo '→ Loading new images'
     docker load -i '$(basename "$TARBALL")'
-    echo '→ Stopping current stack'
-    EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
-      docker compose --project-name '$PROJECT_NAME' \\
-      --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' down --remove-orphans
+    # No 'compose down': other stacks on this VPS (ga-leads) join the
+    # episto_proxy network, so removing it fails mid-deploy and leaves every
+    # site behind the shared proxy offline. 'up -d' recreates only the
+    # containers whose image or config changed and keeps the networks.
     echo '→ Starting infrastructure services'
     EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
       docker compose --project-name '$PROJECT_NAME' \\
-      --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' up -d postgres redis minio zefix-proxy
+      --env-file '$REMOTE_ENV_PATH' -f '$COMPOSE_FILE' up -d --remove-orphans postgres redis minio zefix-proxy
     echo '→ Ensuring MinIO bucket exists'
     EPISTO_ENV_FILE='$REMOTE_ENV_PATH' \\
       docker compose --project-name '$PROJECT_NAME' \\

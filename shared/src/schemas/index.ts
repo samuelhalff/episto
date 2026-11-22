@@ -165,7 +165,7 @@ export const DraftLetterSchema = z.object({
   signatureAssetId: z.string().uuid().nullable(),
   estimatedPages: z.number().int().nullable(),
   reviewedAt: z.coerce.date().nullable(),
-  metadata: z.record(z.unknown()).nullable(),
+  metadata: z.record(z.string(), z.unknown()).nullable(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
@@ -215,7 +215,7 @@ export const SnapshotDataSchema = z.object({
   attachmentAssetIds: z.array(z.string().uuid()),
   signatureAssetId: z.string().uuid().nullable(),
   estimatedPages: z.number().int().nullable().optional().default(null),
-  metadata: z.record(z.unknown()).nullable(),
+  metadata: z.record(z.string(), z.unknown()).nullable(),
 });
 
 // ---------------------------------------------------------------------------

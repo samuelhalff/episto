@@ -248,6 +248,9 @@ services:
       - ./nginx/render-prod-proxy.sh:/etc/nginx/render-prod-proxy.sh:ro
       - /var/lib/episto-www:/var/www:ro
       - /etc/letsencrypt:/etc/letsencrypt:ro
+      # Extra vhosts for other sites hosted on this VPS (e.g. guide-assurance.ch).
+      # Files live on the host, outside this repo; see nginx/render-prod-proxy.sh.
+      - /etc/episto/proxy-extra:/etc/nginx/extra.d:ro
     environment:
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?NEXT_PUBLIC_SITE_URL is required}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}

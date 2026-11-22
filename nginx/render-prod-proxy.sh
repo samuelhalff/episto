@@ -364,4 +364,10 @@ EOF
   fi
 fi
 
+# Extra vhosts (other sites on this VPS) mounted read-only from /etc/episto/proxy-extra.
+# Appended last so episto's own server blocks stay the default for unmatched hosts.
+if [ -d /etc/nginx/extra.d ]; then
+  echo 'include /etc/nginx/extra.d/*.conf;' >> /etc/nginx/conf.d/default.conf
+fi
+
 exec nginx -g 'daemon off;'

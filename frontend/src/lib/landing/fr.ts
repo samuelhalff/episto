@@ -180,6 +180,14 @@ export const FR_LANDING_PAGES: LandingPage[] = [
         title: "S’inscrire simultanément – ne pas attendre de confirmation",
         body: "Résiliez dans les délais et inscrivez-vous en même temps auprès de la nouvelle caisse. N’attendez pas de confirmation, sinon vous risquez de manquer le délai. L’ancienne assurance prend fin dès que la couverture sans interruption par la nouvelle assurance de base est notifiée.",
       },
+      {
+        title: "Comparer les primes avant d’écrire",
+        body: "Avant de rédiger la résiliation, comparez les primes de votre canton selon votre franchise et votre modèle d’assurance. Vous savez ainsi vers quelle caisse partir, et l’inscription comme la résiliation peuvent être envoyées le même jour.",
+        link: {
+          href: "https://guide-assurance.ch/assurance-maladie/primes/",
+          label: "Comparer les primes d’assurance-maladie sur guide-assurance.ch",
+        },
+      },
     ],
     faqs: [
       {

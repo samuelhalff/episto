@@ -109,9 +109,7 @@ function getStripeAppearance(theme: "light" | "dark") {
 function createCheckoutSchema(consentMessage: string) {
   return z.object({
     email: z.string().email(),
-    legalConsent: z.literal(true, {
-      errorMap: () => ({ message: consentMessage }),
-    }),
+    legalConsent: z.literal(true, { error: consentMessage }),
   });
 }
 

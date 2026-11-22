@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import dotenv from "dotenv";
-import { z } from "zod";
+import type { z } from "zod";
 import { describe, expect, it } from "vitest";
 
 import { EnvSchema } from "../src/shared/config/env.js";
@@ -23,13 +23,9 @@ const example = dotenv.parse(
   fs.readFileSync(path.join(repoRoot, ".env.example"), "utf8"),
 );
 
-/** Peel the `.refine()` wrappers off to reach the field shape underneath. */
+/** Zod 4 keeps `.refine()` on the object itself, so the field shape is direct. */
 function envShape(): z.ZodRawShape {
-  let schema: z.ZodTypeAny = EnvSchema;
-  while (schema instanceof z.ZodEffects) {
-    schema = schema.innerType();
-  }
-  return (schema as z.ZodObject<z.ZodRawShape>).shape;
+  return EnvSchema.shape;
 }
 
 describe(".env.example", () => {

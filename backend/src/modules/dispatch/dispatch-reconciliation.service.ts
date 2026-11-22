@@ -4,11 +4,7 @@ import type { Db } from "../../db/index.js";
 import { schema } from "../../db/index.js";
 import { acquireRedisLock } from "../../shared/redis-lock.js";
 import { getDispatchAdapter } from "./adapters/postal.adapter.js";
-import {
-  getDispatchAttempt,
-  transitionDispatchState,
-  type DispatchAttemptRow,
-} from "./dispatch.service.js";
+import { getDispatchAttempt, transitionDispatchState } from "./dispatch.service.js";
 import { enqueueDispatchAcceptedEmail } from "./dispatch-notifications.js";
 import {
   canFinalizeDispatchResolution,
