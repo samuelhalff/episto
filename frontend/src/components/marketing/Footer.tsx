@@ -7,6 +7,14 @@ import { LanguageSwitcher } from "./LanguageSwitcher";
 import { ThemeToggle } from "./ThemeToggle";
 import { MarketingMeta } from "./typography";
 
+// Credit to the agency that built the site; houle.ai has no Italian version.
+const HOULE_URL: Record<string, string> = {
+  "de-CH": "https://houle.ai/de/",
+  "fr-CH": "https://houle.ai/fr/",
+  "it-CH": "https://houle.ai/en/",
+  "en-CH": "https://houle.ai/en/",
+};
+
 export function Footer() {
   const t = useTranslations("marketing");
   const locale = useLocale();
@@ -79,8 +87,30 @@ export function Footer() {
           </div>
         </div>
 
-        <MarketingMeta className="text-center text-sm md:text-left">
-          {t("footer.copyright")}
+        <MarketingMeta className="flex flex-col items-center gap-2 text-center text-sm md:flex-row md:justify-between md:text-left">
+          <span>{t("footer.copyright")}</span>
+          <a
+            href={HOULE_URL[locale] ?? "https://houle.ai/en/"}
+            className="inline-flex items-center gap-1.5 text-xs transition-colors hover:text-zinc-950 dark:hover:text-white"
+          >
+            <span>{t("footer.madeBy")}</span>
+            <img
+              src="/brand/houle-logo.svg"
+              alt="houle.ai"
+              width={60}
+              height={14}
+              loading="lazy"
+              className="h-3.5 w-auto dark:hidden"
+            />
+            <img
+              src="/brand/houle-logo-dark.svg"
+              alt="houle.ai"
+              width={60}
+              height={14}
+              loading="lazy"
+              className="hidden h-3.5 w-auto dark:block"
+            />
+          </a>
         </MarketingMeta>
       </div>
     </footer>

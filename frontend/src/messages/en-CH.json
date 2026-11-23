@@ -79,7 +79,8 @@
       "terms": "Terms",
       "imprint": "Imprint",
       "help": "Help",
-      "copyright": "© 2025 episto. All rights reserved."
+      "copyright": "© 2025 episto. All rights reserved.",
+      "madeBy": "Site by"
     },
     "appName": "episto",
     "homepage": {
