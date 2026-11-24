@@ -234,6 +234,15 @@ server {
 
   client_max_body_size 50M;
 
+  # Next runs with compress:false, so the proxy compresses. gzip covers clients
+  # without brotli (brotli itself is switched on for all vhosts by
+  # /etc/episto/proxy-extra/00-brotli.conf); text/html is always compressed.
+  gzip on;
+  gzip_vary on;
+  gzip_proxied any;
+  gzip_comp_level 5;
+  gzip_types text/plain text/css text/xml application/javascript text/javascript application/json application/xml image/svg+xml application/manifest+json;
+
   proxy_set_header Host              \$host;
   proxy_set_header X-Real-IP         \$remote_addr;
   proxy_set_header X-Forwarded-For   \$proxy_add_x_forwarded_for;
