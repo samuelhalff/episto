@@ -123,6 +123,9 @@ function createConfig(): NextConfig {
   return {
     reactStrictMode: true,
     output: "standalone",
+    // The production proxy compresses (brotli, with gzip as fallback). Next must
+    // not gzip first: nginx cannot recompress an already-encoded response.
+    compress: false,
     distDir,
     allowedDevOrigins: collectAllowedDevOrigins(),
     experimental: {
