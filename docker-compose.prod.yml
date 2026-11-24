@@ -239,7 +239,11 @@ services:
   proxy:
     security_opt:
       - no-new-privileges:true
-    image: nginx:1.27-alpine
+    # nginx 1.27.5 + module brotli (nginx/Dockerfile.proxy)
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile.proxy
+    image: episto-proxy:1.27.5-brotli
     ports:
       - "5000:5000"
       - "80:80"
