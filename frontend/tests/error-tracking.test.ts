@@ -21,6 +21,7 @@ async function loadErrorTrackingModule(envOverrides?: {
 
   const scope = createScopeMock();
   const sentry = {
+    init: vi.fn(),
     withScope: vi.fn((callback: (scope: ReturnType<typeof createScopeMock>) => void) =>
       callback(scope),
     ),
@@ -84,6 +85,8 @@ describe("frontend error tracking", () => {
       },
     });
 
+    await vi.waitFor(() => expect(sentry.captureException).toHaveBeenCalled());
+    expect(sentry.init).toHaveBeenCalledOnce();
     expect(sentry.withScope).toHaveBeenCalledOnce();
     expect(scope.setTag).toHaveBeenCalledWith("component", "ComposerPanel");
     expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/[token]");
@@ -111,6 +114,7 @@ describe("frontend error tracking", () => {
       extra: { status: 503 },
     });
 
+    await vi.waitFor(() => expect(sentry.captureMessage).toHaveBeenCalled());
     expect(sentry.withScope).toHaveBeenCalledOnce();
     expect(scope.setTag).toHaveBeenCalledWith("component", "apiFetch");
     expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", { status: 503 });
@@ -129,6 +133,7 @@ describe("frontend error tracking", () => {
       },
     });
 
+    await vi.waitFor(() => expect(scope.setContext).toHaveBeenCalled());
     expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/[token]/review");
     expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", {
       path: "/api/v1/drafts/[token]/stream",
@@ -159,6 +164,7 @@ describe("frontend error tracking", () => {
 
     mod.captureException(apiLikeError);
 
+    await vi.waitFor(() => expect(sentry.captureException).toHaveBeenCalled());
     const capturedError = sentry.captureException.mock.calls[0]?.[0] as Record<
       string,
       unknown
