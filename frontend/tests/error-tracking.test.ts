@@ -21,6 +21,7 @@ async function loadErrorTrackingModule(envOverrides?: {
 
   const scope = createScopeMock();
   const sentry = {
+    init: vi.fn(),
     withScope: vi.fn((callback: (scope: ReturnType<typeof createScopeMock>) => void) =>
       callback(scope),
     ),
@@ -84,6 +85,10 @@ describe("frontend error tracking", () => {
       },
     });
 
+    await vi.waitFor(() => expect(sentry.captureException).toHaveBeenCalled(), {
+      timeout: 5000,
+    });
+    expect(sentry.init).toHaveBeenCalledOnce();
     expect(sentry.withScope).toHaveBeenCalledOnce();
     expect(scope.setTag).toHaveBeenCalledWith("component", "ComposerPanel");
     expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/[token]");
@@ -111,6 +116,9 @@ describe("frontend error tracking", () => {
       extra: { status: 503 },
     });
 
+    await vi.waitFor(() => expect(sentry.captureMessage).toHaveBeenCalled(), {
+      timeout: 5000,
+    });
     expect(sentry.withScope).toHaveBeenCalledOnce();
     expect(scope.setTag).toHaveBeenCalledWith("component", "apiFetch");
     expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", { status: 503 });
@@ -129,6 +137,9 @@ describe("frontend error tracking", () => {
       },
     });
 
+    await vi.waitFor(() => expect(scope.setContext).toHaveBeenCalled(), {
+      timeout: 5000,
+    });
     expect(scope.setTag).toHaveBeenCalledWith("route", "/en-CH/draft/[token]/review");
     expect(scope.setContext).toHaveBeenCalledWith("safe_metadata", {
       path: "/api/v1/drafts/[token]/stream",
@@ -146,6 +157,11 @@ describe("frontend error tracking", () => {
 
     expect(() => mod.captureException(new Error("boom"))).not.toThrow();
     expect(() => mod.captureMessage("warn", "warning")).not.toThrow();
+
+    // Let the lazy SDK load settle so nothing leaks into the next test.
+    await vi.waitFor(() => expect(sentry.withScope).toHaveBeenCalledTimes(2), {
+      timeout: 5000,
+    });
   });
 
   it("strips custom error fields before passing exceptions to Sentry", async () => {
@@ -159,6 +175,9 @@ describe("frontend error tracking", () => {
 
     mod.captureException(apiLikeError);
 
+    await vi.waitFor(() => expect(sentry.captureException).toHaveBeenCalled(), {
+      timeout: 5000,
+    });
     const capturedError = sentry.captureException.mock.calls[0]?.[0] as Record<
       string,
       unknown

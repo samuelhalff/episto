@@ -96,9 +96,17 @@ describe("frontend sentry bootstrap", () => {
     expect(sentry.init).not.toHaveBeenCalled();
   });
 
-  it("initializes the browser SDK when NEXT_PUBLIC_SENTRY_DSN is present", async () => {
+  it("initializes the browser SDK lazily when NEXT_PUBLIC_SENTRY_DSN is present", async () => {
     const dsn = "https://public@example.ingest.sentry.io/123";
     const { mod, sentry } = await loadClientBootstrap(dsn);
+
+    // Nothing is loaded at module evaluation: the SDK stays off the critical path.
+    expect(sentry.init).not.toHaveBeenCalled();
+
+    mod.onRouterTransitionStart("/en-CH/pricing", "push");
+    await vi.waitFor(() =>
+      expect(sentry.captureRouterTransitionStart).toHaveBeenCalled(),
+    );
 
     expect(sentry.init).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -107,7 +115,10 @@ describe("frontend sentry bootstrap", () => {
         sendDefaultPii: false,
       }),
     );
-    expect(mod.onRouterTransitionStart).toBe(sentry.captureRouterTransitionStart);
+    expect(sentry.captureRouterTransitionStart).toHaveBeenCalledWith(
+      "/en-CH/pricing",
+      "push",
+    );
   });
 
   it("initializes the server SDK from the server DSN when present", async () => {

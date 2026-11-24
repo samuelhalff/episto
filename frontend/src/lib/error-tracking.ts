@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/nextjs";
+import { loadSentry, type SentryModule } from "./sentry-client";
 import {
   hasFrontendSentryDsn,
   sanitizeObservabilityMetadata,
@@ -25,12 +25,26 @@ function createSafeError(error: Error): Error {
 
 function withErrorTrackingScope(
   context: FrontendErrorContext | undefined,
-  callback: () => void,
+  callback: (Sentry: SentryModule) => void,
 ): void {
   if (!hasFrontendSentryDsn()) {
     return;
   }
 
+  void loadSentry()
+    .then((Sentry) => {
+      if (Sentry) withScopeLoaded(Sentry, context, callback);
+    })
+    .catch(() => {
+      // Error tracking must never break the UI.
+    });
+}
+
+function withScopeLoaded(
+  Sentry: SentryModule,
+  context: FrontendErrorContext | undefined,
+  callback: (Sentry: SentryModule) => void,
+): void {
   Sentry.withScope((scope) => {
     if (context?.component) {
       scope.setTag("component", context.component);
@@ -45,13 +59,13 @@ function withErrorTrackingScope(
       scope.setContext("safe_metadata", sanitizeObservabilityMetadata(context.extra));
     }
 
-    callback();
+    callback(Sentry);
   });
 }
 
 export function captureException(error: Error, context?: FrontendErrorContext): void {
   try {
-    withErrorTrackingScope(context, () => {
+    withErrorTrackingScope(context, (Sentry) => {
       Sentry.captureException(createSafeError(error));
     });
   } catch {
@@ -65,7 +79,7 @@ export function captureMessage(
   context?: FrontendErrorContext,
 ): void {
   try {
-    withErrorTrackingScope(context, () => {
+    withErrorTrackingScope(context, (Sentry) => {
       Sentry.captureMessage(message, level);
     });
   } catch {
