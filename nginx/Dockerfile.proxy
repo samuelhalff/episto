@@ -1,0 +1,17 @@
+# Proxy de production : nginx officiel + module brotli (google/ngx_brotli) compilé pour la même version.
+# Le module n'est chargé que si un vhost l'utilise (brotli on;) : sans directive brotli, comportement identique.
+ARG NGINX_VERSION=1.27.5
+FROM nginx:${NGINX_VERSION}-alpine AS build
+ARG NGINX_VERSION
+RUN apk add --no-cache git gcc make libc-dev pcre2-dev zlib-dev openssl-dev brotli-dev linux-headers \
+ && wget -qO- https://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz | tar xz -C /tmp \
+ && git clone --depth 1 --recurse-submodules https://github.com/google/ngx_brotli /tmp/ngx_brotli \
+ && cd /tmp/nginx-${NGINX_VERSION} \
+ && ./configure --with-compat --add-dynamic-module=/tmp/ngx_brotli \
+ && make modules
+
+FROM nginx:${NGINX_VERSION}-alpine
+ARG NGINX_VERSION
+RUN apk add --no-cache brotli-libs
+COPY --from=build /tmp/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_filter_module.so /tmp/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_static_module.so /etc/nginx/modules/
+RUN sed -i '1i load_module modules/ngx_http_brotli_filter_module.so;\nload_module modules/ngx_http_brotli_static_module.so;' /etc/nginx/nginx.conf
